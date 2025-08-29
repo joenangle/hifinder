@@ -1,16 +1,29 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Component } from '@/types'
 
-export default function RecommendationsPage() {
+function RecommendationsContent() {
   const [components, setComponents] = useState<Component[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const budget = parseInt(searchParams.get('budget') || '300')
+
+  // ... rest of your existing component code ...
+  // (all the useEffect, rendering, etc stays the same)
+}
+
+export default function RecommendationsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>}>
+      <RecommendationsContent />
+    </Suspense>
+  )
+}
 
   useEffect(() => {
     const fetchRecommendations = async () => {
