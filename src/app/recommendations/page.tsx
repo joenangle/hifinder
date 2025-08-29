@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 export default function RecommendationsPage() {
-  const [components, setComponents] = useState<Record<string, any>[]>([])
+  const [components, setComponents] = useState<Component[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const budget = parseInt(searchParams.get('budget') || '300')
