@@ -43,10 +43,10 @@ const handleNext = () => {
         <div className="bg-gray-800 rounded-lg p-8">
           {step === 1 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What's your budget?</h2>
+              <h2 className="text-2xl font-bold mb-4">What is your budget?</h2>
               <input 
                 type="range" 
-                min="100" 
+                min="100"
                 max="1000" 
                 value={preferences.budget}
                 onChange={(e) => setPreferences({...preferences, budget: parseInt(e.target.value)})}

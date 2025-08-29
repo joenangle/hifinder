@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function TestPage() {
-  const [components, setComponents] = useState<any[]>([])
+  const [components, setComponents] = useState<Record<string, any>[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
