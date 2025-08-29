@@ -13,18 +13,6 @@ function RecommendationsContent() {
   const searchParams = useSearchParams()
   const budget = parseInt(searchParams.get('budget') || '300')
 
-  // ... rest of your existing component code ...
-  // (all the useEffect, rendering, etc stays the same)
-}
-
-export default function RecommendationsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>}>
-      <RecommendationsContent />
-    </Suspense>
-  )
-}
-
   useEffect(() => {
     const fetchRecommendations = async () => {
       const tier = budget < 300 ? 'entry' : budget < 600 ? 'mid' : 'high'
@@ -93,4 +81,13 @@ export default function RecommendationsPage() {
       </div>
     </div>
   )
+}
+
+export default function RecommendationsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>}>
+      <RecommendationsContent />
+    </Suspense>
+  )
+}
 }
