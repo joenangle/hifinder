@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { Component } from '@/types'
 
 export default function RecommendationsPage() {
   const [components, setComponents] = useState<Component[]>([])
