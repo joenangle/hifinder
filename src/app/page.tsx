@@ -8,12 +8,20 @@ export default function Home() {
         <p className="text-xl mb-8 text-gray-300">
           Find your perfect headphone setup in minutes
         </p>
-        <Link 
-          href="/onboarding"
-          className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-lg font-medium inline-block"
-        >
-          Get Started →
-        </Link>
+        <div className="flex gap-4">
+          <Link 
+            href="/onboarding"
+            className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-lg font-medium inline-block"
+          >
+            Get Started →
+          </Link>
+          <Link 
+            href="/learn"
+            className="bg-gray-700 hover:bg-gray-600 px-8 py-4 rounded-lg text-lg font-medium inline-block"
+          >
+            📚 Learn Audio
+          </Link>
+        </div>
       </div>
     </main>
   )
