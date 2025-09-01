@@ -8,28 +8,47 @@ import Link from 'next/link'
 import { Component } from '@/types'
 
 function RecommendationsContent() {
-  const [components, setComponents] = useState<Component[]>([])
-  const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const budget = parseInt(searchParams.get('budget') || '300')
+  const usage = searchParams.get('usage') || 'music'
+  const soundSignature = searchParams.get('sound') || 'neutral'
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       const tier = budget < 300 ? 'entry' : budget < 600 ? 'mid' : 'high'
       
-      const { data, error } = await supabase
+      // Get headphones that match preferences
+      const { data: headphones } = await supabase
         .from('components')
         .select('*')
+        .eq('category', 'headphones')
         .eq('budget_tier', tier)
+        .eq('sound_signature', soundSignature)
+        .contains('use_cases', [usage])
+        .limit(2)
       
-      if (!error && data) {
-        setComponents(data)
+      // Get appropriate amp if needed
+      const needsAmp = headphones?.some(h => h.needs_amp)
+      let amp = null
+      
+      if (needsAmp) {
+        const { data: amps } = await supabase
+          .from('components')
+          .select('*')
+          .eq('category', 'dac_amp')
+          .eq('budget_tier', tier)
+          .limit(1)
+        
+        amp = amps?.[0]
       }
+      
+      const allComponents = [...(headphones || []), ...(amp ? [amp] : [])]
+      setComponents(allComponents)
       setLoading(false)
     }
 
     fetchRecommendations()
-  }, [budget])
+  }, [budget, usage, soundSignature])
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 
@@ -52,6 +71,15 @@ function RecommendationsContent() {
                 <div className="text-right">
                   <p className="text-lg font-bold">${component.price_used_min}</p>
                   <p className="text-sm text-gray-400">Used price</p>
+                  <p className="text-gray-400">{component.brand}</p>
+                </div>
+                <div className="flex gap-2 mt-2">
+                <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">
+                    {component.sound_signature} sound
+                </span>
+                <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
+                    {component.budget_tier} tier
+                </span>
                 </div>
               </div>
               <p className="text-gray-300 mt-3">{component.why_recommended}</p>
