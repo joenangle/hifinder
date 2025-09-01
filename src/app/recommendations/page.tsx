@@ -11,8 +11,6 @@ function RecommendationsContent() {
   // Separate state for headphones and amps
   const [headphones, setHeadphones] = useState<Component[]>([])
   const [amps, setAmps] = useState<Component[]>([])
-  const [selectedHeadphone, setSelectedHeadphone] = useState<string | null>(null)
-  const [selectedAmp, setSelectedAmp] = useState<string | null>(null)
   const [showAmps, setShowAmps] = useState(false)
   const [loading, setLoading] = useState(true)
   
@@ -58,18 +56,10 @@ useEffect(() => {
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 
-    // Calculate price based on selected items only
-    const getSelectedHeadphonePrice = () => {
-    const selected = headphones.find(h => h.id === selectedHeadphone)
-    return selected?.price_used_min || 0
-    }
-
-    const getSelectedAmpPrice = () => {
-    const selected = amps.find(a => a.id === selectedAmp)
-    return selected?.price_used_min || 0
-    }
-
-    const totalPrice = getSelectedHeadphonePrice() + getSelectedAmpPrice()
+    // Calculate total price of recommended items
+    const headphonePrice = headphones[0]?.price_used_min || 0
+    const ampPrice = showAmps ? (amps[0]?.price_used_min || 0) : 0
+    const totalPrice = headphonePrice + ampPrice
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -77,9 +67,8 @@ useEffect(() => {
         <h1 className="text-3xl font-bold mb-2">Your Recommendations</h1>
         <p className="text-gray-400 mb-8">Based on your ${budget} budget</p>
 
-        // ...existing code...
         <div className="space-y-4 mb-8">
-        <h2 className="text-2xl font-bold mb-2">Headphones</h2>
+          <h2 className="text-2xl font-bold mb-2">Headphones</h2>
         {headphones.map((component) => (
             <div key={component.id} className="bg-gray-800 rounded-lg p-6">
             <div className="flex justify-between items-start mb-2">
@@ -136,10 +125,9 @@ useEffect(() => {
             </>
         )}
         </div>
-        // ...existing code...
 
-        // Show total only if items are selected.     
-        {(selectedHeadphone || selectedAmp) && (
+        {/* Show total for recommended items */}     
+        {(headphones.length > 0 || amps.length > 0) && (
         <div className="bg-blue-900/30 border border-blue-500 rounded-lg p-4 mb-8">
             <div className="flex justify-between text-lg">
             <span>Total (used prices):</span>
