@@ -6,19 +6,25 @@ import { useRouter } from 'next/navigation'
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [preferences, setPreferences] = useState({
+    experience: '',
     budget: 300,
     usage: '',
-    soundSignature: '',
-    experience: ''
+    soundSignature: ''
   })
   const router = useRouter()
 
 const handleNext = () => {
-  if (step < 4) {
+  if (step < 5) {
     setStep(step + 1)
   } else {
-    // Navigate to recommendations with budget
-    router.push(`/recommendations?budget=${preferences.budget}`)
+    // Navigate to recommendations with all preferences
+    const params = new URLSearchParams({
+      experience: preferences.experience,
+      budget: preferences.budget.toString(),
+      usage: preferences.usage,
+      sound: preferences.soundSignature
+    })
+    router.push(`/recommendations?${params.toString()}`)
   }
 }
 
@@ -28,13 +34,13 @@ const handleNext = () => {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-2">
-            <span>Step {step} of 4</span>
-            <span>{step * 25}% Complete</span>
+            <span>Step {step} of 5</span>
+            <span>{step * 20}% Complete</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${step * 25}%` }}
+              style={{ width: `${step * 20}%` }}
             />
           </div>
         </div>
@@ -42,6 +48,52 @@ const handleNext = () => {
         {/* Step Content */}
         <div className="bg-gray-800 rounded-lg p-8">
           {step === 1 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">What&apos;s your audio experience?</h2>
+              <p className="text-gray-400 mb-6">This helps us recommend the right gear and explain things at your level</p>
+              <div className="space-y-4">
+                {[
+                  {
+                    id: 'beginner',
+                    title: '🌱 New to Audio',
+                    description: 'I want to understand the basics',
+                    examples: 'Currently using phone earbuds, confused by terminology'
+                  },
+                  {
+                    id: 'intermediate',
+                    title: '🎧 Some Experience', 
+                    description: 'I know the basics, ready to upgrade',
+                    examples: 'Owned a few headphones, understand impedance basics'
+                  },
+                  {
+                    id: 'enthusiast',
+                    title: '🔬 Audio Enthusiast',
+                    description: 'I want detailed specs and options',
+                    examples: 'Multiple headphones owned, understand measurements'
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.id}
+                    onClick={() => setPreferences({...preferences, experience: option.id})}
+                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                      preferences.experience === option.id 
+                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
+                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-lg">{option.title}</h3>
+                      {preferences.experience === option.id && <span className="text-blue-300">✓</span>}
+                    </div>
+                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-sm text-gray-500 italic">{option.examples}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {step === 2 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What is your budget?</h2>
               <input 
@@ -56,7 +108,7 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 2 && (
+          {step === 3 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">How will you use them?</h2>
               <div className="space-y-2">
@@ -77,7 +129,7 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 3 && (
+          {step === 4 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Sound preference?</h2>
               <p className="text-gray-400 mb-6">Choose the sound signature that appeals to you most</p>
@@ -121,10 +173,23 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 4 && (
+          {step === 5 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">Your experience level?</h2>
-              <p className="text-gray-400 mb-4">Step 4 content coming soon...</p>
+              <h2 className="text-2xl font-bold mb-4">Ready for recommendations!</h2>
+              <div className="space-y-4">
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <h3 className="font-semibold mb-2">Your Preferences:</h3>
+                  <div className="text-sm space-y-1 text-gray-300">
+                    <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
+                    <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
+                    <p><span className="font-medium">Usage:</span> {preferences.usage}</p>
+                    <p><span className="font-medium">Sound:</span> {preferences.soundSignature}</p>
+                  </div>
+                </div>
+                <p className="text-gray-400">
+                  We&apos;ll recommend gear that matches your experience level and show you exactly what you need to get started.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -147,7 +212,7 @@ const handleNext = () => {
             onClick={handleNext}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded"
           >
-            {step === 4 ? 'See Recommendations' : 'Next'}
+            {step === 5 ? 'See Recommendations' : 'Next'}
           </button>
         </div>
       </div>

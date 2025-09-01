@@ -17,6 +17,7 @@ function RecommendationsContent() {
   const [loading, setLoading] = useState(true)
   
   const searchParams = useSearchParams()
+  const experience = searchParams.get('experience') || 'intermediate'
   const budget = parseInt(searchParams.get('budget') || '300')
   const usage = searchParams.get('usage') || 'music'
   const soundSignature = searchParams.get('sound') || 'neutral'
@@ -25,13 +26,16 @@ function RecommendationsContent() {
     const fetchRecommendations = async () => {
       const tier = budget <= 300 ? 'entry' : budget <= 600 ? 'mid' : 'high'
       
+      // Limit options based on experience level
+      const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
+      
       // Get matching headphones first
       const { data: headphones, error: headphonesError } = await supabase
         .from('components')
         .select('*')
         .eq('category', 'headphones')
         .eq('budget_tier', tier)
-        .limit(3)  // Show top 3 headphone options
+        .limit(maxOptions)
       
       if (headphonesError) {
         console.error('Headphones query error:', headphonesError)
@@ -62,7 +66,7 @@ function RecommendationsContent() {
     }
 
     fetchRecommendations()
-  }, [budget, usage, soundSignature])
+  }, [budget, usage, soundSignature, experience])
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 
@@ -92,6 +96,31 @@ function RecommendationsContent() {
   const totalPrice = selectedHeadphoneItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0) +
                     selectedAmpItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0)
   
+  // Experience-based content adaptation
+  const getDescription = (component: Component) => {
+    if (experience === 'beginner') {
+      // Simplify technical jargon
+      return component.why_recommended?.replace(/impedance|ohm/gi, 'power requirement')
+        .replace(/frequency response/gi, 'sound quality')
+        .replace(/THD\+N/gi, 'distortion') || component.why_recommended
+    } else if (experience === 'enthusiast') {
+      // Add more technical details if available
+      return component.why_recommended
+    }
+    return component.why_recommended
+  }
+
+  const shouldShowTechnicalSpecs = () => experience !== 'beginner'
+
+  const getExperienceBasedTitle = () => {
+    switch (experience) {
+      case 'beginner': return 'Perfect starter gear for you'
+      case 'intermediate': return 'Great upgrade options'
+      case 'enthusiast': return 'Audiophile recommendations'
+      default: return 'Your Recommendations'
+    }
+  }
+
   // Budget visualization
   const budgetDiff = budget - totalPrice
   const getBudgetGradient = () => {
@@ -110,8 +139,16 @@ function RecommendationsContent() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Your Recommendations</h1>
-        <p className="text-gray-400 mb-8">Based on your ${budget} budget</p>
+        <h1 className="text-3xl font-bold mb-2">{getExperienceBasedTitle()}</h1>
+        <p className="text-gray-400 mb-2">Based on your ${budget} budget</p>
+        {experience === 'beginner' && (
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+            <p className="text-blue-200 text-sm">
+              💡 <strong>New to audio?</strong> We&apos;ve selected simple, great-sounding options and explained everything in plain language. 
+              <span className="block mt-2">Need help? Check out our <a href="/learn" className="text-blue-400 hover:text-blue-300">Learning section</a> for basics.</span>
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4 mb-8">
           <h2 className="text-2xl font-bold mb-2">Headphones</h2>
@@ -152,9 +189,17 @@ function RecommendationsContent() {
                     <p className="text-sm text-gray-400">Used price</p>
                   </div>
                 </div>
-                <p className="text-gray-300 mt-3 ml-8">{component.why_recommended}</p>
+                <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
+                {shouldShowTechnicalSpecs() && component.impedance && (
+                  <div className="ml-8 mt-2 text-sm text-gray-500">
+                    <span>Impedance: {component.impedance}Ω</span>
+                    {component.needs_amp && <span className="ml-4">Amplifier recommended</span>}
+                  </div>
+                )}
                 {component.needs_amp && (
-                  <p className="text-yellow-400 text-sm mt-2 ml-8">⚡ Requires amplifier</p>
+                  <p className="text-yellow-400 text-sm mt-2 ml-8">
+                    {experience === 'beginner' ? '⚡ Needs extra power (amplifier)' : '⚡ Requires amplifier'}
+                  </p>
                 )}
               </div>
             )
@@ -200,7 +245,7 @@ function RecommendationsContent() {
                       <p className="text-sm text-gray-400">Used price</p>
                     </div>
                   </div>
-                  <p className="text-gray-300 mt-3 ml-8">{component.why_recommended}</p>
+                  <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
                 </div>
               )
             })}
