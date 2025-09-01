@@ -80,7 +80,44 @@ const handleNext = () => {
           {step === 3 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Sound preference?</h2>
-              <p className="text-gray-400 mb-4">Step 3 content coming soon...</p>
+              <p className="text-gray-400 mb-6">Choose the sound signature that appeals to you most</p>
+              <div className="space-y-3">
+                {[
+                  { 
+                    value: 'neutral', 
+                    label: 'Neutral/Balanced', 
+                    description: 'Accurate, well-balanced sound across all frequencies' 
+                  },
+                  { 
+                    value: 'warm', 
+                    label: 'Warm/Bass-heavy', 
+                    description: 'Emphasized bass and lower mids for impactful sound' 
+                  },
+                  { 
+                    value: 'bright', 
+                    label: 'Bright/Detailed', 
+                    description: 'Enhanced treble and clarity for analytical listening' 
+                  },
+                  { 
+                    value: 'fun', 
+                    label: 'V-shaped/Fun', 
+                    description: 'Boosted bass and treble for exciting, energetic sound' 
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.value}
+                    onClick={() => setPreferences({...preferences, soundSignature: option.value})}
+                    className={`w-full p-4 rounded text-left ${
+                      preferences.soundSignature === option.value 
+                        ? 'bg-blue-600 border-2 border-blue-400' 
+                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                    }`}
+                  >
+                    <div className="font-semibold">{option.label}</div>
+                    <div className="text-sm text-gray-300 mt-1">{option.description}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           
