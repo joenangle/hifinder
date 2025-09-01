@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
@@ -11,9 +12,70 @@ export default function OnboardingPage() {
     usage: '',
     soundSignature: ''
   })
+  const [budgetInputValue, setBudgetInputValue] = useState('300')
+  const [budgetError, setBudgetError] = useState('')
   const router = useRouter()
 
+const handleBudgetSliderChange = (value: number) => {
+  setPreferences({...preferences, budget: value})
+  setBudgetInputValue(value.toString())
+  setBudgetError('')
+}
+
+const handleBudgetInputFocus = () => {
+  setBudgetInputValue('')
+}
+
+const handleBudgetInputBlur = () => {
+  if (budgetInputValue === '') {
+    setBudgetInputValue(preferences.budget.toString())
+  }
+}
+
+const handleBudgetInputChange = (value: string) => {
+  setBudgetInputValue(value)
+  
+  if (value === '') {
+    setBudgetError('')
+    return
+  }
+  
+  const numValue = parseInt(value)
+  
+  if (isNaN(numValue)) {
+    setBudgetError('Please enter a valid number')
+    return
+  }
+  
+  if (numValue < 100) {
+    setBudgetError('Minimum budget is $100')
+    return
+  }
+  
+  if (numValue > 1500) {
+    setBudgetError('Maximum budget is $1500')
+    return
+  }
+  
+  // Valid value
+  setBudgetError('')
+  setPreferences({...preferences, budget: numValue})
+}
+
+const isStepValid = () => {
+  switch (step) {
+    case 1: return !!preferences.experience
+    case 2: return true // Budget always has default value
+    case 3: return !!preferences.usage
+    case 4: return !!preferences.soundSignature
+    case 5: return true // Summary step
+    default: return false
+  }
+}
+
 const handleNext = () => {
+  if (!isStepValid()) return
+  
   if (step < 5) {
     setStep(step + 1)
   } else {
@@ -31,6 +93,13 @@ const handleNext = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-2xl mx-auto">
+        {/* Header with Home Link */}
+        <div className="mb-6">
+          <Link href="/" className="text-gray-400 hover:text-white inline-flex items-center gap-2 text-sm">
+            ← Back to Home
+          </Link>
+        </div>
+        
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-2">
@@ -96,15 +165,60 @@ const handleNext = () => {
           {step === 2 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What is your budget?</h2>
-              <input 
-                type="range" 
-                min="100"
-                max="1000" 
-                value={preferences.budget}
-                onChange={(e) => setPreferences({...preferences, budget: parseInt(e.target.value)})}
-                className="w-full"
-              />
-              <p className="text-center text-3xl mt-4">${preferences.budget}</p>
+              <p className="text-gray-400 mb-6">Set your total budget for headphones and any needed amplification</p>
+              
+              {/* Range Slider */}
+              <div className="mb-6">
+                <input 
+                  type="range" 
+                  min="100"
+                  max="1500" 
+                  value={preferences.budget}
+                  onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-gray-500 mt-2">
+                  <span>$100</span>
+                  <span>$1500</span>
+                </div>
+              </div>
+              
+              {/* Text Input */}
+              <div className="flex flex-col items-center">
+                <div className="flex items-center justify-center gap-4 mb-2">
+                  <label className="text-lg">$</label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    min="100"
+                    max="1500"
+                    value={budgetInputValue}
+                    onFocus={handleBudgetInputFocus}
+                    onBlur={handleBudgetInputBlur}
+                    onChange={(e) => handleBudgetInputChange(e.target.value)}
+                    className={`bg-gray-700 border rounded-lg px-4 py-3 text-2xl text-center w-32 focus:outline-none ${
+                      budgetError 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : 'border-gray-600 focus:border-blue-500'
+                    }`}
+                    placeholder="300"
+                  />
+                </div>
+                
+                {/* Error tooltip */}
+                {budgetError && (
+                  <div className="bg-red-900/50 border border-red-500/50 text-red-300 text-sm px-3 py-2 rounded-lg">
+                    {budgetError}
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-center mt-4">
+                <div className="text-sm text-gray-500">
+                  Use the slider or click to type an amount
+                </div>
+              </div>
             </div>
           )}
           
@@ -210,9 +324,17 @@ const handleNext = () => {
           
           <button 
             onClick={handleNext}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded"
+            disabled={!isStepValid()}
+            className={`px-6 py-3 rounded font-medium transition-all ${
+              isStepValid()
+                ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                : 'bg-gray-600 opacity-50 cursor-not-allowed'
+            }`}
           >
-            {step === 5 ? 'See Recommendations' : 'Next'}
+            {!isStepValid() && step === 1 ? 'Select Experience Level' :
+             !isStepValid() && step === 3 ? 'Select Usage' :
+             !isStepValid() && step === 4 ? 'Select Sound Preference' :
+             step === 5 ? 'See Recommendations' : 'Next'}
           </button>
         </div>
       </div>

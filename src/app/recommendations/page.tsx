@@ -8,12 +8,16 @@ import Link from 'next/link'
 import { Component } from '@/types'
 
 function RecommendationsContent() {
-  // Separate state for headphones and amps
+  // Separate state for headphones, DACs, amps, and combo units
   const [headphones, setHeadphones] = useState<Component[]>([])
+  const [dacs, setDacs] = useState<Component[]>([])
   const [amps, setAmps] = useState<Component[]>([])
+  const [dacAmps, setDacAmps] = useState<Component[]>([])
   const [selectedHeadphones, setSelectedHeadphones] = useState<string[]>([])
+  const [selectedDacs, setSelectedDacs] = useState<string[]>([])
   const [selectedAmps, setSelectedAmps] = useState<string[]>([])
-  const [showAmps, setShowAmps] = useState(false)
+  const [selectedDacAmps, setSelectedDacAmps] = useState<string[]>([])
+  const [showAmplification, setShowAmplification] = useState(false)
   const [loading, setLoading] = useState(true)
   
   const searchParams = useSearchParams()
@@ -24,7 +28,7 @@ function RecommendationsContent() {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      const tier = budget <= 300 ? 'entry' : budget <= 600 ? 'mid' : 'high'
+      const tier = budget <= 400 ? 'entry' : budget <= 800 ? 'mid' : 'high'
       
       // Limit options based on experience level
       const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
@@ -41,27 +45,97 @@ function RecommendationsContent() {
         console.error('Headphones query error:', headphonesError)
       }
       
-      // Check if any selected headphones need an amp
-      const needsAmp = headphones?.some(h => h.needs_amp)
+      // Check if any headphones need amplification OR if we're in high budget territory
+      const needsAmplification = headphones?.some(h => h.needs_amp) || budget > 600
       
-      // Get DAC/Amps separately
-      const { data: amps, error: ampsError } = await supabase
+      // Get amplification components separately - show more options for higher budgets
+      const ampLimit = budget > 800 ? 3 : 2
+      
+      // Debug: Check what categories exist in database
+      const { data: allCategories } = await supabase
         .from('components')
-        .select('*')
-        .eq('category', 'dac_amp')
-        .eq('budget_tier', tier)
-        .limit(2)  // Show 2 amp options
+        .select('category')
+        .not('category', 'is', null)
+      
+      const uniqueCategories = [...new Set(allCategories?.map(c => c.category) || [])]
+      console.log('Available categories in database:', uniqueCategories)
+      
+      // Fetch separate DACs, amps, and combo units based on budget and strategy
+      let finalDacs: Component[] = []
+      let finalAmps: Component[] = []
+      let finalDacAmps: Component[] = []
+      
+      if (needsAmplification) {
+        // Strategy: For high budgets or enthusiasts, offer separate components
+        // For lower budgets or beginners, offer combo units
+        const preferSeparates = (budget > 800 && experience === 'enthusiast') || budget > 1000
         
-      if (ampsError) {
-        console.error('Amps query error:', ampsError)
+        if (preferSeparates) {
+          // Try to get separate DACs and amps
+          console.log('Fetching separate DACs and amps for budget:', budget, 'tier:', tier)
+          
+          const [{ data: dacs }, { data: amps }] = await Promise.all([
+            supabase
+              .from('components')
+              .select('*')
+              .eq('category', 'dac')
+              .eq('budget_tier', tier)
+              .limit(2),
+            supabase
+              .from('components')
+              .select('*')
+              .eq('category', 'amp')
+              .eq('budget_tier', tier)
+              .limit(2)
+          ])
+          
+          finalDacs = dacs || []
+          finalAmps = amps || []
+        }
+        
+        // Always get combo units as fallback or primary option
+        console.log('Fetching combo DAC/Amps for tier:', tier)
+        const { data: dacAmps, error: dacAmpsError } = await supabase
+          .from('components')
+          .select('*')
+          .eq('category', 'dac_amp')
+          .eq('budget_tier', tier)
+          .limit(ampLimit)
+        
+        finalDacAmps = dacAmps || []
+        
+        // Fallback to mid-tier if no high-tier components found
+        if (tier === 'high' && finalDacs.length === 0 && finalAmps.length === 0 && finalDacAmps.length === 0) {
+          console.log('No high-tier amplification found, trying mid-tier fallback')
+          
+          const [{ data: midDacs }, { data: midAmps }, { data: midDacAmps }] = await Promise.all([
+            supabase.from('components').select('*').eq('category', 'dac').eq('budget_tier', 'mid').limit(2),
+            supabase.from('components').select('*').eq('category', 'amp').eq('budget_tier', 'mid').limit(2),
+            supabase.from('components').select('*').eq('category', 'dac_amp').eq('budget_tier', 'mid').limit(ampLimit)
+          ])
+          
+          finalDacs = midDacs || []
+          finalAmps = midAmps || []
+          finalDacAmps = midDacAmps || []
+          console.log('Fallback results - DACs:', finalDacs.length, 'Amps:', finalAmps.length, 'Combos:', finalDacAmps.length)
+        }
+        
+        if (dacAmpsError) {
+          console.error('DAC/Amp query error:', dacAmpsError)
+        }
       }
       
       // Store them separately, not mixed together
+      console.log('Budget:', budget, 'Tier:', tier)
       console.log('Fetched headphones:', headphones)
-      console.log('Fetched amps:', amps)
+      console.log('Final DACs:', finalDacs.length, 'Final amps:', finalAmps.length, 'Final combo units:', finalDacAmps.length)
+      console.log('needsAmplification calculation:', headphones?.some(h => h.needs_amp), '|| budget > 600:', budget > 600, '= ', needsAmplification)
+      
       setHeadphones(headphones || [])
-      setAmps(amps || [])
-      setShowAmps(needsAmp || false)
+      setDacs(finalDacs)
+      setAmps(finalAmps)
+      setDacAmps(finalDacAmps)
+      setShowAmplification(needsAmplification || false)
       setLoading(false)
     }
 
@@ -82,6 +156,14 @@ function RecommendationsContent() {
     })
   }
 
+  const toggleDacSelection = (id: string) => {
+    setSelectedDacs(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    )
+  }
+
   const toggleAmpSelection = (id: string) => {
     setSelectedAmps(prev => 
       prev.includes(id) 
@@ -90,11 +172,24 @@ function RecommendationsContent() {
     )
   }
 
+  const toggleDacAmpSelection = (id: string) => {
+    setSelectedDacAmps(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    )
+  }
+
   // Calculate total price of selected items
   const selectedHeadphoneItems = headphones.filter(h => selectedHeadphones.includes(h.id))
+  const selectedDacItems = dacs.filter(d => selectedDacs.includes(d.id))
   const selectedAmpItems = amps.filter(a => selectedAmps.includes(a.id))
+  const selectedDacAmpItems = dacAmps.filter(da => selectedDacAmps.includes(da.id))
+  
   const totalPrice = selectedHeadphoneItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0) +
-                    selectedAmpItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0)
+                    selectedDacItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0) +
+                    selectedAmpItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0) +
+                    selectedDacAmpItems.reduce((sum, item) => sum + (item.price_used_min || 0), 0)
   
   // Experience-based content adaptation
   const getDescription = (component: Component) => {
@@ -139,6 +234,13 @@ function RecommendationsContent() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Header with Home Link */}
+        <div className="mb-6">
+          <Link href="/" className="text-gray-400 hover:text-white inline-flex items-center gap-2 text-sm">
+            ← Back to Home
+          </Link>
+        </div>
+        
         <h1 className="text-3xl font-bold mb-2">{getExperienceBasedTitle()}</h1>
         <p className="text-gray-400 mb-2">Based on your ${budget} budget</p>
         {experience === 'beginner' && (
@@ -205,50 +307,171 @@ function RecommendationsContent() {
             )
           })}
 
-        {showAmps && amps.length > 0 && (
+        {showAmplification && (dacs.length > 0 || amps.length > 0 || dacAmps.length > 0) && (
             <>
-            <h2 className="text-2xl font-bold mt-8 mb-2">DAC/Amps</h2>
-            {amps.map((component) => {
-              const isSelected = selectedAmps.includes(component.id)
-              return (
-                <div 
-                  key={component.id} 
-                  className={`rounded-lg p-6 cursor-pointer transition-all ${
-                    isSelected 
-                      ? 'bg-blue-900/50 border-2 border-blue-500 ring-1 ring-blue-400' 
-                      : 'bg-gray-800 hover:bg-gray-750 border-2 border-transparent'
-                  }`}
-                  onClick={() => toggleAmpSelection(component.id)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-5 h-5 rounded border-2 mt-1 flex items-center justify-center ${
-                        isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-500'
-                      }`}>
-                        {isSelected && <span className="text-white text-xs">✓</span>}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{component.name}</h3>
-                        <p className="text-gray-400">{component.brand}</p>
-                        <div className="flex gap-2 mt-2">
-                          <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">
-                            {component.sound_signature} sound
-                          </span>
-                          <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
-                            {component.budget_tier} tier
-                          </span>
+            <h2 className="text-2xl font-bold mt-8 mb-2">
+              Amplification 
+              {experience === 'beginner' && <span className="text-base text-gray-400 font-normal ml-2">(Power sources for your headphones)</span>}
+            </h2>
+            {budget > 600 && (
+              <p className="text-gray-400 text-sm mb-4">
+                💡 At this budget level, dedicated amplification will help you get the most out of high-end headphones
+              </p>
+            )}
+            
+            {/* Separate DACs */}
+            {dacs.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3 text-purple-300">🔄 Digital-to-Analog Converters (DACs)</h3>
+                {dacs.map((component) => {
+                  const isSelected = selectedDacs.includes(component.id)
+                  return (
+                    <div 
+                      key={component.id} 
+                      className={`rounded-lg p-6 cursor-pointer transition-all mb-3 ${
+                        isSelected 
+                          ? 'bg-purple-900/50 border-2 border-purple-500 ring-1 ring-purple-400' 
+                          : 'bg-gray-800 hover:bg-gray-750 border-2 border-transparent'
+                      }`}
+                      onClick={() => toggleDacSelection(component.id)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-5 h-5 rounded border-2 mt-1 flex items-center justify-center ${
+                            isSelected ? 'bg-purple-600 border-purple-600' : 'border-gray-500'
+                          }`}>
+                            {isSelected && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold">{component.name}</h4>
+                            <p className="text-gray-400">{component.brand}</p>
+                            <div className="flex gap-2 mt-2">
+                              <span className="text-xs bg-purple-600/30 text-purple-300 px-2 py-1 rounded">
+                                DAC
+                              </span>
+                              <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
+                                {component.budget_tier} tier
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">${component.price_used_min}</p>
+                          <p className="text-sm text-gray-400">Used price</p>
                         </div>
                       </div>
+                      <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold">${component.price_used_min}</p>
-                      <p className="text-sm text-gray-400">Used price</p>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Separate Amps */}
+            {amps.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3 text-orange-300">⚡ Headphone Amplifiers</h3>
+                {amps.map((component) => {
+                  const isSelected = selectedAmps.includes(component.id)
+                  return (
+                    <div 
+                      key={component.id} 
+                      className={`rounded-lg p-6 cursor-pointer transition-all mb-3 ${
+                        isSelected 
+                          ? 'bg-orange-900/50 border-2 border-orange-500 ring-1 ring-orange-400' 
+                          : 'bg-gray-800 hover:bg-gray-750 border-2 border-transparent'
+                      }`}
+                      onClick={() => toggleAmpSelection(component.id)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-5 h-5 rounded border-2 mt-1 flex items-center justify-center ${
+                            isSelected ? 'bg-orange-600 border-orange-600' : 'border-gray-500'
+                          }`}>
+                            {isSelected && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold">{component.name}</h4>
+                            <p className="text-gray-400">{component.brand}</p>
+                            <div className="flex gap-2 mt-2">
+                              <span className="text-xs bg-orange-600/30 text-orange-300 px-2 py-1 rounded">
+                                Amp
+                              </span>
+                              <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
+                                {component.budget_tier} tier
+                              </span>
+                              {component.power_output && (
+                                <span className="text-xs bg-gray-600/30 text-gray-300 px-2 py-1 rounded">
+                                  {component.power_output}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">${component.price_used_min}</p>
+                          <p className="text-sm text-gray-400">Used price</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
                     </div>
-                  </div>
-                  <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Combo DAC/Amp Units */}
+            {dacAmps.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3 text-blue-300">🎯 All-in-One DAC/Amp Units</h3>
+                {dacAmps.map((component) => {
+                  const isSelected = selectedDacAmps.includes(component.id)
+                  return (
+                    <div 
+                      key={component.id} 
+                      className={`rounded-lg p-6 cursor-pointer transition-all mb-3 ${
+                        isSelected 
+                          ? 'bg-blue-900/50 border-2 border-blue-500 ring-1 ring-blue-400' 
+                          : 'bg-gray-800 hover:bg-gray-750 border-2 border-transparent'
+                      }`}
+                      onClick={() => toggleDacAmpSelection(component.id)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-5 h-5 rounded border-2 mt-1 flex items-center justify-center ${
+                            isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-500'
+                          }`}>
+                            {isSelected && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-semibold">{component.name}</h4>
+                            <p className="text-gray-400">{component.brand}</p>
+                            <div className="flex gap-2 mt-2">
+                              <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">
+                                {component.sound_signature} sound
+                              </span>
+                              <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
+                                {component.budget_tier} tier
+                              </span>
+                              {component.power_output && (
+                                <span className="text-xs bg-gray-600/30 text-gray-300 px-2 py-1 rounded">
+                                  {component.power_output}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">${component.price_used_min}</p>
+                          <p className="text-sm text-gray-400">Used price</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
             </>
         )}
         </div>
@@ -265,7 +488,7 @@ function RecommendationsContent() {
             <div>
               <h3 className="text-xl font-bold">Your Selection</h3>
               <p className="text-sm text-gray-400">
-                {selectedHeadphones.length + selectedAmps.length} items selected
+                {selectedHeadphones.length + selectedDacs.length + selectedAmps.length + selectedDacAmps.length} items selected
               </p>
             </div>
             <div className="text-right">
@@ -276,38 +499,50 @@ function RecommendationsContent() {
             </div>
           </div>
           
-          {(selectedHeadphones.length > 0 || selectedAmps.length > 0) && (
+          {(selectedHeadphones.length > 0 || selectedDacs.length > 0 || selectedAmps.length > 0 || selectedDacAmps.length > 0) && (
             <div className="space-y-2">
               {selectedHeadphoneItems.map(item => (
                 <div key={item.id} className="flex justify-between text-sm bg-black/20 rounded p-2">
-                  <span>{item.name}</span>
+                  <span>🎧 {item.name}</span>
+                  <span>${item.price_used_min}</span>
+                </div>
+              ))}
+              {selectedDacItems.map(item => (
+                <div key={item.id} className="flex justify-between text-sm bg-black/20 rounded p-2">
+                  <span>🔄 {item.name}</span>
                   <span>${item.price_used_min}</span>
                 </div>
               ))}
               {selectedAmpItems.map(item => (
                 <div key={item.id} className="flex justify-between text-sm bg-black/20 rounded p-2">
-                  <span>{item.name}</span>
+                  <span>⚡ {item.name}</span>
+                  <span>${item.price_used_min}</span>
+                </div>
+              ))}
+              {selectedDacAmpItems.map(item => (
+                <div key={item.id} className="flex justify-between text-sm bg-black/20 rounded p-2">
+                  <span>🎯 {item.name}</span>
                   <span>${item.price_used_min}</span>
                 </div>
               ))}
             </div>
           )}
           
-          {selectedHeadphones.length + selectedAmps.length === 0 && (
+          {selectedHeadphones.length + selectedDacs.length + selectedAmps.length + selectedDacAmps.length === 0 && (
             <p className="text-gray-400 text-center py-4">Select items above to see your total</p>
           )}
         </div>
 
         <div className="flex gap-4">
-          {(selectedHeadphones.length + selectedAmps.length) >= 2 && (
+          {(selectedHeadphones.length + selectedDacs.length + selectedAmps.length + selectedDacAmps.length) >= 2 && (
             <button 
               onClick={() => {
                 // Future: Navigate to comparison page with selected items
-                console.log('Compare selected:', { selectedHeadphones, selectedAmps })
+                console.log('Compare selected:', { selectedHeadphones, selectedDacs, selectedAmps, selectedDacAmps })
               }}
               className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium"
             >
-              Compare Selected ({selectedHeadphones.length + selectedAmps.length})
+              Compare Selected ({selectedHeadphones.length + selectedDacs.length + selectedAmps.length + selectedDacAmps.length})
             </button>
           )}
           
