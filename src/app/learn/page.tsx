@@ -20,14 +20,13 @@ const resources: Resource[] = [
   // Featured/Basics
   {
     id: '1',
-    title: 'Open vs Closed Back Headphones',
-    type: 'video',
+    title: 'Headphone Measurements 101',
+    type: 'article',
     difficulty: 'beginner',
     category: 'basics',
-    url: 'https://www.youtube.com/watch?v=example1',
-    description: 'Learn the fundamental differences and which is right for you',
-    duration: '8 min',
-    author: 'DMS',
+    url: 'https://www.erinsaudiocorner.com/headphone-measurements/',
+    description: 'Learn how to read and understand headphone measurements and frequency response',
+    author: 'Erin\'s Audio Corner',
     featured: true
   },
   {
@@ -36,65 +35,62 @@ const resources: Resource[] = [
     type: 'article',
     difficulty: 'beginner',
     category: 'basics',
-    url: 'https://www.headphones.com/blogs/news/do-you-need-an-amp',
-    description: 'Understanding when amplification is necessary and when it\'s not',
-    author: 'Head-Fi',
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/how-much-power-do-you-need-in-headphone-amp.4525/',
+    description: 'Science-based analysis of when amplification is actually needed',
+    author: 'Audio Science Review',
     featured: true
   },
   {
     id: '3',
-    title: 'Sound Signatures Explained',
+    title: 'Harman Target Curve Explained',
     type: 'article',
-    difficulty: 'beginner',
-    category: 'basics',
-    url: 'https://www.reddit.com/r/headphones/wiki/sound_signatures',
-    description: 'Warm vs neutral vs bright - what does it all mean?',
-    author: 'r/headphones Wiki',
+    difficulty: 'intermediate',
+    category: 'technical',
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/harman-target-curve-for-headphones.9251/',
+    description: 'Understanding the research-backed target for neutral headphone sound',
+    author: 'Audio Science Review',
     featured: true
   },
   // Technical
   {
     id: '4',
     title: 'Understanding Impedance & Sensitivity',
-    type: 'video',
+    type: 'article',
     difficulty: 'intermediate',
     category: 'technical',
-    url: 'https://www.youtube.com/watch?v=example2',
-    description: 'Technical specs explained in simple terms',
-    duration: '12 min',
-    author: 'Joshua Valour'
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/headphone-sensitivity-impedance-and-amplifier-power.4436/',
+    description: 'Technical specs explained with actual measurements and calculations',
+    author: 'Audio Science Review'
   },
   {
     id: '5',
-    title: 'What is a DAC and Do You Need One?',
-    type: 'video',
-    difficulty: 'beginner',
+    title: 'What is THD+N in Audio?',
+    type: 'article',
+    difficulty: 'intermediate',
     category: 'technical',
-    url: 'https://www.youtube.com/watch?v=example3',
-    description: 'Digital to Analog Converters demystified',
-    duration: '10 min',
-    author: 'Z Reviews'
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/understanding-audio-measurements.7649/',
+    description: 'Total Harmonic Distortion and Noise measurements explained',
+    author: 'Audio Science Review'
   },
   {
     id: '6',
-    title: 'Reading Frequency Response Graphs',
-    type: 'video',
-    difficulty: 'advanced',
-    category: 'technical',
-    url: 'https://www.youtube.com/watch?v=example4',
-    description: 'Learn to interpret measurements like a pro',
-    duration: '15 min',
-    author: 'Crinacle'
-  },
-  {
-    id: '7',
-    title: 'Balanced vs Single-Ended Explained',
+    title: 'Klippel NFS Headphone Testing',
     type: 'article',
     difficulty: 'advanced',
     category: 'technical',
-    url: 'https://www.headphones.com/blogs/news/balanced-audio',
-    description: 'Is balanced audio worth the extra cost?',
-    author: 'Headphones.com'
+    url: 'https://www.erinsaudiocorner.com/klippel-nfs-headphone-testing/',
+    description: 'State-of-the-art measurement methodology for headphones',
+    author: 'Erin\'s Audio Corner'
+  },
+  {
+    id: '7',
+    title: 'Balanced Audio: Fact vs Fiction',
+    type: 'article',
+    difficulty: 'advanced',
+    category: 'technical',
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/balanced-headphone-outputs.15492/',
+    description: 'Objective analysis of balanced headphone connections',
+    author: 'Audio Science Review'
   },
   // Guides
   {
@@ -109,17 +105,27 @@ const resources: Resource[] = [
   },
   {
     id: '9',
-    title: 'First Headphone Setup Guide',
+    title: 'Headphone Purchase Guide',
     type: 'article',
     difficulty: 'beginner',
     category: 'guides',
-    url: 'https://www.reddit.com/r/headphones/wiki/getting_started',
-    description: 'Complete beginner\'s guide to your first audiophile setup',
+    url: 'https://www.reddit.com/r/headphones/comments/15ul6x6/2023_audeze_lcd2_classic_vs_hifiman_edition_xs/',
+    description: 'Research-based recommendations for different budgets and use cases',
     author: 'r/headphones'
+  },
+  {
+    id: '10',
+    title: 'EQ and DSP for Headphones',
+    type: 'article',
+    difficulty: 'intermediate',
+    category: 'technical',
+    url: 'https://www.audiosciencereview.com/forum/index.php?threads/equalizer-apo-tutorial.7472/',
+    description: 'How to properly EQ headphones using measurements',
+    author: 'Audio Science Review'
   },
   // Communities
   {
-    id: '10',
+    id: '11',
     title: 'r/headphones Community',
     type: 'community',
     difficulty: 'beginner',
@@ -129,24 +135,44 @@ const resources: Resource[] = [
     author: 'Reddit'
   },
   {
-    id: '11',
-    title: 'Head-Fi Forums',
+    id: '12',
+    title: 'Audio Science Review Forum',
     type: 'community',
     difficulty: 'intermediate',
-    category: 'guides',
-    url: 'https://www.head-fi.org',
-    description: 'Deep discussions and extensive reviews',
+    category: 'technical',
+    url: 'https://www.audiosciencereview.com/forum/',
+    description: 'Science-based audio discussions with objective measurements',
+    author: 'Audio Science Review'
+  },
+  {
+    id: '13',
+    title: 'Head-Fi Measurement Database',
+    type: 'tool',
+    difficulty: 'intermediate',
+    category: 'technical',
+    url: 'https://www.head-fi.org/threads/headphone-measurements-database.908070/',
+    description: 'Comprehensive database of headphone measurements',
     author: 'Head-Fi'
   },
   {
-    id: '12',
-    title: 'ASR Forum',
-    type: 'community',
+    id: '14',
+    title: 'Crinacle\'s Headphone Rankings',
+    type: 'tool',
+    difficulty: 'intermediate',
+    category: 'reviews',
+    url: 'https://crinacle.com/rankings/headphones/',
+    description: 'Measurement-based rankings and reviews of popular headphones',
+    author: 'Crinacle'
+  },
+  {
+    id: '15',
+    title: 'AutoEQ Database',
+    type: 'tool',
     difficulty: 'advanced',
     category: 'technical',
-    url: 'https://www.audiosciencereview.com/forum',
-    description: 'Science-based audio discussions and measurements',
-    author: 'Audio Science Review'
+    url: 'https://github.com/jaakkopasanen/AutoEq',
+    description: 'Automated EQ curves for thousands of headphones based on measurements',
+    author: 'jaakkopasanen'
   }
 ];
 
