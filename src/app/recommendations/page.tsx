@@ -23,6 +23,7 @@ function RecommendationsContent() {
   const searchParams = useSearchParams()
   const experience = searchParams.get('experience') || 'intermediate'
   const budget = parseInt(searchParams.get('budget') || '300')
+  const headphoneType = searchParams.get('headphoneType') || 'cans'
   const usage = searchParams.get('usage') || 'music'
   const soundSignature = searchParams.get('sound') || 'neutral'
 
@@ -33,11 +34,11 @@ function RecommendationsContent() {
       // Limit options based on experience level
       const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
       
-      // Get matching headphones first
+      // Get matching headphones first - use the selected type (cans or iems)
       const { data: headphones, error: headphonesError } = await supabase
         .from('components')
         .select('*')
-        .eq('category', 'headphones')
+        .eq('category', headphoneType)
         .eq('budget_tier', tier)
         .limit(maxOptions)
       
@@ -140,7 +141,7 @@ function RecommendationsContent() {
     }
 
     fetchRecommendations()
-  }, [budget, usage, soundSignature, experience])
+  }, [budget, headphoneType, usage, soundSignature, experience])
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 
@@ -253,7 +254,9 @@ function RecommendationsContent() {
         )}
 
         <div className="space-y-4 mb-8">
-          <h2 className="text-2xl font-bold mb-2">Headphones</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            {headphoneType === 'cans' ? '🎧 Over/On-Ear Headphones' : '🎵 In-Ear Monitors'}
+          </h2>
         {headphones.map((component) => {
             const isSelected = selectedHeadphones.includes(component.id)
             return (

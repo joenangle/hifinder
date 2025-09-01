@@ -9,6 +9,7 @@ export default function OnboardingPage() {
   const [preferences, setPreferences] = useState({
     experience: '',
     budget: 300,
+    headphoneType: '',
     usage: '',
     soundSignature: ''
   })
@@ -66,9 +67,10 @@ const isStepValid = () => {
   switch (step) {
     case 1: return !!preferences.experience
     case 2: return true // Budget always has default value
-    case 3: return !!preferences.usage
-    case 4: return !!preferences.soundSignature
-    case 5: return true // Summary step
+    case 3: return !!preferences.headphoneType
+    case 4: return !!preferences.usage
+    case 5: return !!preferences.soundSignature
+    case 6: return true // Summary step
     default: return false
   }
 }
@@ -76,13 +78,14 @@ const isStepValid = () => {
 const handleNext = () => {
   if (!isStepValid()) return
   
-  if (step < 5) {
+  if (step < 6) {
     setStep(step + 1)
   } else {
     // Navigate to recommendations with all preferences
     const params = new URLSearchParams({
       experience: preferences.experience,
       budget: preferences.budget.toString(),
+      headphoneType: preferences.headphoneType,
       usage: preferences.usage,
       sound: preferences.soundSignature
     })
@@ -103,13 +106,13 @@ const handleNext = () => {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-2">
-            <span>Step {step} of 5</span>
-            <span>{step * 20}% Complete</span>
+            <span>Step {step} of 6</span>
+            <span>{Math.round(step * 16.67)}% Complete</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${step * 20}%` }}
+              style={{ width: `${step * 16.67}%` }}
             />
           </div>
         </div>
@@ -224,6 +227,46 @@ const handleNext = () => {
           
           {step === 3 && (
             <div>
+              <h2 className="text-2xl font-bold mb-4">What type of headphones do you prefer?</h2>
+              <p className="text-gray-400 mb-6">Choose the style that appeals to you most</p>
+              <div className="space-y-4">
+                {[
+                  {
+                    value: 'cans',
+                    label: '🎧 Over/On-Ear Headphones',
+                    description: 'Traditional headphones that go over or on your ears',
+                    pros: 'Comfortable for long sessions, great soundstage, easy to drive'
+                  },
+                  {
+                    value: 'iems', 
+                    label: '🎵 In-Ear Monitors (IEMs)',
+                    description: 'Earphones that go inside your ear canal',
+                    pros: 'Portable, excellent isolation, detailed sound'
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.value}
+                    onClick={() => setPreferences({...preferences, headphoneType: option.value})}
+                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                      preferences.headphoneType === option.value 
+                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
+                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-lg">{option.label}</h3>
+                      {preferences.headphoneType === option.value && <span className="text-blue-300">✓</span>}
+                    </div>
+                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-sm text-gray-500 italic">{option.pros}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {step === 4 && (
+            <div>
               <h2 className="text-2xl font-bold mb-4">How will you use them?</h2>
               <div className="space-y-2">
                 {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
@@ -243,7 +286,7 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 4 && (
+          {step === 5 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Sound preference?</h2>
               <p className="text-gray-400 mb-6">Choose the sound signature that appeals to you most</p>
@@ -287,7 +330,7 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 5 && (
+          {step === 6 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Ready for recommendations!</h2>
               <div className="space-y-4">
@@ -296,6 +339,7 @@ const handleNext = () => {
                   <div className="text-sm space-y-1 text-gray-300">
                     <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
                     <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
+                    <p><span className="font-medium">Type:</span> {preferences.headphoneType === 'cans' ? 'Over/On-Ear' : 'In-Ear Monitors'}</p>
                     <p><span className="font-medium">Usage:</span> {preferences.usage}</p>
                     <p><span className="font-medium">Sound:</span> {preferences.soundSignature}</p>
                   </div>
@@ -332,9 +376,10 @@ const handleNext = () => {
             }`}
           >
             {!isStepValid() && step === 1 ? 'Select Experience Level' :
-             !isStepValid() && step === 3 ? 'Select Usage' :
-             !isStepValid() && step === 4 ? 'Select Sound Preference' :
-             step === 5 ? 'See Recommendations' : 'Next'}
+             !isStepValid() && step === 3 ? 'Select Headphone Type' :
+             !isStepValid() && step === 4 ? 'Select Usage' :
+             !isStepValid() && step === 5 ? 'Select Sound Preference' :
+             step === 6 ? 'See Recommendations' : 'Next'}
           </button>
         </div>
       </div>
