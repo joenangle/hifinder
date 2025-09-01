@@ -24,6 +24,7 @@ function RecommendationsContent() {
   const experience = searchParams.get('experience') || 'intermediate'
   const budget = parseInt(searchParams.get('budget') || '300')
   const headphoneType = searchParams.get('headphoneType') || 'cans'
+  const existingGear = searchParams.get('existingGear') || 'none'
   const usage = searchParams.get('usage') || 'music'
   const soundSignature = searchParams.get('sound') || 'neutral'
 
@@ -42,12 +43,29 @@ function RecommendationsContent() {
         .eq('budget_tier', tier)
         .limit(maxOptions)
       
+      // Add fallback for headphones if no high-tier found
+      let finalHeadphones = headphones || []
+      if ((!headphones || headphones.length === 0) && tier === 'high') {
+        console.log(`No high-tier ${headphoneType} found, trying mid-tier as fallback`)
+        const { data: midHeadphones } = await supabase
+          .from('components')
+          .select('*')
+          .eq('category', headphoneType)
+          .eq('budget_tier', 'mid')
+          .limit(maxOptions)
+        
+        if (midHeadphones && midHeadphones.length > 0) {
+          console.log(`Found mid-tier ${headphoneType} as fallback:`, midHeadphones.length)
+          finalHeadphones = midHeadphones
+        }
+      }
+      
       if (headphonesError) {
         console.error('Headphones query error:', headphonesError)
       }
       
       // Check if any headphones need amplification OR if we're in high budget territory
-      const needsAmplification = headphones?.some(h => h.needs_amp) || budget > 600
+      const needsAmplification = finalHeadphones?.some(h => h.needs_amp) || budget > 600
       
       // Get amplification components separately - show more options for higher budgets
       const ampLimit = budget > 800 ? 3 : 2
@@ -128,11 +146,11 @@ function RecommendationsContent() {
       
       // Store them separately, not mixed together
       console.log('Budget:', budget, 'Tier:', tier)
-      console.log('Fetched headphones:', headphones)
+      console.log('Fetched headphones:', headphones?.length || 0, 'Final headphones:', finalHeadphones.length)
       console.log('Final DACs:', finalDacs.length, 'Final amps:', finalAmps.length, 'Final combo units:', finalDacAmps.length)
-      console.log('needsAmplification calculation:', headphones?.some(h => h.needs_amp), '|| budget > 600:', budget > 600, '= ', needsAmplification)
+      console.log('needsAmplification calculation:', finalHeadphones?.some(h => h.needs_amp), '|| budget > 600:', budget > 600, '= ', needsAmplification)
       
-      setHeadphones(headphones || [])
+      setHeadphones(finalHeadphones)
       setDacs(finalDacs)
       setAmps(finalAmps)
       setDacAmps(finalDacAmps)
@@ -141,7 +159,7 @@ function RecommendationsContent() {
     }
 
     fetchRecommendations()
-  }, [budget, headphoneType, usage, soundSignature, experience])
+  }, [budget, headphoneType, existingGear, usage, soundSignature, experience])
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 

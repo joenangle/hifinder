@@ -10,6 +10,7 @@ export default function OnboardingPage() {
     experience: '',
     budget: 300,
     headphoneType: '',
+    existingGear: '',
     usage: '',
     soundSignature: ''
   })
@@ -68,9 +69,10 @@ const isStepValid = () => {
     case 1: return !!preferences.experience
     case 2: return true // Budget always has default value
     case 3: return !!preferences.headphoneType
-    case 4: return !!preferences.usage
-    case 5: return !!preferences.soundSignature
-    case 6: return true // Summary step
+    case 4: return !!preferences.existingGear
+    case 5: return !!preferences.usage
+    case 6: return !!preferences.soundSignature
+    case 7: return true // Summary step
     default: return false
   }
 }
@@ -78,7 +80,7 @@ const isStepValid = () => {
 const handleNext = () => {
   if (!isStepValid()) return
   
-  if (step < 6) {
+  if (step < 7) {
     setStep(step + 1)
   } else {
     // Navigate to recommendations with all preferences
@@ -86,6 +88,7 @@ const handleNext = () => {
       experience: preferences.experience,
       budget: preferences.budget.toString(),
       headphoneType: preferences.headphoneType,
+      existingGear: preferences.existingGear,
       usage: preferences.usage,
       sound: preferences.soundSignature
     })
@@ -106,13 +109,13 @@ const handleNext = () => {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-2">
-            <span>Step {step} of 6</span>
-            <span>{Math.round(step * 16.67)}% Complete</span>
+            <span>Step {step} of 7</span>
+            <span>{Math.round(step * 14.29)}% Complete</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${step * 16.67}%` }}
+              style={{ width: `${step * 14.29}%` }}
             />
           </div>
         </div>
@@ -267,6 +270,58 @@ const handleNext = () => {
           
           {step === 4 && (
             <div>
+              <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
+              <p className="text-gray-400 mb-6">This helps us avoid recommending what you own and adjust your budget</p>
+              <div className="space-y-4">
+                {[
+                  {
+                    value: 'none',
+                    label: '📱 Just phone/computer audio',
+                    description: 'Starting fresh - need everything',
+                    budgetNote: 'Full budget available for new gear'
+                  },
+                  {
+                    value: 'basic_headphones',
+                    label: '🎧 Basic headphones only',
+                    description: 'Have some headphones, might want to upgrade',
+                    budgetNote: 'Budget available for upgrade or amplification'
+                  },
+                  {
+                    value: 'headphones_and_source',
+                    label: '🎯 Headphones + DAC/amp',
+                    description: 'Have headphones and amplification',
+                    budgetNote: 'Looking to upgrade existing components'
+                  },
+                  {
+                    value: 'complete_setup',
+                    label: '🔧 Complete audio setup',
+                    description: 'Have full setup, exploring alternatives',
+                    budgetNote: 'Budget for experimentation or specific upgrades'
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.value}
+                    onClick={() => setPreferences({...preferences, existingGear: option.value})}
+                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                      preferences.existingGear === option.value 
+                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
+                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-lg">{option.label}</h3>
+                      {preferences.existingGear === option.value && <span className="text-blue-300">✓</span>}
+                    </div>
+                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-sm text-gray-500 italic">{option.budgetNote}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {step === 5 && (
+            <div>
               <h2 className="text-2xl font-bold mb-4">How will you use them?</h2>
               <div className="space-y-2">
                 {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
@@ -286,7 +341,8 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 5 && (
+          
+          {step === 6 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Sound preference?</h2>
               <p className="text-gray-400 mb-6">Choose the sound signature that appeals to you most</p>
@@ -330,7 +386,7 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 6 && (
+          {step === 7 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Ready for recommendations!</h2>
               <div className="space-y-4">
@@ -340,6 +396,7 @@ const handleNext = () => {
                     <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
                     <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
                     <p><span className="font-medium">Type:</span> {preferences.headphoneType === 'cans' ? 'Over/On-Ear' : 'In-Ear Monitors'}</p>
+                    <p><span className="font-medium">Existing Gear:</span> {preferences.existingGear.replace(/_/g, ' ')}</p>
                     <p><span className="font-medium">Usage:</span> {preferences.usage}</p>
                     <p><span className="font-medium">Sound:</span> {preferences.soundSignature}</p>
                   </div>
@@ -377,9 +434,10 @@ const handleNext = () => {
           >
             {!isStepValid() && step === 1 ? 'Select Experience Level' :
              !isStepValid() && step === 3 ? 'Select Headphone Type' :
-             !isStepValid() && step === 4 ? 'Select Usage' :
-             !isStepValid() && step === 5 ? 'Select Sound Preference' :
-             step === 6 ? 'See Recommendations' : 'Next'}
+             !isStepValid() && step === 4 ? 'Select Existing Gear' :
+             !isStepValid() && step === 5 ? 'Select Usage' :
+             !isStepValid() && step === 6 ? 'Select Sound Preference' :
+             step === 7 ? 'See Recommendations' : 'Next'}
           </button>
         </div>
       </div>
