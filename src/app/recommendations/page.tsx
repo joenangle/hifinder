@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { Component } from '@/types'
 
 function RecommendationsContent() {
+  const [components, setComponents] = useState<Component[]>([])
+  const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const budget = parseInt(searchParams.get('budget') || '300')
   const usage = searchParams.get('usage') || 'music'
