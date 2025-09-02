@@ -8,7 +8,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [preferences, setPreferences] = useState({
     experience: '',
-    budget: 300,
+    budget: 100,
     headphoneType: '',
     existingGear: {
       headphones: false,
@@ -19,7 +19,7 @@ export default function OnboardingPage() {
     usage: '',
     soundSignature: ''
   })
-  const [budgetInputValue, setBudgetInputValue] = useState('300')
+  const [budgetInputValue, setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
   const router = useRouter()
 
@@ -54,13 +54,13 @@ const handleBudgetInputChange = (value: string) => {
     return
   }
   
-  if (numValue < 100) {
-    setBudgetError('Minimum budget is $100')
+  if (numValue < 20) {
+    setBudgetError('Minimum budget is $20')
     return
   }
   
-  if (numValue > 1500) {
-    setBudgetError('Maximum budget is $1500')
+  if (numValue > 10000) {
+    setBudgetError('Maximum budget is $10,000')
     return
   }
   
@@ -280,21 +280,40 @@ const handleNext = () => {
           {step === 4 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What&apos;s your budget?</h2>
-              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $1500)</p>
+              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $10,000)</p>
               
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">Budget: ${preferences.budget}</label>
-                <input 
-                  type="range" 
-                  min="100" 
-                  max="1500" 
-                  value={preferences.budget}
-                  onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-sm text-gray-400 mt-1">
-                  <span>$100</span>
-                  <span>$1500</span>
+                <div className="relative">
+                  <input 
+                    type="range" 
+                    min="20" 
+                    max="10000" 
+                    value={preferences.budget}
+                    onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                    className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, 
+                        #10b981 0%, #10b981 ${((Math.min(preferences.budget, 400) - 20) / 9980) * 100}%,
+                        #f59e0b ${((400 - 20) / 9980) * 100}%, #f59e0b ${((Math.min(preferences.budget, 1000) - 20) / 9980) * 100}%,
+                        #ef4444 ${((1000 - 20) / 9980) * 100}%, #ef4444 ${((Math.min(preferences.budget, 3000) - 20) / 9980) * 100}%,
+                        #8b5cf6 ${((3000 - 20) / 9980) * 100}%, #8b5cf6 ${((preferences.budget - 20) / 9980) * 100}%,
+                        #374151 ${((preferences.budget - 20) / 9980) * 100}%, #374151 100%)`
+                    }}
+                  />
+                  {/* Tier breakpoint indicators */}
+                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((400 - 20) / 9980) * 100}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((1000 - 20) / 9980) * 100}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((3000 - 20) / 9980) * 100}%` }}></div>
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm text-gray-400 mt-2">
+                  <span>$20</span>
+                  <span className="text-emerald-400">$400</span>
+                  <span className="text-amber-400">$1K</span>
+                  <span className="text-red-400">$3K</span>
+                  <span>$10K</span>
                 </div>
               </div>
               
@@ -310,8 +329,8 @@ const handleNext = () => {
                   onChange={(e) => handleBudgetInputChange(e.target.value)}
                   className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   placeholder="Enter budget amount"
-                  min="100"
-                  max="1500"
+                  min="20"
+                  max="10000"
                 />
                 {budgetError && (
                   <p className="text-red-400 text-sm mt-1">{budgetError}</p>
@@ -323,17 +342,33 @@ const handleNext = () => {
                   <span>Budget Tiers:</span>
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className={`flex justify-between ${preferences.budget <= 400 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
-                    <span>Entry Level</span>
-                    <span>$100 - $400</span>
+                  <div className={`flex justify-between ${preferences.budget <= 400 ? 'text-emerald-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-emerald-500 rounded"></div>
+                      Entry Level
+                    </span>
+                    <span>$20 - $400</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 800 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
-                    <span>Mid Range</span>
-                    <span>$400 - $800</span>
+                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-amber-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-amber-500 rounded"></div>
+                      Mid Range
+                    </span>
+                    <span>$400 - $1,000</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 800 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
-                    <span>High End</span>
-                    <span>$800+</span>
+                  <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-red-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-red-500 rounded"></div>
+                      High End
+                    </span>
+                    <span>$1,000 - $3,000</span>
+                  </div>
+                  <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-violet-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-violet-500 rounded"></div>
+                      Summit-Fi
+                    </span>
+                    <span>$3,000+</span>
                   </div>
                 </div>
               </div>

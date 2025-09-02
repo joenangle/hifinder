@@ -34,7 +34,7 @@ function RecommendationsContent() {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      const tier = budget <= 400 ? 'entry' : budget <= 800 ? 'mid' : 'high'
+      const tier = budget <= 400 ? 'entry' : budget <= 1000 ? 'mid' : 'high'
       
       // Limit options based on experience level
       const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
@@ -68,8 +68,8 @@ function RecommendationsContent() {
         console.error('Headphones query error:', headphonesError)
       }
       
-      // Check if any headphones need amplification OR if we're in high budget territory
-      const needsAmplification = finalHeadphones?.some(h => h.needs_amp) || budget > 600
+      // Check if any headphones need amplification OR if we're in mid-high budget territory
+      const needsAmplification = finalHeadphones?.some(h => h.needs_amp) || budget > 800
       
       // Get amplification components separately - show more options for higher budgets
       const ampLimit = budget > 800 ? 3 : 2
@@ -91,7 +91,7 @@ function RecommendationsContent() {
       if (needsAmplification) {
         // Strategy: For high budgets or enthusiasts, offer separate components
         // For lower budgets or beginners, offer combo units
-        const preferSeparates = (budget > 800 && experience === 'enthusiast') || budget > 1000
+        const preferSeparates = (budget > 1200 && experience === 'enthusiast') || budget > 2000
         
         if (preferSeparates) {
           // Try to get separate DACs and amps

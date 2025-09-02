@@ -119,14 +119,15 @@ async function addSampleListings() {
     for (const listing of sampleListings) {
       const { data: component, error } = await supabase
         .from('components')
-        .select('id')
+        .select('id, price_used_min, price_used_max')
         .eq('name', listing.component_name)
         .eq('brand', listing.component_brand)
         .single()
       
       if (component) {
-        const expectedMin = 150 // rough estimate for validation
-        const expectedMax = 250
+        // Use actual component price range for validation
+        const expectedMin = component.price_used_min || 150
+        const expectedMax = component.price_used_max || 250
         const expectedAvg = (expectedMin + expectedMax) / 2
         const variance = ((listing.price - expectedAvg) / expectedAvg) * 100
         
@@ -144,7 +145,7 @@ async function addSampleListings() {
           description: listing.description,
           is_active: true,
           price_is_reasonable: Math.abs(variance) <= 30,
-          price_variance_percentage: variance,
+          price_variance_percentage: Math.round(variance * 100) / 100,
           price_warning: Math.abs(variance) > 30 ? 'Price significantly different from typical market value' : null
         })
       } else {
@@ -152,7 +153,10 @@ async function addSampleListings() {
       }
     }
     
+    console.log(`Found ${listingsWithIds.length} components with matching listings`)
+    
     if (listingsWithIds.length > 0) {
+      // Try to insert the listings
       const { data, error } = await supabase
         .from('used_listings')
         .insert(listingsWithIds)
@@ -160,10 +164,24 @@ async function addSampleListings() {
       
       if (error) {
         console.error('❌ Insert error:', error)
+        if (error.message?.includes('relation "used_listings" does not exist')) {
+          console.log('\n📋 The used_listings table needs to be created first.')
+          console.log('Please run this SQL in Supabase Dashboard > SQL Editor:')
+          console.log('\n' + '='.repeat(60))
+          const fs = require('fs')
+          const path = require('path')
+          const sqlContent = fs.readFileSync(
+            path.join(__dirname, 'create-listings-table.sql'), 
+            'utf8'
+          )
+          console.log(sqlContent)
+          console.log('='.repeat(60))
+          console.log('\nThen run this script again to add sample data.')
+        }
       } else {
         console.log(`✅ Added ${data.length} sample listings`)
         data.forEach(listing => {
-          console.log(`  ${listing.title} - $${listing.price}`)
+          console.log(`  ${listing.title.substring(0, 60)}... - $${listing.price}`)
         })
       }
     }
