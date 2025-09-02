@@ -10,7 +10,12 @@ export default function OnboardingPage() {
     experience: '',
     budget: 300,
     headphoneType: '',
-    existingGear: '',
+    existingGear: {
+      headphones: false,
+      dac: false,
+      amp: false,
+      combo: false
+    },
     usage: '',
     soundSignature: ''
   })
@@ -67,7 +72,7 @@ const handleBudgetInputChange = (value: string) => {
 const isStepValid = () => {
   switch (step) {
     case 1: return !!preferences.experience
-    case 2: return !!preferences.existingGear
+    case 2: return true // Existing gear can be all false (starting fresh)
     case 3: return !!preferences.headphoneType
     case 4: return true // Budget always has default value
     case 5: return !!preferences.usage
@@ -88,7 +93,7 @@ const handleNext = () => {
       experience: preferences.experience,
       budget: preferences.budget.toString(),
       headphoneType: preferences.headphoneType,
-      existingGear: preferences.existingGear,
+      existingGear: JSON.stringify(preferences.existingGear),
       usage: preferences.usage,
       sound: preferences.soundSignature
     })
@@ -171,51 +176,63 @@ const handleNext = () => {
           {step === 2 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
-              <p className="text-gray-400 mb-6">This helps us avoid recommending what you own and adjust your budget</p>
+              <p className="text-gray-400 mb-6">Check what you already own so we can focus your budget on what you need</p>
               <div className="space-y-4">
                 {[
                   {
-                    value: 'none',
-                    label: '📱 Just phone/computer audio',
-                    description: 'Starting fresh - need everything',
-                    budgetNote: 'Full budget available for new gear'
+                    key: 'headphones',
+                    label: '🎧 Headphones/IEMs',
+                    description: 'Any headphones or in-ear monitors you currently use'
                   },
                   {
-                    value: 'basic_headphones',
-                    label: '🎧 Basic headphones only',
-                    description: 'Have some headphones, might want to upgrade',
-                    budgetNote: 'Budget available for upgrade or amplification'
+                    key: 'dac',
+                    label: '🔄 Standalone DAC',
+                    description: 'Digital-to-analog converter (separate from amp)'
                   },
                   {
-                    value: 'headphones_and_source',
-                    label: '🎯 Headphones + DAC/amp',
-                    description: 'Have headphones and amplification',
-                    budgetNote: 'Looking to upgrade existing components'
+                    key: 'amp',
+                    label: '⚡ Headphone Amplifier',
+                    description: 'Dedicated headphone amp (separate from DAC)'
                   },
                   {
-                    value: 'complete_setup',
-                    label: '🔧 Complete audio setup',
-                    description: 'Have full setup, exploring alternatives',
-                    budgetNote: 'Budget for experimentation or specific upgrades'
+                    key: 'combo',
+                    label: '🎯 DAC/Amp Combo Unit',
+                    description: 'All-in-one DAC and amplifier device'
                   }
-                ].map(option => (
-                  <button 
-                    key={option.value}
-                    onClick={() => setPreferences({...preferences, existingGear: option.value})}
-                    className={`w-full p-6 rounded-lg text-left transition-all ${
-                      preferences.existingGear === option.value 
-                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
-                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                ].map(component => (
+                  <div 
+                    key={component.key}
+                    className={`rounded-lg p-4 border-2 transition-all ${
+                      preferences.existingGear[component.key]
+                        ? 'bg-blue-900/30 border-blue-500/50'
+                        : 'bg-gray-700 border-gray-600'
                     }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-lg">{option.label}</h3>
-                      {preferences.existingGear === option.value && <span className="text-blue-300">✓</span>}
-                    </div>
-                    <p className="text-gray-300 mb-2">{option.description}</p>
-                    <p className="text-sm text-gray-500 italic">{option.budgetNote}</p>
-                  </button>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences.existingGear[component.key]}
+                        onChange={(e) => setPreferences({
+                          ...preferences,
+                          existingGear: {
+                            ...preferences.existingGear,
+                            [component.key]: e.target.checked
+                          }
+                        })}
+                        className="mt-1 w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg">{component.label}</h3>
+                        <p className="text-gray-300 text-sm">{component.description}</p>
+                      </div>
+                    </label>
+                  </div>
                 ))}
+              </div>
+              <div className="mt-4 p-4 bg-gray-700/50 rounded-lg">
+                <p className="text-sm text-gray-400">
+                  💡 <strong>Don't have anything?</strong> Leave all unchecked and we'll recommend a complete setup within your budget.
+                </p>
               </div>
             </div>
           )}
@@ -262,52 +279,63 @@ const handleNext = () => {
           
           {step === 4 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
-              <p className="text-gray-400 mb-6">This helps us avoid recommending what you own and adjust your budget</p>
-              <div className="space-y-4">
-                {[
-                  {
-                    value: 'none',
-                    label: '📱 Just phone/computer audio',
-                    description: 'Starting fresh - need everything',
-                    budgetNote: 'Full budget available for new gear'
-                  },
-                  {
-                    value: 'basic_headphones',
-                    label: '🎧 Basic headphones only',
-                    description: 'Have some headphones, might want to upgrade',
-                    budgetNote: 'Budget available for upgrade or amplification'
-                  },
-                  {
-                    value: 'headphones_and_source',
-                    label: '🎯 Headphones + DAC/amp',
-                    description: 'Have headphones and amplification',
-                    budgetNote: 'Looking to upgrade existing components'
-                  },
-                  {
-                    value: 'complete_setup',
-                    label: '🔧 Complete audio setup',
-                    description: 'Have full setup, exploring alternatives',
-                    budgetNote: 'Budget for experimentation or specific upgrades'
-                  }
-                ].map(option => (
-                  <button 
-                    key={option.value}
-                    onClick={() => setPreferences({...preferences, existingGear: option.value})}
-                    className={`w-full p-6 rounded-lg text-left transition-all ${
-                      preferences.existingGear === option.value 
-                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
-                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-lg">{option.label}</h3>
-                      {preferences.existingGear === option.value && <span className="text-blue-300">✓</span>}
-                    </div>
-                    <p className="text-gray-300 mb-2">{option.description}</p>
-                    <p className="text-sm text-gray-500 italic">{option.budgetNote}</p>
-                  </button>
-                ))}
+              <h2 className="text-2xl font-bold mb-4">What&apos;s your budget?</h2>
+              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $1500)</p>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Budget: ${preferences.budget}</label>
+                <input 
+                  type="range" 
+                  min="100" 
+                  max="1500" 
+                  value={preferences.budget}
+                  onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <div className="flex justify-between text-sm text-gray-400 mt-1">
+                  <span>$100</span>
+                  <span>$1500</span>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Or enter exact amount:</label>
+                <input 
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={budgetInputValue}
+                  onFocus={handleBudgetInputFocus}
+                  onBlur={handleBudgetInputBlur}
+                  onChange={(e) => handleBudgetInputChange(e.target.value)}
+                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  placeholder="Enter budget amount"
+                  min="100"
+                  max="1500"
+                />
+                {budgetError && (
+                  <p className="text-red-400 text-sm mt-1">{budgetError}</p>
+                )}
+              </div>
+              
+              <div className="bg-gray-700/50 rounded-lg p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Budget Tiers:</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className={`flex justify-between ${preferences.budget <= 400 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                    <span>Entry Level</span>
+                    <span>$100 - $400</span>
+                  </div>
+                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 800 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                    <span>Mid Range</span>
+                    <span>$400 - $800</span>
+                  </div>
+                  <div className={`flex justify-between ${preferences.budget > 800 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                    <span>High End</span>
+                    <span>$800+</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -388,7 +416,12 @@ const handleNext = () => {
                     <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
                     <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
                     <p><span className="font-medium">Type:</span> {preferences.headphoneType === 'cans' ? 'Over/On-Ear' : 'In-Ear Monitors'}</p>
-                    <p><span className="font-medium">Existing Gear:</span> {preferences.existingGear.replace(/_/g, ' ')}</p>
+                    <p><span className="font-medium">Existing Gear:</span> {
+                      Object.entries(preferences.existingGear)
+                        .filter(([_, has]) => has)
+                        .map(([key, _]) => key)
+                        .join(', ') || 'Starting fresh'
+                    }</p>
                     <p><span className="font-medium">Usage:</span> {preferences.usage}</p>
                     <p><span className="font-medium">Sound:</span> {preferences.soundSignature}</p>
                   </div>

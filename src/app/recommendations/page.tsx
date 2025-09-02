@@ -24,7 +24,8 @@ function RecommendationsContent() {
   const experience = searchParams.get('experience') || 'intermediate'
   const budget = parseInt(searchParams.get('budget') || '300')
   const headphoneType = searchParams.get('headphoneType') || 'cans'
-  const existingGear = searchParams.get('existingGear') || 'none'
+  const existingGearParam = searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'
+  const existingGear = JSON.parse(existingGearParam)
   const usage = searchParams.get('usage') || 'music'
   const soundSignature = searchParams.get('sound') || 'neutral'
 
