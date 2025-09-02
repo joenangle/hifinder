@@ -67,9 +67,9 @@ const handleBudgetInputChange = (value: string) => {
 const isStepValid = () => {
   switch (step) {
     case 1: return !!preferences.experience
-    case 2: return true // Budget always has default value
+    case 2: return !!preferences.existingGear
     case 3: return !!preferences.headphoneType
-    case 4: return !!preferences.existingGear
+    case 4: return true // Budget always has default value
     case 5: return !!preferences.usage
     case 6: return !!preferences.soundSignature
     case 7: return true // Summary step
@@ -170,60 +170,52 @@ const handleNext = () => {
           
           {step === 2 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What is your budget?</h2>
-              <p className="text-gray-400 mb-6">Set your total budget for headphones and any needed amplification</p>
-              
-              {/* Range Slider */}
-              <div className="mb-6">
-                <input 
-                  type="range" 
-                  min="100"
-                  max="1500" 
-                  value={preferences.budget}
-                  onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-500 mt-2">
-                  <span>$100</span>
-                  <span>$1500</span>
-                </div>
-              </div>
-              
-              {/* Text Input */}
-              <div className="flex flex-col items-center">
-                <div className="flex items-center justify-center gap-4 mb-2">
-                  <label className="text-lg">$</label>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    min="100"
-                    max="1500"
-                    value={budgetInputValue}
-                    onFocus={handleBudgetInputFocus}
-                    onBlur={handleBudgetInputBlur}
-                    onChange={(e) => handleBudgetInputChange(e.target.value)}
-                    className={`bg-gray-700 border rounded-lg px-4 py-3 text-2xl text-center w-32 focus:outline-none ${
-                      budgetError 
-                        ? 'border-red-500 focus:border-red-400' 
-                        : 'border-gray-600 focus:border-blue-500'
+              <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
+              <p className="text-gray-400 mb-6">This helps us avoid recommending what you own and adjust your budget</p>
+              <div className="space-y-4">
+                {[
+                  {
+                    value: 'none',
+                    label: '📱 Just phone/computer audio',
+                    description: 'Starting fresh - need everything',
+                    budgetNote: 'Full budget available for new gear'
+                  },
+                  {
+                    value: 'basic_headphones',
+                    label: '🎧 Basic headphones only',
+                    description: 'Have some headphones, might want to upgrade',
+                    budgetNote: 'Budget available for upgrade or amplification'
+                  },
+                  {
+                    value: 'headphones_and_source',
+                    label: '🎯 Headphones + DAC/amp',
+                    description: 'Have headphones and amplification',
+                    budgetNote: 'Looking to upgrade existing components'
+                  },
+                  {
+                    value: 'complete_setup',
+                    label: '🔧 Complete audio setup',
+                    description: 'Have full setup, exploring alternatives',
+                    budgetNote: 'Budget for experimentation or specific upgrades'
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.value}
+                    onClick={() => setPreferences({...preferences, existingGear: option.value})}
+                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                      preferences.existingGear === option.value 
+                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
+                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
                     }`}
-                    placeholder="300"
-                  />
-                </div>
-                
-                {/* Error tooltip */}
-                {budgetError && (
-                  <div className="bg-red-900/50 border border-red-500/50 text-red-300 text-sm px-3 py-2 rounded-lg">
-                    {budgetError}
-                  </div>
-                )}
-              </div>
-              
-              <div className="text-center mt-4">
-                <div className="text-sm text-gray-500">
-                  Use the slider or click to type an amount
-                </div>
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-lg">{option.label}</h3>
+                      {preferences.existingGear === option.value && <span className="text-blue-300">✓</span>}
+                    </div>
+                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-sm text-gray-500 italic">{option.budgetNote}</p>
+                  </button>
+                ))}
               </div>
             </div>
           )}
