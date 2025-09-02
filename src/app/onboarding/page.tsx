@@ -23,6 +23,11 @@ export default function OnboardingPage() {
   const [budgetError, setBudgetError] = useState('')
   const router = useRouter()
 
+// Format budget with US comma styling
+const formatBudget = (budget: number) => {
+  return budget.toLocaleString('en-US')
+}
+
 // Convert linear slider position to logarithmic budget value
 const sliderToBudget = (sliderValue: number) => {
   // Slider range: 0-100, Budget range: $20-$10000
@@ -319,10 +324,10 @@ const handleNext = () => {
           {step === 4 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What&apos;s your budget?</h2>
-              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $10,000)</p>
+              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $10,000 USD)</p>
               
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Budget: ${preferences.budget}</label>
+                <label className="block text-sm font-medium mb-2">Budget: ${formatBudget(preferences.budget)} USD</label>
                 <div className="relative">
                   <input 
                     type="range" 
@@ -399,35 +404,35 @@ const handleNext = () => {
                       <div className="w-3 h-3 bg-blue-300 rounded"></div>
                       Budget
                     </span>
-                    <span>$20 - $100</span>
+                    <span>$20 - $100 USD</span>
                   </div>
                   <div className={`flex justify-between ${preferences.budget > 100 && preferences.budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-400 rounded"></div>
                       Entry Level
                     </span>
-                    <span>$100 - $400</span>
+                    <span>$100 - $400 USD</span>
                   </div>
                   <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-500 rounded"></div>
                       Mid Range
                     </span>
-                    <span>$400 - $1,000</span>
+                    <span>$400 - $1,000 USD</span>
                   </div>
                   <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-600 rounded"></div>
                       High End
                     </span>
-                    <span>$1,000 - $3,000</span>
+                    <span>$1,000 - $3,000 USD</span>
                   </div>
                   <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-blue-800 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-800 rounded"></div>
                       Summit-Fi
                     </span>
-                    <span>$3,000+</span>
+                    <span>$3,000+ USD</span>
                   </div>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
@@ -23,14 +23,43 @@ function RecommendationsContent() {
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
   const [showUsedMarket, setShowUsedMarket] = useState(false)
   
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const experience = searchParams.get('experience') || 'intermediate'
-  const budget = parseInt(searchParams.get('budget') || '300')
-  const headphoneType = searchParams.get('headphoneType') || 'cans'
-  const existingGearParam = searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'
-  const existingGear = JSON.parse(existingGearParam)
-  const usage = searchParams.get('usage') || 'music'
-  const soundSignature = searchParams.get('sound') || 'neutral'
+  
+  // User preferences state - make them editable
+  const [userPrefs, setUserPrefs] = useState({
+    experience: searchParams.get('experience') || 'intermediate',
+    budget: parseInt(searchParams.get('budget') || '300'),
+    headphoneType: searchParams.get('headphoneType') || 'cans',
+    existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
+    usage: searchParams.get('usage') || 'music',
+    soundSignature: searchParams.get('sound') || 'neutral'
+  })
+  
+  // Extract values for backward compatibility
+  const { experience, budget, headphoneType, existingGear, usage, soundSignature } = userPrefs
+
+  // Update URL when preferences change
+  const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
+    const updatedPrefs = { ...userPrefs, ...newPrefs }
+    setUserPrefs(updatedPrefs)
+    
+    // Update URL params
+    const params = new URLSearchParams()
+    params.set('experience', updatedPrefs.experience)
+    params.set('budget', updatedPrefs.budget.toString())
+    params.set('headphoneType', updatedPrefs.headphoneType)
+    params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
+    params.set('usage', updatedPrefs.usage)
+    params.set('sound', updatedPrefs.soundSignature)
+    
+    router.push(`/recommendations?${params.toString()}`, { scroll: false })
+  }
+
+  // Format budget with commas
+  const formatBudget = (budget: number) => {
+    return budget.toLocaleString('en-US')
+  }
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -326,6 +355,136 @@ function RecommendationsContent() {
             </p>
           </div>
         )}
+
+        {/* User Selections Display */}
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+          <h3 className="text-lg font-semibold mb-4 text-gray-200">Your Preferences</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            {/* Budget */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Budget</label>
+              <select 
+                value={budget} 
+                onChange={(e) => updatePreferences({ budget: parseInt(e.target.value) })}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="20">$20 USD</option>
+                <option value="50">$50 USD</option>
+                <option value="100">$100 USD</option>
+                <option value="200">$200 USD</option>
+                <option value="300">$300 USD</option>
+                <option value="400">$400 USD</option>
+                <option value="600">$600 USD</option>
+                <option value="800">$800 USD</option>
+                <option value="1000">$1,000 USD</option>
+                <option value="1500">$1,500 USD</option>
+                <option value="2000">$2,000 USD</option>
+                <option value="3000">$3,000 USD</option>
+                <option value="5000">$5,000 USD</option>
+                <option value="10000">$10,000 USD</option>
+              </select>
+            </div>
+
+            {/* Experience Level */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Experience Level</label>
+              <select 
+                value={experience} 
+                onChange={(e) => updatePreferences({ experience: e.target.value })}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="enthusiast">Enthusiast</option>
+              </select>
+            </div>
+
+            {/* Headphone Type */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Headphone Type</label>
+              <select 
+                value={headphoneType} 
+                onChange={(e) => updatePreferences({ headphoneType: e.target.value })}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="cans">Over/On-Ear Headphones</option>
+                <option value="iems">In-Ear Monitors</option>
+              </select>
+            </div>
+
+            {/* Usage */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Primary Usage</label>
+              <select 
+                value={usage} 
+                onChange={(e) => updatePreferences({ usage: e.target.value })}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="music">Music</option>
+                <option value="gaming">Gaming</option>
+                <option value="work">Work/Calls</option>
+                <option value="mixed">Mixed Use</option>
+              </select>
+            </div>
+
+            {/* Sound Signature */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Sound Preference</label>
+              <select 
+                value={soundSignature} 
+                onChange={(e) => updatePreferences({ soundSignature: e.target.value })}
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="neutral">Neutral/Balanced</option>
+                <option value="warm">Warm/Bassy</option>
+                <option value="bright">Bright/Detailed</option>
+                <option value="fun">Fun/V-Shaped</option>
+              </select>
+            </div>
+
+            {/* Current Budget Display */}
+            <div className="md:col-span-2 lg:col-span-1">
+              <div className="text-sm text-gray-400">Current Budget</div>
+              <div className="text-2xl font-bold text-green-400">${formatBudget(budget)} USD</div>
+              <div className="text-xs text-gray-500">
+                {budget <= 100 ? 'Budget Tier' : 
+                 budget <= 400 ? 'Entry Level' : 
+                 budget <= 1000 ? 'Mid Range' : 
+                 budget <= 3000 ? 'High End' : 'Summit-Fi'}
+              </div>
+            </div>
+          </div>
+
+          {/* Existing Gear Tags */}
+          {(existingGear.headphones || existingGear.dac || existingGear.amp || existingGear.combo) && (
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <div className="text-sm text-gray-400 mb-2">Existing Gear</div>
+              <div className="flex flex-wrap gap-2">
+                {existingGear.headphones && (
+                  <span className="px-3 py-1 bg-blue-900/30 border border-blue-500/30 rounded-full text-blue-300 text-sm">
+                    🎧 Headphones
+                  </span>
+                )}
+                {existingGear.dac && (
+                  <span className="px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-green-300 text-sm">
+                    🎛️ DAC
+                  </span>
+                )}
+                {existingGear.amp && (
+                  <span className="px-3 py-1 bg-purple-900/30 border border-purple-500/30 rounded-full text-purple-300 text-sm">
+                    🔊 Amplifier
+                  </span>
+                )}
+                {existingGear.combo && (
+                  <span className="px-3 py-1 bg-orange-900/30 border border-orange-500/30 rounded-full text-orange-300 text-sm">
+                    📻 DAC/Amp Combo
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="space-y-4 mb-8">
           <div className="flex justify-between items-center mb-4">
