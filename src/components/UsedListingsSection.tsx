@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Component, UsedListing } from '@/types'
 import { ListingCard } from './ListingCard'
 

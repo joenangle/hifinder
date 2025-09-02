@@ -94,7 +94,7 @@ function RecommendationsContent() {
         .limit(maxOptions * 2)  // Get more options to filter from
       
       // Filter headphones by average price within budget and prioritize best matches
-      let finalHeadphones = (headphones || [])
+      const finalHeadphones = (headphones || [])
         .map(h => ({
           ...h,
           avgPrice: (h.price_used_min + h.price_used_max) / 2
@@ -229,7 +229,7 @@ function RecommendationsContent() {
       const listings: {[componentId: string]: UsedListing[]} = {}
       
       for (const component of allComponents) {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('used_listings')
           .select('*')
           .eq('component_id', component.id)
