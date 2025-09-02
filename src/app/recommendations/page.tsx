@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Component } from '@/types'
+import { Component, UsedListing } from '@/types'
+import { UsedListingsSection } from '@/components/UsedListingsSection'
 
 function RecommendationsContent() {
   // Separate state for headphones, DACs, amps, and combo units
@@ -19,6 +20,8 @@ function RecommendationsContent() {
   const [selectedDacAmps, setSelectedDacAmps] = useState<string[]>([])
   const [showAmplification, setShowAmplification] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
+  const [showUsedMarket, setShowUsedMarket] = useState(false)
   
   const searchParams = useSearchParams()
   const experience = searchParams.get('experience') || 'intermediate'
@@ -156,11 +159,63 @@ function RecommendationsContent() {
       setAmps(finalAmps)
       setDacAmps(finalDacAmps)
       setShowAmplification(needsAmplification || false)
+      
+      // Fetch used listings for all components
+      await fetchUsedListings([...finalHeadphones, ...finalDacs, ...finalAmps, ...finalDacAmps])
+      
       setLoading(false)
     }
 
     fetchRecommendations()
   }, [budget, headphoneType, existingGear, usage, soundSignature, experience])
+
+  const fetchUsedListings = async (allComponents: Component[]) => {
+    try {
+      const listings: {[componentId: string]: UsedListing[]} = {}
+      
+      for (const component of allComponents) {
+        const { data, error } = await supabase
+          .from('used_listings')
+          .select('*')
+          .eq('component_id', component.id)
+          .eq('is_active', true)
+          .order('date_posted', { ascending: false })
+          .limit(5)
+        
+        if (data && data.length > 0) {
+          listings[component.id] = data.map(listing => ({
+            id: listing.id,
+            component_id: listing.component_id,
+            title: listing.title,
+            price: listing.price,
+            condition: listing.condition,
+            location: listing.location,
+            source: listing.source,
+            url: listing.url,
+            date_posted: listing.date_posted,
+            seller: {
+              username: listing.seller_username,
+              confirmed_trades: listing.seller_confirmed_trades,
+              feedback_score: listing.seller_feedback_score,
+              feedback_percentage: listing.seller_feedback_percentage,
+            },
+            images: listing.images,
+            description: listing.description,
+            is_active: listing.is_active,
+            price_validation: {
+              is_reasonable: listing.price_is_reasonable,
+              variance_percentage: listing.price_variance_percentage,
+              warning: listing.price_warning
+            }
+          }))
+        }
+      }
+      
+      setUsedListings(listings)
+    } catch (error) {
+      console.error('Error fetching used listings:', error)
+    }
+  }
 
   if (loading) return <div className="min-h-screen bg-gray-900 text-white p-8">Loading...</div>
 
@@ -273,9 +328,22 @@ function RecommendationsContent() {
         )}
 
         <div className="space-y-4 mb-8">
-          <h2 className="text-2xl font-bold mb-2">
-            {headphoneType === 'cans' ? '🎧 Over/On-Ear Headphones' : '🎵 In-Ear Monitors'}
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">
+              {headphoneType === 'cans' ? '🎧 Over/On-Ear Headphones' : '🎵 In-Ear Monitors'}
+            </h2>
+            
+            <button
+              onClick={() => setShowUsedMarket(!showUsedMarket)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                showUsedMarket 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+              }`}
+            >
+              {showUsedMarket ? '🛒 Hide Used Market' : '💰 Show Used Market'}
+            </button>
+          </div>
         {headphones.map((component) => {
             const isSelected = selectedHeadphones.includes(component.id)
             return (
@@ -324,6 +392,16 @@ function RecommendationsContent() {
                   <p className="text-yellow-400 text-sm mt-2 ml-8">
                     {experience === 'beginner' ? '⚡ Needs extra power (amplifier)' : '⚡ Requires amplifier'}
                   </p>
+                )}
+                
+                {/* Used Listings for this component */}
+                {showUsedMarket && (
+                  <div className="ml-8 mt-4">
+                    <UsedListingsSection 
+                      component={component}
+                      listings={usedListings[component.id] || []}
+                    />
+                  </div>
                 )}
               </div>
             )
@@ -383,6 +461,16 @@ function RecommendationsContent() {
                         </div>
                       </div>
                       <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
+                      
+                      {/* Used Listings for DAC */}
+                      {showUsedMarket && (
+                        <div className="ml-8 mt-4">
+                          <UsedListingsSection 
+                            component={component}
+                            listings={usedListings[component.id] || []}
+                          />
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -436,6 +524,16 @@ function RecommendationsContent() {
                         </div>
                       </div>
                       <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
+                      
+                      {/* Used Listings for Amp */}
+                      {showUsedMarket && (
+                        <div className="ml-8 mt-4">
+                          <UsedListingsSection 
+                            component={component}
+                            listings={usedListings[component.id] || []}
+                          />
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -489,6 +587,16 @@ function RecommendationsContent() {
                         </div>
                       </div>
                       <p className="text-gray-300 mt-3 ml-8">{getDescription(component)}</p>
+                      
+                      {/* Used Listings for Combo Unit */}
+                      {showUsedMarket && (
+                        <div className="ml-8 mt-4">
+                          <UsedListingsSection 
+                            component={component}
+                            listings={usedListings[component.id] || []}
+                          />
+                        </div>
+                      )}
                     </div>
                   )
                 })}
