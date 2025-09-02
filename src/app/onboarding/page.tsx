@@ -334,8 +334,8 @@ const handleNext = () => {
                     className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer relative z-10 budget-slider"
                     style={{
                       background: `linear-gradient(to right, 
-                        #93c5fd 0%, #93c5fd ${Math.min(budgetToSlider(99), budgetToSlider(preferences.budget))}%,
-                        #60a5fa ${budgetToSlider(99)}%, #60a5fa ${Math.min(budgetToSlider(400), budgetToSlider(preferences.budget))}%,
+                        #93c5fd 0%, #93c5fd ${Math.min(budgetToSlider(100), budgetToSlider(preferences.budget))}%,
+                        #60a5fa ${budgetToSlider(100)}%, #60a5fa ${Math.min(budgetToSlider(400), budgetToSlider(preferences.budget))}%,
                         #3b82f6 ${budgetToSlider(400)}%, #3b82f6 ${Math.min(budgetToSlider(1000), budgetToSlider(preferences.budget))}%,
                         #2563eb ${budgetToSlider(1000)}%, #2563eb ${Math.min(budgetToSlider(3000), budgetToSlider(preferences.budget))}%,
                         #1d4ed8 ${budgetToSlider(3000)}%, #1d4ed8 ${budgetToSlider(preferences.budget)}%,
@@ -353,7 +353,7 @@ const handleNext = () => {
                   </div>
                   {/* Tier breakpoint indicators */}
                   <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(99)}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(100)}%` }}></div>
                     <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(400)}%` }}></div>
                     <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(1000)}%` }}></div>
                     <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(3000)}%` }}></div>
@@ -361,7 +361,7 @@ const handleNext = () => {
                 </div>
                 <div className="flex justify-between text-sm text-gray-400 mt-2">
                   <span>$20</span>
-                  <span className="text-blue-300">$99</span>
+                  <span className="text-blue-300">$100</span>
                   <span className="text-blue-400">$400</span>
                   <span className="text-blue-500">$1K</span>
                   <span className="text-blue-600">$3K</span>
@@ -394,14 +394,14 @@ const handleNext = () => {
                   <span>Budget Tiers:</span>
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className={`flex justify-between ${preferences.budget <= 99 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget <= 100 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-300 rounded"></div>
                       Budget
                     </span>
-                    <span>$20 - $99</span>
+                    <span>$20 - $100</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 99 && preferences.budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 100 && preferences.budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-400 rounded"></div>
                       Entry Level
