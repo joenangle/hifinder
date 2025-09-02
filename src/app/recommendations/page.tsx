@@ -36,6 +36,19 @@ function RecommendationsContent() {
     soundSignature: searchParams.get('sound') || 'neutral'
   })
   
+  // Sync state with URL parameters when they change
+  useEffect(() => {
+    const urlPrefs = {
+      experience: searchParams.get('experience') || 'intermediate',
+      budget: parseInt(searchParams.get('budget') || '300'),
+      headphoneType: searchParams.get('headphoneType') || 'cans',
+      existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
+      usage: searchParams.get('usage') || 'music',
+      soundSignature: searchParams.get('sound') || 'neutral'
+    }
+    setUserPrefs(urlPrefs)
+  }, [searchParams])
+
   // Extract values for backward compatibility
   const { experience, budget, headphoneType, existingGear, usage, soundSignature } = userPrefs
 

@@ -111,6 +111,16 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         </div>
       </div>
 
+{/* Demo Data Warning */}
+      {filteredListings.some(listing => listing.url.includes('/sample')) && (
+        <div className="bg-blue-900/20 border border-blue-600/50 p-4 rounded-lg mb-4">
+          <p className="text-blue-200 text-sm">
+            ℹ️ <strong>Demo Data:</strong> These are sample listings for demonstration purposes. 
+            In a live system, these would be real marketplace listings from Reddit, eBay, and other sources.
+          </p>
+        </div>
+      )}
+
       {/* Safety Warning */}
       <div className="bg-yellow-900/20 border border-yellow-600/50 p-4 rounded-lg mb-4">
         <p className="text-yellow-200 text-sm">

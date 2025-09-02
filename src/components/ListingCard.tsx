@@ -98,17 +98,27 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
             priceVariance > 10 ? 'text-red-400' : 
             'text-gray-400'
           }`}>
-            {priceVariance < 0 ? '↓' : '↑'} {Math.abs(priceVariance).toFixed(0)}% vs typical
+            {priceVariance < -10 ? '💰 ' : priceVariance > 10 ? '⚠️ ' : ''}
+            {priceVariance < 0 ? 
+              `${Math.abs(priceVariance).toFixed(0)}% below typical` : 
+              `${priceVariance.toFixed(0)}% above typical`
+            }
           </div>
           
-          <a 
-            href={listing.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-          >
-            View Listing →
-          </a>
+{listing.url.includes('/sample') ? (
+            <div className="inline-block mt-2 bg-gray-600 text-gray-300 px-4 py-2 rounded text-sm font-medium cursor-not-allowed">
+              Demo Listing
+            </div>
+          ) : (
+            <a 
+              href={listing.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              View Listing →
+            </a>
+          )}
         </div>
       </div>
     </div>
