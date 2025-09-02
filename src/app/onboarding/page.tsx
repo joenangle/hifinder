@@ -203,7 +203,7 @@ const handleNext = () => {
                   <div 
                     key={component.key}
                     className={`rounded-lg p-4 border-2 transition-all ${
-                      preferences.existingGear[component.key]
+                      preferences.existingGear[component.key as keyof typeof preferences.existingGear]
                         ? 'bg-blue-900/30 border-blue-500/50'
                         : 'bg-gray-700 border-gray-600'
                     }`}
@@ -211,12 +211,12 @@ const handleNext = () => {
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={preferences.existingGear[component.key]}
+                        checked={preferences.existingGear[component.key as keyof typeof preferences.existingGear]}
                         onChange={(e) => setPreferences({
                           ...preferences,
                           existingGear: {
                             ...preferences.existingGear,
-                            [component.key]: e.target.checked
+                            [component.key as keyof typeof preferences.existingGear]: e.target.checked
                           }
                         })}
                         className="mt-1 w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
