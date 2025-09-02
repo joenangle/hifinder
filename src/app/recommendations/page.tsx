@@ -76,35 +76,37 @@ function RecommendationsContent() {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      const tier = budget <= 400 ? 'entry' : budget <= 1000 ? 'mid' : 'high'
-      
       // Limit options based on experience level
       const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
       
-      // Get matching headphones first - use the selected type (cans or iems)
+      // Budget range - allow up to 20% over budget, down to 50% of budget
+      const minBudget = Math.floor(budget * 0.5)
+      const maxBudget = Math.floor(budget * 1.2)
+      
+      // Get matching headphones first - filter by actual budget range, not tier
       const { data: headphones, error: headphonesError } = await supabase
         .from('components')
         .select('*')
         .eq('category', headphoneType)
-        .eq('budget_tier', tier)
-        .limit(maxOptions)
+        .lte('price_used_min', maxBudget)  // Min price shouldn't exceed max budget
+        .gte('price_used_max', minBudget)  // Max price should be at least min budget
+        .order('price_used_min', { ascending: true })
+        .limit(maxOptions * 2)  // Get more options to filter from
       
-      // Add fallback for headphones if no high-tier found
-      let finalHeadphones = headphones || []
-      if ((!headphones || headphones.length === 0) && tier === 'high') {
-        console.log(`No high-tier ${headphoneType} found, trying mid-tier as fallback`)
-        const { data: midHeadphones } = await supabase
-          .from('components')
-          .select('*')
-          .eq('category', headphoneType)
-          .eq('budget_tier', 'mid')
-          .limit(maxOptions)
-        
-        if (midHeadphones && midHeadphones.length > 0) {
-          console.log(`Found mid-tier ${headphoneType} as fallback:`, midHeadphones.length)
-          finalHeadphones = midHeadphones
-        }
-      }
+      // Filter headphones by average price within budget and prioritize best matches
+      let finalHeadphones = (headphones || [])
+        .map(h => ({
+          ...h,
+          avgPrice: (h.price_used_min + h.price_used_max) / 2
+        }))
+        .filter(h => h.avgPrice <= maxBudget)  // Hard limit: don't exceed max budget
+        .sort((a, b) => {
+          // Prefer items closer to budget (but not over)
+          const aDiff = Math.abs(budget - a.avgPrice)
+          const bDiff = Math.abs(budget - b.avgPrice)
+          return aDiff - bDiff
+        })
+        .slice(0, maxOptions)
       
       if (headphonesError) {
         console.error('Headphones query error:', headphonesError)
@@ -135,55 +137,66 @@ function RecommendationsContent() {
         // For lower budgets or beginners, offer combo units
         const preferSeparates = (budget > 1200 && experience === 'enthusiast') || budget > 2000
         
+        // Calculate remaining budget after headphones for amplification
+        const avgHeadphonePrice = finalHeadphones.length > 0 ? 
+          finalHeadphones.reduce((sum, h) => sum + (h.price_used_min + h.price_used_max) / 2, 0) / finalHeadphones.length : 0
+        const remainingBudget = Math.max(50, budget - avgHeadphonePrice) // At least $50 for amp gear
+        const ampMaxBudget = Math.floor(remainingBudget * 1.2)
+        const ampMinBudget = Math.floor(remainingBudget * 0.3)
+        
         if (preferSeparates) {
-          // Try to get separate DACs and amps
-          console.log('Fetching separate DACs and amps for budget:', budget, 'tier:', tier)
+          // Try to get separate DACs and amps within remaining budget
+          console.log('Fetching separate DACs and amps for remaining budget:', remainingBudget)
           
           const [{ data: dacs }, { data: amps }] = await Promise.all([
             supabase
               .from('components')
               .select('*')
               .eq('category', 'dac')
-              .eq('budget_tier', tier)
-              .limit(2),
+              .lte('price_used_min', ampMaxBudget)
+              .gte('price_used_max', ampMinBudget)
+              .order('price_used_min', { ascending: true })
+              .limit(4),
             supabase
               .from('components')
               .select('*')
               .eq('category', 'amp')
-              .eq('budget_tier', tier)
-              .limit(2)
+              .lte('price_used_min', ampMaxBudget)
+              .gte('price_used_max', ampMinBudget)
+              .order('price_used_min', { ascending: true })
+              .limit(4)
           ])
           
-          finalDacs = dacs || []
-          finalAmps = amps || []
+          // Filter and sort by budget fit
+          finalDacs = (dacs || [])
+            .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
+            .filter(d => d.avgPrice <= ampMaxBudget)
+            .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
+            .slice(0, 2)
+            
+          finalAmps = (amps || [])
+            .map(a => ({...a, avgPrice: (a.price_used_min + a.price_used_max) / 2}))
+            .filter(a => a.avgPrice <= ampMaxBudget)
+            .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
+            .slice(0, 2)
         }
         
         // Always get combo units as fallback or primary option
-        console.log('Fetching combo DAC/Amps for tier:', tier)
+        console.log('Fetching combo DAC/Amps for remaining budget:', remainingBudget)
         const { data: dacAmps, error: dacAmpsError } = await supabase
           .from('components')
           .select('*')
           .eq('category', 'dac_amp')
-          .eq('budget_tier', tier)
-          .limit(ampLimit)
+          .lte('price_used_min', ampMaxBudget)
+          .gte('price_used_max', ampMinBudget)
+          .order('price_used_min', { ascending: true })
+          .limit(ampLimit * 2)
         
-        finalDacAmps = dacAmps || []
-        
-        // Fallback to mid-tier if no high-tier components found
-        if (tier === 'high' && finalDacs.length === 0 && finalAmps.length === 0 && finalDacAmps.length === 0) {
-          console.log('No high-tier amplification found, trying mid-tier fallback')
-          
-          const [{ data: midDacs }, { data: midAmps }, { data: midDacAmps }] = await Promise.all([
-            supabase.from('components').select('*').eq('category', 'dac').eq('budget_tier', 'mid').limit(2),
-            supabase.from('components').select('*').eq('category', 'amp').eq('budget_tier', 'mid').limit(2),
-            supabase.from('components').select('*').eq('category', 'dac_amp').eq('budget_tier', 'mid').limit(ampLimit)
-          ])
-          
-          finalDacs = midDacs || []
-          finalAmps = midAmps || []
-          finalDacAmps = midDacAmps || []
-          console.log('Fallback results - DACs:', finalDacs.length, 'Amps:', finalAmps.length, 'Combos:', finalDacAmps.length)
-        }
+        finalDacAmps = (dacAmps || [])
+          .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
+          .filter(d => d.avgPrice <= ampMaxBudget)
+          .sort((a, b) => Math.abs(remainingBudget - a.avgPrice) - Math.abs(remainingBudget - b.avgPrice))
+          .slice(0, ampLimit)
         
         if (dacAmpsError) {
           console.error('DAC/Amp query error:', dacAmpsError)
@@ -191,10 +204,10 @@ function RecommendationsContent() {
       }
       
       // Store them separately, not mixed together
-      console.log('Budget:', budget, 'Tier:', tier)
+      console.log('Budget:', budget, `(${minBudget}-${maxBudget})`)
       console.log('Fetched headphones:', headphones?.length || 0, 'Final headphones:', finalHeadphones.length)
       console.log('Final DACs:', finalDacs.length, 'Final amps:', finalAmps.length, 'Final combo units:', finalDacAmps.length)
-      console.log('needsAmplification calculation:', finalHeadphones?.some(h => h.needs_amp), '|| budget > 600:', budget > 600, '= ', needsAmplification)
+      console.log('needsAmplification calculation:', finalHeadphones?.some(h => h.needs_amp), '|| budget > 800:', budget > 800, '= ', needsAmplification)
       
       setHeadphones(finalHeadphones)
       setDacs(finalDacs)
