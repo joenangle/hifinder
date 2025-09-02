@@ -23,9 +23,27 @@ export default function OnboardingPage() {
   const [budgetError, setBudgetError] = useState('')
   const router = useRouter()
 
-const handleBudgetSliderChange = (value: number) => {
-  setPreferences({...preferences, budget: value})
-  setBudgetInputValue(value.toString())
+// Convert linear slider position to logarithmic budget value
+const sliderToBudget = (sliderValue: number) => {
+  // Slider range: 0-100, Budget range: $20-$10000
+  const minLog = Math.log(20)
+  const maxLog = Math.log(10000)
+  const scale = (maxLog - minLog) / 100
+  return Math.round(Math.exp(minLog + scale * sliderValue))
+}
+
+// Convert budget value to linear slider position  
+const budgetToSlider = (budget: number) => {
+  const minLog = Math.log(20)
+  const maxLog = Math.log(10000)
+  const scale = (maxLog - minLog) / 100
+  return Math.round((Math.log(budget) - minLog) / scale)
+}
+
+const handleBudgetSliderChange = (sliderValue: number) => {
+  const budget = sliderToBudget(sliderValue)
+  setPreferences({...preferences, budget})
+  setBudgetInputValue(budget.toString())
   setBudgetError('')
 }
 
@@ -102,7 +120,28 @@ const handleNext = () => {
 }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
+    <>
+      <style jsx>{`
+        /* Hide default slider thumb */
+        .budget-slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 0;
+          width: 0;
+        }
+        .budget-slider::-moz-range-thumb {
+          appearance: none;
+          height: 0;
+          width: 0;
+          border: none;
+          background: transparent;
+        }
+        .budget-slider::-ms-thumb {
+          appearance: none;
+          height: 0;
+          width: 0;
+        }
+      `}</style>
+      <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-2xl mx-auto">
         {/* Header with Home Link */}
         <div className="mb-6">
@@ -287,32 +326,45 @@ const handleNext = () => {
                 <div className="relative">
                   <input 
                     type="range" 
-                    min="20" 
-                    max="10000" 
-                    value={preferences.budget}
+                    min="0" 
+                    max="100" 
+                    step="1"
+                    value={budgetToSlider(preferences.budget)}
                     onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-                    className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer relative z-10 budget-slider"
                     style={{
                       background: `linear-gradient(to right, 
-                        #10b981 0%, #10b981 ${((Math.min(preferences.budget, 400) - 20) / 9980) * 100}%,
-                        #f59e0b ${((400 - 20) / 9980) * 100}%, #f59e0b ${((Math.min(preferences.budget, 1000) - 20) / 9980) * 100}%,
-                        #ef4444 ${((1000 - 20) / 9980) * 100}%, #ef4444 ${((Math.min(preferences.budget, 3000) - 20) / 9980) * 100}%,
-                        #8b5cf6 ${((3000 - 20) / 9980) * 100}%, #8b5cf6 ${((preferences.budget - 20) / 9980) * 100}%,
-                        #374151 ${((preferences.budget - 20) / 9980) * 100}%, #374151 100%)`
+                        #93c5fd 0%, #93c5fd ${Math.min(budgetToSlider(99), budgetToSlider(preferences.budget))}%,
+                        #60a5fa ${budgetToSlider(99)}%, #60a5fa ${Math.min(budgetToSlider(400), budgetToSlider(preferences.budget))}%,
+                        #3b82f6 ${budgetToSlider(400)}%, #3b82f6 ${Math.min(budgetToSlider(1000), budgetToSlider(preferences.budget))}%,
+                        #2563eb ${budgetToSlider(1000)}%, #2563eb ${Math.min(budgetToSlider(3000), budgetToSlider(preferences.budget))}%,
+                        #1d4ed8 ${budgetToSlider(3000)}%, #1d4ed8 ${budgetToSlider(preferences.budget)}%,
+                        #374151 ${budgetToSlider(preferences.budget)}%, #374151 100%)`
                     }}
                   />
+                  {/* Enhanced current position indicator */}
+                  <div 
+                    className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 pointer-events-none z-20"
+                    style={{ left: `${budgetToSlider(preferences.budget)}%` }}
+                  >
+                    <div className="w-6 h-6 bg-white border-3 border-blue-600 rounded-full shadow-lg flex items-center justify-center">
+                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                    </div>
+                  </div>
                   {/* Tier breakpoint indicators */}
                   <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((400 - 20) / 9980) * 100}%` }}></div>
-                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((1000 - 20) / 9980) * 100}%` }}></div>
-                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${((3000 - 20) / 9980) * 100}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(99)}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(400)}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(1000)}%` }}></div>
+                    <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(3000)}%` }}></div>
                   </div>
                 </div>
                 <div className="flex justify-between text-sm text-gray-400 mt-2">
                   <span>$20</span>
-                  <span className="text-emerald-400">$400</span>
-                  <span className="text-amber-400">$1K</span>
-                  <span className="text-red-400">$3K</span>
+                  <span className="text-blue-300">$99</span>
+                  <span className="text-blue-400">$400</span>
+                  <span className="text-blue-500">$1K</span>
+                  <span className="text-blue-600">$3K</span>
                   <span>$10K</span>
                 </div>
               </div>
@@ -342,30 +394,37 @@ const handleNext = () => {
                   <span>Budget Tiers:</span>
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className={`flex justify-between ${preferences.budget <= 400 ? 'text-emerald-300 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget <= 99 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-emerald-500 rounded"></div>
+                      <div className="w-3 h-3 bg-blue-300 rounded"></div>
+                      Budget
+                    </span>
+                    <span>$20 - $99</span>
+                  </div>
+                  <div className={`flex justify-between ${preferences.budget > 99 && preferences.budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-400 rounded"></div>
                       Entry Level
                     </span>
-                    <span>$20 - $400</span>
+                    <span>$100 - $400</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-amber-300 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-amber-500 rounded"></div>
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
                       Mid Range
                     </span>
                     <span>$400 - $1,000</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-red-300 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded"></div>
+                      <div className="w-3 h-3 bg-blue-600 rounded"></div>
                       High End
                     </span>
                     <span>$1,000 - $3,000</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-violet-300 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-blue-800 font-medium' : 'text-gray-400'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-violet-500 rounded"></div>
+                      <div className="w-3 h-3 bg-blue-800 rounded"></div>
                       Summit-Fi
                     </span>
                     <span>$3,000+</span>
@@ -501,6 +560,7 @@ const handleNext = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
