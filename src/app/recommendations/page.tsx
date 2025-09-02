@@ -99,6 +99,11 @@ function RecommendationsContent() {
           ...h,
           avgPrice: (h.price_used_min + h.price_used_max) / 2
         }))
+        // Deduplicate by name+brand (keep first occurrence)
+        .filter((h, index, arr) => {
+          const key = `${h.name}|${h.brand}`
+          return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+        })
         .filter(h => h.avgPrice <= maxBudget)  // Hard limit: don't exceed max budget
         .sort((a, b) => {
           // Prefer items closer to budget (but not over)
@@ -170,12 +175,20 @@ function RecommendationsContent() {
           // Filter and sort by budget fit
           finalDacs = (dacs || [])
             .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
+            .filter((d, index, arr) => {
+              const key = `${d.name}|${d.brand}`
+              return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+            })
             .filter(d => d.avgPrice <= ampMaxBudget)
             .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
             .slice(0, 2)
             
           finalAmps = (amps || [])
             .map(a => ({...a, avgPrice: (a.price_used_min + a.price_used_max) / 2}))
+            .filter((a, index, arr) => {
+              const key = `${a.name}|${a.brand}`
+              return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+            })
             .filter(a => a.avgPrice <= ampMaxBudget)
             .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
             .slice(0, 2)
@@ -194,6 +207,10 @@ function RecommendationsContent() {
         
         finalDacAmps = (dacAmps || [])
           .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
+          .filter((d, index, arr) => {
+            const key = `${d.name}|${d.brand}`
+            return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+          })
           .filter(d => d.avgPrice <= ampMaxBudget)
           .sort((a, b) => Math.abs(remainingBudget - a.avgPrice) - Math.abs(remainingBudget - b.avgPrice))
           .slice(0, ampLimit)
