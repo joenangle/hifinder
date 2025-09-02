@@ -231,7 +231,7 @@ const handleNext = () => {
               </div>
               <div className="mt-4 p-4 bg-gray-700/50 rounded-lg">
                 <p className="text-sm text-gray-400">
-                  💡 <strong>Don't have anything?</strong> Leave all unchecked and we'll recommend a complete setup within your budget.
+                  💡 <strong>Don&apos;t have anything?</strong> Leave all unchecked and we&apos;ll recommend a complete setup within your budget.
                 </p>
               </div>
             </div>
@@ -418,8 +418,8 @@ const handleNext = () => {
                     <p><span className="font-medium">Type:</span> {preferences.headphoneType === 'cans' ? 'Over/On-Ear' : 'In-Ear Monitors'}</p>
                     <p><span className="font-medium">Existing Gear:</span> {
                       Object.entries(preferences.existingGear)
-                        .filter(([_, has]) => has)
-                        .map(([key, _]) => key)
+                        .filter(([, has]) => has)
+                        .map(([key]) => key)
                         .join(', ') || 'Starting fresh'
                     }</p>
                     <p><span className="font-medium">Usage:</span> {preferences.usage}</p>
