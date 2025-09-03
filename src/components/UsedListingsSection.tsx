@@ -62,7 +62,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
                 </a>
                 <div className="text-xs text-gray-400 mt-2">
                   <span className="inline-block bg-gray-700 px-2 py-1 rounded">
-                    Affiliate Link - HiFinder may earn a commission
+                    Affiliate Link - HiFinder may earn a commission at no additional cost to you
                   </span>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
             </a>
             <div className="text-xs text-gray-400 mt-2">
               <span className="inline-block bg-gray-700 px-2 py-1 rounded">
-                Affiliate Link - HiFinder may earn a commission
+                Affiliate Link - HiFinder may earn a commission at no additional cost to you
               </span>
             </div>
           </div>
