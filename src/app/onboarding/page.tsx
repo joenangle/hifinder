@@ -463,7 +463,7 @@ const handleNext = () => {
           {step === 2 && (
             <div>
               <h2 className="heading-2 mb-6">What do you want recommendations for?</h2>
-              <p className="text-secondary mb-16">Select the components you'd like us to recommend for your system</p>
+              <p className="text-secondary mb-16">Select the components you&apos;d like us to recommend for your system</p>
               <div className="space-y-16">
                 {[
                   {
