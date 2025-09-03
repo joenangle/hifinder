@@ -4,6 +4,231 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// Types
+interface Preferences {
+  experience: string
+  budget: number
+  headphoneType: string
+  existingGear: {
+    headphones: boolean
+    dac: boolean
+    amp: boolean
+    combo: boolean
+  }
+  usage: string
+  usageRanking: string[]
+  excludedUsages: string[]
+  soundSignature: string
+}
+
+// Usage Ranking Component  
+interface UsageRankingStepProps {
+  preferences: Preferences
+  setPreferences: (prefs: Preferences) => void
+}
+
+function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps) {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    if (draggedIndex === null) return
+
+    const newRanking = [...preferences.usageRanking]
+    const draggedItem = newRanking[draggedIndex]
+    
+    // Remove dragged item
+    newRanking.splice(draggedIndex, 1)
+    // Insert at new position
+    newRanking.splice(dropIndex, 0, draggedItem)
+
+    setPreferences({
+      ...preferences,
+      usageRanking: newRanking,
+      usage: newRanking[0].toLowerCase() // Keep primary as first item
+    })
+
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const moveItem = (fromIndex: number, toIndex: number) => {
+    const newRanking = [...preferences.usageRanking]
+    const item = newRanking.splice(fromIndex, 1)[0]
+    newRanking.splice(toIndex, 0, item)
+    
+    setPreferences({
+      ...preferences,
+      usageRanking: newRanking,
+      usage: newRanking[0].toLowerCase()
+    })
+  }
+
+  const excludeUseCase = (useCase: string) => {
+    const newRanking = preferences.usageRanking.filter(u => u !== useCase)
+    const newExcluded = [...preferences.excludedUsages, useCase]
+    
+    setPreferences({
+      ...preferences,
+      usageRanking: newRanking,
+      excludedUsages: newExcluded,
+      usage: newRanking.length > 0 ? newRanking[0].toLowerCase() : ''
+    })
+  }
+
+  const includeUseCase = (useCase: string) => {
+    const newExcluded = preferences.excludedUsages.filter(u => u !== useCase)
+    const newRanking = [...preferences.usageRanking, useCase]
+    
+    setPreferences({
+      ...preferences,
+      usageRanking: newRanking,
+      excludedUsages: newExcluded,
+      usage: newRanking[0].toLowerCase()
+    })
+  }
+
+  const getRankLabel = (index: number) => {
+    switch(index) {
+      case 0: return 'Primary'
+      case 1: return 'Secondary' 
+      case 2: return 'Occasional'
+      case 3: return 'Rare'
+      default: return ''
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-2">Rank your use cases</h2>
+      <p className="text-gray-400 mb-6">
+        Drag to reorder by priority, or use the arrow buttons
+      </p>
+      
+      <div className="space-y-3">
+        {preferences.usageRanking.map((use, index) => (
+          <div
+            key={use}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, index)}
+            className={`
+              flex items-center justify-between p-4 rounded-lg border-2 cursor-move
+              ${dragOverIndex === index ? 'border-blue-400 bg-blue-900/20' : 'border-gray-600 bg-gray-700'}
+              ${draggedIndex === index ? 'opacity-50' : ''}
+              ${index === 0 ? 'border-blue-500 bg-blue-900/30' : ''}
+              hover:border-gray-500 transition-all touch-manipulation
+            `}
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center text-xs text-gray-400 min-w-[60px]">
+                <span className="font-medium">{getRankLabel(index)}</span>
+                <span>#{index + 1}</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="text-gray-400">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <span className="font-medium text-white">{use}</span>
+              </div>
+            </div>
+
+            {/* Control buttons */}
+            <div className="flex gap-1">
+              <button
+                onClick={() => index > 0 && moveItem(index, index - 1)}
+                disabled={index === 0}
+                className="p-2 rounded text-gray-400 hover:text-white hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
+                aria-label="Move up"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M8 2l-4 4h8l-4-4zM8 14l-4-4h8l-4 4z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => index < preferences.usageRanking.length - 1 && moveItem(index, index + 1)}
+                disabled={index === preferences.usageRanking.length - 1}
+                className="p-2 rounded text-gray-400 hover:text-white hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
+                aria-label="Move down"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" transform="rotate(180)">
+                  <path d="M8 2l-4 4h8l-4-4zM8 14l-4-4h8l-4 4z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => excludeUseCase(use)}
+                className="p-2 rounded text-red-400 hover:text-red-300 hover:bg-red-900/20 touch-manipulation"
+                aria-label="Exclude this use case"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M4 4l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Excluded use cases */}
+      {preferences.excludedUsages.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-300 mb-3">Excluded Use Cases</h3>
+          <div className="space-y-2">
+            {preferences.excludedUsages.map(excludedUse => (
+              <div
+                key={excludedUse}
+                className="flex items-center justify-between p-3 rounded-lg border border-red-800 bg-red-900/10"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="text-red-400">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M4 4l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <span className="text-gray-300 line-through">{excludedUse}</span>
+                </div>
+                <button
+                  onClick={() => includeUseCase(excludedUse)}
+                  className="px-3 py-1 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white touch-manipulation"
+                >
+                  Include
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+        <p className="text-sm text-gray-400">
+          💡 <strong>Your primary use case</strong> will have the most influence on recommendations. 
+          Secondary and occasional uses are also considered, while excluded uses are ignored.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [preferences, setPreferences] = useState({
@@ -17,6 +242,8 @@ export default function OnboardingPage() {
       combo: false
     },
     usage: '',
+    usageRanking: [] as string[],
+    excludedUsages: [] as string[],
     soundSignature: ''
   })
   const [budgetInputValue, setBudgetInputValue] = useState('100')
@@ -98,7 +325,7 @@ const isStepValid = () => {
     case 2: return true // Existing gear can be all false (starting fresh)
     case 3: return !!preferences.headphoneType
     case 4: return true // Budget always has default value
-    case 5: return !!preferences.usage
+    case 5: return preferences.usageRanking.length > 0
     case 6: return !!preferences.soundSignature
     case 7: return true // Summary step
     default: return false
@@ -441,22 +668,36 @@ const handleNext = () => {
           
           {step === 5 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">How will you use them?</h2>
-              <div className="space-y-2">
-                {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
-                  <button 
-                    key={use}
-                    onClick={() => setPreferences({...preferences, usage: use.toLowerCase()})}
-                    className={`w-full p-3 rounded ${
-                      preferences.usage === use.toLowerCase() 
-                        ? 'bg-blue-600' 
-                        : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                  >
-                    {use}
-                  </button>
-                ))}
-              </div>
+              {preferences.usageRanking.length === 0 ? (
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">How will you primarily use them?</h2>
+                  <p className="text-gray-400 mb-6">Choose your main use case first</p>
+                  <div className="space-y-2">
+                    {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
+                      <button 
+                        key={use}
+                        onClick={() => {
+                          const remaining: string[] = ['Music', 'Gaming', 'Movies', 'Work'].filter(u => u !== use)
+                          setPreferences({
+                            ...preferences, 
+                            usage: use.toLowerCase(),
+                            usageRanking: [use, ...remaining] as string[],
+                            excludedUsages: [] as string[]
+                          })
+                        }}
+                        className="w-full p-3 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
+                      >
+                        {use}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <UsageRankingStep 
+                  preferences={preferences}
+                  setPreferences={setPreferences}
+                />
+              )}
             </div>
           )}
           
