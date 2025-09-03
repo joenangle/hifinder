@@ -115,12 +115,12 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2">Rank your use cases</h2>
-      <p className="text-gray-400 mb-6">
+      <h2 className="heading-2 mb-4">Rank your use cases</h2>
+      <p className="text-secondary mb-16">
         Drag to reorder by priority, or use the arrow buttons
       </p>
       
-      <div className="space-y-3">
+      <div className="space-y-8">
         {preferences.usageRanking.map((use, index) => (
           <div
             key={use}
@@ -193,7 +193,7 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
       {preferences.excludedUsages.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-medium text-gray-300 mb-3">Excluded Use Cases</h3>
-          <div className="space-y-2">
+          <div className="space-y-8">
             {preferences.excludedUsages.map(excludedUse => (
               <div
                 key={excludedUse}
@@ -209,7 +209,7 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
                 </div>
                 <button
                   onClick={() => includeUseCase(excludedUse)}
-                  className="px-3 py-1 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white touch-manipulation"
+                  className="button button-secondary text-sm"
                 >
                   Include
                 </button>
@@ -219,8 +219,8 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
         </div>
       )}
 
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-        <p className="text-sm text-gray-400">
+      <div className="card mt-6">
+        <p className="text-sm text-secondary">
           💡 <strong>Your primary use case</strong> will have the most influence on recommendations. 
           Secondary and occasional uses are also considered, while excluded uses are ignored.
         </p>
@@ -389,36 +389,36 @@ const handleNext = () => {
           width: 0;
         }
       `}</style>
-      <div className="min-h-screen bg-gray-900 text-white p-8">
+      <div className="page-container p-12">
       <div className="max-w-2xl mx-auto">
         {/* Header with Home Link */}
-        <div className="mb-6">
-          <Link href="/" className="text-gray-400 hover:text-white inline-flex items-center gap-2 text-sm">
+        <div className="mb-16">
+          <Link href="/" className="text-secondary hover:text-primary inline-flex items-center gap-2 text-sm">
             ← Back to Home
           </Link>
         </div>
         
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between text-sm mb-2">
+        <div className="mb-16">
+          <div className="flex justify-between text-sm mb-4">
             <span>Step {step} of 8</span>
-            <span>{Math.round(step * 12.5)}% Complete</span>
+            <span>{Math.round((step / 8) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-surface-secondary rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${step * 12.5}%` }}
+              className="bg-accent h-2 rounded-full transition-all"
+              style={{ width: `${(step / 8) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Step Content */}
-        <div className="bg-gray-800 rounded-lg p-8">
+        <div className="card">
           {step === 1 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What&apos;s your audio experience?</h2>
-              <p className="text-gray-400 mb-6">This helps us recommend the right gear and explain things at your level</p>
-              <div className="space-y-4">
+              <h2 className="heading-2 mb-6">What&apos;s your audio experience?</h2>
+              <p className="text-secondary mb-16">This helps us recommend the right gear and explain things at your level</p>
+              <div className="space-y-16">
                 {[
                   {
                     id: 'beginner',
@@ -442,17 +442,17 @@ const handleNext = () => {
                   <button 
                     key={option.id}
                     onClick={() => setPreferences({...preferences, experience: option.id})}
-                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                    className={`card-interactive ${
                       preferences.experience === option.id 
-                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
-                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                        ? 'card-interactive-selected' 
+                        : ''
                     }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-lg">{option.title}</h3>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="heading-3">{option.title}</h3>
                       {preferences.experience === option.id && <span className="text-blue-300">✓</span>}
                     </div>
-                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-secondary mb-4">{option.description}</p>
                     <p className="text-sm text-gray-500 italic">{option.examples}</p>
                   </button>
                 ))}
@@ -462,9 +462,9 @@ const handleNext = () => {
           
           {step === 2 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What do you want recommendations for?</h2>
-              <p className="text-gray-400 mb-6">Select the components you'd like us to recommend for your system</p>
-              <div className="space-y-4">
+              <h2 className="heading-2 mb-6">What do you want recommendations for?</h2>
+              <p className="text-secondary mb-16">Select the components you'd like us to recommend for your system</p>
+              <div className="space-y-16">
                 {[
                   {
                     key: 'headphones',
@@ -489,11 +489,11 @@ const handleNext = () => {
                 ].map(component => (
                   <div 
                     key={component.key}
-                    className="flex items-center justify-between p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                    className="card-interactive flex items-center justify-between"
                   >
                     <div>
                       <h3 className="font-medium">{component.label}</h3>
-                      <p className="text-sm text-gray-400">{component.description}</p>
+                      <p className="text-sm text-secondary">{component.description}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -518,9 +518,9 @@ const handleNext = () => {
           
           {step === 3 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
-              <p className="text-gray-400 mb-6">Check what you already own so we can focus your budget on what you need</p>
-              <div className="space-y-4">
+              <h2 className="heading-2 mb-6">What gear do you already have?</h2>
+              <p className="text-secondary mb-16">Check what you already own so we can focus your budget on what you need</p>
+              <div className="space-y-16">
                 {[
                   {
                     key: 'headphones',
@@ -545,10 +545,10 @@ const handleNext = () => {
                 ].map(component => (
                   <div 
                     key={component.key}
-                    className={`rounded-lg p-4 border-2 transition-all ${
+                    className={`card-interactive ${
                       preferences.existingGear[component.key as keyof typeof preferences.existingGear]
-                        ? 'bg-blue-900/30 border-blue-500/50'
-                        : 'bg-gray-700 border-gray-600'
+                        ? 'card-interactive-selected'
+                        : ''
                     }`}
                   >
                     <label className="flex items-start gap-3 cursor-pointer">
@@ -565,7 +565,7 @@ const handleNext = () => {
                         className="mt-1 w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
                       />
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg">{component.label}</h3>
+                        <h3 className="heading-3">{component.label}</h3>
                         <p className="text-gray-300 text-sm">{component.description}</p>
                       </div>
                     </label>
@@ -580,11 +580,11 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 3 && (
+          {step === 4 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What type of headphones do you prefer?</h2>
-              <p className="text-gray-400 mb-6">Choose the style that appeals to you most</p>
-              <div className="space-y-4">
+              <h2 className="heading-2 mb-6">What type of headphones do you prefer?</h2>
+              <p className="text-secondary mb-16">Choose the style that appeals to you most</p>
+              <div className="space-y-16">
                 {[
                   {
                     value: 'cans',
@@ -602,17 +602,17 @@ const handleNext = () => {
                   <button 
                     key={option.value}
                     onClick={() => setPreferences({...preferences, headphoneType: option.value})}
-                    className={`w-full p-6 rounded-lg text-left transition-all ${
+                    className={`w-full p-4 rounded-lg text-left transition-all ${
                       preferences.headphoneType === option.value 
                         ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
                         : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
                     }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-lg">{option.label}</h3>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="heading-3">{option.label}</h3>
                       {preferences.headphoneType === option.value && <span className="text-blue-300">✓</span>}
                     </div>
-                    <p className="text-gray-300 mb-2">{option.description}</p>
+                    <p className="text-secondary mb-4">{option.description}</p>
                     <p className="text-sm text-gray-500 italic">{option.pros}</p>
                   </button>
                 ))}
@@ -620,13 +620,13 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 4 && (
+          {step === 5 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">What&apos;s your budget?</h2>
-              <p className="text-gray-400 mb-6">We&apos;ll recommend gear that fits your budget (maximum $10,000 USD)</p>
+              <h2 className="heading-2 mb-6">What&apos;s your budget?</h2>
+              <p className="text-secondary mb-16">We&apos;ll recommend gear that fits your budget (maximum $10,000 USD)</p>
               
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Budget: ${formatBudget(preferences.budget)} USD</label>
+              <div className="mb-16">
+                <label className="block text-sm font-medium mb-4">Budget: ${formatBudget(preferences.budget)} USD</label>
                 <div className="relative">
                   <input 
                     type="range" 
@@ -673,8 +673,8 @@ const handleNext = () => {
                 </div>
               </div>
               
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Or enter exact amount:</label>
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-4">Or enter exact amount:</label>
                 <input 
                   type="number"
                   inputMode="numeric"
@@ -683,7 +683,7 @@ const handleNext = () => {
                   onFocus={handleBudgetInputFocus}
                   onBlur={handleBudgetInputBlur}
                   onChange={(e) => handleBudgetInputChange(e.target.value)}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="input"
                   placeholder="Enter budget amount"
                   min="20"
                   max="10000"
@@ -694,7 +694,7 @@ const handleNext = () => {
               </div>
               
               <div className="bg-gray-700/50 rounded-lg p-4">
-                <div className="flex justify-between text-sm mb-2">
+                <div className="flex justify-between text-sm mb-4">
                   <span>Budget Tiers:</span>
                 </div>
                 <div className="space-y-1 text-sm">
@@ -738,13 +738,13 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 5 && (
+          {step === 6 && (
             <div>
               {preferences.usageRanking.length === 0 ? (
                 <div>
-                  <h2 className="text-2xl font-bold mb-4">How will you primarily use them?</h2>
-                  <p className="text-gray-400 mb-6">Choose your main use case first</p>
-                  <div className="space-y-2">
+                  <h2 className="heading-2 mb-6">How will you primarily use them?</h2>
+                  <p className="text-secondary mb-16">Choose your main use case first</p>
+                  <div className="space-y-16">
                     {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
                       <button 
                         key={use}
@@ -757,7 +757,7 @@ const handleNext = () => {
                             excludedUsages: [] as string[]
                           })
                         }}
-                        className="w-full p-3 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
+                        className="w-full p-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
                       >
                         {use}
                       </button>
@@ -774,11 +774,11 @@ const handleNext = () => {
           )}
           
           
-          {step === 6 && (
+          {step === 7 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">Sound preference?</h2>
-              <p className="text-gray-400 mb-6">Choose the sound signature that appeals to you most</p>
-              <div className="space-y-3">
+              <h2 className="heading-2 mb-6">Sound preference?</h2>
+              <p className="text-secondary mb-16">Choose the sound signature that appeals to you most</p>
+              <div className="space-y-16">
                 {[
                   { 
                     value: 'neutral', 
@@ -804,7 +804,7 @@ const handleNext = () => {
                   <button 
                     key={option.value}
                     onClick={() => setPreferences({...preferences, soundSignature: option.value})}
-                    className={`w-full p-4 rounded text-left ${
+                    className={`w-full p-3 rounded text-left ${
                       preferences.soundSignature === option.value 
                         ? 'bg-blue-600 border-2 border-blue-400' 
                         : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
@@ -818,12 +818,12 @@ const handleNext = () => {
             </div>
           )}
           
-          {step === 7 && (
+          {step === 8 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4">Ready for recommendations!</h2>
-              <div className="space-y-4">
+              <h2 className="heading-2 mb-6">Ready for recommendations!</h2>
+              <div className="space-y-16">
                 <div className="bg-gray-700 rounded-lg p-4">
-                  <h3 className="font-semibold mb-2">Your Preferences:</h3>
+                  <h3 className="font-semibold mb-4">Your Preferences:</h3>
                   <div className="text-sm space-y-1 text-gray-300">
                     <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
                     <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
@@ -847,13 +847,13 @@ const handleNext = () => {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-20">
           <button 
             onClick={() => setStep(Math.max(1, step - 1))}
-            className={`px-6 py-3 rounded ${
+            className={`button ${
               step === 1 
-                ? 'bg-gray-700 opacity-50 cursor-not-allowed' 
-                : 'bg-gray-700 hover:bg-gray-600'
+                ? 'button-secondary' 
+                : 'button-secondary'
             }`}
             disabled={step === 1}
           >
@@ -863,10 +863,10 @@ const handleNext = () => {
           <button 
             onClick={handleNext}
             disabled={!isStepValid()}
-            className={`px-6 py-3 rounded font-medium transition-all ${
+            className={`button ${
               isStepValid()
-                ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-                : 'bg-gray-600 opacity-50 cursor-not-allowed'
+                ? 'button-primary'
+                : 'button-secondary'
             }`}
           >
             {!isStepValid() && step === 1 ? 'Select Experience Level' :
