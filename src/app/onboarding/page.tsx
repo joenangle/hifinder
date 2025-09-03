@@ -532,7 +532,7 @@ const handleNext = () => {
             <div>
               <h2 className="heading-2 mb-6">What gear do you already have?</h2>
               <p className="text-secondary mb-16">Check what you already own so we can focus your budget on what you need</p>
-              <div className="space-y-16">
+              <div className="space-y-24">
                 {[
                   {
                     key: 'headphones',

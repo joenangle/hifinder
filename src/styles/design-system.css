@@ -507,6 +507,15 @@ body {
 .m-16 { margin: var(--space-16); }
 .m-20 { margin: var(--space-20); }
 
+/* Space Between Utilities */
+.space-y-16 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--space-16);
+}
+
+.space-y-24 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 6rem; /* 96px - extra large spacing for bordered cards */
+}
+
 /* Display Utilities */
 .hidden { display: none; }
 .block { display: block; }
