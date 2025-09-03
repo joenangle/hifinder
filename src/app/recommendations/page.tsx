@@ -31,6 +31,7 @@ function RecommendationsContent() {
     experience: searchParams.get('experience') || 'intermediate',
     budget: parseInt(searchParams.get('budget') || '300'),
     headphoneType: searchParams.get('headphoneType') || 'cans',
+    wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
     existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
     usage: searchParams.get('usage') || 'music',
     usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
@@ -44,6 +45,7 @@ function RecommendationsContent() {
       experience: searchParams.get('experience') || 'intermediate',
       budget: parseInt(searchParams.get('budget') || '300'),
       headphoneType: searchParams.get('headphoneType') || 'cans',
+      wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
       usage: searchParams.get('usage') || 'music',
       usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
@@ -54,7 +56,7 @@ function RecommendationsContent() {
   }, [searchParams])
 
   // Extract values for backward compatibility
-  const { experience, budget, headphoneType, existingGear, usage, usageRanking, excludedUsages, soundSignature } = userPrefs
+  const { experience, budget, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, excludedUsages, soundSignature } = userPrefs
 
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
@@ -66,6 +68,7 @@ function RecommendationsContent() {
     params.set('experience', updatedPrefs.experience)
     params.set('budget', updatedPrefs.budget.toString())
     params.set('headphoneType', updatedPrefs.headphoneType)
+    params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
     params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
     params.set('usage', updatedPrefs.usage)
     params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
@@ -75,10 +78,82 @@ function RecommendationsContent() {
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
   }
 
+  // Budget slider state and functions
+  const [budgetInputValue, setBudgetInputValue] = useState(budget.toString())
+  const [budgetError, setBudgetError] = useState('')
+
+  // Convert linear slider position to logarithmic budget value
+  const sliderToBudget = (sliderValue: number) => {
+    const minLog = Math.log(20)
+    const maxLog = Math.log(10000)
+    const scale = (maxLog - minLog) / 100
+    return Math.round(Math.exp(minLog + scale * sliderValue))
+  }
+
+  // Convert budget value to linear slider position  
+  const budgetToSlider = (budget: number) => {
+    const minLog = Math.log(20)
+    const maxLog = Math.log(10000)
+    const scale = (maxLog - minLog) / 100
+    return Math.round((Math.log(budget) - minLog) / scale)
+  }
+
+  const handleBudgetSliderChange = (sliderValue: number) => {
+    const newBudget = sliderToBudget(sliderValue)
+    updatePreferences({ budget: newBudget })
+    setBudgetInputValue(newBudget.toString())
+    setBudgetError('')
+  }
+
+  const handleBudgetInputFocus = () => {
+    setBudgetInputValue('')
+  }
+
+  const handleBudgetInputBlur = () => {
+    if (budgetInputValue === '') {
+      setBudgetInputValue(budget.toString())
+    }
+  }
+
+  const handleBudgetInputChange = (value: string) => {
+    setBudgetInputValue(value)
+    
+    if (value === '') {
+      setBudgetError('')
+      return
+    }
+    
+    const numValue = parseInt(value)
+    
+    if (isNaN(numValue)) {
+      setBudgetError('Please enter a valid number')
+      return
+    }
+    
+    if (numValue < 20) {
+      setBudgetError('Minimum budget is $20')
+      return
+    }
+    
+    if (numValue > 10000) {
+      setBudgetError('Maximum budget is $10,000')
+      return
+    }
+    
+    // Valid value
+    setBudgetError('')
+    updatePreferences({ budget: numValue })
+  }
+
   // Format budget with commas
   const formatBudget = (budget: number) => {
     return budget.toLocaleString('en-US')
   }
+
+  // Sync budgetInputValue with budget changes
+  useEffect(() => {
+    setBudgetInputValue(budget.toString())
+  }, [budget])
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -126,8 +201,21 @@ function RecommendationsContent() {
           .slice(0, maxOptions)
       }
       
-      // Check if any headphones need amplification OR if we're in mid-high budget territory
-      const needsAmplification = finalHeadphones?.some(h => h.needs_amp) || budget > 800
+      // Check if any headphones need amplification based on their specifications
+      const needsAmplification = finalHeadphones?.some(h => {
+        // Primary: Check if explicitly marked as needing amplification
+        if (h.needs_amp === true) return true
+        
+        // Secondary: Use impedance as indicator (high impedance headphones typically need amplification)
+        // Most consumer devices can drive up to ~80Ω comfortably
+        // 150Ω+ generally benefits from dedicated amplification
+        if (h.impedance && h.impedance >= 150) return true
+        
+        // For planar magnetic drivers (if we had driver_type data)
+        // if (h.driver_type === 'planar_magnetic') return true
+        
+        return false
+      }) || false
       
       // Get amplification components separately - show more options for higher budgets
       const ampLimit = budget > 800 ? 3 : 2
@@ -239,7 +327,11 @@ function RecommendationsContent() {
       console.log('Budget:', budget, `(${minBudget}-${maxBudget})`)
       console.log('Fetched headphones:', headphones?.length || 0, 'Final headphones:', finalHeadphones.length)
       console.log('Final DACs:', finalDacs.length, 'Final amps:', finalAmps.length, 'Final combo units:', finalDacAmps.length)
-      console.log('needsAmplification calculation:', finalHeadphones?.some(h => h.needs_amp), '|| budget > 800:', budget > 800, '= ', needsAmplification)
+      console.log('needsAmplification calculation based on specifications:', needsAmplification)
+      finalHeadphones.forEach(h => {
+        const needsAmp = h.needs_amp === true || (h.impedance && h.impedance >= 150)
+        console.log(`  ${h.brand} ${h.name}: impedance=${h.impedance}Ω, needs_amp=${h.needs_amp}, calculated=${needsAmp}`)
+      })
       
       setHeadphones(finalHeadphones)
       setDacs(finalDacs)
@@ -419,29 +511,112 @@ function RecommendationsContent() {
           <h3 className="text-lg font-semibold mb-4 text-gray-200">Your Preferences</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            {/* Budget */}
+            {/* Budget Slider */}
             <div>
               <label className="block text-sm text-gray-400 mb-2">Budget</label>
-              <select 
-                value={budget} 
-                onChange={(e) => updatePreferences({ budget: parseInt(e.target.value) })}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-              >
-                <option value="20">$20 USD</option>
-                <option value="50">$50 USD</option>
-                <option value="100">$100 USD</option>
-                <option value="200">$200 USD</option>
-                <option value="300">$300 USD</option>
-                <option value="400">$400 USD</option>
-                <option value="600">$600 USD</option>
-                <option value="800">$800 USD</option>
-                <option value="1000">$1,000 USD</option>
-                <option value="1500">$1,500 USD</option>
-                <option value="2000">$2,000 USD</option>
-                <option value="3000">$3,000 USD</option>
-                <option value="5000">$5,000 USD</option>
-                <option value="10000">$10,000 USD</option>
-              </select>
+              <div className="relative">
+                {/* Budget Input */}
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    value={budgetInputValue}
+                    onChange={(e) => handleBudgetInputChange(e.target.value)}
+                    onFocus={handleBudgetInputFocus}
+                    onBlur={handleBudgetInputBlur}
+                    className={`w-full px-4 py-3 rounded-lg border-2 bg-gray-800 text-white text-center text-xl font-semibold focus:outline-none ${
+                      budgetError ? 'border-red-500' : 'border-gray-600 focus:border-blue-500'
+                    }`}
+                    placeholder="Enter budget"
+                  />
+                  {budgetError && <p className="text-red-400 text-sm mt-1">{budgetError}</p>}
+                  <div className="text-center mt-2">
+                    <span className="text-2xl font-bold text-white">${formatBudget(budget)} USD</span>
+                  </div>
+                </div>
+
+                {/* Custom Slider */}
+                <div className="relative mb-4">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={budgetToSlider(budget)}
+                    onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                    className="budget-slider w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                  />
+                  
+                  {/* Custom slider thumb */}
+                  <div 
+                    className="absolute w-6 h-6 bg-white border-4 border-blue-500 rounded-full shadow-lg pointer-events-none"
+                    style={{
+                      left: `calc(${budgetToSlider(budget)}% - 12px)`,
+                      top: '-8px',
+                    }}
+                  >
+                    <div className="w-2 h-2 bg-blue-500 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                  </div>
+                </div>
+
+                {/* Tier Indicators */}
+                <div className="space-y-1 text-sm">
+                  <div className={`flex justify-between ${budget <= 100 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-300 rounded"></div>
+                      Budget
+                    </span>
+                    <span>$20 - $100 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 100 && budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-400 rounded"></div>
+                      Entry Level
+                    </span>
+                    <span>$100 - $400 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 400 && budget <= 1000 ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                      Mid Range
+                    </span>
+                    <span>$400 - $1,000 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 1000 && budget <= 3000 ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-600 rounded"></div>
+                      High End
+                    </span>
+                    <span>$1,000 - $3,000 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 3000 ? 'text-blue-800 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-800 rounded"></div>
+                      Summit-Fi
+                    </span>
+                    <span>$3,000+ USD</span>
+                  </div>
+                </div>
+              </div>
+
+              <style jsx>{`
+                /* Hide default slider thumb */
+                .budget-slider::-webkit-slider-thumb {
+                  appearance: none;
+                  height: 0;
+                  width: 0;
+                }
+                .budget-slider::-moz-range-thumb {
+                  appearance: none;
+                  height: 0;
+                  width: 0;
+                  border: none;
+                  background: transparent;
+                }
+                .budget-slider::-ms-thumb {
+                  appearance: none;
+                  height: 0;
+                  width: 0;
+                }
+              `}</style>
             </div>
 
             {/* Experience Level */}
@@ -501,15 +676,101 @@ function RecommendationsContent() {
               </select>
             </div>
 
-            {/* Current Budget Display */}
-            <div className="md:col-span-2 lg:col-span-1">
-              <div className="text-sm text-gray-400">Current Budget</div>
-              <div className="text-2xl font-bold text-green-400">${formatBudget(budget)} USD</div>
-              <div className="text-xs text-gray-500">
-                {budget <= 100 ? 'Budget Tier' : 
-                 budget <= 400 ? 'Entry Level' : 
-                 budget <= 1000 ? 'Mid Range' : 
-                 budget <= 3000 ? 'High End' : 'Summit-Fi'}
+            {/* Budget Slider */}
+            <div className="md:col-span-2 lg:col-span-4">
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Budget: ${formatBudget(budget)} USD</label>
+                <div className="relative">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    step="1"
+                    value={budgetToSlider(budget)}
+                    onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                    className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer relative z-10 budget-slider"
+                    style={{
+                      background: `linear-gradient(to right, 
+                        #93c5fd 0%, #93c5fd ${Math.min(budgetToSlider(100), budgetToSlider(budget))}%,
+                        #60a5fa ${budgetToSlider(100)}%, #60a5fa ${Math.min(budgetToSlider(400), budgetToSlider(budget))}%,
+                        #3b82f6 ${budgetToSlider(400)}%, #3b82f6 ${Math.min(budgetToSlider(1000), budgetToSlider(budget))}%,
+                        #1d4ed8 ${budgetToSlider(1000)}%, #1d4ed8 ${Math.min(budgetToSlider(3000), budgetToSlider(budget))}%,
+                        #1e40af ${budgetToSlider(3000)}%, #1e40af ${budgetToSlider(budget)}%,
+                        #374151 ${budgetToSlider(budget)}%, #374151 100%)`
+                    }}
+                  />
+                  {/* Custom thumb */}
+                  <div 
+                    className="absolute top-0 w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+                    style={{
+                      left: `${budgetToSlider(budget)}%`,
+                      top: '50%'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Budget Input */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Or enter manually:</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={budgetInputValue}
+                  onFocus={handleBudgetInputFocus}
+                  onBlur={handleBudgetInputBlur}
+                  onChange={(e) => handleBudgetInputChange(e.target.value)}
+                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  placeholder="Enter budget amount"
+                  min="20"
+                  max="10000"
+                />
+                {budgetError && <p className="text-red-400 text-sm mt-1">{budgetError}</p>}
+              </div>
+              
+              {/* Budget Tier Display */}
+              <div className="bg-gray-700/50 rounded-lg p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Budget Tiers:</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className={`flex justify-between ${budget <= 100 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-300 rounded"></div>
+                      Budget
+                    </span>
+                    <span>$20 - $100 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 100 && budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-400 rounded"></div>
+                      Entry Level
+                    </span>
+                    <span>$100 - $400 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 400 && budget <= 1000 ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                      Mid Range
+                    </span>
+                    <span>$400 - $1,000 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 1000 && budget <= 3000 ? 'text-blue-700 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-700 rounded"></div>
+                      High End
+                    </span>
+                    <span>$1,000 - $3,000 USD</span>
+                  </div>
+                  <div className={`flex justify-between ${budget > 3000 ? 'text-blue-900 font-medium' : 'text-gray-400'}`}>
+                    <span className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-900 rounded"></div>
+                      Summit-Fi
+                    </span>
+                    <span>$3,000+ USD</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -235,11 +235,23 @@ export default function OnboardingPage() {
     experience: '',
     budget: 100,
     headphoneType: '',
+    wantRecommendationsFor: {
+      headphones: true,
+      dac: false,
+      amp: false,
+      combo: false
+    },
     existingGear: {
       headphones: false,
       dac: false,
       amp: false,
-      combo: false
+      combo: false,
+      specificModels: {
+        headphones: '',
+        dac: '',
+        amp: '',
+        combo: ''
+      }
     },
     usage: '',
     usageRanking: [] as string[],
@@ -322,12 +334,13 @@ const handleBudgetInputChange = (value: string) => {
 const isStepValid = () => {
   switch (step) {
     case 1: return !!preferences.experience
-    case 2: return true // Existing gear can be all false (starting fresh)
-    case 3: return !!preferences.headphoneType
-    case 4: return true // Budget always has default value
-    case 5: return preferences.usageRanking.length > 0
-    case 6: return !!preferences.soundSignature
-    case 7: return true // Summary step
+    case 2: return Object.values(preferences.wantRecommendationsFor).some(v => v) // At least one component selected
+    case 3: return true // Existing gear can be all false (starting fresh)
+    case 4: return !!preferences.headphoneType
+    case 5: return true // Budget always has default value
+    case 6: return preferences.usageRanking.length > 0
+    case 7: return !!preferences.soundSignature
+    case 8: return true // Summary step
     default: return false
   }
 }
@@ -335,7 +348,7 @@ const isStepValid = () => {
 const handleNext = () => {
   if (!isStepValid()) return
   
-  if (step < 7) {
+  if (step < 8) {
     setStep(step + 1)
   } else {
     // Navigate to recommendations with all preferences
@@ -343,6 +356,7 @@ const handleNext = () => {
       experience: preferences.experience,
       budget: preferences.budget.toString(),
       headphoneType: preferences.headphoneType,
+      wantRecommendationsFor: JSON.stringify(preferences.wantRecommendationsFor),
       existingGear: JSON.stringify(preferences.existingGear),
       usage: preferences.usage,
       usageRanking: JSON.stringify(preferences.usageRanking),
@@ -387,13 +401,13 @@ const handleNext = () => {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-2">
-            <span>Step {step} of 7</span>
-            <span>{Math.round(step * 14.29)}% Complete</span>
+            <span>Step {step} of 8</span>
+            <span>{Math.round(step * 12.5)}% Complete</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${step * 14.29}%` }}
+              style={{ width: `${step * 12.5}%` }}
             />
           </div>
         </div>
@@ -447,6 +461,62 @@ const handleNext = () => {
           )}
           
           {step === 2 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">What do you want recommendations for?</h2>
+              <p className="text-gray-400 mb-6">Select the components you'd like us to recommend for your system</p>
+              <div className="space-y-4">
+                {[
+                  {
+                    key: 'headphones',
+                    label: '🎧 Headphones/IEMs',
+                    description: 'Over-ear headphones or in-ear monitors'
+                  },
+                  {
+                    key: 'dac',
+                    label: '🔄 Standalone DAC',
+                    description: 'Digital-to-analog converter (separate unit)'
+                  },
+                  {
+                    key: 'amp',
+                    label: '⚡ Headphone Amplifier',
+                    description: 'Dedicated headphone amplifier (separate unit)'
+                  },
+                  {
+                    key: 'combo',
+                    label: '🎯 DAC/Amp Combo',
+                    description: 'All-in-one DAC and amplifier device'
+                  }
+                ].map(component => (
+                  <div 
+                    key={component.key}
+                    className="flex items-center justify-between p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    <div>
+                      <h3 className="font-medium">{component.label}</h3>
+                      <p className="text-sm text-gray-400">{component.description}</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]}
+                        onChange={(e) => setPreferences({
+                          ...preferences,
+                          wantRecommendationsFor: {
+                            ...preferences.wantRecommendationsFor,
+                            [component.key]: e.target.checked
+                          }
+                        })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {step === 3 && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What gear do you already have?</h2>
               <p className="text-gray-400 mb-6">Check what you already own so we can focus your budget on what you need</p>
