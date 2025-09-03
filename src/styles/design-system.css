@@ -512,8 +512,8 @@ body {
   margin-top: var(--space-16);
 }
 
-.space-y-24 > :not([hidden]) ~ :not([hidden]) {
-  margin-top: 6rem; /* 96px - extra large spacing for bordered cards */
+.card-spacing > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.5rem !important; /* 24px - perfect spacing between bordered cards */
 }
 
 /* Display Utilities */
@@ -588,7 +588,11 @@ body {
 /* Missing Utility Classes */
 .page-container {
   min-height: 100vh;
+  width: 100%;
   background-color: var(--background-primary);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .heading-1 {

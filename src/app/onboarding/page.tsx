@@ -401,8 +401,8 @@ const handleNext = () => {
           width: 0;
         }
       `}</style>
-      <div className="page-container p-12">
-      <div className="max-w-2xl mx-auto">
+      <div className="page-container p-16">
+      <div className="max-w-2xl w-full">
         {/* Header with Home Link */}
         <div className="mb-16">
           <Link href="/" className="text-secondary hover:text-primary inline-flex items-center gap-2 text-sm">
@@ -411,7 +411,7 @@ const handleNext = () => {
         </div>
         
         {/* Progress Bar */}
-        <div className="mb-16">
+        <div className="mb-20 mt-8">
           <div className="flex justify-between text-sm mb-4">
             <span>Step {step} of 8</span>
             <span>{Math.round((step / 8) * 100)}% Complete</span>
@@ -430,7 +430,7 @@ const handleNext = () => {
             <div>
               <h2 className="heading-2 mb-6">What&apos;s your audio experience?</h2>
               <p className="text-secondary mb-16">This helps us recommend the right gear and explain things at your level</p>
-              <div className="space-y-16">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {[
                   {
                     id: 'beginner',
@@ -532,7 +532,7 @@ const handleNext = () => {
             <div>
               <h2 className="heading-2 mb-6">What gear do you already have?</h2>
               <p className="text-secondary mb-16">Check what you already own so we can focus your budget on what you need</p>
-              <div className="space-y-24">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {[
                   {
                     key: 'headphones',
