@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense } from 'react'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -228,7 +228,7 @@ function RecommendationsContent() {
       const useCases = Array.isArray(headphone.use_cases) 
         ? headphone.use_cases 
         : (typeof headphone.use_cases === 'string' 
-          ? headphone.use_cases.split(',').map((u: string) => u.trim().toLowerCase())
+          ? (headphone.use_cases as string).split(',').map((u: string) => u.trim().toLowerCase())
           : [])
       if (useCases.includes(primaryUsage.toLowerCase())) score += 0.2
     }
@@ -237,7 +237,7 @@ function RecommendationsContent() {
   }
 
   // Advanced headphone processing with audio specifications
-  const processHeadphoneRecommendations = useCallback((headphones: Component[], budget: number, maxOptions: number): AudioComponent[] => {
+  const processHeadphoneRecommendations = (headphones: Component[], budget: number, maxOptions: number): AudioComponent[] => {
     const primaryUsage = usageRanking[0]
     
     return headphones
@@ -273,7 +273,7 @@ function RecommendationsContent() {
         return bScore - aScore
       })
       .slice(0, maxOptions)
-  }, [usageRanking, soundSignature])
+  }
 
   // Calculate compatibility between component and headphones
   const calculateCompatibilityScore = (component: Component, headphones: AudioComponent[], type: string): number => {
@@ -395,10 +395,10 @@ function RecommendationsContent() {
         return bScore - aScore
       })
       .slice(0, maxOptions)
-  }, [usageRanking, soundSignature])
+  }
 
   // Fetch DACs with impedance matching and synergy
-  const fetchDACs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchDACs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget
     const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
     
@@ -417,10 +417,10 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(dacs || [], budget, headphones, 'dac', maxOptions)
-  }, [])
+  }
 
   // Fetch AMPs with power matching  
-  const fetchAMPs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchAMPs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget
     const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
     
@@ -439,10 +439,10 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(amps || [], budget, headphones, 'amp', maxOptions)
-  }, [])
+  }
 
   // Fetch combo units with complete system matching
-  const fetchCombos = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchCombos = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget  
     const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
     
@@ -461,7 +461,7 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(combos || [], budget, headphones, 'combo', maxOptions)
-  }, [])
+  }
 
   // Main recommendation fetching logic
   useEffect(() => {

@@ -9,11 +9,23 @@ interface Preferences {
   experience: string
   budget: number
   headphoneType: string
+  wantRecommendationsFor: {
+    headphones: boolean
+    dac: boolean
+    amp: boolean
+    combo: boolean
+  }
   existingGear: {
     headphones: boolean
     dac: boolean
     amp: boolean
     combo: boolean
+    specificModels: {
+      headphones: string
+      dac: string
+      amp: string
+      combo: string
+    }
   }
   usage: string
   usageRanking: string[]
@@ -554,12 +566,12 @@ const handleNext = () => {
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={preferences.existingGear[component.key as keyof typeof preferences.existingGear]}
+                        checked={preferences.existingGear[component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>] as boolean}
                         onChange={(e) => setPreferences({
                           ...preferences,
                           existingGear: {
                             ...preferences.existingGear,
-                            [component.key as keyof typeof preferences.existingGear]: e.target.checked
+                            [component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>]: e.target.checked
                           }
                         })}
                         className="mt-1 w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
