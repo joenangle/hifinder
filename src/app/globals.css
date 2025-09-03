@@ -16,8 +16,22 @@
   --accent-subtle: #E7F1FF;
 }
 
-/* Dark mode - triggered by data-theme="dark" OR system preference */
-[data-theme="dark"],
+/* Dark mode - triggered by data-theme="dark" */
+[data-theme="dark"] {
+  --background-primary: #0A0B0D;
+  --background-secondary: #13151A;
+  --background-tertiary: #1C1F26;
+  --text-primary: #F8F9FA;
+  --text-secondary: #ADB5BD;
+  --surface-card: #1E2328;
+  --surface-hover: #252A31;
+  --border-default: #3A434D;
+  --accent-primary: #0D6EFD;
+  --accent-hover: #0B5ED7;
+  --accent-subtle: rgba(13, 110, 253, 0.15);
+}
+
+/* Dark mode - system preference */
 @media (prefers-color-scheme: dark) {
   :root {
     --background-primary: #0A0B0D;
