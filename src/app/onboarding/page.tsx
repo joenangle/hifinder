@@ -401,8 +401,8 @@ const handleNext = () => {
           width: 0;
         }
       `}</style>
-      <div className="page-container py-2 px-4" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div className="max-w-2xl w-full flex flex-col" style={{ flex: 1 }}>
+      <div className="page-container">
+      <div className="max-w-2xl w-full mx-auto flex flex-col justify-between" style={{ minHeight: '100vh' }}>
         {/* Header with Home Link */}
         <div className="mb-2">
           <Link href="/" className="text-secondary hover:text-primary inline-flex items-center gap-2 text-sm">
@@ -425,8 +425,9 @@ const handleNext = () => {
           </div>
         </div>
 
-        {/* Step Content */}
-        <div className="card animate-fadeIn" style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Main Content Area - Centered */}
+        <div className="flex-1 flex items-center justify-center py-8">
+          <div className="card animate-fadeIn w-full">
           {step === 1 && (
             <div role="group" aria-labelledby="experience-heading">
               <h2 id="experience-heading" className="heading-2 mb-3">What&apos;s your audio experience?</h2>
@@ -883,6 +884,7 @@ const handleNext = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Navigation Buttons */}
