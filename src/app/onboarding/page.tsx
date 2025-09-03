@@ -345,6 +345,8 @@ const handleNext = () => {
       headphoneType: preferences.headphoneType,
       existingGear: JSON.stringify(preferences.existingGear),
       usage: preferences.usage,
+      usageRanking: JSON.stringify(preferences.usageRanking),
+      excludedUsages: JSON.stringify(preferences.excludedUsages),
       sound: preferences.soundSignature
     })
     router.push(`/recommendations?${params.toString()}`)

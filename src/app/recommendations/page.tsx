@@ -33,6 +33,8 @@ function RecommendationsContent() {
     headphoneType: searchParams.get('headphoneType') || 'cans',
     existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
     usage: searchParams.get('usage') || 'music',
+    usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
+    excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
     soundSignature: searchParams.get('sound') || 'neutral'
   })
   
@@ -44,13 +46,15 @@ function RecommendationsContent() {
       headphoneType: searchParams.get('headphoneType') || 'cans',
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false}'),
       usage: searchParams.get('usage') || 'music',
+      usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
+      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
       soundSignature: searchParams.get('sound') || 'neutral'
     }
     setUserPrefs(urlPrefs)
   }, [searchParams])
 
   // Extract values for backward compatibility
-  const { experience, budget, headphoneType, existingGear, usage, soundSignature } = userPrefs
+  const { experience, budget, headphoneType, existingGear, usage, usageRanking, excludedUsages, soundSignature } = userPrefs
 
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
@@ -64,6 +68,8 @@ function RecommendationsContent() {
     params.set('headphoneType', updatedPrefs.headphoneType)
     params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
     params.set('usage', updatedPrefs.usage)
+    params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
+    params.set('excludedUsages', JSON.stringify(updatedPrefs.excludedUsages))
     params.set('sound', updatedPrefs.soundSignature)
     
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
@@ -83,38 +89,41 @@ function RecommendationsContent() {
       const minBudget = Math.floor(budget * 0.5)
       const maxBudget = Math.floor(budget * 1.2)
       
-      // Get matching headphones first - filter by actual budget range, not tier
-      const { data: headphones, error: headphonesError } = await supabase
-        .from('components')
-        .select('*')
-        .eq('category', headphoneType)
-        .lte('price_used_min', maxBudget)  // Min price shouldn't exceed max budget
-        .gte('price_used_max', minBudget)  // Max price should be at least min budget
-        .order('price_used_min', { ascending: true })
-        .limit(maxOptions * 2)  // Get more options to filter from
-      
-      // Filter headphones by average price within budget and prioritize best matches
-      const finalHeadphones = (headphones || [])
-        .map(h => ({
-          ...h,
-          avgPrice: (h.price_used_min + h.price_used_max) / 2
-        }))
-        // Deduplicate by name+brand (keep first occurrence)
-        .filter((h, index, arr) => {
-          const key = `${h.name}|${h.brand}`
-          return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
-        })
-        .filter(h => h.avgPrice <= maxBudget)  // Hard limit: don't exceed max budget
-        .sort((a, b) => {
-          // Prefer items closer to budget (but not over)
-          const aDiff = Math.abs(budget - a.avgPrice)
-          const bDiff = Math.abs(budget - b.avgPrice)
-          return aDiff - bDiff
-        })
-        .slice(0, maxOptions)
-      
-      if (headphonesError) {
-        console.error('Headphones query error:', headphonesError)
+      // Only get headphones if user doesn't already have them
+      let finalHeadphones: Component[] = []
+      if (!existingGear.headphones) {
+        const { data: headphones, error: headphonesError } = await supabase
+          .from('components')
+          .select('*')
+          .eq('category', headphoneType)
+          .lte('price_used_min', maxBudget)  // Min price shouldn't exceed max budget
+          .gte('price_used_max', minBudget)  // Max price should be at least min budget
+          .order('price_used_min', { ascending: true })
+          .limit(maxOptions * 2)  // Get more options to filter from
+        
+        if (headphonesError) {
+          console.error('Headphones query error:', headphonesError)
+        }
+        
+        // Filter headphones by average price within budget and prioritize best matches
+        finalHeadphones = (headphones || [])
+          .map(h => ({
+            ...h,
+            avgPrice: (h.price_used_min + h.price_used_max) / 2
+          }))
+          // Deduplicate by name+brand (keep first occurrence)
+          .filter((h, index, arr) => {
+            const key = `${h.name}|${h.brand}`
+            return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+          })
+          .filter(h => h.avgPrice <= maxBudget)  // Hard limit: don't exceed max budget
+          .sort((a, b) => {
+            // Prefer items closer to budget (but not over)
+            const aDiff = Math.abs(budget - a.avgPrice)
+            const bDiff = Math.abs(budget - b.avgPrice)
+            return aDiff - bDiff
+          })
+          .slice(0, maxOptions)
       }
       
       // Check if any headphones need amplification OR if we're in mid-high budget territory
@@ -137,32 +146,47 @@ function RecommendationsContent() {
       let finalAmps: Component[] = []
       let finalDacAmps: Component[] = []
       
-      if (needsAmplification) {
+      if (needsAmplification && !((existingGear.dac && existingGear.amp) || existingGear.combo)) {
         // Strategy: For high budgets or enthusiasts, offer separate components
         // For lower budgets or beginners, offer combo units
         const preferSeparates = (budget > 1200 && experience === 'enthusiast') || budget > 2000
         
         // Calculate remaining budget after headphones for amplification
-        const avgHeadphonePrice = finalHeadphones.length > 0 ? 
-          finalHeadphones.reduce((sum, h) => sum + (h.price_used_min + h.price_used_max) / 2, 0) / finalHeadphones.length : 0
+        // If user already has headphones, they have the full budget for amplification
+        const avgHeadphonePrice = existingGear.headphones ? 0 : (finalHeadphones.length > 0 ? 
+          finalHeadphones.reduce((sum, h) => sum + ((h.price_used_min || 0) + (h.price_used_max || 0)) / 2, 0) / finalHeadphones.length : 0)
         const remainingBudget = Math.max(50, budget - avgHeadphonePrice) // At least $50 for amp gear
         const ampMaxBudget = Math.floor(remainingBudget * 1.2)
         const ampMinBudget = Math.floor(remainingBudget * 0.3)
         
         if (preferSeparates) {
-          // Try to get separate DACs and amps within remaining budget
           console.log('Fetching separate DACs and amps for remaining budget:', remainingBudget)
           
-          const [{ data: dacs }, { data: amps }] = await Promise.all([
-            supabase
+          // Only fetch DACs if user doesn't have one
+          if (!existingGear.dac) {
+            const { data: dacs } = await supabase
               .from('components')
               .select('*')
               .eq('category', 'dac')
               .lte('price_used_min', ampMaxBudget)
               .gte('price_used_max', ampMinBudget)
               .order('price_used_min', { ascending: true })
-              .limit(4),
-            supabase
+              .limit(4)
+            
+            finalDacs = (dacs || [])
+              .map(d => ({...d, avgPrice: ((d.price_used_min || 0) + (d.price_used_max || 0)) / 2}))
+              .filter((d, index, arr) => {
+                const key = `${d.name}|${d.brand}`
+                return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+              })
+              .filter(d => d.avgPrice <= ampMaxBudget)
+              .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
+              .slice(0, 2)
+          }
+          
+          // Only fetch amps if user doesn't have one
+          if (!existingGear.amp) {
+            const { data: amps } = await supabase
               .from('components')
               .select('*')
               .eq('category', 'amp')
@@ -170,53 +194,44 @@ function RecommendationsContent() {
               .gte('price_used_max', ampMinBudget)
               .order('price_used_min', { ascending: true })
               .limit(4)
-          ])
+              
+            finalAmps = (amps || [])
+              .map(a => ({...a, avgPrice: ((a.price_used_min || 0) + (a.price_used_max || 0)) / 2}))
+              .filter((a, index, arr) => {
+                const key = `${a.name}|${a.brand}`
+                return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
+              })
+              .filter(a => a.avgPrice <= ampMaxBudget)
+              .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
+              .slice(0, 2)
+          }
+        }
+        
+        // Get combo units as fallback or primary option (only if user doesn't have one)
+        if (!existingGear.combo) {
+          console.log('Fetching combo DAC/Amps for remaining budget:', remainingBudget)
+          const { data: dacAmps, error: dacAmpsError } = await supabase
+            .from('components')
+            .select('*')
+            .eq('category', 'dac_amp')
+            .lte('price_used_min', ampMaxBudget)
+            .gte('price_used_max', ampMinBudget)
+            .order('price_used_min', { ascending: true })
+            .limit(ampLimit * 2)
           
-          // Filter and sort by budget fit
-          finalDacs = (dacs || [])
-            .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
+          finalDacAmps = (dacAmps || [])
+            .map(d => ({...d, avgPrice: ((d.price_used_min || 0) + (d.price_used_max || 0)) / 2}))
             .filter((d, index, arr) => {
               const key = `${d.name}|${d.brand}`
               return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
             })
             .filter(d => d.avgPrice <= ampMaxBudget)
-            .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
-            .slice(0, 2)
-            
-          finalAmps = (amps || [])
-            .map(a => ({...a, avgPrice: (a.price_used_min + a.price_used_max) / 2}))
-            .filter((a, index, arr) => {
-              const key = `${a.name}|${a.brand}`
-              return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
-            })
-            .filter(a => a.avgPrice <= ampMaxBudget)
-            .sort((a, b) => Math.abs(remainingBudget/2 - a.avgPrice) - Math.abs(remainingBudget/2 - b.avgPrice))
-            .slice(0, 2)
-        }
-        
-        // Always get combo units as fallback or primary option
-        console.log('Fetching combo DAC/Amps for remaining budget:', remainingBudget)
-        const { data: dacAmps, error: dacAmpsError } = await supabase
-          .from('components')
-          .select('*')
-          .eq('category', 'dac_amp')
-          .lte('price_used_min', ampMaxBudget)
-          .gte('price_used_max', ampMinBudget)
-          .order('price_used_min', { ascending: true })
-          .limit(ampLimit * 2)
-        
-        finalDacAmps = (dacAmps || [])
-          .map(d => ({...d, avgPrice: (d.price_used_min + d.price_used_max) / 2}))
-          .filter((d, index, arr) => {
-            const key = `${d.name}|${d.brand}`
-            return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
-          })
-          .filter(d => d.avgPrice <= ampMaxBudget)
-          .sort((a, b) => Math.abs(remainingBudget - a.avgPrice) - Math.abs(remainingBudget - b.avgPrice))
-          .slice(0, ampLimit)
-        
-        if (dacAmpsError) {
-          console.error('DAC/Amp query error:', dacAmpsError)
+            .sort((a, b) => Math.abs(remainingBudget - a.avgPrice) - Math.abs(remainingBudget - b.avgPrice))
+            .slice(0, ampLimit)
+          
+          if (dacAmpsError) {
+            console.error('DAC/Amp query error:', dacAmpsError)
+          }
         }
       }
       
