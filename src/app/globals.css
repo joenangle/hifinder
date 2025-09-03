@@ -1,53 +1,6 @@
 @import "tailwindcss";
 @import "../styles/design-system.css";
 
-/* Light mode (default) */
-:root {
-  --background-primary: #FFFFFF;
-  --background-secondary: #F8F9FA;
-  --background-tertiary: #E9ECEF;
-  --text-primary: #212529;
-  --text-secondary: #6C757D;
-  --surface-card: #FFFFFF;
-  --surface-hover: #F8F9FA;
-  --border-default: #DEE2E6;
-  --accent-primary: #0D6EFD;
-  --accent-hover: #0B5ED7;
-  --accent-subtle: #E7F1FF;
-}
-
-/* Dark mode - triggered by data-theme="dark" */
-[data-theme="dark"] {
-  --background-primary: #0A0B0D;
-  --background-secondary: #13151A;
-  --background-tertiary: #1C1F26;
-  --text-primary: #F8F9FA;
-  --text-secondary: #ADB5BD;
-  --surface-card: #1E2328;
-  --surface-hover: #252A31;
-  --border-default: #3A434D;
-  --accent-primary: #0D6EFD;
-  --accent-hover: #0B5ED7;
-  --accent-subtle: rgba(13, 110, 253, 0.15);
-}
-
-/* Dark mode - system preference */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-primary: #0A0B0D;
-    --background-secondary: #13151A;
-    --background-tertiary: #1C1F26;
-    --text-primary: #F8F9FA;
-    --text-secondary: #ADB5BD;
-    --surface-card: #1E2328;
-    --surface-hover: #252A31;
-    --border-default: #3A434D;
-    --accent-primary: #0D6EFD;
-    --accent-hover: #0B5ED7;
-    --accent-subtle: rgba(13, 110, 253, 0.15);
-  }
-}
-
 body {
   background: var(--background-primary);
   color: var(--text-primary);

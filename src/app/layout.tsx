@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,10 +29,25 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans antialiased`}
       >
-        <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 50 }}>
+        <a 
+          href="#main-content" 
+          className="skip-link"
+          aria-label="Skip to main content"
+        >
+          Skip to main content
+        </a>
+        
+        <div 
+          style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 50 }}
+          role="banner"
+          aria-label="Site controls"
+        >
           <ThemeToggle />
         </div>
-        {children}
+        
+        <main id="main-content" role="main">
+          {children}
+        </main>
       </body>
     </html>
   );

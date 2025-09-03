@@ -12,12 +12,12 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
   
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'excellent': return 'text-green-400'
-      case 'very_good': return 'text-blue-400'  
-      case 'good': return 'text-yellow-400'
-      case 'fair': return 'text-orange-400'
-      case 'parts_only': return 'text-red-400'
-      default: return 'text-gray-400'
+      case 'excellent': return 'text-success'
+      case 'very_good': return 'text-info'  
+      case 'good': return 'text-warning'
+      case 'fair': return 'text-warning'
+      case 'parts_only': return 'text-error'
+      default: return 'text-tertiary'
     }
   }
 
@@ -44,19 +44,19 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
   }
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition-all">
+    <div className="card transition-all">
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h4 className="font-semibold text-white mb-2">{listing.title}</h4>
+          <h4 className="font-semibold text-primary mb-2">{listing.title}</h4>
           
           <div className="flex flex-wrap gap-3 mb-3 text-sm">
-            <span className="text-gray-400">
+            <span className="text-secondary">
               📍 {listing.location}
             </span>
-            <span className="text-gray-400">
+            <span className="text-secondary">
               🕒 {timeAgo(listing.date_posted)}
             </span>
-            <span className="text-gray-400">
+            <span className="text-secondary">
               📱 {getSourceDisplay(listing.source)}
             </span>
             <span className={getConditionColor(listing.condition)}>
@@ -66,16 +66,16 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
 
           {/* Seller Trust Indicators */}
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="text-gray-400">
+            <span className="text-secondary">
               👤 u/{listing.seller.username}
             </span>
             {listing.seller.confirmed_trades && listing.seller.confirmed_trades > 0 && (
-              <span className="text-green-400">
+              <span className="text-success">
                 ✓ {listing.seller.confirmed_trades} confirmed trades
               </span>
             )}
             {listing.seller.feedback_percentage && (
-              <span className={listing.seller.feedback_percentage >= 98 ? 'text-green-400' : 'text-yellow-400'}>
+              <span className={listing.seller.feedback_percentage >= 98 ? 'text-success' : 'text-warning'}>
                 ⭐ {listing.seller.feedback_percentage}% feedback
               </span>
             )}
@@ -83,20 +83,20 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
 
           {/* Price Validation Warning */}
           {!listing.price_validation.is_reasonable && listing.price_validation.warning && (
-            <div className="mt-3 p-2 bg-yellow-900/30 border border-yellow-600/50 rounded text-yellow-300 text-sm">
+            <div className="mt-3 p-2 bg-warning-light border border-warning rounded text-warning text-sm">
               ⚠️ {listing.price_validation.warning}
             </div>
           )}
         </div>
 
         <div className="text-right ml-4">
-          <div className="text-2xl font-bold text-white">${listing.price}</div>
+          <div className="text-2xl font-bold text-primary">${listing.price}</div>
           
           {/* Price Variance Indicator */}
           <div className={`text-sm font-medium ${
-            priceVariance < -10 ? 'text-green-400' : 
-            priceVariance > 10 ? 'text-red-400' : 
-            'text-gray-400'
+            priceVariance < -10 ? 'text-success' : 
+            priceVariance > 10 ? 'text-error' : 
+            'text-tertiary'
           }`}>
             {priceVariance < -10 ? '💰 ' : priceVariance > 10 ? '⚠️ ' : ''}
             {priceVariance < 0 ? 
@@ -106,7 +106,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
           </div>
           
 {listing.url.includes('/sample') ? (
-            <div className="inline-block mt-2 bg-gray-600 text-gray-300 px-4 py-2 rounded text-sm font-medium cursor-not-allowed">
+            <div className="button button-secondary mt-2 cursor-not-allowed">
               Demo Listing
             </div>
           ) : (
@@ -114,7 +114,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+              className="button button-primary mt-2"
             >
               View Listing →
             </a>

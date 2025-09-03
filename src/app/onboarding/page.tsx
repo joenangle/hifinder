@@ -143,25 +143,25 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
             onDrop={(e) => handleDrop(e, index)}
             className={`
               flex items-center justify-between p-4 rounded-lg border-2 cursor-move
-              ${dragOverIndex === index ? 'border-blue-400 bg-blue-900/20' : 'border-gray-600 bg-gray-700'}
+              ${dragOverIndex === index ? 'border-accent bg-accent-subtle' : 'border-default bg-tertiary'}
               ${draggedIndex === index ? 'opacity-50' : ''}
-              ${index === 0 ? 'border-blue-500 bg-blue-900/30' : ''}
-              hover:border-gray-500 transition-all touch-manipulation
+              ${index === 0 ? 'border-accent bg-accent-subtle' : ''}
+              hover:border-accent transition-all touch-manipulation
             `}
           >
             <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center text-xs text-gray-400 min-w-[60px]">
+              <div className="flex flex-col items-center text-xs text-tertiary min-w-[60px]">
                 <span className="font-medium">{getRankLabel(index)}</span>
                 <span>#{index + 1}</span>
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="text-gray-400">
+                <div className="text-tertiary">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <span className="font-medium text-white">{use}</span>
+                <span className="font-medium text-primary">{use}</span>
               </div>
             </div>
 
@@ -170,7 +170,7 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
               <button
                 onClick={() => index > 0 && moveItem(index, index - 1)}
                 disabled={index === 0}
-                className="p-2 rounded text-gray-400 hover:text-white hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
+                className="p-2 rounded text-tertiary hover:text-primary hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
                 aria-label="Move up"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -180,7 +180,7 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
               <button
                 onClick={() => index < preferences.usageRanking.length - 1 && moveItem(index, index + 1)}
                 disabled={index === preferences.usageRanking.length - 1}
-                className="p-2 rounded text-gray-400 hover:text-white hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
+                className="p-2 rounded text-tertiary hover:text-primary hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
                 aria-label="Move down"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" transform="rotate(180)">
@@ -189,7 +189,7 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
               </button>
               <button
                 onClick={() => excludeUseCase(use)}
-                className="p-2 rounded text-red-400 hover:text-red-300 hover:bg-red-900/20 touch-manipulation"
+                className="p-2 rounded text-error hover:text-error hover:bg-error-light touch-manipulation"
                 aria-label="Exclude this use case"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -204,20 +204,20 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
       {/* Excluded use cases */}
       {preferences.excludedUsages.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-lg font-medium text-gray-300 mb-3">Excluded Use Cases</h3>
+          <h3 className="text-lg font-medium text-secondary mb-3">Excluded Use Cases</h3>
           <div className="space-y-8">
             {preferences.excludedUsages.map(excludedUse => (
               <div
                 key={excludedUse}
-                className="flex items-center justify-between p-3 rounded-lg border border-red-800 bg-red-900/10"
+                className="flex items-center justify-between p-3 rounded-lg border border-error bg-error-light"
               >
                 <div className="flex items-center gap-3">
-                  <div className="text-red-400">
+                  <div className="text-error">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                       <path d="M4 4l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                   </div>
-                  <span className="text-gray-300 line-through">{excludedUse}</span>
+                  <span className="text-secondary line-through">{excludedUse}</span>
                 </div>
                 <button
                   onClick={() => includeUseCase(excludedUse)}
@@ -401,36 +401,41 @@ const handleNext = () => {
           width: 0;
         }
       `}</style>
-      <div className="page-container p-16">
-      <div className="max-w-2xl w-full">
+      <div className="page-container py-2 px-4" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="max-w-2xl w-full flex flex-col" style={{ flex: 1 }}>
         {/* Header with Home Link */}
-        <div className="mb-16">
+        <div className="mb-2">
           <Link href="/" className="text-secondary hover:text-primary inline-flex items-center gap-2 text-sm">
             ← Back to Home
           </Link>
         </div>
         
         {/* Progress Bar */}
-        <div className="mb-20 mt-8">
-          <div className="flex justify-between text-sm mb-4">
+        <div className="mb-3" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={8} aria-label="Onboarding progress">
+          <div className="flex justify-between text-sm mb-2">
             <span>Step {step} of 8</span>
             <span>{Math.round((step / 8) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-surface-secondary rounded-full h-2">
+          <div className="w-full bg-secondary rounded-full h-2">
             <div 
               className="bg-accent h-2 rounded-full transition-all"
               style={{ width: `${(step / 8) * 100}%` }}
+              aria-label={`${Math.round((step / 8) * 100)}% complete`}
             />
           </div>
         </div>
 
         {/* Step Content */}
-        <div className="card">
+        <div className="card animate-fadeIn" style={{ flex: 1, overflowY: 'auto' }}>
           {step === 1 && (
-            <div>
-              <h2 className="heading-2 mb-6">What&apos;s your audio experience?</h2>
-              <p className="text-secondary mb-16">This helps us recommend the right gear and explain things at your level</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div role="group" aria-labelledby="experience-heading">
+              <h2 id="experience-heading" className="heading-2 mb-3">What&apos;s your audio experience?</h2>
+              <p className="text-secondary mb-4">This helps us recommend the right gear and explain things at your level</p>
+              <div 
+                role="radiogroup" 
+                aria-labelledby="experience-heading"
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+              >
                 {[
                   {
                     id: 'beginner',
@@ -454,18 +459,33 @@ const handleNext = () => {
                   <button 
                     key={option.id}
                     onClick={() => setPreferences({...preferences, experience: option.id})}
-                    className={`card-interactive ${
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault()
+                        setPreferences({...preferences, experience: option.id})
+                      }
+                    }}
+                    className={`card-interactive p-3 ${
                       preferences.experience === option.id 
                         ? 'card-interactive-selected' 
                         : ''
                     }`}
+                    style={{ padding: '0.75rem' }}
+                    role="radio"
+                    aria-checked={preferences.experience === option.id}
+                    aria-describedby={`experience-${option.id}-desc`}
                   >
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-2">
                       <h3 className="heading-3">{option.title}</h3>
-                      {preferences.experience === option.id && <span className="text-blue-300">✓</span>}
+                      {preferences.experience === option.id && <span className="text-accent">✓</span>}
                     </div>
-                    <p className="text-secondary mb-4">{option.description}</p>
-                    <p className="text-sm text-gray-500 italic">{option.examples}</p>
+                    <p className="text-secondary mb-2">{option.description}</p>
+                    <p 
+                      id={`experience-${option.id}-desc`}
+                      className="text-sm text-tertiary italic"
+                    >
+                      {option.examples}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -474,9 +494,9 @@ const handleNext = () => {
           
           {step === 2 && (
             <div>
-              <h2 className="heading-2 mb-6">What do you want recommendations for?</h2>
-              <p className="text-secondary mb-16">Select the components you&apos;d like us to recommend for your system</p>
-              <div className="space-y-16">
+              <h2 className="heading-2 mb-4">What do you want recommendations for?</h2>
+              <p className="text-secondary mb-6">Select the components you&apos;d like us to recommend for your system</p>
+              <div className="space-y-4">
                 {[
                   {
                     key: 'headphones',
@@ -530,9 +550,9 @@ const handleNext = () => {
           
           {step === 3 && (
             <div>
-              <h2 className="heading-2 mb-6">What gear do you already have?</h2>
-              <p className="text-secondary mb-16">Check what you already own so we can focus your budget on what you need</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <h2 className="heading-2 mb-4">What gear do you already have?</h2>
+              <p className="text-secondary mb-6">Check what you already own so we can focus your budget on what you need</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
                   {
                     key: 'headphones',
@@ -574,18 +594,18 @@ const handleNext = () => {
                             [component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>]: e.target.checked
                           }
                         })}
-                        className="mt-1 w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                        className="mt-1 w-5 h-5 text-accent bg-tertiary border-subtle rounded focus:ring-accent-subtle"
                       />
                       <div className="flex-1">
-                        <h3 className="heading-3">{component.label}</h3>
-                        <p className="text-gray-300 text-sm">{component.description}</p>
+                        <h3 className="font-semibold text-base mb-1">{component.label}</h3>
+                        <p className="text-secondary text-sm">{component.description}</p>
                       </div>
                     </label>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 p-4 bg-gray-700/50 rounded-lg">
-                <p className="text-sm text-gray-400">
+              <div className="mt-3 p-3 bg-tertiary rounded-lg">
+                <p className="text-sm text-tertiary">
                   💡 <strong>Don&apos;t have anything?</strong> Leave all unchecked and we&apos;ll recommend a complete setup within your budget.
                 </p>
               </div>
@@ -595,8 +615,8 @@ const handleNext = () => {
           {step === 4 && (
             <div>
               <h2 className="heading-2 mb-6">What type of headphones do you prefer?</h2>
-              <p className="text-secondary mb-16">Choose the style that appeals to you most</p>
-              <div className="space-y-16">
+              <p className="text-secondary mb-8">Choose the style that appeals to you most</p>
+              <div className="space-y-6">
                 {[
                   {
                     value: 'cans',
@@ -614,18 +634,18 @@ const handleNext = () => {
                   <button 
                     key={option.value}
                     onClick={() => setPreferences({...preferences, headphoneType: option.value})}
-                    className={`w-full p-4 rounded-lg text-left transition-all ${
+                    className={`card-interactive ${
                       preferences.headphoneType === option.value 
-                        ? 'bg-blue-600 border-2 border-blue-400 ring-1 ring-blue-300' 
-                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                        ? 'card-interactive-selected' 
+                        : ''
                     }`}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="heading-3">{option.label}</h3>
-                      {preferences.headphoneType === option.value && <span className="text-blue-300">✓</span>}
+                      {preferences.headphoneType === option.value && <span className="text-accent">✓</span>}
                     </div>
                     <p className="text-secondary mb-4">{option.description}</p>
-                    <p className="text-sm text-gray-500 italic">{option.pros}</p>
+                    <p className="text-sm text-tertiary italic">{option.pros}</p>
                   </button>
                 ))}
               </div>
@@ -634,10 +654,10 @@ const handleNext = () => {
           
           {step === 5 && (
             <div>
-              <h2 className="heading-2 mb-6">What&apos;s your budget?</h2>
-              <p className="text-secondary mb-16">We&apos;ll recommend gear that fits your budget (maximum $10,000 USD)</p>
+              <h2 className="heading-2 mb-4">What&apos;s your budget?</h2>
+              <p className="text-secondary mb-8">We&apos;ll recommend gear that fits your budget (maximum $10,000 USD)</p>
               
-              <div className="mb-16">
+              <div className="mb-8">
                 <label className="block text-sm font-medium mb-4">Budget: ${formatBudget(preferences.budget)} USD</label>
                 <div className="relative">
                   <input 
@@ -675,12 +695,12 @@ const handleNext = () => {
                     <div className="absolute top-1/2 transform -translate-y-1/2 w-1 h-4 bg-white rounded" style={{ left: `${budgetToSlider(3000)}%` }}></div>
                   </div>
                 </div>
-                <div className="flex justify-between text-sm text-gray-400 mt-2">
+                <div className="flex justify-between text-sm text-tertiary mt-2">
                   <span>$20</span>
-                  <span className="text-blue-300">$100</span>
-                  <span className="text-blue-400">$400</span>
-                  <span className="text-blue-500">$1K</span>
-                  <span className="text-blue-600">$3K</span>
+                  <span className="text-accent">$100</span>
+                  <span className="text-accent">$400</span>
+                  <span className="text-accent">$1K</span>
+                  <span className="text-accent">$3K</span>
                   <span>$10K</span>
                 </div>
               </div>
@@ -705,42 +725,42 @@ const handleNext = () => {
                 )}
               </div>
               
-              <div className="bg-gray-700/50 rounded-lg p-4">
+              <div className="bg-tertiary rounded-lg p-6">
                 <div className="flex justify-between text-sm mb-4">
-                  <span>Budget Tiers:</span>
+                  <span className="font-medium">Budget Tiers:</span>
                 </div>
-                <div className="space-y-1 text-sm">
-                  <div className={`flex justify-between ${preferences.budget <= 100 ? 'text-blue-300 font-medium' : 'text-gray-400'}`}>
+                <div className="space-y-3 text-sm">
+                  <div className={`flex justify-between ${preferences.budget <= 100 ? 'text-accent font-medium' : 'text-tertiary'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-300 rounded"></div>
+                      <div className="w-3 h-3 bg-accent rounded"></div>
                       Budget
                     </span>
                     <span>$20 - $100 USD</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 100 && preferences.budget <= 400 ? 'text-blue-400 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 100 && preferences.budget <= 400 ? 'text-accent font-medium' : 'text-tertiary'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-400 rounded"></div>
+                      <div className="w-3 h-3 bg-accent rounded"></div>
                       Entry Level
                     </span>
                     <span>$100 - $400 USD</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 400 && preferences.budget <= 1000 ? 'text-accent font-medium' : 'text-tertiary'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                      <div className="w-3 h-3 bg-accent rounded"></div>
                       Mid Range
                     </span>
                     <span>$400 - $1,000 USD</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'text-accent font-medium' : 'text-tertiary'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-600 rounded"></div>
+                      <div className="w-3 h-3 bg-accent rounded"></div>
                       High End
                     </span>
                     <span>$1,000 - $3,000 USD</span>
                   </div>
-                  <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-blue-800 font-medium' : 'text-gray-400'}`}>
+                  <div className={`flex justify-between ${preferences.budget > 3000 ? 'text-accent font-medium' : 'text-tertiary'}`}>
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-800 rounded"></div>
+                      <div className="w-3 h-3 bg-accent rounded"></div>
                       Summit-Fi
                     </span>
                     <span>$3,000+ USD</span>
@@ -755,8 +775,8 @@ const handleNext = () => {
               {preferences.usageRanking.length === 0 ? (
                 <div>
                   <h2 className="heading-2 mb-6">How will you primarily use them?</h2>
-                  <p className="text-secondary mb-16">Choose your main use case first</p>
-                  <div className="space-y-16">
+                  <p className="text-secondary mb-8">Choose your main use case first</p>
+                  <div className="space-y-6">
                     {['Music', 'Gaming', 'Movies', 'Work'].map(use => (
                       <button 
                         key={use}
@@ -769,7 +789,7 @@ const handleNext = () => {
                             excludedUsages: [] as string[]
                           })
                         }}
-                        className="w-full p-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
+                        className="w-full p-2 rounded card hover:border-accent transition-colors"
                       >
                         {use}
                       </button>
@@ -789,8 +809,8 @@ const handleNext = () => {
           {step === 7 && (
             <div>
               <h2 className="heading-2 mb-6">Sound preference?</h2>
-              <p className="text-secondary mb-16">Choose the sound signature that appeals to you most</p>
-              <div className="space-y-16">
+              <p className="text-secondary mb-8">Choose the sound signature that appeals to you most</p>
+              <div className="space-y-6">
                 {[
                   { 
                     value: 'neutral', 
@@ -816,14 +836,21 @@ const handleNext = () => {
                   <button 
                     key={option.value}
                     onClick={() => setPreferences({...preferences, soundSignature: option.value})}
-                    className={`w-full p-3 rounded text-left ${
+                    className={`card-interactive ${
                       preferences.soundSignature === option.value 
-                        ? 'bg-blue-600 border-2 border-blue-400' 
-                        : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                        ? 'card-interactive-selected' 
+                        : ''
                     }`}
                   >
-                    <div className="font-semibold">{option.label}</div>
-                    <div className="text-sm text-gray-300 mt-1">{option.description}</div>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-semibold">{option.label}</div>
+                        <div className="text-sm text-secondary mt-1">{option.description}</div>
+                      </div>
+                      {preferences.soundSignature === option.value && (
+                        <span className="text-accent">✓</span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -833,10 +860,10 @@ const handleNext = () => {
           {step === 8 && (
             <div>
               <h2 className="heading-2 mb-6">Ready for recommendations!</h2>
-              <div className="space-y-16">
-                <div className="bg-gray-700 rounded-lg p-4">
+              <div className="space-y-6">
+                <div className="card p-4">
                   <h3 className="font-semibold mb-4">Your Preferences:</h3>
-                  <div className="text-sm space-y-1 text-gray-300">
+                  <div className="text-sm space-y-1 text-secondary">
                     <p><span className="font-medium">Experience:</span> {preferences.experience}</p>
                     <p><span className="font-medium">Budget:</span> ${preferences.budget}</p>
                     <p><span className="font-medium">Type:</span> {preferences.headphoneType === 'cans' ? 'Over/On-Ear' : 'In-Ear Monitors'}</p>
@@ -850,7 +877,7 @@ const handleNext = () => {
                     <p><span className="font-medium">Sound:</span> {preferences.soundSignature}</p>
                   </div>
                 </div>
-                <p className="text-gray-400">
+                <p className="text-tertiary">
                   We&apos;ll recommend gear that matches your experience level and show you exactly what you need to get started.
                 </p>
               </div>
@@ -859,7 +886,7 @@ const handleNext = () => {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-20">
+        <div className="flex justify-between mt-3">
           <button 
             onClick={() => setStep(Math.max(1, step - 1))}
             className={`button ${

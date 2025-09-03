@@ -15,11 +15,7 @@ export function ThemeToggle() {
   }, [])
 
   const updateTheme = (newTheme: 'light' | 'dark') => {
-    if (newTheme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark')
-    } else {
-      document.documentElement.removeAttribute('data-theme')
-    }
+    document.documentElement.setAttribute('data-theme', newTheme)
     localStorage.setItem('theme', newTheme)
   }
 
@@ -34,8 +30,16 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="button button-ghost button-sm"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-checked={theme === 'dark'}
+      role="switch"
+      title={`Current theme: ${theme}. Click to switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      <span aria-hidden="true">
+        {theme === 'light' ? '🌙' : '☀️'}
+      </span>
+      <span className="sr-only">
+        {theme === 'light' ? 'Dark' : 'Light'} mode
+      </span>
     </button>
   )
 }
