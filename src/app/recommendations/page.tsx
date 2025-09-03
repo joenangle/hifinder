@@ -273,7 +273,7 @@ function RecommendationsContent() {
         return bScore - aScore
       })
       .slice(0, maxOptions)
-  }
+  }, [usageRanking, soundSignature])
 
   // Calculate compatibility between component and headphones
   const calculateCompatibilityScore = (component: Component, headphones: AudioComponent[], type: string): number => {
