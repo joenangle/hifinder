@@ -7,6 +7,8 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
+import { assessAmplificationFromImpedance, PowerRequirements } from '@/lib/audio-calculations'
+import { AmplificationIndicator, AmplificationBadge } from '@/components/AmplificationIndicator'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -14,7 +16,11 @@ interface AudioComponent extends Component {
   synergyScore?: number
   compatibilityScore?: number
   powerAdequacy?: number
-  powerRequirement?: 'very-low' | 'low' | 'medium' | 'high' | 'unknown'
+  amplificationAssessment?: {
+    difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown';
+    explanation: string;
+    estimatedSensitivity?: number;
+  }
 }
 
 function RecommendationsContent() {
@@ -43,6 +49,8 @@ function RecommendationsContent() {
   const [userPrefs, setUserPrefs] = useState({
     experience: searchParams.get('experience') || 'intermediate',
     budget: parseInt(searchParams.get('budget') || '300'),
+    budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
+    budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
     headphoneType: searchParams.get('headphoneType') || 'cans',
     wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
     existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
@@ -57,6 +65,8 @@ function RecommendationsContent() {
     const urlPrefs = {
       experience: searchParams.get('experience') || 'intermediate',
       budget: parseInt(searchParams.get('budget') || '300'),
+      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
+      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
       headphoneType: searchParams.get('headphoneType') || 'cans',
       wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
@@ -69,7 +79,7 @@ function RecommendationsContent() {
   }, [searchParams])
 
   // Extract values for convenience
-  const { experience, budget, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
+  const { experience, budget, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
 
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
@@ -80,6 +90,8 @@ function RecommendationsContent() {
     const params = new URLSearchParams()
     params.set('experience', updatedPrefs.experience)
     params.set('budget', updatedPrefs.budget.toString())
+    params.set('budgetRangeMin', updatedPrefs.budgetRangeMin.toString())
+    params.set('budgetRangeMax', updatedPrefs.budgetRangeMax.toString())
     params.set('headphoneType', updatedPrefs.headphoneType)
     params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
     params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
@@ -111,11 +123,26 @@ function RecommendationsContent() {
     return Math.round((Math.log(budget) - minLog) / scale)
   }
 
+  const [isDragging, setIsDragging] = useState(false)
+
   const handleBudgetSliderChange = (sliderValue: number) => {
     const newBudget = sliderToBudget(sliderValue)
-    updatePreferences({ budget: newBudget })
+    // Only update state, don't trigger router push during sliding
+    setUserPrefs(prev => ({ ...prev, budget: newBudget }))
     setBudgetInputValue(newBudget.toString())
     setBudgetError('')
+  }
+
+  const handleBudgetSliderMouseDown = () => {
+    setIsDragging(true)
+  }
+
+  const handleBudgetSliderMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false)
+      // Update URL when slider interaction ends
+      updatePreferences({ budget: userPrefs.budget })
+    }
   }
 
   const handleBudgetInputFocus = () => {
@@ -127,6 +154,18 @@ function RecommendationsContent() {
       setBudgetInputValue(budget.toString())
     }
   }
+
+  // Format budget with US currency formatting
+  const formatBudgetUSD = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  // Get budget tier name and range
 
   const handleBudgetInputChange = (value: string) => {
     setBudgetInputValue(value)
@@ -158,10 +197,6 @@ function RecommendationsContent() {
     updatePreferences({ budget: numValue })
   }
 
-  // Format budget with commas
-  const formatBudget = (budget: number) => {
-    return budget.toLocaleString('en-US')
-  }
 
   // Sync budgetInputValue with budget changes
   useEffect(() => {
@@ -203,14 +238,14 @@ function RecommendationsContent() {
     return allocation
   }
 
-  // Calculate power requirement based on impedance and sensitivity
-  const calculatePowerRequirement = (impedance: number | null, needsAmp: boolean | null): 'very-low' | 'low' | 'medium' | 'high' | 'unknown' => {
-    if (needsAmp) return 'high'
-    if (!impedance) return 'unknown'
-    if (impedance >= 250) return 'high'
-    if (impedance >= 150) return 'medium'  
-    if (impedance >= 80) return 'low'
-    return 'very-low'
+  // Enhanced amplification assessment using comprehensive logic
+  const calculateAmplificationRequirement = (
+    impedance: number | null, 
+    needsAmp: boolean | null,
+    headphoneName?: string,
+    brand?: string
+  ) => {
+    return assessAmplificationFromImpedance(impedance, needsAmp, headphoneName, brand);
   }
 
   // Calculate synergy score based on sound signature and usage
@@ -240,12 +275,12 @@ function RecommendationsContent() {
   const processHeadphoneRecommendations = (headphones: Component[], budget: number, maxOptions: number): AudioComponent[] => {
     const primaryUsage = usageRanking[0]
     
-    return headphones
+    const finalHeadphones = headphones
       .map(h => ({
         ...h,
         avgPrice: ((h.price_used_min || 0) + (h.price_used_max || 0)) / 2,
-        // Calculate power requirements (simplified)
-        powerRequirement: calculatePowerRequirement(h.impedance, h.needs_amp),
+        // Enhanced amplification assessment
+        amplificationAssessment: calculateAmplificationRequirement(h.impedance, h.needs_amp, h.name, h.brand),
         // Audio synergy score based on usage and sound signature
         synergyScore: calculateSynergyScore(h, soundSignature, primaryUsage)
       }))
@@ -255,14 +290,19 @@ function RecommendationsContent() {
         return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
       })
       .filter(h => {
-        // More flexible price range to avoid gaps - show anything user might consider
-        const minAcceptable = Math.max(10, budget * 0.15)  // Show very affordable options, min $10  
-        const maxAcceptable = budget * 2.0  // Allow significant overage for quality items
-        const isAffordable = (h.price_used_min || 0) <= budget * 1.2  // User can actually afford the minimum price
-        const isReasonable = h.avgPrice <= maxAcceptable && h.avgPrice >= minAcceptable
+        // Use custom budget range preferences from advanced onboarding flow
+        const minAcceptable = Math.max(20, budget * (1 - budgetRangeMin / 100))  // Custom % below budget, min $20
+        const maxAcceptable = budget * (1 + budgetRangeMax / 100)                // Custom % above budget
+        const isAffordable = (h.price_used_min || 0) <= budget * 1.15  // Min price should be close to budget
+        const isInRange = h.avgPrice <= maxAcceptable && h.avgPrice >= minAcceptable
         
-        // Show if either affordable OR in reasonable range (to avoid gaps)
-        return isAffordable || isReasonable
+        // With realistic price ranges, we can be less restrictive on range width
+        const priceRange = (h.price_used_max || 0) - (h.price_used_min || 0)
+        const avgPrice = h.avgPrice
+        const isReasonableRange = priceRange <= avgPrice * 1.5  // Reasonable price spread
+        
+        // Must be affordable, in range, AND have reasonable price spread
+        return isAffordable && isInRange && isReasonableRange
       })
       .sort((a, b) => {
         // Multi-factor scoring: price fit + synergy + specifications
@@ -273,6 +313,8 @@ function RecommendationsContent() {
         return bScore - aScore
       })
       .slice(0, maxOptions)
+  
+  return finalHeadphones
   }
 
   // Calculate compatibility between component and headphones
@@ -381,9 +423,9 @@ function RecommendationsContent() {
         return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
       })
       .filter(c => {
-        // Filter to show items in a reasonable price range for the budget
-        const minAcceptable = budget * 0.3  // Don't show items too cheap
-        const maxAcceptable = budget * 1.5  // Allow some overage for great matches
+        // Filter to show items across a wider range
+        const minAcceptable = budget * 0.15  // Show budget options
+        const maxAcceptable = budget * 2.5   // Allow upgrade options
         return c.avgPrice >= minAcceptable && c.avgPrice <= maxAcceptable
       })
       .sort((a, b) => {
@@ -399,17 +441,17 @@ function RecommendationsContent() {
 
   // Fetch DACs with impedance matching and synergy
   const fetchDACs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget
-    const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
+    const minPrice = Math.floor(budget * 0.1)  // Show budget options
+    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
     const { data: dacs, error } = await supabase
       .from('components')
       .select('*')
       .eq('category', 'dac')
       .lte('price_used_min', maxPrice)
-      .gte('price_used_min', minPrice * 0.5)
+      .gte('price_used_max', minPrice)
       .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 3)
+      .limit(maxOptions * 5)
     
     if (error) {
       console.error('DAC query error:', error)
@@ -421,17 +463,17 @@ function RecommendationsContent() {
 
   // Fetch AMPs with power matching  
   const fetchAMPs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget
-    const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
+    const minPrice = Math.floor(budget * 0.1)  // Show budget options
+    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
     const { data: amps, error } = await supabase
       .from('components')
       .select('*')
       .eq('category', 'amp')
       .lte('price_used_min', maxPrice)
-      .gte('price_used_min', minPrice * 0.5)
+      .gte('price_used_max', minPrice)
       .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 3)
+      .limit(maxOptions * 5)
     
     if (error) {
       console.error('AMP query error:', error)
@@ -443,17 +485,17 @@ function RecommendationsContent() {
 
   // Fetch combo units with complete system matching
   const fetchCombos = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.6)  // At least 60% of budget  
-    const maxPrice = Math.floor(budget * 1.5)  // Up to 150% of budget
+    const minPrice = Math.floor(budget * 0.1)  // Show budget options
+    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
     const { data: combos, error } = await supabase
       .from('components')
       .select('*')
       .eq('category', 'dac_amp')
       .lte('price_used_min', maxPrice)
-      .gte('price_used_min', minPrice * 0.5)
+      .gte('price_used_max', minPrice)
       .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 3)
+      .limit(maxOptions * 5)
     
     if (error) {
       console.error('Combo query error:', error)
@@ -492,19 +534,20 @@ function RecommendationsContent() {
       if (wantRecommendationsFor.headphones) {
         const headphoneBudget = budgetAllocation.headphones || budget
         // More inclusive price range to avoid gaps
-        const maxBudgetLimit = Math.floor(headphoneBudget * 1.5)  // Allow up to 50% over budget
-        const minBudgetLimit = Math.max(10, Math.floor(headphoneBudget * 0.3))  // At least 30% of budget, min $10
+        const maxBudgetLimit = Math.floor(headphoneBudget * 2.0)  // Allow up to 100% over budget for better selection
+        const minBudgetLimit = Math.max(10, Math.floor(headphoneBudget * 0.1))  // Start very low to show budget options
         
         console.log(`🎧 Fetching headphones with budget: $${headphoneBudget} (inclusive range: $${minBudgetLimit}-$${maxBudgetLimit})`)
         
-        // Get a broader range of items to avoid gaps
+        // Get a broader range of items to avoid gaps - focus on affordability
         const { data: headphonesData, error: headphonesError } = await supabase
           .from('components')
           .select('*')
           .eq('category', headphoneType)
-          .or(`price_used_min.lte.${maxBudgetLimit},price_used_max.gte.${minBudgetLimit}`)  // Items user can afford OR reasonable range
+          .lte('price_used_min', maxBudgetLimit)  // Only show items where minimum price is within expanded range
+          .gte('price_used_max', minBudgetLimit)  // And where there's some option in the range
           .order('price_used_min', { ascending: true })
-          .limit(maxOptions * 5)  // Get more options for better filtering
+          .limit(maxOptions * 8)  // Get even more options for better filtering
         
         if (headphonesError && Object.keys(headphonesError).length > 0) {
           console.error('Headphones query error:', headphonesError)
@@ -545,11 +588,11 @@ function RecommendationsContent() {
         finalDacAmps = await fetchCombos(comboBudget, finalHeadphones, maxOptions)
       }
       
-      // Determine if amplification is needed based on headphones
+      // Determine if amplification is needed based on enhanced assessment
       const needsAmplification = finalHeadphones.some(h => {
-        if (h.needs_amp === true) return true
-        if (h.impedance && typeof h.impedance === 'number' && h.impedance >= 150) return true
-        return false
+        if (!h.amplificationAssessment) return h.needs_amp === true;
+        return h.amplificationAssessment.difficulty === 'demanding' || 
+               h.amplificationAssessment.difficulty === 'very_demanding';
       })
       
       // Auto-suggest amplification if needed and not already covered
@@ -692,20 +735,12 @@ function RecommendationsContent() {
     return experience === 'intermediate' || experience === 'enthusiast'
   }
 
-  // Budget gradient color
-  const getBudgetGradient = () => {
-    if (budget <= 100) return 'from-green-400 to-green-600'
-    if (budget <= 500) return 'from-blue-400 to-blue-600'
-    if (budget <= 1500) return 'from-purple-400 to-purple-600'
-    if (budget <= 5000) return 'from-orange-400 to-orange-600'
-    return 'from-red-400 to-red-600'
-  }
 
   if (loading) {
     return (
-      <div className="page-container flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4"></div>
+      <div className="page-container">
+        <div className="text-center mt-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4 mx-auto"></div>
           <p className="text-secondary">Building your personalized recommendations...</p>
         </div>
       </div>
@@ -714,7 +749,7 @@ function RecommendationsContent() {
 
   return (
     <div className="page-container">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
         <div className="text-center mb-8">
           <h1 className="heading-1 mb-4">
             Your Audio System Recommendations
@@ -725,48 +760,69 @@ function RecommendationsContent() {
         </div>
 
         {/* Budget Control */}
-        <div className="card mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="heading-4">Budget Control</h3>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <span className="text-sm text-gray-500">Budget</span>
-                <input
-                  type="text"
-                  value={budgetInputValue}
-                  onChange={(e) => handleBudgetInputChange(e.target.value)}
-                  onFocus={handleBudgetInputFocus}
-                  onBlur={handleBudgetInputBlur}
-                  className="block w-24 text-right text-lg font-semibold border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:ring-0 bg-transparent"
-                  placeholder={budget.toString()}
-                />
-                {budgetError && (
-                  <p className="absolute top-full mt-1 text-xs text-red-600">{budgetError}</p>
-                )}
-              </div>
+        <div className="card mb-10" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
+          <div className="relative" style={{ minHeight: '100px', width: '100%' }}>
+            {/* Budget Tier Labels */}
+            <div className="flex justify-between text-xs text-tertiary mb-3">
+              <span className={`text-center ${budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
+              <span className={`text-center ${budget > 100 && budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
+              <span className={`text-center ${budget > 400 && budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
+              <span className={`text-center ${budget > 1000 && budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
+              <span className={`text-center ${budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
             </div>
-          </div>
-          
-          <div className="relative mb-6">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={budgetToSlider(budget)}
-              onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              style={{
-                background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${budgetToSlider(budget)}%, #E5E7EB ${budgetToSlider(budget)}%, #E5E7EB 100%)`
-              }}
-            />
             
-            <div className="flex justify-between text-sm text-gray-500 mt-2">
-              <span>$20</span>
-              <span className={`px-3 py-1 rounded-full text-white font-medium bg-gradient-to-r ${getBudgetGradient()}`}>
-                ${formatBudget(budget)}
-              </span>
-              <span>$10,000</span>
+            <div className="relative" style={{ width: '100%', height: '12px' }}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={budgetToSlider(budget)}
+                onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
+                onMouseDown={handleBudgetSliderMouseDown}
+                onMouseUp={handleBudgetSliderMouseUp}
+                onTouchStart={handleBudgetSliderMouseDown}
+                onTouchEnd={handleBudgetSliderMouseUp}
+                className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
+                style={{
+                  background: `linear-gradient(to right, #22c55e 0%, #eab308 25%, #f97316 50%, #ef4444 75%, #8b5cf6 100%)`,
+                  boxShadow: 'none',
+                  width: '100%',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
+                }}
+              />
             </div>
+            
+            <div className="flex justify-between items-center text-sm text-tertiary mt-3" style={{ minHeight: '40px' }}>
+              <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'left' }}>$20 USD</span>
+              <div className="flex flex-col items-center flex-shrink-0">
+                <div className="budget-input-container">
+                  <span className="currency-symbol text-inverse">$</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={budgetInputValue}
+                    onChange={(e) => handleBudgetInputChange(e.target.value)}
+                    onFocus={handleBudgetInputFocus}
+                    onBlur={handleBudgetInputBlur}
+                    className="pl-8 pr-6 py-2 rounded-full bg-accent text-inverse font-bold text-center border-0 focus:ring-2 focus:ring-accent-hover focus:outline-none"
+                    style={{ width: '8rem', minWidth: '8rem', maxWidth: '8rem' }}
+                    placeholder="Budget"
+                  />
+                </div>
+              </div>
+              <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'right' }}>$10,000 USD</span>
+            </div>
+            
+            {budgetError && (
+              <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2">
+                <p className="text-xs text-error bg-error-light border border-error rounded px-2 py-1">
+                  {budgetError}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -780,7 +836,7 @@ function RecommendationsContent() {
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">${Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)}</p>
+                    <p className="text-xs text-gray-500" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
                   </div>
                 </div>
               ))}
@@ -789,7 +845,7 @@ function RecommendationsContent() {
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">${Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)}</p>
+                    <p className="text-xs text-gray-500" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
                   </div>
                 </div>
               ))}
@@ -798,7 +854,7 @@ function RecommendationsContent() {
                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">${Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)}</p>
+                    <p className="text-xs text-gray-500" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
                   </div>
                 </div>
               ))}
@@ -807,7 +863,7 @@ function RecommendationsContent() {
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">${Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)}</p>
+                    <p className="text-xs text-gray-500" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
                   </div>
                 </div>
               ))}
@@ -847,11 +903,33 @@ function RecommendationsContent() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium text-primary">{headphone.name}</h3>
-                      <span className="text-sm font-medium text-accent">
-                        ${headphone.price_used_min}-${headphone.price_used_max}
-                      </span>
+                      <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-sm font-medium text-accent">
+                          {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
+                        </div>
+                        {headphone.price_new && (
+                          <div className="text-xs text-tertiary">
+                            MSRP: {formatBudgetUSD(headphone.price_new)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-secondary mb-2">{headphone.brand}</p>
+                    <p className="text-sm text-secondary mb-3">{headphone.brand}</p>
+                    
+                    {/* Enhanced Amplification Assessment */}
+                    {headphone.amplificationAssessment && (
+                      <div className="mb-3">
+                        <AmplificationBadge 
+                          difficulty={headphone.amplificationAssessment.difficulty}
+                          className="mb-2"
+                        />
+                        {shouldShowTechnicalSpecs() && (
+                          <p className="text-xs text-gray-600 leading-relaxed">
+                            {headphone.amplificationAssessment.explanation}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     
                     {shouldShowTechnicalSpecs() && (
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
@@ -861,8 +939,8 @@ function RecommendationsContent() {
                         {headphone.sound_signature && (
                           <div>Sound: {headphone.sound_signature}</div>
                         )}
-                        {headphone.powerRequirement && (
-                          <div>Power: {headphone.powerRequirement}</div>
+                        {headphone.amplificationAssessment?.estimatedSensitivity && (
+                          <div>Est. Sens: {headphone.amplificationAssessment.estimatedSensitivity} dB/mW</div>
                         )}
                         {headphone.synergyScore && (
                           <div>Match: {Math.round(headphone.synergyScore * 100)}%</div>
@@ -897,9 +975,16 @@ function RecommendationsContent() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium text-primary">{dac.name}</h3>
-                      <span className="text-sm font-medium text-success">
-                        ${dac.price_used_min}-${dac.price_used_max}
-                      </span>
+                      <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-sm font-medium text-success">
+                          {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}
+                        </div>
+                        {dac.price_new && (
+                          <div className="text-xs text-tertiary">
+                            MSRP: {formatBudgetUSD(dac.price_new)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{dac.brand}</p>
                     
@@ -941,9 +1026,16 @@ function RecommendationsContent() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium text-primary">{amp.name}</h3>
-                      <span className="text-sm font-medium text-warning">
-                        ${amp.price_used_min}-${amp.price_used_max}
-                      </span>
+                      <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-sm font-medium text-warning">
+                          {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}
+                        </div>
+                        {amp.price_new && (
+                          <div className="text-xs text-tertiary">
+                            MSRP: {formatBudgetUSD(amp.price_new)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{amp.brand}</p>
                     
@@ -988,9 +1080,16 @@ function RecommendationsContent() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium text-primary">{combo.name}</h3>
-                      <span className="text-sm font-medium text-accent">
-                        ${combo.price_used_min}-${combo.price_used_max}
-                      </span>
+                      <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-sm font-medium text-accent">
+                          {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}
+                        </div>
+                        {combo.price_new && (
+                          <div className="text-xs text-tertiary">
+                            MSRP: {formatBudgetUSD(combo.price_new)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{combo.brand}</p>
                     
@@ -1089,8 +1188,10 @@ function RecommendationsContent() {
 export default function RecommendationsPage() {
   return (
     <Suspense fallback={
-      <div className="page-container flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+      <div className="page-container">
+        <div className="text-center mt-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+        </div>
       </div>
     }>
       <RecommendationsContent />

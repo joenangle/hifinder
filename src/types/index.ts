@@ -11,6 +11,10 @@ export interface Component {
   use_cases: string[];
   impedance: number | null;
   needs_amp: boolean;
+  // Enhanced amplification assessment fields
+  power_required_mw?: number;
+  voltage_required_v?: number;
+  amplification_difficulty?: 'easy' | 'moderate' | 'demanding' | 'very_demanding';
   // Additional fields for amp/dac components
   power_output?: string; // e.g., "2W @ 32Ω"
   input_types?: string[]; // e.g., ["USB", "Optical", "Coaxial"]
@@ -18,6 +22,17 @@ export interface Component {
   amazon_url: string | null;
   why_recommended: string;
   created_at: string;
+}
+
+// Component specifications for detailed audio measurements  
+export interface ComponentSpecifications {
+  id: string;
+  component_id: string;
+  sensitivity_db_mw?: number;      // Primary sensitivity measurement in dB/mW
+  sensitivity_vrms?: number;       // Alternative measurement in dB/V (some manufacturers use this)
+  measurement_condition?: string;  // How sensitivity was measured (e.g., "1kHz", "500Hz-2kHz average")
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UsedListing {

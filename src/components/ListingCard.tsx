@@ -10,6 +10,15 @@ interface ListingCardProps {
 export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
   const priceVariance = ((listing.price - expectedPrice) / expectedPrice) * 100
   
+  const formatBudgetUSD = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+  
   const getConditionColor = (condition: string) => {
     switch (condition) {
       case 'excellent': return 'text-success'
@@ -90,7 +99,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
         </div>
 
         <div className="text-right ml-4">
-          <div className="text-2xl font-bold text-primary">${listing.price}</div>
+          <div className="text-2xl font-bold text-primary">{formatBudgetUSD(listing.price)}</div>
           
           {/* Price Variance Indicator */}
           <div className={`text-sm font-medium ${
