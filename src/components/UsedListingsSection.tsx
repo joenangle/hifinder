@@ -10,7 +10,7 @@ interface UsedListingsSectionProps {
 }
 
 export function UsedListingsSection({ component, listings }: UsedListingsSectionProps) {
-  const [filter, setFilter] = useState<'all' | 'reddit' | 'ebay' | 'manual'>('all')
+  const [filter, setFilter] = useState<'all' | 'reddit' | 'ebay' | 'head_fi' | 'reverb' | 'manual'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'price_low' | 'price_high'>('newest')
 
   const filteredListings = listings
@@ -18,6 +18,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       if (filter === 'all') return true
       if (filter === 'reddit') return listing.source === 'reddit_avexchange'
       if (filter === 'ebay') return listing.source === 'ebay'
+      if (filter === 'head_fi') return listing.source === 'head_fi'
+      if (filter === 'reverb') return listing.source === 'reverb'
       if (filter === 'manual') return listing.source === 'manual'
       return true
     })
@@ -40,28 +42,28 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
 
   if (!listings || listings.length === 0) {
     return (
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4 text-white">
+      <div className="mt-10">
+        <h3 className="heading-3 mb-4">
           Used Market for {component.name}
         </h3>
         
-        <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+        <div className="card">
           <div className="text-center">
-            <p className="text-gray-400 mb-4">No used listings currently available</p>
+            <p className="text-secondary mb-4">No used listings currently available</p>
             
             {component.amazon_url && (
               <div>
-                <p className="text-sm text-gray-500 mb-3">Consider buying new:</p>
+                <p className="text-sm text-secondary mb-3">Consider buying new:</p>
                 <a 
                   href={component.amazon_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg inline-block font-medium transition-colors"
+                  className="button button-primary"
                 >
                   Buy New on Amazon →
                 </a>
-                <div className="text-xs text-gray-400 mt-2">
-                  <span className="inline-block bg-gray-700 px-2 py-1 rounded">
+                <div className="text-xs text-tertiary mt-2">
+                  <span className="inline-block bg-surface-secondary px-2 py-1 rounded">
                     Affiliate Link - HiFinder may earn a commission at no additional cost to you
                   </span>
                 </div>
@@ -77,10 +79,10 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
     <div className="mt-8">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-white">
+          <h3 className="heading-3">
             Used Market for {component.name}
           </h3>
-          <p className="text-gray-400 text-sm">
+          <p className="text-secondary text-sm">
             {filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -95,6 +97,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
             <option value="all">All Sources</option>
             <option value="reddit">Reddit</option>
             <option value="ebay">eBay</option>
+            <option value="head_fi">Head-Fi</option>
+            <option value="reverb">Reverb</option>
             <option value="manual">Curated</option>
           </select>
 

@@ -67,16 +67,16 @@ function getPricing(tier, brand, model) {
   if (item.includes('clear mg')) return { min: 1200, max: 1600 }
   if (item.includes('elex')) return { min: 550, max: 750 }
   
-  // General tier-based pricing
+  // General tier-based pricing (more realistic ranges)
   switch (tier) {
     case 'high':
-      return { min: 1000, max: 6000 }
+      return { min: 1200, max: 2500 }  // High-end but not summit-fi
     case 'mid':
-      return { min: 200, max: 1000 }
+      return { min: 300, max: 500 }    // Much tighter mid-range
     case 'entry':
-      return { min: 50, max: 300 }
+      return { min: 80, max: 180 }     // Realistic entry prices
     default:
-      return { min: 100, max: 500 }
+      return { min: 150, max: 350 }    // Reasonable default
   }
 }
 

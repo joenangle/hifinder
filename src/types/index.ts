@@ -11,6 +11,10 @@ export interface Component {
   use_cases: string[];
   impedance: number | null;
   needs_amp: boolean;
+  // Enhanced amplification assessment fields
+  power_required_mw?: number;
+  voltage_required_v?: number;
+  amplification_difficulty?: 'easy' | 'moderate' | 'demanding' | 'very_demanding';
   // Additional fields for amp/dac components
   power_output?: string; // e.g., "2W @ 32Ω"
   input_types?: string[]; // e.g., ["USB", "Optical", "Coaxial"]
@@ -20,6 +24,17 @@ export interface Component {
   created_at: string;
 }
 
+// Component specifications for detailed audio measurements  
+export interface ComponentSpecifications {
+  id: string;
+  component_id: string;
+  sensitivity_db_mw?: number;      // Primary sensitivity measurement in dB/mW
+  sensitivity_vrms?: number;       // Alternative measurement in dB/V (some manufacturers use this)
+  measurement_condition?: string;  // How sensitivity was measured (e.g., "1kHz", "500Hz-2kHz average")
+  created_at: string;
+  updated_at: string;
+}
+
 export interface UsedListing {
   id: string;
   component_id: string;
@@ -27,23 +42,29 @@ export interface UsedListing {
   price: number;
   condition: 'excellent' | 'very_good' | 'good' | 'fair' | 'parts_only';
   location: string;
-  source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'manual';
+  source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'reverb' | 'manual';
   url: string;
   date_posted: string;
-  seller: {
-    username: string;
-    confirmed_trades?: number;
-    feedback_score?: number;
-    feedback_percentage?: number;
-  };
+  // Match actual database schema
+  seller_username: string;
+  seller_confirmed_trades?: number;
+  seller_feedback_score?: number;
+  seller_feedback_percentage?: number;
   images?: string[];
   description?: string;
   is_active: boolean;
-  price_validation: {
-    is_reasonable: boolean;
-    variance_percentage: number;
-    warning?: string;
-  };
+  // Match actual database schema  
+  price_is_reasonable: boolean;
+  price_variance_percentage: number;
+  price_warning?: string;
+  created_at: string;
+  updated_at: string;
+  // New fields for enhanced functionality
+  expires_at?: string;
+  view_count?: number;
+  listing_type?: 'buy_it_now' | 'auction' | 'trade' | 'bundle';
+  shipping_cost?: number;
+  accepts_offers?: boolean;
 }
 
 export interface PriceValidation {
