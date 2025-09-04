@@ -10,7 +10,7 @@ interface UsedListingsSectionProps {
 }
 
 export function UsedListingsSection({ component, listings }: UsedListingsSectionProps) {
-  const [filter, setFilter] = useState<'all' | 'reddit' | 'ebay' | 'manual'>('all')
+  const [filter, setFilter] = useState<'all' | 'reddit' | 'ebay' | 'head_fi' | 'reverb' | 'manual'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'price_low' | 'price_high'>('newest')
 
   const filteredListings = listings
@@ -18,6 +18,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       if (filter === 'all') return true
       if (filter === 'reddit') return listing.source === 'reddit_avexchange'
       if (filter === 'ebay') return listing.source === 'ebay'
+      if (filter === 'head_fi') return listing.source === 'head_fi'
+      if (filter === 'reverb') return listing.source === 'reverb'
       if (filter === 'manual') return listing.source === 'manual'
       return true
     })
@@ -95,6 +97,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
             <option value="all">All Sources</option>
             <option value="reddit">Reddit</option>
             <option value="ebay">eBay</option>
+            <option value="head_fi">Head-Fi</option>
+            <option value="reverb">Reverb</option>
             <option value="manual">Curated</option>
           </select>
 

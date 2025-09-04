@@ -42,23 +42,29 @@ export interface UsedListing {
   price: number;
   condition: 'excellent' | 'very_good' | 'good' | 'fair' | 'parts_only';
   location: string;
-  source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'manual';
+  source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'reverb' | 'manual';
   url: string;
   date_posted: string;
-  seller: {
-    username: string;
-    confirmed_trades?: number;
-    feedback_score?: number;
-    feedback_percentage?: number;
-  };
+  // Match actual database schema
+  seller_username: string;
+  seller_confirmed_trades?: number;
+  seller_feedback_score?: number;
+  seller_feedback_percentage?: number;
   images?: string[];
   description?: string;
   is_active: boolean;
-  price_validation: {
-    is_reasonable: boolean;
-    variance_percentage: number;
-    warning?: string;
-  };
+  // Match actual database schema  
+  price_is_reasonable: boolean;
+  price_variance_percentage: number;
+  price_warning?: string;
+  created_at: string;
+  updated_at: string;
+  // New fields for enhanced functionality
+  expires_at?: string;
+  view_count?: number;
+  listing_type?: 'buy_it_now' | 'auction' | 'trade' | 'bundle';
+  shipping_cost?: number;
+  accepts_offers?: boolean;
 }
 
 export interface PriceValidation {
