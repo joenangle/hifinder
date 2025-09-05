@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://hifinder.app/sitemap.xml
+
+# Disallow API routes from indexing
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /onboarding
+Allow: /recommendations
+Allow: /gear
+Allow: /used-market
+Allow: /alerts
+Allow: /wishlist
+Allow: /quick-start
+Allow: /learn

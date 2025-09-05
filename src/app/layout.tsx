@@ -13,6 +13,38 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "HiFinder - Audio System Builder",
   description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+  keywords: "audio, headphones, DAC, amplifier, IEM, recommendations, gear management, hifi, audiophile",
+  authors: [{ name: "HiFinder" }],
+  creator: "HiFinder",
+  publisher: "HiFinder",
+  metadataBase: new URL('https://hifinder.app'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "HiFinder - Audio System Builder",
+    description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+    url: 'https://hifinder.app',
+    siteName: 'HiFinder',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "HiFinder - Audio System Builder",
+    description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export const viewport = {
