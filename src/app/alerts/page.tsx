@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { getUserAlerts, createAlert, updateAlert, deleteAlert, getAlertHistory, markAlertViewed, checkAlerts, PriceAlert, AlertHistory } from '@/lib/alerts'
 import { supabase } from '@/lib/supabase'
@@ -57,23 +57,23 @@ function AlertsContent() {
       // Check for new matches
       checkAlerts(session.user.id)
     }
-  }, [session?.user?.id])
+  }, [session?.user?.id, loadAlerts, loadHistory])
 
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     if (!session?.user?.id) return
     
     setLoading(true)
     const userAlerts = await getUserAlerts(session.user.id)
     setAlerts(userAlerts)
     setLoading(false)
-  }
+  }, [session?.user?.id])
 
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     if (!session?.user?.id) return
     
     const history = await getAlertHistory(session.user.id)
     setAlertHistory(history)
-  }
+  }, [session?.user?.id])
 
   const searchComponents = async (query: string) => {
     if (query.length < 2) {

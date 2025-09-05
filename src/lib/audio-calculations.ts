@@ -286,7 +286,6 @@ export function matchAmplifiersToHeadphones(
     else if (avgPrice > 150) estimatedPower = 250;
     
     // Calculate compatibility with most demanding headphone
-    const mostDemandingZ = Math.max(...headphones.map(h => h.impedance || 32));
     const powerAtHeadphoneZ = estimatedPower; // Simplified - would adjust for impedance
     
     const compatibilityScore = Math.min(1, powerAtHeadphoneZ / 100); // Normalized score

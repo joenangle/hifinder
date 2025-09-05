@@ -1,10 +1,10 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { getUserWishlist } from '@/lib/wishlist'
 import { WishlistItem } from '@/types/auth'
-import { Heart, Search, Trash2 } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { WishlistButton } from '@/components/WishlistButton'
 import { FindUsedButton } from '@/components/FindUsedButton'
 import Link from 'next/link'
@@ -18,16 +18,16 @@ function WishlistContent() {
     if (session?.user?.id) {
       loadWishlist()
     }
-  }, [session?.user?.id])
+  }, [session?.user?.id, loadWishlist])
 
-  const loadWishlist = async () => {
+  const loadWishlist = useCallback(async () => {
     if (!session?.user?.id) return
     
     setLoading(true)
     const items = await getUserWishlist(session.user.id)
     setWishlistItems(items)
     setLoading(false)
-  }
+  }, [session?.user?.id])
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

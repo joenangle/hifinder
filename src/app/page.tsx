@@ -32,8 +32,8 @@ export default function Home() {
           
           {/* Main Description */}
           <p className="text-secondary text-xl mb-6 max-w-2xl mx-auto leading-relaxed">
-            Find your perfect headphone setup in minutes with personalized recommendations 
-            based on your budget, preferences, and existing gear
+            Build, track, and optimize your audio gear collection with personalized recommendations,
+            stack management, and used market integration
           </p>
           
           {/* Primary CTA - Very Prominent */}
@@ -76,50 +76,87 @@ export default function Home() {
               <div className="text-foreground text-sm font-semibold">Budget Range</div>
             </div>
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
-              <div className="text-3xl font-bold text-accent mb-2">5 Mins</div>
-              <div className="text-foreground text-sm font-semibold">Setup Time</div>
+              <div className="text-3xl font-bold text-accent mb-2">Live</div>
+              <div className="text-foreground text-sm font-semibold">Used Market</div>
             </div>
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
-              <div className="text-3xl font-bold text-accent mb-2">Science</div>
-              <div className="text-foreground text-sm font-semibold">Based</div>
+              <div className="text-3xl font-bold text-accent mb-2">Smart</div>
+              <div className="text-foreground text-sm font-semibold">Tracking</div>
             </div>
           </div>
         </section>
 
-        {/* How It Works */}
-        <section id="how-it-works" className="mb-8 py-6">
-          <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">How HiFinder Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
-                <span className="text-lg">📋</span>
+        {/* Core Features */}
+        <section className="mb-8 py-6">
+          <h2 className="heading-2 text-center mb-6 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">Complete Audio Gear Management</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Gear Collection */}
+            <Link href="/gear" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                  <span className="text-lg">📦</span>
+                </div>
+                <div>
+                  <h3 className="heading-3 font-semibold">Gear Collection</h3>
+                  <p className="text-accent text-sm font-medium">Track & manage →</p>
+                </div>
               </div>
-              <h3 className="heading-3 mb-2 font-semibold">1. Tell Us About You</h3>
               <p className="text-secondary leading-relaxed">
-                Share your experience level, budget, existing gear, and preferences. 
-                Takes just 2-3 minutes.
+                Track your audio gear, monitor values, set up price alerts, and discover upgrade paths. 
+                Keep detailed records of your entire setup.
               </p>
-            </div>
-            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
-                <span className="text-lg">🧠</span>
+            </Link>
+            
+            {/* Stack Builder */}
+            <Link href="/gear?tab=stacks" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                  <span className="text-lg">🏗️</span>
+                </div>
+                <div>
+                  <h3 className="heading-3 font-semibold">Stack Builder</h3>
+                  <p className="text-accent text-sm font-medium">Create systems →</p>
+                </div>
               </div>
-              <h3 className="heading-3 mb-2 font-semibold">2. Smart Matching</h3>
               <p className="text-secondary leading-relaxed">
-                Our algorithm considers measurements, reviews, and compatibility 
-                to find your ideal components.
+                Build and compare complete audio systems. Test different combinations, 
+                calculate total costs, and find the perfect synergy.
               </p>
-            </div>
-            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
-                <span className="text-lg">🎧</span>
+            </Link>
+            
+            {/* Used Market */}
+            <Link href="/used-market" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                  <span className="text-lg">🛒</span>
+                </div>
+                <div>
+                  <h3 className="heading-3 font-semibold">Used Market</h3>
+                  <p className="text-accent text-sm font-medium">Find deals →</p>
+                </div>
               </div>
-              <h3 className="heading-3 mb-2 font-semibold">3. Get Recommendations</h3>
               <p className="text-secondary leading-relaxed">
-                Receive personalized recommendations with explanations, 
-                purchase links, and setup guidance.
+                Browse used audio gear from multiple sources. Get alerts on price drops, 
+                find rare items, and save money on quality equipment.
               </p>
-            </div>
+            </Link>
+            
+            {/* Smart Recommendations */}
+            <Link href="/onboarding" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                  <span className="text-lg">🎯</span>
+                </div>
+                <div>
+                  <h3 className="heading-3 font-semibold">Smart Recommendations</h3>
+                  <p className="text-accent text-sm font-medium">Get personalized →</p>
+                </div>
+              </div>
+              <p className="text-secondary leading-relaxed">
+                Algorithm-driven recommendations based on measurements, your preferences, 
+                and existing gear. Science-based, not hype-based.
+              </p>
+            </Link>
           </div>
         </section>
 
@@ -191,47 +228,47 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Audio Education Preview */}
-        <section className="mb-8 py-4">
-          <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">New to Audio? We&apos;ve Got You Covered</h2>
+        {/* How It Works - Streamlined */}
+        <section id="how-it-works" className="mb-8 py-6">
+          <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">How HiFinder Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-            <div className="card p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30">
-              <div className="text-xl mb-2 bg-gradient-to-br from-accent/20 to-accent/30 w-8 h-8 rounded-lg flex items-center justify-center">📊</div>
-              <h3 className="font-semibold mb-2">Understanding Measurements</h3>
-              <p className="text-secondary text-sm mb-3">
-                Learn to read frequency response graphs and what they mean for sound quality
+            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                <span className="text-lg">📊</span>
+              </div>
+              <h3 className="heading-3 mb-2 font-semibold">1. Smart Analysis</h3>
+              <p className="text-secondary leading-relaxed">
+                Advanced algorithms analyze measurements, impedance matching, 
+                and synergy between components.
               </p>
-              <Link href="/learn#measurements" className="text-accent text-sm font-medium">
-                Learn More →
-              </Link>
             </div>
-            <div className="card p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30">
-              <div className="text-xl mb-2 bg-gradient-to-br from-accent/20 to-accent/30 w-8 h-8 rounded-lg flex items-center justify-center">⚡</div>
-              <h3 className="font-semibold mb-2">Do You Need an Amp?</h3>
-              <p className="text-secondary text-sm mb-3">
-                Understand when amplification is necessary and when it&apos;s just nice to have
+            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                <span className="text-lg">🎧</span>
+              </div>
+              <h3 className="heading-3 mb-2 font-semibold">2. Build & Track</h3>
+              <p className="text-secondary leading-relaxed">
+                Create custom stacks, track your collection value, 
+                and get alerts on price changes and upgrades.
               </p>
-              <Link href="/learn#amplification" className="text-accent text-sm font-medium">
-                Learn More →
-              </Link>
             </div>
-            <div className="card p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30">
-              <div className="text-xl mb-2 bg-gradient-to-br from-accent/20 to-accent/30 w-8 h-8 rounded-lg flex items-center justify-center">🎯</div>
-              <h3 className="font-semibold mb-2">Sound Signatures</h3>
-              <p className="text-secondary text-sm mb-3">
-                Discover what neutral, warm, bright, and V-shaped actually mean
+            <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                <span className="text-lg">💰</span>
+              </div>
+              <h3 className="heading-3 mb-2 font-semibold">3. Find Deals</h3>
+              <p className="text-secondary leading-relaxed">
+                Access live used market data, get notifications 
+                on deals, and optimize your gear budget.
               </p>
-              <Link href="/learn#sound-signatures" className="text-accent text-sm font-medium">
-                Learn More →
-              </Link>
             </div>
           </div>
-          <div className="text-center mt-6">
-            <Link 
-              href="/learn"
-              className="button button-secondary"
-            >
-              Explore All Learning Resources
+          
+          {/* New to Audio - Compact */}
+          <div className="text-center mt-8">
+            <p className="text-secondary mb-4">New to audio? We have learning resources too.</p>
+            <Link href="/learn" className="button button-secondary">
+              📚 Audio Education Center
             </Link>
           </div>
         </section>

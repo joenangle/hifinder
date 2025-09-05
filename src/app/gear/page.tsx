@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
 import { getUserStacks, createStack, deleteStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   ArrowLeft, 
   Plus, 
@@ -231,7 +232,7 @@ function GearContent() {
     if (session?.user?.id) {
       loadData()
     }
-  }, [session?.user?.id])
+  }, [session?.user?.id, loadData])
 
   // Populate edit form when gear is selected for editing
   useEffect(() => {
@@ -259,7 +260,7 @@ function GearContent() {
     loadBrands()
   }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!session?.user?.id) return
     
     setLoading(true)
@@ -276,7 +277,7 @@ function GearContent() {
     setCollectionStats(stats)
     
     setLoading(false)
-  }
+  }, [session?.user?.id])
 
   const searchComponents = async (query: string) => {
     console.log('🔍 searchComponents called with query:', query);
@@ -885,9 +886,11 @@ function GearContent() {
                     {/* Grid View */}
                     <div className="aspect-square bg-secondary rounded-t-lg p-4 flex items-center justify-center">
                       {item.components?.image_url ? (
-                        <img
+                        <Image
                           src={item.components.image_url}
                           alt={item.components.name}
+                          width={400}
+                          height={400}
                           className="w-full h-full object-contain"
                         />
                       ) : (

@@ -1,14 +1,14 @@
 'use client'
 
 import { Suspense } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
-import { assessAmplificationFromImpedance, PowerRequirements } from '@/lib/audio-calculations'
-import { AmplificationIndicator, AmplificationBadge } from '@/components/AmplificationIndicator'
+import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { AmplificationBadge } from '@/components/AmplificationIndicator'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -440,7 +440,7 @@ function RecommendationsContent() {
   }
 
   // Fetch DACs with impedance matching and synergy
-  const fetchDACs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchDACs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.1)  // Show budget options
     const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
@@ -459,10 +459,10 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(dacs || [], budget, headphones, 'dac', maxOptions)
-  }
+  }, [])
 
   // Fetch AMPs with power matching  
-  const fetchAMPs = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchAMPs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.1)  // Show budget options
     const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
@@ -481,10 +481,10 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(amps || [], budget, headphones, 'amp', maxOptions)
-  }
+  }, [])
 
   // Fetch combo units with complete system matching
-  const fetchCombos = async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
+  const fetchCombos = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
     const minPrice = Math.floor(budget * 0.1)  // Show budget options
     const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
     
@@ -503,11 +503,10 @@ function RecommendationsContent() {
     }
     
     return processAudioComponents(combos || [], budget, headphones, 'combo', maxOptions)
-  }
+  }, [])
 
   // Main recommendation fetching logic
-  useEffect(() => {
-    const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
       console.log('🎯 SYSTEM BUILDER ACTIVE - Building recommendations based on:', wantRecommendationsFor)
       
       // Limit options based on experience level
@@ -626,52 +625,53 @@ function RecommendationsContent() {
       })
       
       setLoading(false)
-    }
+    }, [budget, headphoneType, wantRecommendationsFor, existingGear, usage, soundSignature, experience, usageRanking, budgetRangeMin, budgetRangeMax, fetchDACs, fetchAMPs, fetchCombos])
 
+  useEffect(() => {
     fetchRecommendations()
-  }, [budget, headphoneType, wantRecommendationsFor, existingGear, usage, soundSignature, experience, usageRanking])
+  }, [fetchRecommendations])
 
   // Used listings fetch effect
-  useEffect(() => {
-    const fetchUsedListings = async () => {
-      if (!showUsedMarket) return
-      
-      const allComponents = [...headphones, ...dacs, ...amps, ...dacAmps]
-      const componentIds = allComponents.map(c => c.id)
-      
-      console.log('Fetching used listings for components:', componentIds.length)
-      
-      if (componentIds.length === 0) return
-      
-      const { data: listings, error } = await supabase
-        .from('used_listings')
-        .select('*')
-        .in('component_id', componentIds)
-        .order('price', { ascending: true })
-        .limit(100)
-      
-      if (error) {
-        console.error('Error fetching used listings:', error)
-        return
-      }
-      
-      console.log('Fetched listings:', listings?.length || 0)
-      
-      // Group listings by component ID
-      const groupedListings: {[componentId: string]: UsedListing[]} = {}
-      listings?.forEach(listing => {
-        if (!groupedListings[listing.component_id]) {
-          groupedListings[listing.component_id] = []
-        }
-        groupedListings[listing.component_id].push(listing)
-      })
-      
-      console.log('Grouped listings:', Object.keys(groupedListings).length, 'components with listings')
-      setUsedListings(groupedListings)
+  const fetchUsedListings = useCallback(async () => {
+    if (!showUsedMarket) return
+    
+    const allComponents = [...headphones, ...dacs, ...amps, ...dacAmps]
+    const componentIds = allComponents.map(c => c.id)
+    
+    console.log('Fetching used listings for components:', componentIds.length)
+    
+    if (componentIds.length === 0) return
+    
+    const { data: listings, error } = await supabase
+      .from('used_listings')
+      .select('*')
+      .in('component_id', componentIds)
+      .order('price', { ascending: true })
+      .limit(100)
+    
+    if (error) {
+      console.error('Error fetching used listings:', error)
+      return
     }
     
-    fetchUsedListings()
+    console.log('Fetched listings:', listings?.length || 0)
+    
+    // Group listings by component ID
+    const groupedListings: {[componentId: string]: UsedListing[]} = {}
+    listings?.forEach(listing => {
+      if (!groupedListings[listing.component_id]) {
+        groupedListings[listing.component_id] = []
+      }
+      groupedListings[listing.component_id].push(listing)
+    })
+    
+    console.log('Grouped listings:', Object.keys(groupedListings).length, 'components with listings')
+    setUsedListings(groupedListings)
   }, [showUsedMarket, headphones, dacs, amps, dacAmps])
+
+  useEffect(() => {
+    fetchUsedListings()
+  }, [fetchUsedListings])
 
   // Selection toggle functions
   const toggleHeadphoneSelection = (id: string) => {

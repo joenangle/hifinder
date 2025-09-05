@@ -30,17 +30,6 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
     }).format(amount)
   }
 
-  const getTypeDisplayName = (category: string, type: string) => {
-    if (category === 'headphones') {
-      switch (type) {
-        case 'over_ear': return 'Over-Ear'
-        case 'on_ear': return 'On-Ear'
-        case 'iem': return 'In-Ear Monitor'
-        default: return type
-      }
-    }
-    return type || category
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
