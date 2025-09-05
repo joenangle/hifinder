@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, getProductsForBrand, findSimilarStrings } from '@/lib/gear'
 import { getUserStacks, createStack, deleteStack, addGearToStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
-import { Component } from '@/types'
+import { Component, CollectionStats, UsedListing } from '@/types'
 import Link from 'next/link'
 import { 
   ArrowLeft, 
@@ -190,7 +190,7 @@ function GearContent() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showCreateStackModal, setShowCreateStackModal] = useState(false)
   const [selectedGear, setSelectedGear] = useState<UserGearItem | null>(null)
-  const [collectionStats, setCollectionStats] = useState<any>(null)
+  const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
   
@@ -358,7 +358,7 @@ function GearContent() {
       
       if (newItem) {
         console.log('✅ Success! Reloading gear...');
-        await loadGear()
+        await loadData()
         setShowAddModal(false)
         resetAddForm()
       } else {
@@ -376,7 +376,7 @@ function GearContent() {
     
     const success = await removeGearItem(session.user.id, gearId)
     if (success) {
-      await loadGear()
+      await loadData()
     }
   }
 
@@ -1204,7 +1204,7 @@ function GearContent() {
                   </label>
                   <select
                     value={addFormData.condition}
-                    onChange={(e) => setAddFormData({...addFormData, condition: e.target.value as any})}
+                    onChange={(e) => setAddFormData({...addFormData, condition: e.target.value as 'new' | 'used' | 'refurbished' | 'b-stock'})}
                     className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="new">New</option>

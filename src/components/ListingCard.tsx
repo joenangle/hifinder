@@ -76,24 +76,24 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
           {/* Seller Trust Indicators */}
           <div className="flex flex-wrap gap-3 text-sm">
             <span className="text-secondary">
-              👤 u/{listing.seller.username}
+              👤 u/{listing.seller_username}
             </span>
-            {listing.seller.confirmed_trades && listing.seller.confirmed_trades > 0 && (
+            {listing.seller_confirmed_trades && listing.seller_confirmed_trades > 0 && (
               <span className="text-success">
-                ✓ {listing.seller.confirmed_trades} confirmed trades
+                ✓ {listing.seller_confirmed_trades} confirmed trades
               </span>
             )}
-            {listing.seller.feedback_percentage && (
-              <span className={listing.seller.feedback_percentage >= 98 ? 'text-success' : 'text-warning'}>
-                ⭐ {listing.seller.feedback_percentage}% feedback
+            {listing.seller_feedback_percentage && (
+              <span className={listing.seller_feedback_percentage >= 98 ? 'text-success' : 'text-warning'}>
+                ⭐ {listing.seller_feedback_percentage}% feedback
               </span>
             )}
           </div>
 
           {/* Price Validation Warning */}
-          {!listing.price_validation.is_reasonable && listing.price_validation.warning && (
+          {!listing.price_is_reasonable && listing.price_warning && (
             <div className="mt-3 p-2 bg-warning-light border border-warning rounded text-warning text-sm">
-              ⚠️ {listing.price_validation.warning}
+              ⚠️ {listing.price_warning}
             </div>
           )}
         </div>

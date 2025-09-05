@@ -58,3 +58,51 @@ export interface AlertPreference {
   is_active: boolean
   created_at: string
 }
+
+export interface PriceAlert {
+  id: string
+  user_id: string
+  component_id?: string
+  category?: string
+  brand?: string
+  max_price?: number
+  min_condition?: string
+  condition_preference?: string[]
+  marketplace_preference?: string[]
+  alert_type: 'below' | 'exact' | 'range'
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  components?: {
+    id: string
+    name: string
+    brand: string
+    category: string
+  }
+}
+
+export interface TriggeredAlert {
+  alert: PriceAlert
+  listing: {
+    id: string
+    title: string
+    price: number
+    condition: string
+    url: string
+  }
+  matchType: 'brand' | 'component' | 'category'
+  triggered_at: string
+}
+
+export interface UpgradeSuggestion {
+  component: {
+    id: string
+    name: string
+    brand: string
+    category: string
+    price_new?: number
+  }
+  reason: string
+  priority: 'high' | 'medium' | 'low'
+  estimatedImprovement?: string
+}

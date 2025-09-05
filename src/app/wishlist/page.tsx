@@ -80,7 +80,7 @@ function WishlistContent() {
             <h1 className="text-3xl font-bold text-foreground">My Wishlist</h1>
           </div>
           <p className="text-muted">
-            Components you've saved for future reference
+            Components you&apos;ve saved for future reference
           </p>
         </div>
 

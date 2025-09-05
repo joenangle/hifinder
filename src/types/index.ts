@@ -72,6 +72,13 @@ export interface PriceValidation {
   warning?: string;
 }
 
+export interface CollectionStats {
+  totalPaid: number;
+  currentValue: number;
+  depreciation: number;
+  byCategory: Record<string, { paid: number; current: number }>;
+}
+
 export interface AVexchangeListing {
   id: string;
   title: string;

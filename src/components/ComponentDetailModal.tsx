@@ -52,7 +52,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
               {component.brand} {component.name}
             </h2>
             <p className="text-muted mt-1">
-              {getTypeDisplayName(component.category, component.type)}
+              {component.category.charAt(0).toUpperCase() + component.category.slice(1)}
             </p>
           </div>
           <button
@@ -101,11 +101,11 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
                   <span className="text-foreground font-medium">
                     {amplificationAssessment.difficulty === 'easy' && 'Easy to Drive'}
                     {amplificationAssessment.difficulty === 'moderate' && 'Moderate Power Required'}
-                    {amplificationAssessment.difficulty === 'hard' && 'Dedicated Amplifier Recommended'}
-                    {amplificationAssessment.difficulty === 'very_hard' && 'High-Power Amplifier Required'}
+                    {amplificationAssessment.difficulty === 'demanding' && 'Dedicated Amplifier Recommended'}
+                    {amplificationAssessment.difficulty === 'very_demanding' && 'High-Power Amplifier Required'}
                   </span>
                 </div>
-                <p className="text-sm text-muted">{amplificationAssessment.reasoning}</p>
+                <p className="text-sm text-muted">{amplificationAssessment.explanation}</p>
                 {component.impedance && (
                   <p className="text-xs text-muted">
                     Impedance: {component.impedance}Ω
@@ -128,24 +128,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
                   <div className="font-medium text-foreground">{component.impedance}Ω</div>
                 </div>
               )}
-              {component.driver_size && (
-                <div className="p-3 bg-surface-secondary rounded">
-                  <div className="text-sm text-muted">Driver Size</div>
-                  <div className="font-medium text-foreground">{component.driver_size}mm</div>
-                </div>
-              )}
-              {component.weight && (
-                <div className="p-3 bg-surface-secondary rounded">
-                  <div className="text-sm text-muted">Weight</div>
-                  <div className="font-medium text-foreground">{component.weight}g</div>
-                </div>
-              )}
-              {component.frequency_response && (
-                <div className="p-3 bg-surface-secondary rounded">
-                  <div className="text-sm text-muted">Frequency Response</div>
-                  <div className="font-medium text-foreground">{component.frequency_response}</div>
-                </div>
-              )}
+              {/* Driver size, weight, and frequency_response not available in Component interface */}
             </div>
           </div>
 
@@ -169,25 +152,15 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
                 {component.sound_signature === 'bright' && (
                   <p className="text-sm text-muted">Emphasized treble and upper midrange for detail and clarity</p>
                 )}
-                {component.sound_signature === 'v_shaped' && (
-                  <p className="text-sm text-muted">Enhanced bass and treble with recessed midrange</p>
-                )}
-                {component.sound_signature === 'dark' && (
-                  <p className="text-sm text-muted">Subdued treble with emphasis on bass and lower frequencies</p>
+                {component.sound_signature === 'fun' && (
+                  <p className="text-sm text-muted">Lively and engaging sound with enhanced dynamics</p>
                 )}
               </div>
             </div>
           )}
 
           {/* Additional Details */}
-          {component.notes && (
-            <div className="space-y-3">
-              <h3 className="font-semibold text-foreground">Additional Notes</h3>
-              <div className="p-4 bg-surface-secondary rounded-lg">
-                <p className="text-sm text-muted">{component.notes}</p>
-              </div>
-            </div>
-          )}
+          {/* Notes not available in Component interface */}
         </div>
 
         {/* Footer */}

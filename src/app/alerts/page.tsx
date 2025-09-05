@@ -420,7 +420,7 @@ function AlertsContent() {
               <div className="text-center py-12">
                 <History className="w-16 h-16 text-muted mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-foreground mb-2">No matches yet</h2>
-                <p className="text-muted">When your alerts trigger, you'll see them here</p>
+                <p className="text-muted">When your alerts trigger, you&apos;ll see them here</p>
               </div>
             ) : (
               <div className="space-y-4">
