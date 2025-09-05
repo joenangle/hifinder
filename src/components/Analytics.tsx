@@ -25,7 +25,7 @@ export function TrackClick({
   ...props 
 }: {
   eventName: string
-  parameters?: Record<string, any>
+  parameters?: Record<string, string | number | boolean>
   children: React.ReactNode
   className?: string
   onClick?: () => void
@@ -66,7 +66,7 @@ export function TrackLink({
   ...props 
 }: {
   eventName: string
-  parameters?: Record<string, any>
+  parameters?: Record<string, string | number | boolean>
   children: React.ReactNode
   className?: string
   href: string

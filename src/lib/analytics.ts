@@ -20,6 +20,16 @@ export function getBudgetTier(budget: number): BudgetTier {
 
 // Analytics event types
 export type AnalyticsEvent = 
+  // Homepage/Navigation
+  | { name: 'hero_cta_clicked', properties?: { location?: string } }
+  | { name: 'learn_clicked', properties?: { location?: string } }
+  | { name: 'how_it_works_clicked', properties?: { location?: string } }
+  | { name: 'feature_clicked', properties?: { feature?: string } }
+  | { name: 'cta_clicked', properties?: { location?: string } }
+  | { name: 'education_clicked', properties?: { location?: string } }
+  | { name: 'budget_quick_start_clicked', properties?: { budget_tier?: string, budget_amount?: number } }
+  | { name: 'final_cta_clicked', properties?: { location?: string } }
+  
   // Onboarding
   | { name: 'onboarding_started' }
   | { name: 'onboarding_step_completed', parameters: { step_number: number } }
@@ -45,22 +55,24 @@ export type AnalyticsEvent =
 export function trackEvent(event: AnalyticsEvent) {
   // Only track in production and if gtag is available
   if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
-    window.gtag('event', event.name, event.parameters || {})
+    const eventData = 'parameters' in event ? event.parameters : ('properties' in event ? event.properties : {})
+    window.gtag('event', event.name, eventData || {})
   }
   
   // Also log in development for debugging
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Analytics]', event.name, event.parameters || {})
+    const eventData = 'parameters' in event ? event.parameters : ('properties' in event ? event.properties : {})
+    console.log('[Analytics]', event.name, eventData || {})
   }
 }
 
 // Track page view
 export function trackPageView(path: string, title?: string) {
   if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID!, {
-      page_path: path,
-      page_title: title,
-    })
+    const config: Record<string, string> = { page_path: path }
+    if (title) config.page_title = title
+    
+    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID!, config)
   }
 }
 
@@ -91,6 +103,6 @@ export function getPriceRange(price: number): string {
 
 declare global {
   interface Window {
-    gtag: (command: string, targetId: string, config?: any) => void
+    gtag: (command: string, targetId: string, config?: Record<string, string | number | boolean | Record<string, string | number | boolean>>) => void
   }
 }
