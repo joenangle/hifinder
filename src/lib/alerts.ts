@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { TriggeredAlert } from '@/types/auth'
 
 export interface PriceAlert {
   id: string
@@ -208,7 +209,7 @@ export async function checkAlerts(userId: string) {
 
   if (error || !listings) return
 
-  const triggeredAlerts: any[] = []
+  const triggeredAlerts: TriggeredAlert[] = []
 
   for (const alert of activeAlerts) {
     // Build search pattern
@@ -269,27 +270,40 @@ export async function checkAlerts(userId: string) {
 
       // We have a match! Record it
       triggeredAlerts.push({
-        alert_id: alert.id,
-        user_id: userId,
-        listing_title: listing.title,
-        listing_price: listing.price,
-        listing_condition: listing.condition,
-        listing_url: listing.url,
-        listing_source: listing.source,
-        listing_date: listing.date_posted
+        alert: alert,
+        listing: {
+          id: listing.id,
+          title: listing.title,
+          price: listing.price,
+          condition: listing.condition,
+          url: listing.url
+        },
+        matchType: alert.component_id ? 'component' : alert.brand ? 'brand' : 'category',
+        triggered_at: new Date().toISOString()
       })
     }
   }
 
   // Insert triggered alerts into history
   if (triggeredAlerts.length > 0) {
+    const historyRecords = triggeredAlerts.map(ta => ({
+      alert_id: ta.alert.id,
+      user_id: userId,
+      listing_title: ta.listing.title,
+      listing_price: ta.listing.price,
+      listing_condition: ta.listing.condition,
+      listing_url: ta.listing.url,
+      match_type: ta.matchType,
+      triggered_at: ta.triggered_at
+    }))
+
     const { error: insertError } = await supabase
       .from('alert_history')
-      .insert(triggeredAlerts)
+      .insert(historyRecords)
 
     if (!insertError) {
       // Update alert trigger counts
-      const alertIds = [...new Set(triggeredAlerts.map(t => t.alert_id))]
+      const alertIds = [...new Set(triggeredAlerts.map(t => t.alert.id))]
       for (const alertId of alertIds) {
         await supabase
           .from('price_alerts')

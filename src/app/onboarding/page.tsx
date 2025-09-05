@@ -1023,7 +1023,7 @@ const handleNext = () => {
                       Optimizing around: {preferences.optimizeAroundHeadphones}
                     </p>
                     <p className="text-xs text-secondary mt-1">
-                      We'll recommend DACs, amps, and other headphones that complement these
+                      We&apos;ll recommend DACs, amps, and other headphones that complement these
                     </p>
                   </div>
                 )}
@@ -1032,7 +1032,7 @@ const handleNext = () => {
                 <div>
                   <details className="group">
                     <summary className="text-sm text-secondary cursor-pointer hover:text-primary">
-                      Can't find your headphones? Enter manually
+                      Can&apos;t find your headphones? Enter manually
                     </summary>
                     <div className="mt-3">
                       <input 
@@ -1205,7 +1205,7 @@ const handleNext = () => {
                   <div className="mt-4">
                     <details className="group">
                       <summary className="text-sm text-secondary cursor-pointer hover:text-primary">
-                        Can't find your headphones? Enter manually
+                        Can&apos;t find your headphones? Enter manually
                       </summary>
                       <div className="mt-3">
                         <input 
