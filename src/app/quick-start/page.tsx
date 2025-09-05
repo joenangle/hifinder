@@ -212,7 +212,7 @@ export default function QuickStartPage() {
               {isOutsideRange && !expandedBudgetRange && (
                 <div className="bg-accent-subtle border border-accent rounded-lg p-2 mt-2">
                   <p className="text-xs text-secondary">
-                    💡 You've selected {formatBudgetUSD(budget)} which is outside the {getBudgetTier(initialBudget)} range. 
+                    💡 You&apos;ve selected {formatBudgetUSD(budget)} which is outside the {getBudgetTier(initialBudget)} range. 
                     <button 
                       onClick={() => setExpandedBudgetRange(true)}
                       className="text-accent hover:text-accent-hover font-medium ml-1"
@@ -319,7 +319,7 @@ export default function QuickStartPage() {
             {canProceed && (
               <div className="bg-tertiary rounded-lg p-3 mb-4">
                 <p className="text-sm text-secondary">
-                  💡 We'll use smart defaults for other preferences to get you started quickly. 
+                  💡 We&apos;ll use smart defaults for other preferences to get you started quickly. 
                   You can always refine your recommendations later!
                 </p>
               </div>

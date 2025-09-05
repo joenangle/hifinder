@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { Component } from '@/types'
 
 interface MissingHeadphoneHandlerProps {
   brand: string
   model: string
-  onHeadphoneAdded?: (headphone: any) => void
+  onHeadphoneAdded?: (headphone: Component) => void
   onCancel?: () => void
 }
 
@@ -73,7 +74,7 @@ export default function MissingHeadphoneHandler({
         </div>
         <h3 className="text-lg font-semibold text-foreground">Headphone Not Found</h3>
         <p className="text-muted">
-          We don't have <span className="font-medium">{brand} {model}</span> in our database yet.
+          We don&apos;t have <span className="font-medium">{brand} {model}</span> in our database yet.
         </p>
       </div>
 
@@ -115,9 +116,9 @@ export default function MissingHeadphoneHandler({
             <div className="text-sm text-accent">
               <p className="font-medium">What happens next?</p>
               <ul className="mt-1 space-y-1 text-accent">
-                <li>• We'll research this headphone's specifications and pricing</li>
+                <li>• We&apos;ll research this headphone&apos;s specifications and pricing</li>
                 <li>• Add it to our database with accurate information</li>
-                <li>• Email you when it's available in recommendations</li>
+                <li>• Email you when it&apos;s available in recommendations</li>
               </ul>
             </div>
           </div>
