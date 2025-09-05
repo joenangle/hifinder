@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { trackEvent, getBudgetTier } from '@/lib/analytics'
 
 // Types
 interface Preferences {
@@ -314,6 +315,21 @@ export default function OnboardingPage() {
   const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
   
   const router = useRouter()
+
+  // Track onboarding start
+  useEffect(() => {
+    trackEvent({ name: 'onboarding_started' })
+  }, [])
+
+  // Track step progression
+  useEffect(() => {
+    if (step > 1) {
+      trackEvent({ 
+        name: 'onboarding_step_completed', 
+        parameters: { step_number: step - 1 } 
+      })
+    }
+  }, [step])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = () => {

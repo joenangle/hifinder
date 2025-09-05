@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AuthButton } from "@/components/AuthButton";
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@/components/Analytics';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -80,6 +82,7 @@ export default function RootLayout({
         }}
       >
         <AuthProvider>
+          <Analytics />
           <a 
             href="#main-content" 
             className="skip-link"
@@ -102,6 +105,11 @@ export default function RootLayout({
             {children}
           </main>
         </AuthProvider>
+        
+        {/* Google Analytics */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
       </body>
     </html>
   );
