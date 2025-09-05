@@ -3,6 +3,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { User, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export function AuthButton() {
   const { data: session, status } = useSession()
@@ -33,9 +34,11 @@ export function AuthButton() {
         className="flex items-center gap-2 px-3 py-2 bg-surface-secondary hover:bg-surface-elevated rounded-lg transition-colors"
       >
         {session.user?.image ? (
-          <img
+          <Image
             src={session.user.image}
             alt={session.user.name || 'User'}
+            width={24}
+            height={24}
             className="w-6 h-6 rounded-full"
           />
         ) : (

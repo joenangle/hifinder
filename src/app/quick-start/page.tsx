@@ -13,8 +13,6 @@ function QuickStartContent() {
   // Get initial budget from URL params (set by budget cards)
   const initialBudget = parseInt(searchParams.get('budget') || '300')
   const [budget, setBudget] = useState(initialBudget)
-  const [budgetInputValue, setBudgetInputValue] = useState(initialBudget.toString())
-  const [budgetError, setBudgetError] = useState('')
   const [expandedBudgetRange, setExpandedBudgetRange] = useState(false)
   
   // Format budget with US currency formatting
@@ -69,38 +67,8 @@ function QuickStartContent() {
   const handleBudgetSliderChange = (sliderValue: number) => {
     const newBudget = sliderToBudget(sliderValue, expandedBudgetRange)
     setBudget(newBudget)
-    setBudgetInputValue(newBudget.toString())
-    setBudgetError('')
   }
 
-  const handleBudgetInputChange = (value: string) => {
-    setBudgetInputValue(value)
-    
-    if (value === '') {
-      setBudgetError('')
-      return
-    }
-    
-    const numValue = parseInt(value)
-    
-    if (isNaN(numValue)) {
-      setBudgetError('Please enter a valid number')
-      return
-    }
-    
-    if (numValue < 20) {
-      setBudgetError('Minimum budget is $20')
-      return
-    }
-    
-    if (numValue > 10000) {
-      setBudgetError('Maximum budget is $10,000')
-      return
-    }
-    
-    setBudgetError('')
-    setBudget(numValue)
-  }
 
   const handleGetRecommendations = () => {
     if (!headphoneType || !soundSignature) return

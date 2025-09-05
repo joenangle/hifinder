@@ -3,11 +3,9 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { supabase } from '@/lib/supabase'
-import { getUserWishlist } from '@/lib/wishlist'
 import { Component, UsedListing } from '@/types'
-import { WishlistItem } from '@/types/auth'
 import Link from 'next/link'
-import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, Heart } from 'lucide-react'
+import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
 import { UsedMarketListingCard } from '@/components/UsedMarketListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
 
@@ -20,10 +18,8 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'newest' | 'price_low' | 'price_high' | 'relevance'
 
 function UsedMarketContent() {
-  const { data: session } = useSession()
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [filteredListings, setFilteredListings] = useState<ListingWithComponent[]>([])
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -39,7 +35,6 @@ function UsedMarketContent() {
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('newest')
-  const [wishlistOnly, setWishlistOnly] = useState(false)
   
   // Modal state
   const [modalOpen, setModalOpen] = useState(false)

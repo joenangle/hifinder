@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -295,7 +295,6 @@ export default function OnboardingPage() {
   })
   const [budgetInputValue, setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
-  const [isDragging, setIsDragging] = useState(false)
   
   // Headphone selection state
   const [brands, setBrands] = useState<string[]>([])
@@ -325,7 +324,7 @@ useEffect(() => {
   if (step === 4 && hasExistingHeadphones() && needsHeadphoneQuestions()) {
     fetchOptimizeBrands()
   }
-}, [step])
+}, [step, fetchBrands, fetchOptimizeBrands, preferences.wantRecommendationsFor, preferences.existingGear])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = () => {
@@ -341,7 +340,7 @@ const needsAmpDacQuestions = () => {
 }
 
 // Fetch headphone brands from Supabase
-const fetchBrands = async () => {
+const fetchBrands = useCallback(async () => {
   if (brands.length > 0) return // Already loaded
   
   setLoadingBrands(true)
@@ -361,10 +360,10 @@ const fetchBrands = async () => {
   } finally {
     setLoadingBrands(false)
   }
-}
+}, [brands.length])
 
 // Fetch models for a specific brand
-const fetchModels = async (brand: string) => {
+const fetchModels = useCallback(async (brand: string) => {
   if (models[brand]) return // Already loaded for this brand
   
   setLoadingModels(true)
@@ -385,7 +384,7 @@ const fetchModels = async (brand: string) => {
   } finally {
     setLoadingModels(false)
   }
-}
+}, [models])
 
 // Handle brand selection
 const handleBrandSelect = (brand: string) => {
@@ -404,7 +403,7 @@ const handleModelSelect = (model: string) => {
 }
 
 // Fetch brands for optimization headphones
-const fetchOptimizeBrands = async () => {
+const fetchOptimizeBrands = useCallback(async () => {
   if (optimizeBrands.length > 0) return // Already loaded
   
   setLoadingOptimizeBrands(true)
@@ -424,10 +423,10 @@ const fetchOptimizeBrands = async () => {
   } finally {
     setLoadingOptimizeBrands(false)
   }
-}
+}, [optimizeBrands.length])
 
 // Fetch models for optimization brand
-const fetchOptimizeModels = async (brand: string) => {
+const fetchOptimizeModels = useCallback(async (brand: string) => {
   if (optimizeModels[brand]) return // Already loaded for this brand
   
   setLoadingOptimizeModels(true)
@@ -448,7 +447,7 @@ const fetchOptimizeModels = async (brand: string) => {
   } finally {
     setLoadingOptimizeModels(false)
   }
-}
+}, [optimizeModels])
 
 // Handle optimization brand selection
 const handleOptimizeBrandSelect = (brand: string) => {
@@ -464,11 +463,6 @@ const handleOptimizeModelSelect = (model: string) => {
   setSelectedOptimizeModel(model)
   const fullName = selectedOptimizeBrand && model ? `${selectedOptimizeBrand} ${model}` : ''
   setPreferences({...preferences, optimizeAroundHeadphones: fullName})
-}
-
-// Format budget with US comma styling
-const formatBudget = (budget: number) => {
-  return budget.toLocaleString('en-US')
 }
 
 // Format budget with US currency formatting
