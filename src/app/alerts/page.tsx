@@ -19,9 +19,7 @@ import {
   Clock,
   ExternalLink,
   Trash2,
-  Edit2,
   CheckCircle,
-  TrendingDown,
   Filter,
   History
 } from 'lucide-react'
@@ -32,8 +30,7 @@ function AlertsContent() {
   const [alertHistory, setAlertHistory] = useState<AlertHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [selectedAlert, setSelectedAlert] = useState<PriceAlert | null>(null)
+  // Removed unused state variables
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active')
   
   // Create alert form state
