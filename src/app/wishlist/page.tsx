@@ -14,12 +14,6 @@ function WishlistContent() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      loadWishlist()
-    }
-  }, [session?.user?.id, loadWishlist])
-
   const loadWishlist = useCallback(async () => {
     if (!session?.user?.id) return
     
@@ -28,6 +22,12 @@ function WishlistContent() {
     setWishlistItems(items)
     setLoading(false)
   }, [session?.user?.id])
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      loadWishlist()
+    }
+  }, [session?.user?.id, loadWishlist])
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

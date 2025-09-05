@@ -295,6 +295,7 @@ export default function OnboardingPage() {
   })
   const [budgetInputValue, setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
   
   // Headphone selection state
   const [brands, setBrands] = useState<string[]>([])
@@ -313,18 +314,6 @@ export default function OnboardingPage() {
   const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
   
   const router = useRouter()
-
-// Fetch brands when needed
-useEffect(() => {
-  // Fetch brands for DAC/amp questions
-  if (step === 5 && needsAmpDacQuestions()) {
-    fetchBrands()
-  }
-  // Fetch brands for existing headphone optimization
-  if (step === 4 && hasExistingHeadphones() && needsHeadphoneQuestions()) {
-    fetchOptimizeBrands()
-  }
-}, [step, fetchBrands, fetchOptimizeBrands, preferences.wantRecommendationsFor, preferences.existingGear])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = () => {
@@ -386,22 +375,6 @@ const fetchModels = useCallback(async (brand: string) => {
   }
 }, [models])
 
-// Handle brand selection
-const handleBrandSelect = (brand: string) => {
-  setSelectedBrand(brand)
-  setSelectedModel('') // Reset model selection
-  if (brand) {
-    fetchModels(brand)
-  }
-}
-
-// Handle model selection and update preferences
-const handleModelSelect = (model: string) => {
-  setSelectedModel(model)
-  const fullName = selectedBrand && model ? `${selectedBrand} ${model}` : ''
-  setPreferences({...preferences, existingHeadphones: fullName})
-}
-
 // Fetch brands for optimization headphones
 const fetchOptimizeBrands = useCallback(async () => {
   if (optimizeBrands.length > 0) return // Already loaded
@@ -424,6 +397,22 @@ const fetchOptimizeBrands = useCallback(async () => {
     setLoadingOptimizeBrands(false)
   }
 }, [optimizeBrands.length])
+
+// Handle brand selection
+const handleBrandSelect = (brand: string) => {
+  setSelectedBrand(brand)
+  setSelectedModel('') // Reset model selection
+  if (brand) {
+    fetchModels(brand)
+  }
+}
+
+// Handle model selection and update preferences
+const handleModelSelect = (model: string) => {
+  setSelectedModel(model)
+  const fullName = selectedBrand && model ? `${selectedBrand} ${model}` : ''
+  setPreferences({...preferences, existingHeadphones: fullName})
+}
 
 // Fetch models for optimization brand
 const fetchOptimizeModels = useCallback(async (brand: string) => {
@@ -464,6 +453,18 @@ const handleOptimizeModelSelect = (model: string) => {
   const fullName = selectedOptimizeBrand && model ? `${selectedOptimizeBrand} ${model}` : ''
   setPreferences({...preferences, optimizeAroundHeadphones: fullName})
 }
+
+// Fetch brands when needed
+useEffect(() => {
+  // Fetch brands for DAC/amp questions
+  if (step === 5 && needsAmpDacQuestions()) {
+    fetchBrands()
+  }
+  // Fetch brands for existing headphone optimization
+  if (step === 4 && hasExistingHeadphones() && needsHeadphoneQuestions()) {
+    fetchOptimizeBrands()
+  }
+}, [step, fetchBrands, fetchOptimizeBrands, preferences.wantRecommendationsFor, preferences.existingGear, needsAmpDacQuestions, hasExistingHeadphones, needsHeadphoneQuestions])
 
 // Format budget with US currency formatting
 const formatBudgetUSD = (amount: number) => {

@@ -147,7 +147,6 @@ function QuickStartContent() {
                     onClick={() => {
                       setExpandedBudgetRange(false)
                       setBudget(initialBudget)
-                      setBudgetInputValue(initialBudget.toString())
                     }}
                     className="text-xs text-secondary hover:text-primary font-medium px-2 py-1 rounded"
                   >

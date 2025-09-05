@@ -228,6 +228,25 @@ function GearContent() {
     custom_category: 'headphones'
   })
 
+  const loadData = useCallback(async () => {
+    if (!session?.user?.id) return
+    
+    setLoading(true)
+    const [gearItems, stackItems] = await Promise.all([
+      getUserGear(session.user.id),
+      getUserStacks(session.user.id)
+    ])
+    
+    setGear(gearItems)
+    setStacks(stackItems)
+    
+    // Calculate stats
+    const stats = await calculateCollectionValue(gearItems)
+    setCollectionStats(stats)
+    
+    setLoading(false)
+  }, [session?.user?.id])
+
   useEffect(() => {
     if (session?.user?.id) {
       loadData()
@@ -259,25 +278,6 @@ function GearContent() {
     }
     loadBrands()
   }, [])
-
-  const loadData = useCallback(async () => {
-    if (!session?.user?.id) return
-    
-    setLoading(true)
-    const [gearItems, stackItems] = await Promise.all([
-      getUserGear(session.user.id),
-      getUserStacks(session.user.id)
-    ])
-    
-    setGear(gearItems)
-    setStacks(stackItems)
-    
-    // Calculate stats
-    const stats = await calculateCollectionValue(gearItems)
-    setCollectionStats(stats)
-    
-    setLoading(false)
-  }, [session?.user?.id])
 
   const searchComponents = async (query: string) => {
     console.log('🔍 searchComponents called with query:', query);

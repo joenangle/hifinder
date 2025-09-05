@@ -30,7 +30,8 @@ function AlertsContent() {
   const [alertHistory, setAlertHistory] = useState<AlertHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  // Removed unused state variables
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [selectedAlert, setSelectedAlert] = useState<PriceAlert | null>(null)
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active')
   
   // Create alert form state
@@ -50,15 +51,6 @@ function AlertsContent() {
     custom_model: ''
   })
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      loadAlerts()
-      loadHistory()
-      // Check for new matches
-      checkAlerts(session.user.id)
-    }
-  }, [session?.user?.id, loadAlerts, loadHistory])
-
   const loadAlerts = useCallback(async () => {
     if (!session?.user?.id) return
     
@@ -74,6 +66,14 @@ function AlertsContent() {
     const history = await getAlertHistory(session.user.id)
     setAlertHistory(history)
   }, [session?.user?.id])
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      loadAlerts()
+      loadHistory()
+      checkAlerts(session.user.id)
+    }
+  }, [session?.user?.id, loadAlerts, loadHistory])
 
   const searchComponents = async (query: string) => {
     if (query.length < 2) {
