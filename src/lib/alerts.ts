@@ -278,7 +278,7 @@ export async function checkAlerts(userId: string) {
           condition: listing.condition,
           url: listing.url
         },
-        matchType: alert.component_id ? 'component' : alert.brand ? 'brand' : 'category',
+        matchType: alert.component_id ? 'component' : alert.custom_brand ? 'brand' : 'category',
         triggered_at: new Date().toISOString()
       })
     }
@@ -305,11 +305,20 @@ export async function checkAlerts(userId: string) {
       // Update alert trigger counts
       const alertIds = [...new Set(triggeredAlerts.map(t => t.alert.id))]
       for (const alertId of alertIds) {
+        // Get current trigger count
+        const { data: alertData } = await supabase
+          .from('price_alerts')
+          .select('trigger_count')
+          .eq('id', alertId)
+          .single()
+
+        const currentCount = alertData?.trigger_count || 0
+
         await supabase
           .from('price_alerts')
           .update({ 
             last_triggered_at: new Date().toISOString(),
-            trigger_count: supabase.sql`trigger_count + 1`
+            trigger_count: currentCount + 1
           })
           .eq('id', alertId)
       }

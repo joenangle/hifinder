@@ -63,14 +63,18 @@ export interface PriceAlert {
   id: string
   user_id: string
   component_id?: string
-  category?: string
-  brand?: string
-  max_price?: number
-  min_condition?: string
+  target_price: number
+  alert_type: 'below' | 'exact' | 'range'
+  price_range_min?: number
+  price_range_max?: number
   condition_preference?: string[]
   marketplace_preference?: string[]
-  alert_type: 'below' | 'exact' | 'range'
+  custom_search_query?: string
+  custom_brand?: string
+  custom_model?: string
   is_active: boolean
+  last_triggered_at?: string
+  trigger_count: number
   created_at: string
   updated_at: string
   components?: {
@@ -78,6 +82,10 @@ export interface PriceAlert {
     name: string
     brand: string
     category: string
+    image_url?: string
+    price_new?: number
+    price_used_min?: number
+    price_used_max?: number
   }
 }
 

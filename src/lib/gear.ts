@@ -174,7 +174,7 @@ export async function calculateCollectionValue(gear: UserGearItem[]): Promise<{
     // Calculate current value based on used market prices
     let current = paid
     if (item.components) {
-      const avgUsed = (item.components.price_used_min || 0 + item.components.price_used_max || 0) / 2
+      const avgUsed = ((item.components.price_used_min || 0) + (item.components.price_used_max || 0)) / 2
       if (avgUsed > 0) {
         current = avgUsed
       } else if (item.components.price_new) {
@@ -201,10 +201,17 @@ export async function calculateCollectionValue(gear: UserGearItem[]): Promise<{
   }
 }
 
+interface GearSuggestion {
+  type: string
+  priority: string
+  message: string
+  items?: UserGearItem[]
+}
+
 export async function getUpgradeSuggestions(
   userId: string,
   budget?: number
-): Promise<UpgradeSuggestion[]> {
+): Promise<GearSuggestion[]> {
   // Get user's current gear
   const gear = await getUserGear(userId)
   
