@@ -2,10 +2,10 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
-import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, getProductsForBrand, findSimilarStrings } from '@/lib/gear'
-import { getUserStacks, createStack, deleteStack, addGearToStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
+import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
+import { getUserStacks, createStack, deleteStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
-import { Component, CollectionStats, UsedListing } from '@/types'
+import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
 import { 
   ArrowLeft, 
@@ -21,7 +21,6 @@ import {
   MapPin,
   FileText,
   Download,
-  Share2,
   AlertCircle,
   Headphones,
   Cpu,
@@ -215,11 +214,7 @@ function GearContent() {
   
   // Brand/product suggestions
   const [availableBrands, setAvailableBrands] = useState<string[]>([])
-  const [availableProducts, setAvailableProducts] = useState<string[]>([])
-  const [similarBrands, setSimilarBrands] = useState<string[]>([])
-  const [similarProducts, setSimilarProducts] = useState<string[]>([])
-  const [showBrandSuggestions, setShowBrandSuggestions] = useState(false)
-  const [showProductSuggestions, setShowProductSuggestions] = useState(false)
+  // Removed unused suggestion state variables
   const [addFormData, setAddFormData] = useState({
     purchase_date: '',
     purchase_price: '',
