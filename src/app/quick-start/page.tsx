@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function QuickStartPage() {
+function QuickStartContent() {
   const [headphoneType, setHeadphoneType] = useState('')
   const [soundSignature, setSoundSignature] = useState('')
   const router = useRouter()
@@ -353,5 +353,13 @@ export default function QuickStartPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function QuickStartPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><div className="animate-pulse">Loading...</div></div>}>
+      <QuickStartContent />
+    </Suspense>
   )
 }
