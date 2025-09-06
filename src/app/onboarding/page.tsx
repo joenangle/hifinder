@@ -492,70 +492,8 @@ useEffect(() => {
 //   }).format(amount)
 // }
 
-// Convert linear slider position to logarithmic budget value
-const sliderToBudget = (sliderValue: number) => {
-  // Slider range: 0-100, Budget range: $20-$10000
-  const minLog = Math.log(20)
-  const maxLog = Math.log(10000)
-  const scale = (maxLog - minLog) / 100
-  return Math.round(Math.exp(minLog + scale * sliderValue))
-}
-
-// Convert budget value to linear slider position  
-const budgetToSlider = (budget: number) => {
-  const minLog = Math.log(20)
-  const maxLog = Math.log(10000)
-  const scale = (maxLog - minLog) / 100
-  return Math.round((Math.log(budget) - minLog) / scale)
-}
-
-const handleBudgetSliderChange = (sliderValue: number) => {
-  const newBudget = sliderToBudget(sliderValue)
-  setPreferences({...preferences, budget: newBudget})
-  setBudgetInputValue(newBudget.toString())
-  setBudgetError('')
-}
 
 
-const handleBudgetInputFocus = () => {
-  setBudgetInputValue('')
-}
-
-const handleBudgetInputBlur = () => {
-  if (budgetInputValue === '') {
-    setBudgetInputValue(preferences.budget.toString())
-  }
-}
-
-const handleBudgetInputChange = (value: string) => {
-  setBudgetInputValue(value)
-  
-  if (value === '') {
-    setBudgetError('')
-    return
-  }
-  
-  const numValue = parseInt(value)
-  
-  if (isNaN(numValue)) {
-    setBudgetError('Please enter a valid number')
-    return
-  }
-  
-  if (numValue < 20) {
-    setBudgetError('Minimum budget is $20')
-    return
-  }
-  
-  if (numValue > 10000) {
-    setBudgetError('Maximum budget is $10,000')
-    return
-  }
-  
-  // Valid value
-  setBudgetError('')
-  setPreferences({...preferences, budget: numValue})
-}
 
 // Experience-based flow helpers
 const isBeginner = () => preferences.experience === 'beginner'
@@ -1140,74 +1078,35 @@ const handleNext = useCallback(() => {
               
               {/* Enhanced Budget Control */}
               <div className="card mb-8" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
-                <div className="relative" style={{ minHeight: '100px', width: '100%' }}>
-                  {/* Budget Tier Labels */}
-                  <div className="flex justify-between text-xs text-tertiary mb-3">
-                    <span className={`text-center ${preferences.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
-                    <span className={`text-center ${preferences.budget > 100 && preferences.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
-                    <span className={`text-center ${preferences.budget > 400 && preferences.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
-                    <span className={`text-center ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
-                    <span className={`text-center ${preferences.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
-                  </div>
-                  
-                  <div className="relative" style={{ width: '100%', height: '12px' }}>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={budgetToSlider(preferences.budget)}
-                      onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-                      className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
-                      style={{
-                        background: `linear-gradient(to right, #22c55e 0%, #eab308 25%, #f97316 50%, #ef4444 75%, #8b5cf6 100%)`,
-                        boxShadow: 'none',
-                        width: '100%',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0
-                      }}
-                    />
-                    {/* Custom slider thumb */}
-                    <div 
-                      className="absolute w-6 h-6 bg-white border-4 border-accent rounded-full shadow-lg pointer-events-none"
-                      style={{
-                        left: `calc(${budgetToSlider(preferences.budget)}% - 12px)`,
-                        top: '-6px',
-                      }}
-                    >
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center text-sm text-tertiary mt-3" style={{ minHeight: '40px' }}>
-                    <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'left' }}>$20 USD</span>
-                    <div className="flex flex-col items-center flex-shrink-0">
-                      <div className="budget-input-container">
-                        <span className="currency-symbol text-inverse">$</span>
-                        <input
-                          type="number"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={budgetInputValue}
-                          onChange={(e) => handleBudgetInputChange(e.target.value)}
-                          onFocus={handleBudgetInputFocus}
-                          onBlur={handleBudgetInputBlur}
-                          className="pl-8 pr-6 py-2 rounded-full bg-accent text-inverse font-bold text-center border-0 focus:ring-2 focus:ring-accent-hover focus:outline-none"
-                          style={{ width: '8rem', minWidth: '8rem', maxWidth: '8rem' }}
-                          placeholder="Budget"
-                        />
-                      </div>
-                    </div>
-                    <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'right' }}>$10,000 USD</span>
-                  </div>
-                  
-                  {budgetError && (
-                    <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2">
-                      <p className="text-xs text-error bg-error-light border border-error rounded px-2 py-1">
-                        {budgetError}
-                      </p>
-                    </div>
-                  )}
+                {/* Budget Tier Labels */}
+                <div className="flex justify-between text-xs text-tertiary mb-3">
+                  <span className={`text-center ${preferences.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
+                  <span className={`text-center ${preferences.budget > 100 && preferences.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
+                  <span className={`text-center ${preferences.budget > 400 && preferences.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
+                  <span className={`text-center ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
+                  <span className={`text-center ${preferences.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
                 </div>
+                <BudgetSlider
+                  budget={preferences.budget}
+                  onBudgetChange={(budget) => {
+                    setPreferences({...preferences, budget})
+                    setBudgetInputValue(budget.toString())
+                    setBudgetError('')
+                  }}
+                  variant="advanced"
+                  showInput={true}
+                  showLabels={true}
+                  minBudget={20}
+                  maxBudget={10000}
+                />
+                
+                {budgetError && (
+                  <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2">
+                    <p className="text-xs text-error bg-error-light border border-error rounded px-2 py-1">
+                      {budgetError}
+                    </p>
+                  </div>
+                )}
               </div>
               </div>
             </div>
