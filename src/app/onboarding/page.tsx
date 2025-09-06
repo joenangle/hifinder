@@ -616,7 +616,7 @@ const getActualStepNumber = () => {
   return actualStep
 }
 
-const handleNext = () => {
+const handleNext = useCallback(() => {
   if (!isStepValid()) return
   
   let nextStep = step + 1
@@ -650,14 +650,14 @@ const handleNext = () => {
     })
     router.push(`/recommendations?${params.toString()}`)
   }
-}
+}, [step, preferences, router, isStepValid, needsHeadphoneQuestions, getMaxSteps, setStep])
 
 // Auto-advance after a brief delay for single-select steps
 const handleAutoAdvance = useCallback(() => {
   setTimeout(() => {
     handleNext()
   }, 600) // Brief pause to show selection, then advance
-}, [])
+}, [handleNext])
 
   return (
     <>
