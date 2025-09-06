@@ -106,7 +106,7 @@ export function BudgetSlider({
           <div 
             className="absolute w-6 h-6 bg-white border-4 border-accent rounded-full shadow-lg pointer-events-none"
             style={{
-              left: `calc(${budgetToSlider(budget)}% - 12px)`,
+              left: `calc(${budgetToSlider(budget, maxBudget)}% - 12px)`,
               top: '-6px',
             }}
           />

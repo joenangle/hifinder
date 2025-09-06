@@ -747,6 +747,27 @@ input[type="number"]::-webkit-inner-spin-button {
   border: none !important;
 }
 
+/* Hide native thumbs for budget slider - we use custom div */
+.budget-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.budget-slider::-moz-range-thumb {
+  -moz-appearance: none !important;
+  appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* ============================================
    UTILITIES
    ============================================ */
