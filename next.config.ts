@@ -5,7 +5,31 @@ const nextConfig: NextConfig = {
   // output: 'export', // ❌ This would break API routes
   
   // External packages for server components
-  serverExternalPackages: []
+  serverExternalPackages: [],
+  
+  // Allow external images from Google and other providers
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'platform-lookaside.fbsbx.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
