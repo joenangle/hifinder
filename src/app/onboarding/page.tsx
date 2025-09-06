@@ -655,9 +655,17 @@ const handleNext = useCallback(() => {
 // Auto-advance after a brief delay for single-select steps
 const handleAutoAdvance = useCallback(() => {
   setTimeout(() => {
-    handleNext()
+    // Direct step increment for auto-advance
+    setStep(prevStep => {
+      let nextStep = prevStep + 1
+      // Skip logic for streamlined flow
+      if (prevStep === 3 && !needsHeadphoneQuestions()) {
+        nextStep = 5 // Skip headphone type step (4) to setup step (5)
+      }
+      return nextStep <= getMaxSteps() ? nextStep : prevStep
+    })
   }, 600) // Brief pause to show selection, then advance
-}, [handleNext])
+}, [needsHeadphoneQuestions, getMaxSteps])
 
   return (
     <>
