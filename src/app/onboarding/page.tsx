@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { trackEvent } from '@/lib/analytics'
+import { BudgetSlider } from '@/components/BudgetSlider'
 
 // Types
 interface Preferences {
@@ -570,12 +571,11 @@ const isAdvanced = () => preferences.experience === 'intermediate' || preference
 
 const isStepValid = () => {
   if (isBeginner()) {
-    // Beginner flow: 1(experience) → 2(headphones/iems) → 3(budget) → 4(usage) = 4 steps
+    // Beginner flow: 1(experience) → 2(headphones/iems) → 3(budget) = 3 steps
     switch (step) {
       case 1: return !!preferences.experience
       case 2: return !!preferences.headphoneType // Just headphones or IEMs
-      case 3: return true // Budget always has default
-      case 4: return true // Usage & sound
+      case 3: return true // Budget always has default - leads to recommendations
       default: return false
     }
   } else {
@@ -594,7 +594,7 @@ const isStepValid = () => {
 
 const getMaxSteps = () => {
   if (isBeginner()) {
-    return 4 // Simplified beginner flow
+    return 3 // Simplified beginner flow: experience → headphone type → budget → done
   } else {
     // Advanced flow - dynamic based on headphone selection
     let maxSteps = 6
@@ -752,7 +752,9 @@ const handleNext = useCallback(() => {
               }`}
             >
               {!isStepValid() && step === 1 ? 'Select Experience Level' :
-               !isStepValid() && step === 2 ? 'Select Components' :
+               !isStepValid() && step === 2 && isBeginner() ? 'Select Headphone Type' :
+               !isStepValid() && step === 2 && isAdvanced() ? 'Continue' :
+               !isStepValid() && step === 3 && isAdvanced() ? 'Select Components' :
                !isStepValid() && step === 4 && needsHeadphoneQuestions() ? 'Select Headphone Type' :
                !isStepValid() && step === 5 ? 'Complete Setup Details' :
                !isStepValid() && step === 6 ? 'Complete Preferences' :
@@ -989,28 +991,19 @@ const handleNext = useCallback(() => {
                 ))}
               </div>
               
-              {/* Simple budget slider - no flexibility options for beginners */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
-                  <input
-                    type="range"
-                    min={budgetToSlider(20)}
-                    max={budgetToSlider(3000)}
-                    value={budgetToSlider(preferences.budget)}
-                    onChange={(e) => {
-                      const budget = sliderToBudget(parseInt(e.target.value))
-                      setPreferences({...preferences, budget})
-                      setBudgetInputValue(budget.toString())
-                    }}
-                    className="budget-slider w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-secondary mt-1">
-                    <span>$20</span>
-                    <span className="font-semibold">${preferences.budget}</span>
-                    <span>$3,000+</span>
-                  </div>
-                </div>
+              {/* Simple budget slider using reusable component */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
+                <BudgetSlider
+                  budget={preferences.budget}
+                  onBudgetChange={(budget) => {
+                    setPreferences({...preferences, budget})
+                    setBudgetInputValue(budget.toString())
+                  }}
+                  variant="simple"
+                  showLabels={true}
+                  maxBudget={3000}
+                />
               </div>
             </div>
           )}

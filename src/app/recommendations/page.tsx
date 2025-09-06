@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { BudgetSlider } from '@/components/BudgetSlider'
 import { AmplificationBadge } from '@/components/AmplificationIndicator'
 
 // Extended Component interface for audio specifications
@@ -103,57 +104,7 @@ function RecommendationsContent() {
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
   }
 
-  // Budget slider state and functions
-  const [budgetInputValue, setBudgetInputValue] = useState(budget.toString())
-  const [budgetError, setBudgetError] = useState('')
 
-  // Convert linear slider position to logarithmic budget value
-  const sliderToBudget = (sliderValue: number) => {
-    const minLog = Math.log(20)
-    const maxLog = Math.log(10000)
-    const scale = (maxLog - minLog) / 100
-    return Math.round(Math.exp(minLog + scale * sliderValue))
-  }
-
-  // Convert budget value to linear slider position  
-  const budgetToSlider = (budget: number) => {
-    const minLog = Math.log(20)
-    const maxLog = Math.log(10000)
-    const scale = (maxLog - minLog) / 100
-    return Math.round((Math.log(budget) - minLog) / scale)
-  }
-
-  const [isDragging, setIsDragging] = useState(false)
-
-  const handleBudgetSliderChange = (sliderValue: number) => {
-    const newBudget = sliderToBudget(sliderValue)
-    // Only update state, don't trigger router push during sliding
-    setUserPrefs(prev => ({ ...prev, budget: newBudget }))
-    setBudgetInputValue(newBudget.toString())
-    setBudgetError('')
-  }
-
-  const handleBudgetSliderMouseDown = () => {
-    setIsDragging(true)
-  }
-
-  const handleBudgetSliderMouseUp = () => {
-    if (isDragging) {
-      setIsDragging(false)
-      // Update URL when slider interaction ends
-      updatePreferences({ budget: userPrefs.budget })
-    }
-  }
-
-  const handleBudgetInputFocus = () => {
-    setBudgetInputValue('')
-  }
-
-  const handleBudgetInputBlur = () => {
-    if (budgetInputValue === '') {
-      setBudgetInputValue(budget.toString())
-    }
-  }
 
   // Format budget with US currency formatting
   const formatBudgetUSD = (amount: number) => {
@@ -166,42 +117,6 @@ function RecommendationsContent() {
   }
 
   // Get budget tier name and range
-
-  const handleBudgetInputChange = (value: string) => {
-    setBudgetInputValue(value)
-    
-    if (value === '') {
-      setBudgetError('')
-      return
-    }
-    
-    const numValue = parseInt(value)
-    
-    if (isNaN(numValue)) {
-      setBudgetError('Please enter a valid number')
-      return
-    }
-    
-    if (numValue < 20) {
-      setBudgetError('Minimum budget is $20')
-      return
-    }
-    
-    if (numValue > 10000) {
-      setBudgetError('Maximum budget is $10,000')
-      return
-    }
-    
-    // Valid value
-    setBudgetError('')
-    updatePreferences({ budget: numValue })
-  }
-
-
-  // Sync budgetInputValue with budget changes
-  useEffect(() => {
-    setBudgetInputValue(budget.toString())
-  }, [budget])
 
   // ===== SYSTEM BUILDER CORE LOGIC =====
   
@@ -760,8 +675,9 @@ function RecommendationsContent() {
         </div>
 
         {/* Budget Control */}
-        <div className="card mb-10" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
-          <div className="relative" style={{ minHeight: '100px', width: '100%' }}>
+        <div className="card mb-10 relative" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
+          {/* Budget Slider using reusable component */}
+          <div className="mb-6">
             {/* Budget Tier Labels */}
             <div className="flex justify-between text-xs text-tertiary mb-3">
               <span className={`text-center ${budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
@@ -770,59 +686,18 @@ function RecommendationsContent() {
               <span className={`text-center ${budget > 1000 && budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
               <span className={`text-center ${budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
             </div>
-            
-            <div className="relative" style={{ width: '100%', height: '12px' }}>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={budgetToSlider(budget)}
-                onChange={(e) => handleBudgetSliderChange(parseInt(e.target.value))}
-                onMouseDown={handleBudgetSliderMouseDown}
-                onMouseUp={handleBudgetSliderMouseUp}
-                onTouchStart={handleBudgetSliderMouseDown}
-                onTouchEnd={handleBudgetSliderMouseUp}
-                className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
-                style={{
-                  background: `linear-gradient(to right, #22c55e 0%, #eab308 25%, #f97316 50%, #ef4444 75%, #8b5cf6 100%)`,
-                  boxShadow: 'none',
-                  width: '100%',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0
-                }}
-              />
-            </div>
-            
-            <div className="flex justify-between items-center text-sm text-tertiary mt-3" style={{ minHeight: '40px' }}>
-              <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'left' }}>$20 USD</span>
-              <div className="flex flex-col items-center flex-shrink-0">
-                <div className="budget-input-container">
-                  <span className="currency-symbol text-inverse">$</span>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={budgetInputValue}
-                    onChange={(e) => handleBudgetInputChange(e.target.value)}
-                    onFocus={handleBudgetInputFocus}
-                    onBlur={handleBudgetInputBlur}
-                    className="pl-8 pr-6 py-2 rounded-full bg-accent text-inverse font-bold text-center border-0 focus:ring-2 focus:ring-accent-hover focus:outline-none"
-                    style={{ width: '8rem', minWidth: '8rem', maxWidth: '8rem' }}
-                    placeholder="Budget"
-                  />
-                </div>
-              </div>
-              <span className="flex-shrink-0" style={{ width: '80px', textAlign: 'right' }}>$10,000 USD</span>
-            </div>
-            
-            {budgetError && (
-              <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2">
-                <p className="text-xs text-error bg-error-light border border-error rounded px-2 py-1">
-                  {budgetError}
-                </p>
-              </div>
-            )}
+            <BudgetSlider
+              budget={budget}
+              onBudgetChange={(newBudget) => {
+                setBudget(newBudget)
+                updatePreferences({ budget: newBudget })
+              }}
+              variant="advanced"
+              showInput={true}
+              showLabels={true}
+              minBudget={20}
+              maxBudget={10000}
+            />
           </div>
         </div>
 
