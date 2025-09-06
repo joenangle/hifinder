@@ -41,7 +41,6 @@ export function BudgetSlider({
   minBudget = 20,
   maxBudget = 3000
 }: BudgetSliderProps) {
-  const [isDragging, setIsDragging] = useState(false)
   const [budgetInputValue, setBudgetInputValue] = useState(budget.toString())
 
   const handleSliderChange = (sliderValue: number) => {
@@ -57,9 +56,6 @@ export function BudgetSlider({
       onBudgetChange(numValue)
     }
   }
-
-  const handleMouseDown = () => setIsDragging(true)
-  const handleMouseUp = () => setIsDragging(false)
 
   if (variant === 'simple') {
     return (
@@ -96,10 +92,6 @@ export function BudgetSlider({
             max="100"
             value={budgetToSlider(budget, maxBudget)}
             onChange={(e) => handleSliderChange(parseInt(e.target.value))}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onTouchStart={handleMouseDown}
-            onTouchEnd={handleMouseUp}
             className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
             style={{
               background: `linear-gradient(to right, #22c55e 0%, #eab308 25%, #f97316 50%, #ef4444 75%, #8b5cf6 100%)`,

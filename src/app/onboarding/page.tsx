@@ -297,7 +297,6 @@ export default function OnboardingPage() {
   })
   const [budgetInputValue, setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
-  const [isDragging, setIsDragging] = useState(false)
   
   // Headphone selection state
   const [brands, setBrands] = useState<string[]>([])

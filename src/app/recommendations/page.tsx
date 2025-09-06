@@ -689,7 +689,6 @@ function RecommendationsContent() {
             <BudgetSlider
               budget={budget}
               onBudgetChange={(newBudget) => {
-                setBudget(newBudget)
                 updatePreferences({ budget: newBudget })
               }}
               variant="advanced"
