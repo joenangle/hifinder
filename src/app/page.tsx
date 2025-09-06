@@ -6,7 +6,7 @@ import { trackEvent } from '@/lib/analytics'
 export default function Home() {
   return (
     <main className="page-container relative">
-      {/* Subtle background pattern - Phase 2 deployed */}
+      {/* Background pattern - Phase 2 with all sections deployed */}
       <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
         backgroundSize: '20px 20px'
