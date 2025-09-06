@@ -564,34 +564,45 @@ const handleBudgetInputChange = (value: string) => {
   setPreferences({...preferences, budget: numValue})
 }
 
+// Experience-based flow helpers
+const isBeginner = () => preferences.experience === 'beginner'
+const isAdvanced = () => preferences.experience === 'intermediate' || preferences.experience === 'enthusiast'
+
 const isStepValid = () => {
-  switch (step) {
-    case 1: return !!preferences.experience
-    case 2: return Object.values(preferences.wantRecommendationsFor).some(v => v) // At least one component selected
-    case 3: return true // Existing gear can be all false (starting fresh)
-    case 4: 
-      // If headphones selected AND they have existing headphones, validate optimization selection
-      if (needsHeadphoneQuestions() && hasExistingHeadphones()) {
-        return !!preferences.optimizeAroundHeadphones
-      }
-      // If headphones selected but no existing headphones, validate headphone type
-      return needsHeadphoneQuestions() ? !!preferences.headphoneType : true
-    case 5: return true // Budget always has default value
-    case 6: return true // Basic requirements are set with defaults
-    default: return false
+  if (isBeginner()) {
+    // Beginner flow: 1(experience) → 2(headphones/iems) → 3(budget) → 4(usage) = 4 steps
+    switch (step) {
+      case 1: return !!preferences.experience
+      case 2: return !!preferences.headphoneType // Just headphones or IEMs
+      case 3: return true // Budget always has default
+      case 4: return true // Usage & sound
+      default: return false
+    }
+  } else {
+    // Advanced flow: 1(experience) → 2(add gear) → 3(recommendations) → 4(headphone type) → 5(budget+flexibility) → 6(usage) = 6 steps
+    switch (step) {
+      case 1: return !!preferences.experience
+      case 2: return true // Adding gear is optional
+      case 3: return Object.values(preferences.wantRecommendationsFor).some(v => v) // At least one component
+      case 4: return needsHeadphoneQuestions() ? !!preferences.headphoneType : true
+      case 5: return true // Budget + flexibility
+      case 6: return true // Usage & sound
+      default: return false
+    }
   }
 }
 
 const getMaxSteps = () => {
-  // New streamlined flow: 1(experience) + 2(components) + 3(existing gear) + 4(headphone type/optimization) + 5(setup) + 6(usage & sound) = 6 steps
-  let maxSteps = 6
-  
-  // Step 4 only shows if headphones are selected
-  if (!needsHeadphoneQuestions()) {
-    maxSteps -= 1 // Skip headphone step
+  if (isBeginner()) {
+    return 4 // Simplified beginner flow
+  } else {
+    // Advanced flow - dynamic based on headphone selection
+    let maxSteps = 6
+    if (!needsHeadphoneQuestions()) {
+      maxSteps -= 1 // Skip headphone type step
+    }
+    return maxSteps
   }
-  
-  return maxSteps
 }
 
 const getActualStepNumber = () => {
@@ -621,10 +632,14 @@ const handleNext = useCallback(() => {
   
   let nextStep = step + 1
   
-  // Skip logic for streamlined flow
-  if (step === 3 && !needsHeadphoneQuestions()) {
-    nextStep = 5 // Skip headphone type step (4) to setup step (5)
+  // Experience-based flow navigation
+  if (isAdvanced()) {
+    // Skip headphone type step if not needed in advanced flow
+    if (step === 3 && !needsHeadphoneQuestions()) {
+      nextStep = 5 // Skip headphone type step (4) to budget step (5)
+    }
   }
+  // Beginner flow is linear, no skipping needed
   
   if (nextStep <= getMaxSteps()) {
     setStep(nextStep)
@@ -819,7 +834,70 @@ const handleNext = useCallback(() => {
             </div>
           )}
           
-          {step === 2 && (
+          {step === 2 && isBeginner() && (
+            <div>
+              <h2 className="heading-2 mb-4">Headphones or In-Ear Monitors?</h2>
+              <p className="text-secondary mb-6">Choose the type of audio device you&apos;d like recommendations for</p>
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  {
+                    value: 'cans',
+                    label: '🎧 Over/On-Ear Headphones',
+                    description: 'Comfortable for long listening sessions, open soundstage',
+                    pros: 'Best for home use, immersive experience'
+                  },
+                  {
+                    value: 'iems',
+                    label: '🎵 In-Ear Monitors (IEMs)', 
+                    description: 'Portable, excellent isolation, detailed sound',
+                    pros: 'Perfect for commuting, exercise, or quiet environments'
+                  }
+                ].map(option => (
+                  <button 
+                    key={option.value}
+                    onClick={() => {
+                      setPreferences({...preferences, headphoneType: option.value})
+                      // Auto-advance after brief delay
+                      setTimeout(() => setStep(3), 600)
+                    }}
+                    className={`card-interactive ${
+                      preferences.headphoneType === option.value 
+                        ? 'card-interactive-selected' 
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="heading-3">{option.label}</h3>
+                      {preferences.headphoneType === option.value && <span className="text-accent">✓</span>}
+                    </div>
+                    <p className="text-secondary mb-4">{option.description}</p>
+                    <p className="text-sm text-tertiary italic">{option.pros}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && isAdvanced() && (
+            <div>
+              <h2 className="heading-2 mb-4">Add Your Current Gear</h2>
+              <p className="text-secondary mb-6">Tell us what audio equipment you already own (optional but recommended for better recommendations)</p>
+              <div className="space-y-4 mb-6">
+                <div className="card p-4 bg-surface-secondary">
+                  <h3 className="heading-3 mb-2">📝 Quick Add</h3>
+                  <p className="text-secondary text-sm mb-4">Add gear to your profile now, or skip and we&apos;ll recommend based on your preferences</p>
+                  <button className="button button-secondary w-full">
+                    + Add Gear to Profile
+                  </button>
+                </div>
+                <div className="text-center text-secondary text-sm">
+                  <p>Don&apos;t have gear yet? That&apos;s perfect - we&apos;ll help you build your first setup!</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && isAdvanced() && (
             <div>
               <h2 className="heading-2 mb-4">What do you want recommendations for?</h2>
               <p className="text-secondary mb-6">Select the components you&apos;d like us to recommend for your system</p>
@@ -881,68 +959,58 @@ const handleNext = useCallback(() => {
             </div>
           )}
           
-          {step === 3 && (
+          {step === 3 && isBeginner() && (
             <div>
-              <h2 className="heading-2 mb-4">What gear do you already have?</h2>
-              <p className="text-secondary mb-6">Check what you already own so we can focus your budget on what you need</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <h2 className="heading-2 mb-4">What&apos;s your budget?</h2>
+              <p className="text-secondary mb-6">Set your budget for a complete audio setup</p>
+              
+              {/* Simple budget preset cards for beginners */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                 {[
-                  {
-                    key: 'headphones',
-                    label: '🎧 Headphones/IEMs',
-                    description: 'Any headphones or in-ear monitors you currently use'
-                  },
-                  {
-                    key: 'dac',
-                    label: '🔄 Standalone DAC',
-                    description: 'Digital-to-analog converter (separate from amp)'
-                  },
-                  {
-                    key: 'amp',
-                    label: '⚡ Headphone Amplifier',
-                    description: 'Dedicated headphone amp (separate from DAC)'
-                  },
-                  {
-                    key: 'combo',
-                    label: '🎯 DAC/Amp Combo Unit',
-                    description: 'All-in-one DAC and amplifier device'
-                  }
-                ].map(component => (
-                  <div 
-                    key={component.key}
-                    className={`card-interactive cursor-pointer ${
-                      preferences.existingGear[component.key as keyof typeof preferences.existingGear]
-                        ? 'card-interactive-selected'
-                        : ''
+                  { amount: 50, label: 'Budget', desc: 'Great starter setup' },
+                  { amount: 150, label: 'Good', desc: 'Solid performance' },
+                  { amount: 350, label: 'Great', desc: 'Audiophile quality' },
+                  { amount: 800, label: 'Premium', desc: 'High-end experience' }
+                ].map(preset => (
+                  <button
+                    key={preset.amount}
+                    onClick={() => {
+                      setPreferences({...preferences, budget: preset.amount})
+                      setBudgetInputValue(preset.amount.toString())
+                    }}
+                    className={`card-interactive p-3 text-center hover:scale-105 transition-all ${
+                      preferences.budget === preset.amount ? 'card-interactive-selected' : ''
                     }`}
-                    onClick={() => setPreferences({
-                      ...preferences,
-                      existingGear: {
-                        ...preferences.existingGear,
-                        [component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>]: !preferences.existingGear[component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>]
-                      }
-                    })}
                   >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={preferences.existingGear[component.key as keyof Omit<typeof preferences.existingGear, 'specificModels'>] as boolean}
-                        onChange={() => {}} // Handled by parent div onClick
-                        className="mt-1 w-5 h-5 text-accent bg-tertiary border-subtle rounded focus:ring-accent-subtle pointer-events-none"
-                        tabIndex={-1}
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-base mb-1">{component.label}</h3>
-                        <p className="text-secondary text-sm">{component.description}</p>
-                      </div>
-                    </div>
-                  </div>
+                    <div className="text-xl font-bold mb-1">${preset.amount}</div>
+                    <div className="text-sm font-semibold mb-1">{preset.label}</div>
+                    <div className="text-xs text-secondary">{preset.desc}</div>
+                  </button>
                 ))}
               </div>
-              <div className="mt-3 p-3 bg-tertiary rounded-lg">
-                <p className="text-sm text-tertiary">
-                  💡 <strong>Don&apos;t have anything?</strong> Leave all unchecked and we&apos;ll recommend a complete setup within your budget.
-                </p>
+              
+              {/* Simple budget slider - no flexibility options for beginners */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
+                  <input
+                    type="range"
+                    min={budgetToSlider(20)}
+                    max={budgetToSlider(3000)}
+                    value={budgetToSlider(preferences.budget)}
+                    onChange={(e) => {
+                      const budget = sliderToBudget(parseInt(e.target.value))
+                      setPreferences({...preferences, budget})
+                      setBudgetInputValue(budget.toString())
+                    }}
+                    className="budget-slider w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-secondary mt-1">
+                    <span>$20</span>
+                    <span className="font-semibold">${preferences.budget}</span>
+                    <span>$3,000+</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
