@@ -14,7 +14,7 @@ interface MissingHeadphoneHandlerProps {
 export default function MissingHeadphoneHandler({
   brand,
   model,
-  onHeadphoneAdded,
+  onHeadphoneAdded: _onHeadphoneAdded, // Prefixed to indicate intentionally unused
   onCancel
 }: MissingHeadphoneHandlerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)

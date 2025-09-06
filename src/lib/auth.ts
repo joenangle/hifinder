@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
   
   // Callbacks
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile: _profile }) { // profile unused
       if (account?.provider === 'google') {
         try {
           // Store user in our own users table

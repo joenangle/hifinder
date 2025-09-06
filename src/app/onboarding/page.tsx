@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { trackEvent, getBudgetTier } from '@/lib/analytics'
+import { trackEvent } from '@/lib/analytics'
 
 // Types
 interface Preferences {
@@ -332,17 +332,17 @@ export default function OnboardingPage() {
   }, [step])
 
 // Helper functions to determine which questions to show
-const needsHeadphoneQuestions = () => {
+const needsHeadphoneQuestions = useCallback(() => {
   return preferences.wantRecommendationsFor.headphones || preferences.wantRecommendationsFor.combo
-}
+}, [preferences.wantRecommendationsFor.headphones, preferences.wantRecommendationsFor.combo])
 
-const hasExistingHeadphones = () => {
+const hasExistingHeadphones = useCallback(() => {
   return preferences.existingGear.headphones
-}
+}, [preferences.existingGear.headphones])
 
-const needsAmpDacQuestions = () => {
+const needsAmpDacQuestions = useCallback(() => {
   return preferences.wantRecommendationsFor.dac || preferences.wantRecommendationsFor.amp || preferences.wantRecommendationsFor.combo
-}
+}, [preferences.wantRecommendationsFor.dac, preferences.wantRecommendationsFor.amp, preferences.wantRecommendationsFor.combo])
 
 // Fetch headphone brands from Supabase
 const fetchBrands = useCallback(async () => {
@@ -482,15 +482,15 @@ useEffect(() => {
   }
 }, [step, fetchBrands, fetchOptimizeBrands, preferences.wantRecommendationsFor, preferences.existingGear, needsAmpDacQuestions, hasExistingHeadphones, needsHeadphoneQuestions])
 
-// Format budget with US currency formatting
-const formatBudgetUSD = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount)
-}
+// Format budget with US currency formatting (currently unused)
+// const formatBudgetUSD = (amount: number) => {
+//   return new Intl.NumberFormat('en-US', {
+//     style: 'currency',
+//     currency: 'USD',
+//     minimumFractionDigits: 0,
+//     maximumFractionDigits: 0
+//   }).format(amount)
+// }
 
 // Convert linear slider position to logarithmic budget value
 const sliderToBudget = (sliderValue: number) => {

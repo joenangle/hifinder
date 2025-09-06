@@ -12,7 +12,7 @@ interface FindUsedButtonProps {
 }
 
 export function FindUsedButton({ 
-  componentId, 
+  componentId: _componentId, // Prefixed with underscore to indicate intentionally unused
   componentName, 
   brand, 
   className = '',

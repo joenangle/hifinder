@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { UpgradeSuggestion } from '@/types/auth'
+// import { UpgradeSuggestion } from '@/types/auth' // Unused
 
 export interface UserGearItem {
   id: string
@@ -210,7 +210,7 @@ interface GearSuggestion {
 
 export async function getUpgradeSuggestions(
   userId: string,
-  budget?: number
+  budget?: number // Currently unused in implementation
 ): Promise<GearSuggestion[]> {
   // Get user's current gear
   const gear = await getUserGear(userId)

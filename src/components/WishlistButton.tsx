@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { Heart } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { addToWishlist, removeFromWishlist, isInWishlist } from '@/lib/wishlist'
 
 interface WishlistButtonProps {
@@ -16,18 +16,18 @@ export function WishlistButton({ componentId, className = '', showText = false }
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      checkWishlistStatus()
-    }
-  }, [session?.user?.id, componentId])
-
-  const checkWishlistStatus = async () => {
+  const checkWishlistStatus = useCallback(async () => {
     if (!session?.user?.id) return
     
     const inWishlist = await isInWishlist(session.user.id, componentId)
     setIsWishlisted(inWishlist)
-  }
+  }, [session?.user?.id, componentId])
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      checkWishlistStatus()
+    }
+  }, [session?.user?.id, componentId, checkWishlistStatus])
 
   const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault()

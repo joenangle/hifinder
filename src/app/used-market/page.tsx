@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react' // Unused
 import { supabase } from '@/lib/supabase'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'

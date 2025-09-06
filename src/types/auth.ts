@@ -1,4 +1,4 @@
-import { User } from 'next-auth'
+// import { User } from 'next-auth' // Unused - we use declare module instead
 
 declare module 'next-auth' {
   interface Session {
