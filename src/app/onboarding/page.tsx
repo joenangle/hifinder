@@ -652,6 +652,13 @@ const handleNext = () => {
   }
 }
 
+// Auto-advance after a brief delay for single-select steps
+const handleAutoAdvance = useCallback(() => {
+  setTimeout(() => {
+    handleNext()
+  }, 600) // Brief pause to show selection, then advance
+}, [])
+
   return (
     <>
       <style jsx>{`
@@ -779,11 +786,16 @@ const handleNext = () => {
                 ].map(option => (
                   <button 
                     key={option.id}
-                    onClick={() => setPreferences({...preferences, experience: option.id})}
+                    onClick={() => {
+                      setPreferences({...preferences, experience: option.id})
+                      // Auto-advance for single-select step
+                      handleAutoAdvance()
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === ' ' || e.key === 'Enter') {
                         e.preventDefault()
                         setPreferences({...preferences, experience: option.id})
+                        handleAutoAdvance()
                       }
                     }}
                     className={`card-interactive p-3 ${
@@ -962,7 +974,11 @@ const handleNext = () => {
                 ].map(option => (
                   <button 
                     key={option.value}
-                    onClick={() => setPreferences({...preferences, headphoneType: option.value})}
+                    onClick={() => {
+                      setPreferences({...preferences, headphoneType: option.value})
+                      // Auto-advance for single-select step
+                      handleAutoAdvance()
+                    }}
                     className={`card-interactive ${
                       preferences.headphoneType === option.value 
                         ? 'card-interactive-selected' 
