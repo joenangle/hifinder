@@ -652,12 +652,6 @@ const handleNext = useCallback(() => {
   }
 }, [step, preferences, router, isStepValid, needsHeadphoneQuestions, getMaxSteps, setStep])
 
-// Auto-advance after a brief delay for single-select steps
-const handleAutoAdvance = () => {
-  setTimeout(() => {
-    setStep(prevStep => prevStep + 1)
-  }, 600) // Brief pause to show selection, then advance
-}
 
   return (
     <>
@@ -788,14 +782,14 @@ const handleAutoAdvance = () => {
                     key={option.id}
                     onClick={() => {
                       setPreferences({...preferences, experience: option.id})
-                      // Auto-advance for single-select step
-                      handleAutoAdvance()
+                      // Auto-advance after brief delay
+                      setTimeout(() => setStep(2), 600)
                     }}
                     onKeyDown={(e) => {
                       if (e.key === ' ' || e.key === 'Enter') {
                         e.preventDefault()
                         setPreferences({...preferences, experience: option.id})
-                        handleAutoAdvance()
+                        setTimeout(() => setStep(2), 600)
                       }
                     }}
                     className={`card-interactive p-3 ${
@@ -976,8 +970,8 @@ const handleAutoAdvance = () => {
                     key={option.value}
                     onClick={() => {
                       setPreferences({...preferences, headphoneType: option.value})
-                      // Auto-advance for single-select step
-                      handleAutoAdvance()
+                      // Auto-advance after brief delay  
+                      setTimeout(() => setStep(5), 600)
                     }}
                     className={`card-interactive ${
                       preferences.headphoneType === option.value 
