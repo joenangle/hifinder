@@ -24,7 +24,7 @@ export function DesktopNav() {
   const navItems = session ? authNavItems : publicNavItems
 
   return (
-    <nav className="hidden md:flex items-center space-x-6">
+    <nav className="hidden md:flex items-center gap-8">
       {navItems.map((item) => {
         const isActive = pathname === item.href || 
           (item.href !== '/' && pathname.startsWith(item.href))
@@ -33,7 +33,7 @@ export function DesktopNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`text-sm font-medium transition-colors relative py-2 ${
+            className={`text-sm font-medium transition-colors relative py-2 px-1 ${
               isActive
                 ? 'text-accent-primary'
                 : 'text-text-secondary hover:text-text-primary'

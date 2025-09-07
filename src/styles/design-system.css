@@ -1308,3 +1308,19 @@ input[type="number"]::-webkit-inner-spin-button {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* ============================================
+   THIRD-PARTY COMPONENT FIXES
+   ============================================ */
+
+/* NextAuth sign-in modal z-index fix */
+[data-nextauth-modal] {
+  z-index: var(--z-toast) !important;
+}
+
+/* Generic NextAuth provider modal fix */
+.nextauth-modal,
+[id*="nextauth"],
+[class*="nextauth"] {
+  z-index: var(--z-toast) !important;
+}

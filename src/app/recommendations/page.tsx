@@ -742,14 +742,28 @@ function RecommendationsContent() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600">Total System Cost:</p>
-              <p className="text-lg font-semibold text-gray-900">
-                ${Math.round(totalSelectedPrice).toLocaleString()}
-                <span className={`ml-2 text-sm ${totalSelectedPrice <= budget ? 'text-green-600' : 'text-red-600'}`}>
-                  ({totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()})
-                </span>
-              </p>
+            <div className={`pt-4 border-t border-gray-200 mt-4 rounded-lg p-4 ${
+              totalSelectedPrice > budget * 1.1 
+                ? 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200'
+                : totalSelectedPrice > budget * 0.9
+                ? 'bg-transparent border border-gray-200' 
+                : 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200'
+            }`}>
+              <div className="text-center">
+                <p className="text-xl font-bold text-gray-900 mb-2">
+                  ${Math.round(totalSelectedPrice).toLocaleString()}
+                </p>
+                <p className={`text-sm font-medium mb-1 ${
+                  totalSelectedPrice > budget * 1.1 
+                    ? 'text-red-700'
+                    : totalSelectedPrice > budget * 0.9
+                    ? 'text-gray-700' 
+                    : 'text-green-700'
+                }`}>
+                  {totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-600">Est. System Cost</p>
+              </div>
             </div>
           </div>
         )}
@@ -1051,7 +1065,7 @@ function RecommendationsContent() {
             href="/onboarding" 
             className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
-            ← Adjust Your Preferences
+            ← Adjust Preferences
           </Link>
         </div>
       </div>

@@ -184,7 +184,7 @@ function GearContent() {
   const [stacks, setStacks] = useState<StackWithGear[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
+  const [activeFilters, setActiveFilters] = useState<Set<CategoryFilter>>(new Set())
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -194,6 +194,19 @@ function GearContent() {
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
   
+  // Filter toggle function
+  const toggleFilter = (filter: CategoryFilter) => {
+    setActiveFilters(prev => {
+      const newFilters = new Set(prev)
+      if (newFilters.has(filter)) {
+        newFilters.delete(filter)
+      } else {
+        newFilters.add(filter)
+      }
+      return newFilters
+    })
+  }
+
   // Edit gear form state
   const [editFormData, setEditFormData] = useState({
     purchase_date: '',
@@ -522,12 +535,12 @@ function GearContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm mb-1" style={{color: 'var(--text-secondary)'}}>
-                    {categoryFilter === 'all' ? 'Total Items' : `${CATEGORIES[categoryFilter].label}`}
+                    {activeFilters.size === 0 ? 'Total Items' : 'Filtered Items'}
                   </p>
                   <p className="text-2xl font-bold" style={{color: 'var(--text-primary)'}}>
-                    {categoryFilter === 'all' ? gear.length : gear.filter(item => getGearCategory(item) === categoryFilter).length}
+                    {activeFilters.size === 0 ? gear.length : gear.filter(item => activeFilters.has(getGearCategory(item))).length}
                   </p>
-                  {categoryFilter !== 'all' && (
+                  {activeFilters.size > 0 && (
                     <p className="text-xs" style={{color: 'var(--text-tertiary)'}}>of {gear.length} total</p>
                   )}
                 </div>
@@ -586,28 +599,80 @@ function GearContent() {
                 </p>
               </div>
               <div className="text-sm" style={{color: 'var(--text-tertiary)'}}>
-                {categoryFilter === 'all' ? `${gear.length} total items` : 
-                  `${gear.filter(item => getGearCategory(item) === categoryFilter).length} of ${gear.length} items`}
+                {activeFilters.size === 0 ? `${gear.length} total items` : 
+                  `${gear.filter(item => activeFilters.has(getGearCategory(item))).length} of ${gear.length} items`}
               </div>
             </div>
           </div>
           <div 
             className="p-4 rounded-lg border"
             style={{
-              backgroundColor: 'var(--background-secondary)',
+              backgroundColor: 'var(--background-tertiary)',
               borderColor: 'var(--border-default)'
             }}
           >
             <div className="flex flex-wrap gap-2">
               {Object.entries(CATEGORIES).map(([key, config]) => {
+                if (key === 'all') {
+                  const allCategories: CategoryFilter[] = ['headphones', 'iems', 'dacs', 'amps', 'combo']
+                  const allActive = allCategories.every(cat => activeFilters.has(cat))
+                  const isActive = activeFilters.size === 0 || allActive
+                  
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        // Always turn all categories on when "All" is clicked
+                        setActiveFilters(new Set(allCategories))
+                      }}
+                      className={`
+                        flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all border-2
+                        ${isActive 
+                          ? 'text-white border-transparent shadow-md' 
+                          : 'text-secondary hover:text-primary border-transparent hover:border-accent/20'
+                        }
+                      `}
+                      style={{
+                        backgroundColor: isActive ? 'var(--accent-primary)' : 'var(--background-primary)',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.borderColor = 'var(--accent-primary)'
+                          e.currentTarget.style.transform = 'translateY(-1px)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.borderColor = 'transparent'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }
+                      }}
+                      title={`View all items (${gear.length} items)`}
+                    >
+                      <config.icon className="w-4 h-4" />
+                      <span>{config.label}</span>
+                      <span 
+                        className="text-xs px-2 py-1 rounded-full font-semibold min-w-[24px] text-center"
+                        style={{
+                          backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)',
+                          color: isActive ? 'white' : 'white'
+                        }}
+                      >
+                        {gear.length}
+                      </span>
+                    </button>
+                  )
+                }
+                
+                // Regular category filters
                 const IconComponent = config.icon
-                const isActive = categoryFilter === key
-                const categoryGear = key === 'all' ? gear : gear.filter(item => getGearCategory(item) === key)
+                const isActive = activeFilters.has(key as CategoryFilter)
+                const categoryGear = gear.filter(item => getGearCategory(item) === key as CategoryFilter)
                 
                 return (
                   <button
                     key={key}
-                    onClick={() => setCategoryFilter(key as CategoryFilter)}
+                    onClick={() => toggleFilter(key as CategoryFilter)}
                     className={`
                       flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all border-2
                       ${isActive 
@@ -630,7 +695,7 @@ function GearContent() {
                         e.currentTarget.style.transform = 'translateY(0)'
                       }
                     }}
-                    title={`View ${config.label.toLowerCase()} (${categoryGear.length} items)`}
+                    title={`Toggle ${config.label.toLowerCase()} (${categoryGear.length} items)`}
                   >
                     <IconComponent className="w-4 h-4" />
                     <span>{config.label}</span>
@@ -802,9 +867,9 @@ function GearContent() {
                 {(() => {
                   // Filter ungrouped gear by category
                   const ungroupedGear = gear.filter(item => !stacks.some(stack => stack.stack_components.some(comp => comp.user_gear_id === item.id)))
-                  const filteredUngroupedGear = categoryFilter === 'all' 
+                  const filteredUngroupedGear = activeFilters.size === 0 
                     ? ungroupedGear 
-                    : ungroupedGear.filter(item => getGearCategory(item) === categoryFilter)
+                    : ungroupedGear.filter(item => activeFilters.has(getGearCategory(item)))
                   
                   return filteredUngroupedGear.length > 0 && (
                     <div className="mt-8">
@@ -844,27 +909,27 @@ function GearContent() {
           }
 
           // Grid/List View (existing logic)
-          const filteredGear = categoryFilter === 'all' 
+          const filteredGear = activeFilters.size === 0 
             ? gear 
-            : gear.filter(item => getGearCategory(item) === categoryFilter)
+            : gear.filter(item => activeFilters.has(getGearCategory(item)))
 
           return filteredGear.length === 0 ? (
             <div className="text-center py-12">
               <Package className="w-16 h-16 text-secondary mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-primary mb-2">
-                {categoryFilter === 'all' ? 'No gear yet' : `No ${CATEGORIES[categoryFilter].label.toLowerCase()}`}
+                {activeFilters.size === 0 ? 'No gear yet' : 'No matching gear'}
               </h2>
               <p className="text-secondary mb-6">
-                {categoryFilter === 'all' 
+                {activeFilters.size === 0 
                   ? 'Start building your collection by adding your first item'
-                  : `You don't have any ${CATEGORIES[categoryFilter].label.toLowerCase()} in your collection yet`
+                  : 'Try adjusting your filters or add new gear to your collection'
                 }
               </p>
               <button
                 onClick={() => setShowAddModal(true)}
                 className="button button-primary"
               >
-                {categoryFilter === 'all' ? 'Add Your First Item' : `Add ${CATEGORIES[categoryFilter].label}`}
+                {activeFilters.size === 0 ? 'Add Your First Item' : 'Add Gear'}
               </button>
             </div>
           ) : (
@@ -1564,7 +1629,7 @@ function GearContent() {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
-                Edit Gear Item
+                Edit Item
               </h2>
               <button
                 onClick={() => {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useSession, signOut } from 'next-auth/react'
 import { User, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
@@ -16,8 +17,13 @@ export function UserMenu() {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -80,11 +86,15 @@ export function UserMenu() {
         <ChevronDown className={`w-4 h-4 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {isOpen && (
+      {mounted && isOpen && createPortal(
         <div
           ref={menuRef}
-          className="absolute right-0 top-full mt-2 w-56 bg-surface-elevated border border-border-default rounded-lg shadow-lg"
-          style={{ zIndex: 'var(--z-dropdown)' }}
+          className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border border-border-default rounded-lg shadow-lg"
+          style={{ 
+            zIndex: 'var(--z-modal)',
+            top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 8 : 0,
+            right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0
+          }}
         >
           <div className="p-2">
             {/* User Info */}
@@ -121,7 +131,8 @@ export function UserMenu() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

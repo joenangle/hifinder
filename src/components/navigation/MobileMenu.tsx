@@ -88,7 +88,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
           {/* Navigation Items */}
           <div className="flex-1 px-6 py-6">
-            <nav className="space-y-2">
+            <nav className="space-y-2 mb-6">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || 
                   (item.href !== '/' && pathname.startsWith(item.href))
@@ -109,10 +109,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 )
               })}
             </nav>
-          </div>
 
-          {/* User Section */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-border-subtle">
+            {/* User Section - moved up here */}
+            <div className="border-t border-border-subtle pt-4">
             {session ? (
               <div className="space-y-4">
                 {/* User Info */}
@@ -163,6 +162,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 Sign In
               </button>
             )}
+            </div>
           </div>
         </div>
       </div>
