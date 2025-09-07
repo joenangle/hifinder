@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/components/AuthProvider";
-import { AuthButton } from "@/components/AuthButton";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/navigation/Header";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics } from '@/components/Analytics';
 
@@ -63,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} font-sans antialiased`}
         style={{
