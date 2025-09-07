@@ -53,7 +53,13 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
   }
 
   return (
-    <div className="card transition-all">
+    <div 
+      className="card transition-all"
+      style={{
+        backgroundColor: 'var(--background-tertiary)',
+        borderColor: 'var(--border-default)'
+      }}
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h4 className="font-semibold text-primary mb-2">{listing.title}</h4>
