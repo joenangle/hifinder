@@ -46,7 +46,7 @@ function QuickStartContent() {
   // Convert linear slider position to logarithmic budget value (constrained or expanded)
   const sliderToBudget = (sliderValue: number, useExpandedRange = false) => {
     const minBudget = useExpandedRange ? 20 : currentRange.min
-    const maxBudget = useExpandedRange ? 10000 : currentRange.max
+    const maxBudget = useExpandedRange ? 500 : currentRange.max
     const minLog = Math.log(minBudget)
     const maxLog = Math.log(maxBudget)
     const scale = (maxLog - minLog) / 100
@@ -56,7 +56,7 @@ function QuickStartContent() {
   // Convert budget value to linear slider position
   const budgetToSlider = (budget: number, useExpandedRange = false) => {
     const minBudget = useExpandedRange ? 20 : currentRange.min
-    const maxBudget = useExpandedRange ? 10000 : currentRange.max
+    const maxBudget = useExpandedRange ? 500 : currentRange.max
     const minLog = Math.log(minBudget)
     const maxLog = Math.log(maxBudget)
     const scale = (maxLog - minLog) / 100
@@ -173,7 +173,7 @@ function QuickStartContent() {
               <div className="flex justify-between text-xs text-tertiary mb-2">
                 <span>{formatBudgetUSD(expandedBudgetRange ? 20 : currentRange.min)}</span>
                 <span className="text-accent font-medium">{getBudgetTier(budget)}</span>
-                <span>{formatBudgetUSD(expandedBudgetRange ? 10000 : currentRange.max)}</span>
+                <span>{formatBudgetUSD(expandedBudgetRange ? 500 : currentRange.max)}</span>
               </div>
 
               {isOutsideRange && !expandedBudgetRange && (

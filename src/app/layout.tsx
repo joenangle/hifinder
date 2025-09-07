@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AuthButton } from "@/components/AuthButton";
+import { Header } from "@/components/Header";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics } from '@/components/Analytics';
 
@@ -62,18 +64,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              const savedTheme = localStorage.getItem('theme');
-              const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-              document.documentElement.setAttribute('data-theme', theme);
-            })();
-          `
-        }}
-      />
       <body
         className={`${inter.variable} font-sans antialiased`}
         style={{
@@ -82,6 +72,20 @@ export default function RootLayout({
         }}
       >
         <AuthProvider>
+          <Script
+            id="theme-script"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  const savedTheme = localStorage.getItem('theme');
+                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+                  document.documentElement.setAttribute('data-theme', theme);
+                })();
+              `
+            }}
+          />
           <Analytics />
           <a 
             href="#main-content" 
@@ -91,15 +95,7 @@ export default function RootLayout({
             Skip to main content
           </a>
           
-          <div 
-            style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 50 }}
-            role="banner"
-            aria-label="Site controls"
-            className="flex items-center gap-2"
-          >
-            <AuthButton />
-            <ThemeToggle />
-          </div>
+          <Header />
           
           <main id="main-content" role="main">
             {children}

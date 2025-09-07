@@ -20,7 +20,7 @@ export function AuthButton() {
     return (
       <button
         onClick={() => signIn()}
-        className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors"
+        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-accent to-accent-hover hover:from-accent-hover hover:to-accent text-accent-foreground rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg border border-accent/20 hover:border-accent/30 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 active:scale-95 transform"
       >
         <User className="w-4 h-4" />
         Sign In
