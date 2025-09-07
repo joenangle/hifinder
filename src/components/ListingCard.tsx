@@ -56,7 +56,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
     <div 
       className="card transition-all"
       style={{
-        backgroundColor: 'var(--background-tertiary)',
+        backgroundColor: 'var(--background-secondary)',
         borderColor: 'var(--border-default)'
       }}
     >
