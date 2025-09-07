@@ -210,7 +210,7 @@ interface GearSuggestion {
 
 export async function getUpgradeSuggestions(
   userId: string,
-  budget?: number // Currently unused in implementation
+  _budget?: number // Currently unused in implementation
 ): Promise<GearSuggestion[]> {
   // Get user's current gear
   const gear = await getUserGear(userId)

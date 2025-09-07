@@ -191,7 +191,7 @@ export function UserDashboard() {
                 </div>
               </div>
               <p className="text-sm text-secondary">
-                Items you're watching and considering for future purchases
+                Items you&apos;re watching and considering for future purchases
               </p>
             </Link>
             
@@ -210,7 +210,7 @@ export function UserDashboard() {
                 </div>
               </div>
               <p className="text-sm text-secondary">
-                Get notified when prices drop on items you're interested in
+                Get notified when prices drop on items you&apos;re interested in
               </p>
             </Link>
           </div>

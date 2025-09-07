@@ -295,7 +295,7 @@ export default function OnboardingPage() {
     excludedUsages: [] as string[],
     soundSignature: ''
   })
-  const [budgetInputValue, setBudgetInputValue] = useState('100')
+  const [_budgetInputValue, _setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
   
   // Headphone selection state
@@ -908,7 +908,7 @@ const handleNext = useCallback(() => {
                     key={preset.amount}
                     onClick={() => {
                       setPreferences({...preferences, budget: preset.amount})
-                      setBudgetInputValue(preset.amount.toString())
+                      _setBudgetInputValue(preset.amount.toString())
                     }}
                     className={`card-interactive p-3 text-center hover:scale-105 transition-all ${
                       preferences.budget === preset.amount ? 'card-interactive-selected' : ''
@@ -928,7 +928,7 @@ const handleNext = useCallback(() => {
                   budget={preferences.budget}
                   onBudgetChange={(budget) => {
                     setPreferences({...preferences, budget})
-                    setBudgetInputValue(budget.toString())
+                    _setBudgetInputValue(budget.toString())
                   }}
                   variant="simple"
                   showLabels={true}
@@ -1090,7 +1090,7 @@ const handleNext = useCallback(() => {
                   budget={preferences.budget}
                   onBudgetChange={(budget) => {
                     setPreferences({...preferences, budget})
-                    setBudgetInputValue(budget.toString())
+                    _setBudgetInputValue(budget.toString())
                     setBudgetError('')
                   }}
                   variant="advanced"

@@ -30,8 +30,8 @@ function AlertsContent() {
   const [alertHistory, setAlertHistory] = useState<AlertHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showHistoryModal, setShowHistoryModal] = useState(false)
-  const [selectedAlert, setSelectedAlert] = useState<PriceAlert | null>(null)
+  const [_showHistoryModal, _setShowHistoryModal] = useState(false)
+  const [_selectedAlert, _setSelectedAlert] = useState<PriceAlert | null>(null)
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active')
   
   // Create alert form state
@@ -387,15 +387,16 @@ function AlertsContent() {
                           {alert.is_active ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                         </button>
                         
-                        <button
+                        {/* TODO: History modal functionality */}
+                        {/* <button
                           onClick={() => {
-                            setSelectedAlert(alert)
-                            setShowHistoryModal(true)
+                            _setSelectedAlert(alert)
+                            _setShowHistoryModal(true)
                           }}
                           className="p-2 text-muted hover:text-foreground hover:bg-surface-secondary rounded transition-colors"
                         >
                           <History className="w-4 h-4" />
-                        </button>
+                        </button> */}
                         
                         <button
                           onClick={() => handleDeleteAlert(alert.id)}

@@ -30,6 +30,11 @@ export type AnalyticsEvent =
   | { name: 'budget_quick_start_clicked', properties?: { budget_tier?: string, budget_amount?: number } }
   | { name: 'final_cta_clicked', properties?: { location?: string } }
   
+  // Dashboard
+  | { name: 'dashboard_action_clicked', properties?: { action?: string } }
+  | { name: 'dashboard_link_clicked', properties?: { link?: string } }
+  | { name: 'dashboard_budget_clicked', properties?: { budget?: number } }
+  
   // Onboarding
   | { name: 'onboarding_started' }
   | { name: 'onboarding_step_completed', parameters: { step_number: number } }

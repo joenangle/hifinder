@@ -166,16 +166,24 @@ function BrandCombobox({ value, onChange, availableBrands, placeholder, classNam
 }
 
 // Helper function to get the category of a gear item
-function getGearCategory(item: UserGearItem): string {
+function getGearCategory(item: UserGearItem): CategoryFilter {
   // Check custom category first (for manually added items)
   if (item.custom_category) {
     // Map old dac_amp to combo
-    return item.custom_category === 'dac_amp' ? 'combo' : item.custom_category
+    const category = item.custom_category === 'dac_amp' ? 'combo' : item.custom_category
+    // Ensure it's a valid CategoryFilter, default to 'headphones' if not
+    return ['headphones', 'iems', 'dacs', 'amps', 'combo'].includes(category) 
+      ? category as CategoryFilter 
+      : 'headphones'
   }
   // Fall back to components category (for database items)
-  const category = item.components?.category || 'other'
+  const category = item.components?.category || 'headphones'
   // Map old dac_amp to combo
-  return category === 'dac_amp' ? 'combo' : category
+  const mappedCategory = category === 'dac_amp' ? 'combo' : category
+  // Ensure it's a valid CategoryFilter, default to 'headphones' if not
+  return ['headphones', 'iems', 'dacs', 'amps', 'combo'].includes(mappedCategory) 
+    ? mappedCategory as CategoryFilter 
+    : 'headphones'
 }
 
 function GearContent() {

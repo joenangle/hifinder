@@ -23,7 +23,7 @@ export default function AboutPage() {
           <div className="card p-8 bg-gradient-to-br from-surface-card to-surface-hover">
             <h2 className="heading-2 mb-4 text-center">Our Mission</h2>
             <p className="text-lg text-secondary text-center mb-6">
-              Finding the right audio gear shouldn't be overwhelming. We simplify the discovery process with personalized recommendations based on your preferences, budget, and listening habits.
+              Finding the right audio gear shouldn&apos;t be overwhelming. We simplify the discovery process with personalized recommendations based on your preferences, budget, and listening habits.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
@@ -99,7 +99,7 @@ export default function AboutPage() {
                 <h3 className="heading-3">Market Intelligence</h3>
               </div>
               <p className="text-secondary">
-                Find great deals on used gear and get alerts when prices drop on items you're watching.
+                Find great deals on used gear and get alerts when prices drop on items you&apos;re watching.
               </p>
             </Link>
           </div>
@@ -131,7 +131,7 @@ export default function AboutPage() {
                   3
                 </div>
                 <h3 className="font-semibold mb-3">Make Informed Decisions</h3>
-                <p className="text-secondary text-sm">Compare options, read detailed explanations, and choose what's right for you.</p>
+                <p className="text-secondary text-sm">Compare options, read detailed explanations, and choose what&apos;s right for you.</p>
               </div>
             </div>
           </div>
