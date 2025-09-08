@@ -34,6 +34,8 @@ import {
   MoreVertical
 } from 'lucide-react'
 import { OverflowMenu } from '@/components/ui/OverflowMenu'
+import { GearPageHeader } from '@/components/gear/GearPageHeader'
+import { GearFilters } from '@/components/gear/GearFilters'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
@@ -480,173 +482,51 @@ function GearContent() {
     )
   }
 
+  // Calculate category counts for filters
+  const categoryCounts = {
+    all: gear.length,
+    headphones: gear.filter(item => getGearCategory(item) === 'headphones').length,
+    iems: gear.filter(item => getGearCategory(item) === 'iems').length,
+    dacs: gear.filter(item => getGearCategory(item) === 'dacs').length,
+    amps: gear.filter(item => getGearCategory(item) === 'amps').length,
+    combo: gear.filter(item => getGearCategory(item) === 'combo').length,
+  }
+
   return (
     <div className="min-h-screen" style={{backgroundColor: 'var(--background-primary)', color: 'var(--text-primary)'}}>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-6">
-          {/* Mobile Layout */}
-          <div className="sm:hidden">
-            {/* Mobile Title Row */}
-            <div className="text-center mb-4">
-              <h1 className="heading-1" style={{color: 'var(--text-primary)'}}>My Gear</h1>
-            </div>
-            
-            {/* Mobile Navigation Row */}
-            <div className="flex items-center justify-between">
-              {/* Back Arrow - Left Side */}
-              <Link href="/" className="text-secondary hover:text-primary transition-colors flex items-center justify-center">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              
-              {/* Mobile Actions - Right Side */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="button button-primary flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Gear
-                </button>
-                <OverflowMenu
-                  items={[
-                {
-                  id: 'export',
-                  label: 'Export Collection',
-                  icon: Download,
-                  onClick: exportCollection
-                },
-                {
-                  id: 'grid-view',
-                  label: 'Grid View',
-                  icon: Grid3X3,
-                  onClick: () => setViewMode('grid')
-                },
-                {
-                  id: 'list-view',
-                  label: 'List View',
-                  icon: List,
-                  onClick: () => setViewMode('list')
-                },
-                {
-                  id: 'stacks-view',
-                  label: 'Stacks View',
-                  icon: Layers,
-                  onClick: () => setViewMode('stacks')
-                }
-              ]}
-            />
-            </div>
-          </div>
-          
-          {/* Desktop Layout */}
-          <div className="hidden sm:flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="text-secondary hover:text-primary transition-colors flex items-center justify-center">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <h1 className="heading-1" style={{color: 'var(--text-primary)'}}>My Gear</h1>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                onClick={exportCollection}
-                className="p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors"
-                title="Export Collection"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-              <div className="flex rounded-md overflow-hidden bg-secondary">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Grid View"
-                >
-                  <Grid3X3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="List View"
-                >
-                  <List className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('stacks')}
-                  className={`p-2 transition-colors ${viewMode === 'stacks' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Stacks View"
-                >
-                  <Layers className="w-5 h-5" />
-                </button>
-              </div>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="button button-primary flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Gear
-              </button>
-            </div>
-          </div>
+      {/* Compact Integrated Header - 56px only */}
+      <GearPageHeader 
+        stats={{
+          totalItems: gear.length,
+          totalInvested: collectionStats?.totalPaid || 0,
+          currentValue: collectionStats?.currentValue || 0,
+          depreciation: collectionStats?.depreciation || 0
+        }}
+        viewMode={viewMode}
+        onAddGear={() => setShowAddModal(true)}
+        onExport={exportCollection}
+        onViewModeChange={setViewMode}
+      />
+      
+      {/* Main Content Area - starts immediately, no wasted space */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-6">
+        {/* Filters Section - minimal top padding */}
+        <div className="pt-4 pb-3">
+          <GearFilters 
+            selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
+            onCategoryChange={(category) => {
+              if (category === 'all') {
+                setActiveFilters(new Set())
+              } else {
+                setActiveFilters(new Set([category]))
+              }
+            }}
+            categoryCounts={categoryCounts}
+          />
         </div>
 
-        {/* Stats Cards */}
-        {collectionStats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm mb-1" style={{color: 'var(--text-secondary)'}}>
-                    {activeFilters.size === 0 ? 'Total Items' : 'Filtered Items'}
-                  </p>
-                  <p className="text-2xl font-bold" style={{color: 'var(--text-primary)'}}>
-                    {activeFilters.size === 0 ? gear.length : gear.filter(item => activeFilters.has(getGearCategory(item))).length}
-                  </p>
-                  {activeFilters.size > 0 && (
-                    <p className="text-xs" style={{color: 'var(--text-tertiary)'}}>of {gear.length} total</p>
-                  )}
-                </div>
-                <Package className="w-8 h-8 text-accent" />
-              </div>
-            </div>
-          
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm mb-1" style={{color: 'var(--text-secondary)'}}>Total Invested</p>
-                  <p className="text-2xl font-bold" style={{color: 'var(--text-primary)'}}>
-                    {formatCurrency(collectionStats.totalPaid)}
-                  </p>
-                </div>
-                <DollarSign className="w-8 h-8" style={{color: 'var(--success)'}} />
-              </div>
-            </div>
-            
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm mb-1" style={{color: 'var(--text-secondary)'}}>Current Value</p>
-                  <p className="text-2xl font-bold" style={{color: 'var(--text-primary)'}}>
-                    {formatCurrency(collectionStats.currentValue)}
-                  </p>
-                </div>
-                <TrendingDown className="w-8 h-8" style={{color: 'var(--warning)'}} />
-              </div>
-            </div>
-            
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm mb-1" style={{color: 'var(--text-secondary)'}}>Depreciation</p>
-                  <p className="text-2xl font-bold" style={{color: 'var(--error)'}}>
-                    -{formatCurrency(Math.abs(collectionStats.depreciation))}
-                  </p>
-                </div>
-                <AlertCircle className="w-8 h-8" style={{color: 'var(--error)'}} />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Gear Grid/List - the actual content, reduced spacing */}
+        <div className="pb-6">
 
         {/* Category Filter Section */}
         <div className="mb-8">
