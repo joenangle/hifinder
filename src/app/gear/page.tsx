@@ -30,8 +30,10 @@ import {
   Layers,
   Edit2,
   Trash2,
-  Plus as PlusIcon
+  Plus as PlusIcon,
+  MoreVertical
 } from 'lucide-react'
+import { OverflowMenu } from '@/components/ui/OverflowMenu'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
@@ -482,63 +484,115 @@ function GearContent() {
     <div className="min-h-screen" style={{backgroundColor: 'var(--background-primary)', color: 'var(--text-primary)'}}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-4 mb-2">
-              <Link href="/" className="text-secondary hover:text-primary transition-colors">
+        <div className="mb-6">
+          {/* Mobile Layout */}
+          <div className="sm:hidden">
+            {/* Mobile Title Row */}
+            <div className="text-center mb-4">
+              <h1 className="heading-1" style={{color: 'var(--text-primary)'}}>My Gear</h1>
+            </div>
+            
+            {/* Mobile Navigation Row */}
+            <div className="flex items-center justify-between">
+              {/* Back Arrow - Left Side */}
+              <Link href="/" className="text-secondary hover:text-primary transition-colors flex items-center justify-center">
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              
+              {/* Mobile Actions - Right Side */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="button button-primary flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Gear
+                </button>
+                <OverflowMenu
+                  items={[
+                {
+                  id: 'export',
+                  label: 'Export Collection',
+                  icon: Download,
+                  onClick: exportCollection
+                },
+                {
+                  id: 'grid-view',
+                  label: 'Grid View',
+                  icon: Grid3X3,
+                  onClick: () => setViewMode('grid')
+                },
+                {
+                  id: 'list-view',
+                  label: 'List View',
+                  icon: List,
+                  onClick: () => setViewMode('list')
+                },
+                {
+                  id: 'stacks-view',
+                  label: 'Stacks View',
+                  icon: Layers,
+                  onClick: () => setViewMode('stacks')
+                }
+              ]}
+            />
+            </div>
+          </div>
+          
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="text-secondary hover:text-primary transition-colors flex items-center justify-center">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <h1 className="heading-1" style={{color: 'var(--text-primary)'}}>My Gear</h1>
             </div>
-            <p style={{color: 'var(--text-secondary)'}}>
-              {gear.length} {gear.length === 1 ? 'item' : 'items'} in your collection
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={exportCollection}
-              className="p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors"
-              title="Export Collection"
-            >
-              <Download className="w-5 h-5" />
-            </button>
-            <div className="flex rounded-md overflow-hidden bg-secondary">
+            
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                title="Grid View"
+                onClick={exportCollection}
+                className="p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors"
+                title="Export Collection"
               >
-                <Grid3X3 className="w-5 h-5" />
+                <Download className="w-5 h-5" />
               </button>
+              <div className="flex rounded-md overflow-hidden bg-secondary">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
+                  title="Grid View"
+                >
+                  <Grid3X3 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
+                  title="List View"
+                >
+                  <List className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('stacks')}
+                  className={`p-2 transition-colors ${viewMode === 'stacks' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
+                  title="Stacks View"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
+              </div>
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                title="List View"
+                onClick={() => setShowAddModal(true)}
+                className="button button-primary flex items-center gap-2"
               >
-                <List className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('stacks')}
-                className={`p-2 transition-colors ${viewMode === 'stacks' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                title="Stacks View"
-              >
-                <Layers className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
+                Add Gear
               </button>
             </div>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="button button-primary flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Gear
-            </button>
           </div>
         </div>
 
         {/* Stats Cards */}
         {collectionStats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="card p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -1885,6 +1939,7 @@ function GearContent() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
