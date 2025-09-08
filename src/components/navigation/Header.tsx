@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { Logo } from './Logo'
 import { DesktopNav } from './DesktopNav'
@@ -13,6 +13,7 @@ import { MobileMenu } from './MobileMenu'
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
   const { data: session } = useSession()
 
   // Handle scroll effect
@@ -61,6 +62,7 @@ export function Header() {
 
               {/* Mobile Menu Button */}
               <MobileMenuButton
+                ref={mobileMenuButtonRef}
                 isOpen={isMobileMenuOpen}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               />
@@ -73,6 +75,7 @@ export function Header() {
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        buttonRef={mobileMenuButtonRef}
       />
     </>
   )

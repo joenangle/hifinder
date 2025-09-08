@@ -1,5 +1,6 @@
 'use client'
 
+import { forwardRef } from 'react'
 import { Menu, X } from 'lucide-react'
 
 interface MobileMenuButtonProps {
@@ -7,9 +8,11 @@ interface MobileMenuButtonProps {
   onClick: () => void
 }
 
-export function MobileMenuButton({ isOpen, onClick }: MobileMenuButtonProps) {
+export const MobileMenuButton = forwardRef<HTMLButtonElement, MobileMenuButtonProps>(
+  function MobileMenuButton({ isOpen, onClick }, ref) {
   return (
     <button
+      ref={ref}
       onClick={onClick}
       className="md:hidden p-2 rounded-lg bg-surface-hover hover:bg-surface-elevated transition-colors"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
@@ -29,4 +32,4 @@ export function MobileMenuButton({ isOpen, onClick }: MobileMenuButtonProps) {
       </div>
     </button>
   )
-}
+})

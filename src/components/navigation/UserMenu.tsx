@@ -7,11 +7,8 @@ import { User, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const userMenuItems = [
-  { href: '/gear', label: 'My Gear' },
-  { href: '/wishlist', label: 'My Wishlist' },
-  { href: '/alerts', label: 'Price Alerts' },
-]
+// User menu now only contains account-related actions
+// Page navigation moved to hamburger menu
 
 export function UserMenu() {
   const { data: session } = useSession()
@@ -107,19 +104,8 @@ export function UserMenu() {
               </p>
             </div>
 
-            {/* Menu Items */}
+            {/* Account Actions */}
             <div className="py-2">
-              {userMenuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              
               <button
                 onClick={() => {
                   setIsOpen(false)
