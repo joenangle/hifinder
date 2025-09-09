@@ -28,6 +28,7 @@ import {
   Speaker,
   Cable,
   Layers,
+  Edit,
   Edit2,
   Trash2,
   Plus as PlusIcon,
@@ -188,6 +189,35 @@ function getGearCategory(item: UserGearItem): CategoryFilter {
   return ['headphones', 'iems', 'dacs', 'amps', 'combo'].includes(mappedCategory) 
     ? mappedCategory as CategoryFilter 
     : 'headphones'
+}
+
+// Helper function to calculate current value of gear item
+function calculateCurrentValue(item: UserGearItem): number {
+  if (item.components?.price_used_min && item.components?.price_used_max) {
+    return (item.components.price_used_min + item.components.price_used_max) / 2
+  }
+  if (item.components?.price_new) {
+    return item.components.price_new * 0.7 // 70% of new price
+  }
+  return item.purchase_price || 0
+}
+
+// Helper function to get category icon
+function getCategoryIcon(category: string) {
+  switch (category) {
+    case 'headphones':
+      return <Headphones className="w-5 h-5" />
+    case 'iems':
+      return <Headphones className="w-5 h-5" />
+    case 'dacs':
+      return <Cpu className="w-5 h-5" />
+    case 'amps':
+      return <Speaker className="w-5 h-5" />
+    case 'combo':
+      return <Speaker className="w-5 h-5" />
+    default:
+      return <Headphones className="w-5 h-5" />
+  }
 }
 
 function GearContent() {
@@ -401,6 +431,22 @@ function GearContent() {
     }
   }
 
+  const handleCreateStack = async () => {
+    if (!session?.user?.id || !newStackName.trim()) return
+    
+    const success = await createStack(session.user.id, {
+      name: newStackName.trim(),
+      description: newStackDescription.trim() || undefined
+    })
+    
+    if (success) {
+      await loadData()
+      setShowCreateStackModal(false)
+      setNewStackName('')
+      setNewStackDescription('')
+    }
+  }
+
   const resetAddForm = () => {
     setSearchQuery('')
     setSearchResults([])
@@ -502,16 +548,11 @@ function GearContent() {
           currentValue: collectionStats?.currentValue || 0,
           depreciation: collectionStats?.depreciation || 0
         }}
-        viewMode={viewMode}
-        onAddGear={() => setShowAddModal(true)}
-        onExport={exportCollection}
-        onViewModeChange={setViewMode}
       />
       
-      {/* Main Content Area - starts immediately, no wasted space */}
-      <div className="max-w-7xl mx-auto px-4 lg:px-6">
-        {/* Filters Section - minimal top padding */}
-        <div className="pt-4 pb-3">
+      {/* Filters Section - sticky below header, full width */}
+      <div className="sticky top-[120px] z-10 border-b border-border-default" style={{backgroundColor: 'var(--background-primary)'}}>
+        <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
             onCategoryChange={(category) => {
@@ -522,150 +563,18 @@ function GearContent() {
               }
             }}
             categoryCounts={categoryCounts}
+            onAddGear={() => setShowAddModal(true)}
+            onExport={exportCollection}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
           />
         </div>
+      </div>
 
-        {/* Gear Grid/List - the actual content, reduced spacing */}
-        <div className="pb-6">
-
-        {/* Category Filter Section */}
-        <div className="mb-8">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-lg font-semibold" style={{color: 'var(--text-primary)'}}>
-                  Filter by Category
-                </h3>
-                <p className="text-sm" style={{color: 'var(--text-secondary)'}}>
-                  Browse your gear by type or view everything at once
-                </p>
-              </div>
-              <div className="text-sm" style={{color: 'var(--text-tertiary)'}}>
-                {activeFilters.size === 0 ? `${gear.length} total items` : 
-                  `${gear.filter(item => activeFilters.has(getGearCategory(item))).length} of ${gear.length} items`}
-              </div>
-            </div>
-          </div>
-          <div 
-            className="p-4 rounded-lg border"
-            style={{
-              backgroundColor: 'var(--background-tertiary)',
-              borderColor: 'var(--border-default)'
-            }}
-          >
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(CATEGORIES).map(([key, config]) => {
-                if (key === 'all') {
-                  const allCategories: CategoryFilter[] = ['headphones', 'iems', 'dacs', 'amps', 'combo']
-                  const allActive = allCategories.every(cat => activeFilters.has(cat))
-                  const isActive = activeFilters.size === 0 || allActive
-                  
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => {
-                        // Always turn all categories on when "All" is clicked
-                        setActiveFilters(new Set(allCategories))
-                      }}
-                      className={`
-                        flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all border-2
-                        ${isActive 
-                          ? 'text-white border-transparent shadow-md' 
-                          : 'text-secondary hover:text-primary border-transparent hover:border-accent/20'
-                        }
-                      `}
-                      style={{
-                        backgroundColor: isActive ? 'var(--accent-primary)' : 'var(--background-primary)',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.borderColor = 'var(--accent-primary)'
-                          e.currentTarget.style.transform = 'translateY(-1px)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.borderColor = 'transparent'
-                          e.currentTarget.style.transform = 'translateY(0)'
-                        }
-                      }}
-                      title={`View all items (${gear.length} items)`}
-                    >
-                      <config.icon className="w-4 h-4" />
-                      <span>{config.label}</span>
-                      <span 
-                        className="text-xs px-2 py-1 rounded-full font-semibold min-w-[24px] text-center"
-                        style={{
-                          backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)',
-                          color: isActive ? 'white' : 'white'
-                        }}
-                      >
-                        {gear.length}
-                      </span>
-                    </button>
-                  )
-                }
-                
-                // Regular category filters
-                const IconComponent = config.icon
-                const isActive = activeFilters.has(key as CategoryFilter)
-                const categoryGear = gear.filter(item => getGearCategory(item) === key as CategoryFilter)
-                
-                return (
-                  <button
-                    key={key}
-                    onClick={() => toggleFilter(key as CategoryFilter)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all border-2
-                      ${isActive 
-                        ? 'text-white border-transparent shadow-md' 
-                        : 'text-secondary hover:text-primary border-transparent hover:border-accent/20'
-                      }
-                    `}
-                    style={{
-                      backgroundColor: isActive ? 'var(--accent-primary)' : 'var(--background-primary)',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.borderColor = 'var(--accent-primary)'
-                        e.currentTarget.style.transform = 'translateY(-1px)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.borderColor = 'transparent'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                      }
-                    }}
-                    title={`Toggle ${config.label.toLowerCase()} (${categoryGear.length} items)`}
-                  >
-                    <IconComponent className="w-4 h-4" />
-                    <span>{config.label}</span>
-                    <span 
-                      className="text-xs px-2 py-1 rounded-full font-semibold min-w-[24px] text-center"
-                      style={{
-                        backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)',
-                        color: isActive ? 'white' : 'white'
-                      }}
-                    >
-                      {categoryGear.length}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-            {/* Quick tip for first-time users */}
-            {gear.length > 0 && (
-              <div className="mt-3 pt-3 border-t" style={{borderColor: 'var(--border-light)'}}>
-                <p className="text-xs flex items-center gap-1" style={{color: 'var(--text-tertiary)'}}>
-                  <span className="w-1 h-1 rounded-full bg-current opacity-50"></span>
-                  Click any category to filter your gear collection
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto relative" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+        {/* Content Area - with padding from divider */}
+        <div className="pt-6 relative">
         {/* Gear Display - Grid/List/Stacks */}
         {(() => {
           // Handle different view modes
@@ -818,32 +727,36 @@ function GearContent() {
                       <h3 className="text-lg font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
                         Individual Gear ({filteredUngroupedGear.length})
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {filteredUngroupedGear.map(item => (
                           <div
                             key={item.id}
-                            className="card p-4 hover:shadow-lg transition-all cursor-pointer"
+                            className="card p-3 hover:shadow-lg transition-all cursor-pointer"
                             onClick={() => {
                               setSelectedGear(item)
                               setShowDetailsModal(true)
                             }}
                           >
                             <div className="text-center">
-                              <div className="w-12 h-12 mx-auto mb-2 bg-secondary rounded flex items-center justify-center">
+                              <div className="w-10 h-10 mx-auto mb-2 bg-secondary rounded flex items-center justify-center opacity-60">
                                 {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
                               </div>
-                              <div className="font-medium text-sm" style={{color: 'var(--text-primary)'}}>
+                              <div className="font-medium text-xs truncate" style={{color: 'var(--text-primary)'}}>
                                 {item.components?.brand || item.custom_brand}
                               </div>
-                              <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
+                              <div className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
                                 {item.components?.name || item.custom_name}
                               </div>
+                              {item.purchase_price && (
+                                <div className="text-xs font-semibold mt-1" style={{color: 'var(--accent-primary)'}}>
+                                  ${item.purchase_price}
+                                </div>
+                              )}
                             </div>
                           </div>
-                        ))
-                      }
+                        ))}
+                      </div>
                     </div>
-                  </div>
                   )
                 })()}
               </div>
@@ -875,10 +788,10 @@ function GearContent() {
               </button>
             </div>
           ) : (
-            <div className={viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
-              : 'space-y-4'
-            }>
+            <div className={`${viewMode === 'grid' 
+              ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3' 
+              : 'space-y-2'
+            }`}>
               {filteredGear.map(item => (
               <div
                 key={item.id}
@@ -890,29 +803,60 @@ function GearContent() {
               >
                 {viewMode === 'grid' ? (
                   <div>
-                    {/* Grid View */}
-                    <div className="aspect-square bg-secondary rounded-t-lg p-4 flex items-center justify-center">
+                    {/* Compact Grid View */}
+                    <div className="h-16 bg-secondary rounded-t-lg p-3 flex items-center justify-center">
                       {item.components?.image_url ? (
                         <Image
                           src={item.components.image_url}
                           alt={item.components.name}
-                          width={400}
-                          height={400}
+                          width={64}
+                          height={64}
                           className="w-full h-full object-contain"
                         />
                       ) : (
-                        getCategoryIcon(item.components?.category || item.custom_category || 'other')
+                        <div className="text-2xl opacity-60">
+                          {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
+                        </div>
                       )}
                     </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <h3 className="font-semibold mb-1" style={{color: 'var(--text-primary)'}}>
-                            {item.components?.brand || item.custom_brand}
-                          </h3>
-                          <p className="text-sm mb-2" style={{color: 'var(--text-secondary)'}}>
-                            {item.components?.name || item.custom_name}
-                          </p>
+                    <div className="p-3">
+                      <div className="mb-2">
+                        <h3 className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                          {item.components?.brand || item.custom_brand}
+                        </h3>
+                        <p className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
+                          {item.components?.name || item.custom_name}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-2">
+                        {item.purchase_price ? (
+                          <span className="text-sm font-semibold" style={{color: 'var(--accent-primary)'}}>
+                            ${item.purchase_price}
+                          </span>
+                        ) : (
+                          <span></span>
+                        )}
+                        {item.condition && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
+                            item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
+                            'bg-blue-500/20 text-blue-500'
+                          }`}>
+                            {item.condition}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs" style={{color: 'var(--text-secondary)'}}>
+                        <div className="truncate flex-1">
+                          {item.components?.impedance && (
+                            <span>{item.components.impedance}</span>
+                          )}
+                          {item.components?.impedance && item.purchase_date && <span> • </span>}
+                          {item.purchase_date && (
+                            <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                          )}
                         </div>
                         <button
                           onClick={(e) => {
@@ -920,104 +864,77 @@ function GearContent() {
                             setSelectedGear(item)
                             setShowEditModal(true)
                           }}
-                          className="px-2 py-2.5 rounded-md shadow-sm border transition-all hover:shadow-md group"
-                          style={{
-                            backgroundColor: 'var(--background-secondary)',
-                            borderColor: 'var(--border-default)',
-                            color: 'var(--text-secondary)'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--accent-primary)'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--border-default)'
-                          }}
+                          className="p-1 rounded hover:bg-secondary/20 transition-colors ml-2"
                           title="Edit gear"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <MoreVertical className="w-3 h-3" />
                         </button>
-                      </div>
-                      {item.purchase_price && (
-                        <p className="text-lg font-bold mb-2" style={{color: 'var(--accent-primary)'}}>
-                          {formatCurrency(item.purchase_price)}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          item.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
-                          item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
-                          'bg-blue-500/20 text-blue-500'
-                        }`}>
-                          {item.condition}
-                        </span>
-                        {item.is_loaned && (
-                          <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-500">
-                            Loaned
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between p-4">
-                    {/* List View */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-secondary rounded flex items-center justify-center">
-                        {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold" style={{color: 'var(--text-primary)'}}>
-                          {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm mt-1" style={{color: 'var(--text-secondary)'}}>
-                          {item.purchase_date && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(item.purchase_date).toLocaleDateString()}
-                            </span>
-                          )}
-                          {item.purchase_location && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {item.purchase_location}
-                            </span>
-                          )}
+                  <div className="flex items-center gap-3 p-3">
+                    {/* Compact List View */}
+                    <div className="flex-shrink-0">
+                      {item.components?.image_url ? (
+                        <div className="w-12 h-12 rounded bg-secondary overflow-hidden">
+                          <Image
+                            src={item.components.image_url}
+                            alt={item.components.name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-contain"
+                          />
                         </div>
+                      ) : (
+                        <div className="w-12 h-12 bg-secondary rounded flex items-center justify-center opacity-60">
+                          {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                        {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
+                      </h3>
+                      <div className="flex items-center gap-3 text-xs mt-1" style={{color: 'var(--text-secondary)'}}>
+                        {item.components?.impedance && (
+                          <span>{item.components.impedance}</span>
+                        )}
+                        {item.purchase_date && (
+                          <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+
+                    <div className="flex-shrink-0 text-right">
+                      <div className="flex items-center gap-2">
                         {item.purchase_price && (
-                          <p className="text-lg font-bold" style={{color: 'var(--text-primary)'}}>
-                            {formatCurrency(item.purchase_price)}
-                          </p>
+                          <span className="text-sm font-semibold" style={{color: 'var(--accent-primary)'}}>
+                            ${item.purchase_price}
+                          </span>
                         )}
-                        <p className="text-sm" style={{color: 'var(--text-secondary)'}}>
-                          {item.condition}
-                        </p>
+                        {item.condition && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
+                            item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
+                            'bg-blue-500/20 text-blue-500'
+                          }`}>
+                            {item.condition}
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedGear(item)
+                            setShowEditModal(true)
+                          }}
+                          className="p-1 rounded hover:bg-secondary/20 transition-colors"
+                          title="Edit gear"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedGear(item)
-                          setShowEditModal(true)
-                        }}
-                        className="px-3 py-2.5 rounded-md shadow-sm border transition-all hover:shadow-md group"
-                        style={{
-                          backgroundColor: 'var(--background-secondary)',
-                          borderColor: 'var(--border-default)',
-                          color: 'var(--text-secondary)'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--accent-primary)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--border-default)'
-                        }}
-                        title="Edit gear"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 )}
@@ -1026,6 +943,7 @@ function GearContent() {
             </div>
           )
         })()}
+        </div>
       </div>
 
       {/* Add Gear Modal */}
@@ -1282,7 +1200,7 @@ function GearContent() {
         </div>
       )}
 
-      {/* Gear Details Modal */}
+      {/* Enhanced Gear Details Modal */}
       {showDetailsModal && selectedGear && (
         <div 
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -1292,138 +1210,284 @@ function GearContent() {
           }}
         >
           <div 
-            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
+            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col border" 
             style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
-                  {selectedGear.components?.brand || selectedGear.custom_brand} {selectedGear.components?.name || selectedGear.custom_name}
-                </h2>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setShowDetailsModal(false)
-                      setShowEditModal(true)
-                      // selectedGear is already set
-                    }}
-                    className="px-3 py-2.5 rounded-md shadow-sm border transition-all hover:shadow-md flex items-center gap-2 group"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-secondary)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--accent-primary)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-default)'
-                    }}
-                    title="Edit this gear"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">Edit</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDetailsModal(false)
-                      setSelectedGear(null)
-                    }}
-                    className="text-secondary hover:text-primary transition-colors p-1"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            {/* Compact Header */}
+            <div className="p-4 border-b flex items-center justify-between" 
+                 style={{borderColor: 'var(--border-default)'}}>
+              <div className="flex items-center gap-3">
+                {/* Small icon/image */}
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center"
+                     style={{backgroundColor: 'var(--background-secondary)'}}>
+                  {selectedGear.components?.image_url ? (
+                    <Image
+                      src={selectedGear.components.image_url}
+                      alt={selectedGear.components?.name || 'Gear item'}
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
+                  ) : (
+                    getCategoryIcon(getGearCategory(selectedGear))
+                  )}
                 </div>
+                
+                {/* Title */}
+                <div>
+                  <h2 className="text-lg font-bold" style={{color: 'var(--text-primary)'}}>
+                    {selectedGear.components?.brand || selectedGear.custom_brand} {selectedGear.components?.name || selectedGear.custom_name}
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase font-medium" style={{color: 'var(--text-secondary)'}}>
+                      {getGearCategory(selectedGear)}
+                    </span>
+                    {selectedGear.condition && (
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        selectedGear.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
+                        selectedGear.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
+                        'bg-blue-500/20 text-blue-500'
+                      }`}>
+                        {selectedGear.condition}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false)
+                    setShowEditModal(true)
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-secondary"
+                  style={{
+                    backgroundColor: 'var(--background-secondary)',
+                    color: 'var(--text-secondary)'
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false)
+                    setSelectedGear(null)
+                  }}
+                  className="p-1.5 rounded-lg transition-colors hover:bg-secondary"
+                  style={{color: 'var(--text-secondary)'}}
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            <div className="p-6">
-              {/* Component Details */}
-              {selectedGear.components && (
-                <div className="mb-6">
-                  <h3 className="font-semibold mb-3" style={{color: 'var(--text-primary)'}}>Specifications</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span style={{color: 'var(--text-secondary)'}}>Category: </span>
-                      <span className="capitalize" style={{color: 'var(--text-primary)'}}>{selectedGear.components.category}</span>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Value Tracking - Fixed for dark mode */}
+              {selectedGear.purchase_price && (
+                <div className="rounded-lg p-4 border" 
+                     style={{
+                       backgroundColor: 'var(--background-secondary)',
+                       borderColor: 'var(--border-default)'
+                     }}>
+                  <h3 className="font-semibold mb-3 text-sm" style={{color: 'var(--text-primary)'}}>
+                    Value Tracking
+                  </h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <p className="text-xs mb-1" style={{color: 'var(--text-secondary)'}}>
+                        Purchase Price
+                      </p>
+                      <p className="text-lg font-bold" style={{color: 'var(--text-primary)'}}>
+                        ${selectedGear.purchase_price}
+                      </p>
                     </div>
-                    {selectedGear.components.impedance && (
+                    <div className="text-center">
+                      <p className="text-xs mb-1" style={{color: 'var(--text-secondary)'}}>
+                        Current Value
+                      </p>
+                      <p className="text-lg font-bold" style={{color: 'var(--accent-primary)'}}>
+                        ${Math.round(calculateCurrentValue(selectedGear))}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs mb-1" style={{color: 'var(--text-secondary)'}}>
+                        Change
+                      </p>
+                      {(() => {
+                        const purchasePrice = selectedGear.purchase_price || 0
+                        const currentValue = calculateCurrentValue(selectedGear)
+                        const change = currentValue - purchasePrice
+                        const changePercent = purchasePrice > 0 ? (change / purchasePrice) * 100 : 0
+                        return (
+                          <div>
+                            <p className={`text-lg font-bold ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {change >= 0 ? '+' : ''}${Math.round(change)}
+                            </p>
+                            <p className={`text-xs ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {purchasePrice > 0 ? `${change >= 0 ? '+' : ''}${changePercent.toFixed(1)}%` : ''}
+                            </p>
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Purchase Information - Compact */}
+              <div className="rounded-lg p-4 border" 
+                   style={{
+                     backgroundColor: 'var(--background-secondary)',
+                     borderColor: 'var(--border-default)'
+                   }}>
+                <h3 className="font-semibold mb-3 text-sm" style={{color: 'var(--text-primary)'}}>
+                  Purchase Information
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {selectedGear.purchase_date && (
+                    <div>
+                      <p style={{color: 'var(--text-secondary)'}}>Purchase Date</p>
+                      <p style={{color: 'var(--text-primary)'}}>
+                        {new Date(selectedGear.purchase_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                  {selectedGear.purchase_location && (
+                    <div>
+                      <p style={{color: 'var(--text-secondary)'}}>Purchase Location</p>
+                      <p style={{color: 'var(--text-primary)'}}>{selectedGear.purchase_location}</p>
+                    </div>
+                  )}
+                  {selectedGear.condition && (
+                    <div>
+                      <p style={{color: 'var(--text-secondary)'}}>Condition</p>
+                      <p style={{color: 'var(--text-primary)'}} className="capitalize">
+                        {selectedGear.condition}
+                      </p>
+                    </div>
+                  )}
+                  {selectedGear.serial_number && (
+                    <div>
+                      <p style={{color: 'var(--text-secondary)'}}>Serial Number</p>
+                      <p style={{color: 'var(--text-primary)'}}>{selectedGear.serial_number}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Specifications if available */}
+              {selectedGear.components && (
+                <div className="rounded-lg p-4 border" 
+                     style={{
+                       backgroundColor: 'var(--background-secondary)',
+                       borderColor: 'var(--border-default)'
+                     }}>
+                  <h3 className="font-semibold mb-3 text-sm" style={{color: 'var(--text-primary)'}}>
+                    Specifications
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {selectedGear.components.price_new && (
                       <div>
-                        <span style={{color: 'var(--text-secondary)'}}>Impedance: </span>
-                        <span style={{color: 'var(--text-primary)'}}>{selectedGear.components.impedance}Ω</span>
+                        <p style={{color: 'var(--text-secondary)'}}>MSRP</p>
+                        <p style={{color: 'var(--text-primary)'}}>
+                          ${selectedGear.components.price_new}
+                        </p>
                       </div>
                     )}
-                    {selectedGear.components.budget_tier && (
+                    {selectedGear.components.impedance && (
                       <div>
-                        <span style={{color: 'var(--text-secondary)'}}>Budget Tier: </span>
-                        <span className="capitalize" style={{color: 'var(--text-primary)'}}>{selectedGear.components.budget_tier}</span>
+                        <p style={{color: 'var(--text-secondary)'}}>Impedance</p>
+                        <p style={{color: 'var(--text-primary)'}}>
+                          {selectedGear.components.impedance}Ω
+                        </p>
                       </div>
                     )}
                     {selectedGear.components.sound_signature && (
                       <div>
-                        <span style={{color: 'var(--text-secondary)'}}>Sound: </span>
-                        <span className="capitalize" style={{color: 'var(--text-primary)'}}>{selectedGear.components.sound_signature}</span>
+                        <p style={{color: 'var(--text-secondary)'}}>Sound Signature</p>
+                        <p style={{color: 'var(--text-primary)'}} className="capitalize">
+                          {selectedGear.components.sound_signature}
+                        </p>
+                      </div>
+                    )}
+                    {selectedGear.components.budget_tier && (
+                      <div>
+                        <p style={{color: 'var(--text-secondary)'}}>Budget Tier</p>
+                        <p style={{color: 'var(--text-primary)'}} className="capitalize">
+                          {selectedGear.components.budget_tier}
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Purchase Details */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3" style={{color: 'var(--text-primary)'}}>Purchase Information</h3>
-                <div className="space-y-2 text-sm">
-                  {selectedGear.purchase_date && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-                      <span style={{color: 'var(--text-primary)'}}>
-                        Purchased on {new Date(selectedGear.purchase_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                  {selectedGear.purchase_price && (
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-                      <span style={{color: 'var(--text-primary)'}}>
-                        Paid {formatCurrency(selectedGear.purchase_price)}
-                      </span>
-                    </div>
-                  )}
-                  {selectedGear.purchase_location && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-                      <span style={{color: 'var(--text-primary)'}}>{selectedGear.purchase_location}</span>
-                    </div>
-                  )}
-                  {selectedGear.notes && (
-                    <div className="flex items-start gap-2">
-                      <FileText className="w-4 h-4 mt-0.5" style={{color: 'var(--text-secondary)'}} />
-                      <span style={{color: 'var(--text-primary)'}}>{selectedGear.notes}</span>
-                    </div>
-                  )}
+              {/* Notes if available */}
+              {selectedGear.notes && (
+                <div className="rounded-lg p-4 border" 
+                     style={{
+                       backgroundColor: 'var(--background-secondary)',
+                       borderColor: 'var(--border-default)'
+                     }}>
+                  <h3 className="font-semibold mb-2 text-sm" style={{color: 'var(--text-primary)'}}>
+                    Notes
+                  </h3>
+                  <p className="text-sm" style={{color: 'var(--text-secondary)'}}>
+                    {selectedGear.notes}
+                  </p>
                 </div>
-              </div>
+              )}
 
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
+              {/* Why Recommended if available */}
+              {selectedGear.components?.why_recommended && (
+                <div className="rounded-lg p-4 border" 
+                     style={{
+                       backgroundColor: 'var(--background-secondary)',
+                       borderColor: 'var(--border-default)'
+                     }}>
+                  <h3 className="font-semibold mb-2 text-sm" style={{color: 'var(--text-primary)'}}>
+                    Why It's Recommended
+                  </h3>
+                  <p className="text-sm" style={{color: 'var(--text-secondary)'}}>
+                    {selectedGear.components.why_recommended}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="p-4 border-t flex gap-3" 
+                 style={{borderColor: 'var(--border-default)'}}>
+              <button
+                onClick={() => {
+                  if (confirm('Remove this item from your collection?')) {
                     handleRemoveGear(selectedGear.id)
                     setShowDetailsModal(false)
                     setSelectedGear(null)
-                  }}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Remove from Collection
-                </button>
-                <Link
-                  href={`/used-market?search=${selectedGear.components?.brand} ${selectedGear.components?.name}`}
-                  className="button button-primary flex-1 text-center"
-                >
-                  Find on Used Market
-                </Link>
-              </div>
+                  }
+                }}
+                className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors border"
+                style={{
+                  borderColor: 'var(--border-default)',
+                  color: 'var(--text-secondary)'
+                }}
+              >
+                Remove from Collection
+              </button>
+              <Link
+                href={`/used-market?search=${encodeURIComponent((selectedGear.components?.brand || selectedGear.custom_brand || '') + ' ' + (selectedGear.components?.name || selectedGear.custom_name || ''))}`}
+                className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-center"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'white'
+                }}
+              >
+                Find on Used Market
+              </Link>
             </div>
           </div>
         </div>
@@ -1440,12 +1504,12 @@ function GearContent() {
           }}
         >
           <div 
-            className="rounded-lg shadow-xl max-w-md w-full p-6"
-            style={{backgroundColor: 'var(--background-primary)'}}
+            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
+            style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold" style={{color: 'var(--text-primary)'}}>
+            <div className="flex items-center justify-between p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
+              <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
                 Create New Stack
               </h2>
               <button
@@ -1486,9 +1550,8 @@ function GearContent() {
                 <textarea
                   value={newStackDescription}
                   onChange={(e) => setNewStackDescription(e.target.value)}
-                  placeholder="Brief description of this setup..."
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-md border text-sm resize-none"
+                  placeholder="Describe your stack..."
+                  className="w-full px-3 py-2 rounded-md border text-sm h-20 resize-vertical"
                   style={{
                     backgroundColor: 'var(--background-secondary)',
                     borderColor: 'var(--border-default)',
@@ -1498,50 +1561,26 @@ function GearContent() {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex justify-end gap-3 p-6 border-t" style={{borderColor: 'var(--border-default)'}}>
               <button
                 onClick={() => {
                   setShowCreateStackModal(false)
                   setNewStackName('')
                   setNewStackDescription('')
                 }}
-                className="flex-1 px-4 py-2 rounded-md border font-medium transition-colors"
+                className="px-4 py-2 text-sm font-medium rounded-md transition-colors"
                 style={{
-                  borderColor: 'var(--border-default)',
-                  color: 'var(--text-secondary)',
-                  backgroundColor: 'var(--background-secondary)'
+                  backgroundColor: 'var(--background-secondary)',
+                  color: 'var(--text-secondary)'
                 }}
               >
                 Cancel
               </button>
               <button
-                onClick={async () => {
-                  if (!newStackName.trim()) {
-                    alert('Please enter a stack name')
-                    return
-                  }
-                  
-                  if (!session?.user?.id) return
-                  
-                  const stack = await createStack(
-                    session.user.id,
-                    newStackName.trim(),
-                    newStackDescription.trim() || undefined
-                  )
-                  
-                  if (stack) {
-                    setShowCreateStackModal(false)
-                    setNewStackName('')
-                    setNewStackDescription('')
-                    loadData()
-                  }
-                }}
+                onClick={handleCreateStack}
                 disabled={!newStackName.trim()}
-                className="flex-1 px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
-                style={{
-                  backgroundColor: 'var(--accent-primary)',
-                  color: 'white'
-                }}
+                className="px-4 py-2 text-sm font-medium text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{backgroundColor: 'var(--accent-primary)'}}
               >
                 Create Stack
               </button>
@@ -1553,285 +1592,28 @@ function GearContent() {
       {/* Edit Gear Modal */}
       {showEditModal && selectedGear && (
         <div 
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowEditModal(false)
-              setSelectedGear(null)
-            }
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowEditModal(false)
+            setSelectedGear(null)
           }}
         >
           <div 
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg p-6 shadow-2xl border"
-            style={{
-              backgroundColor: 'var(--background-primary)',
-              borderColor: 'var(--border-default)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)'
-            }}
+            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
+            style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
-                Edit Item
-              </h2>
-              <button
-                onClick={() => {
-                  setShowEditModal(false)
-                  setSelectedGear(null)
-                }}
-                className="p-1 rounded text-secondary hover:text-primary"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Name and Brand (for custom items) */}
-              {!selectedGear.component_id && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                      Brand
-                    </label>
-                    <BrandCombobox
-                      value={editFormData.custom_brand}
-                      onChange={(value) => setEditFormData(prev => ({...prev, custom_brand: value}))}
-                      availableBrands={availableBrands}
-                      placeholder="Search existing brands or enter new..."
-                      className="w-full px-3 py-2 rounded-md border text-sm"
-                      style={{
-                        backgroundColor: 'var(--background-secondary)',
-                        borderColor: 'var(--border-default)',
-                        color: 'var(--text-primary)'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.custom_name}
-                      onChange={(e) => setEditFormData(prev => ({...prev, custom_name: e.target.value}))}
-                      className="w-full px-3 py-2 rounded-md border text-sm"
-                      style={{
-                        backgroundColor: 'var(--background-secondary)',
-                        borderColor: 'var(--border-default)',
-                        color: 'var(--text-primary)'
-                      }}
-                      placeholder="Enter product name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                      Category
-                    </label>
-                    <select
-                      value={editFormData.custom_category}
-                      onChange={(e) => setEditFormData(prev => ({...prev, custom_category: e.target.value}))}
-                      className="w-full px-3 py-2 rounded-md border text-sm"
-                      style={{
-                        backgroundColor: 'var(--background-secondary)',
-                        borderColor: 'var(--border-default)',
-                        color: 'var(--text-primary)'
-                      }}
-                    >
-                      <option value="">Select category</option>
-                      <option value="headphones">Headphones</option>
-                      <option value="iems">IEMs</option>
-                      <option value="dacs">DACs</option>
-                      <option value="amps">Amplifiers</option>
-                      <option value="combo">Combos</option>
-                    </select>
-                  </div>
-                </>
-              )}
-
-              {/* Purchase Details */}
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Purchase Date
-                </label>
-                <input
-                  type="date"
-                  value={editFormData.purchase_date}
-                  onChange={(e) => setEditFormData(prev => ({...prev, purchase_date: e.target.value}))}
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Purchase Price ($)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editFormData.purchase_price}
-                  onChange={(e) => setEditFormData(prev => ({...prev, purchase_price: e.target.value}))}
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Purchase Location
-                </label>
-                <input
-                  type="text"
-                  value={editFormData.purchase_location}
-                  onChange={(e) => setEditFormData(prev => ({...prev, purchase_location: e.target.value}))}
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                  placeholder="Amazon, Head-Fi, local store..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Condition
-                </label>
-                <select
-                  value={editFormData.condition}
-                  onChange={(e) => setEditFormData(prev => ({...prev, condition: e.target.value as 'new' | 'used' | 'refurbished' | 'b-stock'}))}
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                >
-                  <option value="new">New</option>
-                  <option value="used">Used</option>
-                  <option value="refurbished">Refurbished</option>
-                  <option value="b-stock">B-Stock</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Serial Number
-                </label>
-                <input
-                  type="text"
-                  value={editFormData.serial_number}
-                  onChange={(e) => setEditFormData(prev => ({...prev, serial_number: e.target.value}))}
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                  placeholder="Optional"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{color: 'var(--text-primary)'}}>
-                  Notes
-                </label>
-                <textarea
-                  value={editFormData.notes}
-                  onChange={(e) => setEditFormData(prev => ({...prev, notes: e.target.value}))}
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-md border text-sm resize-none"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
-                  placeholder="Any additional notes about this item..."
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowEditModal(false)
-                  setSelectedGear(null)
-                }}
-                className="flex-1 px-4 py-2 rounded-md border font-medium transition-colors"
-                style={{
-                  borderColor: 'var(--border-default)',
-                  color: 'var(--text-secondary)',
-                  backgroundColor: 'var(--background-secondary)'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  if (!session?.user?.id || !selectedGear) return
-                  
-                  const updates: Partial<UserGearItem> = {}
-                  
-                  if (editFormData.purchase_date) updates.purchase_date = editFormData.purchase_date
-                  if (editFormData.purchase_price) updates.purchase_price = parseFloat(editFormData.purchase_price)
-                  if (editFormData.purchase_location) updates.purchase_location = editFormData.purchase_location
-                  if (editFormData.condition) updates.condition = editFormData.condition
-                  if (editFormData.serial_number) updates.serial_number = editFormData.serial_number
-                  if (editFormData.notes) updates.notes = editFormData.notes
-                  
-                  // For custom items, also update name, brand, category
-                  if (!selectedGear.component_id) {
-                    if (editFormData.custom_name) updates.custom_name = editFormData.custom_name
-                    if (editFormData.custom_brand) updates.custom_brand = editFormData.custom_brand
-                    if (editFormData.custom_category) updates.custom_category = editFormData.custom_category
-                  }
-                  
-                  const success = await updateGearItem(session.user.id, selectedGear.id, updates)
-                  
-                  if (success) {
-                    setShowEditModal(false)
-                    setSelectedGear(null)
-                    loadData() // Refresh the gear list
-                  } else {
-                    alert('Failed to update gear item. Please try again.')
-                  }
-                }}
-                className="flex-1 px-4 py-2 rounded-md font-medium transition-colors"
-                style={{
-                  backgroundColor: 'var(--accent-primary)',
-                  color: 'white'
-                }}
-              >
-                Update Gear
-              </button>
+            {/* Edit Modal Content Will Go Here */}
+            <div className="p-6">
+              <p style={{color: 'var(--text-primary)'}}>Edit functionality coming soon...</p>
             </div>
           </div>
         </div>
       )}
-      </div>
     </div>
   )
 }
 
 export default function GearPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-      </div>
-    }>
-      <GearContent />
-    </Suspense>
-  )
+  return <GearContent />
 }

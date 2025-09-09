@@ -66,7 +66,7 @@ export function OverflowMenu({ items, className = '' }: OverflowMenuProps) {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors ${className}`}
+        className={`p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors flex items-center justify-center ${className}`}
         aria-expanded={isOpen}
         aria-haspopup="true"
         title="More options"

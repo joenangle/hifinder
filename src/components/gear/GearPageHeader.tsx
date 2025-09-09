@@ -1,8 +1,7 @@
 'use client'
 
-import { ArrowLeft, Plus, Download, Grid3X3, List, Layers } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { OverflowMenu } from '@/components/ui/OverflowMenu'
 
 interface GearStats {
   totalItems: number
@@ -13,19 +12,9 @@ interface GearStats {
 
 interface GearPageHeaderProps {
   stats: GearStats
-  viewMode: 'grid' | 'list' | 'stacks'
-  onAddGear: () => void
-  onExport: () => void
-  onViewModeChange: (mode: 'grid' | 'list' | 'stacks') => void
 }
 
-export function GearPageHeader({ 
-  stats, 
-  viewMode,
-  onAddGear, 
-  onExport, 
-  onViewModeChange 
-}: GearPageHeaderProps) {
+export function GearPageHeader({ stats }: GearPageHeaderProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -37,7 +26,7 @@ export function GearPageHeader({
 
   return (
     <div className="bg-background-primary border-b border-border-default sticky top-16 z-10">
-      <div className="max-w-7xl mx-auto px-4 lg:px-6">
+      <div className="max-w-7xl mx-auto" style={{paddingLeft: '24px', paddingRight: '24px'}}>
         <div className="h-14 flex items-center justify-between">
           {/* Left: Back Arrow + Title */}
           <div className="flex items-center gap-3">
@@ -76,87 +65,10 @@ export function GearPageHeader({
           </div>
           
           {/* Medium: Compressed Stats */}
-          <div className="hidden md:flex lg:hidden items-center text-sm" style={{color: 'var(--text-secondary)'}}>
+          <div className="flex lg:hidden items-center text-sm" style={{color: 'var(--text-secondary)'}}>
             <span>{stats.totalItems} items • {formatCurrency(stats.currentValue)}</span>
           </div>
           
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2">
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-2">
-              <button
-                onClick={onExport}
-                className="p-2 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors"
-                title="Export Collection"
-              >
-                <Download className="w-4 h-4" />
-              </button>
-              <div className="flex rounded-md overflow-hidden bg-secondary">
-                <button
-                  onClick={() => onViewModeChange('grid')}
-                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Grid View"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onViewModeChange('list')}
-                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="List View"
-                >
-                  <List className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onViewModeChange('stacks')}
-                  className={`p-2 transition-colors ${viewMode === 'stacks' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Stacks View"
-                >
-                  <Layers className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            {/* Add Button */}
-            <button
-              onClick={onAddGear}
-              className="flex items-center gap-2 px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors text-sm font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add Gear</span>
-            </button>
-            
-            {/* Mobile Overflow Menu */}
-            <div className="md:hidden">
-              <OverflowMenu
-                items={[
-                  {
-                    id: 'export',
-                    label: 'Export Collection',
-                    icon: Download,
-                    onClick: onExport
-                  },
-                  {
-                    id: 'grid-view',
-                    label: 'Grid View',
-                    icon: Grid3X3,
-                    onClick: () => onViewModeChange('grid')
-                  },
-                  {
-                    id: 'list-view',
-                    label: 'List View',
-                    icon: List,
-                    onClick: () => onViewModeChange('list')
-                  },
-                  {
-                    id: 'stacks-view',
-                    label: 'Stacks View',
-                    icon: Layers,
-                    onClick: () => onViewModeChange('stacks')
-                  }
-                ]}
-              />
-            </div>
-          </div>
         </div>
       </div>
     </div>

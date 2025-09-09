@@ -2,12 +2,60 @@
 
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { trackEvent } from '@/lib/analytics'
+import { getUserGear, calculateCollectionValue, UserGearItem } from '@/lib/gear'
+import { getUserStacks, StackWithGear } from '@/lib/stacks'
+import { getUserWishlist, WishlistItem } from '@/lib/wishlist'
 
 export function UserDashboard() {
   const { data: session } = useSession()
   
+  // State for gear data
+  const [gear, setGear] = useState<UserGearItem[]>([])
+  const [stacks, setStacks] = useState<StackWithGear[]>([])
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [collectionStats, setCollectionStats] = useState({
+    totalPaid: 0,
+    currentValue: 0,
+    depreciation: 0,
+    byCategory: {} as Record<string, { paid: number; current: number }>
+  })
+  
   const firstName = session?.user?.name?.split(' ')[0] || 'there'
+
+  // Fetch user data
+  useEffect(() => {
+    if (!session?.user?.id) return
+
+    const loadUserData = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch gear, stacks, and wishlist in parallel
+        const [gearItems, stackItems, wishlistItems] = await Promise.all([
+          getUserGear(session.user.id),
+          getUserStacks(session.user.id),
+          getUserWishlist(session.user.id)
+        ])
+        
+        setGear(gearItems)
+        setStacks(stackItems)
+        setWishlist(wishlistItems)
+        
+        // Calculate collection stats
+        const stats = await calculateCollectionValue(gearItems)
+        setCollectionStats(stats)
+      } catch (error) {
+        console.error('Error loading user data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUserData()
+  }, [session?.user?.id])
 
   return (
     <main className="page-container">
@@ -102,15 +150,26 @@ export function UserDashboard() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-surface/50 rounded-lg">
-                <div className="text-2xl font-bold text-accent mb-1">0</div>
+                <div className="text-2xl font-bold text-accent mb-1">
+                  {loading ? '—' : gear.length}
+                </div>
                 <div className="text-sm text-secondary">Components</div>
               </div>
               <div className="text-center p-4 bg-surface/50 rounded-lg">
-                <div className="text-2xl font-bold text-accent mb-1">$0</div>
-                <div className="text-sm text-secondary">Total Value</div>
+                <div className="text-2xl font-bold text-accent mb-1">
+                  {loading ? '—' : new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(collectionStats.currentValue)}
+                </div>
+                <div className="text-sm text-secondary">Current Value</div>
               </div>
               <div className="text-center p-4 bg-surface/50 rounded-lg">
-                <div className="text-2xl font-bold text-accent mb-1">0</div>
+                <div className="text-2xl font-bold text-accent mb-1">
+                  {loading ? '—' : stacks.length}
+                </div>
                 <div className="text-sm text-secondary">Stacks</div>
               </div>
             </div>
@@ -118,9 +177,9 @@ export function UserDashboard() {
               <Link 
                 href="/gear"
                 className="button button-primary"
-                onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'add_gear' } })}
+                onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'view_gear' : 'add_gear' } })}
               >
-                Add Your First Component
+                {loading ? 'Loading...' : gear.length > 0 ? 'View Collection' : 'Add Your First Component'}
               </Link>
             </div>
           </div>
@@ -187,7 +246,9 @@ export function UserDashboard() {
                 </div>
                 <div>
                   <h3 className="font-semibold">My Wishlist</h3>
-                  <p className="text-xs text-secondary">0 items</p>
+                  <p className="text-xs text-secondary">
+                    {loading ? '—' : wishlist.length} items
+                  </p>
                 </div>
               </div>
               <p className="text-sm text-secondary">

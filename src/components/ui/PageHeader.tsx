@@ -19,7 +19,7 @@ export function PageHeader({
   
   return (
     <div className={`bg-background-primary border-b border-border-default ${stickyClasses}`}>
-      <div className={`max-w-7xl mx-auto px-4 lg:px-6 ${className}`}>
+      <div className={`max-w-7xl mx-auto px-6 md:px-8 lg:px-12 ${className}`}>
         <div className="h-14 flex items-center justify-between">
           <h1 className="text-xl font-semibold" style={{color: 'var(--text-primary)'}}>
             {title}
