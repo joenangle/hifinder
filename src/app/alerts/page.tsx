@@ -30,8 +30,6 @@ function AlertsContent() {
   const [alertHistory, setAlertHistory] = useState<AlertHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [_showHistoryModal, _setShowHistoryModal] = useState(false)
-  const [_selectedAlert, _setSelectedAlert] = useState<PriceAlert | null>(null)
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active')
   
   // Create alert form state

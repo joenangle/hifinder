@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signIn } from 'next-auth/react'
-import { User } from 'lucide-react'
 
 const publicNavItems = [
   { href: '/', label: 'Home' },
@@ -23,7 +22,7 @@ const authNavItems = [
 interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
-  buttonRef: React.RefObject<HTMLButtonElement>
+  buttonRef: React.RefObject<HTMLButtonElement | null>
 }
 
 export function MobileMenu({ isOpen, onClose, buttonRef }: MobileMenuProps) {

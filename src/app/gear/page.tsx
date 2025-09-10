@@ -1,55 +1,33 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
+import { getUserGear, addGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
 import { getUserStacks, createStack, deleteStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
-  ArrowLeft, 
-  Plus, 
-  Grid3X3, 
-  List, 
   Package, 
-  DollarSign, 
-  TrendingDown,
   Search,
   X,
-  Calendar,
-  MapPin,
-  FileText,
-  Download,
-  AlertCircle,
   Headphones,
   Cpu,
   Speaker,
   Cable,
   Layers,
-  Edit,
   Edit2,
   Trash2,
   Plus as PlusIcon,
   MoreVertical
 } from 'lucide-react'
-import { OverflowMenu } from '@/components/ui/OverflowMenu'
 import { GearPageHeader } from '@/components/gear/GearPageHeader'
 import { GearFilters } from '@/components/gear/GearFilters'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
 
-// Category configurations with icons and labels
-const CATEGORIES = {
-  all: { label: 'All Gear', icon: Package },
-  headphones: { label: 'Headphones', icon: Headphones },
-  iems: { label: 'IEMs', icon: Headphones },
-  dacs: { label: 'DACs', icon: Cpu },
-  amps: { label: 'Amplifiers', icon: Speaker },
-  combo: { label: 'Combos', icon: Cpu }
-} as const
 
 // Brand Combobox Component
 interface BrandComboboxProps {
@@ -202,23 +180,22 @@ function calculateCurrentValue(item: UserGearItem): number {
   return item.purchase_price || 0
 }
 
-// Helper function to get category icon
+// Helper function to get the category icon
 function getCategoryIcon(category: string) {
   switch (category) {
     case 'headphones':
-      return <Headphones className="w-5 h-5" />
     case 'iems':
       return <Headphones className="w-5 h-5" />
     case 'dacs':
       return <Cpu className="w-5 h-5" />
     case 'amps':
-      return <Speaker className="w-5 h-5" />
     case 'combo':
       return <Speaker className="w-5 h-5" />
     default:
-      return <Headphones className="w-5 h-5" />
+      return <Cable className="w-5 h-5" />
   }
 }
+
 
 function GearContent() {
   const { data: session } = useSession()
@@ -235,32 +212,7 @@ function GearContent() {
   const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
-  
-  // Filter toggle function
-  const toggleFilter = (filter: CategoryFilter) => {
-    setActiveFilters(prev => {
-      const newFilters = new Set(prev)
-      if (newFilters.has(filter)) {
-        newFilters.delete(filter)
-      } else {
-        newFilters.add(filter)
-      }
-      return newFilters
-    })
-  }
 
-  // Edit gear form state
-  const [editFormData, setEditFormData] = useState({
-    purchase_date: '',
-    purchase_price: '',
-    purchase_location: '',
-    condition: 'used' as 'new' | 'used' | 'refurbished' | 'b-stock',
-    serial_number: '',
-    notes: '',
-    custom_name: '',
-    custom_brand: '',
-    custom_category: ''
-  })
   
   // Add gear form state
   const [searchQuery, setSearchQuery] = useState('')
@@ -308,22 +260,6 @@ function GearContent() {
     }
   }, [session?.user?.id, loadData])
 
-  // Populate edit form when gear is selected for editing
-  useEffect(() => {
-    if (selectedGear && showEditModal) {
-      setEditFormData({
-        purchase_date: selectedGear.purchase_date || '',
-        purchase_price: selectedGear.purchase_price?.toString() || '',
-        purchase_location: selectedGear.purchase_location || '',
-        condition: selectedGear.condition || 'used',
-        serial_number: selectedGear.serial_number || '',
-        notes: selectedGear.notes || '',
-        custom_name: selectedGear.custom_name || '',
-        custom_brand: selectedGear.custom_brand || '',
-        custom_category: selectedGear.custom_category || ''
-      })
-    }
-  }, [selectedGear, showEditModal])
 
   // Load available brands on mount
   useEffect(() => {
@@ -434,10 +370,11 @@ function GearContent() {
   const handleCreateStack = async () => {
     if (!session?.user?.id || !newStackName.trim()) return
     
-    const success = await createStack(session.user.id, {
-      name: newStackName.trim(),
-      description: newStackDescription.trim() || undefined
-    })
+    const success = await createStack(
+      session.user.id, 
+      newStackName.trim(),
+      newStackDescription.trim() || undefined
+    )
     
     if (success) {
       await loadData()
@@ -488,15 +425,6 @@ function GearContent() {
     a.click()
   }
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'headphones': return <Headphones className="w-5 h-5" />
-      case 'dacs': return <Cpu className="w-5 h-5" />
-      case 'amps': 
-      case 'combo': return <Speaker className="w-5 h-5" />
-      default: return <Cable className="w-5 h-5" />
-    }
-  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -1450,7 +1378,7 @@ function GearContent() {
                        borderColor: 'var(--border-default)'
                      }}>
                   <h3 className="font-semibold mb-2 text-sm" style={{color: 'var(--text-primary)'}}>
-                    Why It's Recommended
+                    Why It&apos;s Recommended
                   </h3>
                   <p className="text-sm" style={{color: 'var(--text-secondary)'}}>
                     {selectedGear.components.why_recommended}

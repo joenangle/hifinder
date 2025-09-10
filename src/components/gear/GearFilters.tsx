@@ -1,6 +1,6 @@
 'use client'
 
-import { Headphones, Cpu, Speaker, Cable, Plus, Download, Grid3X3, List, Layers } from 'lucide-react'
+import { Headphones, Cpu, Speaker, Download, Grid3X3, List, Layers } from 'lucide-react'
 import { OverflowMenu } from '@/components/ui/OverflowMenu'
 
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'

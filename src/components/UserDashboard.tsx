@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react'
 import { trackEvent } from '@/lib/analytics'
 import { getUserGear, calculateCollectionValue, UserGearItem } from '@/lib/gear'
 import { getUserStacks, StackWithGear } from '@/lib/stacks'
-import { getUserWishlist, WishlistItem } from '@/lib/wishlist'
+import { getUserWishlist } from '@/lib/wishlist'
+import { WishlistItem } from '@/types/auth'
 
 export function UserDashboard() {
   const { data: session } = useSession()

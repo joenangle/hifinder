@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom'
 import { useSession, signOut } from 'next-auth/react'
 import { User, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 
 // User menu now only contains account-related actions
 // Page navigation moved to hamburger menu
