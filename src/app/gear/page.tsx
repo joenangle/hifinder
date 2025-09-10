@@ -284,14 +284,10 @@ function GearContent() {
       setGear(gearItems)
       setStacks(stackItems)
       
-      // Use stats from dashboard API
-      const stats: CollectionStats = {
-        totalItems: gearItems.length,
-        totalValue: totalValue,
-        categories: {},
-        avgItemValue: gearItems.length > 0 ? totalValue / gearItems.length : 0
+      // Use stats from dashboard API directly
+      if (dashboardData.collectionStats) {
+        setCollectionStats(dashboardData.collectionStats)
       }
-      setCollectionStats(stats)
       
     } catch (error) {
       console.error('Error loading data:', error)

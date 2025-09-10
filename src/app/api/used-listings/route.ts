@@ -33,15 +33,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Group by component_id if multiple were requested
-    if (component_ids) {
-      const grouped = (listings || []).reduce((acc, listing) => {
+    if (component_ids && listings) {
+      type ListingType = typeof listings[number]
+      const grouped = listings.reduce((acc, listing) => {
         const componentId = listing.component_id
         if (!acc[componentId]) {
           acc[componentId] = []
         }
         acc[componentId].push(listing)
         return acc
-      }, {} as Record<string, Array<typeof listing>>)
+      }, {} as Record<string, ListingType[]>)
       
       return NextResponse.json(grouped)
     }
