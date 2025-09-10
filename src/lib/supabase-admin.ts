@@ -14,7 +14,7 @@ export const supabaseAdmin = typeof window === 'undefined'
         persistSession: false
       }
     })
-  : null as any // This should never be used on client side
+  : ({} as ReturnType<typeof createClient>) // This should never be used on client side
 
 // This client should only be used in:
 // 1. API routes (src/app/api/*)
