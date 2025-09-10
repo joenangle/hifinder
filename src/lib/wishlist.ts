@@ -1,8 +1,8 @@
-import { supabase } from './supabase'
+import { supabaseAdmin } from './supabase-admin'
 import { WishlistItem } from '@/types/auth'
 
 export async function addToWishlist(userId: string, componentId: string): Promise<WishlistItem | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('wishlists')
     .insert({
       user_id: userId,
@@ -33,7 +33,7 @@ export async function addToWishlist(userId: string, componentId: string): Promis
 }
 
 export async function removeFromWishlist(userId: string, componentId: string): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('wishlists')
     .delete()
     .eq('user_id', userId)
@@ -48,7 +48,7 @@ export async function removeFromWishlist(userId: string, componentId: string): P
 }
 
 export async function getUserWishlist(userId: string): Promise<WishlistItem[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('wishlists')
     .select(`
       *,
@@ -76,7 +76,7 @@ export async function getUserWishlist(userId: string): Promise<WishlistItem[]> {
 }
 
 export async function isInWishlist(userId: string, componentId: string): Promise<boolean> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('wishlists')
     .select('id')
     .eq('user_id', userId)

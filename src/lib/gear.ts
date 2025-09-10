@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabaseAdmin } from './supabase-admin'
 // import { UpgradeSuggestion } from '@/types/auth' // Unused
 
 export interface UserGearItem {
@@ -40,7 +40,7 @@ export interface UserGearItem {
 }
 
 export async function getUserGear(userId: string): Promise<UserGearItem[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('user_gear')
     .select(`
       *,
@@ -78,7 +78,7 @@ export async function addGearItem(
   userId: string,
   gearData: Partial<UserGearItem>
 ): Promise<UserGearItem | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('user_gear')
     .insert({
       ...gearData,
@@ -124,7 +124,7 @@ export async function updateGearItem(
   gearId: string,
   updates: Partial<UserGearItem>
 ): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('user_gear')
     .update(updates)
     .eq('id', gearId)
@@ -143,7 +143,7 @@ export async function removeGearItem(
   gearId: string
 ): Promise<boolean> {
   // Soft delete by marking as inactive
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('user_gear')
     .update({ is_active: false })
     .eq('id', gearId)
