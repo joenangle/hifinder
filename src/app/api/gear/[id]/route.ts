@@ -5,7 +5,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,11 +16,14 @@ export async function PUT(
 
     const body = await request.json()
     
+    // Await the params promise
+    const { id } = await params
+    
     // Ensure the gear item belongs to the user
     const { data: existingItem, error: checkError } = await supabaseServer
       .from('user_gear')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     
     if (checkError || !existingItem) {
@@ -34,7 +37,7 @@ export async function PUT(
     const { data: updatedItem, error } = await supabaseServer
       .from('user_gear')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .select(`
         *,
         components (
@@ -62,7 +65,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -71,11 +74,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
+    // Await the params promise
+    const { id } = await params
+    
     // Ensure the gear item belongs to the user
     const { data: existingItem, error: checkError } = await supabaseServer
       .from('user_gear')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     
     if (checkError || !existingItem) {
@@ -90,7 +96,7 @@ export async function DELETE(
     const { error } = await supabaseServer
       .from('user_gear')
       .update({ is_active: false })
-      .eq('id', params.id)
+      .eq('id', id)
     
     if (error) {
       console.error('Error removing gear item:', error)
