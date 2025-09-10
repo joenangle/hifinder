@@ -3,7 +3,6 @@
 import { Suspense } from 'react'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
@@ -356,68 +355,74 @@ function RecommendationsContent() {
 
   // Fetch DACs with impedance matching and synergy
   const fetchDACs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.1)  // Show budget options
-    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-    
-    const { data: dacs, error } = await supabase
-      .from('components')
-      .select('*')
-      .eq('category', 'dac')
-      .lte('price_used_min', maxPrice)
-      .gte('price_used_max', minPrice)
-      .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 5)
-    
-    if (error) {
-      console.error('DAC query error:', error)
+    try {
+      const response = await fetch(`/api/components?category=dac&limit=${maxOptions * 5}`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const dacs = await response.json()
+      const minPrice = Math.floor(budget * 0.1)  // Show budget options
+      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
+      
+      // Filter by price range (since API doesn't support price filtering yet)
+      const filteredDacs = (dacs || []).filter((dac: any) => {
+        return dac.price_used_min <= maxPrice && dac.price_used_max >= minPrice
+      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      
+      return processAudioComponents(filteredDacs, budget, headphones, 'dac', maxOptions)
+    } catch (error) {
+      console.error('DAC fetch error:', error)
       return []
     }
-    
-    return processAudioComponents(dacs || [], budget, headphones, 'dac', maxOptions)
   }, [])
 
   // Fetch AMPs with power matching  
   const fetchAMPs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.1)  // Show budget options
-    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-    
-    const { data: amps, error } = await supabase
-      .from('components')
-      .select('*')
-      .eq('category', 'amp')
-      .lte('price_used_min', maxPrice)
-      .gte('price_used_max', minPrice)
-      .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 5)
-    
-    if (error) {
-      console.error('AMP query error:', error)
+    try {
+      const response = await fetch(`/api/components?category=amp&limit=${maxOptions * 5}`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const amps = await response.json()
+      const minPrice = Math.floor(budget * 0.1)  // Show budget options
+      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
+      
+      // Filter by price range
+      const filteredAmps = (amps || []).filter((amp: any) => {
+        return amp.price_used_min <= maxPrice && amp.price_used_max >= minPrice
+      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      
+      return processAudioComponents(filteredAmps, budget, headphones, 'amp', maxOptions)
+    } catch (error) {
+      console.error('AMP fetch error:', error)
       return []
     }
-    
-    return processAudioComponents(amps || [], budget, headphones, 'amp', maxOptions)
   }, [])
 
   // Fetch combo units with complete system matching
   const fetchCombos = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    const minPrice = Math.floor(budget * 0.1)  // Show budget options
-    const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-    
-    const { data: combos, error } = await supabase
-      .from('components')
-      .select('*')
-      .eq('category', 'dac_amp')
-      .lte('price_used_min', maxPrice)
-      .gte('price_used_max', minPrice)
-      .order('price_used_min', { ascending: true })
-      .limit(maxOptions * 5)
-    
-    if (error) {
-      console.error('Combo query error:', error)
+    try {
+      const response = await fetch(`/api/components?category=dac_amp&limit=${maxOptions * 5}`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const combos = await response.json()
+      const minPrice = Math.floor(budget * 0.1)  // Show budget options
+      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
+      
+      // Filter by price range
+      const filteredCombos = (combos || []).filter((combo: any) => {
+        return combo.price_used_min <= maxPrice && combo.price_used_max >= minPrice
+      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      
+      return processAudioComponents(filteredCombos, budget, headphones, 'combo', maxOptions)
+    } catch (error) {
+      console.error('Combo fetch error:', error)
       return []
     }
-    
-    return processAudioComponents(combos || [], budget, headphones, 'combo', maxOptions)
   }, [])
 
   // Main recommendation fetching logic
@@ -454,27 +459,28 @@ function RecommendationsContent() {
         console.log(`🎧 Fetching headphones with budget: $${headphoneBudget} (inclusive range: $${minBudgetLimit}-$${maxBudgetLimit})`)
         
         // Get a broader range of items to avoid gaps - focus on affordability
-        const { data: headphonesData, error: headphonesError } = await supabase
-          .from('components')
-          .select('*')
-          .eq('category', headphoneType)
-          .lte('price_used_min', maxBudgetLimit)  // Only show items where minimum price is within expanded range
-          .gte('price_used_max', minBudgetLimit)  // And where there's some option in the range
-          .order('price_used_min', { ascending: true })
-          .limit(maxOptions * 8)  // Get even more options for better filtering
-        
-        if (headphonesError && Object.keys(headphonesError).length > 0) {
-          console.error('Headphones query error:', headphonesError)
-          console.error('Query details - category:', headphoneType, 'maxBudgetLimit:', maxBudgetLimit, 'minBudgetLimit:', minBudgetLimit)
-        } else {
-          console.log(`📊 Found ${headphonesData?.length || 0} headphones in database query`)
-          console.log('Sample prices:', headphonesData?.slice(0, 3).map(h => `${h.name}: $${h.price_used_min}-${h.price_used_max}`))
+        try {
+          const response = await fetch(`/api/components?category=${headphoneType}&limit=${maxOptions * 8}`)
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+          }
+          
+          const headphonesData = await response.json()
+          
+          // Filter by budget range (API doesn't support price filtering yet)
+          const filteredHeadphones = (headphonesData || []).filter((h: any) => {
+            return h.price_used_min <= maxBudgetLimit && h.price_used_max >= minBudgetLimit
+          }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+          console.log(`📊 Found ${filteredHeadphones?.length || 0} headphones in price range`)
+          console.log('Sample prices:', filteredHeadphones?.slice(0, 3).map((h: any) => `${h.name}: $${h.price_used_min}-${h.price_used_max}`))
           
           // Advanced headphone filtering with audio specifications
-          finalHeadphones = processHeadphoneRecommendations(headphonesData || [], headphoneBudget, maxOptions)
+          finalHeadphones = processHeadphoneRecommendations(filteredHeadphones || [], headphoneBudget, maxOptions)
           
           console.log(`✅ After processing: ${finalHeadphones.length} headphones selected`)
           console.log('Final selections:', finalHeadphones.map(h => `${h.name}: $${h.avgPrice?.toFixed(0)}`))
+        } catch (error) {
+          console.error('Headphones fetch error:', error)
         }
       }
       
@@ -557,32 +563,23 @@ function RecommendationsContent() {
     
     if (componentIds.length === 0) return
     
-    const { data: listings, error } = await supabase
-      .from('used_listings')
-      .select('*')
-      .in('component_id', componentIds)
-      .order('price', { ascending: true })
-      .limit(100)
-    
-    if (error) {
+    try {
+      const response = await fetch(`/api/used-listings?component_ids=${componentIds.join(',')}&limit=100`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const groupedListings: {[componentId: string]: UsedListing[]} = await response.json()
+      console.log('Fetched listings for', Object.keys(groupedListings).length, 'components')
+      
+      setUsedListings(groupedListings)
+    } catch (error) {
       console.error('Error fetching used listings:', error)
       return
     }
-    
-    console.log('Fetched listings:', listings?.length || 0)
-    
-    // Group listings by component ID
-    const groupedListings: {[componentId: string]: UsedListing[]} = {}
-    listings?.forEach(listing => {
-      if (!groupedListings[listing.component_id]) {
-        groupedListings[listing.component_id] = []
-      }
-      groupedListings[listing.component_id].push(listing)
-    })
-    
-    console.log('Grouped listings:', Object.keys(groupedListings).length, 'components with listings')
-    setUsedListings(groupedListings)
   }, [showUsedMarket, headphones, dacs, amps, dacAmps])
+  
+  // Used market data is now loaded inline in fetchUsedListings function above
 
   useEffect(() => {
     fetchUsedListings()

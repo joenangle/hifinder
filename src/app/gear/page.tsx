@@ -268,18 +268,23 @@ function GearContent() {
     
     setLoading(true)
     try {
-      // Fetch gear via API
-      const gearResponse = await fetch('/api/gear', {
+      // Fetch gear via dashboard API
+      const dashboardResponse = await fetch('/api/user/dashboard', {
         credentials: 'include'
       })
-      const gearItems: UserGearItem[] = gearResponse.ok ? await gearResponse.json() : []
+      
+      if (!dashboardResponse.ok) {
+        throw new Error(`Dashboard API error: ${dashboardResponse.status}`)
+      }
+      
+      const dashboardData = await dashboardResponse.json()
+      const gearItems: UserGearItem[] = dashboardData.gear || []
+      const stackItems = dashboardData.stacks || []
       
       setGear(gearItems)
-      // TODO: Add stacks API and load stacks
-      setStacks([])
+      setStacks(stackItems)
       
-      // Calculate stats (simplified for now)
-      const totalValue = gearItems.reduce((sum, item) => sum + (item.purchase_price || 0), 0)
+      // Use stats from dashboard API
       const stats: CollectionStats = {
         totalItems: gearItems.length,
         totalValue: totalValue,

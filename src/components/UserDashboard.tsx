@@ -4,18 +4,14 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { trackEvent } from '@/lib/analytics'
-import { getUserGear, calculateCollectionValue, UserGearItem } from '@/lib/gear'
-import { getUserStacks, StackWithGear } from '@/lib/stacks'
-import { getUserWishlist } from '@/lib/wishlist'
-import { WishlistItem } from '@/types/auth'
 
 export function UserDashboard() {
   const { data: session } = useSession()
   
   // State for gear data
-  const [gear, setGear] = useState<UserGearItem[]>([])
-  const [stacks, setStacks] = useState<StackWithGear[]>([])
-  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
+  const [gear, setGear] = useState<any[]>([])
+  const [stacks, setStacks] = useState<any[]>([])
+  const [wishlist, setWishlist] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [collectionStats, setCollectionStats] = useState({
     totalPaid: 0,
@@ -26,37 +22,62 @@ export function UserDashboard() {
   
   const firstName = session?.user?.name?.split(' ')[0] || 'there'
 
-  // Fetch user data
+  // Fetch user data from API
   useEffect(() => {
-    if (!session?.user?.id) return
+    // Wait for session to be fully loaded and authenticated
+    if (!session?.user?.id || !session.user.email) {
+      console.log('Session not ready:', { userId: session?.user?.id, email: session?.user?.email })
+      return
+    }
 
     const loadUserData = async () => {
       try {
         setLoading(true)
         
-        // Fetch gear, stacks, and wishlist in parallel
-        const [gearItems, stackItems, wishlistItems] = await Promise.all([
-          getUserGear(session.user.id),
-          getUserStacks(session.user.id),
-          getUserWishlist(session.user.id)
-        ])
+        console.log('Fetching dashboard data for user:', session.user.email)
         
-        setGear(gearItems)
-        setStacks(stackItems)
-        setWishlist(wishlistItems)
+        // Fetch dashboard data from API
+        const response = await fetch('/api/user/dashboard', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Ensure cookies are sent
+        })
         
-        // Calculate collection stats
-        const stats = await calculateCollectionValue(gearItems)
-        setCollectionStats(stats)
+        if (!response.ok) {
+          console.error('Dashboard API error:', response.status, response.statusText)
+          throw new Error(`Failed to fetch dashboard data: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        console.log('Dashboard data received:', { 
+          gearCount: data.gear?.length || 0, 
+          stacksCount: data.stacks?.length || 0,
+          totalValue: data.collectionStats?.currentValue || 0
+        })
+        
+        setGear(data.gear || [])
+        setStacks(data.stacks || [])
+        setWishlist([]) // Wishlist not included in dashboard API yet
+        setCollectionStats(data.collectionStats || {
+          totalPaid: 0,
+          currentValue: 0,
+          depreciation: 0,
+          byCategory: {}
+        })
       } catch (error) {
         console.error('Error loading user data:', error)
+        // Don't clear existing data on error - keep what we have
       } finally {
         setLoading(false)
       }
     }
 
-    loadUserData()
-  }, [session?.user?.id])
+    // Small delay to ensure session is fully established
+    const timer = setTimeout(loadUserData, 100)
+    return () => clearTimeout(timer)
+  }, [session?.user?.id, session?.user?.email])
 
   return (
     <main className="page-container">

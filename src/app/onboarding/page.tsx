@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { trackEvent } from '@/lib/analytics'
 import { BudgetSlider } from '@/components/BudgetSlider'
 
@@ -344,21 +343,16 @@ const needsAmpDacQuestions = useCallback(() => {
   return preferences.wantRecommendationsFor.dac || preferences.wantRecommendationsFor.amp || preferences.wantRecommendationsFor.combo
 }, [preferences.wantRecommendationsFor.dac, preferences.wantRecommendationsFor.amp, preferences.wantRecommendationsFor.combo])
 
-// Fetch headphone brands from Supabase
+// Fetch headphone brands from API
 const fetchBrands = useCallback(async () => {
   if (brands.length > 0) return // Already loaded
   
   setLoadingBrands(true)
   try {
-    const { data, error } = await supabase
-      .from('components')
-      .select('brand')
-      .in('category', ['cans', 'iems'])
-      .order('brand')
+    const response = await fetch('/api/components?brands_only=true&category=headphones_and_iems')
+    if (!response.ok) throw new Error('Failed to fetch brands')
     
-    if (error) throw error
-    
-    const uniqueBrands = [...new Set(data.map(item => item.brand))].filter(Boolean)
+    const uniqueBrands = await response.json()
     setBrands(uniqueBrands)
   } catch (error) {
     console.error('Error fetching brands:', error)
@@ -367,22 +361,16 @@ const fetchBrands = useCallback(async () => {
   }
 }, [brands.length])
 
-// Fetch models for a specific brand
+// Fetch models for a specific brand from API
 const fetchModels = useCallback(async (brand: string) => {
   if (models[brand]) return // Already loaded for this brand
   
   setLoadingModels(true)
   try {
-    const { data, error } = await supabase
-      .from('components')
-      .select('name')
-      .eq('brand', brand)
-      .in('category', ['cans', 'iems'])
-      .order('name')
+    const response = await fetch(`/api/components?models_only=true&brand=${encodeURIComponent(brand)}&category=headphones_and_iems`)
+    if (!response.ok) throw new Error('Failed to fetch models')
     
-    if (error) throw error
-    
-    const brandModels = data.map(item => item.name).filter(Boolean)
+    const brandModels = await response.json()
     setModels(prev => ({ ...prev, [brand]: brandModels }))
   } catch (error) {
     console.error('Error fetching models:', error)
@@ -391,21 +379,16 @@ const fetchModels = useCallback(async (brand: string) => {
   }
 }, [models])
 
-// Fetch brands for optimization headphones
+// Fetch brands for optimization headphones from API
 const fetchOptimizeBrands = useCallback(async () => {
   if (optimizeBrands.length > 0) return // Already loaded
   
   setLoadingOptimizeBrands(true)
   try {
-    const { data, error } = await supabase
-      .from('components')
-      .select('brand')
-      .in('category', ['cans', 'iems'])
-      .order('brand')
+    const response = await fetch('/api/components?brands_only=true&category=headphones_and_iems')
+    if (!response.ok) throw new Error('Failed to fetch optimize brands')
     
-    if (error) throw error
-    
-    const uniqueBrands = [...new Set(data.map(item => item.brand))].filter(Boolean)
+    const uniqueBrands = await response.json()
     setOptimizeBrands(uniqueBrands)
   } catch (error) {
     console.error('Error fetching optimize brands:', error)
@@ -430,22 +413,16 @@ const handleModelSelect = (model: string) => {
   setPreferences({...preferences, existingHeadphones: fullName})
 }
 
-// Fetch models for optimization brand
+// Fetch models for optimization brand from API
 const fetchOptimizeModels = useCallback(async (brand: string) => {
   if (optimizeModels[brand]) return // Already loaded for this brand
   
   setLoadingOptimizeModels(true)
   try {
-    const { data, error } = await supabase
-      .from('components')
-      .select('name')
-      .eq('brand', brand)
-      .in('category', ['cans', 'iems'])
-      .order('name')
+    const response = await fetch(`/api/components?models_only=true&brand=${encodeURIComponent(brand)}&category=headphones_and_iems`)
+    if (!response.ok) throw new Error('Failed to fetch optimize models')
     
-    if (error) throw error
-    
-    const brandModels = data.map(item => item.name).filter(Boolean)
+    const brandModels = await response.json()
     setOptimizeModels(prev => ({ ...prev, [brand]: brandModels }))
   } catch (error) {
     console.error('Error fetching optimize models:', error)

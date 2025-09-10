@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-09-10T14:59:23.498Z",
+  "supabase_url": "https://dqvuvieggqltkznluvol.supabase.co",
+  "postgres_version": "supabase-postgres-17.4.1.074",
+  "purpose": "Pre-Postgres upgrade backup",
+  "tables": [
+    "user_gear",
+    "user_stacks",
+    "stack_components",
+    "components",
+    "used_listings"
+  ],
+  "note": "Created before upgrading Postgres to latest security patches"
+}
