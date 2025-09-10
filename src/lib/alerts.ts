@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabase-admin'
+import { supabase } from './supabase'
 import { TriggeredAlert } from '@/types/auth'
 
 export interface PriceAlert {
@@ -48,7 +48,7 @@ export interface AlertHistory {
 }
 
 export async function getUserAlerts(userId: string): Promise<PriceAlert[]> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('price_alerts')
     .select(`
       *,
@@ -79,7 +79,7 @@ export async function createAlert(
   userId: string,
   alertData: Partial<PriceAlert>
 ): Promise<PriceAlert | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('price_alerts')
     .insert({
       ...alertData,
@@ -116,7 +116,7 @@ export async function updateAlert(
   alertId: string,
   updates: Partial<PriceAlert>
 ): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from('price_alerts')
     .update(updates)
     .eq('id', alertId)
@@ -134,7 +134,7 @@ export async function deleteAlert(
   userId: string,
   alertId: string
 ): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from('price_alerts')
     .delete()
     .eq('id', alertId)
@@ -152,7 +152,7 @@ export async function getAlertHistory(
   userId: string,
   alertId?: string
 ): Promise<AlertHistory[]> {
-  let query = supabaseAdmin
+  let query = supabase
     .from('alert_history')
     .select('*')
     .eq('user_id', userId)
@@ -176,7 +176,7 @@ export async function markAlertViewed(
   userId: string,
   historyId: string
 ): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from('alert_history')
     .update({ 
       user_viewed: true, 
@@ -201,7 +201,7 @@ export async function checkAlerts(userId: string) {
   if (activeAlerts.length === 0) return
 
   // Fetch current used listings
-  const { data: listings, error } = await supabaseAdmin
+  const { data: listings, error } = await supabase
     .from('used_listings')
     .select('*')
     .eq('is_active', true)
@@ -297,7 +297,7 @@ export async function checkAlerts(userId: string) {
       triggered_at: ta.triggered_at
     }))
 
-    const { error: insertError } = await supabaseAdmin
+    const { error: insertError } = await supabase
       .from('alert_history')
       .insert(historyRecords)
 
@@ -306,7 +306,7 @@ export async function checkAlerts(userId: string) {
       const alertIds = [...new Set(triggeredAlerts.map(t => t.alert.id))]
       for (const alertId of alertIds) {
         // Get current trigger count
-        const { data: alertData } = await supabaseAdmin
+        const { data: alertData } = await supabase
           .from('price_alerts')
           .select('trigger_count')
           .eq('id', alertId)
@@ -314,7 +314,7 @@ export async function checkAlerts(userId: string) {
 
         const currentCount = alertData?.trigger_count || 0
 
-        await supabaseAdmin
+        await supabase
           .from('price_alerts')
           .update({ 
             last_triggered_at: new Date().toISOString(),

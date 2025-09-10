@@ -5,16 +5,16 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase environment variables for admin client')
-}
-
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+// This client should ONLY be used on the server side
+// If this is being imported on the client, use the regular supabase client instead
+export const supabaseAdmin = typeof window === 'undefined' 
+  ? createClient(supabaseUrl, supabaseServiceRoleKey || '', {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null as any // This should never be used on client side
 
 // This client should only be used in:
 // 1. API routes (src/app/api/*)

@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabase-admin'
+import { supabase } from './supabase'
 import { UserGearItem } from './gear'
 
 export interface UserStack {
@@ -25,7 +25,7 @@ export interface StackWithGear extends UserStack {
 }
 
 export async function getUserStacks(userId: string): Promise<StackWithGear[]> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('user_stacks')
     .select(`
       *,
@@ -69,7 +69,7 @@ export async function createStack(
   name: string,
   description?: string
 ): Promise<UserStack | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('user_stacks')
     .insert({
       user_id: userId,
@@ -91,7 +91,7 @@ export async function updateStack(
   stackId: string,
   updates: Partial<Pick<UserStack, 'name' | 'description'>>
 ): Promise<UserStack | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('user_stacks')
     .update(updates)
     .eq('id', stackId)
@@ -107,7 +107,7 @@ export async function updateStack(
 }
 
 export async function deleteStack(stackId: string): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from('user_stacks')
     .delete()
     .eq('id', stackId)
@@ -127,7 +127,7 @@ export async function addGearToStack(
 ): Promise<StackComponent | null> {
   // If no position specified, add to end
   if (position === undefined) {
-    const { data: existingComponents } = await supabaseAdmin
+    const { data: existingComponents } = await supabase
       .from('stack_components')
       .select('position')
       .eq('stack_id', stackId)
@@ -139,7 +139,7 @@ export async function addGearToStack(
       : 0
   }
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from('stack_components')
     .insert({
       stack_id: stackId,
@@ -161,7 +161,7 @@ export async function removeGearFromStack(
   stackId: string,
   userGearId: string
 ): Promise<boolean> {
-  const { error } = await supabaseAdmin
+  const { error } = await supabase
     .from('stack_components')
     .delete()
     .eq('stack_id', stackId)
@@ -181,7 +181,7 @@ export async function reorderStackComponents(
 ): Promise<boolean> {
   // Update positions for all components in the stack
   const updates = componentOrder.map(({ id, position }) => 
-    supabaseAdmin
+    supabase
       .from('stack_components')
       .update({ position })
       .eq('id', id)
