@@ -16,23 +16,23 @@ export async function GET(request: NextRequest) {
     const brands_only = searchParams.get('brands_only') === 'true'
     const models_only = searchParams.get('models_only') === 'true'
 
-    let query = supabaseServer
-      .from('components')
-
     // Handle special queries for onboarding
     if (brands_only) {
-      query = query.select('brand')
+      let brandsQuery = supabaseServer
+        .from('components')
+        .select('brand')
+        
       if (category) {
         // Convert category filters for onboarding (cans/iems)
         if (category === 'headphones_and_iems') {
-          query = query.in('category', ['headphones', 'iems'])
+          brandsQuery = brandsQuery.in('category', ['headphones', 'iems'])
         } else {
-          query = query.eq('category', category)
+          brandsQuery = brandsQuery.eq('category', category)
         }
       }
-      query = query.order('brand')
       
-      const { data: components, error } = await query
+      const { data: components, error } = await brandsQuery.order('brand')
+      
       if (error) {
         console.error('Database error:', error)
         return NextResponse.json({ error: 'Database error' }, { status: 500 })
@@ -44,14 +44,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (models_only && brand) {
-      query = query.select('name')
+      let modelsQuery = supabaseServer
+        .from('components')
+        .select('name')
         .eq('brand', brand)
+        
       if (category === 'headphones_and_iems') {
-        query = query.in('category', ['headphones', 'iems'])
+        modelsQuery = modelsQuery.in('category', ['headphones', 'iems'])
       }
-      query = query.order('name')
       
-      const { data: components, error } = await query
+      const { data: components, error } = await modelsQuery.order('name')
+      
       if (error) {
         console.error('Database error:', error)
         return NextResponse.json({ error: 'Database error' }, { status: 500 })
@@ -62,7 +65,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Regular component queries
-    query = query.select('*')
+    let query = supabaseServer
+      .from('components')
+      .select('*')
 
     // Apply filters
     if (category) {
@@ -96,9 +101,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Default ordering
-    query = query.order('name')
-
-    const { data: components, error } = await query
+    const { data: components, error } = await query.order('name')
 
     if (error) {
       console.error('Database error:', error)
