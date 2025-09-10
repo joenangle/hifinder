@@ -417,19 +417,19 @@ function GearContent() {
     if (!session?.user?.id || !selectedGear) return
     
     const updateData: Partial<UserGearItem> = {
-      purchase_date: editFormData.purchase_date || null,
-      purchase_price: editFormData.purchase_price ? parseFloat(editFormData.purchase_price) : null,
-      purchase_location: editFormData.purchase_location || null,
+      purchase_date: editFormData.purchase_date || undefined,
+      purchase_price: editFormData.purchase_price ? parseFloat(editFormData.purchase_price) : undefined,
+      purchase_location: editFormData.purchase_location || undefined,
       condition: editFormData.condition,
-      serial_number: editFormData.serial_number || null,
-      notes: editFormData.notes || null
+      serial_number: editFormData.serial_number || undefined,
+      notes: editFormData.notes || undefined
     }
 
     // Only update custom fields if this is a custom entry
     if (selectedGear.custom_name || selectedGear.custom_brand) {
-      updateData.custom_name = editFormData.custom_name || null
-      updateData.custom_brand = editFormData.custom_brand || null
-      updateData.custom_category = editFormData.custom_category || null
+      updateData.custom_name = editFormData.custom_name || undefined
+      updateData.custom_brand = editFormData.custom_brand || undefined
+      updateData.custom_category = editFormData.custom_category || undefined
     }
     
     const success = await updateGearItem(session.user.id, selectedGear.id, updateData)
