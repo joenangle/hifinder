@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         }
         acc[componentId].push(listing)
         return acc
-      }, {} as Record<string, any[]>)
+      }, {} as Record<string, Array<typeof listing>>)
       
       return NextResponse.json(grouped)
     }

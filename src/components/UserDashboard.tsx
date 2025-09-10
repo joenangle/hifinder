@@ -9,9 +9,9 @@ export function UserDashboard() {
   const { data: session } = useSession()
   
   // State for gear data
-  const [gear, setGear] = useState<any[]>([])
-  const [stacks, setStacks] = useState<any[]>([])
-  const [wishlist, setWishlist] = useState<any[]>([])
+  const [gear, setGear] = useState<unknown[]>([])
+  const [stacks, setStacks] = useState<unknown[]>([])
+  const [wishlist, setWishlist] = useState<unknown[]>([]
   const [loading, setLoading] = useState(true)
   const [collectionStats, setCollectionStats] = useState({
     totalPaid: 0,

@@ -366,9 +366,14 @@ function RecommendationsContent() {
       const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
       
       // Filter by price range (since API doesn't support price filtering yet)
-      const filteredDacs = (dacs || []).filter((dac: any) => {
-        return dac.price_used_min <= maxPrice && dac.price_used_max >= minPrice
-      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      const filteredDacs = (dacs || []).filter((dac: unknown) => {
+        const dacItem = dac as { price_used_min?: number; price_used_max?: number }
+        return (dacItem.price_used_min || 0) <= maxPrice && (dacItem.price_used_max || 0) >= minPrice
+      }).sort((a: unknown, b: unknown) => {
+        const aItem = a as { price_used_min?: number }
+        const bItem = b as { price_used_min?: number }
+        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
+      })
       
       return processAudioComponents(filteredDacs, budget, headphones, 'dac', maxOptions)
     } catch (error) {
@@ -390,9 +395,14 @@ function RecommendationsContent() {
       const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
       
       // Filter by price range
-      const filteredAmps = (amps || []).filter((amp: any) => {
-        return amp.price_used_min <= maxPrice && amp.price_used_max >= minPrice
-      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      const filteredAmps = (amps || []).filter((amp: unknown) => {
+        const ampItem = amp as { price_used_min?: number; price_used_max?: number }
+        return (ampItem.price_used_min || 0) <= maxPrice && (ampItem.price_used_max || 0) >= minPrice
+      }).sort((a: unknown, b: unknown) => {
+        const aItem = a as { price_used_min?: number }
+        const bItem = b as { price_used_min?: number }
+        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
+      })
       
       return processAudioComponents(filteredAmps, budget, headphones, 'amp', maxOptions)
     } catch (error) {
@@ -414,9 +424,14 @@ function RecommendationsContent() {
       const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
       
       // Filter by price range
-      const filteredCombos = (combos || []).filter((combo: any) => {
-        return combo.price_used_min <= maxPrice && combo.price_used_max >= minPrice
-      }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+      const filteredCombos = (combos || []).filter((combo: unknown) => {
+        const comboItem = combo as { price_used_min?: number; price_used_max?: number }
+        return (comboItem.price_used_min || 0) <= maxPrice && (comboItem.price_used_max || 0) >= minPrice
+      }).sort((a: unknown, b: unknown) => {
+        const aItem = a as { price_used_min?: number }
+        const bItem = b as { price_used_min?: number }
+        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
+      })
       
       return processAudioComponents(filteredCombos, budget, headphones, 'combo', maxOptions)
     } catch (error) {
@@ -468,11 +483,19 @@ function RecommendationsContent() {
           const headphonesData = await response.json()
           
           // Filter by budget range (API doesn't support price filtering yet)
-          const filteredHeadphones = (headphonesData || []).filter((h: any) => {
-            return h.price_used_min <= maxBudgetLimit && h.price_used_max >= minBudgetLimit
-          }).sort((a: any, b: any) => (a.price_used_min || 0) - (b.price_used_min || 0))
+          const filteredHeadphones = (headphonesData || []).filter((h: unknown) => {
+            const hItem = h as { price_used_min?: number; price_used_max?: number }
+            return (hItem.price_used_min || 0) <= maxBudgetLimit && (hItem.price_used_max || 0) >= minBudgetLimit
+          }).sort((a: unknown, b: unknown) => {
+            const aItem = a as { price_used_min?: number }
+            const bItem = b as { price_used_min?: number }
+            return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
+          })
           console.log(`📊 Found ${filteredHeadphones?.length || 0} headphones in price range`)
-          console.log('Sample prices:', filteredHeadphones?.slice(0, 3).map((h: any) => `${h.name}: $${h.price_used_min}-${h.price_used_max}`))
+          console.log('Sample prices:', filteredHeadphones?.slice(0, 3).map((h: unknown) => {
+            const hItem = h as { name?: string; price_used_min?: number; price_used_max?: number }
+            return `${hItem.name}: $${hItem.price_used_min}-${hItem.price_used_max}`
+          }))
           
           // Advanced headphone filtering with audio specifications
           finalHeadphones = processHeadphoneRecommendations(filteredHeadphones || [], headphoneBudget, maxOptions)
