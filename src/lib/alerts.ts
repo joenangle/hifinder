@@ -152,7 +152,7 @@ export async function getAlertHistory(
   userId: string,
   alertId?: string
 ): Promise<AlertHistory[]> {
-  let query = supabase
+  let query = supabaseAdmin
     .from('alert_history')
     .select('*')
     .eq('user_id', userId)

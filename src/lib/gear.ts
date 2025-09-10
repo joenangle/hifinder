@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './supabase-admin'
+import { supabase } from './supabase'  // For public data like components
 // import { UpgradeSuggestion } from '@/types/auth' // Unused
 
 export interface UserGearItem {

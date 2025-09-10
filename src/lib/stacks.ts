@@ -25,7 +25,7 @@ export interface StackWithGear extends UserStack {
 }
 
 export async function getUserStacks(userId: string): Promise<StackWithGear[]> {
-  const { data, error } = await supabaseAdminAdmin
+  const { data, error } = await supabaseAdmin
     .from('user_stacks')
     .select(`
       *,
@@ -181,7 +181,7 @@ export async function reorderStackComponents(
 ): Promise<boolean> {
   // Update positions for all components in the stack
   const updates = componentOrder.map(({ id, position }) => 
-    supabase
+    supabaseAdmin
       .from('stack_components')
       .update({ position })
       .eq('id', id)
