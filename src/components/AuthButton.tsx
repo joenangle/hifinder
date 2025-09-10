@@ -19,22 +19,42 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn()}
-      className="flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 transform"
       style={{
-        backgroundColor: '#E85A4F', // Orange highlight color
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '4px',
+        padding: '6px 10px',
+        backgroundColor: '#E85A4F',
         color: 'white',
         border: 'none',
-        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+        borderRadius: '4px',
+        fontWeight: '500',
+        fontSize: '13px',
+        lineHeight: '1',
+        cursor: 'pointer',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        transition: 'all 0.2s ease',
+        zIndex: '9999',
+        position: 'relative',
+        width: 'auto',
+        height: '32px',
+        whiteSpace: 'nowrap',
+        flexShrink: '0',
+        textDecoration: 'none',
+        overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = '#D84315'
+        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = '#E85A4F'
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
       }}
     >
-      <User className="w-4 h-4" />
-      Sign In
+      <User style={{ width: '16px', height: '16px', color: 'white' }} />
+      <span style={{ color: 'white', fontWeight: '500' }}>Sign In</span>
     </button>
   )
 }
