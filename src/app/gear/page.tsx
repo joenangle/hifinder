@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { getUserGear, addGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
+import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
 import { getUserStacks, createStack, deleteStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
@@ -212,6 +212,19 @@ function GearContent() {
   const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
+  
+  // Edit gear form state
+  const [editFormData, setEditFormData] = useState({
+    purchase_date: '',
+    purchase_price: '',
+    purchase_location: '',
+    condition: 'used' as 'new' | 'used' | 'refurbished' | 'b-stock',
+    serial_number: '',
+    notes: '',
+    custom_name: '',
+    custom_brand: '',
+    custom_category: ''
+  })
 
   
   // Add gear form state
@@ -260,6 +273,22 @@ function GearContent() {
     }
   }, [session?.user?.id, loadData])
 
+  // Populate edit form when gear is selected for editing
+  useEffect(() => {
+    if (selectedGear && showEditModal) {
+      setEditFormData({
+        purchase_date: selectedGear.purchase_date || '',
+        purchase_price: selectedGear.purchase_price?.toString() || '',
+        purchase_location: selectedGear.purchase_location || '',
+        condition: selectedGear.condition || 'used',
+        serial_number: selectedGear.serial_number || '',
+        notes: selectedGear.notes || '',
+        custom_name: selectedGear.custom_name || '',
+        custom_brand: selectedGear.custom_brand || '',
+        custom_category: selectedGear.custom_category || ''
+      })
+    }
+  }, [selectedGear, showEditModal])
 
   // Load available brands on mount
   useEffect(() => {
@@ -381,6 +410,33 @@ function GearContent() {
       setShowCreateStackModal(false)
       setNewStackName('')
       setNewStackDescription('')
+    }
+  }
+
+  const handleEditGear = async () => {
+    if (!session?.user?.id || !selectedGear) return
+    
+    const updateData: Partial<UserGearItem> = {
+      purchase_date: editFormData.purchase_date || null,
+      purchase_price: editFormData.purchase_price ? parseFloat(editFormData.purchase_price) : null,
+      purchase_location: editFormData.purchase_location || null,
+      condition: editFormData.condition,
+      serial_number: editFormData.serial_number || null,
+      notes: editFormData.notes || null
+    }
+
+    // Only update custom fields if this is a custom entry
+    if (selectedGear.custom_name || selectedGear.custom_brand) {
+      updateData.custom_name = editFormData.custom_name || null
+      updateData.custom_brand = editFormData.custom_brand || null
+      updateData.custom_category = editFormData.custom_category || null
+    }
+    
+    const success = await updateGearItem(session.user.id, selectedGear.id, updateData)
+    if (success) {
+      await loadData()
+      setShowEditModal(false)
+      setSelectedGear(null)
     }
   }
 
@@ -1531,9 +1587,226 @@ function GearContent() {
             style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Edit Modal Content Will Go Here */}
+            {/* Modal Header */}
+            <div className="p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
+                  Edit Gear
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setSelectedGear(null)
+                  }}
+                  className="p-2 hover:bg-secondary rounded-full transition-colors"
+                  style={{color: 'var(--text-secondary)'}}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-sm mt-2" style={{color: 'var(--text-secondary)'}}>
+                {selectedGear.components?.brand || selectedGear.custom_brand} {selectedGear.components?.name || selectedGear.custom_name}
+              </p>
+            </div>
+
             <div className="p-6">
-              <p style={{color: 'var(--text-primary)'}}>Edit functionality coming soon...</p>
+              {/* Custom Entry Fields - Only show if this is a custom entry */}
+              {(selectedGear.custom_name || selectedGear.custom_brand) && (
+                <>
+                  <h3 className="font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
+                    Product Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                        Brand
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.custom_brand}
+                        onChange={(e) => setEditFormData({...editFormData, custom_brand: e.target.value})}
+                        className="w-full px-3 py-2 rounded-md border text-sm"
+                        style={{
+                          backgroundColor: 'var(--background-secondary)',
+                          borderColor: 'var(--border-default)',
+                          color: 'var(--text-primary)'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                        Model
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.custom_name}
+                        onChange={(e) => setEditFormData({...editFormData, custom_name: e.target.value})}
+                        className="w-full px-3 py-2 rounded-md border text-sm"
+                        style={{
+                          backgroundColor: 'var(--background-secondary)',
+                          borderColor: 'var(--border-default)',
+                          color: 'var(--text-primary)'
+                        }}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                        Category
+                      </label>
+                      <select
+                        value={editFormData.custom_category}
+                        onChange={(e) => setEditFormData({...editFormData, custom_category: e.target.value})}
+                        className="w-full px-3 py-2 rounded-md border text-sm"
+                        style={{
+                          backgroundColor: 'var(--background-secondary)',
+                          borderColor: 'var(--border-default)',
+                          color: 'var(--text-primary)'
+                        }}
+                      >
+                        <option value="headphones">Headphones</option>
+                        <option value="iems">IEMs</option>
+                        <option value="dacs">DAC</option>
+                        <option value="amps">Amplifier</option>
+                        <option value="combo">DAC/Amp Combo</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Purchase Details */}
+              <h3 className="font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
+                Purchase Details
+              </h3>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Purchase Date
+                  </label>
+                  <input
+                    type="date"
+                    value={editFormData.purchase_date}
+                    onChange={(e) => setEditFormData({...editFormData, purchase_date: e.target.value})}
+                    className="w-full px-3 py-2 rounded-md border text-sm"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Price Paid
+                  </label>
+                  <input
+                    type="number"
+                    value={editFormData.purchase_price}
+                    onChange={(e) => setEditFormData({...editFormData, purchase_price: e.target.value})}
+                    placeholder="0.00"
+                    className="w-full px-3 py-2 rounded-md border text-sm"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Condition
+                  </label>
+                  <select
+                    value={editFormData.condition}
+                    onChange={(e) => setEditFormData({...editFormData, condition: e.target.value as 'new' | 'used' | 'refurbished' | 'b-stock'})}
+                    className="w-full px-3 py-2 rounded-md border text-sm"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  >
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                    <option value="refurbished">Refurbished</option>
+                    <option value="b-stock">B-Stock</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Purchase Location
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.purchase_location}
+                    onChange={(e) => setEditFormData({...editFormData, purchase_location: e.target.value})}
+                    placeholder="e.g., Amazon, Head-Fi, Local store"
+                    className="w-full px-3 py-2 rounded-md border text-sm"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Serial Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.serial_number}
+                    onChange={(e) => setEditFormData({...editFormData, serial_number: e.target.value})}
+                    placeholder="Optional"
+                    className="w-full px-3 py-2 rounded-md border text-sm"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
+                    Notes
+                  </label>
+                  <textarea
+                    value={editFormData.notes}
+                    onChange={(e) => setEditFormData({...editFormData, notes: e.target.value})}
+                    placeholder="Any additional notes about this item..."
+                    rows={3}
+                    className="w-full px-3 py-2 rounded-md border text-sm resize-none"
+                    style={{
+                      backgroundColor: 'var(--background-secondary)',
+                      borderColor: 'var(--border-default)',
+                      color: 'var(--text-primary)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setSelectedGear(null)
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-md font-medium transition-colors border"
+                  style={{
+                    borderColor: 'var(--border-default)',
+                    color: 'var(--text-secondary)'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditGear}
+                  className="flex-1 px-4 py-2.5 rounded-md font-medium transition-colors text-white"
+                  style={{backgroundColor: 'var(--accent-primary)'}}
+                >
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
         </div>
