@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { getUserGear, addGearItem, updateGearItem, removeGearItem, calculateCollectionValue, UserGearItem, getUniqueBrands, findSimilarStrings } from '@/lib/gear'
-import { getUserStacks, createStack, deleteStack, removeGearFromStack, calculateStackValue, StackWithGear } from '@/lib/stacks'
+import { UserGearItem } from '@/lib/gear'
+import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -27,6 +27,21 @@ import { GearFilters } from '@/components/gear/GearFilters'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
+
+// Helper function for string similarity
+function findSimilarStrings(target: string, strings: string[], threshold: number): string[] {
+  const targetLower = target.toLowerCase()
+  return strings.filter(str => {
+    const strLower = str.toLowerCase()
+    // Simple similarity check - contains or length similarity
+    if (strLower.includes(targetLower) || targetLower.includes(strLower)) {
+      return true
+    }
+    // Basic character overlap
+    const overlap = [...targetLower].filter(char => strLower.includes(char)).length
+    return overlap / targetLower.length >= threshold
+  })
+}
 
 
 // Brand Combobox Component
@@ -252,18 +267,30 @@ function GearContent() {
     if (!session?.user?.id) return
     
     setLoading(true)
-    const [gearItems, stackItems] = await Promise.all([
-      getUserGear(session.user.id),
-      getUserStacks(session.user.id)
-    ])
-    
-    setGear(gearItems)
-    setStacks(stackItems)
-    
-    // Calculate stats
-    const stats = await calculateCollectionValue(gearItems)
-    setCollectionStats(stats)
-    
+    try {
+      // Fetch gear via API
+      const gearResponse = await fetch('/api/gear', {
+        credentials: 'include'
+      })
+      const gearItems: UserGearItem[] = gearResponse.ok ? await gearResponse.json() : []
+      
+      setGear(gearItems)
+      // TODO: Add stacks API and load stacks
+      setStacks([])
+      
+      // Calculate stats (simplified for now)
+      const totalValue = gearItems.reduce((sum, item) => sum + (item.purchase_price || 0), 0)
+      const stats: CollectionStats = {
+        totalItems: gearItems.length,
+        totalValue: totalValue,
+        categories: {},
+        avgItemValue: gearItems.length > 0 ? totalValue / gearItems.length : 0
+      }
+      setCollectionStats(stats)
+      
+    } catch (error) {
+      console.error('Error loading data:', error)
+    }
     setLoading(false)
   }, [session?.user?.id])
 
@@ -293,8 +320,15 @@ function GearContent() {
   // Load available brands on mount
   useEffect(() => {
     const loadBrands = async () => {
-      const brands = await getUniqueBrands()
-      setAvailableBrands(brands)
+      try {
+        const response = await fetch('/api/brands')
+        if (response.ok) {
+          const brands = await response.json()
+          setAvailableBrands(brands)
+        }
+      } catch (error) {
+        console.error('Error loading brands:', error)
+      }
     }
     loadBrands()
   }, [])
@@ -369,17 +403,25 @@ function GearContent() {
     console.log('🚀 Attempting to add gear with data:', gearData);
     
     try {
-      const newItem = await addGearItem(session.user.id, gearData)
-      console.log('📦 Add result:', newItem);
+      const response = await fetch('/api/gear', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(gearData)
+      })
       
-      if (newItem) {
-        console.log('✅ Success! Reloading gear...');
+      if (response.ok) {
+        const newItem = await response.json()
+        console.log('✅ Success! Added gear item:', newItem);
         await loadData()
         setShowAddModal(false)
         resetAddForm()
       } else {
-        console.log('❌ Add failed - no item returned');
-        alert('Failed to add gear item. Check console for details.');
+        const error = await response.json()
+        console.log('❌ Add failed:', error);
+        alert('Failed to add gear item: ' + (error.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('❌ Exception in handleAddGear:', error);
@@ -390,9 +432,22 @@ function GearContent() {
   const handleRemoveGear = async (gearId: string) => {
     if (!session?.user?.id) return
     
-    const success = await removeGearItem(session.user.id, gearId)
-    if (success) {
-      await loadData()
+    try {
+      const response = await fetch(`/api/gear/${gearId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        await loadData()
+      } else {
+        const error = await response.json()
+        console.error('Failed to remove gear:', error)
+        alert('Failed to remove gear: ' + (error.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error removing gear:', error)
+      alert('Error removing gear: ' + error)
     }
   }
 
@@ -432,11 +487,28 @@ function GearContent() {
       updateData.custom_category = editFormData.custom_category || undefined
     }
     
-    const success = await updateGearItem(session.user.id, selectedGear.id, updateData)
-    if (success) {
-      await loadData()
-      setShowEditModal(false)
-      setSelectedGear(null)
+    try {
+      const response = await fetch(`/api/gear/${selectedGear.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(updateData)
+      })
+      
+      if (response.ok) {
+        await loadData()
+        setShowEditModal(false)
+        setSelectedGear(null)
+      } else {
+        const error = await response.json()
+        console.error('Failed to update gear:', error)
+        alert('Failed to update gear: ' + (error.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error updating gear:', error)
+      alert('Error updating gear: ' + error)
     }
   }
 
