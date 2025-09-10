@@ -115,9 +115,9 @@ export function UserDashboard() {
             </Link>
             
             <Link 
-              href="/gear?tab=stacks"
+              href={gear.length > 0 ? "/gear?tab=stacks" : "/gear"}
               className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
-              onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'build_stack' } })}
+              onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'build_stack' : 'add_gear_for_stack' } })}
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -125,11 +125,13 @@ export function UserDashboard() {
                 </div>
                 <div>
                   <h3 className="heading-3 font-semibold mb-1">Build a Stack</h3>
-                  <p className="text-accent text-sm font-medium">Create system →</p>
+                  <p className="text-accent text-sm font-medium">{gear.length > 0 ? 'Create system →' : 'Add gear first →'}</p>
                 </div>
               </div>
               <p className="text-secondary text-sm">
-                Design complete audio systems and compare different combinations
+                {gear.length > 0 
+                  ? 'Design complete audio systems and compare different combinations'
+                  : 'Add your gear to start building custom audio stacks'}
               </p>
             </Link>
             

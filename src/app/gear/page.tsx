@@ -1006,52 +1006,44 @@ function GearContent() {
       {/* Add Gear Modal */}
       {showAddModal && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="modal-backdrop animate-fadeIn"
           onClick={() => {
             setShowAddModal(false)
             resetAddForm()
           }}
         >
           <div 
-            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
-            style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
+            className="modal-container animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add Gear</h2>
-                <button
-                  onClick={() => {
-                    setShowAddModal(false)
-                    resetAddForm()
-                  }}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+            <div className="modal-header">
+              <h2 className="modal-title">Add Gear</h2>
+              <button
+                onClick={() => {
+                  setShowAddModal(false)
+                  resetAddForm()
+                }}
+                className="modal-close"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="p-6">
+            <div className="modal-body">
+              <p className="form-helper">* Required fields</p>
+              
               {/* Toggle between search and custom entry */}
-              <div className="flex gap-2 mb-6">
+              <div className="modal-tabs">
                 <button
                   onClick={() => setIsCustomEntry(false)}
-                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                    !isCustomEntry 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                  className={`modal-tab ${!isCustomEntry ? 'active' : ''}`}
                 >
                   Search Database
                 </button>
                 <button
                   onClick={() => setIsCustomEntry(true)}
-                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                    isCustomEntry 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                  className={`modal-tab ${isCustomEntry ? 'active' : ''}`}
                 >
                   Custom Entry
                 </button>
@@ -1060,8 +1052,8 @@ function GearContent() {
               {!isCustomEntry ? (
                 <>
                   {/* Component Search */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                  <div className="form-group">
+                    <label className="label">
                       Search for Component
                     </label>
                     <div className="relative">
@@ -1073,15 +1065,15 @@ function GearContent() {
                           searchComponents(e.target.value)
                         }}
                         placeholder="Search by brand or model..."
-                        className="w-full pl-4 pr-10 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="input pr-10"
                       />
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <Search className="w-5 h-5 text-tertiary" />
                       </div>
                     </div>
 
                     {searchResults.length > 0 && (
-                      <div className="mt-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 max-h-48 overflow-y-auto shadow-lg">
+                      <div className="mt-2 border rounded-lg max-h-48 overflow-y-auto shadow-lg" style={{backgroundColor: 'var(--surface-card)', borderColor: 'var(--border-default)'}}>
                         {(() => {
                           console.log('🔄 Rendering dropdown with', searchResults.length, 'results');
                           return searchResults.map(component => (
@@ -1092,10 +1084,16 @@ function GearContent() {
                               setSearchResults([])
                               setSearchQuery(`${component.brand} ${component.name}`)
                             }}
-                            className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex justify-between border-b border-gray-200 dark:border-gray-600 last:border-b-0"
+                            className="w-full px-4 py-3 text-left transition-colors flex justify-between border-b last:border-b-0"
+                            style={{
+                              borderBottomColor: 'var(--border-subtle)',
+                              color: 'var(--text-primary)'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <span className="text-gray-900 dark:text-gray-100 font-medium">{component.brand} {component.name}</span>
-                            <span className="text-gray-500 dark:text-gray-400 text-sm capitalize">{component.category}</span>
+                            <span className="font-medium">{component.brand} {component.name}</span>
+                            <span className="text-sm capitalize" style={{color: 'var(--text-secondary)'}}>{component.category}</span>
                             </button>
                           ));
                         })()}
@@ -1106,39 +1104,40 @@ function GearContent() {
               ) : (
                 <>
                   {/* Custom Entry Fields */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
-                        Brand *
+                  <div className="form-grid form-grid-2">
+                    <div className="form-group">
+                      <label className="label label-required">
+                        Brand
                       </label>
                       <BrandCombobox
                         value={addFormData.custom_brand}
                         onChange={(value) => setAddFormData({...addFormData, custom_brand: value})}
                         availableBrands={availableBrands}
                         placeholder="Search existing brands or enter new..."
-                        className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="input"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
-                        Model *
+                    <div className="form-group">
+                      <label className="label label-required">
+                        Model
                       </label>
                       <input
                         type="text"
                         value={addFormData.custom_name}
                         onChange={(e) => setAddFormData({...addFormData, custom_name: e.target.value})}
-                        className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="input"
+                        placeholder="e.g., WH-1000XM5"
                         required
                       />
                     </div>
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                    <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                      <label className="label">
                         Category
                       </label>
                       <select
                         value={addFormData.custom_category}
                         onChange={(e) => setAddFormData({...addFormData, custom_category: e.target.value})}
-                        className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="input"
                       >
                         <option value="headphones">Headphones</option>
                         <option value="dacs">DAC</option>
@@ -1153,21 +1152,21 @@ function GearContent() {
               )}
 
               {/* Purchase Details */}
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Purchase Details</h3>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+              <h3 className="heading-4 mb-4">Purchase Details</h3>
+              <div className="form-grid form-grid-2">
+                <div className="form-group">
+                  <label className="label">
                     Purchase Date
                   </label>
                   <input
                     type="date"
                     value={addFormData.purchase_date}
                     onChange={(e) => setAddFormData({...addFormData, purchase_date: e.target.value})}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                <div className="form-group">
+                  <label className="label">
                     Price Paid
                   </label>
                   <input
@@ -1175,17 +1174,17 @@ function GearContent() {
                     value={addFormData.purchase_price}
                     onChange={(e) => setAddFormData({...addFormData, purchase_price: e.target.value})}
                     placeholder="0.00"
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                <div className="form-group">
+                  <label className="label">
                     Condition
                   </label>
                   <select
                     value={addFormData.condition}
                     onChange={(e) => setAddFormData({...addFormData, condition: e.target.value as 'new' | 'used' | 'refurbished' | 'b-stock'})}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input"
                   >
                     <option value="new">New</option>
                     <option value="used">Used</option>
@@ -1193,8 +1192,8 @@ function GearContent() {
                     <option value="b-stock">B-Stock</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                <div className="form-group">
+                  <label className="label">
                     Purchase Location
                   </label>
                   <input
@@ -1202,11 +1201,11 @@ function GearContent() {
                     value={addFormData.purchase_location}
                     onChange={(e) => setAddFormData({...addFormData, purchase_location: e.target.value})}
                     placeholder="e.g., Amazon, Head-Fi, Local store"
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label className="label">
                     Serial Number
                   </label>
                   <input
@@ -1214,11 +1213,11 @@ function GearContent() {
                     value={addFormData.serial_number}
                     onChange={(e) => setAddFormData({...addFormData, serial_number: e.target.value})}
                     placeholder="Optional"
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label className="label">
                     Notes
                   </label>
                   <textarea
@@ -1226,32 +1225,35 @@ function GearContent() {
                     onChange={(e) => setAddFormData({...addFormData, notes: e.target.value})}
                     placeholder="Any additional notes about this item..."
                     rows={3}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="input"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowAddModal(false)
-                    resetAddForm()
-                  }}
-                  className="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddGear}
-                  disabled={
-                    (!isCustomEntry && !selectedComponent) ||
-                    (isCustomEntry && (!addFormData.custom_name || !addFormData.custom_brand))
-                  }
-                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add to Collection
-                </button>
-              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddModal(false)
+                  resetAddForm()
+                }}
+                className="button button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddGear}
+                disabled={
+                  (!isCustomEntry && !selectedComponent) ||
+                  (isCustomEntry && (!addFormData.custom_name || !addFormData.custom_brand))
+                }
+                className="button button-primary"
+              >
+                Add to Collection
+              </button>
             </div>
           </div>
         </div>
@@ -1553,7 +1555,7 @@ function GearContent() {
       {/* Create Stack Modal */}
       {showCreateStackModal && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="modal-backdrop animate-fadeIn"
           onClick={() => {
             setShowCreateStackModal(false)
             setNewStackName('')
@@ -1561,83 +1563,68 @@ function GearContent() {
           }}
         >
           <div 
-            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
-            style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
+            className="modal-container animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
-              <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
-                Create New Stack
-              </h2>
+            <div className="modal-header">
+              <h2 className="modal-title">Create New Stack</h2>
               <button
                 onClick={() => {
                   setShowCreateStackModal(false)
                   setNewStackName('')
                   setNewStackDescription('')
                 }}
-                className="p-2 hover:bg-secondary rounded-full transition-colors"
+                className="modal-close"
+                aria-label="Close create stack modal"
               >
-                <X className="w-5 h-5" style={{color: 'var(--text-secondary)'}} />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                  Stack Name *
-                </label>
+            <div className="modal-body">
+              <p className="form-helper">* Required fields</p>
+              
+              <div className="form-group">
+                <label className="label label-required">Stack Name</label>
                 <input
                   type="text"
                   value={newStackName}
                   onChange={(e) => setNewStackName(e.target.value)}
                   placeholder="e.g., Desktop Setup, Portable Rig"
-                  className="w-full px-3 py-2 rounded-md border text-sm"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
+                  className="input"
+                  required
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                  Description (Optional)
-                </label>
+              <div className="form-group">
+                <label className="label">Description</label>
                 <textarea
                   value={newStackDescription}
                   onChange={(e) => setNewStackDescription(e.target.value)}
                   placeholder="Describe your stack..."
-                  className="w-full px-3 py-2 rounded-md border text-sm h-20 resize-vertical"
-                  style={{
-                    backgroundColor: 'var(--background-secondary)',
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-primary)'
-                  }}
+                  className="input"
+                  rows={3}
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-6 border-t" style={{borderColor: 'var(--border-default)'}}>
+            <div className="modal-footer">
               <button
+                type="button"
                 onClick={() => {
                   setShowCreateStackModal(false)
                   setNewStackName('')
                   setNewStackDescription('')
                 }}
-                className="px-4 py-2 text-sm font-medium rounded-md transition-colors"
-                style={{
-                  backgroundColor: 'var(--background-secondary)',
-                  color: 'var(--text-secondary)'
-                }}
+                className="button button-secondary"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleCreateStack}
                 disabled={!newStackName.trim()}
-                className="px-4 py-2 text-sm font-medium text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{backgroundColor: 'var(--accent-primary)'}}
+                className="button button-primary"
               >
                 Create Stack
               </button>
@@ -1649,92 +1636,66 @@ function GearContent() {
       {/* Edit Gear Modal */}
       {showEditModal && selectedGear && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="modal-backdrop animate-fadeIn"
           onClick={() => {
             setShowEditModal(false)
             setSelectedGear(null)
           }}
         >
           <div 
-            className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border" 
-            style={{backgroundColor: 'var(--background-primary)', borderColor: 'var(--border-default)'}}
+            className="modal-container animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-6 border-b" style={{borderColor: 'var(--border-default)'}}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>
-                  Edit Gear
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowEditModal(false)
-                    setSelectedGear(null)
-                  }}
-                  className="p-2 hover:bg-secondary rounded-full transition-colors"
-                  style={{color: 'var(--text-secondary)'}}
-                >
-                  <X className="w-5 h-5" />
-                </button>
+            <div className="modal-header">
+              <div>
+                <h2 className="modal-title">Edit Gear</h2>
+                <p className="text-sm mt-1" style={{color: 'var(--text-secondary)'}}>
+                  {selectedGear.components?.brand || selectedGear.custom_brand} {selectedGear.components?.name || selectedGear.custom_name}
+                </p>
               </div>
-              <p className="text-sm mt-2" style={{color: 'var(--text-secondary)'}}>
-                {selectedGear.components?.brand || selectedGear.custom_brand} {selectedGear.components?.name || selectedGear.custom_name}
-              </p>
+              <button
+                onClick={() => {
+                  setShowEditModal(false)
+                  setSelectedGear(null)
+                }}
+                className="modal-close"
+                aria-label="Close edit modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="p-6">
+            <div className="modal-body">
               {/* Custom Entry Fields - Only show if this is a custom entry */}
               {(selectedGear.custom_name || selectedGear.custom_brand) && (
                 <>
-                  <h3 className="font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
-                    Product Information
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                        Brand
-                      </label>
+                  <h3 className="heading-4 mb-4">Product Information</h3>
+                  <div className="form-grid form-grid-2">
+                    <div className="form-group">
+                      <label className="label">Brand</label>
                       <input
                         type="text"
                         value={editFormData.custom_brand}
                         onChange={(e) => setEditFormData({...editFormData, custom_brand: e.target.value})}
-                        className="w-full px-3 py-2 rounded-md border text-sm"
-                        style={{
-                          backgroundColor: 'var(--background-secondary)',
-                          borderColor: 'var(--border-default)',
-                          color: 'var(--text-primary)'
-                        }}
+                        className="input"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                        Model
-                      </label>
+                    <div className="form-group">
+                      <label className="label">Model</label>
                       <input
                         type="text"
                         value={editFormData.custom_name}
                         onChange={(e) => setEditFormData({...editFormData, custom_name: e.target.value})}
-                        className="w-full px-3 py-2 rounded-md border text-sm"
-                        style={{
-                          backgroundColor: 'var(--background-secondary)',
-                          borderColor: 'var(--border-default)',
-                          color: 'var(--text-primary)'
-                        }}
+                        className="input"
                       />
                     </div>
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                        Category
-                      </label>
+                    <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                      <label className="label">Category</label>
                       <select
                         value={editFormData.custom_category}
                         onChange={(e) => setEditFormData({...editFormData, custom_category: e.target.value})}
-                        className="w-full px-3 py-2 rounded-md border text-sm"
-                        style={{
-                          backgroundColor: 'var(--background-secondary)',
-                          borderColor: 'var(--border-default)',
-                          color: 'var(--text-primary)'
-                        }}
+                        className="input"
                       >
                         <option value="headphones">Headphones</option>
                         <option value="iems">IEMs</option>
@@ -1748,56 +1709,33 @@ function GearContent() {
               )}
 
               {/* Purchase Details */}
-              <h3 className="font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
-                Purchase Details
-              </h3>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Purchase Date
-                  </label>
+              <h3 className="heading-4 mb-4">Purchase Details</h3>
+              <div className="form-grid form-grid-2">
+                <div className="form-group">
+                  <label className="label">Purchase Date</label>
                   <input
                     type="date"
                     value={editFormData.purchase_date}
                     onChange={(e) => setEditFormData({...editFormData, purchase_date: e.target.value})}
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Price Paid
-                  </label>
+                <div className="form-group">
+                  <label className="label">Price Paid</label>
                   <input
                     type="number"
                     value={editFormData.purchase_price}
                     onChange={(e) => setEditFormData({...editFormData, purchase_price: e.target.value})}
                     placeholder="0.00"
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Condition
-                  </label>
+                <div className="form-group">
+                  <label className="label">Condition</label>
                   <select
                     value={editFormData.condition}
                     onChange={(e) => setEditFormData({...editFormData, condition: e.target.value as 'new' | 'used' | 'refurbished' | 'b-stock'})}
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   >
                     <option value="new">New</option>
                     <option value="used">Used</option>
@@ -1805,81 +1743,57 @@ function GearContent() {
                     <option value="b-stock">B-Stock</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Purchase Location
-                  </label>
+                <div className="form-group">
+                  <label className="label">Purchase Location</label>
                   <input
                     type="text"
                     value={editFormData.purchase_location}
                     onChange={(e) => setEditFormData({...editFormData, purchase_location: e.target.value})}
                     placeholder="e.g., Amazon, Head-Fi, Local store"
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Serial Number
-                  </label>
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label className="label">Serial Number</label>
                   <input
                     type="text"
                     value={editFormData.serial_number}
                     onChange={(e) => setEditFormData({...editFormData, serial_number: e.target.value})}
                     placeholder="Optional"
-                    className="w-full px-3 py-2 rounded-md border text-sm"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-2" style={{color: 'var(--text-primary)'}}>
-                    Notes
-                  </label>
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label className="label">Notes</label>
                   <textarea
                     value={editFormData.notes}
                     onChange={(e) => setEditFormData({...editFormData, notes: e.target.value})}
                     placeholder="Any additional notes about this item..."
                     rows={3}
-                    className="w-full px-3 py-2 rounded-md border text-sm resize-none"
-                    style={{
-                      backgroundColor: 'var(--background-secondary)',
-                      borderColor: 'var(--border-default)',
-                      color: 'var(--text-primary)'
-                    }}
+                    className="input"
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowEditModal(false)
-                    setSelectedGear(null)
-                  }}
-                  className="flex-1 px-4 py-2.5 rounded-md font-medium transition-colors border"
-                  style={{
-                    borderColor: 'var(--border-default)',
-                    color: 'var(--text-secondary)'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleEditGear}
-                  className="flex-1 px-4 py-2.5 rounded-md font-medium transition-colors text-white"
-                  style={{backgroundColor: 'var(--accent-primary)'}}
-                >
-                  Save Changes
-                </button>
-              </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditModal(false)
+                  setSelectedGear(null)
+                }}
+                className="button button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleEditGear}
+                className="button button-primary"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>
