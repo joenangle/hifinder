@@ -503,8 +503,8 @@ const getMaxSteps = () => {
   if (isBeginner()) {
     return 3 // Simplified beginner flow: experience → headphone type → budget → done
   } else {
-    // Advanced flow - dynamic based on headphone selection
-    let maxSteps = 6
+    // Advanced flow - dynamic based on headphone selection (Step 6 temporarily commented out)
+    let maxSteps = 5 // Reduced from 6 to 5 - Step 6 (budget flexibility) temporarily hidden
     if (!needsHeadphoneQuestions()) {
       maxSteps -= 1 // Skip headphone type step
     }
@@ -665,7 +665,8 @@ const handleNext = useCallback(() => {
                !isStepValid() && step === 4 && needsHeadphoneQuestions() ? 'Select Headphone Type' :
                !isStepValid() && step === 5 ? 'Complete Setup Details' :
                !isStepValid() && step === 6 ? 'Complete Preferences' :
-               step >= getMaxSteps() ? 'See Recommendations' : 'Next'}
+               step >= getMaxSteps() ? 'See Recommendations' : 
+               step === 2 && isAdvanced() ? 'Skip' : 'Next'}
             </button>
           </div>
         </div>
@@ -1319,18 +1320,19 @@ const handleNext = useCallback(() => {
             </div>
           )}
           
+{/* TEMPORARILY COMMENTED OUT - Step 6: Budget Flexibility
           {step === 6 && (
             <div>
               <h2 className="heading-2 mb-4">Usage & Sound Preferences</h2>
               <p className="text-secondary mb-6">Tell us how you&apos;ll use your gear and your sound preferences</p>
               
-              {/* Budget Range Settings */}
+              Budget Range Settings
               <div className="mb-8">
                 <h3 className="heading-3 mb-4">Budget Flexibility</h3>
                 <p className="text-secondary mb-8">Adjust how strict you want the recommendations to be with your budget</p>
                 
                 <div className="space-y-8">
-                {/* Budget Range Preview */}
+                Budget Range Preview
                 <div className="card p-6 bg-tertiary">
                   <h3 className="font-semibold mb-4">Current Range</h3>
                   <div className="text-center">
@@ -1343,7 +1345,7 @@ const handleNext = useCallback(() => {
                   </div>
                 </div>
 
-                {/* Min Range Control */}
+                Min Range Control
                 <div>
                   <label className="block text-sm font-medium mb-4">
                     Minimum: {preferences.budgetRange.minPercent}% below budget
@@ -1370,7 +1372,7 @@ const handleNext = useCallback(() => {
                   </div>
                 </div>
 
-                {/* Max Range Control */}
+                Max Range Control
                 <div>
                   <label className="block text-sm font-medium mb-4">
                     Maximum: {preferences.budgetRange.maxPercent}% above budget
@@ -1397,7 +1399,7 @@ const handleNext = useCallback(() => {
                   </div>
                 </div>
 
-                {/* Preset Buttons */}
+                Preset Buttons
                 <div>
                   <h3 className="font-medium mb-4">Quick Presets</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
@@ -1455,6 +1457,7 @@ const handleNext = useCallback(() => {
               </div>
             </div>
           )}
+          END TEMPORARILY COMMENTED OUT - Step 6 */}
 
           {false && (
             <div>

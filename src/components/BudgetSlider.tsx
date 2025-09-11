@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 interface BudgetSliderProps {
   budget: number
@@ -76,16 +76,34 @@ export function BudgetSlider({
     }
   }
 
+  // Memoize the budget pill to prevent unnecessary re-renders
+  const budgetPill = useMemo(() => (
+    <div className="flex justify-center mb-4">
+      <div className="px-6 py-3 rounded-full shadow-lg" style={{
+        backgroundColor: 'var(--accent-primary)',
+        color: 'white'
+      }}>
+        <span className="text-2xl font-bold">${budget}</span>
+      </div>
+    </div>
+  ), [budget])
+
+  // Memoize slider position calculation
+  const sliderPosition = useMemo(() => budgetToSlider(budget, maxBudget), [budget, maxBudget])
+
   if (variant === 'simple') {
     return (
       <div className={`space-y-4 ${className}`}>
+        {/* Centered Budget Pill */}
+        {budgetPill}
+        
         <div className="relative">
           <div className="relative h-3 w-full">
             <input
               type="range"
               min="0"
               max="100"
-              value={budgetToSlider(budget, maxBudget)}
+              value={sliderPosition}
               onChange={(e) => handleSliderChange(parseInt(e.target.value))}
               className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
               style={{
@@ -99,10 +117,12 @@ export function BudgetSlider({
             />
             {/* Custom slider thumb */}
             <div 
-              className="absolute w-6 h-6 bg-white border-4 border-accent rounded-full shadow-lg pointer-events-none"
+              className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
               style={{
-                left: `calc(${budgetToSlider(budget, maxBudget)}% - 12px)`,
+                left: `calc(${sliderPosition}% - 12px)`,
                 top: '-6px',
+                border: '4px solid var(--accent-primary)',
+                zIndex: 10,
               }}
             />
           </div>
@@ -111,8 +131,7 @@ export function BudgetSlider({
         {showLabels && (
           <div className="flex justify-between text-xs text-secondary mt-1">
             <span>${minBudget}</span>
-            <span className="font-semibold">${budget}</span>
-            <span>${maxBudget}+</span>
+            <span className="text-sm opacity-60">${maxBudget}+</span>
           </div>
         )}
       </div>
@@ -122,13 +141,16 @@ export function BudgetSlider({
   // Advanced variant with gradient and input
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Centered Budget Pill */}
+      {budgetPill}
+      
       <div className="relative">
         <div className="relative h-3 w-full">
           <input
             type="range"
             min="0"
             max="100"
-            value={budgetToSlider(budget, maxBudget)}
+            value={sliderPosition}
             onChange={(e) => handleSliderChange(parseInt(e.target.value))}
             className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation budget-slider"
             style={{
@@ -142,10 +164,12 @@ export function BudgetSlider({
           />
           {/* Custom slider thumb */}
           <div 
-            className="absolute w-6 h-6 bg-white border-4 border-accent rounded-full shadow-lg pointer-events-none"
+            className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
             style={{
-              left: `calc(${budgetToSlider(budget, maxBudget)}% - 12px)`,
+              left: `calc(${sliderPosition}% - 12px)`,
               top: '-6px',
+              border: '4px solid var(--accent-primary)',
+              zIndex: 10,
             }}
           />
         </div>
@@ -170,7 +194,7 @@ export function BudgetSlider({
               </div>
             </div>
           ) : (
-            <span className="font-semibold">${budget}</span>
+            <span className="text-sm opacity-60">Current: ${budget}</span>
           )}
           <span className="flex-shrink-0">${maxBudget}+ USD</span>
         </div>

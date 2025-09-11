@@ -6,7 +6,6 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
-import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import { BudgetSlider } from '@/components/BudgetSlider'
 import { AmplificationBadge } from '@/components/AmplificationIndicator'
 
@@ -30,6 +29,7 @@ function RecommendationsContent() {
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showAmplification, setShowAmplification] = useState(false)
   
   // Selection state
@@ -117,459 +117,85 @@ function RecommendationsContent() {
 
   // Get budget tier name and range
 
-  // ===== SYSTEM BUILDER CORE LOGIC =====
-  
-  // Smart budget allocation across requested components
-  const allocateBudgetAcrossComponents = (totalBudget: number, requestedComponents: string[], existingGear: typeof userPrefs.existingGear) => {
-    const allocation: Record<string, number> = {}
-    
-    // Typical price ratios for audio components (based on audiophile community wisdom)
-    // Adjusted for upgrade scenarios where users already have some gear
-    const priceRatios = {
-      headphones: existingGear?.headphones ? 0.6 : 0.5,  // More budget for upgrades
-      dac: existingGear?.dac ? 0.3 : 0.2,  
-      amp: existingGear?.amp ? 0.35 : 0.25,
-      combo: existingGear?.combo ? 0.5 : 0.4  
-    }
-    
-    // If only one component requested, give it the full budget
-    if (requestedComponents.length === 1) {
-      allocation[requestedComponents[0]] = totalBudget
-      console.log(`💰 Single component requested: ${requestedComponents[0]} gets full $${totalBudget}`)
-      return allocation
-    }
-    
-    // Calculate total ratio for requested components
-    const totalRatio = requestedComponents.reduce((sum, comp) => sum + (priceRatios[comp as keyof typeof priceRatios] || 0.2), 0)
-    
-    // Allocate budget proportionally
-    requestedComponents.forEach(component => {
-      const ratio = priceRatios[component as keyof typeof priceRatios] || 0.2
-      allocation[component] = Math.floor(totalBudget * (ratio / totalRatio))
-    })
-    
-    console.log('💰 Budget allocation:', allocation)
-    return allocation
-  }
+  // ===== MOVED TO API - RECOMMENDATIONS LOGIC NOW SERVER-SIDE =====
 
-  // Enhanced amplification assessment using comprehensive logic
-  const calculateAmplificationRequirement = (
-    impedance: number | null, 
-    needsAmp: boolean | null,
-    headphoneName?: string,
-    brand?: string
-  ) => {
-    return assessAmplificationFromImpedance(impedance, needsAmp, headphoneName, brand);
-  }
-
-  // Calculate synergy score based on sound signature and usage
-  const calculateSynergyScore = (headphone: Component, soundSig: string, primaryUsage: string | undefined): number => {
-    let score = 0.5 // Base score
-    
-    // Sound signature matching
-    if (headphone.sound_signature) {
-      if (headphone.sound_signature === soundSig) score += 0.3
-      else if (soundSig === 'neutral' && headphone.sound_signature === 'neutral') score += 0.2
-    }
-    
-    // Usage case matching
-    if (headphone.use_cases && primaryUsage) {
-      const useCases = Array.isArray(headphone.use_cases) 
-        ? headphone.use_cases 
-        : (typeof headphone.use_cases === 'string' 
-          ? (headphone.use_cases as string).split(',').map((u: string) => u.trim().toLowerCase())
-          : [])
-      if (useCases.includes(primaryUsage.toLowerCase())) score += 0.2
-    }
-    
-    return Math.min(1, score)
-  }
-
-  // Advanced headphone processing with audio specifications
-  const processHeadphoneRecommendations = (headphones: Component[], budget: number, maxOptions: number): AudioComponent[] => {
-    const primaryUsage = usageRanking[0]
-    
-    const finalHeadphones = headphones
-      .map(h => ({
-        ...h,
-        avgPrice: ((h.price_used_min || 0) + (h.price_used_max || 0)) / 2,
-        // Enhanced amplification assessment
-        amplificationAssessment: calculateAmplificationRequirement(h.impedance, h.needs_amp, h.name, h.brand),
-        // Audio synergy score based on usage and sound signature
-        synergyScore: calculateSynergyScore(h, soundSignature, primaryUsage)
-      }))
-      .filter((h, index, arr) => {
-        // Remove duplicates
-        const key = `${h.name}|${h.brand}`
-        return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
-      })
-      .filter(h => {
-        // Use custom budget range preferences from advanced onboarding flow
-        const minAcceptable = Math.max(20, budget * (1 - budgetRangeMin / 100))  // Custom % below budget, min $20
-        const maxAcceptable = budget * (1 + budgetRangeMax / 100)                // Custom % above budget
-        const isAffordable = (h.price_used_min || 0) <= budget * 1.15  // Min price should be close to budget
-        const isInRange = h.avgPrice <= maxAcceptable && h.avgPrice >= minAcceptable
-        
-        // With realistic price ranges, we can be less restrictive on range width
-        const priceRange = (h.price_used_max || 0) - (h.price_used_min || 0)
-        const avgPrice = h.avgPrice
-        const isReasonableRange = priceRange <= avgPrice * 1.5  // Reasonable price spread
-        
-        // Must be affordable, in range, AND have reasonable price spread
-        return isAffordable && isInRange && isReasonableRange
-      })
-      .sort((a, b) => {
-        // Multi-factor scoring: price fit + synergy + specifications
-        const aPriceFit = 1 - Math.abs(budget - a.avgPrice) / budget
-        const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
-        const aScore = aPriceFit * 0.6 + (a.synergyScore || 0.5) * 0.4
-        const bScore = bPriceFit * 0.6 + (b.synergyScore || 0.5) * 0.4
-        return bScore - aScore
-      })
-      .slice(0, maxOptions)
-  
-  return finalHeadphones
-  }
-
-  // Calculate compatibility between component and headphones
-  const calculateCompatibilityScore = (component: Component, headphones: AudioComponent[], type: string): number => {
-    if (headphones.length === 0) return 0.5 // Default when no headphones
-    
-    let score = 0.5 // Base score
-    let matchCount = 0
-    
-    headphones.forEach(h => {
-      let headphoneScore = 0.5
-      
-      // Impedance and power matching for amps
-      if (type === 'amp' || type === 'combo') {
-        if (h.impedance && typeof h.impedance === 'number') {
-          // High impedance headphones need powerful amps
-          if (h.impedance >= 250) {
-            headphoneScore += 0.3 // Assume this amp can handle high impedance
-          } else if (h.impedance >= 150) {
-            headphoneScore += 0.2 // Medium impedance
-          } else if (h.impedance < 80) {
-            headphoneScore += 0.1 // Low impedance is easier to drive
-          }
-        }
-      }
-      
-      // Sound signature synergy
-      if (component.sound_signature && h.sound_signature) {
-        if (component.sound_signature === h.sound_signature) {
-          headphoneScore += 0.15
-        } else if (
-          (component.sound_signature === 'warm' && h.sound_signature === 'bright') ||
-          (component.sound_signature === 'bright' && h.sound_signature === 'warm')
-        ) {
-          headphoneScore += 0.1 // Complementary signatures can work well
-        }
-      }
-      
-      score += headphoneScore
-      matchCount++
-    })
-    
-    return matchCount > 0 ? Math.min(1, score / matchCount) : 0.5
-  }
-  
-  // Calculate power adequacy for driving headphones effectively
-  const calculatePowerAdequacy = (component: Component, headphones: AudioComponent[], type: string): number => {
-    if (headphones.length === 0) return 0.5
-    if (type === 'dac') return 0.5 // DACs don't have power output
-    
-    let adequacyScore = 0
-    let headphoneCount = 0
-    
-    headphones.forEach(h => {
-      headphoneCount++
-      
-      // For unknown specs, give middle score
-      if (!h.impedance || typeof h.impedance !== 'number') {
-        adequacyScore += 0.5
-        return
-      }
-      
-      // Calculate recommended power based on impedance
-      let recommendedPower = 10 // Base requirement
-      
-      if (h.impedance >= 300) recommendedPower = 250
-      else if (h.impedance >= 150) recommendedPower = 100
-      else if (h.impedance >= 80) recommendedPower = 50
-      else if (h.impedance >= 32) recommendedPower = 25
-      
-      // Assume reasonable power output for scoring (would ideally come from specs)
-      const assumedPowerOutput = type === 'combo' ? 100 : type === 'amp' ? 150 : 0
-      
-      if (assumedPowerOutput === 0) {
-        adequacyScore += 0.5
-        return
-      }
-      
-      // Score based on power adequacy
-      const powerRatio = assumedPowerOutput / recommendedPower
-      
-      if (powerRatio >= 2) adequacyScore += 1 // More than enough power
-      else if (powerRatio >= 1) adequacyScore += 0.8 // Adequate power
-      else if (powerRatio >= 0.5) adequacyScore += 0.6 // Somewhat adequate
-      else if (powerRatio >= 0.25) adequacyScore += 0.3 // Barely adequate
-      else adequacyScore += 0.1 // Insufficient power
-    })
-    
-    return headphoneCount > 0 ? adequacyScore / headphoneCount : 0.5
-  }
-
-  // Process any audio component with impedance and power matching
-  const processAudioComponents = (components: Component[], budget: number, headphones: AudioComponent[], type: string, maxOptions: number): AudioComponent[] => {
-    return components
-      .map(c => ({
-        ...c,
-        avgPrice: ((c.price_used_min || 0) + (c.price_used_max || 0)) / 2,
-        // Calculate compatibility with headphones
-        compatibilityScore: calculateCompatibilityScore(c, headphones, type),
-        // Calculate power adequacy for headphones
-        powerAdequacy: calculatePowerAdequacy(c, headphones, type)
-      }))
-      .filter((c, index, arr) => {
-        // Remove duplicates
-        const key = `${c.name}|${c.brand}`
-        return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
-      })
-      .filter(c => {
-        // Filter to show items across a wider range
-        const minAcceptable = budget * 0.15  // Show budget options
-        const maxAcceptable = budget * 2.5   // Allow upgrade options
-        return c.avgPrice >= minAcceptable && c.avgPrice <= maxAcceptable
-      })
-      .sort((a, b) => {
-        // Multi-factor scoring: price fit + compatibility + power adequacy
-        const aPriceFit = 1 - Math.abs(budget - a.avgPrice) / budget
-        const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
-        const aScore = aPriceFit * 0.4 + (a.compatibilityScore || 0.5) * 0.3 + (a.powerAdequacy || 0.5) * 0.3
-        const bScore = bPriceFit * 0.4 + (b.compatibilityScore || 0.5) * 0.3 + (b.powerAdequacy || 0.5) * 0.3
-        return bScore - aScore
-      })
-      .slice(0, maxOptions)
-  }
-
-  // Fetch DACs with impedance matching and synergy
-  const fetchDACs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    try {
-      const response = await fetch(`/api/components?category=dac&limit=${maxOptions * 5}`)
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      
-      const dacs = await response.json()
-      const minPrice = Math.floor(budget * 0.1)  // Show budget options
-      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-      
-      // Filter by price range (since API doesn't support price filtering yet)
-      const filteredDacs = (dacs || []).filter((dac: unknown) => {
-        const dacItem = dac as { price_used_min?: number; price_used_max?: number }
-        return (dacItem.price_used_min || 0) <= maxPrice && (dacItem.price_used_max || 0) >= minPrice
-      }).sort((a: unknown, b: unknown) => {
-        const aItem = a as { price_used_min?: number }
-        const bItem = b as { price_used_min?: number }
-        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
-      })
-      
-      return processAudioComponents(filteredDacs, budget, headphones, 'dac', maxOptions)
-    } catch (error) {
-      console.error('DAC fetch error:', error)
-      return []
-    }
-  }, [])
-
-  // Fetch AMPs with power matching  
-  const fetchAMPs = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    try {
-      const response = await fetch(`/api/components?category=amp&limit=${maxOptions * 5}`)
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      
-      const amps = await response.json()
-      const minPrice = Math.floor(budget * 0.1)  // Show budget options
-      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-      
-      // Filter by price range
-      const filteredAmps = (amps || []).filter((amp: unknown) => {
-        const ampItem = amp as { price_used_min?: number; price_used_max?: number }
-        return (ampItem.price_used_min || 0) <= maxPrice && (ampItem.price_used_max || 0) >= minPrice
-      }).sort((a: unknown, b: unknown) => {
-        const aItem = a as { price_used_min?: number }
-        const bItem = b as { price_used_min?: number }
-        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
-      })
-      
-      return processAudioComponents(filteredAmps, budget, headphones, 'amp', maxOptions)
-    } catch (error) {
-      console.error('AMP fetch error:', error)
-      return []
-    }
-  }, [])
-
-  // Fetch combo units with complete system matching
-  const fetchCombos = useCallback(async (budget: number, headphones: AudioComponent[], maxOptions: number): Promise<AudioComponent[]> => {
-    try {
-      const response = await fetch(`/api/components?category=dac_amp&limit=${maxOptions * 5}`)
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      
-      const combos = await response.json()
-      const minPrice = Math.floor(budget * 0.1)  // Show budget options
-      const maxPrice = Math.floor(budget * 2.5)  // Allow upgrade options
-      
-      // Filter by price range
-      const filteredCombos = (combos || []).filter((combo: unknown) => {
-        const comboItem = combo as { price_used_min?: number; price_used_max?: number }
-        return (comboItem.price_used_min || 0) <= maxPrice && (comboItem.price_used_max || 0) >= minPrice
-      }).sort((a: unknown, b: unknown) => {
-        const aItem = a as { price_used_min?: number }
-        const bItem = b as { price_used_min?: number }
-        return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
-      })
-      
-      return processAudioComponents(filteredCombos, budget, headphones, 'combo', maxOptions)
-    } catch (error) {
-      console.error('Combo fetch error:', error)
-      return []
-    }
-  }, [])
-
-  // Main recommendation fetching logic
+  // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async () => {
-      console.log('🎯 SYSTEM BUILDER ACTIVE - Building recommendations based on:', wantRecommendationsFor)
+    console.log('🎯 Fetching recommendations via API for:', wantRecommendationsFor)
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Build URL parameters for recommendations API
+      const params = new URLSearchParams({
+        experience,
+        budget: budget.toString(),
+        budgetRangeMin: budgetRangeMin.toString(),
+        budgetRangeMax: budgetRangeMax.toString(),
+        headphoneType,
+        wantRecommendationsFor: JSON.stringify(wantRecommendationsFor),
+        existingGear: JSON.stringify(existingGear),
+        usage,
+        usageRanking: JSON.stringify(usageRanking),
+        excludedUsages: JSON.stringify(userPrefs.excludedUsages),
+        sound: soundSignature
+      })
+
+      const response = await fetch(`/api/recommendations?${params.toString()}`)
       
-      // Limit options based on experience level
-      const maxOptions = experience === 'beginner' ? 3 : experience === 'intermediate' ? 5 : 10
-      
-      // SYSTEM BUILDER APPROACH: Allocate budget intelligently across requested components
-      const requestedComponents = Object.entries(wantRecommendationsFor)
-        .filter(([, wanted]) => wanted)
-        .map(([component]) => component)
-      
-      console.log(`💰 Allocating $${budget} budget across:`, requestedComponents)
-      
-      // Smart budget allocation based on component priorities and typical price ratios
-      const budgetAllocation = allocateBudgetAcrossComponents(budget, requestedComponents, existingGear)
-      console.log('📊 Budget allocation:', budgetAllocation)
-      
-      // Fetch recommendations for each requested component type
-      let finalHeadphones: AudioComponent[] = []
-      let finalDacs: AudioComponent[] = []  
-      let finalAmps: AudioComponent[] = []
-      let finalDacAmps: AudioComponent[] = []
-      
-      // HEADPHONES - If requested (allow upgrades even if owned)
-      if (wantRecommendationsFor.headphones) {
-        const headphoneBudget = budgetAllocation.headphones || budget
-        // More inclusive price range to avoid gaps
-        const maxBudgetLimit = Math.floor(headphoneBudget * 2.0)  // Allow up to 100% over budget for better selection
-        const minBudgetLimit = Math.max(10, Math.floor(headphoneBudget * 0.1))  // Start very low to show budget options
-        
-        console.log(`🎧 Fetching headphones with budget: $${headphoneBudget} (inclusive range: $${minBudgetLimit}-$${maxBudgetLimit})`)
-        
-        // Get a broader range of items to avoid gaps - focus on affordability
-        try {
-          const response = await fetch(`/api/components?category=${headphoneType}&limit=${maxOptions * 8}`)
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`)
-          }
-          
-          const headphonesData = await response.json()
-          
-          // Filter by budget range (API doesn't support price filtering yet)
-          const filteredHeadphones = (headphonesData || []).filter((h: unknown) => {
-            const hItem = h as { price_used_min?: number; price_used_max?: number }
-            return (hItem.price_used_min || 0) <= maxBudgetLimit && (hItem.price_used_max || 0) >= minBudgetLimit
-          }).sort((a: unknown, b: unknown) => {
-            const aItem = a as { price_used_min?: number }
-            const bItem = b as { price_used_min?: number }
-            return (aItem.price_used_min || 0) - (bItem.price_used_min || 0)
-          })
-          console.log(`📊 Found ${filteredHeadphones?.length || 0} headphones in price range`)
-          console.log('Sample prices:', filteredHeadphones?.slice(0, 3).map((h: unknown) => {
-            const hItem = h as { name?: string; price_used_min?: number; price_used_max?: number }
-            return `${hItem.name}: $${hItem.price_used_min}-${hItem.price_used_max}`
-          }))
-          
-          // Advanced headphone filtering with audio specifications
-          finalHeadphones = processHeadphoneRecommendations(filteredHeadphones || [], headphoneBudget, maxOptions)
-          
-          console.log(`✅ After processing: ${finalHeadphones.length} headphones selected`)
-          console.log('Final selections:', finalHeadphones.map(h => `${h.name}: $${h.avgPrice?.toFixed(0)}`))
-        } catch (error) {
-          console.error('Headphones fetch error:', error)
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Server error (${response.status})`)
       }
       
-      // DAC RECOMMENDATIONS - If requested (allow upgrades even if owned)
-      if (wantRecommendationsFor.dac) {
-        const dacBudget = budgetAllocation.dac || budget * 0.2
-        console.log(`🔄 Fetching DACs with budget: $${dacBudget}`)
-        
-        finalDacs = await fetchDACs(dacBudget, finalHeadphones, maxOptions)
+      const recommendations = await response.json()
+      
+      // Validate response structure
+      if (!recommendations || typeof recommendations !== 'object') {
+        throw new Error('Invalid response format from recommendations API')
       }
       
-      // AMP RECOMMENDATIONS - If requested (allow upgrades even if owned)  
-      if (wantRecommendationsFor.amp) {
-        const ampBudget = budgetAllocation.amp || budget * 0.25
-        console.log(`⚡ Fetching AMPs with budget: $${ampBudget}`)
-        
-        finalAmps = await fetchAMPs(ampBudget, finalHeadphones, maxOptions)
-      }
-      
-      // COMBO RECOMMENDATIONS - If requested (allow upgrades even if owned)
-      if (wantRecommendationsFor.combo) {
-        const comboBudget = budgetAllocation.combo || budget * 0.4
-        console.log(`🎯 Fetching DAC/AMP combos with budget: $${comboBudget}`)
-        
-        finalDacAmps = await fetchCombos(comboBudget, finalHeadphones, maxOptions)
-      }
-      
-      // Determine if amplification is needed based on enhanced assessment
-      const needsAmplification = finalHeadphones.some(h => {
-        if (!h.amplificationAssessment) return h.needs_amp === true;
-        return h.amplificationAssessment.difficulty === 'demanding' || 
-               h.amplificationAssessment.difficulty === 'very_demanding';
+      console.log('✅ Recommendations received:', {
+        headphones: recommendations.headphones?.length || 0,
+        dacs: recommendations.dacs?.length || 0,
+        amps: recommendations.amps?.length || 0,
+        combos: recommendations.combos?.length || 0,
+        needsAmplification: recommendations.needsAmplification
       })
       
-      // Auto-suggest amplification if needed and not already covered
-      if (needsAmplification && !((existingGear.dac && existingGear.amp) || existingGear.combo)) {
-        console.log('🔊 High impedance headphones detected - amplification recommended')
-        
-        // If user hasn't requested amp gear, add basic suggestions
-        if (!wantRecommendationsFor.amp && !wantRecommendationsFor.combo && !wantRecommendationsFor.dac) {
-          const ampBudget = Math.min(300, budget * 0.3)
-          const suggestedAmps = await fetchAMPs(ampBudget, finalHeadphones, 3)
-          
-          if (suggestedAmps.length > 0) {
-            finalAmps = [...finalAmps, ...suggestedAmps]
-          }
-        }
+      // Set recommendations with fallbacks
+      setHeadphones(recommendations.headphones || [])
+      setDacs(recommendations.dacs || [])
+      setAmps(recommendations.amps || [])
+      setDacAmps(recommendations.combos || [])
+      setShowAmplification(recommendations.needsAmplification || false)
+      
+      // Check if we got any results
+      const totalResults = (recommendations.headphones?.length || 0) + 
+                          (recommendations.dacs?.length || 0) + 
+                          (recommendations.amps?.length || 0) + 
+                          (recommendations.combos?.length || 0)
+      
+      if (totalResults === 0) {
+        setError('No recommendations found for your criteria. Try adjusting your budget or preferences.')
       }
       
-      // Set final recommendations
-      setHeadphones(finalHeadphones)
-      setDacs(finalDacs)
-      setAmps(finalAmps)
-      setDacAmps(finalDacAmps)
-      setShowAmplification(needsAmplification)
+    } catch (error) {
+      console.error('Recommendations API error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations'
+      setError(`Unable to load recommendations: ${errorMessage}`)
       
-      console.log('🎯 System builder recommendations complete:', {
-        headphones: finalHeadphones.length,
-        dacs: finalDacs.length,
-        amps: finalAmps.length,
-        combos: finalDacAmps.length,
-        needsAmplification
-      })
-      
+      // Fallback to empty state
+      setHeadphones([])
+      setDacs([])
+      setAmps([])
+      setDacAmps([])
+      setShowAmplification(false)
+    } finally {
       setLoading(false)
-    }, [budget, headphoneType, wantRecommendationsFor, existingGear, usage, soundSignature, experience, usageRanking, budgetRangeMin, budgetRangeMax, fetchDACs, fetchAMPs, fetchCombos])
+    }
+  }, [experience, budget, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, userPrefs.excludedUsages, soundSignature])
 
   useEffect(() => {
     fetchRecommendations()
@@ -677,6 +303,37 @@ function RecommendationsContent() {
         <div className="text-center mt-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4 mx-auto"></div>
           <p className="text-secondary">Building your personalized recommendations...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <div className="max-w-2xl mx-auto mt-20">
+          <div className="card p-8 text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="heading-2 mb-4">Unable to Load Recommendations</h2>
+            <p className="text-secondary mb-6">{error}</p>
+            <div className="space-y-4">
+              <button
+                onClick={() => fetchRecommendations()}
+                className="button button-primary mr-4"
+              >
+                Try Again
+              </button>
+              <Link 
+                href="/onboarding"
+                className="button button-secondary"
+              >
+                Adjust Preferences
+              </Link>
+            </div>
+            <div className="mt-6 text-sm text-tertiary">
+              <p>Still having issues? Try adjusting your budget range or selecting different components.</p>
+            </div>
+          </div>
         </div>
       </div>
     )
