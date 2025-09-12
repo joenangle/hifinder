@@ -110,7 +110,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
               <Cpu className="w-5 h-5 text-accent" />
               <h3 className="font-semibold text-foreground">Technical Specifications</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {component.impedance && (
                 <div className="p-3 bg-surface-secondary rounded">
                   <div className="text-sm text-muted">Impedance</div>
