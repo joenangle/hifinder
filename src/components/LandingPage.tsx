@@ -111,7 +111,7 @@ export function LandingPage() {
         {/* Core Features */}
         <section className="mb-8 py-6">
           <h2 className="heading-2 text-center mb-6 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">Complete Audio Gear Management</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {/* Gear Collection */}
             <Link href="/gear" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group" onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: 'gear_collection' } })}>
               <div className="flex items-center gap-4 mb-4">
@@ -254,7 +254,7 @@ export function LandingPage() {
         {/* How It Works - Streamlined */}
         <section id="how-it-works" className="mb-8 py-6">
           <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">How HiFinder Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
             <div className="card p-6 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group">
               <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
                 <span className="text-lg">📊</span>
@@ -300,7 +300,7 @@ export function LandingPage() {
         <section className="mb-8 py-4">
           <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">Popular Budget Ranges</h2>
           <p className="text-secondary text-center mb-6">Jump straight to recommendations for your budget</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
             <Link href="/quick-start?budget=75" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'budget', budget_amount: 75 } })}>
               <div className="bg-gradient-to-r from-accent to-accent-hover rounded-full mx-auto mb-2 shadow-md" style={{ width: '10px', height: '10px' }}></div>
               <h4 className="font-semibold mb-1">Budget</h4>
