@@ -45,20 +45,27 @@ function RecommendationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
+  // Quick-start detection
+  const isQuickStart = searchParams.get('source') === 'quick-start'
+  
   // User preferences state - make them editable
   const [userPrefs, setUserPrefs] = useState({
     experience: searchParams.get('experience') || 'intermediate',
     budget: parseInt(searchParams.get('budget') || '300'),
     budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
     budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
-    headphoneType: searchParams.get('headphoneType') || 'cans',
+    headphoneType: searchParams.get('headphoneType') || 'both', // Show both for quick-start
     wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
     existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
     usage: searchParams.get('usage') || 'music',
     usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
     excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-    soundSignature: searchParams.get('sound') || 'neutral'
+    soundSignature: searchParams.get('sound') || 'any' // Show all for quick-start
   })
+  
+  // Filter state for UI controls
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('headphoneType') || 'both')
+  const [soundFilter, setSoundFilter] = useState(searchParams.get('sound') || 'any')
   
   // Sync state with URL parameters when they change
   useEffect(() => {
@@ -280,8 +287,28 @@ function RecommendationsContent() {
     ...selectedDacAmpItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)
   ].reduce((sum, price) => sum + price, 0)
 
-  // Dynamic description based on experience level
+  // Get budget range label
+  const getBudgetRangeLabel = (budget: number) => {
+    if (budget <= 100) return 'Budget'
+    if (budget <= 400) return 'Entry Level'  
+    if (budget <= 1000) return 'Mid Range'
+    if (budget <= 3000) return 'High End'
+    return 'Summit-Fi'
+  }
+
+  // Dynamic title and description 
+  const getTitle = () => {
+    if (isQuickStart) {
+      return `${getBudgetRangeLabel(budget)} Audio Gear Under ${formatBudgetUSD(budget)}`
+    }
+    return "Your Audio System Recommendations"
+  }
+
   const getDescription = () => {
+    if (isQuickStart) {
+      return `Here are highly-rated headphones and IEMs in your ${formatBudgetUSD(budget)} budget range. Use the filters below to narrow results by type and sound signature.`
+    }
+    
     if (experience === 'beginner') {
       return "We've selected 3 highly-rated, easy-to-use options in your budget range. These are safe choices that work great out of the box."
     } else if (experience === 'intermediate') {
@@ -344,7 +371,7 @@ function RecommendationsContent() {
       <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
         <div className="text-center mb-8">
           <h1 className="heading-1 mb-4">
-            Your Audio System Recommendations
+            {getTitle()}
           </h1>
           <p className="text-lg text-secondary max-w-3xl mx-auto">
             {getDescription()}
@@ -352,7 +379,7 @@ function RecommendationsContent() {
         </div>
 
         {/* Budget Control */}
-        <div className="card mb-10 relative" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
+        <div className="card mb-6 relative" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
           {/* Budget Slider using reusable component */}
           <div className="mb-6">
             {/* Budget Tier Labels */}
@@ -374,6 +401,140 @@ function RecommendationsContent() {
               minBudget={20}
               maxBudget={10000}
             />
+          </div>
+        </div>
+
+        {/* Optional Filters */}
+        <div className="card mb-10 p-6">
+          <h3 className="heading-3 mb-4">Refine Your Search</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Headphone Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Headphone Type</label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="headphoneType"
+                    value="both"
+                    checked={typeFilter === 'both'}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value)
+                      updatePreferences({ headphoneType: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Show All</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="headphoneType"
+                    value="cans"
+                    checked={typeFilter === 'cans'}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value)
+                      updatePreferences({ headphoneType: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Over-Ear Headphones</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="headphoneType"
+                    value="iems"
+                    checked={typeFilter === 'iems'}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value)
+                      updatePreferences({ headphoneType: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">In-Ear Monitors (IEMs)</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Sound Signature Filter */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="soundSignature"
+                    value="any"
+                    checked={soundFilter === 'any'}
+                    onChange={(e) => {
+                      setSoundFilter(e.target.value)
+                      updatePreferences({ soundSignature: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Any</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="soundSignature"
+                    value="neutral"
+                    checked={soundFilter === 'neutral'}
+                    onChange={(e) => {
+                      setSoundFilter(e.target.value)
+                      updatePreferences({ soundSignature: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Neutral (Balanced)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="soundSignature"
+                    value="warm"
+                    checked={soundFilter === 'warm'}
+                    onChange={(e) => {
+                      setSoundFilter(e.target.value)
+                      updatePreferences({ soundSignature: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Warm (Enhanced Bass)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="soundSignature"
+                    value="bright"
+                    checked={soundFilter === 'bright'}
+                    onChange={(e) => {
+                      setSoundFilter(e.target.value)
+                      updatePreferences({ soundSignature: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Bright (Enhanced Treble)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="soundSignature"
+                    value="fun"
+                    checked={soundFilter === 'fun'}
+                    onChange={(e) => {
+                      setSoundFilter(e.target.value)
+                      updatePreferences({ soundSignature: e.target.value })
+                    }}
+                    className="mr-3"
+                  />
+                  <span className="text-sm">Fun (V-Shaped)</span>
+                </label>
+              </div>
+            </div>
+
           </div>
         </div>
 

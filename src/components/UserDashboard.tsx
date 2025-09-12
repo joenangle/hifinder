@@ -214,7 +214,7 @@ export function UserDashboard() {
           <h2 className="heading-2 mb-4">Find Gear by Budget</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Link 
-              href="/quick-start?budget=75"
+              href="/recommendations?budget=75&source=quick-start"
               className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 75 } })}
             >
@@ -224,7 +224,7 @@ export function UserDashboard() {
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
             <Link 
-              href="/quick-start?budget=250"
+              href="/recommendations?budget=250&source=quick-start"
               className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 250 } })}
             >
@@ -234,7 +234,7 @@ export function UserDashboard() {
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
             <Link 
-              href="/quick-start?budget=700"
+              href="/recommendations?budget=700&source=quick-start"
               className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 700 } })}
             >
@@ -244,7 +244,7 @@ export function UserDashboard() {
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
             <Link 
-              href="/quick-start?budget=2000"
+              href="/recommendations?budget=2000&source=quick-start"
               className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 2000 } })}
             >

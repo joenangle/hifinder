@@ -301,28 +301,28 @@ export function LandingPage() {
           <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">Popular Budget Ranges</h2>
           <p className="text-secondary text-center mb-6">Jump straight to recommendations for your budget</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
-            <Link href="/quick-start?budget=75" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'budget', budget_amount: 75 } })}>
+            <Link href="/recommendations?budget=75&source=quick-start" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'budget', budget_amount: 75 } })}>
               <div className="bg-gradient-to-r from-accent to-accent-hover rounded-full mx-auto mb-2 shadow-md" style={{ width: '10px', height: '10px' }}></div>
               <h4 className="font-semibold mb-1">Budget</h4>
               <p className="text-xl font-bold mb-1">$20-100</p>
               <p className="text-secondary text-xs mb-2">Great entry point</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link href="/quick-start?budget=250" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'entry', budget_amount: 250 } })}>
+            <Link href="/recommendations?budget=250&source=quick-start" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'entry', budget_amount: 250 } })}>
               <div className="bg-gradient-to-r from-accent to-accent-hover rounded-full mx-auto mb-2 shadow-md" style={{ width: '10px', height: '10px' }}></div>
               <h4 className="font-semibold mb-1">Entry Level</h4>
               <p className="text-xl font-bold mb-1">$100-400</p>
               <p className="text-secondary text-xs mb-2">Solid performance</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link href="/quick-start?budget=700" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'mid_range', budget_amount: 700 } })}>
+            <Link href="/recommendations?budget=700&source=quick-start" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'mid_range', budget_amount: 700 } })}>
               <div className="bg-gradient-to-r from-accent to-accent-hover rounded-full mx-auto mb-2 shadow-md" style={{ width: '10px', height: '10px' }}></div>
               <h4 className="font-semibold mb-1">Mid Range</h4>
               <p className="text-xl font-bold mb-1">$400-1k</p>
               <p className="text-secondary text-xs mb-2">Audiophile quality</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link href="/quick-start?budget=2000" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'high_end', budget_amount: 2000 } })}>
+            <Link href="/recommendations?budget=2000&source=quick-start" className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover shadow-lg hover:shadow-xl border-2 hover:border-accent/50" onClick={() => trackEvent({ name: 'budget_quick_start_clicked', properties: { budget_tier: 'high_end', budget_amount: 2000 } })}>
               <div className="bg-gradient-to-r from-accent to-accent-hover rounded-full mx-auto mb-2 shadow-md" style={{ width: '10px', height: '10px' }}></div>
               <h4 className="font-semibold mb-1">High End</h4>
               <p className="text-xl font-bold mb-1">$1k-3k+</p>
