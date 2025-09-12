@@ -24,7 +24,7 @@ export function DesktopNav() {
   const navItems = session ? authNavItems : publicNavItems
 
   return (
-    <nav className="hidden sm:flex items-center gap-8">
+    <nav className="hidden lg:flex items-center gap-8">
       {navItems.map((item) => {
         const isActive = pathname === item.href || 
           (item.href !== '/' && pathname.startsWith(item.href))

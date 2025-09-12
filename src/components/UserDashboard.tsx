@@ -94,7 +94,7 @@ export function UserDashboard() {
         {/* Quick Actions */}
         <section className="mb-8">
           <h2 className="heading-2 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link 
               href="/onboarding"
               className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
@@ -172,7 +172,7 @@ export function UserDashboard() {
             <p className="text-secondary mb-4">
               Track your audio collection, monitor values, and get upgrade recommendations.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-surface/50 rounded-lg">
                 <div className="text-2xl font-bold text-accent mb-1">
                   {loading ? '—' : gear.length}
@@ -212,7 +212,7 @@ export function UserDashboard() {
         {/* Quick Budget Selection */}
         <section className="mb-8">
           <h2 className="heading-2 mb-4">Find Gear by Budget</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Link 
               href="/quick-start?budget=75"
               className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
@@ -258,7 +258,7 @@ export function UserDashboard() {
 
         {/* Secondary Actions */}
         <section className="mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link 
               href="/wishlist"
               className="card p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
