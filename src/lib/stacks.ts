@@ -197,6 +197,104 @@ export async function reorderStackComponents(
   }
 }
 
+export interface CompatibilityWarning {
+  type: 'impedance' | 'power' | 'category' | 'connectivity'
+  severity: 'warning' | 'error'
+  message: string
+  components: string[]
+}
+
+export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarning[] {
+  const warnings: CompatibilityWarning[] = []
+  const components = stack.stack_components
+  
+  // Check for headphones without amp/DAC when high impedance
+  const headphones = components.filter(c => 
+    c.user_gear?.components?.category === 'headphones' || 
+    c.user_gear?.custom_category === 'headphones'
+  )
+  const amps = components.filter(c => 
+    c.user_gear?.components?.category === 'amps' || 
+    c.user_gear?.custom_category === 'amps'
+  )
+  const combos = components.filter(c => 
+    c.user_gear?.components?.category === 'combo' || 
+    c.user_gear?.custom_category === 'combo'
+  )
+  
+  headphones.forEach(hp => {
+    const impedance = hp.user_gear?.components?.impedance
+    const needsAmp = hp.user_gear?.components?.needs_amp
+    
+    if ((impedance && parseInt(impedance.toString()) > 150) || needsAmp) {
+      if (amps.length === 0 && combos.length === 0) {
+        warnings.push({
+          type: 'power',
+          severity: 'warning',
+          message: 'High impedance headphones may need amplification',
+          components: [hp.user_gear?.components?.name || hp.user_gear?.custom_name || 'Unknown']
+        })
+      }
+    }
+  })
+  
+  // Check for multiple headphones
+  if (headphones.length > 1) {
+    warnings.push({
+      type: 'category',
+      severity: 'warning',
+      message: 'Multiple headphones in one stack',
+      components: headphones.map(h => h.user_gear?.components?.name || h.user_gear?.custom_name || 'Unknown')
+    })
+  }
+  
+  return warnings
+}
+
+export interface StackTemplate {
+  id: string
+  name: string
+  description: string
+  budgetRange: { min: number; max: number }
+  categories: string[]
+  icon: string
+}
+
+export const stackTemplates: StackTemplate[] = [
+  {
+    id: 'desktop-setup',
+    name: 'Desktop Setup',
+    description: 'Complete desktop audio workstation with headphones, DAC, and amp',
+    budgetRange: { min: 300, max: 2000 },
+    categories: ['headphones', 'dacs', 'amps'],
+    icon: '🖥️'
+  },
+  {
+    id: 'portable-rig',
+    name: 'Portable Rig',
+    description: 'Mobile setup with IEMs and portable DAC/amp',
+    budgetRange: { min: 200, max: 800 },
+    categories: ['iems', 'combo'],
+    icon: '🎒'
+  },
+  {
+    id: 'gaming-setup',
+    name: 'Gaming Setup',
+    description: 'Gaming-optimized headphones with microphone and sound processing',
+    budgetRange: { min: 150, max: 600 },
+    categories: ['headphones', 'combo'],
+    icon: '🎮'
+  },
+  {
+    id: 'audiophile-stack',
+    name: 'Audiophile Stack',
+    description: 'High-end reference setup for critical listening',
+    budgetRange: { min: 1000, max: 5000 },
+    categories: ['headphones', 'dacs', 'amps'],
+    icon: '🎵'
+  }
+]
+
 export function calculateStackValue(stack: StackWithGear): {
   totalPaid: number
   currentValue: number

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue } from '@/lib/stacks'
+import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, CompatibilityWarning, stackTemplates, StackTemplate } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -214,19 +215,38 @@ function getCategoryIcon(category: string) {
 
 function GearContent() {
   const { data: session } = useSession()
+  const searchParams = useSearchParams()
   const [gear, setGear] = useState<UserGearItem[]>([])
   const [stacks, setStacks] = useState<StackWithGear[]>([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  
+  // Initialize view mode from URL params
+  const getInitialViewMode = (): ViewMode => {
+    const tab = searchParams.get('tab')
+    if (tab === 'stacks') return 'stacks'
+    return 'grid'
+  }
+  
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode)
   const [activeFilters, setActiveFilters] = useState<Set<CategoryFilter>>(new Set())
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showCreateStackModal, setShowCreateStackModal] = useState(false)
+  const [showAddGearModal, setShowAddGearModal] = useState(false)
+  const [showEditStackModal, setShowEditStackModal] = useState(false)
+  const [selectedStackForGear, setSelectedStackForGear] = useState<StackWithGear | null>(null)
+  const [selectedStackForEdit, setSelectedStackForEdit] = useState<StackWithGear | null>(null)
   const [selectedGear, setSelectedGear] = useState<UserGearItem | null>(null)
   const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
+  const [editStackName, setEditStackName] = useState('')
+  const [editStackDescription, setEditStackDescription] = useState('')
+
+  // State for drag and drop
+  const [draggedGear, setDraggedGear] = useState<UserGearItem | null>(null)
+  const [dragOverStack, setDragOverStack] = useState<string | null>(null)
   
   // Edit gear form state
   const [editFormData, setEditFormData] = useState({
@@ -469,6 +489,26 @@ function GearContent() {
     }
   }
 
+  const handleEditStack = async () => {
+    if (!selectedStackForEdit || !editStackName.trim()) return
+    
+    const success = await updateStack(
+      selectedStackForEdit.id, 
+      {
+        name: editStackName.trim(),
+        description: editStackDescription.trim() || undefined
+      }
+    )
+    
+    if (success) {
+      await loadData()
+      setShowEditStackModal(false)
+      setSelectedStackForEdit(null)
+      setEditStackName('')
+      setEditStackDescription('')
+    }
+  }
+
   const handleEditGear = async () => {
     if (!session?.user?.id || !selectedGear) return
     
@@ -511,6 +551,40 @@ function GearContent() {
       console.error('Error updating gear:', error)
       alert('Error updating gear: ' + error)
     }
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, gearItem: UserGearItem) => {
+    setDraggedGear(gearItem)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragEnd = () => {
+    setDraggedGear(null)
+    setDragOverStack(null)
+  }
+
+  const handleDragOver = (e: React.DragEvent, stackId: string) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverStack(stackId)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOverStack(null)
+  }
+
+  const handleDrop = async (e: React.DragEvent, stackId: string) => {
+    e.preventDefault()
+    if (draggedGear) {
+      const result = await addGearToStack(stackId, draggedGear.id)
+      if (result) {
+        await loadData()
+      }
+    }
+    setDraggedGear(null)
+    setDragOverStack(null)
   }
 
   const resetAddForm = () => {
@@ -661,17 +735,60 @@ function GearContent() {
                     <p className="text-secondary mb-6">Create your first stack to group related gear together</p>
                     <button
                       onClick={() => setShowCreateStackModal(true)}
-                      className="button button-primary"
+                      className="button button-primary mb-6"
                     >
                       Create Your First Stack
                     </button>
+                    
+                    {/* Stack Templates */}
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
+                        Quick Start Templates
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {stackTemplates.map(template => (
+                          <div
+                            key={template.id}
+                            onClick={async () => {
+                              const newStack = await createStack(session?.user?.id || '', template.name, template.description)
+                              if (newStack) loadData()
+                            }}
+                            className="card p-4 hover:shadow-lg transition-all cursor-pointer border-2 border-dashed border-secondary hover:border-primary"
+                          >
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">{template.icon}</span>
+                              <div>
+                                <h4 className="font-semibold text-sm" style={{color: 'var(--text-primary)'}}>
+                                  {template.name}
+                                </h4>
+                                <p className="text-xs" style={{color: 'var(--text-secondary)'}}>
+                                  ${template.budgetRange.min}-${template.budgetRange.max}
+                                </p>
+                              </div>
+                            </div>
+                            <p className="text-xs" style={{color: 'var(--text-secondary)'}}>
+                              {template.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {stacks.map(stack => {
                       const stackStats = calculateStackValue(stack)
+                      const warnings = checkStackCompatibility(stack)
                       return (
-                        <div key={stack.id} className="card p-6">
+                        <div 
+                          key={stack.id} 
+                          className={`card p-6 ${
+                            dragOverStack === stack.id ? 'ring-2 ring-accent-primary bg-accent-primary/10' : ''
+                          }`}
+                          onDragOver={(e) => handleDragOver(e, stack.id)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, stack.id)}
+                        >
                           {/* Stack Header */}
                           <div className="flex items-start justify-between mb-4">
                             <div>
@@ -687,7 +804,10 @@ function GearContent() {
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => {
-                                  // TODO: Edit stack functionality
+                                  setSelectedStackForEdit(stack)
+                                  setEditStackName(stack.name)
+                                  setEditStackDescription(stack.description || '')
+                                  setShowEditStackModal(true)
                                 }}
                                 className="p-1 rounded hover:bg-secondary text-secondary hover:text-primary transition-colors"
                                 title="Edit Stack"
@@ -725,6 +845,22 @@ function GearContent() {
                             </div>
                           </div>
 
+                          {/* Compatibility Warnings */}
+                          {warnings.length > 0 && (
+                            <div className="mb-4 space-y-2">
+                              {warnings.map((warning, index) => (
+                                <div key={index} className={`p-2 rounded text-xs flex items-center gap-2 ${
+                                  warning.severity === 'error' 
+                                    ? 'bg-red-500/10 text-red-500 border border-red-500/20' 
+                                    : 'bg-yellow-500/10 text-yellow-600 border border-yellow-500/20'
+                                }`}>
+                                  <span className="font-medium">⚠️</span>
+                                  <span>{warning.message}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
                           {/* Stack Components */}
                           <div className="space-y-2">
                             {stack.stack_components.map((component, index) => (
@@ -756,12 +892,26 @@ function GearContent() {
                             ))}
                           </div>
 
+                          {/* Drop Zone Indicator */}
+                          {draggedGear && dragOverStack === stack.id && (
+                            <div className="mt-3 p-4 border-2 border-dashed border-accent-primary rounded bg-accent-primary/10 text-center">
+                              <div className="text-sm font-medium" style={{color: 'var(--accent-primary)'}}>
+                                Drop to add &ldquo;{draggedGear.components?.name || draggedGear.custom_name}&rdquo; to stack
+                              </div>
+                            </div>
+                          )}
+
                           {/* Add Gear to Stack */}
                           <button
                             onClick={() => {
-                              // TODO: Add gear to stack modal
+                              setSelectedStackForGear(stack)
+                              setShowAddGearModal(true)
                             }}
-                            className="w-full mt-3 p-2 border-2 border-dashed border-secondary rounded text-secondary hover:text-primary hover:border-primary transition-colors text-sm"
+                            className={`w-full mt-3 p-2 border-2 border-dashed transition-colors text-sm ${
+                              draggedGear 
+                                ? 'border-accent-primary/50 text-accent-primary/50' 
+                                : 'border-secondary text-secondary hover:text-primary hover:border-primary'
+                            }`}
                           >
                             + Add Gear to Stack
                           </button>
@@ -783,12 +933,22 @@ function GearContent() {
                     <div className="mt-8">
                       <h3 className="text-lg font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
                         Individual Gear ({filteredUngroupedGear.length})
+                        {stacks.length > 0 && (
+                          <span className="text-sm font-normal text-secondary ml-2">
+                            • Drag to add to stacks
+                          </span>
+                        )}
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {filteredUngroupedGear.map(item => (
                           <div
                             key={item.id}
-                            className="card p-3 hover:shadow-lg transition-all cursor-pointer"
+                            className={`card p-3 hover:shadow-lg transition-all cursor-pointer ${
+                              draggedGear?.id === item.id ? 'opacity-50' : ''
+                            }`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, item)}
+                            onDragEnd={handleDragEnd}
                             onClick={() => {
                               setSelectedGear(item)
                               setShowDetailsModal(true)
@@ -852,7 +1012,12 @@ function GearContent() {
               {filteredGear.map(item => (
               <div
                 key={item.id}
-                className="card hover:shadow-lg transition-all cursor-pointer"
+                className={`card hover:shadow-lg transition-all cursor-pointer ${
+                  draggedGear?.id === item.id ? 'opacity-50' : ''
+                }`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item)}
+                onDragEnd={handleDragEnd}
                 onClick={() => {
                   setSelectedGear(item)
                   setShowDetailsModal(true)
@@ -1798,10 +1963,246 @@ function GearContent() {
           </div>
         </div>
       )}
+
+      {/* Add Gear to Stack Modal */}
+      {showAddGearModal && selectedStackForGear && (
+        <div 
+          className="modal-backdrop animate-fadeIn"
+          onClick={() => {
+            setShowAddGearModal(false)
+            setSelectedStackForGear(null)
+          }}
+        >
+          <div 
+            className="modal-container animate-scaleIn max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="modal-header flex-shrink-0">
+              <div>
+                <h2 className="modal-title">Add Gear to &ldquo;{selectedStackForGear.name}&rdquo;</h2>
+                <p className="text-sm mt-1" style={{color: 'var(--text-secondary)'}}>
+                  Select gear from your collection to add to this stack
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddGearModal(false)
+                  setSelectedStackForGear(null)
+                }}
+                className="modal-close"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="modal-body flex-1 overflow-y-auto">
+              {(() => {
+                // Get gear that's not already in this stack
+                const stackGearIds = selectedStackForGear.stack_components.map(c => c.user_gear_id)
+                const availableGear = gear.filter(item => !stackGearIds.includes(item.id))
+                
+                if (availableGear.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <Package className="w-16 h-16 text-secondary mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-primary mb-2">All gear already added</h3>
+                      <p className="text-secondary">
+                        All your gear is already in this stack, or you don&apos;t have any gear to add.
+                      </p>
+                    </div>
+                  )
+                }
+
+                // Group gear by category
+                const gearByCategory: Record<string, UserGearItem[]> = {}
+                availableGear.forEach(item => {
+                  const category = getGearCategory(item)
+                  if (!gearByCategory[category]) {
+                    gearByCategory[category] = []
+                  }
+                  gearByCategory[category].push(item)
+                })
+
+                return (
+                  <div className="space-y-6">
+                    {Object.entries(gearByCategory).map(([category, items]) => (
+                      <div key={category}>
+                        <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                          {getCategoryIcon(category)}
+                          {category.charAt(0).toUpperCase() + category.slice(1)} ({items.length})
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {items.map(item => (
+                            <div
+                              key={item.id}
+                              className="card p-4 hover:shadow-lg transition-all cursor-pointer hover:border-accent"
+                              onClick={async () => {
+                                const success = await addGearToStack(selectedStackForGear.id, item.id)
+                                if (success) {
+                                  await loadData()
+                                  setShowAddGearModal(false)
+                                  setSelectedStackForGear(null)
+                                } else {
+                                  alert('Failed to add gear to stack')
+                                }
+                              }}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-secondary rounded flex items-center justify-center opacity-60">
+                                  {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                                    {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
+                                  </div>
+                                  <div className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
+                                    {item.components?.category || item.custom_category}
+                                  </div>
+                                  {item.purchase_price && (
+                                    <div className="text-xs font-semibold mt-1" style={{color: 'var(--accent-primary)'}}>
+                                      ${item.purchase_price}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddGearModal(false)
+                  setSelectedStackForGear(null)
+                }}
+                className="button button-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Stack Modal */}
+      {showEditStackModal && selectedStackForEdit && (
+        <div 
+          className="modal-backdrop animate-fadeIn"
+          onClick={() => {
+            setShowEditStackModal(false)
+            setSelectedStackForEdit(null)
+            setEditStackName('')
+            setEditStackDescription('')
+          }}
+        >
+          <div 
+            className="modal-container animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="modal-header">
+              <div>
+                <h2 className="modal-title">Edit Stack</h2>
+                <p className="text-sm mt-1" style={{color: 'var(--text-secondary)'}}>
+                  Update your stack name and description
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEditStackModal(false)
+                  setSelectedStackForEdit(null)
+                  setEditStackName('')
+                  setEditStackDescription('')
+                }}
+                className="modal-close"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="modal-body">
+              <form onSubmit={(e) => { e.preventDefault(); handleEditStack() }}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="form-label" htmlFor="edit-stack-name">
+                      Stack Name *
+                    </label>
+                    <input
+                      id="edit-stack-name"
+                      type="text"
+                      value={editStackName}
+                      onChange={(e) => setEditStackName(e.target.value)}
+                      className="form-input"
+                      placeholder="e.g., Desktop Setup, Portable Rig"
+                      required
+                      maxLength={100}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" htmlFor="edit-stack-description">
+                      Description (Optional)
+                    </label>
+                    <textarea
+                      id="edit-stack-description"
+                      value={editStackDescription}
+                      onChange={(e) => setEditStackDescription(e.target.value)}
+                      className="form-input"
+                      placeholder="Describe this setup..."
+                      rows={3}
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditStackModal(false)
+                  setSelectedStackForEdit(null)
+                  setEditStackName('')
+                  setEditStackDescription('')
+                }}
+                className="button button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleEditStack}
+                disabled={!editStackName.trim()}
+                className="button button-primary"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default function GearPage() {
-  return <GearContent />
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GearContent />
+    </Suspense>
+  )
 }
