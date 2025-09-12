@@ -608,7 +608,7 @@ function GearContent() {
       />
       
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-10 border-b border-border-default" style={{backgroundColor: 'var(--background-primary)'}}>
+      <div className="sticky top-[120px] z-50 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
@@ -631,7 +631,7 @@ function GearContent() {
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto relative" style={{paddingLeft: '24px', paddingRight: '24px'}}>
         {/* Content Area - with padding from divider */}
-        <div className="pt-6 relative">
+        <div className="pt-10 relative">
         {/* Gear Display - Grid/List/Stacks */}
         {(() => {
           // Handle different view modes
