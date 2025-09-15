@@ -578,9 +578,12 @@ function GearContent() {
   const handleDrop = async (e: React.DragEvent, stackId: string) => {
     e.preventDefault()
     if (draggedGear) {
-      const result = await addGearToStack(stackId, draggedGear.id)
-      if (result) {
+      try {
+        await addGearToStack(stackId, draggedGear.id)
         await loadData()
+      } catch (error: any) {
+        console.error('Error adding gear to stack via drag-and-drop:', error)
+        // Show a toast notification or other feedback mechanism here if available
       }
     }
     setDraggedGear(null)
@@ -682,7 +685,7 @@ function GearContent() {
       />
       
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-50 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
+      <div className="sticky top-[120px] z-40 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
@@ -1427,7 +1430,7 @@ function GearContent() {
       {/* Enhanced Gear Details Modal */}
       {showDetailsModal && selectedGear && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
           onClick={() => {
             setShowDetailsModal(false)
             setSelectedGear(null)
@@ -2040,13 +2043,13 @@ function GearContent() {
                               key={item.id}
                               className="card p-4 hover:shadow-lg transition-all cursor-pointer hover:border-accent"
                               onClick={async () => {
-                                const success = await addGearToStack(selectedStackForGear.id, item.id)
-                                if (success) {
+                                try {
+                                  await addGearToStack(selectedStackForGear.id, item.id)
                                   await loadData()
                                   setShowAddGearModal(false)
                                   setSelectedStackForGear(null)
-                                } else {
-                                  alert('Failed to add gear to stack')
+                                } catch (error: any) {
+                                  alert(error?.message || 'Failed to add gear to stack')
                                 }
                               }}
                             >

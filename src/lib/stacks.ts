@@ -151,7 +151,11 @@ export async function addGearToStack(
 
   if (error) {
     console.error('Error adding gear to stack:', error)
-    return null
+    // Provide more specific error feedback for duplicates
+    if (error.message?.includes('duplicate key')) {
+      throw new Error('This gear is already in the stack')
+    }
+    throw new Error(error.message || 'Failed to add gear to stack')
   }
 
   return data as StackComponent
