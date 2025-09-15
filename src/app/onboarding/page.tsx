@@ -387,20 +387,23 @@ const fetchUserGear = useCallback(async () => {
 
 // Analyze existing gear to recommend meaningful upgrades
 const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
-  const headphones = gear.filter(item =>
+  // Filter out items with null components first
+  const validGear = gear.filter(item => item.components && item.components.category)
+
+  const headphones = validGear.filter(item =>
     item.components.category.toLowerCase().includes('headphone') ||
     item.components.category.toLowerCase().includes('iem')
   )
 
-  const dacs = gear.filter(item =>
+  const dacs = validGear.filter(item =>
     item.components.category.toLowerCase().includes('dac')
   )
 
-  const amps = gear.filter(item =>
+  const amps = validGear.filter(item =>
     item.components.category.toLowerCase().includes('amp')
   )
 
-  const combos = gear.filter(item =>
+  const combos = validGear.filter(item =>
     item.components.category.toLowerCase().includes('combo')
   )
 
@@ -410,7 +413,7 @@ const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
   let itemCount = 0
 
   // Calculate average price and highest tier
-  gear.forEach(item => {
+  validGear.forEach(item => {
     const price = item.components.price_new ||
                   (item.components.price_used_min && item.components.price_used_max
                     ? (item.components.price_used_min + item.components.price_used_max) / 2
@@ -960,7 +963,10 @@ const handleNext = useCallback(() => {
                         )}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {userGear.slice(0, 6).map((item) => (
+                        {userGear
+                          .filter(item => item.components && item.components.category)
+                          .slice(0, 6)
+                          .map((item) => (
                           <div key={item.id} className="flex items-center gap-3 p-3 bg-white rounded-lg">
                             <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                               {item.components.category.toLowerCase().includes('headphone') || item.components.category.toLowerCase().includes('iem') ? '🎧' :
@@ -968,14 +974,14 @@ const handleNext = useCallback(() => {
                                item.components.category.toLowerCase().includes('amp') ? '⚡' : '🎯'}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{item.components.name}</p>
-                              <p className="text-xs text-gray-500">{item.components.brand}</p>
+                              <p className="font-medium text-sm truncate">{item.components.name || 'Unknown'}</p>
+                              <p className="text-xs text-gray-500">{item.components.brand || 'Unknown Brand'}</p>
                             </div>
                           </div>
                         ))}
-                        {userGear.length > 6 && (
+                        {userGear.filter(item => item.components && item.components.category).length > 6 && (
                           <div className="flex items-center justify-center p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-                            +{userGear.length - 6} more items
+                            +{userGear.filter(item => item.components && item.components.category).length - 6} more items
                           </div>
                         )}
                       </div>
