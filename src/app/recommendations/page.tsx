@@ -408,6 +408,7 @@ function RecommendationsContent() {
             onChangeComplete={budgetState.handleBudgetChangeComplete}
             isUpdating={budgetState.isUpdating}
             variant="advanced"
+            userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
             showInput={true}
             showLabels={true}
             showItemCount={true}

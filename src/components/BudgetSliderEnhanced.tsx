@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { debounce } from 'lodash'
 
 interface BudgetSliderEnhancedProps {
   budget: number
@@ -9,7 +8,8 @@ interface BudgetSliderEnhancedProps {
   onChange: (value: number) => void
   onChangeComplete?: (value: number) => void
   isUpdating?: boolean
-  variant?: 'simple' | 'advanced'
+  variant?: 'simple' | 'advanced' | 'dual-range'
+  userExperience?: 'beginner' | 'intermediate' | 'enthusiast'
   showInput?: boolean
   showLabels?: boolean
   showItemCount?: boolean
@@ -18,6 +18,7 @@ interface BudgetSliderEnhancedProps {
   maxBudget?: number
   budgetRangeMin?: number
   budgetRangeMax?: number
+  onRangeChange?: (min: number, max: number) => void
   className?: string
 }
 
@@ -127,6 +128,7 @@ export function BudgetSliderEnhanced({
   onChangeComplete,
   isUpdating = false,
   variant = 'advanced',
+  userExperience = 'intermediate',
   showInput = true,
   showLabels = true,
   showItemCount = false,
@@ -135,6 +137,7 @@ export function BudgetSliderEnhanced({
   maxBudget = 10000,
   budgetRangeMin = 20,
   budgetRangeMax = 10,
+  onRangeChange,
   className = ''
 }: BudgetSliderEnhancedProps) {
   const [localBudget, setLocalBudget] = useState(displayBudget || budget)
@@ -143,7 +146,14 @@ export function BudgetSliderEnhanced({
   const [isDragging, setIsDragging] = useState(false)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const [showRangeAdjust, setShowRangeAdjust] = useState(false)
+  const [isDualRange, setIsDualRange] = useState(false)
+  const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
+  const [rangeMax, setRangeMax] = useState(Math.round(budget * (1 + budgetRangeMax / 100)))
   const sliderRef = useRef<HTMLInputElement>(null)
+
+  // Determine if dual-range should be available based on user experience
+  const shouldShowDualRangeOption = userExperience === 'enthusiast' || variant === 'dual-range'
+  const effectiveVariant = isDualRange && shouldShowDualRangeOption ? 'dual-range' : variant
 
   // Update local budget when external budget changes
   useEffect(() => {
@@ -172,6 +182,25 @@ export function BudgetSliderEnhanced({
     setLocalBudget(newBudget)
     setBudgetInputValue(newBudget.toString())
     onChange(newBudget)
+  }
+
+  // Handle dual-range slider changes
+  const handleRangeMinChange = (sliderValue: number) => {
+    const newMin = sliderToBudget(sliderValue, minBudget, maxBudget)
+    const clampedMin = Math.min(newMin, rangeMax - 50) // Keep minimum gap
+    setRangeMin(clampedMin)
+    if (onRangeChange) {
+      onRangeChange(clampedMin, rangeMax)
+    }
+  }
+
+  const handleRangeMaxChange = (sliderValue: number) => {
+    const newMax = sliderToBudget(sliderValue, minBudget, maxBudget)
+    const clampedMax = Math.max(newMax, rangeMin + 50) // Keep minimum gap
+    setRangeMax(clampedMax)
+    if (onRangeChange) {
+      onRangeChange(rangeMin, clampedMax)
+    }
   }
 
   // Handle slider interaction states
@@ -271,7 +300,10 @@ export function BudgetSliderEnhanced({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
-            {formatBudget(localBudget)}
+            {effectiveVariant === 'dual-range'
+              ? `${formatBudget(rangeMin)} - ${formatBudget(rangeMax)}`
+              : formatBudget(localBudget)
+            }
           </h3>
           <button
             onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
@@ -298,14 +330,21 @@ export function BudgetSliderEnhanced({
         )}
       </div>
 
-      {/* Search range display */}
+      {/* Search range display with dual-range toggle for enthusiasts */}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <button
           onClick={() => setShowRangeAdjust(!showRangeAdjust)}
           className="flex items-center gap-1 hover:text-gray-700 transition-colors"
         >
-          <span>Searching {formatBudget(searchMin)}-{formatBudget(searchMax)}</span>
-          <span className="text-[10px]">({budgetRangeMin}%/+{budgetRangeMax}%)</span>
+          <span>
+            {effectiveVariant === 'dual-range'
+              ? `Range ${formatBudget(rangeMin)}-${formatBudget(rangeMax)}`
+              : `Searching ${formatBudget(searchMin)}-${formatBudget(searchMax)}`
+            }
+          </span>
+          {effectiveVariant !== 'dual-range' && (
+            <span className="text-[10px]">({budgetRangeMin}%/+{budgetRangeMax}%)</span>
+          )}
           <svg
             className={`w-3 h-3 transition-transform ${showRangeAdjust ? 'rotate-180' : ''}`}
             fill="none"
@@ -315,7 +354,23 @@ export function BudgetSliderEnhanced({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <span className="font-medium" style={{ color: currentTier.color }}>{currentTier.name}</span>
+
+        <div className="flex items-center gap-2">
+          {shouldShowDualRangeOption && (
+            <button
+              onClick={() => setIsDualRange(!isDualRange)}
+              className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+                isDualRange
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title={isDualRange ? 'Switch to single budget' : 'Set budget range'}
+            >
+              {isDualRange ? 'Range Mode' : 'Single Budget'}
+            </button>
+          )}
+          <span className="font-medium" style={{ color: currentTier.color }}>{currentTier.name}</span>
+        </div>
       </div>
 
       {/* Range adjustment panel */}
@@ -383,35 +438,113 @@ export function BudgetSliderEnhanced({
 
         {/* Slider track and input */}
         <div className="relative h-3 w-full">
-          <input
-            ref={sliderRef}
-            type="range"
-            min="0"
-            max="100"
-            value={sliderPosition}
-            onChange={(e) => handleSliderChange(parseInt(e.target.value))}
-            onMouseDown={handleSliderStart}
-            onMouseUp={handleSliderEnd}
-            onTouchStart={handleSliderStart}
-            onTouchEnd={handleSliderEnd}
-            className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            style={getGradientBackground(localBudget, minBudget, maxBudget)}
-            aria-label="Budget slider"
-            aria-valuemin={minBudget}
-            aria-valuemax={maxBudget}
-            aria-valuenow={localBudget}
-          />
+          {effectiveVariant === 'dual-range' ? (
+            <>
+              {/* Dual-range sliders */}
+              <div
+                className="absolute w-full h-3 rounded-lg"
+                style={getGradientBackground(localBudget, minBudget, maxBudget)}
+              />
 
-          {/* Custom thumb */}
-          <div
-            className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
-            style={{
-              left: `${sliderPosition}%`,
-              top: '-6px',
-              border: `4px solid ${currentTier.color}`,
-              transition: isDragging ? 'none' : 'all 0.2s'
-            }}
-          />
+              {/* Range fill between thumbs */}
+              <div
+                className="absolute h-3 bg-blue-500 bg-opacity-30 rounded-lg"
+                style={{
+                  left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
+                  width: `${budgetToSlider(rangeMax, minBudget, maxBudget) - budgetToSlider(rangeMin, minBudget, maxBudget)}%`
+                }}
+              />
+
+              {/* Min range slider */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={budgetToSlider(rangeMin, minBudget, maxBudget)}
+                onChange={(e) => handleRangeMinChange(parseInt(e.target.value))}
+                onMouseDown={handleSliderStart}
+                onMouseUp={handleSliderEnd}
+                onTouchStart={handleSliderStart}
+                onTouchEnd={handleSliderEnd}
+                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 bg-transparent"
+                aria-label="Minimum budget"
+                aria-valuemin={minBudget}
+                aria-valuemax={maxBudget}
+                aria-valuenow={rangeMin}
+              />
+
+              {/* Max range slider */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={budgetToSlider(rangeMax, minBudget, maxBudget)}
+                onChange={(e) => handleRangeMaxChange(parseInt(e.target.value))}
+                onMouseDown={handleSliderStart}
+                onMouseUp={handleSliderEnd}
+                onTouchStart={handleSliderStart}
+                onTouchEnd={handleSliderEnd}
+                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 bg-transparent"
+                aria-label="Maximum budget"
+                aria-valuemin={minBudget}
+                aria-valuemax={maxBudget}
+                aria-valuenow={rangeMax}
+              />
+
+              {/* Custom thumbs for dual-range */}
+              <div
+                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                style={{
+                  left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
+                  top: '-5px',
+                  border: '3px solid #3b82f6',
+                  transition: isDragging ? 'none' : 'all 0.2s'
+                }}
+              />
+              <div
+                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                style={{
+                  left: `${budgetToSlider(rangeMax, minBudget, maxBudget)}%`,
+                  top: '-5px',
+                  border: '3px solid #3b82f6',
+                  transition: isDragging ? 'none' : 'all 0.2s'
+                }}
+              />
+            </>
+          ) : (
+            <>
+              {/* Single budget slider */}
+              <input
+                ref={sliderRef}
+                type="range"
+                min="0"
+                max="100"
+                value={sliderPosition}
+                onChange={(e) => handleSliderChange(parseInt(e.target.value))}
+                onMouseDown={handleSliderStart}
+                onMouseUp={handleSliderEnd}
+                onTouchStart={handleSliderStart}
+                onTouchEnd={handleSliderEnd}
+                className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
+                style={getGradientBackground(localBudget, minBudget, maxBudget)}
+                aria-label="Budget slider"
+                aria-valuemin={minBudget}
+                aria-valuemax={maxBudget}
+                aria-valuenow={localBudget}
+              />
+
+              {/* Custom thumb for single budget */}
+              <div
+                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                style={{
+                  left: `${sliderPosition}%`,
+                  top: '-6px',
+                  border: `4px solid ${currentTier.color}`,
+                  transition: isDragging ? 'none' : 'all 0.2s'
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -421,16 +554,51 @@ export function BudgetSliderEnhanced({
           <span>{formatBudget(minBudget)}</span>
           {showInput && (
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">$</span>
-              <input
-                type="number"
-                value={budgetInputValue}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onBlur={handleInputBlur}
-                className="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                min={minBudget}
-                max={maxBudget}
-              />
+              {effectiveVariant === 'dual-range' ? (
+                <>
+                  <span className="text-gray-400">$</span>
+                  <input
+                    type="number"
+                    value={rangeMin}
+                    onChange={(e) => {
+                      const newMin = parseInt(e.target.value) || minBudget
+                      const clampedMin = Math.min(newMin, rangeMax - 50)
+                      setRangeMin(clampedMin)
+                      if (onRangeChange) onRangeChange(clampedMin, rangeMax)
+                    }}
+                    className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                    min={minBudget}
+                    max={maxBudget}
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input
+                    type="number"
+                    value={rangeMax}
+                    onChange={(e) => {
+                      const newMax = parseInt(e.target.value) || maxBudget
+                      const clampedMax = Math.max(newMax, rangeMin + 50)
+                      setRangeMax(clampedMax)
+                      if (onRangeChange) onRangeChange(rangeMin, clampedMax)
+                    }}
+                    className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                    min={minBudget}
+                    max={maxBudget}
+                  />
+                </>
+              ) : (
+                <>
+                  <span className="text-gray-400">$</span>
+                  <input
+                    type="number"
+                    value={budgetInputValue}
+                    onChange={(e) => handleInputChange(e.target.value)}
+                    onBlur={handleInputBlur}
+                    className="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                    min={minBudget}
+                    max={maxBudget}
+                  />
+                </>
+              )}
             </div>
           )}
           <span>{formatBudget(maxBudget)}+</span>
