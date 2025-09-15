@@ -1,0 +1,1643 @@
+{
+  "timestamp": "2025-09-15T16:27:28.754Z",
+  "summary": {
+    "totalGroups": 66,
+    "successfulMerges": 66,
+    "failedMerges": 0,
+    "totalDeleted": 90
+  },
+  "results": [
+    {
+      "success": true,
+      "canonical": "43fc6989-3b72-4abc-97c1-b3ad99a21b9f",
+      "deleted": [
+        "296c0b5e-75e1-4bf7-8d0a-bc741e28bb04",
+        "e1e09d06-d99f-4378-be37-eda70428526f",
+        "2d0eec53-1ab3-435e-9a1d-4d358e88d418"
+      ],
+      "updated": {
+        "id": "43fc6989-3b72-4abc-97c1-b3ad99a21b9f",
+        "name": "DT880 (600Ω)",
+        "brand": "Beyerdynamic",
+        "category": "cans",
+        "price_new": 199,
+        "price_used_min": 110,
+        "price_used_max": 160,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Beyerdynamic%20DT880%20600%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "296c0b5e-75e1-4bf7-8d0a-bc741e28bb04",
+          "e1e09d06-d99f-4378-be37-eda70428526f",
+          "2d0eec53-1ab3-435e-9a1d-4d358e88d418"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "c923c25c-4e08-47ad-b7b8-e80e38be6297",
+      "deleted": [
+        "1f802d1c-21a8-4b07-a2e5-4eeb20bf2cac",
+        "6ae2c325-3216-4441-ac7c-15f3dbe6bf34",
+        "fda70fca-b5c1-4d55-8978-0ce987d68c3c"
+      ],
+      "updated": {
+        "id": "c923c25c-4e08-47ad-b7b8-e80e38be6297",
+        "name": "SR-007 Mk2",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 2399,
+        "price_used_min": 1700,
+        "price_used_max": 2100,
+        "why_recommended": "Crinacle Grade S with ★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-007%20Mk2%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "1f802d1c-21a8-4b07-a2e5-4eeb20bf2cac",
+          "6ae2c325-3216-4441-ac7c-15f3dbe6bf34",
+          "fda70fca-b5c1-4d55-8978-0ce987d68c3c"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b3778a60-ee56-405b-85c2-c4322fb25d9e",
+      "deleted": [
+        "4c8dd8b9-f697-497c-9c0e-c59292cd7527",
+        "e6b24cdd-cc58-4218-9004-799e0d6ecea7",
+        "bd0c1f70-7561-474d-8ef9-539415ff4109"
+      ],
+      "updated": {
+        "id": "b3778a60-ee56-405b-85c2-c4322fb25d9e",
+        "name": "SR-L700",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 1399,
+        "price_used_min": 1000,
+        "price_used_max": 1350,
+        "why_recommended": "Crinacle Grade S with ★★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-L700%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "4c8dd8b9-f697-497c-9c0e-c59292cd7527",
+          "e6b24cdd-cc58-4218-9004-799e0d6ecea7",
+          "bd0c1f70-7561-474d-8ef9-539415ff4109"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "77aee8ac-524e-4496-90a7-2daa63674d14",
+      "deleted": [
+        "7d348250-d892-464e-bc15-c8442499e7cf",
+        "3e8ac609-de0e-4d6c-ba7c-e22146854bff"
+      ],
+      "updated": {
+        "id": "77aee8ac-524e-4496-90a7-2daa63674d14",
+        "name": "LCD-X",
+        "brand": "Audeze",
+        "category": "cans",
+        "price_new": 1199,
+        "price_used_min": 800,
+        "price_used_max": 1000,
+        "why_recommended": "Crinacle Grade A with ★ value rating. Excellent performance.",
+        "impedance": 20,
+        "sound_signature": "warm",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B00J5JBQZ2?tag=hifinder-20",
+        "merged_from": [
+          "7d348250-d892-464e-bc15-c8442499e7cf",
+          "3e8ac609-de0e-4d6c-ba7c-e22146854bff"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "f1dd15f4-f94e-4eb7-83aa-31c9c3c98b9f",
+      "deleted": [
+        "de53b0f5-3bc7-4d75-a7d2-3fd3580506d4",
+        "fb658f06-391f-43ea-a476-0c4866d73520"
+      ],
+      "updated": {
+        "id": "f1dd15f4-f94e-4eb7-83aa-31c9c3c98b9f",
+        "name": "DT 1990 Pro",
+        "brand": "Beyerdynamic",
+        "category": "cans",
+        "price_new": 599,
+        "price_used_min": 350,
+        "price_used_max": 480,
+        "why_recommended": "Crinacle Grade A with ★★ value rating. Excellent performance.",
+        "impedance": 250,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Beyerdynamic%20DT%201990%20Pro%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "de53b0f5-3bc7-4d75-a7d2-3fd3580506d4",
+          "fb658f06-391f-43ea-a476-0c4866d73520"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "e8b99236-b8a4-4bd9-83fc-808423a5561c",
+      "deleted": [
+        "13fd7bd2-6241-4273-b141-86ede7c086d2",
+        "70ab35e9-5488-4b96-8071-7e16d79eb644"
+      ],
+      "updated": {
+        "id": "e8b99236-b8a4-4bd9-83fc-808423a5561c",
+        "name": "DT 770 Pro 80",
+        "brand": "Beyerdynamic",
+        "category": "cans",
+        "price_new": 179,
+        "price_used_min": 100,
+        "price_used_max": 150,
+        "why_recommended": "V-shaped sound great for gaming. Closed-back for isolation.",
+        "impedance": 80,
+        "sound_signature": "fun",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Beyerdynamic%20DT%20770%20Pro%2080%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "13fd7bd2-6241-4273-b141-86ede7c086d2",
+          "70ab35e9-5488-4b96-8071-7e16d79eb644"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "bf8344c1-6461-414d-9bfe-8a375c0d206b",
+      "deleted": [
+        "eb4d77f7-11cc-4cdc-8cb2-d9b1297aa4d9",
+        "e24f613c-11e0-4001-ba2d-434afbf07f71"
+      ],
+      "updated": {
+        "id": "bf8344c1-6461-414d-9bfe-8a375c0d206b",
+        "name": "DT990 Pro",
+        "brand": "Beyerdynamic",
+        "category": "cans",
+        "price_new": 179,
+        "price_used_min": 110,
+        "price_used_max": 160,
+        "why_recommended": "V-shaped sound signature ideal for gaming with excellent imaging and detail retrieval",
+        "impedance": 250,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Beyerdynamic%20DT%20990%20Pro%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "eb4d77f7-11cc-4cdc-8cb2-d9b1297aa4d9",
+          "e24f613c-11e0-4001-ba2d-434afbf07f71"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "0bdcf201-997f-44de-ac04-c5005102890b",
+      "deleted": [
+        "9d5888ac-28bb-42cf-ad38-e7424658d499",
+        "21c13bce-a168-41dd-a12c-59c95fa70ca0"
+      ],
+      "updated": {
+        "id": "0bdcf201-997f-44de-ac04-c5005102890b",
+        "name": "Grand Maestro",
+        "brand": "FatFreq",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 2700,
+        "price_used_max": 3300,
+        "why_recommended": "The best basshead set. Amazing low-end texture and impact while maintaining clarity.",
+        "impedance": 16,
+        "sound_signature": "fun",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=FatFreq%20Grand%20Maestro%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "9d5888ac-28bb-42cf-ad38-e7424658d499",
+          "21c13bce-a168-41dd-a12c-59c95fa70ca0"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b8678d9d-56d5-4328-a98e-7a0183d2953e",
+      "deleted": [
+        "2850b3e7-95dc-4f61-84ad-e587bf974426",
+        "67070936-23e5-4f78-bd19-48197f7fc0aa"
+      ],
+      "updated": {
+        "id": "b8678d9d-56d5-4328-a98e-7a0183d2953e",
+        "name": "Cadenza 12",
+        "brand": "LETSHUOER",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 1900,
+        "price_used_max": 2400,
+        "why_recommended": "Better version of U12T vocal/tuning wise, no mid scoop. Perfect vocals - sweet, extended, open, airy, never fatiguing. TOTL resolution and staging.",
+        "impedance": 32,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=LETSHUOER%20Cadenza%2012%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "2850b3e7-95dc-4f61-84ad-e587bf974426",
+          "67070936-23e5-4f78-bd19-48197f7fc0aa"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "a71efea3-95a2-4889-8d32-0930e157b494",
+      "deleted": [
+        "fafeb15c-1b06-4155-a0cf-80a5d240d225",
+        "b156ecfe-1fea-48de-b077-fa36f553f6c6"
+      ],
+      "updated": {
+        "id": "a71efea3-95a2-4889-8d32-0930e157b494",
+        "name": "EJ07",
+        "brand": "LETSHUOER",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 750,
+        "price_used_max": 950,
+        "why_recommended": "TOTL mids. Most 3D and holographic staging. Most immersive set for rock, alternative, ballads, and classical. Needs high volume.",
+        "impedance": 32,
+        "sound_signature": "warm",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=LETSHUOER%20EJ07%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "fafeb15c-1b06-4155-a0cf-80a5d240d225",
+          "b156ecfe-1fea-48de-b077-fa36f553f6c6"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "18edc7dc-a3fb-4edb-8579-36b9c7740937",
+      "deleted": [
+        "7933c40b-425a-483f-a476-d365f59cf07c",
+        "bc9d7d7b-842a-407f-b1b5-aa226efa265c"
+      ],
+      "updated": {
+        "id": "18edc7dc-a3fb-4edb-8579-36b9c7740937",
+        "name": "MYSTIC 8",
+        "brand": "LETSHUOER",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 850,
+        "price_used_max": 1100,
+        "why_recommended": "Vocal benchmark for female vocals under $2000. Clean, airy, sweet, ethereal. Better than Diva and direct upgrade to Oracle.",
+        "impedance": 32,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=LETSHUOER%20MYSTIC%208%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "7933c40b-425a-483f-a476-d365f59cf07c",
+          "bc9d7d7b-842a-407f-b1b5-aa226efa265c"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "8ae6e5df-ea0e-456f-ae80-0ecd0afe6cdd",
+      "deleted": [
+        "0237d5c4-00db-4825-b390-8faa58b62f11",
+        "b600b87c-684d-4862-b83f-ac423b3ab26a"
+      ],
+      "updated": {
+        "id": "8ae6e5df-ea0e-456f-ae80-0ecd0afe6cdd",
+        "name": "SHP9500",
+        "brand": "Philips",
+        "category": "cans",
+        "price_new": 79,
+        "price_used_min": 50,
+        "price_used_max": 70,
+        "why_recommended": "Amazing soundstage for gaming at this price. No amp needed.",
+        "impedance": 32,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B00ENMK1DW?tag=hifinder-20",
+        "merged_from": [
+          "0237d5c4-00db-4825-b390-8faa58b62f11",
+          "b600b87c-684d-4862-b83f-ac423b3ab26a"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b9c494ba-68a7-485a-9042-0e8609bca46e",
+      "deleted": [
+        "ce1396b9-846d-4f5c-b5cc-2903a1ef7c67",
+        "ade5f39d-b638-45c1-a3ed-419aec553735"
+      ],
+      "updated": {
+        "id": "b9c494ba-68a7-485a-9042-0e8609bca46e",
+        "name": "HD 560S",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 229,
+        "price_used_min": 130,
+        "price_used_max": 180,
+        "why_recommended": "Reference tuning without the HD600 price. Easy to drive.",
+        "impedance": 120,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD%20560S%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "ce1396b9-846d-4f5c-b5cc-2903a1ef7c67",
+          "ade5f39d-b638-45c1-a3ed-419aec553735"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "4972cb2d-4330-4d80-9f7b-2b2d366a07ec",
+      "deleted": [
+        "7a89f065-8887-456d-ad70-691d6a3aa291",
+        "157a5c2a-1bd4-4f0d-b8a0-fab8e2fa2d5a"
+      ],
+      "updated": {
+        "id": "4972cb2d-4330-4d80-9f7b-2b2d366a07ec",
+        "name": "HD600",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 399,
+        "price_used_min": 250,
+        "price_used_max": 320,
+        "why_recommended": "Industry standard reference headphone with exceptional midrange clarity and natural tonality",
+        "impedance": 300,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD%20600%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "7a89f065-8887-456d-ad70-691d6a3aa291",
+          "157a5c2a-1bd4-4f0d-b8a0-fab8e2fa2d5a"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "f8ffc3ea-4340-46e8-aea5-a2e551f065da",
+      "deleted": [
+        "f9052e21-147e-4554-9e82-bc6a3f1ab255",
+        "a123e264-bec9-40c3-be96-ced9f61d8191"
+      ],
+      "updated": {
+        "id": "f8ffc3ea-4340-46e8-aea5-a2e551f065da",
+        "name": "HD650",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 499,
+        "price_used_min": 280,
+        "price_used_max": 360,
+        "why_recommended": "Warm, musical sound with excellent build quality and comfort for long listening sessions",
+        "impedance": 300,
+        "sound_signature": "warm",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD%20650%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "f9052e21-147e-4554-9e82-bc6a3f1ab255",
+          "a123e264-bec9-40c3-be96-ced9f61d8191"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "0282821c-f784-4763-b9da-495787cbdd72",
+      "deleted": [
+        "3aef01d1-6c8b-4c2c-aaa3-41fc2f0fc2ce",
+        "ce934e56-2726-4d50-9bff-f3dfb2070997"
+      ],
+      "updated": {
+        "id": "0282821c-f784-4763-b9da-495787cbdd72",
+        "name": "RSV",
+        "brand": "Softears",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 650,
+        "price_used_max": 800,
+        "why_recommended": "One of the best vocals on any IEM (especially for male artists). Mids and treble is TOTL, smooth and well extended with perfect bite.",
+        "impedance": 32,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Softears%20RSV%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "3aef01d1-6c8b-4c2c-aaa3-41fc2f0fc2ce",
+          "ce934e56-2726-4d50-9bff-f3dfb2070997"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "76625cc8-5022-4aa4-aeb4-1d61ed953b72",
+      "deleted": [
+        "b1c16e73-b9b9-48a1-b8e6-e8cf2c2fd0a5",
+        "45785975-3d31-4af7-adb6-7cbccef13324"
+      ],
+      "updated": {
+        "id": "76625cc8-5022-4aa4-aeb4-1d61ed953b72",
+        "name": "SUBTONIC STORM",
+        "brand": "Subtonic",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 4500,
+        "price_used_max": 5500,
+        "why_recommended": "The best IEM reviewed. Best timbre. Super natural. TOTL tech. Perfect coherency and dynamics.",
+        "impedance": 16,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Subtonic%20SUBTONIC%20STORM%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "b1c16e73-b9b9-48a1-b8e6-e8cf2c2fd0a5",
+          "45785975-3d31-4af7-adb6-7cbccef13324"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "21bd5ba3-7fb0-4bd0-bbf6-f1790af7a329",
+      "deleted": [
+        "f374450c-9452-4e44-97e2-3f23aa1d71b9",
+        "71226c7b-a193-4c99-8c49-6531f5e28881"
+      ],
+      "updated": {
+        "id": "21bd5ba3-7fb0-4bd0-bbf6-f1790af7a329",
+        "name": "Crimson",
+        "brand": "Symphonium",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 1300,
+        "price_used_max": 1600,
+        "why_recommended": "U-shaped/V-shaped with energetic treble. Great tech. Fun signature with excellent dynamics.",
+        "impedance": 32,
+        "sound_signature": "fun",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Symphonium%20Crimson%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "f374450c-9452-4e44-97e2-3f23aa1d71b9",
+          "71226c7b-a193-4c99-8c49-6531f5e28881"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "eb92b26b-450d-412b-b543-5c76d29954a6",
+      "deleted": [
+        "c2f4686e-0bfc-4043-bdc5-980d10647e57",
+        "7a3644ef-e37e-4973-966b-7e23bd12b260"
+      ],
+      "updated": {
+        "id": "eb92b26b-450d-412b-b543-5c76d29954a6",
+        "name": "Monarch MK4",
+        "brand": "Thieaudio",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 950,
+        "price_used_max": 1200,
+        "why_recommended": "Smooth, clean, balanced, and slightly airy. Goes from clean all-rounder to warm/bassy all-rounder. Great tech. Endgame for most people.",
+        "impedance": 22,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Thieaudio%20Monarch%20MK4%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "c2f4686e-0bfc-4043-bdc5-980d10647e57",
+          "7a3644ef-e37e-4973-966b-7e23bd12b260"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+      "deleted": [
+        "1435ce6e-47fc-4e11-a748-e4494dd4f632",
+        "4bd09c87-2813-43f8-9af5-970096d9afcf"
+      ],
+      "updated": {
+        "id": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+        "name": "Prestige LTD",
+        "brand": "Thieaudio",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 1100,
+        "price_used_max": 1400,
+        "why_recommended": "Clean and natural signature with treble emphasis. Technical monster with airy treble. Open sense of space. Endgame all-rounder.",
+        "impedance": 22,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Thieaudio%20Prestige%20LTD%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "1435ce6e-47fc-4e11-a748-e4494dd4f632",
+          "4bd09c87-2813-43f8-9af5-970096d9afcf"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "cf2a2c98-1a23-4341-bba6-07adcfc65d29",
+      "deleted": [
+        "abf86323-0d1a-429d-b2cd-d6f04a476671",
+        "0a4fcc58-e41f-4499-90e4-14fbc4ac16cd"
+      ],
+      "updated": {
+        "id": "cf2a2c98-1a23-4341-bba6-07adcfc65d29",
+        "name": "Valhalla",
+        "brand": "Thieaudio",
+        "category": "iems",
+        "price_new": null,
+        "price_used_min": 1700,
+        "price_used_max": 2200,
+        "why_recommended": "TOTL all-rounder with endgame tech across the board, a better tuned U12T with better bass texture",
+        "impedance": 22,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Thieaudio%20Valhalla%20earphones&tag=hifinder-20",
+        "merged_from": [
+          "abf86323-0d1a-429d-b2cd-d6f04a476671",
+          "0a4fcc58-e41f-4499-90e4-14fbc4ac16cd"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "f7294875-5e74-496f-a9e0-0f5b76b9913f",
+      "deleted": [
+        "603bf964-ce33-4c9a-a714-0d81f96dcd21"
+      ],
+      "updated": {
+        "id": "f7294875-5e74-496f-a9e0-0f5b76b9913f",
+        "name": "AB-1266 Phi TC",
+        "brand": "Abyss",
+        "category": "cans",
+        "price_new": 5999,
+        "price_used_min": 4500,
+        "price_used_max": 5500,
+        "why_recommended": "Crinacle Grade S+. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Abyss%20AB-1266%20Phi%20TC%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "603bf964-ce33-4c9a-a714-0d81f96dcd21"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b91759bc-a75f-4119-9dd4-f0d4d428c8b0",
+      "deleted": [
+        "400bb089-1cd4-4c91-918a-f8a5d1004607"
+      ],
+      "updated": {
+        "id": "b91759bc-a75f-4119-9dd4-f0d4d428c8b0",
+        "name": "K240 Studio",
+        "brand": "AKG",
+        "category": "cans",
+        "price_new": 69,
+        "price_used_min": 45,
+        "price_used_max": 60,
+        "why_recommended": "Crinacle Grade B with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=AKG%20K240%20Studio%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "400bb089-1cd4-4c91-918a-f8a5d1004607"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "a2db8443-d9a6-4745-8b81-cd7ad50f9dec",
+      "deleted": [
+        "fdb4cc56-3ca4-4087-817b-4c37c7b62a27"
+      ],
+      "updated": {
+        "id": "a2db8443-d9a6-4745-8b81-cd7ad50f9dec",
+        "name": "K612 Pro",
+        "brand": "AKG",
+        "category": "cans",
+        "price_new": 199,
+        "price_used_min": 120,
+        "price_used_max": 160,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=AKG%20K612%20Pro%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "fdb4cc56-3ca4-4087-817b-4c37c7b62a27"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b1c07228-9755-427a-b2a0-1316c62c3d4e",
+      "deleted": [
+        "36bf2d55-7aee-4c53-b842-90cd91180510"
+      ],
+      "updated": {
+        "id": "b1c07228-9755-427a-b2a0-1316c62c3d4e",
+        "name": "K701",
+        "brand": "AKG",
+        "category": "cans",
+        "price_new": 199,
+        "price_used_min": 120,
+        "price_used_max": 160,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=AKG%20K701%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "36bf2d55-7aee-4c53-b842-90cd91180510"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "c3e6a49e-0d08-4eb5-ae4f-818cc402748e",
+      "deleted": [
+        "2e9cc759-6188-4d76-9102-2c32244e640f"
+      ],
+      "updated": {
+        "id": "c3e6a49e-0d08-4eb5-ae4f-818cc402748e",
+        "name": "K702",
+        "brand": "AKG",
+        "category": "cans",
+        "price_new": 199,
+        "price_used_min": 130,
+        "price_used_max": 170,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=AKG%20K702%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "2e9cc759-6188-4d76-9102-2c32244e640f"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "9a3a27c7-7881-430f-83be-7b6f7c5a7acf",
+      "deleted": [
+        "02390e45-9303-421f-8179-697e3589aeff"
+      ],
+      "updated": {
+        "id": "9a3a27c7-7881-430f-83be-7b6f7c5a7acf",
+        "name": "K712 Pro",
+        "brand": "AKG",
+        "category": "cans",
+        "price_new": 299,
+        "price_used_min": 180,
+        "price_used_max": 230,
+        "why_recommended": "Crinacle Grade A with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=AKG%20K712%20Pro%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "02390e45-9303-421f-8179-697e3589aeff"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "eaa05830-4e6d-4900-b813-747353e4abf6",
+      "deleted": [
+        "3d0cb0dc-3d9c-4a52-b550-88e22e080303"
+      ],
+      "updated": {
+        "id": "eaa05830-4e6d-4900-b813-747353e4abf6",
+        "name": "LCD-2 Classic",
+        "brand": "Audeze",
+        "category": "cans",
+        "price_new": 799,
+        "price_used_min": 500,
+        "price_used_max": 650,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audeze%20LCD-2%20Classic%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "3d0cb0dc-3d9c-4a52-b550-88e22e080303"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "dd0060b6-1193-4031-ac40-68a5d6b487eb",
+      "deleted": [
+        "2a1c5bbd-f62a-4442-a5c0-9dec942fb041"
+      ],
+      "updated": {
+        "id": "dd0060b6-1193-4031-ac40-68a5d6b487eb",
+        "name": "LCD-4",
+        "brand": "Audeze",
+        "category": "cans",
+        "price_new": 3995,
+        "price_used_min": 2500,
+        "price_used_max": 3200,
+        "why_recommended": "Crinacle Grade S. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audeze%20LCD-4%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "2a1c5bbd-f62a-4442-a5c0-9dec942fb041"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "c41cc9c2-6510-4d49-8502-1a939e566b4d",
+      "deleted": [
+        "7c3fd883-2f4c-40da-b120-1180722fccf5"
+      ],
+      "updated": {
+        "id": "c41cc9c2-6510-4d49-8502-1a939e566b4d",
+        "name": "LCD-X (2021)",
+        "brand": "Audeze",
+        "category": "cans",
+        "price_new": 1199,
+        "price_used_min": 800,
+        "price_used_max": 1000,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audeze%20LCD-X%202021%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "7c3fd883-2f4c-40da-b120-1180722fccf5"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "8f9611eb-7e3f-4355-a87d-c8b2b4d9b28e",
+      "deleted": [
+        "0500fe71-f791-4373-8093-a222af8bf845"
+      ],
+      "updated": {
+        "id": "8f9611eb-7e3f-4355-a87d-c8b2b4d9b28e",
+        "name": "ATH-AD1000X",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 299,
+        "price_used_min": 180,
+        "price_used_max": 230,
+        "why_recommended": "Crinacle Grade B+ with ★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-AD1000X%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "0500fe71-f791-4373-8093-a222af8bf845"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "3845f0f8-52eb-401d-880f-d14a3e62dbbf",
+      "deleted": [
+        "14956c95-4839-4e3c-bb89-462587994412"
+      ],
+      "updated": {
+        "id": "3845f0f8-52eb-401d-880f-d14a3e62dbbf",
+        "name": "ATH-AD700X",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 119,
+        "price_used_min": 80,
+        "price_used_max": 100,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-AD700X%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "14956c95-4839-4e3c-bb89-462587994412"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "45eaa5de-499a-4232-8382-9522a4f7b914",
+      "deleted": [
+        "8139e853-e3f8-4342-8d29-189a54863a1c"
+      ],
+      "updated": {
+        "id": "45eaa5de-499a-4232-8382-9522a4f7b914",
+        "name": "ATH-AD900X",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 149,
+        "price_used_min": 100,
+        "price_used_max": 130,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "bright",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-AD900X%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "8139e853-e3f8-4342-8d29-189a54863a1c"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "555f7562-e705-4772-bb5c-b5af2f305fa6",
+      "deleted": [
+        "cd2345b2-ccbf-450c-b2d5-2054f4be394e"
+      ],
+      "updated": {
+        "id": "555f7562-e705-4772-bb5c-b5af2f305fa6",
+        "name": "ATH-ADX5000",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 1999,
+        "price_used_min": 1400,
+        "price_used_max": 1700,
+        "why_recommended": "Crinacle Grade A+ with ★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-ADX5000%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "cd2345b2-ccbf-450c-b2d5-2054f4be394e"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "2ef27ceb-c7c5-4f35-8afc-28cafa4b8532",
+      "deleted": [
+        "d3cd9377-3ac1-4462-abb7-7569c42ecc41"
+      ],
+      "updated": {
+        "id": "2ef27ceb-c7c5-4f35-8afc-28cafa4b8532",
+        "name": "ATH-M40x",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 99,
+        "price_used_min": 70,
+        "price_used_max": 85,
+        "why_recommended": "Crinacle Grade B with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-M40x%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "d3cd9377-3ac1-4462-abb7-7569c42ecc41"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "b78b3ff4-7740-48ed-9ab6-79e374ec5960",
+      "deleted": [
+        "7da54599-424b-45d4-ba23-dd8b2fedb8f9"
+      ],
+      "updated": {
+        "id": "b78b3ff4-7740-48ed-9ab6-79e374ec5960",
+        "name": "ATH-M50x",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 149,
+        "price_used_min": 100,
+        "price_used_max": 130,
+        "why_recommended": "Crinacle Grade B with ★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B00HVLUR86?tag=hifinder-20",
+        "merged_from": [
+          "7da54599-424b-45d4-ba23-dd8b2fedb8f9"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "2c9238eb-16ea-4874-ab5b-194a2089b46b",
+      "deleted": [
+        "a45786e5-f762-4faa-811c-59cfac397668"
+      ],
+      "updated": {
+        "id": "2c9238eb-16ea-4874-ab5b-194a2089b46b",
+        "name": "ATH-R70x",
+        "brand": "Audio-Technica",
+        "category": "cans",
+        "price_new": 349,
+        "price_used_min": 220,
+        "price_used_max": 280,
+        "why_recommended": "Crinacle Grade A with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Audio-Technica%20ATH-R70x%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "a45786e5-f762-4faa-811c-59cfac397668"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "0325b526-3d74-4de5-9e23-791ca707ecae",
+      "deleted": [
+        "a3714256-a0d3-4b81-9865-a765c363a5a6"
+      ],
+      "updated": {
+        "id": "0325b526-3d74-4de5-9e23-791ca707ecae",
+        "name": "Clear",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 1499,
+        "price_used_min": 900,
+        "price_used_max": 1200,
+        "why_recommended": "Crinacle Grade A with ★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B077XDNAFC?tag=hifinder-20",
+        "merged_from": [
+          "a3714256-a0d3-4b81-9865-a765c363a5a6"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "ecdc268d-0af9-4758-8a79-937329145580",
+      "deleted": [
+        "e7f5a070-20c8-4c98-8e5e-4f198753a466"
+      ],
+      "updated": {
+        "id": "ecdc268d-0af9-4758-8a79-937329145580",
+        "name": "Clear Mg",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 1699,
+        "price_used_min": 1200,
+        "price_used_max": 1500,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Focal%20Clear%20Mg%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "e7f5a070-20c8-4c98-8e5e-4f198753a466"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "6142efec-f1cf-48fb-901e-12be758d48ee",
+      "deleted": [
+        "e3361abf-34f5-45da-b044-8e25659f66cb"
+      ],
+      "updated": {
+        "id": "6142efec-f1cf-48fb-901e-12be758d48ee",
+        "name": "Elex",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 699,
+        "price_used_min": 450,
+        "price_used_max": 600,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Focal%20Elex%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "e3361abf-34f5-45da-b044-8e25659f66cb"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "567a4fd4-0ab1-49c3-8e18-238cdc204436",
+      "deleted": [
+        "5cfe1be3-7461-4149-97bb-e49388b03399"
+      ],
+      "updated": {
+        "id": "567a4fd4-0ab1-49c3-8e18-238cdc204436",
+        "name": "Stellia",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 2999,
+        "price_used_min": 2000,
+        "price_used_max": 2500,
+        "why_recommended": "Crinacle Grade S. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Focal%20Stellia%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "5cfe1be3-7461-4149-97bb-e49388b03399"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "34bd2c89-b903-40cd-8246-fa913804ab97",
+      "deleted": [
+        "18080055-9223-4298-852c-33af1f090f4e"
+      ],
+      "updated": {
+        "id": "34bd2c89-b903-40cd-8246-fa913804ab97",
+        "name": "Utopia",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 4999,
+        "price_used_min": 3000,
+        "price_used_max": 4000,
+        "why_recommended": "Crinacle Grade S. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Focal%20Utopia%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "18080055-9223-4298-852c-33af1f090f4e"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "6bbbf2db-e8ef-4394-97e5-488bc9e9e511",
+      "deleted": [
+        "2b31a47e-a098-4822-ab83-3017e07a0082"
+      ],
+      "updated": {
+        "id": "6bbbf2db-e8ef-4394-97e5-488bc9e9e511",
+        "name": "Utopia (2022)",
+        "brand": "Focal",
+        "category": "cans",
+        "price_new": 5999,
+        "price_used_min": 4500,
+        "price_used_max": 5500,
+        "why_recommended": "Crinacle Grade S+. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Focal%20Utopia%202022%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "2b31a47e-a098-4822-ab83-3017e07a0082"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "469992b1-78d4-4a37-9a2a-a3ac0e42c061",
+      "deleted": [
+        "905f1d47-f585-42e6-bc4e-8dcd31f4a0d2"
+      ],
+      "updated": {
+        "id": "469992b1-78d4-4a37-9a2a-a3ac0e42c061",
+        "name": "SR325x",
+        "brand": "Grado",
+        "category": "cans",
+        "price_new": 295,
+        "price_used_min": 180,
+        "price_used_max": 230,
+        "why_recommended": "Crinacle Grade B with ★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Grado%20SR325x%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "905f1d47-f585-42e6-bc4e-8dcd31f4a0d2"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "c1d24ce4-99e2-473c-b403-0a64efceadf0",
+      "deleted": [
+        "897f43b1-4fa6-4818-a15f-9d0a6025e381"
+      ],
+      "updated": {
+        "id": "c1d24ce4-99e2-473c-b403-0a64efceadf0",
+        "name": "Ananda",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 699,
+        "price_used_min": 500,
+        "price_used_max": 600,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20Ananda%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "897f43b1-4fa6-4818-a15f-9d0a6025e381"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "1e01183e-dc0e-4a7a-8849-79e78bf1c7a6",
+      "deleted": [
+        "64d68ceb-d24c-4656-8ccc-bd06d76df745"
+      ],
+      "updated": {
+        "id": "1e01183e-dc0e-4a7a-8849-79e78bf1c7a6",
+        "name": "Arya Stealth",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 1299,
+        "price_used_min": 900,
+        "price_used_max": 1100,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20Arya%20Stealth%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "64d68ceb-d24c-4656-8ccc-bd06d76df745"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "44c11996-1011-48b8-85a9-36f213f0fb4f",
+      "deleted": [
+        "e7b1cf29-423c-4319-8d8f-be50d1502467"
+      ],
+      "updated": {
+        "id": "44c11996-1011-48b8-85a9-36f213f0fb4f",
+        "name": "Edition XS",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 499,
+        "price_used_min": 350,
+        "price_used_max": 430,
+        "why_recommended": "Crinacle Grade A+ with ★★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20Edition%20XS%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "e7b1cf29-423c-4319-8d8f-be50d1502467"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "912ffec9-eaa9-455a-9a10-7d61c41374e1",
+      "deleted": [
+        "32ce9cc0-44dd-4a59-a91e-95f176ad76cf"
+      ],
+      "updated": {
+        "id": "912ffec9-eaa9-455a-9a10-7d61c41374e1",
+        "name": "HE1000se",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 3499,
+        "price_used_min": 2200,
+        "price_used_max": 2800,
+        "why_recommended": "Crinacle Grade S with ★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20HE1000se%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "32ce9cc0-44dd-4a59-a91e-95f176ad76cf"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "fbd9a887-c0a2-4bc9-a25e-a2a258261736",
+      "deleted": [
+        "3ee408ae-5939-43c6-b533-ec26dfba17b4"
+      ],
+      "updated": {
+        "id": "fbd9a887-c0a2-4bc9-a25e-a2a258261736",
+        "name": "HE400se",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 149,
+        "price_used_min": 90,
+        "price_used_max": 120,
+        "why_recommended": "Crinacle Grade A with ★★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20HE400se%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "3ee408ae-5939-43c6-b533-ec26dfba17b4"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "a5179a0e-af89-408e-b95e-0ef0af45de7f",
+      "deleted": [
+        "c7603b8a-4942-478a-ab09-b6d9120b87ad"
+      ],
+      "updated": {
+        "id": "a5179a0e-af89-408e-b95e-0ef0af45de7f",
+        "name": "Sundara (2020)",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 349,
+        "price_used_min": 250,
+        "price_used_max": 300,
+        "why_recommended": "Crinacle Grade A with ★★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20Sundara%202020%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "c7603b8a-4942-478a-ab09-b6d9120b87ad"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "ffce27b9-22d0-49ca-93c4-187b2e7d61cd",
+      "deleted": [
+        "f747f152-996b-45e0-adfa-03e810718908"
+      ],
+      "updated": {
+        "id": "ffce27b9-22d0-49ca-93c4-187b2e7d61cd",
+        "name": "Susvara",
+        "brand": "HiFiMAN",
+        "category": "cans",
+        "price_new": 6000,
+        "price_used_min": 4000,
+        "price_used_max": 5200,
+        "why_recommended": "Crinacle Grade S+ with ★ value rating. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=HiFiMAN%20Susvara%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "f747f152-996b-45e0-adfa-03e810718908"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "e58b72ad-22b1-441b-8407-bdf415deba90",
+      "deleted": [
+        "f79e6dba-1692-42b1-97b8-b543e7fd2629"
+      ],
+      "updated": {
+        "id": "e58b72ad-22b1-441b-8407-bdf415deba90",
+        "name": "Empyrean",
+        "brand": "Meze",
+        "category": "cans",
+        "price_new": 2999,
+        "price_used_min": 2000,
+        "price_used_max": 2500,
+        "why_recommended": "Crinacle Grade S with ★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Meze%20Empyrean%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "f79e6dba-1692-42b1-97b8-b543e7fd2629"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "4626b446-f712-42ab-a2f0-0af08ecef3fc",
+      "deleted": [
+        "8c500e25-c9f2-474b-9446-026aefd3e3b7"
+      ],
+      "updated": {
+        "id": "4626b446-f712-42ab-a2f0-0af08ecef3fc",
+        "name": "X2HR",
+        "brand": "Philips",
+        "category": "cans",
+        "price_new": 149,
+        "price_used_min": 100,
+        "price_used_max": 130,
+        "why_recommended": "Crinacle Grade B with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Philips%20X2HR%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "8c500e25-c9f2-474b-9446-026aefd3e3b7"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "e2ba508e-d587-42d0-aca7-389fbbe6cb25",
+      "deleted": [
+        "b005524d-171e-4845-930a-9c9e032ae39f"
+      ],
+      "updated": {
+        "id": "e2ba508e-d587-42d0-aca7-389fbbe6cb25",
+        "name": "HD58X",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 170,
+        "price_used_min": 120,
+        "price_used_max": 150,
+        "why_recommended": "Crinacle Grade B+ with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD58X%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "b005524d-171e-4845-930a-9c9e032ae39f"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "8e69b204-44b5-4e1e-ae91-0dab55d9007a",
+      "deleted": [
+        "292f112c-2b3d-4552-9266-8c4cb0c265f4"
+      ],
+      "updated": {
+        "id": "8e69b204-44b5-4e1e-ae91-0dab55d9007a",
+        "name": "HD599",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 199,
+        "price_used_min": 100,
+        "price_used_max": 140,
+        "why_recommended": "Crinacle Grade B with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD599%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "292f112c-2b3d-4552-9266-8c4cb0c265f4"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "13cbf74a-babd-44e1-a9f4-dd7ad9c47542",
+      "deleted": [
+        "504ea982-2477-4f3c-a7dc-d8c84c05f225"
+      ],
+      "updated": {
+        "id": "13cbf74a-babd-44e1-a9f4-dd7ad9c47542",
+        "name": "HD660S",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 499,
+        "price_used_min": 320,
+        "price_used_max": 400,
+        "why_recommended": "Crinacle Grade A with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD660S%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "504ea982-2477-4f3c-a7dc-d8c84c05f225"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "40e687b1-8bbe-4cca-aa23-76baba0d1987",
+      "deleted": [
+        "6f9cdff0-7d7f-41c7-b94a-3e08d245c42a"
+      ],
+      "updated": {
+        "id": "40e687b1-8bbe-4cca-aa23-76baba0d1987",
+        "name": "HD800",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 1499,
+        "price_used_min": 900,
+        "price_used_max": 1200,
+        "why_recommended": "Crinacle Grade A+ with ★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD800%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "6f9cdff0-7d7f-41c7-b94a-3e08d245c42a"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "8dae1357-6036-4937-b366-5607f4bd3fcf",
+      "deleted": [
+        "512f3c2a-7c74-45d8-891c-117031d4d17e"
+      ],
+      "updated": {
+        "id": "8dae1357-6036-4937-b366-5607f4bd3fcf",
+        "name": "HD800S",
+        "brand": "Sennheiser",
+        "category": "cans",
+        "price_new": 1699,
+        "price_used_min": 1200,
+        "price_used_max": 1500,
+        "why_recommended": "Crinacle Grade S with ★★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B01FI1BRHM?tag=hifinder-20",
+        "merged_from": [
+          "512f3c2a-7c74-45d8-891c-117031d4d17e"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "f9c918dc-f452-42e9-af56-15e7cfc827a0",
+      "deleted": [
+        "cdd4d0bb-5048-4127-af8e-e1a5ec22f095"
+      ],
+      "updated": {
+        "id": "f9c918dc-f452-42e9-af56-15e7cfc827a0",
+        "name": "MDR-7506",
+        "brand": "Sony",
+        "category": "cans",
+        "price_new": 99,
+        "price_used_min": 70,
+        "price_used_max": 85,
+        "why_recommended": "Crinacle Grade B with ★★ value rating. Good performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Sony%20MDR-7506%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "cdd4d0bb-5048-4127-af8e-e1a5ec22f095"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "0fa12d93-2029-4b00-889e-25cb068cd1e7",
+      "deleted": [
+        "3edd21d5-38d3-4693-bd9e-76d30e27b7cb"
+      ],
+      "updated": {
+        "id": "0fa12d93-2029-4b00-889e-25cb068cd1e7",
+        "name": "SR-007A",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 2399,
+        "price_used_min": 1700,
+        "price_used_max": 2100,
+        "why_recommended": "Crinacle Grade S. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-007A%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "3edd21d5-38d3-4693-bd9e-76d30e27b7cb"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "e8f74c2b-c04f-4b10-8ffb-b319c5e3e10d",
+      "deleted": [
+        "1744fdef-20dd-4d9b-a6f7-8c914ce8dc05"
+      ],
+      "updated": {
+        "id": "e8f74c2b-c04f-4b10-8ffb-b319c5e3e10d",
+        "name": "SR-009",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 4599,
+        "price_used_min": 3200,
+        "price_used_max": 4000,
+        "why_recommended": "Crinacle Grade S+. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-009%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "1744fdef-20dd-4d9b-a6f7-8c914ce8dc05"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "2dc73559-7989-4f40-a08a-8cf78654c432",
+      "deleted": [
+        "b2a7ce52-2ded-4a5c-8213-68649da88564"
+      ],
+      "updated": {
+        "id": "2dc73559-7989-4f40-a08a-8cf78654c432",
+        "name": "SR-009S",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 5399,
+        "price_used_min": 3800,
+        "price_used_max": 4800,
+        "why_recommended": "Crinacle Grade S+. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-009S%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "b2a7ce52-2ded-4a5c-8213-68649da88564"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "7e5c3d33-b3a0-421c-a364-c84c994e7cd1",
+      "deleted": [
+        "59852c1e-0896-4dc9-9db9-4c0b1e4d054c"
+      ],
+      "updated": {
+        "id": "7e5c3d33-b3a0-421c-a364-c84c994e7cd1",
+        "name": "SR-L300",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 499,
+        "price_used_min": 350,
+        "price_used_max": 450,
+        "why_recommended": "Crinacle Grade A+ with ★★ value rating. Excellent performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-L300%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "59852c1e-0896-4dc9-9db9-4c0b1e4d054c"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "9837fdee-c73c-4015-9cfd-bf9d8ca156c7",
+      "deleted": [
+        "d1194537-10d8-475d-a707-2ba2886317ae"
+      ],
+      "updated": {
+        "id": "9837fdee-c73c-4015-9cfd-bf9d8ca156c7",
+        "name": "SR-L500 Mk2",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 899,
+        "price_used_min": 650,
+        "price_used_max": 800,
+        "why_recommended": "Crinacle Grade S with ★★ value rating. Exceptional sound quality.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-L500%20Mk2%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "d1194537-10d8-475d-a707-2ba2886317ae"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "a7dc421a-7560-465d-868d-6be7dae27d3a",
+      "deleted": [
+        "67b500f1-6c70-43ff-a722-541451efade9"
+      ],
+      "updated": {
+        "id": "a7dc421a-7560-465d-868d-6be7dae27d3a",
+        "name": "SR-X9000",
+        "brand": "Stax",
+        "category": "cans",
+        "price_new": 6999,
+        "price_used_min": 5500,
+        "price_used_max": 6500,
+        "why_recommended": "Crinacle Grade S+. Summit-fi performance.",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/s?k=Stax%20SR-X9000%20headphones&tag=hifinder-20",
+        "merged_from": [
+          "67b500f1-6c70-43ff-a722-541451efade9"
+        ]
+      }
+    },
+    {
+      "success": true,
+      "canonical": "0fceffd9-6004-4fa6-8fae-190aa3046b0c",
+      "deleted": [
+        "bf315187-1985-4265-8ab0-c66930b66553"
+      ],
+      "updated": {
+        "id": "0fceffd9-6004-4fa6-8fae-190aa3046b0c",
+        "name": "Topping DX3 Pro+",
+        "brand": "Topping",
+        "category": "dac_amp",
+        "price_new": 199,
+        "price_used_min": 140,
+        "price_used_max": 180,
+        "why_recommended": "Excellent measurements, remote control, multiple inputs, great price-performance",
+        "impedance": null,
+        "sound_signature": "neutral",
+        "image_url": null,
+        "amazon_url": "https://www.amazon.com/dp/B08BGLXZ8H?tag=hifinder-20",
+        "merged_from": [
+          "bf315187-1985-4265-8ab0-c66930b66553"
+        ]
+      }
+    }
+  ]
+}

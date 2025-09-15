@@ -7,7 +7,10 @@ import Link from 'next/link'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSlider } from '@/components/BudgetSlider'
+import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { useBudgetState } from '@/hooks/useBudgetState'
 import { AmplificationBadge } from '@/components/AmplificationIndicator'
+import { StackBuilderModal } from '@/components/StackBuilderModal'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -31,23 +34,26 @@ function RecommendationsContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAmplification, setShowAmplification] = useState(false)
-  
+
   // Selection state
   const [selectedHeadphones, setSelectedHeadphones] = useState<string[]>([])
   const [selectedDacs, setSelectedDacs] = useState<string[]>([])
   const [selectedAmps, setSelectedAmps] = useState<string[]>([])
   const [selectedDacAmps, setSelectedDacAmps] = useState<string[]>([])
-  
+
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
   const [showUsedMarket, setShowUsedMarket] = useState(false)
-  
+
+  // Stack builder state
+  const [showStackBuilder, setShowStackBuilder] = useState(false)
+
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Quick-start detection
   const isQuickStart = searchParams.get('source') === 'quick-start'
-  
+
   // User preferences state - make them editable
   const [userPrefs, setUserPrefs] = useState({
     experience: searchParams.get('experience') || 'intermediate',
@@ -61,6 +67,20 @@ function RecommendationsContent() {
     usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
     excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
     soundSignature: searchParams.get('sound') || 'any' // Show all for quick-start
+  })
+
+  // Enhanced budget state management with debouncing and analytics
+  const budgetState = useBudgetState({
+    initialBudget: userPrefs.budget,
+    minBudget: 20,
+    maxBudget: 10000,
+    budgetRangeMin: userPrefs.budgetRangeMin,
+    budgetRangeMax: userPrefs.budgetRangeMax,
+    onBudgetChange: (newBudget) => {
+      setUserPrefs(prev => ({ ...prev, budget: newBudget }))
+    },
+    enableAnalytics: true,
+    enablePersistence: true
   })
   
   // Filter state for UI controls
@@ -85,8 +105,9 @@ function RecommendationsContent() {
     setUserPrefs(urlPrefs)
   }, [searchParams])
 
-  // Extract values for convenience
-  const { experience, budget, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
+  // Extract values for convenience (using budget from enhanced state)
+  const { experience, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
+  const budget = budgetState.budget
 
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
@@ -378,30 +399,25 @@ function RecommendationsContent() {
           </p>
         </div>
 
-        {/* Budget Control */}
-        <div className="card mb-6 relative" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
-          {/* Budget Slider using reusable component */}
-          <div className="mb-6">
-            {/* Budget Tier Labels */}
-            <div className="flex justify-between text-xs text-tertiary mb-3">
-              <span className={`text-center ${budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
-              <span className={`text-center ${budget > 100 && budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
-              <span className={`text-center ${budget > 400 && budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
-              <span className={`text-center ${budget > 1000 && budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
-              <span className={`text-center ${budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
-            </div>
-            <BudgetSlider
-              budget={budget}
-              onBudgetChange={(newBudget) => {
-                updatePreferences({ budget: newBudget })
-              }}
-              variant="advanced"
-              showInput={true}
-              showLabels={true}
-              minBudget={20}
-              maxBudget={10000}
-            />
-          </div>
+        {/* Enhanced Budget Control */}
+        <div className="card mb-6 p-6">
+          <BudgetSliderEnhanced
+            budget={budgetState.budget}
+            displayBudget={budgetState.displayBudget}
+            onChange={budgetState.handleBudgetChange}
+            onChangeComplete={budgetState.handleBudgetChangeComplete}
+            isUpdating={budgetState.isUpdating}
+            variant="advanced"
+            showInput={true}
+            showLabels={true}
+            showItemCount={true}
+            itemCount={budgetState.itemCount?.total || 0}
+            minBudget={20}
+            maxBudget={10000}
+            budgetRangeMin={userPrefs.budgetRangeMin}
+            budgetRangeMax={userPrefs.budgetRangeMax}
+            className="w-full"
+          />
         </div>
 
         {/* Optional Filters */}
@@ -581,26 +597,51 @@ function RecommendationsContent() {
               ))}
             </div>
             <div className={`pt-4 border-t border-gray-200 mt-4 rounded-lg p-4 ${
-              totalSelectedPrice > budget * 1.1 
+              totalSelectedPrice > budget * 1.1
                 ? 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200'
                 : totalSelectedPrice > budget * 0.9
-                ? 'bg-transparent border border-gray-200' 
+                ? 'bg-transparent border border-gray-200'
                 : 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200'
             }`}>
-              <div className="text-center">
+              <div className="text-center mb-4">
                 <p className="text-xl font-bold text-gray-900 mb-2">
                   ${Math.round(totalSelectedPrice).toLocaleString()}
                 </p>
                 <p className={`text-sm font-medium mb-1 ${
-                  totalSelectedPrice > budget * 1.1 
+                  totalSelectedPrice > budget * 1.1
                     ? 'text-red-700'
                     : totalSelectedPrice > budget * 0.9
-                    ? 'text-gray-700' 
+                    ? 'text-gray-700'
                     : 'text-green-700'
                 }`}>
                   {totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-600">Est. System Cost</p>
+              </div>
+
+              {/* Build Stack Button */}
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setShowStackBuilder(true)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Build Complete Stack
+                </button>
+                <button
+                  onClick={() => {
+                    // Clear all selections
+                    setSelectedHeadphones([])
+                    setSelectedDacs([])
+                    setSelectedAmps([])
+                    setSelectedDacAmps([])
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+                >
+                  Clear All
+                </button>
               </div>
             </div>
           </div>
@@ -899,14 +940,32 @@ function RecommendationsContent() {
 
         {/* Back to Onboarding */}
         <div className="mt-12 text-center">
-          <Link 
-            href="/onboarding" 
+          <Link
+            href="/onboarding"
             className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
             ← Adjust Preferences
           </Link>
         </div>
       </div>
+
+      {/* Stack Builder Modal */}
+      <StackBuilderModal
+        isOpen={showStackBuilder}
+        onClose={() => setShowStackBuilder(false)}
+        selectedComponents={{
+          headphones: selectedHeadphoneItems,
+          dacs: selectedDacItems,
+          amps: selectedAmpItems,
+          combos: selectedDacAmpItems
+        }}
+        onSaveStack={async (stackName, components) => {
+          // TODO: Implement actual stack saving
+          console.log('Saving stack:', stackName, components)
+          // For now, just close the modal
+          setShowStackBuilder(false)
+        }}
+      />
     </div>
   )
 }
