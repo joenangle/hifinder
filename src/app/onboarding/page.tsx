@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
 import { BudgetSlider } from '@/components/BudgetSlider'
@@ -44,6 +45,27 @@ interface Preferences {
   usageRanking: string[]
   excludedUsages: string[]
   soundSignature: string
+}
+
+// User gear types
+interface UserGearItem {
+  id: string
+  components: {
+    id: string
+    name: string
+    brand: string
+    category: string
+    price_new?: number
+    price_used_min?: number
+    price_used_max?: number
+    budget_tier?: string
+    sound_signature?: string
+    image_url?: string
+  }
+  rating?: number
+  notes?: string
+  purchase_price?: number
+  purchase_date?: string
 }
 
 // Usage Ranking Component  
@@ -255,7 +277,18 @@ function UsageRankingStep({ preferences, setPreferences }: UsageRankingStepProps
 }
 
 export default function OnboardingPage() {
+  const router = useRouter()
+  const { data: session } = useSession()
   const [step, setStep] = useState(1)
+
+  // User gear state
+  const [userGear, setUserGear] = useState<UserGearItem[]>([])
+  const [loadingUserGear, setLoadingUserGear] = useState(false)
+  const [upgradeAnalysis, setUpgradeAnalysis] = useState<{
+    recommendations: string[]
+    currentHighestTier?: string
+    averagePrice?: number
+  } | null>(null)
   const [preferences, setPreferences] = useState({
     experience: '',
     budget: 100,
@@ -312,8 +345,6 @@ export default function OnboardingPage() {
   const [selectedOptimizeModel, setSelectedOptimizeModel] = useState('')
   const [loadingOptimizeBrands, setLoadingOptimizeBrands] = useState(false)
   const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
-  
-  const router = useRouter()
 
   // Track onboarding start
   useEffect(() => {
@@ -329,6 +360,122 @@ export default function OnboardingPage() {
       })
     }
   }, [step])
+
+// Fetch user gear
+const fetchUserGear = useCallback(async () => {
+  if (!session?.user?.id) return
+
+  setLoadingUserGear(true)
+  try {
+    const response = await fetch('/api/gear')
+    if (!response.ok) throw new Error('Failed to fetch user gear')
+
+    const gear = await response.json()
+    setUserGear(gear)
+
+    // Analyze gear for upgrade recommendations
+    if (gear.length > 0) {
+      const analysis = analyzeGearForUpgrades(gear)
+      setUpgradeAnalysis(analysis)
+    }
+  } catch (error) {
+    console.error('Error fetching user gear:', error)
+  } finally {
+    setLoadingUserGear(false)
+  }
+}, [session?.user?.id])
+
+// Analyze existing gear to recommend meaningful upgrades
+const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
+  const headphones = gear.filter(item =>
+    item.components.category.toLowerCase().includes('headphone') ||
+    item.components.category.toLowerCase().includes('iem')
+  )
+
+  const dacs = gear.filter(item =>
+    item.components.category.toLowerCase().includes('dac')
+  )
+
+  const amps = gear.filter(item =>
+    item.components.category.toLowerCase().includes('amp')
+  )
+
+  const combos = gear.filter(item =>
+    item.components.category.toLowerCase().includes('combo')
+  )
+
+  const recommendations = []
+  let currentHighestTier = 'Budget'
+  let totalValue = 0
+  let itemCount = 0
+
+  // Calculate average price and highest tier
+  gear.forEach(item => {
+    const price = item.components.price_new ||
+                  (item.components.price_used_min && item.components.price_used_max
+                    ? (item.components.price_used_min + item.components.price_used_max) / 2
+                    : 0)
+    if (price > 0) {
+      totalValue += price
+      itemCount++
+    }
+
+    // Track highest tier
+    const tier = item.components.budget_tier
+    if (tier) {
+      const tierRank = {'Budget': 1, 'Entry': 2, 'Mid': 3, 'High': 4, 'Summit': 5}[tier] || 1
+      const currentRank = {'Budget': 1, 'Entry': 2, 'Mid': 3, 'High': 4, 'Summit': 5}[currentHighestTier] || 1
+      if (tierRank > currentRank) {
+        currentHighestTier = tier
+      }
+    }
+  })
+
+  const averagePrice = itemCount > 0 ? totalValue / itemCount : 0
+
+  // Generate upgrade recommendations based on gaps and current tier
+  if (headphones.length === 0) {
+    recommendations.push("Add headphones/IEMs to complete your setup")
+  } else if (headphones.length > 0) {
+    const highestHeadphonePrice = Math.max(...headphones.map(h =>
+      h.components.price_new ||
+      (h.components.price_used_min && h.components.price_used_max
+        ? (h.components.price_used_min + h.components.price_used_max) / 2
+        : 0)
+    ))
+
+    if (highestHeadphonePrice < 200) {
+      recommendations.push("Consider upgrading to mid-tier headphones ($200-500)")
+    } else if (highestHeadphonePrice < 500) {
+      recommendations.push("Explore high-end headphones ($500-1000+) for significant upgrades")
+    }
+  }
+
+  if (dacs.length === 0 && combos.length === 0) {
+    recommendations.push("Add a DAC to improve your source quality")
+  }
+
+  if (amps.length === 0 && combos.length === 0) {
+    recommendations.push("Add an amplifier for better power and dynamics")
+  }
+
+  if (headphones.length > 0 && dacs.length === 0 && amps.length === 0 && combos.length === 0) {
+    recommendations.push("Consider a DAC/Amp combo to drive your headphones properly")
+  }
+
+  return {
+    recommendations: recommendations.slice(0, 3), // Limit to top 3
+    currentHighestTier,
+    averagePrice
+  }
+}
+
+// Load user gear when step 2 is reached and user is enthusiast
+useEffect(() => {
+  if (step === 2 && preferences.experience === 'enthusiast' && session?.user?.id) {
+    fetchUserGear()
+  }
+}, [step, preferences.experience, session?.user?.id, fetchUserGear])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = useCallback(() => {
@@ -790,20 +937,133 @@ const handleNext = useCallback(() => {
 
           {step === 2 && isAdvanced() && (
             <div>
-              <h2 className="heading-2 mb-4">Add Your Current Gear</h2>
-              <p className="text-secondary mb-6">Tell us what audio equipment you already own (optional but recommended for better recommendations)</p>
-              <div className="space-y-4 mb-6">
-                <div className="card p-4 bg-surface-secondary">
-                  <h3 className="heading-3 mb-2">📝 Quick Add</h3>
-                  <p className="text-secondary text-sm mb-4">Add gear to your profile now, or skip and we&apos;ll recommend based on your preferences</p>
-                  <button className="button button-secondary w-full">
-                    + Add Gear to Profile
-                  </button>
+              <h2 className="heading-2 mb-4">Your Audio Gear</h2>
+
+              {loadingUserGear ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mx-auto mb-4" />
+                  <p className="text-secondary">Loading your gear...</p>
                 </div>
-                <div className="text-center text-secondary text-sm">
-                  <p>Don&apos;t have gear yet? That&apos;s perfect - we&apos;ll help you build your first setup!</p>
+              ) : session?.user?.id ? (
+                userGear.length > 0 ? (
+                  <div>
+                    <p className="text-secondary mb-6">Based on your current gear, here are some upgrade paths to consider:</p>
+
+                    {/* Current Gear Overview */}
+                    <div className="card p-4 bg-blue-50 border-blue-200 mb-6">
+                      <h3 className="heading-3 mb-3 flex items-center gap-2">
+                        🎧 Your Current Setup
+                        {upgradeAnalysis && (
+                          <span className="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                            {upgradeAnalysis.currentHighestTier} Tier
+                          </span>
+                        )}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {userGear.slice(0, 6).map((item) => (
+                          <div key={item.id} className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              {item.components.category.toLowerCase().includes('headphone') || item.components.category.toLowerCase().includes('iem') ? '🎧' :
+                               item.components.category.toLowerCase().includes('dac') ? '🔄' :
+                               item.components.category.toLowerCase().includes('amp') ? '⚡' : '🎯'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{item.components.name}</p>
+                              <p className="text-xs text-gray-500">{item.components.brand}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {userGear.length > 6 && (
+                          <div className="flex items-center justify-center p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                            +{userGear.length - 6} more items
+                          </div>
+                        )}
+                      </div>
+                      {upgradeAnalysis && upgradeAnalysis.averagePrice && (
+                        <p className="text-sm text-blue-600 mt-3">
+                          Average item value: ${Math.round(upgradeAnalysis.averagePrice)}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Upgrade Recommendations */}
+                    {upgradeAnalysis && upgradeAnalysis.recommendations.length > 0 && (
+                      <div className="card p-4 bg-green-50 border-green-200 mb-6">
+                        <h3 className="heading-3 mb-3 flex items-center gap-2">
+                          🚀 Recommended Upgrades
+                        </h3>
+                        <ul className="space-y-2">
+                          {upgradeAnalysis.recommendations.map((rec, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-xs text-green-600 mt-3">
+                          We&apos;ll focus on meaningful upgrades, not sidegrades
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Link
+                        href="/gear"
+                        className="button button-secondary flex items-center justify-center gap-2"
+                      >
+                        ⚙️ Manage Gear
+                      </Link>
+                      <button
+                        onClick={() => setStep(step + 1)}
+                        className="button button-primary"
+                      >
+                        Continue with Upgrade Focus
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-secondary mb-6">No gear found in your profile. Let&apos;s help you build your first setup!</p>
+
+                    <div className="space-y-4 mb-6">
+                      <div className="card p-4 bg-surface-secondary">
+                        <h3 className="heading-3 mb-2">📝 Add Your Gear</h3>
+                        <p className="text-secondary text-sm mb-4">Add gear to your profile now for personalized upgrade recommendations</p>
+                        <Link
+                          href="/gear"
+                          className="button button-secondary w-full inline-block text-center"
+                        >
+                          + Add Gear to Profile
+                        </Link>
+                      </div>
+                      <div className="text-center text-secondary text-sm">
+                        <p>Starting fresh? Perfect - we&apos;ll help you build your first setup!</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div>
+                  <p className="text-secondary mb-6">Sign in to sync your gear and get personalized upgrade recommendations</p>
+
+                  <div className="space-y-4 mb-6">
+                    <div className="card p-4 bg-surface-secondary">
+                      <h3 className="heading-3 mb-2">🔐 Sign In</h3>
+                      <p className="text-secondary text-sm mb-4">Connect your account to track gear and get better recommendations</p>
+                      <Link
+                        href="/api/auth/signin"
+                        className="button button-secondary w-full inline-block text-center"
+                      >
+                        Sign In
+                      </Link>
+                    </div>
+                    <div className="text-center text-secondary text-sm">
+                      <p>No account needed to continue - we&apos;ll still give you great recommendations!</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
