@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, CompatibilityWarning, stackTemplates, StackTemplate } from '@/lib/stacks'
+import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -581,7 +581,7 @@ function GearContent() {
       try {
         await addGearToStack(stackId, draggedGear.id)
         await loadData()
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error adding gear to stack via drag-and-drop:', error)
         // Show a toast notification or other feedback mechanism here if available
       }
@@ -2048,8 +2048,9 @@ function GearContent() {
                                   await loadData()
                                   setShowAddGearModal(false)
                                   setSelectedStackForGear(null)
-                                } catch (error: any) {
-                                  alert(error?.message || 'Failed to add gear to stack')
+                                } catch (error: unknown) {
+                                  const errorMessage = error instanceof Error ? error.message : 'Failed to add gear to stack'
+                                  alert(errorMessage)
                                 }
                               }}
                             >

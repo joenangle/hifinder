@@ -94,10 +94,10 @@ export function UserDashboard() {
         {/* Quick Actions */}
         <section className="mb-8">
           <h2 className="heading-2 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <Link 
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch">
+            <Link
               href="/onboarding"
-              className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'get_recommendations' } })}
             >
               <div className="flex items-center gap-4 mb-4">
@@ -114,9 +114,9 @@ export function UserDashboard() {
               </p>
             </Link>
             
-            <Link 
+            <Link
               href={gear.length > 0 ? "/gear?tab=stacks" : "/gear"}
-              className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'build_stack' : 'add_gear_for_stack' } })}
             >
               <div className="flex items-center gap-4 mb-4">
@@ -135,9 +135,9 @@ export function UserDashboard() {
               </p>
             </Link>
             
-            <Link 
+            <Link
               href="/used-market"
-              className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'browse_market' } })}
             >
               <div className="flex items-center gap-4 mb-4">
