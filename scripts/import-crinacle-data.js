@@ -312,12 +312,13 @@ class CrinacleImporter {
     return 'iems';
   }
 
-  // Calculate budget tier
+  // Calculate budget tier (matching slider tiers exactly)
   calculateBudgetTier(price) {
-    if (price <= 100) return 'budget';
-    if (price <= 400) return 'entry';
-    if (price <= 1000) return 'mid';
-    return 'high';
+    if (price <= 100) return 'Budget';
+    if (price <= 400) return 'Entry Level';
+    if (price <= 1000) return 'Mid Range';
+    if (price <= 3000) return 'High End';
+    return 'Summit-Fi';
   }
 
   // Parse price from string

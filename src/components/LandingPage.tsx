@@ -89,19 +89,19 @@ export function LandingPage() {
         {/* Quick Stats */}
         <section className="mb-8 py-3 animate-fadeIn">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
+            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
               <div className="text-3xl font-bold text-accent mb-2">1,200+</div>
               <div className="text-foreground text-sm font-semibold">Components</div>
             </div>
-            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
+            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
               <div className="text-3xl font-bold text-accent mb-2">$20-10k</div>
               <div className="text-foreground text-sm font-semibold">Budget Range</div>
             </div>
-            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
+            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
               <div className="text-3xl font-bold text-accent mb-2">Live</div>
               <div className="text-foreground text-sm font-semibold">Used Market</div>
             </div>
-            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105">
+            <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
               <div className="text-3xl font-bold text-accent mb-2">Smart</div>
               <div className="text-foreground text-sm font-semibold">Tracking</div>
             </div>
@@ -113,7 +113,7 @@ export function LandingPage() {
           <h2 className="heading-2 text-center mb-6 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">Complete Audio Gear Management</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {/* Gear Collection */}
-            <Link href="/gear" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group" onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: 'gear_collection' } })}>
+            <Link href="/gear" className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group flex flex-col" onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: 'gear_collection' } })}>
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
                   <span className="text-lg">📦</span>

@@ -94,10 +94,10 @@ export function UserDashboard() {
         {/* Quick Actions */}
         <section className="mb-8">
           <h2 className="heading-2 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Link
               href="/onboarding"
-              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'get_recommendations' } })}
             >
               <div className="flex items-center gap-4 mb-4">
@@ -116,7 +116,7 @@ export function UserDashboard() {
             
             <Link
               href={gear.length > 0 ? "/gear?tab=stacks" : "/gear"}
-              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'build_stack' : 'add_gear_for_stack' } })}
             >
               <div className="flex items-center gap-4 mb-4">
@@ -137,7 +137,7 @@ export function UserDashboard() {
             
             <Link
               href="/used-market"
-              className="card p-6 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
+              className="card p-6 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'browse_market' } })}
             >
               <div className="flex items-center gap-4 mb-4">
@@ -173,13 +173,13 @@ export function UserDashboard() {
               Track your audio collection, monitor values, and get upgrade recommendations.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-surface/50 rounded-lg">
+              <div className="text-center p-4 bg-surface/50 rounded-lg flex flex-col justify-center">
                 <div className="text-2xl font-bold text-accent mb-1">
                   {loading ? '—' : gear.length}
                 </div>
                 <div className="text-sm text-secondary">Components</div>
               </div>
-              <div className="text-center p-4 bg-surface/50 rounded-lg">
+              <div className="text-center p-4 bg-surface/50 rounded-lg flex flex-col justify-center">
                 <div className="text-2xl font-bold text-accent mb-1">
                   {loading ? '—' : new Intl.NumberFormat('en-US', {
                     style: 'currency',
@@ -190,7 +190,7 @@ export function UserDashboard() {
                 </div>
                 <div className="text-sm text-secondary">Current Value</div>
               </div>
-              <div className="text-center p-4 bg-surface/50 rounded-lg">
+              <div className="text-center p-4 bg-surface/50 rounded-lg flex flex-col justify-center">
                 <div className="text-2xl font-bold text-accent mb-1">
                   {loading ? '—' : stacks.length}
                 </div>
@@ -213,9 +213,9 @@ export function UserDashboard() {
         <section className="mb-8">
           <h2 className="heading-2 mb-4">Find Gear by Budget</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <Link 
+            <Link
               href="/recommendations?budget=75&source=quick-start"
-              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
+              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover flex flex-col justify-between"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 75 } })}
             >
               <div className="text-lg mb-2">💰</div>
@@ -223,9 +223,9 @@ export function UserDashboard() {
               <p className="text-sm font-bold mb-1">$20-100</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link 
+            <Link
               href="/recommendations?budget=250&source=quick-start"
-              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
+              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover flex flex-col justify-between"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 250 } })}
             >
               <div className="text-lg mb-2">🎧</div>
@@ -233,9 +233,9 @@ export function UserDashboard() {
               <p className="text-sm font-bold mb-1">$100-400</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link 
+            <Link
               href="/recommendations?budget=700&source=quick-start"
-              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
+              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover flex flex-col justify-between"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 700 } })}
             >
               <div className="text-lg mb-2">🔊</div>
@@ -243,9 +243,9 @@ export function UserDashboard() {
               <p className="text-sm font-bold mb-1">$400-1k</p>
               <div className="text-accent text-xs font-medium">Quick Start →</div>
             </Link>
-            <Link 
+            <Link
               href="/recommendations?budget=2000&source=quick-start"
-              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover"
+              className="card-interactive p-4 text-center hover:scale-105 transition-all duration-300 bg-gradient-to-br from-surface-card to-surface-hover flex flex-col justify-between"
               onClick={() => trackEvent({ name: 'dashboard_budget_clicked', properties: { budget: 2000 } })}
             >
               <div className="text-lg mb-2">✨</div>
