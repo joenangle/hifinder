@@ -300,12 +300,26 @@ export function BudgetSliderEnhanced({
       {/* Header with budget display and item count */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
-            {effectiveVariant === 'dual-range'
-              ? `${formatBudget(rangeMin)} - ${formatBudget(rangeMax)}`
-              : formatBudget(localBudget)
-            }
-          </h3>
+          {effectiveVariant === 'dual-range' ? (
+            <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
+              {`${formatBudget(rangeMin)} - ${formatBudget(rangeMax)}`}
+            </h3>
+          ) : (
+            <div className="flex items-center gap-1">
+              <span className="text-2xl font-bold" style={{ color: currentTier.color }}>$</span>
+              <input
+                type="number"
+                value={budgetInputValue}
+                onChange={(e) => handleInputChange(e.target.value)}
+                onBlur={handleInputBlur}
+                className="text-2xl font-bold bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
+                style={{ color: currentTier.color }}
+                min={minBudget}
+                max={maxBudget}
+                aria-label="Budget amount"
+              />
+            </div>
+          )}
           <button
             onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
             className="p-1 rounded hover:bg-gray-100 transition-colors"
@@ -553,53 +567,36 @@ export function BudgetSliderEnhanced({
       {showLabels && (
         <div className="flex justify-between items-center text-sm text-gray-600">
           <span>{formatBudget(minBudget)}</span>
-          {showInput && (
+          {showInput && effectiveVariant === 'dual-range' && (
             <div className="flex items-center gap-2">
-              {effectiveVariant === 'dual-range' ? (
-                <>
-                  <span className="text-gray-400">$</span>
-                  <input
-                    type="number"
-                    value={rangeMin}
-                    onChange={(e) => {
-                      const newMin = parseInt(e.target.value) || minBudget
-                      const clampedMin = Math.min(newMin, rangeMax - 50)
-                      setRangeMin(clampedMin)
-                      if (onRangeChange) onRangeChange(clampedMin, rangeMax)
-                    }}
-                    className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                    min={minBudget}
-                    max={maxBudget}
-                  />
-                  <span className="text-gray-400">-</span>
-                  <input
-                    type="number"
-                    value={rangeMax}
-                    onChange={(e) => {
-                      const newMax = parseInt(e.target.value) || maxBudget
-                      const clampedMax = Math.max(newMax, rangeMin + 50)
-                      setRangeMax(clampedMax)
-                      if (onRangeChange) onRangeChange(rangeMin, clampedMax)
-                    }}
-                    className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                    min={minBudget}
-                    max={maxBudget}
-                  />
-                </>
-              ) : (
-                <>
-                  <span className="text-gray-400">$</span>
-                  <input
-                    type="number"
-                    value={budgetInputValue}
-                    onChange={(e) => handleInputChange(e.target.value)}
-                    onBlur={handleInputBlur}
-                    className="w-24 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                    min={minBudget}
-                    max={maxBudget}
-                  />
-                </>
-              )}
+              <span className="text-gray-400">$</span>
+              <input
+                type="number"
+                value={rangeMin}
+                onChange={(e) => {
+                  const newMin = parseInt(e.target.value) || minBudget
+                  const clampedMin = Math.min(newMin, rangeMax - 50)
+                  setRangeMin(clampedMin)
+                  if (onRangeChange) onRangeChange(clampedMin, rangeMax)
+                }}
+                className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                min={minBudget}
+                max={maxBudget}
+              />
+              <span className="text-gray-400">-</span>
+              <input
+                type="number"
+                value={rangeMax}
+                onChange={(e) => {
+                  const newMax = parseInt(e.target.value) || maxBudget
+                  const clampedMax = Math.max(newMax, rangeMin + 50)
+                  setRangeMax(clampedMax)
+                  if (onRangeChange) onRangeChange(rangeMin, clampedMax)
+                }}
+                className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                min={minBudget}
+                max={maxBudget}
+              />
             </div>
           )}
           <span>{formatBudget(maxBudget)}+</span>
