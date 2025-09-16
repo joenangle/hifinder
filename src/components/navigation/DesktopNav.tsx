@@ -6,17 +6,19 @@ import { useSession } from 'next-auth/react'
 
 const publicNavItems = [
   { href: '/', label: 'Home' },
-  { href: '/onboarding', label: 'Find Gear' },
+  { href: '/onboarding', label: 'Recommendations' },
   { href: '/about', label: 'About' },
-  { href: '/quick-start', label: 'Quick Start' },
+  { href: '/learn', label: 'Learn' },
 ]
 
 const authNavItems = [
-  { href: '/', label: 'Dashboard' },
-  { href: '/onboarding', label: 'Find Gear' },
+  { href: '/', label: 'Home' },
+  { href: '/onboarding', label: 'Recommendations' },
   { href: '/gear', label: 'My Gear' },
-  { href: '/wishlist', label: 'Wishlist' },
+  { href: '/wishlist', label: 'Wishlists' },
   { href: '/alerts', label: 'Alerts' },
+  { href: '/about', label: 'About' },
+  { href: '/learn', label: 'Learn' },
 ]
 
 export function DesktopNav() {

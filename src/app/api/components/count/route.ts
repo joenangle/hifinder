@@ -19,12 +19,55 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
 
-    // Parse parameters
-    const budget = parseInt(searchParams.get('budget') || '300')
-    const rangeMin = parseInt(searchParams.get('rangeMin') || '20')
-    const rangeMax = parseInt(searchParams.get('rangeMax') || '10')
+    // Parse and validate parameters
+    const budgetParam = searchParams.get('budget')
+    const rangeMinParam = searchParams.get('rangeMin')
+    const rangeMaxParam = searchParams.get('rangeMax')
     const headphoneType = searchParams.get('headphoneType') || 'both'
     const soundSignature = searchParams.get('sound') || 'any'
+
+    // Validate budget
+    const budget = parseInt(budgetParam || '300')
+    if (isNaN(budget) || budget < 20 || budget > 50000) {
+      return NextResponse.json(
+        { error: 'Invalid budget. Must be between 20 and 50000.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate range parameters
+    const rangeMin = parseInt(rangeMinParam || '20')
+    const rangeMax = parseInt(rangeMaxParam || '10')
+    if (isNaN(rangeMin) || rangeMin < 0 || rangeMin > 90) {
+      return NextResponse.json(
+        { error: 'Invalid rangeMin. Must be between 0 and 90.' },
+        { status: 400 }
+      )
+    }
+    if (isNaN(rangeMax) || rangeMax < 0 || rangeMax > 200) {
+      return NextResponse.json(
+        { error: 'Invalid rangeMax. Must be between 0 and 200.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate headphone type
+    const validHeadphoneTypes = ['cans', 'iems', 'both']
+    if (!validHeadphoneTypes.includes(headphoneType)) {
+      return NextResponse.json(
+        { error: `Invalid headphoneType. Must be one of: ${validHeadphoneTypes.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    // Validate sound signature
+    const validSoundSignatures = ['any', 'neutral', 'warm', 'bright', 'fun', 'balanced']
+    if (!validSoundSignatures.includes(soundSignature)) {
+      return NextResponse.json(
+        { error: `Invalid sound signature. Must be one of: ${validSoundSignatures.join(', ')}` },
+        { status: 400 }
+      )
+    }
 
     // Calculate actual budget range
     const minBudget = Math.max(20, Math.round(budget * (1 - rangeMin / 100)))
@@ -48,31 +91,31 @@ export async function GET(request: NextRequest) {
     const dacsQuery = supabase
       .from('components')
       .select('id', { count: 'exact', head: true })
-      .eq('category', 'dacs')
+      .eq('category', 'dac')
       .gte('price_used_min', minBudget)
       .lte('price_used_max', maxBudget)
 
     const ampsQuery = supabase
       .from('components')
       .select('id', { count: 'exact', head: true })
-      .eq('category', 'amps')
+      .eq('category', 'amp')
       .gte('price_used_min', minBudget)
       .lte('price_used_max', maxBudget)
 
     const combosQuery = supabase
       .from('components')
       .select('id', { count: 'exact', head: true })
-      .eq('category', 'combo')
+      .eq('category', 'dac_amp')
       .gte('price_used_min', minBudget)
       .lte('price_used_max', maxBudget)
 
     // Apply headphone type filter
     if (headphoneType === 'cans') {
-      headphonesQuery = headphonesQuery.eq('category', 'headphones')
+      headphonesQuery = headphonesQuery.eq('category', 'cans')
     } else if (headphoneType === 'iems') {
       headphonesQuery = headphonesQuery.eq('category', 'iems')
     } else {
-      headphonesQuery = headphonesQuery.in('category', ['headphones', 'iems'])
+      headphonesQuery = headphonesQuery.in('category', ['cans', 'iems'])
     }
 
     // Apply sound signature filter

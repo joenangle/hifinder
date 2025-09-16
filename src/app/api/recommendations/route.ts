@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 
+// Intelligent caching system for recommendations
+const cache = new Map<string, { data: unknown, expires: number }>()
+const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes for recommendations (longer than count API)
+
+function generateCacheKey(params: {
+  experience: string
+  budget: number
+  budgetRangeMin: number
+  budgetRangeMax: number
+  headphoneType: string
+  wantRecommendationsFor: object
+  soundSignature: string
+  usage: string
+}): string {
+  // Create a deterministic cache key from critical parameters
+  const keyComponents = [
+    `exp_${params.experience}`,
+    `budget_${params.budget}`,
+    `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
+    `type_${params.headphoneType}`,
+    `want_${JSON.stringify(params.wantRecommendationsFor)}`,
+    `sound_${params.soundSignature}`,
+    `usage_${params.usage}`
+  ]
+  return `recommendations_${keyComponents.join('_')}`
+}
+
 // Enhanced component interface for recommendations
 interface RecommendationComponent {
   id: string
@@ -213,24 +240,134 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     
-    // Parse request parameters
+    // Parse and validate request parameters
+    const experienceParam = searchParams.get('experience') || 'intermediate'
+    const budgetParam = searchParams.get('budget') || '300'
+    const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
+    const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
+    const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
+    const soundSignatureParam = searchParams.get('sound') || 'neutral'
+
+    // Validate experience level
+    const validExperience = ['beginner', 'intermediate', 'advanced']
+    if (!validExperience.includes(experienceParam)) {
+      return NextResponse.json(
+        { error: `Invalid experience level. Must be one of: ${validExperience.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    // Validate budget
+    const budget = parseInt(budgetParam)
+    if (isNaN(budget) || budget < 20 || budget > 50000) {
+      return NextResponse.json(
+        { error: 'Invalid budget. Must be between 20 and 50000.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate budget ranges
+    const budgetRangeMin = parseInt(budgetRangeMinParam)
+    const budgetRangeMax = parseInt(budgetRangeMaxParam)
+    if (isNaN(budgetRangeMin) || budgetRangeMin < 0 || budgetRangeMin > 90) {
+      return NextResponse.json(
+        { error: 'Invalid budgetRangeMin. Must be between 0 and 90.' },
+        { status: 400 }
+      )
+    }
+    if (isNaN(budgetRangeMax) || budgetRangeMax < 0 || budgetRangeMax > 200) {
+      return NextResponse.json(
+        { error: 'Invalid budgetRangeMax. Must be between 0 and 200.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate headphone type
+    const validHeadphoneTypes = ['cans', 'iems', 'both']
+    if (!validHeadphoneTypes.includes(headphoneTypeParam)) {
+      return NextResponse.json(
+        { error: `Invalid headphoneType. Must be one of: ${validHeadphoneTypes.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    // Validate sound signature
+    const validSoundSignatures = ['any', 'neutral', 'warm', 'bright', 'fun', 'balanced']
+    if (!validSoundSignatures.includes(soundSignatureParam)) {
+      return NextResponse.json(
+        { error: `Invalid sound signature. Must be one of: ${validSoundSignatures.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    // Parse and validate JSON parameters with error handling
+    let wantRecommendationsFor, existingGear, usageRanking, excludedUsages, connectivity
+
+    try {
+      wantRecommendationsFor = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
+      existingGear = JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}')
+      usageRanking = JSON.parse(searchParams.get('usageRanking') || '["Music","Gaming","Movies","Work"]')
+      excludedUsages = JSON.parse(searchParams.get('excludedUsages') || '[]')
+      connectivity = searchParams.get('connectivity') ? JSON.parse(searchParams.get('connectivity')!) : []
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request parameters. Please check your data format.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate wantRecommendationsFor object
+    if (!wantRecommendationsFor || typeof wantRecommendationsFor !== 'object') {
+      return NextResponse.json(
+        { error: 'Invalid wantRecommendationsFor parameter. Must be an object.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate that at least one recommendation type is requested
+    if (!Object.values(wantRecommendationsFor).some(Boolean)) {
+      return NextResponse.json(
+        { error: 'At least one recommendation type must be requested.' },
+        { status: 400 }
+      )
+    }
+
     const req: RecommendationRequest = {
-      experience: searchParams.get('experience') || 'intermediate',
-      budget: parseInt(searchParams.get('budget') || '300'),
-      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),
-      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),
-      headphoneType: searchParams.get('headphoneType') || 'cans',
-      wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
-      existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
+      experience: experienceParam,
+      budget,
+      budgetRangeMin,
+      budgetRangeMax,
+      headphoneType: headphoneTypeParam,
+      wantRecommendationsFor,
+      existingGear,
       usage: searchParams.get('usage') || 'music',
-      usageRanking: JSON.parse(searchParams.get('usageRanking') || '["Music","Gaming","Movies","Work"]'),
-      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-      soundSignature: searchParams.get('sound') || 'neutral',
+      usageRanking,
+      excludedUsages,
+      soundSignature: soundSignatureParam,
       powerNeeds: searchParams.get('powerNeeds') || '',
-      connectivity: searchParams.get('connectivity') ? JSON.parse(searchParams.get('connectivity')!) : [],
+      connectivity,
       usageContext: searchParams.get('usageContext') || '',
       existingHeadphones: searchParams.get('existingHeadphones') || '',
       optimizeAroundHeadphones: searchParams.get('optimizeAroundHeadphones') || ''
+    }
+
+    // Generate cache key for this specific request
+    const cacheKey = generateCacheKey({
+      experience: req.experience,
+      budget: req.budget,
+      budgetRangeMin: req.budgetRangeMin,
+      budgetRangeMax: req.budgetRangeMax,
+      headphoneType: req.headphoneType,
+      wantRecommendationsFor: req.wantRecommendationsFor,
+      soundSignature: req.soundSignature,
+      usage: req.usage
+    })
+
+    // Check cache first
+    const cached = cache.get(cacheKey)
+    if (cached && cached.expires > Date.now()) {
+      console.log('🚀 Cache hit for recommendations:', cacheKey)
+      return NextResponse.json(cached.data)
     }
 
     // Determine max options based on experience
@@ -265,21 +402,57 @@ export async function GET(request: NextRequest) {
       needsAmplification: false
     }
 
-    // Fetch headphones if requested
-    if (req.wantRecommendationsFor.headphones) {
-      const headphoneBudget = budgetAllocation.headphones || req.budget
-      const categoryFilter = req.headphoneType === 'cans' ? 'cans' : 
-                           req.headphoneType === 'iems' ? 'iems' : 'cans'
-      
-      const { data: headphonesData } = await supabaseServer
-        .from('components')
-        .select('*')
-        .eq('category', categoryFilter)
-        .order('price_used_min')
+    // Build unified query to fetch all requested component types in a single database call
+    const requestedCategories: string[] = []
 
-      if (headphonesData) {
+    if (req.wantRecommendationsFor.headphones) {
+      if (req.headphoneType === 'cans') {
+        requestedCategories.push('cans')
+      } else if (req.headphoneType === 'iems') {
+        requestedCategories.push('iems')
+      } else {
+        requestedCategories.push('cans', 'iems')
+      }
+    }
+
+    if (req.wantRecommendationsFor.dac) {
+      requestedCategories.push('dac')
+    }
+
+    if (req.wantRecommendationsFor.amp) {
+      requestedCategories.push('amp')
+    }
+
+    if (req.wantRecommendationsFor.combo) {
+      requestedCategories.push('dac_amp')
+    }
+
+    // Single unified database query for all component types
+    const { data: allComponentsData, error: componentsError } = await supabaseServer
+      .from('components')
+      .select('*')
+      .in('category', requestedCategories)
+      .order('price_used_min')
+
+    if (componentsError) {
+      throw componentsError
+    }
+
+    if (allComponentsData) {
+      // Separate components by category for processing
+      const componentsByCategory = {
+        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'),
+        dacs: allComponentsData.filter(c => c.category === 'dac'),
+        amps: allComponentsData.filter(c => c.category === 'amp'),
+        combos: allComponentsData.filter(c => c.category === 'dac_amp')
+      }
+
+      // Process headphones if requested
+      if (req.wantRecommendationsFor.headphones && componentsByCategory.headphones.length > 0) {
+        const headphoneBudget = budgetAllocation.headphones || req.budget
+
         results.headphones = filterAndScoreComponents(
-          headphonesData,
+          componentsByCategory.headphones,
           headphoneBudget,
           req.budgetRangeMin,
           req.budgetRangeMax,
@@ -291,25 +464,17 @@ export async function GET(request: NextRequest) {
         // Check if amplification is needed
         results.needsAmplification = results.headphones.some(h => {
           if (!h.amplificationAssessment) return h.needs_amp === true
-          return h.amplificationAssessment.difficulty === 'demanding' || 
+          return h.amplificationAssessment.difficulty === 'demanding' ||
                  h.amplificationAssessment.difficulty === 'very_demanding'
         })
       }
-    }
 
-    // Fetch DACs if requested
-    if (req.wantRecommendationsFor.dac) {
-      const dacBudget = budgetAllocation.dac || req.budget * 0.2
-      
-      const { data: dacsData } = await supabaseServer
-        .from('components')
-        .select('*')
-        .eq('category', 'dac')
-        .order('price_used_min')
+      // Process DACs if requested
+      if (req.wantRecommendationsFor.dac && componentsByCategory.dacs.length > 0) {
+        const dacBudget = budgetAllocation.dac || req.budget * 0.2
 
-      if (dacsData) {
         results.dacs = filterAndScoreComponents(
-          dacsData,
+          componentsByCategory.dacs,
           dacBudget,
           50, // More flexible range for DACs
           100, // Allow higher prices for DACs
@@ -318,21 +483,13 @@ export async function GET(request: NextRequest) {
           maxOptions
         )
       }
-    }
 
-    // Fetch AMPs if requested
-    if (req.wantRecommendationsFor.amp) {
-      const ampBudget = budgetAllocation.amp || req.budget * 0.25
-      
-      const { data: ampsData } = await supabaseServer
-        .from('components')
-        .select('*')
-        .eq('category', 'amp')
-        .order('price_used_min')
+      // Process AMPs if requested
+      if (req.wantRecommendationsFor.amp && componentsByCategory.amps.length > 0) {
+        const ampBudget = budgetAllocation.amp || req.budget * 0.25
 
-      if (ampsData) {
         results.amps = filterAndScoreComponents(
-          ampsData,
+          componentsByCategory.amps,
           ampBudget,
           50, // More flexible range for amps
           100,
@@ -341,21 +498,13 @@ export async function GET(request: NextRequest) {
           maxOptions
         )
       }
-    }
 
-    // Fetch combo units if requested
-    if (req.wantRecommendationsFor.combo) {
-      const comboBudget = budgetAllocation.combo || req.budget * 0.4
-      
-      const { data: combosData } = await supabaseServer
-        .from('components')
-        .select('*')
-        .eq('category', 'dac_amp')
-        .order('price_used_min')
+      // Process combo units if requested
+      if (req.wantRecommendationsFor.combo && componentsByCategory.combos.length > 0) {
+        const comboBudget = budgetAllocation.combo || req.budget * 0.4
 
-      if (combosData) {
         results.combos = filterAndScoreComponents(
-          combosData,
+          componentsByCategory.combos,
           comboBudget,
           40,
           80,
@@ -389,6 +538,28 @@ export async function GET(request: NextRequest) {
           3
         )
         results.amps = [...results.amps, ...scoredAmps]
+      }
+    }
+
+    // Cache the computed results before returning
+    console.log('💾 Caching recommendations result:', cacheKey)
+    cache.set(cacheKey, {
+      data: results,
+      expires: Date.now() + CACHE_DURATION
+    })
+
+    // Periodically clean up expired cache entries (10% chance)
+    if (Math.random() < 0.1) {
+      const now = Date.now()
+      let expiredCount = 0
+      for (const [key, value] of cache.entries()) {
+        if (value.expires <= now) {
+          cache.delete(key)
+          expiredCount++
+        }
+      }
+      if (expiredCount > 0) {
+        console.log(`🧹 Cleaned up ${expiredCount} expired cache entries`)
       }
     }
 

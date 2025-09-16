@@ -68,8 +68,9 @@ function RecommendationsContent() {
     soundSignature: searchParams.get('sound') || 'any' // Show all for quick-start
   })
 
-  // Debounced budget for API calls (prevents excessive fetching)
+  // Debounced values for API calls (prevents excessive fetching)
   const [debouncedBudget, setDebouncedBudget] = useState(userPrefs.budget)
+  const [debouncedPrefs, setDebouncedPrefs] = useState(userPrefs)
 
   // Enhanced budget state management with debouncing and analytics
   const budgetState = useBudgetState({
@@ -85,14 +86,23 @@ function RecommendationsContent() {
     enablePersistence: true
   })
 
-  // Update debounced budget when budget changes are completed
+  // Debounce budget changes (1 second delay for budget slider)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedBudget(budgetState.budget)
-    }, 1000) // 1 second delay for API calls
+    }, 1000)
 
     return () => clearTimeout(timer)
   }, [budgetState.budget])
+
+  // Debounce all other preference changes (500ms delay for filters)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPrefs(userPrefs)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [userPrefs])
   
   // Filter state for UI controls - now supporting multi-select
   const [typeFilters, setTypeFilters] = useState<string[]>(() => {
@@ -149,6 +159,20 @@ function RecommendationsContent() {
   const budget = budgetState.budget // For UI display (immediate updates)
   const budgetForAPI = debouncedBudget // For API calls (debounced)
 
+  // Extract debounced values for API calls
+  const {
+    experience: debouncedExperience,
+    budgetRangeMin: debouncedBudgetRangeMin,
+    budgetRangeMax: debouncedBudgetRangeMax,
+    headphoneType: debouncedHeadphoneType,
+    wantRecommendationsFor: debouncedWantRecommendationsFor,
+    existingGear: debouncedExistingGear,
+    usage: debouncedUsage,
+    usageRanking: debouncedUsageRanking,
+    excludedUsages: debouncedExcludedUsages,
+    soundSignature: debouncedSoundSignature
+  } = debouncedPrefs
+
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
     const updatedPrefs = { ...userPrefs, ...newPrefs }
@@ -191,25 +215,25 @@ function RecommendationsContent() {
 
   // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async () => {
-    console.log('🎯 Fetching recommendations via API for:', wantRecommendationsFor)
-    
+    console.log('🎯 Fetching recommendations via API for:', debouncedWantRecommendationsFor)
+
     setLoading(true)
     setError(null)
-    
+
     try {
-      // Build URL parameters for recommendations API
+      // Build URL parameters for recommendations API using debounced values
       const params = new URLSearchParams({
-        experience,
+        experience: debouncedExperience,
         budget: budgetForAPI.toString(),
-        budgetRangeMin: budgetRangeMin.toString(),
-        budgetRangeMax: budgetRangeMax.toString(),
-        headphoneType,
-        wantRecommendationsFor: JSON.stringify(wantRecommendationsFor),
-        existingGear: JSON.stringify(existingGear),
-        usage,
-        usageRanking: JSON.stringify(usageRanking),
-        excludedUsages: JSON.stringify(userPrefs.excludedUsages),
-        sound: soundSignature
+        budgetRangeMin: debouncedBudgetRangeMin.toString(),
+        budgetRangeMax: debouncedBudgetRangeMax.toString(),
+        headphoneType: debouncedHeadphoneType,
+        wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor),
+        existingGear: JSON.stringify(debouncedExistingGear),
+        usage: debouncedUsage,
+        usageRanking: JSON.stringify(debouncedUsageRanking),
+        excludedUsages: JSON.stringify(debouncedExcludedUsages),
+        sound: debouncedSoundSignature
       })
 
       const response = await fetch(`/api/recommendations?${params.toString()}`)
@@ -265,7 +289,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [experience, budgetForAPI, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, userPrefs.excludedUsages, soundSignature])
+  }, [debouncedExperience, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature])
 
   useEffect(() => {
     fetchRecommendations()
