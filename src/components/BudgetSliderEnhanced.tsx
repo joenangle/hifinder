@@ -384,7 +384,7 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMin}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
             />
           </div>
           <div>
@@ -394,7 +394,7 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMax}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
             />
           </div>
         </div>

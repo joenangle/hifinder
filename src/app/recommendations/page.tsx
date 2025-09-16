@@ -400,28 +400,6 @@ function RecommendationsContent() {
 
         {/* Enhanced Budget Control */}
         <div className="card mb-6 p-6">
-          <div className="mb-4">
-            <div className="flex items-baseline gap-3">
-              <input
-                type="number"
-                value={budgetState.displayBudget}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value) || 0
-                  budgetState.handleBudgetChange(value)
-                }}
-                onBlur={() => budgetState.handleBudgetChangeComplete(budgetState.displayBudget)}
-                className="text-4xl font-bold bg-transparent border-none outline-none w-32"
-                style={{ color: '#3b82f6' }}
-              />
-              <span className="text-2xl font-medium text-gray-600">
-                {getBudgetRangeLabel(budgetState.budget)}
-              </span>
-            </div>
-            <div className="text-sm text-gray-500 mt-1">
-              Searching ${Math.round(budgetState.budget * (1 - userPrefs.budgetRangeMin/100))}-${Math.round(budgetState.budget * (1 + userPrefs.budgetRangeMax/100))}
-              ({userPrefs.budgetRangeMin}%/+{userPrefs.budgetRangeMax}%)
-            </div>
-          </div>
           <BudgetSliderEnhanced
             budget={budgetState.budget}
             displayBudget={budgetState.displayBudget}
@@ -430,7 +408,7 @@ function RecommendationsContent() {
             isUpdating={budgetState.isUpdating}
             variant="simple"
             userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
-            showInput={false}
+            showInput={true}
             showLabels={true}
             showItemCount={true}
             itemCount={budgetState.itemCount?.total || 0}
