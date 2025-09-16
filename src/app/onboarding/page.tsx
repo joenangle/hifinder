@@ -329,7 +329,7 @@ export default function OnboardingPage() {
     excludedUsages: [] as string[],
     soundSignature: ''
   })
-  const [_budgetInputValue, _setBudgetInputValue] = useState('100')
+  // const [_budgetInputValue, _setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
   
   // Headphone selection state
@@ -344,9 +344,9 @@ export default function OnboardingPage() {
   const [optimizeBrands, setOptimizeBrands] = useState<string[]>([])
   const [optimizeModels, setOptimizeModels] = useState<{[brand: string]: string[]}>({})
   const [selectedOptimizeBrand, setSelectedOptimizeBrand] = useState('')
-  const [selectedOptimizeModel, setSelectedOptimizeModel] = useState('')
-  const [loadingOptimizeBrands, setLoadingOptimizeBrands] = useState(false)
-  const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
+  // const [selectedOptimizeModel, setSelectedOptimizeModel] = useState('')
+  // const [loadingOptimizeBrands, setLoadingOptimizeBrands] = useState(false)
+  // const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
 
   // Track onboarding start
   useEffect(() => {
@@ -496,6 +496,7 @@ const needsAmpDacQuestions = useCallback(() => {
 }, [preferences.wantRecommendationsFor.dac, preferences.wantRecommendationsFor.amp, preferences.wantRecommendationsFor.combo])
 
 // Fetch headphone brands from API
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fetchBrands = useCallback(async () => {
   if (brands.length > 0) return // Already loaded
   
@@ -532,6 +533,7 @@ const fetchModels = useCallback(async (brand: string) => {
 }, [models])
 
 // Fetch brands for optimization headphones from API
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fetchOptimizeBrands = useCallback(async () => {
   if (optimizeBrands.length > 0) return // Already loaded
   
@@ -584,6 +586,7 @@ const fetchOptimizeModels = useCallback(async (brand: string) => {
 }, [optimizeModels])
 
 // Handle optimization brand selection
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleOptimizeBrandSelect = (brand: string) => {
   setSelectedOptimizeBrand(brand)
   setSelectedOptimizeModel('') // Reset model selection
@@ -593,6 +596,7 @@ const handleOptimizeBrandSelect = (brand: string) => {
 }
 
 // Handle optimization model selection
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleOptimizeModelSelect = (model: string) => {
   setSelectedOptimizeModel(model)
   const fullName = selectedOptimizeBrand && model ? `${selectedOptimizeBrand} ${model}` : ''
@@ -621,7 +625,7 @@ const handleOptimizeModelSelect = (model: string) => {
 const isBeginner = () => preferences.experience === 'beginner'
 const isAdvanced = () => preferences.experience === 'intermediate' || preferences.experience === 'enthusiast'
 
-const isStepValid = () => {
+const isStepValid = useCallback(() => {
   if (isBeginner()) {
     // Beginner flow: 1(experience) → 2(headphones/iems) → 3(budget) = 3 steps
     switch (step) {
@@ -640,15 +644,15 @@ const isStepValid = () => {
       default: return false
     }
   }
-}
+}, [step, preferences, isBeginner])
 
-const getMaxSteps = () => {
+const getMaxSteps = useCallback(() => {
   if (isBeginner()) {
     return 3 // Simplified beginner flow: experience → headphone type → budget → done
   } else {
     return 4 // Advanced flow: experience → gear → recommendations → budget
   }
-}
+}, [isBeginner])
 
 const getActualStepNumber = () => {
   // Simple linear step numbering since we removed conditional steps
@@ -1045,7 +1049,7 @@ const handleNext = useCallback(() => {
           {step === 3 && isAdvanced() && (
             <div>
               <h2 className="heading-2 mb-4">What do you want recommendations for?</h2>
-              <p className="text-secondary mb-6">Select the components you'd like us to recommend for your system</p>
+              <p className="text-secondary mb-6">Select the components you&apos;d like us to recommend for your system</p>
 
               {/* Audio Output Section */}
               <div className="mb-8">
