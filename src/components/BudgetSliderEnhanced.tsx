@@ -153,7 +153,8 @@ export function BudgetSliderEnhanced({
 
   // Determine if dual-range should be available based on user experience
   const shouldShowDualRangeOption = userExperience === 'enthusiast' || variant === 'dual-range'
-  const effectiveVariant = isDualRange && shouldShowDualRangeOption ? 'dual-range' : variant
+  // Force simple mode when variant is explicitly set to "simple"
+  const effectiveVariant = variant === 'simple' ? 'simple' : (isDualRange && shouldShowDualRangeOption ? 'dual-range' : variant)
 
   // Update local budget when external budget changes
   useEffect(() => {
@@ -356,7 +357,7 @@ export function BudgetSliderEnhanced({
         </button>
 
         <div className="flex items-center gap-2">
-          {shouldShowDualRangeOption && (
+          {shouldShowDualRangeOption && variant !== 'simple' && (
             <button
               onClick={() => setIsDualRange(!isDualRange)}
               className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
