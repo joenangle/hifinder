@@ -409,7 +409,7 @@ function RecommendationsContent() {
                   const value = parseInt(e.target.value) || 0
                   budgetState.handleBudgetChange(value)
                 }}
-                onBlur={() => budgetState.handleBudgetChangeComplete()}
+                onBlur={() => budgetState.handleBudgetChangeComplete(budgetState.displayBudget)}
                 className="text-4xl font-bold bg-transparent border-none outline-none w-32"
                 style={{ color: '#3b82f6' }}
               />
