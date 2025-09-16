@@ -8,12 +8,14 @@ import { useSession, signIn } from 'next-auth/react'
 
 const publicNavItems = [
   { href: '/', label: 'Home' },
+  { href: '/onboarding', label: 'Find Gear' },
   { href: '/about', label: 'About' },
   { href: '/quick-start', label: 'Quick Start' },
 ]
 
 const authNavItems = [
   { href: '/', label: 'Dashboard' },
+  { href: '/onboarding', label: 'Find Gear' },
   { href: '/gear', label: 'My Gear' },
   { href: '/wishlist', label: 'Wishlist' },
   { href: '/alerts', label: 'Alerts' },

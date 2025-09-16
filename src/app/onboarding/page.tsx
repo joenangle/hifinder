@@ -18,6 +18,7 @@ interface Preferences {
   headphoneType: string
   wantRecommendationsFor: {
     headphones: boolean
+    iems: boolean
     dac: boolean
     amp: boolean
     combo: boolean
@@ -298,7 +299,8 @@ export default function OnboardingPage() {
     },
     headphoneType: '',
     wantRecommendationsFor: {
-      headphones: true,
+      headphones: false,
+      iems: false,
       dac: false,
       amp: false,
       combo: false
@@ -482,8 +484,8 @@ useEffect(() => {
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = useCallback(() => {
-  return preferences.wantRecommendationsFor.headphones || preferences.wantRecommendationsFor.combo
-}, [preferences.wantRecommendationsFor.headphones, preferences.wantRecommendationsFor.combo])
+  return preferences.wantRecommendationsFor.headphones || preferences.wantRecommendationsFor.iems
+}, [preferences.wantRecommendationsFor.headphones, preferences.wantRecommendationsFor.iems])
 
 const hasExistingHeadphones = useCallback(() => {
   return preferences.existingGear.headphones
@@ -597,17 +599,10 @@ const handleOptimizeModelSelect = (model: string) => {
   setPreferences({...preferences, optimizeAroundHeadphones: fullName})
 }
 
-// Fetch brands when needed
-useEffect(() => {
-  // Fetch brands for DAC/amp questions
-  if (step === 5 && needsAmpDacQuestions()) {
-    fetchBrands()
-  }
-  // Fetch brands for existing headphone optimization
-  if (step === 4 && hasExistingHeadphones() && needsHeadphoneQuestions()) {
-    fetchOptimizeBrands()
-  }
-}, [step, fetchBrands, fetchOptimizeBrands, preferences.wantRecommendationsFor, preferences.existingGear, needsAmpDacQuestions, hasExistingHeadphones, needsHeadphoneQuestions])
+// Fetch brands when needed - simplified since we removed conditional steps
+// useEffect(() => {
+//   // Removed since we eliminated the complex brand fetching steps
+// }, [])
 
 // Format budget with US currency formatting (currently unused)
 // const formatBudgetUSD = (amount: number) => {
@@ -636,14 +631,12 @@ const isStepValid = () => {
       default: return false
     }
   } else {
-    // Advanced flow: 1(experience) → 2(add gear) → 3(recommendations) → 4(headphone type) → 5(budget+flexibility) → 6(usage) = 6 steps
+    // Advanced flow: 1(experience) → 2(add gear) → 3(recommendations) → 4(budget+flexibility) = 4 steps
     switch (step) {
       case 1: return !!preferences.experience
       case 2: return true // Adding gear is optional
       case 3: return Object.values(preferences.wantRecommendationsFor).some(v => v) // At least one component
-      case 4: return needsHeadphoneQuestions() ? !!preferences.headphoneType : true
-      case 5: return true // Budget + flexibility
-      case 6: return true // Usage & sound
+      case 4: return true // Budget + flexibility
       default: return false
     }
   }
@@ -653,76 +646,53 @@ const getMaxSteps = () => {
   if (isBeginner()) {
     return 3 // Simplified beginner flow: experience → headphone type → budget → done
   } else {
-    // Advanced flow - dynamic based on headphone selection (Step 6 temporarily commented out)
-    let maxSteps = 5 // Reduced from 6 to 5 - Step 6 (budget flexibility) temporarily hidden
-    if (!needsHeadphoneQuestions()) {
-      maxSteps -= 1 // Skip headphone type step
-    }
-    return maxSteps
+    return 4 // Advanced flow: experience → gear → recommendations → budget
   }
 }
 
 const getActualStepNumber = () => {
-  // Calculate actual step number for progress display
-  let actualStep = step
-  
-  // If we're past step 4 but don't need headphone questions, subtract 1
-  if (step > 4 && !needsHeadphoneQuestions()) {
-    actualStep -= 1
-  }
-  
-  // If we're past step 5 but don't need amp/dac questions, subtract 1
-  if (step > 5 && !needsAmpDacQuestions()) {
-    actualStep -= 1
-  }
-  
-  // If we're past step 9 but don't need headphone questions, subtract 1
-  if (step > 9 && !needsHeadphoneQuestions()) {
-    actualStep -= 1
-  }
-  
-  return actualStep
+  // Simple linear step numbering since we removed conditional steps
+  return step
 }
 
 const handleNext = useCallback(() => {
   if (!isStepValid()) return
-  
-  let nextStep = step + 1
-  
-  // Experience-based flow navigation
-  if (isAdvanced()) {
-    // Skip headphone type step if not needed in advanced flow
-    if (step === 3 && !needsHeadphoneQuestions()) {
-      nextStep = 5 // Skip headphone type step (4) to budget step (5)
-    }
-  }
-  // Beginner flow is linear, no skipping needed
-  
+
+  const nextStep = step + 1
+
   if (nextStep <= getMaxSteps()) {
     setStep(nextStep)
   } else {
+    // Set headphoneType based on selection for compatibility
+    const finalPrefs = { ...preferences }
+    if (preferences.wantRecommendationsFor.headphones) {
+      finalPrefs.headphoneType = 'cans'
+    } else if (preferences.wantRecommendationsFor.iems) {
+      finalPrefs.headphoneType = 'iems'
+    }
+
     // Navigate to recommendations with all preferences
     const params = new URLSearchParams({
-      experience: preferences.experience,
-      budget: preferences.budget.toString(),
-      budgetRangeMin: preferences.budgetRange.minPercent.toString(),
-      budgetRangeMax: preferences.budgetRange.maxPercent.toString(),
-      headphoneType: preferences.headphoneType,
-      powerNeeds: preferences.powerNeeds,
-      connectivity: JSON.stringify(preferences.connectivity),
-      usageContext: preferences.usageContext,
-      existingHeadphones: preferences.existingHeadphones,
-      optimizeAroundHeadphones: preferences.optimizeAroundHeadphones,
-      wantRecommendationsFor: JSON.stringify(preferences.wantRecommendationsFor),
-      existingGear: JSON.stringify(preferences.existingGear),
-      usage: preferences.usage,
-      usageRanking: JSON.stringify(preferences.usageRanking),
-      excludedUsages: JSON.stringify(preferences.excludedUsages),
-      sound: preferences.soundSignature
+      experience: finalPrefs.experience,
+      budget: finalPrefs.budget.toString(),
+      budgetRangeMin: finalPrefs.budgetRange.minPercent.toString(),
+      budgetRangeMax: finalPrefs.budgetRange.maxPercent.toString(),
+      headphoneType: finalPrefs.headphoneType,
+      powerNeeds: finalPrefs.powerNeeds,
+      connectivity: JSON.stringify(finalPrefs.connectivity),
+      usageContext: finalPrefs.usageContext,
+      existingHeadphones: finalPrefs.existingHeadphones,
+      optimizeAroundHeadphones: finalPrefs.optimizeAroundHeadphones,
+      wantRecommendationsFor: JSON.stringify(finalPrefs.wantRecommendationsFor),
+      existingGear: JSON.stringify(finalPrefs.existingGear),
+      usage: finalPrefs.usage,
+      usageRanking: JSON.stringify(finalPrefs.usageRanking),
+      excludedUsages: JSON.stringify(finalPrefs.excludedUsages),
+      sound: finalPrefs.soundSignature
     })
     router.push(`/recommendations?${params.toString()}`)
   }
-}, [step, preferences, router, isStepValid, needsHeadphoneQuestions, getMaxSteps, setStep])
+}, [step, preferences, router, isStepValid, getMaxSteps, setStep])
 
 
   return (
@@ -812,8 +782,7 @@ const handleNext = useCallback(() => {
                !isStepValid() && step === 2 && isBeginner() ? 'Select Headphone Type' :
                !isStepValid() && step === 2 && isAdvanced() ? 'Continue' :
                !isStepValid() && step === 3 && isAdvanced() ? 'Select Components' :
-               !isStepValid() && step === 4 && needsHeadphoneQuestions() ? 'Select Headphone Type' :
-               !isStepValid() && step === 5 ? 'Complete Setup Details' :
+               !isStepValid() && step === 4 ? 'Complete Setup Details' :
                !isStepValid() && step === 6 ? 'Complete Preferences' :
                step >= getMaxSteps() ? 'See Recommendations' : 
                step === 2 && isAdvanced() ? 'Skip' : 'Next'}
@@ -1076,61 +1045,111 @@ const handleNext = useCallback(() => {
           {step === 3 && isAdvanced() && (
             <div>
               <h2 className="heading-2 mb-4">What do you want recommendations for?</h2>
-              <p className="text-secondary mb-6">Select the components you&apos;d like us to recommend for your system</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {[
-                  {
-                    key: 'headphones',
-                    label: '🎧 Headphones/IEMs',
-                    description: 'Over-ear headphones or in-ear monitors'
-                  },
-                  {
-                    key: 'dac',
-                    label: '🔄 Standalone DAC',
-                    description: 'Digital-to-analog converter (separate unit)'
-                  },
-                  {
-                    key: 'amp',
-                    label: '⚡ Headphone Amplifier',
-                    description: 'Dedicated headphone amplifier (separate unit)'
-                  },
-                  {
-                    key: 'combo',
-                    label: '🎯 DAC/Amp Combo',
-                    description: 'All-in-one DAC and amplifier device'
-                  }
-                ].map(component => (
-                  <div 
-                    key={component.key}
-                    className={`card-interactive flex items-center justify-between cursor-pointer ${
-                      preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
-                        ? 'card-interactive-selected'
-                        : ''
-                    }`}
-                    onClick={() => setPreferences({
-                      ...preferences,
-                      wantRecommendationsFor: {
-                        ...preferences.wantRecommendationsFor,
-                        [component.key]: !preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
-                      }
-                    })}
-                  >
-                    <div>
-                      <h3 className="font-semibold text-foreground">{component.label}</h3>
-                      <p className="text-sm text-muted font-medium">{component.description}</p>
+              <p className="text-secondary mb-6">Select the components you'd like us to recommend for your system</p>
+
+              {/* Audio Output Section */}
+              <div className="mb-8">
+                <h3 className="heading-3 mb-4 text-accent">🎵 Audio Output</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    {
+                      key: 'headphones',
+                      label: '🎧 Headphones',
+                      description: 'Over-ear or on-ear headphones'
+                    },
+                    {
+                      key: 'iems',
+                      label: '🎵 In-Ear Monitors',
+                      description: 'Earphones that go inside your ears'
+                    }
+                  ].map(component => (
+                    <div
+                      key={component.key}
+                      className={`card-interactive cursor-pointer ${
+                        preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
+                          ? 'card-interactive-selected'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        const newPrefs = {
+                          ...preferences,
+                          wantRecommendationsFor: {
+                            ...preferences.wantRecommendationsFor,
+                            [component.key]: !preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
+                          }
+                        }
+                        // Mutual exclusivity for headphones/IEMs
+                        if (component.key === 'headphones' && !preferences.wantRecommendationsFor.headphones) {
+                          newPrefs.wantRecommendationsFor.iems = false
+                        } else if (component.key === 'iems' && !preferences.wantRecommendationsFor.iems) {
+                          newPrefs.wantRecommendationsFor.headphones = false
+                        }
+                        setPreferences(newPrefs)
+                      }}
+                    >
+                      <div className="text-center p-4">
+                        <h3 className="font-semibold text-foreground mb-2">{component.label}</h3>
+                        <p className="text-sm text-muted">{component.description}</p>
+                        {preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor] && (
+                          <div className="mt-3">
+                            <span className="text-accent font-bold">✓ Selected</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="relative inline-flex items-center pointer-events-none">
-                      <input
-                        type="checkbox"
-                        checked={preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]}
-                        onChange={() => {}} // Handled by parent div onClick
-                        className="sr-only peer"
-                        tabIndex={-1}
-                      />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  ))}
+                </div>
+                <p className="text-xs text-tertiary mt-2 italic">Choose either headphones OR IEMs (not both)</p>
+              </div>
+
+              {/* Audio Processing Section */}
+              <div>
+                <h3 className="heading-3 mb-4 text-accent">🔧 Audio Processing</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    {
+                      key: 'dac',
+                      label: '🔄 DAC',
+                      description: 'Digital-to-analog converter'
+                    },
+                    {
+                      key: 'amp',
+                      label: '⚡ Amplifier',
+                      description: 'Headphone amplifier'
+                    },
+                    {
+                      key: 'combo',
+                      label: '🎯 DAC/Amp Combo',
+                      description: 'All-in-one device'
+                    }
+                  ].map(component => (
+                    <div
+                      key={component.key}
+                      className={`card-interactive cursor-pointer ${
+                        preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
+                          ? 'card-interactive-selected'
+                          : ''
+                      }`}
+                      onClick={() => setPreferences({
+                        ...preferences,
+                        wantRecommendationsFor: {
+                          ...preferences.wantRecommendationsFor,
+                          [component.key]: !preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
+                        }
+                      })}
+                    >
+                      <div className="text-center p-4">
+                        <h3 className="font-semibold text-foreground mb-2">{component.label}</h3>
+                        <p className="text-sm text-muted">{component.description}</p>
+                        {preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor] && (
+                          <div className="mt-3">
+                            <span className="text-accent font-bold">✓ Selected</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -1182,135 +1201,9 @@ const handleNext = useCallback(() => {
             </div>
           )}
           
-          {step === 4 && needsHeadphoneQuestions() && !hasExistingHeadphones() && (
-            <div>
-              <h2 className="heading-2 mb-6">What type of headphones do you prefer?</h2>
-              <p className="text-secondary mb-8">Choose the style that appeals to you most</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {[
-                  {
-                    value: 'cans',
-                    label: '🎧 Over/On-Ear Headphones',
-                    description: 'Traditional headphones that go over or on your ears',
-                    pros: 'Comfortable for long sessions, great soundstage, easy to drive'
-                  },
-                  {
-                    value: 'iems', 
-                    label: '🎵 In-Ear Monitors (IEMs)',
-                    description: 'Earphones that go inside your ear canal',
-                    pros: 'Portable, excellent isolation, detailed sound'
-                  }
-                ].map(option => (
-                  <button 
-                    key={option.value}
-                    onClick={() => {
-                      setPreferences({...preferences, headphoneType: option.value})
-                      // Auto-advance after brief delay  
-                      setTimeout(() => setStep(5), 600)
-                    }}
-                    className={`card-interactive ${
-                      preferences.headphoneType === option.value 
-                        ? 'card-interactive-selected' 
-                        : ''
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className="heading-3">{option.label}</h3>
-                      {preferences.headphoneType === option.value && <span className="text-accent">✓</span>}
-                    </div>
-                    <p className="text-secondary mb-4">{option.description}</p>
-                    <p className="text-sm text-tertiary italic">{option.pros}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
           
-          {step === 4 && needsHeadphoneQuestions() && hasExistingHeadphones() && (
-            <div>
-              <h2 className="heading-2 mb-6">Which headphones do you want to optimize around?</h2>
-              <p className="text-secondary mb-8">Since you have existing headphones, tell us which ones you want to build your system around</p>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  {/* Brand Selection */}
-                  <div>
-                    <label className="block text-xs font-medium text-secondary mb-2">Brand</label>
-                    <select
-                      value={selectedOptimizeBrand}
-                      onChange={(e) => handleOptimizeBrandSelect(e.target.value)}
-                      disabled={loadingOptimizeBrands}
-                      className="input w-full"
-                    >
-                      <option value="">
-                        {loadingOptimizeBrands ? 'Loading brands...' : 'Select brand'}
-                      </option>
-                      {optimizeBrands.map(brand => (
-                        <option key={brand} value={brand}>{brand}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Model Selection */}
-                  <div>
-                    <label className="block text-xs font-medium text-secondary mb-2">Model</label>
-                    <select
-                      value={selectedOptimizeModel}
-                      onChange={(e) => handleOptimizeModelSelect(e.target.value)}
-                      disabled={!selectedOptimizeBrand || loadingOptimizeModels}
-                      className="input w-full"
-                    >
-                      <option value="">
-                        {!selectedOptimizeBrand ? 'Select brand first' : 
-                         loadingOptimizeModels ? 'Loading models...' : 
-                         'Select model'}
-                      </option>
-                      {selectedOptimizeBrand && optimizeModels[selectedOptimizeBrand]?.map(model => (
-                        <option key={model} value={model}>{model}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                
-                {/* Selected headphones display */}
-                {preferences.optimizeAroundHeadphones && (
-                  <div className="p-4 bg-accent-subtle rounded-lg">
-                    <p className="text-sm font-medium text-accent">
-                      Optimizing around: {preferences.optimizeAroundHeadphones}
-                    </p>
-                    <p className="text-xs text-secondary mt-1">
-                      We&apos;ll recommend DACs, amps, and other headphones that complement these
-                    </p>
-                  </div>
-                )}
-                
-                {/* Manual entry fallback */}
-                <div>
-                  <details className="group">
-                    <summary className="text-sm text-secondary cursor-pointer hover:text-primary">
-                      Can&apos;t find your headphones? Enter manually
-                    </summary>
-                    <div className="mt-3">
-                      <input 
-                        type="text"
-                        value={preferences.optimizeAroundHeadphones}
-                        onChange={(e) => {
-                          setPreferences({...preferences, optimizeAroundHeadphones: e.target.value})
-                          // Clear selections when manually entering
-                          setSelectedOptimizeBrand('')
-                          setSelectedOptimizeModel('')
-                        }}
-                        className="input w-full"
-                        placeholder="e.g., Sennheiser HD600, Beyerdynamic DT770, etc."
-                      />
-                    </div>
-                  </details>
-                </div>
-              </div>
-            </div>
-          )}
           
-          {step === 5 && (
+          {step === 4 && (
             <div>
               <h2 className="heading-2 mb-4">Setup Details</h2>
               <p className="text-secondary mb-6">Let&apos;s configure your setup preferences</p>
