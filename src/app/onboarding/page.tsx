@@ -537,7 +537,7 @@ const fetchModels = useCallback(async (brand: string) => {
 const fetchOptimizeBrands = useCallback(async () => {
   if (optimizeBrands.length > 0) return // Already loaded
   
-  setLoadingOptimizeBrands(true)
+  // setLoadingOptimizeBrands(true)
   try {
     const response = await fetch('/api/components?brands_only=true&category=headphones_and_iems')
     if (!response.ok) throw new Error('Failed to fetch optimize brands')
@@ -547,7 +547,7 @@ const fetchOptimizeBrands = useCallback(async () => {
   } catch (error) {
     console.error('Error fetching optimize brands:', error)
   } finally {
-    setLoadingOptimizeBrands(false)
+    // setLoadingOptimizeBrands(false)
   }
 }, [optimizeBrands.length])
 
@@ -571,7 +571,7 @@ const handleModelSelect = (model: string) => {
 const fetchOptimizeModels = useCallback(async (brand: string) => {
   if (optimizeModels[brand]) return // Already loaded for this brand
   
-  setLoadingOptimizeModels(true)
+  // setLoadingOptimizeModels(true)
   try {
     const response = await fetch(`/api/components?models_only=true&brand=${encodeURIComponent(brand)}&category=headphones_and_iems`)
     if (!response.ok) throw new Error('Failed to fetch optimize models')
@@ -581,15 +581,15 @@ const fetchOptimizeModels = useCallback(async (brand: string) => {
   } catch (error) {
     console.error('Error fetching optimize models:', error)
   } finally {
-    setLoadingOptimizeModels(false)
+    // setLoadingOptimizeModels(false)
   }
 }, [optimizeModels])
 
 // Handle optimization brand selection
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleOptimizeBrandSelect = (brand: string) => {
-  setSelectedOptimizeBrand(brand)
-  setSelectedOptimizeModel('') // Reset model selection
+  // setSelectedOptimizeBrand(brand)
+  // setSelectedOptimizeModel('') // Reset model selection
   if (brand) {
     fetchOptimizeModels(brand)
   }
@@ -598,7 +598,7 @@ const handleOptimizeBrandSelect = (brand: string) => {
 // Handle optimization model selection
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleOptimizeModelSelect = (model: string) => {
-  setSelectedOptimizeModel(model)
+  // setSelectedOptimizeModel(model)
   const fullName = selectedOptimizeBrand && model ? `${selectedOptimizeBrand} ${model}` : ''
   setPreferences({...preferences, optimizeAroundHeadphones: fullName})
 }
@@ -1175,7 +1175,7 @@ const handleNext = useCallback(() => {
                     key={preset.amount}
                     onClick={() => {
                       setPreferences({...preferences, budget: preset.amount})
-                      _setBudgetInputValue(preset.amount.toString())
+                      // _setBudgetInputValue(preset.amount.toString())
                     }}
                     className={`card-interactive p-3 text-center hover:scale-105 transition-all ${
                       preferences.budget === preset.amount ? 'card-interactive-selected' : ''
@@ -1195,7 +1195,7 @@ const handleNext = useCallback(() => {
                   budget={preferences.budget}
                   onBudgetChange={(budget) => {
                     setPreferences({...preferences, budget})
-                    _setBudgetInputValue(budget.toString())
+                    // _setBudgetInputValue(budget.toString())
                   }}
                   variant="simple"
                   showLabels={true}
@@ -1231,7 +1231,7 @@ const handleNext = useCallback(() => {
                   budget={preferences.budget}
                   onBudgetChange={(budget) => {
                     setPreferences({...preferences, budget})
-                    _setBudgetInputValue(budget.toString())
+                    // _setBudgetInputValue(budget.toString())
                     setBudgetError('')
                   }}
                   variant="advanced"
