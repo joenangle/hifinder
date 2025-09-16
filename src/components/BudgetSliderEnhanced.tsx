@@ -434,16 +434,16 @@ export function BudgetSliderEnhanced({
           {ticks.map(tick => (
             <div
               key={tick.value}
-              className="absolute top-1/2 transform -translate-y-1/2"
+              className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2"
               style={{
                 left: `${tick.position}%`,
                 opacity: tick.visible ? tick.opacity : 0,
                 transition: 'opacity 0.3s'
               }}
             >
-              <div className={`h-2 border-l ${tick.emphasized ? 'border-gray-600' : 'border-gray-400'}`} />
+              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600' : 'bg-gray-400'}`} />
               {tick.visible && (
-                <span className={`absolute top-3 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
+                <span className={`absolute top-3 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
                   {tick.label}
                 </span>
               )}
@@ -508,19 +508,19 @@ export function BudgetSliderEnhanced({
 
               {/* Custom thumbs for dual-range */}
               <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
                 style={{
                   left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
-                  top: '-5px',
+                  top: '50%',
                   border: '3px solid #3b82f6',
                   transition: isDragging ? 'none' : 'all 0.2s'
                 }}
               />
               <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
                 style={{
                   left: `${budgetToSlider(rangeMax, minBudget, maxBudget)}%`,
-                  top: '-5px',
+                  top: '50%',
                   border: '3px solid #3b82f6',
                   transition: isDragging ? 'none' : 'all 0.2s'
                 }}
@@ -550,10 +550,10 @@ export function BudgetSliderEnhanced({
 
               {/* Custom thumb for single budget */}
               <div
-                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2"
+                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
                 style={{
                   left: `${sliderPosition}%`,
-                  top: '-6px',
+                  top: '50%',
                   border: `4px solid ${currentTier.color}`,
                   transition: isDragging ? 'none' : 'all 0.2s'
                 }}

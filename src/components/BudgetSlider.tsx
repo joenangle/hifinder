@@ -116,11 +116,11 @@ export function BudgetSlider({
               }}
             />
             {/* Custom slider thumb */}
-            <div 
-              className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
+            <div
+              className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-y-1/2"
               style={{
                 left: `calc(${sliderPosition}% - 12px)`,
-                top: '-6px',
+                top: '50%',
                 border: '4px solid var(--accent-primary)',
                 zIndex: 10,
               }}
@@ -163,11 +163,11 @@ export function BudgetSlider({
             }}
           />
           {/* Custom slider thumb */}
-          <div 
-            className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
+          <div
+            className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-y-1/2"
             style={{
               left: `calc(${sliderPosition}% - 12px)`,
-              top: '-6px',
+              top: '50%',
               border: '4px solid var(--accent-primary)',
               zIndex: 10,
             }}

@@ -65,13 +65,16 @@ export function useBudgetState({
 
     const loadPersistedBudget = async () => {
       try {
-        // First check localStorage for immediate feedback
-        const localBudget = localStorage.getItem('lastBudget')
-        if (localBudget) {
-          const parsed = parseInt(localBudget)
-          if (parsed >= minBudget && parsed <= maxBudget) {
-            setBudget(parsed)
-            setDisplayBudget(parsed)
+        // Only use localStorage if initial budget is the default (300)
+        // This ensures URL parameters take precedence over localStorage
+        if (initialBudget === 300) {
+          const localBudget = localStorage.getItem('lastBudget')
+          if (localBudget) {
+            const parsed = parseInt(localBudget)
+            if (parsed >= minBudget && parsed <= maxBudget) {
+              setBudget(parsed)
+              setDisplayBudget(parsed)
+            }
           }
         }
 

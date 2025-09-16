@@ -94,9 +94,37 @@ function RecommendationsContent() {
     return () => clearTimeout(timer)
   }, [budgetState.budget])
   
-  // Filter state for UI controls
-  const [typeFilter, setTypeFilter] = useState(searchParams.get('headphoneType') || 'both')
-  const [soundFilter, setSoundFilter] = useState(searchParams.get('sound') || 'any')
+  // Filter state for UI controls - now supporting multi-select
+  const [typeFilters, setTypeFilters] = useState<string[]>(() => {
+    const param = searchParams.get('headphoneTypes')
+    if (param) {
+      try {
+        return JSON.parse(param)
+      } catch {
+        return ['cans', 'iems'] // Default to both if parsing fails
+      }
+    }
+    // Legacy support for single headphoneType param
+    const legacyType = searchParams.get('headphoneType')
+    if (legacyType === 'cans') return ['cans']
+    if (legacyType === 'iems') return ['iems']
+    return ['cans', 'iems'] // Default to both
+  })
+
+  const [soundFilters, setSoundFilters] = useState<string[]>(() => {
+    const param = searchParams.get('soundSignatures')
+    if (param) {
+      try {
+        return JSON.parse(param)
+      } catch {
+        return ['neutral', 'warm', 'bright', 'fun'] // Default to all if parsing fails
+      }
+    }
+    // Legacy support for single sound param
+    const legacySound = searchParams.get('sound')
+    if (legacySound && legacySound !== 'any') return [legacySound]
+    return ['neutral', 'warm', 'bright', 'fun'] // Default to all
+  })
   
   // Sync state with URL parameters when they change
   useEffect(() => {
@@ -133,6 +161,8 @@ function RecommendationsContent() {
     params.set('budgetRangeMin', updatedPrefs.budgetRangeMin.toString())
     params.set('budgetRangeMax', updatedPrefs.budgetRangeMax.toString())
     params.set('headphoneType', updatedPrefs.headphoneType)
+    params.set('headphoneTypes', JSON.stringify(typeFilters))
+    params.set('soundSignatures', JSON.stringify(soundFilters))
     params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
     params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
     params.set('usage', updatedPrefs.usage)
@@ -435,139 +465,53 @@ function RecommendationsContent() {
 
         {/* Optional Filters */}
         <div className="card mb-10 p-6">
-          <h3 className="heading-3 mb-4">Refine Your Search</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* Headphone Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Headphone Type</label>
-              <div className="space-y-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="headphoneType"
-                    value="both"
-                    checked={typeFilter === 'both'}
-                    onChange={(e) => {
-                      setTypeFilter(e.target.value)
-                      updatePreferences({ headphoneType: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Show All</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="headphoneType"
-                    value="cans"
-                    checked={typeFilter === 'cans'}
-                    onChange={(e) => {
-                      setTypeFilter(e.target.value)
-                      updatePreferences({ headphoneType: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Over-Ear Headphones</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="headphoneType"
-                    value="iems"
-                    checked={typeFilter === 'iems'}
-                    onChange={(e) => {
-                      setTypeFilter(e.target.value)
-                      updatePreferences({ headphoneType: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">In-Ear Monitors (IEMs)</span>
-                </label>
-              </div>
-            </div>
+          <h3 className="heading-3 text-center mb-4">Refine Your Search</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Sound Signature Filter */}
+            {/* Headphone & Audio Gear Toggles */}
             <div>
-              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
+              <label className="block text-sm font-medium text-primary mb-3">Headphone & Audio Gear</label>
               <div className="space-y-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="soundSignature"
-                    value="any"
-                    checked={soundFilter === 'any'}
-                    onChange={(e) => {
-                      setSoundFilter(e.target.value)
-                      updatePreferences({ soundSignature: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Any</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="soundSignature"
-                    value="neutral"
-                    checked={soundFilter === 'neutral'}
-                    onChange={(e) => {
-                      setSoundFilter(e.target.value)
-                      updatePreferences({ soundSignature: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Neutral (Balanced)</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="soundSignature"
-                    value="warm"
-                    checked={soundFilter === 'warm'}
-                    onChange={(e) => {
-                      setSoundFilter(e.target.value)
-                      updatePreferences({ soundSignature: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Warm (Enhanced Bass)</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="soundSignature"
-                    value="bright"
-                    checked={soundFilter === 'bright'}
-                    onChange={(e) => {
-                      setSoundFilter(e.target.value)
-                      updatePreferences({ soundSignature: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Bright (Enhanced Treble)</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="soundSignature"
-                    value="fun"
-                    checked={soundFilter === 'fun'}
-                    onChange={(e) => {
-                      setSoundFilter(e.target.value)
-                      updatePreferences({ soundSignature: e.target.value })
-                    }}
-                    className="mr-3"
-                  />
-                  <span className="text-sm">Fun (V-Shaped)</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Component Type Toggles */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Show Recommendations</label>
-              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    const newFilters = typeFilters.includes('cans')
+                      ? typeFilters.filter(f => f !== 'cans')
+                      : [...typeFilters, 'cans']
+                    setTypeFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                    updatePreferences({ headphoneType: newType })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${typeFilters.includes('cans')
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🎧 Over-Ear Headphones</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = typeFilters.includes('iems')
+                      ? typeFilters.filter(f => f !== 'iems')
+                      : [...typeFilters, 'iems']
+                    setTypeFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                    updatePreferences({ headphoneType: newType })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${typeFilters.includes('iems')
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🔊 In-Ear Monitors (IEMs)</span>
+                </button>
                 <button
                   onClick={() => {
                     updatePreferences({
@@ -628,13 +572,100 @@ function RecommendationsContent() {
               </div>
             </div>
 
+            {/* Sound Signature Filter */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('neutral')
+                      ? soundFilters.filter(f => f !== 'neutral')
+                      : [...soundFilters, 'neutral']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${soundFilters.includes('neutral')
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>⚖️ Neutral (Balanced)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('warm')
+                      ? soundFilters.filter(f => f !== 'warm')
+                      : [...soundFilters, 'warm']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${soundFilters.includes('warm')
+                      ? 'bg-orange-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🔥 Warm (Enhanced Bass)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('bright')
+                      ? soundFilters.filter(f => f !== 'bright')
+                      : [...soundFilters, 'bright']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${soundFilters.includes('bright')
+                      ? 'bg-cyan-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>✨ Bright (Enhanced Treble)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('fun')
+                      ? soundFilters.filter(f => f !== 'fun')
+                      : [...soundFilters, 'fun']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${soundFilters.includes('fun')
+                      ? 'bg-pink-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🎉 Fun (V-Shaped)</span>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
 
         {/* System Overview */}
         {(selectedHeadphoneItems.length > 0 || selectedDacItems.length > 0 || selectedAmpItems.length > 0 || selectedDacAmpItems.length > 0) && (
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-blue-500">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Your Selected System</h3>
+            <h3 className="heading-3 text-center mb-4">Your Selected System</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {selectedHeadphoneItems.map(item => (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -729,9 +760,8 @@ function RecommendationsContent() {
           {wantRecommendationsFor.headphones && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-accent-light px-6 py-4 border-b border-stroke">
-                <h2 className="heading-3 flex items-center gap-2">
-                  🎧 Headphones
-                  <span className="text-sm font-normal text-secondary">({headphones.length} options)</span>
+                <h2 className="heading-3 text-center mb-4">
+                  🎧 Headphones ({headphones.length} options)
                 </h2>
               </div>
               <div className="p-6 space-y-5">
@@ -801,9 +831,8 @@ function RecommendationsContent() {
           {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-success-light px-6 py-4 border-b border-stroke">
-                <h2 className="heading-3 flex items-center gap-2">
-                  🔄 DACs
-                  <span className="text-sm font-normal text-secondary">({dacs.length} options)</span>
+                <h2 className="heading-3 text-center mb-4">
+                  🔄 DACs ({dacs.length} options)
                 </h2>
               </div>
               <div className="p-6 space-y-5">
@@ -852,9 +881,8 @@ function RecommendationsContent() {
           {wantRecommendationsFor.amp && amps.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-warning-light px-6 py-4 border-b border-stroke">
-                <h2 className="heading-3 flex items-center gap-2">
-                  ⚡ Amplifiers
-                  <span className="text-sm font-normal text-secondary">({amps.length} options)</span>
+                <h2 className="heading-3 text-center mb-4">
+                  ⚡ Amplifiers ({amps.length} options)
                 </h2>
               </div>
               <div className="p-6 space-y-5">
@@ -906,9 +934,8 @@ function RecommendationsContent() {
           {wantRecommendationsFor.combo && dacAmps.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-accent-light px-6 py-4 border-b border-stroke">
-                <h2 className="heading-3 flex items-center gap-2">
-                  🎯 DAC/Amp Combos
-                  <span className="text-sm font-normal text-secondary">({dacAmps.length} options)</span>
+                <h2 className="heading-3 text-center mb-4">
+                  🎯 DAC/Amp Combos ({dacAmps.length} options)
                 </h2>
               </div>
               <div className="p-6 space-y-5">
@@ -973,7 +1000,7 @@ function RecommendationsContent() {
         {/* Used Listings */}
         {showUsedMarket && Object.keys(usedListings).length > 0 && (
           <div className="mt-12 space-y-8">
-            <h2 className="heading-2 text-center">Used Market Listings</h2>
+            <h2 className="heading-3 text-center mb-4">Used Market Listings</h2>
             {[...headphones, ...dacs, ...amps, ...dacAmps].map(component => {
               const componentListings = usedListings[component.id] || []
               if (componentListings.length === 0) return null

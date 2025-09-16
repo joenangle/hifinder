@@ -1082,12 +1082,6 @@ const handleNext = useCallback(() => {
                             [component.key]: !preferences.wantRecommendationsFor[component.key as keyof typeof preferences.wantRecommendationsFor]
                           }
                         }
-                        // Mutual exclusivity for headphones/IEMs
-                        if (component.key === 'headphones' && !preferences.wantRecommendationsFor.headphones) {
-                          newPrefs.wantRecommendationsFor.iems = false
-                        } else if (component.key === 'iems' && !preferences.wantRecommendationsFor.iems) {
-                          newPrefs.wantRecommendationsFor.headphones = false
-                        }
                         setPreferences(newPrefs)
                       }}
                     >
