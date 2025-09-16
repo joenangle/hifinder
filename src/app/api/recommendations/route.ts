@@ -573,3 +573,87 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+// POST endpoint for handling request body parameters
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+
+    // Extract parameters from request body (same logic as GET)
+    const experienceParam = body.experience || 'intermediate'
+    const budgetParam = body.budget?.toString() || '300'
+    const budgetRangeMinParam = body.budgetRangeMin?.toString() || '20'
+    const budgetRangeMaxParam = body.budgetRangeMax?.toString() || '10'
+    const headphoneTypeParam = body.headphoneType || 'cans'
+    const soundSignatureParam = body.soundSignature || body.sound || 'neutral'
+
+    // For POST, we can accept more complex objects directly
+    const wantRecommendationsForParam = body.wantRecommendationsFor || { headphones: true }
+    const existingGearParam = body.existingGear || {}
+    const usageParam = body.usage || 'music'
+    const usageRankingParam = body.usageRanking || [usageParam]
+    const excludedUsagesParam = body.excludedUsages || []
+
+    // Convert to the format expected by the existing logic
+    const experience = experienceParam
+    const budget = parseInt(budgetParam, 10)
+    const budgetRangeMin = parseInt(budgetRangeMinParam, 10)
+    const budgetRangeMax = parseInt(budgetRangeMaxParam, 10)
+    const headphoneType = headphoneTypeParam
+    const soundSignature = soundSignatureParam
+    const wantRecommendationsFor = wantRecommendationsForParam
+    const existingGear = existingGearParam
+    const usage = usageParam
+    const usageRanking = Array.isArray(usageRankingParam) ? usageRankingParam : [usageParam]
+    const excludedUsages = Array.isArray(excludedUsagesParam) ? excludedUsagesParam : []
+
+    // Generate cache key
+    const cacheKey = generateCacheKey({
+      experience,
+      budget,
+      budgetRangeMin,
+      budgetRangeMax,
+      headphoneType,
+      wantRecommendationsFor,
+      soundSignature,
+      usage,
+    })
+
+    // Check cache first
+    const cached = cache.get(cacheKey)
+    if (cached && cached.expires > Date.now()) {
+      console.log('🚀 Cache hit for recommendations:', cacheKey)
+      return NextResponse.json(cached.data)
+    }
+
+    // Continue with the same logic as GET endpoint...
+    // For brevity, I'll delegate to a shared function
+    // Create a mock request object for the existing GET logic
+    const mockUrl = new URL('http://localhost:3000/api/recommendations')
+    mockUrl.searchParams.set('experience', experience)
+    mockUrl.searchParams.set('budget', budget.toString())
+    mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
+    mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())
+    mockUrl.searchParams.set('headphoneType', headphoneType)
+    mockUrl.searchParams.set('sound', soundSignature)
+    mockUrl.searchParams.set('wantRecommendationsFor', JSON.stringify(wantRecommendationsFor))
+    mockUrl.searchParams.set('existingGear', JSON.stringify(existingGear))
+    mockUrl.searchParams.set('usage', usage)
+    mockUrl.searchParams.set('usageRanking', JSON.stringify(usageRanking))
+    mockUrl.searchParams.set('excludedUsages', JSON.stringify(excludedUsages))
+
+    const mockRequest = {
+      url: mockUrl.toString()
+    } as NextRequest
+
+    // Delegate to GET logic
+    return await GET(mockRequest)
+
+  } catch (error) {
+    console.error('Error in POST recommendations:', error)
+    return NextResponse.json(
+      { error: 'Failed to process recommendations request' },
+      { status: 500 }
+    )
+  }
+}
