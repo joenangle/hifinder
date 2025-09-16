@@ -452,13 +452,13 @@ function GearContent() {
 
   const handleRemoveGear = async (gearId: string) => {
     if (!session?.user?.id) return
-    
+
     try {
-      const response = await fetch(`/api/gear/${gearId}`, {
+      const response = await fetch(`/api/gear?id=${gearId}`, {
         method: 'DELETE',
         credentials: 'include'
       })
-      
+
       if (response.ok) {
         await loadData()
       } else {
@@ -474,18 +474,33 @@ function GearContent() {
 
   const handleCreateStack = async () => {
     if (!session?.user?.id || !newStackName.trim()) return
-    
-    const success = await createStack(
-      session.user.id, 
-      newStackName.trim(),
-      newStackDescription.trim() || undefined
-    )
-    
-    if (success) {
-      await loadData()
-      setShowCreateStackModal(false)
-      setNewStackName('')
-      setNewStackDescription('')
+
+    try {
+      const response = await fetch('/api/stacks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: newStackName.trim(),
+          description: newStackDescription.trim() || null
+        })
+      })
+
+      if (response.ok) {
+        await loadData()
+        setShowCreateStackModal(false)
+        setNewStackName('')
+        setNewStackDescription('')
+      } else {
+        const error = await response.json()
+        console.error('Failed to create stack:', error)
+        alert('Failed to create stack: ' + (error.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error creating stack:', error)
+      alert('Error creating stack: ' + error)
     }
   }
 
@@ -511,7 +526,7 @@ function GearContent() {
 
   const handleEditGear = async () => {
     if (!session?.user?.id || !selectedGear) return
-    
+
     const updateData: Partial<UserGearItem> = {
       purchase_date: editFormData.purchase_date || undefined,
       purchase_price: editFormData.purchase_price ? parseFloat(editFormData.purchase_price) : undefined,
@@ -527,9 +542,9 @@ function GearContent() {
       updateData.custom_brand = editFormData.custom_brand || undefined
       updateData.custom_category = editFormData.custom_category || undefined
     }
-    
+
     try {
-      const response = await fetch(`/api/gear/${selectedGear.id}`, {
+      const response = await fetch(`/api/gear?id=${selectedGear.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -537,7 +552,7 @@ function GearContent() {
         credentials: 'include',
         body: JSON.stringify(updateData)
       })
-      
+
       if (response.ok) {
         await loadData()
         setShowEditModal(false)
@@ -551,6 +566,43 @@ function GearContent() {
       console.error('Error updating gear:', error)
       alert('Error updating gear: ' + error)
     }
+  }
+
+  // Helper function to add gear to stack via API
+  const addGearToStackAPI = async (stackId: string, gearId: string) => {
+    const response = await fetch('/api/stacks/components', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        stack_id: stackId,
+        user_gear_id: gearId
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to add gear to stack')
+    }
+
+    return response.json()
+  }
+
+  // Helper function to remove gear from stack via API
+  const removeGearFromStackAPI = async (stackId: string, gearId: string) => {
+    const response = await fetch(`/api/stacks/components?stack_id=${stackId}&user_gear_id=${gearId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to remove gear from stack')
+    }
+
+    return response.json()
   }
 
   // Drag and drop handlers
@@ -579,11 +631,12 @@ function GearContent() {
     e.preventDefault()
     if (draggedGear) {
       try {
-        await addGearToStack(stackId, draggedGear.id)
+        await addGearToStackAPI(stackId, draggedGear.id)
         await loadData()
       } catch (error: unknown) {
         console.error('Error adding gear to stack via drag-and-drop:', error)
-        // Show a toast notification or other feedback mechanism here if available
+        const errorMessage = error instanceof Error ? error.message : 'Failed to add gear to stack'
+        alert(errorMessage)
       }
     }
     setDraggedGear(null)
@@ -882,8 +935,13 @@ function GearContent() {
                                 <button
                                   onClick={async () => {
                                     if (confirm('Remove this item from the stack?')) {
-                                      await removeGearFromStack(stack.id, component.user_gear_id)
-                                      loadData()
+                                      try {
+                                        await removeGearFromStackAPI(stack.id, component.user_gear_id)
+                                        await loadData()
+                                      } catch (error: unknown) {
+                                        const errorMessage = error instanceof Error ? error.message : 'Failed to remove gear from stack'
+                                        alert(errorMessage)
+                                      }
                                     }
                                   }}
                                   className="p-1 rounded hover:bg-secondary text-secondary hover:text-error transition-colors"
@@ -924,18 +982,18 @@ function GearContent() {
                   </div>
                 )}
 
-                {/* Ungrouped Gear */}
+                {/* All Gear (Individual View) */}
                 {(() => {
-                  // Filter ungrouped gear by category
-                  const ungroupedGear = gear.filter(item => !stacks.some(stack => stack.stack_components.some(comp => comp.user_gear_id === item.id)))
-                  const filteredUngroupedGear = activeFilters.size === 0 
-                    ? ungroupedGear 
-                    : ungroupedGear.filter(item => activeFilters.has(getGearCategory(item)))
-                  
-                  return filteredUngroupedGear.length > 0 && (
+                  // Show all gear, regardless of stack membership
+                  // Users might want to use the same gear in multiple stacks (e.g., same headphones with different amps)
+                  const filteredAllGear = activeFilters.size === 0
+                    ? gear
+                    : gear.filter(item => activeFilters.has(getGearCategory(item)))
+
+                  return filteredAllGear.length > 0 && (
                     <div className="mt-8">
                       <h3 className="text-lg font-semibold mb-4" style={{color: 'var(--text-primary)'}}>
-                        Individual Gear ({filteredUngroupedGear.length})
+                        Individual Gear ({filteredAllGear.length})
                         {stacks.length > 0 && (
                           <span className="text-sm font-normal text-secondary ml-2">
                             • Drag to add to stacks
@@ -943,7 +1001,7 @@ function GearContent() {
                         )}
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                        {filteredUngroupedGear.map(item => (
+                        {filteredAllGear.map(item => (
                           <div
                             key={item.id}
                             className={`card p-3 hover:shadow-lg transition-all cursor-pointer ${
@@ -2044,7 +2102,7 @@ function GearContent() {
                               className="card p-4 hover:shadow-lg transition-all cursor-pointer hover:border-accent"
                               onClick={async () => {
                                 try {
-                                  await addGearToStack(selectedStackForGear.id, item.id)
+                                  await addGearToStackAPI(selectedStackForGear.id, item.id)
                                   await loadData()
                                   setShowAddGearModal(false)
                                   setSelectedStackForGear(null)

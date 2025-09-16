@@ -42,7 +42,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -65,17 +65,113 @@ export async function POST(request: NextRequest) {
         )
       `)
       .single()
-    
+
     if (error) {
       console.error('Error adding gear item:', error)
       return NextResponse.json({ error: 'Failed to add gear item' }, { status: 500 })
     }
-    
+
     return NextResponse.json(newItem, { status: 201 })
   } catch (error) {
     console.error('Error adding gear:', error)
     return NextResponse.json(
       { error: 'Failed to add gear item' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const gearId = url.searchParams.get('id')
+
+    if (!gearId) {
+      return NextResponse.json({ error: 'Gear ID is required' }, { status: 400 })
+    }
+
+    const body = await request.json()
+
+    // Verify the gear belongs to the user
+    const { data: existingGear, error: fetchError } = await supabaseServer
+      .from('user_gear')
+      .select('id')
+      .eq('id', gearId)
+      .eq('user_id', session.user.id)
+      .single()
+
+    if (fetchError || !existingGear) {
+      return NextResponse.json({ error: 'Gear not found or unauthorized' }, { status: 404 })
+    }
+
+    const { data: updatedItem, error } = await supabaseServer
+      .from('user_gear')
+      .update(body)
+      .eq('id', gearId)
+      .eq('user_id', session.user.id)
+      .select(`
+        *,
+        components (
+          id, name, brand, category, price_new, price_used_min, price_used_max,
+          budget_tier, sound_signature, use_cases, impedance, needs_amp,
+          amazon_url, why_recommended, image_url
+        )
+      `)
+      .single()
+
+    if (error) {
+      console.error('Error updating gear item:', error)
+      return NextResponse.json({ error: 'Failed to update gear item' }, { status: 500 })
+    }
+
+    return NextResponse.json(updatedItem)
+  } catch (error) {
+    console.error('Error updating gear:', error)
+    return NextResponse.json(
+      { error: 'Failed to update gear item' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const gearId = url.searchParams.get('id')
+
+    if (!gearId) {
+      return NextResponse.json({ error: 'Gear ID is required' }, { status: 400 })
+    }
+
+    // Verify the gear belongs to the user and delete it
+    const { error } = await supabaseServer
+      .from('user_gear')
+      .delete()
+      .eq('id', gearId)
+      .eq('user_id', session.user.id)
+
+    if (error) {
+      console.error('Error deleting gear item:', error)
+      return NextResponse.json({ error: 'Failed to delete gear item' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting gear:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete gear item' },
       { status: 500 }
     )
   }

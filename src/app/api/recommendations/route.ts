@@ -135,36 +135,48 @@ function calculateSynergyScore(component: unknown, soundSig: string, primaryUsag
 
 // Calculate budget allocation across requested components
 function allocateBudgetAcrossComponents(
-  totalBudget: number, 
-  requestedComponents: string[], 
+  totalBudget: number,
+  requestedComponents: string[],
   existingGear: RecommendationRequest['existingGear']
 ): Record<string, number> {
   const allocation: Record<string, number> = {}
-  
-  // Typical price ratios for audio components
+
+  // Realistic budget caps based on actual market prices
+  const componentBudgetCaps = {
+    headphones: totalBudget * 0.8, // Headphones can take most of the budget
+    dac: Math.min(500, totalBudget * 0.3), // DACs rarely need more than $500
+    amp: Math.min(300, totalBudget * 0.3), // Amps rarely need more than $300
+    combo: Math.min(600, totalBudget * 0.5) // Combo units cap at $600
+  }
+
+  // Typical price ratios for audio components (more conservative)
   const priceRatios = {
     headphones: existingGear?.headphones ? 0.6 : 0.5,
-    dac: existingGear?.dac ? 0.3 : 0.2,
-    amp: existingGear?.amp ? 0.35 : 0.25,
-    combo: existingGear?.combo ? 0.5 : 0.4
+    dac: existingGear?.dac ? 0.25 : 0.15,
+    amp: existingGear?.amp ? 0.25 : 0.15,
+    combo: existingGear?.combo ? 0.4 : 0.3
   }
-  
-  // Single component gets full budget
+
+  // Single component gets full budget (but respects caps)
   if (requestedComponents.length === 1) {
-    allocation[requestedComponents[0]] = totalBudget
+    const component = requestedComponents[0]
+    const cap = componentBudgetCaps[component as keyof typeof componentBudgetCaps] || totalBudget
+    allocation[component] = Math.min(totalBudget, cap)
     return allocation
   }
-  
+
   // Calculate proportional allocation
   const totalRatio = requestedComponents.reduce((sum, comp) => {
     return sum + (priceRatios[comp as keyof typeof priceRatios] || 0.2)
   }, 0)
-  
+
   requestedComponents.forEach(component => {
     const ratio = priceRatios[component as keyof typeof priceRatios] || 0.2
-    allocation[component] = Math.floor(totalBudget * (ratio / totalRatio))
+    const proportionalBudget = Math.floor(totalBudget * (ratio / totalRatio))
+    const cap = componentBudgetCaps[component as keyof typeof componentBudgetCaps] || totalBudget
+    allocation[component] = Math.min(proportionalBudget, cap)
   })
-  
+
   return allocation
 }
 
@@ -178,10 +190,20 @@ function filterAndScoreComponents(
   primaryUsage: string,
   maxOptions: number
 ): RecommendationComponent[] {
-  const minAcceptable = Math.max(20, budget * (1 - budgetRangeMin / 100))
+  // For smaller budgets, use more lenient minimum thresholds
+  const baseMinAcceptable = budget * (1 - budgetRangeMin / 100)
+  const minAcceptable = budget < 500 ? Math.max(20, baseMinAcceptable * 0.7) : Math.max(20, baseMinAcceptable)
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
 
-  
+  console.log('🔍 Filter params:', {
+    budget,
+    budgetRangeMin,
+    budgetRangeMax,
+    minAcceptable,
+    maxAcceptable,
+    inputCount: components.length
+  })
+
   return components
     .map(c => {
       const component = c as {
@@ -489,6 +511,8 @@ export async function GET(request: NextRequest) {
       if (req.wantRecommendationsFor.amp && componentsByCategory.amps.length > 0) {
         const ampBudget = budgetAllocation.amp || req.budget * 0.25
 
+        console.log('🔧 Processing amps with budget:', ampBudget, 'from', componentsByCategory.amps.length, 'available amps')
+
         results.amps = filterAndScoreComponents(
           componentsByCategory.amps,
           ampBudget,
@@ -498,6 +522,8 @@ export async function GET(request: NextRequest) {
           req.usageRanking[0] || req.usage,
           maxOptions
         )
+
+        console.log('🔧 Filtered amps result:', results.amps.length, 'amps')
       }
 
       // Process combo units if requested
@@ -532,8 +558,8 @@ export async function GET(request: NextRequest) {
         const scoredAmps = filterAndScoreComponents(
           suggestedAmps,
           ampBudget,
-          50,
-          100,
+          req.budgetRangeMin,
+          req.budgetRangeMax,
           req.soundSignature,
           req.usageRanking[0] || req.usage,
           3
