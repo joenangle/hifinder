@@ -452,7 +452,7 @@ export function BudgetSliderEnhanced({
         </div>
 
         {/* Slider track and input */}
-        <div className="relative h-3 w-full">
+        <div className="relative h-6 w-full flex items-center">
           {effectiveVariant === 'dual-range' ? (
             <>
               {/* Dual-range sliders */}
@@ -528,6 +528,12 @@ export function BudgetSliderEnhanced({
             </>
           ) : (
             <>
+              {/* Gradient track background */}
+              <div
+                className="absolute w-full h-3 rounded-lg"
+                style={getGradientBackground(localBudget, minBudget, maxBudget)}
+              />
+
               {/* Single budget slider */}
               <input
                 ref={sliderRef}
@@ -540,8 +546,7 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0"
-                style={getGradientBackground(localBudget, minBudget, maxBudget)}
+                className="absolute w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0"
                 aria-label="Budget slider"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
@@ -550,10 +555,11 @@ export function BudgetSliderEnhanced({
 
               {/* Custom thumb for single budget */}
               <div
-                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
+                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
                 style={{
-                  left: `${sliderPosition}%`,
+                  left: `calc(${sliderPosition}% - 12px)`,
                   top: '50%',
+                  transform: 'translateY(-50%)',
                   border: `4px solid ${currentTier.color}`,
                   transition: isDragging ? 'none' : 'all 0.2s'
                 }}
@@ -563,43 +569,37 @@ export function BudgetSliderEnhanced({
         </div>
       </div>
 
-      {/* Labels and input */}
-      {showLabels && (
-        <div className="flex justify-between items-center text-sm text-gray-600">
-          <span>{formatBudget(minBudget)}</span>
-          {showInput && effectiveVariant === 'dual-range' && (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">$</span>
-              <input
-                type="number"
-                value={rangeMin}
-                onChange={(e) => {
-                  const newMin = parseInt(e.target.value) || minBudget
-                  const clampedMin = Math.min(newMin, rangeMax - 50)
-                  setRangeMin(clampedMin)
-                  if (onRangeChange) onRangeChange(clampedMin, rangeMax)
-                }}
-                className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                min={minBudget}
-                max={maxBudget}
-              />
-              <span className="text-gray-400">-</span>
-              <input
-                type="number"
-                value={rangeMax}
-                onChange={(e) => {
-                  const newMax = parseInt(e.target.value) || maxBudget
-                  const clampedMax = Math.max(newMax, rangeMin + 50)
-                  setRangeMax(clampedMax)
-                  if (onRangeChange) onRangeChange(rangeMin, clampedMax)
-                }}
-                className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                min={minBudget}
-                max={maxBudget}
-              />
-            </div>
-          )}
-          <span>{formatBudget(maxBudget)}+</span>
+      {/* Dual-range input controls only */}
+      {showInput && effectiveVariant === 'dual-range' && (
+        <div className="flex justify-center items-center gap-2 text-sm">
+          <span className="text-gray-400">$</span>
+          <input
+            type="number"
+            value={rangeMin}
+            onChange={(e) => {
+              const newMin = parseInt(e.target.value) || minBudget
+              const clampedMin = Math.min(newMin, rangeMax - 50)
+              setRangeMin(clampedMin)
+              if (onRangeChange) onRangeChange(clampedMin, rangeMax)
+            }}
+            className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            min={minBudget}
+            max={maxBudget}
+          />
+          <span className="text-gray-400">-</span>
+          <input
+            type="number"
+            value={rangeMax}
+            onChange={(e) => {
+              const newMax = parseInt(e.target.value) || maxBudget
+              const clampedMax = Math.max(newMax, rangeMin + 50)
+              setRangeMax(clampedMax)
+              if (onRangeChange) onRangeChange(rangeMin, clampedMax)
+            }}
+            className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            min={minBudget}
+            max={maxBudget}
+          />
         </div>
       )}
 
