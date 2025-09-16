@@ -47,6 +47,9 @@ function RecommendationsContent() {
   // Stack builder state
   const [showStackBuilder, setShowStackBuilder] = useState(false)
 
+  // Preferences modal state
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false)
+
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -437,12 +440,12 @@ function RecommendationsContent() {
               >
                 Try Again
               </button>
-              <Link 
-                href="/onboarding"
+              <button
+                onClick={() => setShowPreferencesModal(true)}
                 className="button button-secondary"
               >
                 Adjust Preferences
-              </Link>
+              </button>
             </div>
             <div className="mt-6 text-sm text-tertiary">
               <p>Still having issues? Try adjusting your budget range or selecting different components.</p>
@@ -1203,6 +1206,149 @@ function RecommendationsContent() {
           </Link>
         </div>
       </div>
+
+      {/* Preferences Adjustment Modal */}
+      {showPreferencesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h2 className="heading-2">Adjust Preferences</h2>
+                <button
+                  onClick={() => setShowPreferencesModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Budget Adjustment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Budget: ${userPrefs.budget}
+                </label>
+                <input
+                  type="range"
+                  min="20"
+                  max="10000"
+                  step="10"
+                  value={userPrefs.budget}
+                  onChange={(e) => setUserPrefs({...userPrefs, budget: parseInt(e.target.value)})}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>$20</span>
+                  <span>$10,000</span>
+                </div>
+              </div>
+
+              {/* Budget Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Budget Flexibility
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { label: 'Strict', min: 10, max: 5, desc: '±10% range' },
+                    { label: 'Balanced', min: 20, max: 10, desc: '±20% range' },
+                    { label: 'Flexible', min: 35, max: 25, desc: '±35% range' }
+                  ].map((option) => (
+                    <button
+                      key={option.label}
+                      onClick={() => setUserPrefs({
+                        ...userPrefs,
+                        budgetRangeMin: option.min,
+                        budgetRangeMax: option.max
+                      })}
+                      className={`card-interactive text-center py-3 ${
+                        userPrefs.budgetRangeMin === option.min && userPrefs.budgetRangeMax === option.max
+                          ? 'card-interactive-selected'
+                          : ''
+                      }`}
+                    >
+                      <div className="font-medium">{option.label}</div>
+                      <div className="text-xs text-gray-500">{option.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sound Signature */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Sound Signature
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['any', 'warm', 'neutral', 'bright'].map((sig) => (
+                    <button
+                      key={sig}
+                      onClick={() => setUserPrefs({...userPrefs, soundSignature: sig})}
+                      className={`card-interactive text-center py-2 ${
+                        userPrefs.soundSignature === sig ? 'card-interactive-selected' : ''
+                      }`}
+                    >
+                      {sig.charAt(0).toUpperCase() + sig.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Component Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Get Recommendations For
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { key: 'headphones', label: '🎧 Headphones' },
+                    { key: 'dac', label: '🎚️ DACs' },
+                    { key: 'amp', label: '🔊 Amplifiers' },
+                    { key: 'combo', label: '📦 DAC/Amp Combos' }
+                  ].map((component) => (
+                    <button
+                      key={component.key}
+                      onClick={() => {
+                        const updated = {...userPrefs.wantRecommendationsFor}
+                        updated[component.key as keyof typeof updated] = !updated[component.key as keyof typeof updated]
+                        setUserPrefs({...userPrefs, wantRecommendationsFor: updated})
+                      }}
+                      className={`card-interactive text-left py-3 px-4 ${
+                        userPrefs.wantRecommendationsFor[component.key as keyof typeof userPrefs.wantRecommendationsFor]
+                          ? 'card-interactive-selected'
+                          : ''
+                      }`}
+                    >
+                      {component.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowPreferencesModal(false)}
+                  className="button button-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPreferencesModal(false)
+                    fetchRecommendations()
+                  }}
+                  className="button button-primary"
+                >
+                  Get New Recommendations
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stack Builder Modal */}
       <StackBuilderModal

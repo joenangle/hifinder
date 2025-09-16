@@ -180,6 +180,7 @@ function filterAndScoreComponents(
 ): RecommendationComponent[] {
   const minAcceptable = Math.max(20, budget * (1 - budgetRangeMin / 100))
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
+
   
   return components
     .map(c => {
@@ -476,8 +477,8 @@ export async function GET(request: NextRequest) {
         results.dacs = filterAndScoreComponents(
           componentsByCategory.dacs,
           dacBudget,
-          50, // More flexible range for DACs
-          100, // Allow higher prices for DACs
+          req.budgetRangeMin, // Use same range as headphones
+          req.budgetRangeMax, // Use same range as headphones
           req.soundSignature,
           req.usageRanking[0] || req.usage,
           maxOptions
@@ -491,8 +492,8 @@ export async function GET(request: NextRequest) {
         results.amps = filterAndScoreComponents(
           componentsByCategory.amps,
           ampBudget,
-          50, // More flexible range for amps
-          100,
+          req.budgetRangeMin, // Use same range as headphones (-20% to +10%)
+          req.budgetRangeMax, // Use same range as headphones
           req.soundSignature,
           req.usageRanking[0] || req.usage,
           maxOptions
@@ -506,8 +507,8 @@ export async function GET(request: NextRequest) {
         results.combos = filterAndScoreComponents(
           componentsByCategory.combos,
           comboBudget,
-          40,
-          80,
+          req.budgetRangeMin, // Use same range as headphones
+          req.budgetRangeMax, // Use same range as headphones
           req.soundSignature,
           req.usageRanking[0] || req.usage,
           maxOptions
