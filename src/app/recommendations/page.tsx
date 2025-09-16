@@ -68,6 +68,9 @@ function RecommendationsContent() {
     soundSignature: searchParams.get('sound') || 'any' // Show all for quick-start
   })
 
+  // Debounced budget for API calls (prevents excessive fetching)
+  const [debouncedBudget, setDebouncedBudget] = useState(userPrefs.budget)
+
   // Enhanced budget state management with debouncing and analytics
   const budgetState = useBudgetState({
     initialBudget: userPrefs.budget,
@@ -81,6 +84,15 @@ function RecommendationsContent() {
     enableAnalytics: true,
     enablePersistence: true
   })
+
+  // Update debounced budget when budget changes are completed
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedBudget(budgetState.budget)
+    }, 1000) // 1 second delay for API calls
+
+    return () => clearTimeout(timer)
+  }, [budgetState.budget])
   
   // Filter state for UI controls
   const [typeFilter, setTypeFilter] = useState(searchParams.get('headphoneType') || 'both')
@@ -106,7 +118,8 @@ function RecommendationsContent() {
 
   // Extract values for convenience (using budget from enhanced state)
   const { experience, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
-  const budget = budgetState.budget
+  const budget = budgetState.budget // For UI display (immediate updates)
+  const budgetForAPI = debouncedBudget // For API calls (debounced)
 
   // Update URL when preferences change
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
@@ -157,7 +170,7 @@ function RecommendationsContent() {
       // Build URL parameters for recommendations API
       const params = new URLSearchParams({
         experience,
-        budget: budget.toString(),
+        budget: budgetForAPI.toString(),
         budgetRangeMin: budgetRangeMin.toString(),
         budgetRangeMax: budgetRangeMax.toString(),
         headphoneType,
@@ -222,7 +235,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [experience, budget, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, userPrefs.excludedUsages, soundSignature])
+  }, [experience, budgetForAPI, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, userPrefs.excludedUsages, soundSignature])
 
   useEffect(() => {
     fetchRecommendations()
@@ -423,7 +436,7 @@ function RecommendationsContent() {
         {/* Optional Filters */}
         <div className="card mb-10 p-6">
           <h3 className="heading-3 mb-4">Refine Your Search</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Headphone Type Filter */}
             <div>
@@ -548,6 +561,70 @@ function RecommendationsContent() {
                   />
                   <span className="text-sm">Fun (V-Shaped)</span>
                 </label>
+              </div>
+            </div>
+
+            {/* Component Type Toggles */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Show Recommendations</label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        dac: !wantRecommendationsFor.dac
+                      }
+                    })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${wantRecommendationsFor.dac
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🔄 DACs</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        amp: !wantRecommendationsFor.amp
+                      }
+                    })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${wantRecommendationsFor.amp
+                      ? 'bg-yellow-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>⚡ Amplifiers</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        combo: !wantRecommendationsFor.combo
+                      }
+                    })
+                  }}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors w-full justify-start
+                    ${wantRecommendationsFor.combo
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                >
+                  <span>🔗 DAC/Amp Combos</span>
+                </button>
               </div>
             </div>
 
