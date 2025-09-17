@@ -230,7 +230,7 @@ function RecommendationsContent() {
         budget: budgetForAPI.toString(),
         budgetRangeMin: debouncedBudgetRangeMin.toString(),
         budgetRangeMax: debouncedBudgetRangeMax.toString(),
-        headphoneType: debouncedHeadphoneType,
+        headphoneTypes: JSON.stringify(debouncedHeadphoneType === 'both' ? ['cans', 'iems'] : [debouncedHeadphoneType]),
         wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor),
         existingGear: JSON.stringify(debouncedExistingGear),
         usage: debouncedUsage,
@@ -277,14 +277,19 @@ function RecommendationsContent() {
       setShowAmplification(recommendations.needsAmplification || false)
       
       // Check if we got any results
-      const totalResults = (recommendations.headphones?.length || 0) + 
-                          (recommendations.dacs?.length || 0) + 
-                          (recommendations.amps?.length || 0) + 
+      const totalResults = (recommendations.headphones?.length || 0) +
+                          (recommendations.dacs?.length || 0) +
+                          (recommendations.amps?.length || 0) +
                           (recommendations.combos?.length || 0)
-      
-      if (totalResults === 0) {
-        setError('No recommendations found for your criteria. Try adjusting your budget or preferences.')
-      }
+
+      console.log('🔍 Frontend results check:', {
+        headphones: recommendations.headphones?.length || 0,
+        dacs: recommendations.dacs?.length || 0,
+        amps: recommendations.amps?.length || 0,
+        combos: recommendations.combos?.length || 0,
+        totalResults,
+        wantRecommendationsFor
+      })
       
     } catch (error) {
       console.error('Recommendations API error:', error)
@@ -451,36 +456,6 @@ function RecommendationsContent() {
     )
   }
 
-  if (error) {
-    return (
-      <div className="page-container">
-        <div className="max-w-2xl mx-auto mt-20">
-          <div className="card p-8 text-center">
-            <div className="text-4xl mb-4">⚠️</div>
-            <h2 className="heading-2 mb-4">Unable to Load Recommendations</h2>
-            <p className="text-secondary mb-6">{error}</p>
-            <div className="space-y-4">
-              <button
-                onClick={() => fetchRecommendations()}
-                className="button button-primary mr-4"
-              >
-                Try Again
-              </button>
-              <button
-                onClick={() => setShowPreferencesModal(true)}
-                className="button button-secondary"
-              >
-                Adjust Preferences
-              </button>
-            </div>
-            <div className="mt-6 text-sm text-tertiary">
-              <p>Still having issues? Try adjusting your budget range or selecting different components.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="page-container">
@@ -494,9 +469,411 @@ function RecommendationsContent() {
           </p>
         </div>
 
+
+        {/* Enhanced Budget Control */}
+        <div className="card p-6" style={{ marginBottom: '32px' }}>
+          <BudgetSliderEnhanced
+            budget={budgetState.budget}
+            displayBudget={budgetState.displayBudget}
+            onChange={budgetState.handleBudgetChange}
+            onChangeComplete={budgetState.handleBudgetChangeComplete}
+            isUpdating={budgetState.isUpdating}
+            variant="simple"
+            userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
+            showInput={true}
+            showLabels={true}
+            showItemCount={true}
+            itemCount={budgetState.itemCount?.total || 0}
+            minBudget={20}
+            maxBudget={10000}
+            budgetRangeMin={userPrefs.budgetRangeMin}
+            budgetRangeMax={userPrefs.budgetRangeMax}
+            className="w-full"
+          />
+        </div>
+
+        {/* Optional Filters */}
+        <div className="card p-6" style={{ marginBottom: '32px' }}>
+          <h3 className="heading-3 text-center mb-4">Refine Your Search</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Headphone & Audio Gear Toggles */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Headphone & Audio Gear</label>
+
+              {/* All/None toggle buttons */}
+              <div className="flex gap-2" style={{ marginBottom: '12px' }}>
+                <button
+                  onClick={() => {
+                    // Select all gear types
+                    setTypeFilters(['cans', 'iems'])
+                    updatePreferences({
+                      headphoneType: 'both',
+                      wantRecommendationsFor: {
+                        dac: true,
+                        amp: true,
+                        combo: true
+                      }
+                    })
+                  }}
+                  className="rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
+                  style={{ padding: '6px 16px' }}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => {
+                    // Deselect all gear types
+                    setTypeFilters([])
+                    updatePreferences({
+                      headphoneType: 'both',
+                      wantRecommendationsFor: {
+                        headphones: false, // Also disable headphone recommendations when no types selected
+                        dac: false,
+                        amp: false,
+                        combo: false
+                      }
+                    })
+                  }}
+                  className="rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
+                  style={{ padding: '6px 16px' }}
+                >
+                  None
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <button
+                  onClick={() => {
+                    const newFilters = typeFilters.includes('cans')
+                      ? typeFilters.filter(f => f !== 'cans')
+                      : [...typeFilters, 'cans']
+                    setTypeFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                    updatePreferences({
+                      headphoneType: newType,
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
+                      }
+                    })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${typeFilters.includes('cans')
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-md dark:bg-purple-700 dark:border-purple-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🎧</span>
+                    <span>Over-Ear Headphones</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    typeFilters.includes('cans')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {typeFilters.includes('cans') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = typeFilters.includes('iems')
+                      ? typeFilters.filter(f => f !== 'iems')
+                      : [...typeFilters, 'iems']
+                    setTypeFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                    updatePreferences({
+                      headphoneType: newType,
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
+                      }
+                    })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${typeFilters.includes('iems')
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md dark:bg-indigo-700 dark:border-indigo-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🔊</span>
+                    <span>In-Ear Monitors (IEMs)</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    typeFilters.includes('iems')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {typeFilters.includes('iems') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        dac: !wantRecommendationsFor.dac
+                      }
+                    })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${wantRecommendationsFor.dac
+                      ? 'bg-green-600 text-white border-green-600 shadow-md dark:bg-green-700 dark:border-green-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🔄</span>
+                    <span>DACs</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    wantRecommendationsFor.dac
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {wantRecommendationsFor.dac ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        amp: !wantRecommendationsFor.amp
+                      }
+                    })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${wantRecommendationsFor.amp
+                      ? 'bg-yellow-600 text-white border-yellow-600 shadow-md dark:bg-yellow-700 dark:border-yellow-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>⚡</span>
+                    <span>Amplifiers</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    wantRecommendationsFor.amp
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {wantRecommendationsFor.amp ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        combo: !wantRecommendationsFor.combo
+                      }
+                    })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${wantRecommendationsFor.combo
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md dark:bg-blue-700 dark:border-blue-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🔗</span>
+                    <span>DAC/Amp Combos</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    wantRecommendationsFor.combo
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {wantRecommendationsFor.combo ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sound Signature Filter */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
+
+              {/* All/None toggle buttons */}
+              <div className="flex gap-2" style={{ marginBottom: '12px' }}>
+                <button
+                  onClick={() => {
+                    // Select all sound signatures
+                    setSoundFilters(['neutral', 'warm', 'bright', 'fun'])
+                    updatePreferences({ soundSignature: 'any' })
+                  }}
+                  className="rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
+                  style={{ padding: '6px 16px' }}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => {
+                    // Deselect all sound signatures
+                    setSoundFilters([])
+                    updatePreferences({ soundSignature: 'any' })
+                  }}
+                  className="rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
+                  style={{ padding: '6px 16px' }}
+                >
+                  None
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('neutral')
+                      ? soundFilters.filter(f => f !== 'neutral')
+                      : [...soundFilters, 'neutral']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${soundFilters.includes('neutral')
+                      ? 'bg-gray-600 text-white border-gray-600 shadow-md dark:bg-gray-700 dark:border-gray-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>⚖️</span>
+                    <span>Neutral (Balanced)</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    soundFilters.includes('neutral')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {soundFilters.includes('neutral') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('warm')
+                      ? soundFilters.filter(f => f !== 'warm')
+                      : [...soundFilters, 'warm']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${soundFilters.includes('warm')
+                      ? 'bg-orange-600 text-white border-orange-600 shadow-md dark:bg-orange-700 dark:border-orange-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🔥</span>
+                    <span>Warm (Enhanced Bass)</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    soundFilters.includes('warm')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {soundFilters.includes('warm') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('bright')
+                      ? soundFilters.filter(f => f !== 'bright')
+                      : [...soundFilters, 'bright']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${soundFilters.includes('bright')
+                      ? 'bg-cyan-600 text-white border-cyan-600 shadow-md dark:bg-cyan-700 dark:border-cyan-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>✨</span>
+                    <span>Bright (Enhanced Treble)</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    soundFilters.includes('bright')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {soundFilters.includes('bright') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newFilters = soundFilters.includes('fun')
+                      ? soundFilters.filter(f => f !== 'fun')
+                      : [...soundFilters, 'fun']
+                    setSoundFilters(newFilters)
+                    // Update userPrefs for backward compatibility
+                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+                    updatePreferences({ soundSignature: newSignature })
+                  }}
+                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
+                  className={`
+                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
+                    ${soundFilters.includes('fun')
+                      ? 'bg-pink-600 text-white border-pink-600 shadow-md dark:bg-pink-700 dark:border-pink-700'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🎉</span>
+                    <span>Fun (V-Shaped)</span>
+                  </div>
+                  <span className={`text-xs font-bold rounded-full ml-auto ${
+                    soundFilters.includes('fun')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-600 dark:text-gray-300'
+                  }`} style={{ padding: '4px 12px' }}>
+                    {soundFilters.includes('fun') ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* Amplification Warning Banner for Beginners/Intermediates */}
         {amplificationNeeds?.shouldShowWarning && (
-          <div className="card mb-6 p-6 border-l-4 border-yellow-500 bg-yellow-50">
+          <div className="card p-6 border-l-4 border-yellow-500 bg-yellow-50" style={{ marginBottom: '32px' }}>
             <div className="flex items-start space-x-3">
               <div className="text-2xl">⚡</div>
               <div className="flex-1">
@@ -527,367 +904,6 @@ function RecommendationsContent() {
             </div>
           </div>
         )}
-
-        {/* Enhanced Budget Control */}
-        <div className="card mb-6 p-6">
-          <BudgetSliderEnhanced
-            budget={budgetState.budget}
-            displayBudget={budgetState.displayBudget}
-            onChange={budgetState.handleBudgetChange}
-            onChangeComplete={budgetState.handleBudgetChangeComplete}
-            isUpdating={budgetState.isUpdating}
-            variant="simple"
-            userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
-            showInput={true}
-            showLabels={true}
-            showItemCount={true}
-            itemCount={budgetState.itemCount?.total || 0}
-            minBudget={20}
-            maxBudget={10000}
-            budgetRangeMin={userPrefs.budgetRangeMin}
-            budgetRangeMax={userPrefs.budgetRangeMax}
-            className="w-full"
-          />
-        </div>
-
-        {/* Optional Filters */}
-        <div className="card mb-10 p-6">
-          <h3 className="heading-3 text-center mb-4">Refine Your Search</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Headphone & Audio Gear Toggles */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Headphone & Audio Gear</label>
-
-              {/* All/None toggle buttons */}
-              <div className="flex gap-2 mb-3">
-                <button
-                  onClick={() => {
-                    // Select all gear types
-                    setTypeFilters(['cans', 'iems'])
-                    updatePreferences({
-                      headphoneType: 'both',
-                      wantRecommendationsFor: {
-                        dac: true,
-                        amp: true,
-                        combo: true
-                      }
-                    })
-                  }}
-                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => {
-                    // Deselect all gear types
-                    setTypeFilters([])
-                    updatePreferences({
-                      headphoneType: 'both',
-                      wantRecommendationsFor: {
-                        headphones: false, // Also disable headphone recommendations when no types selected
-                        dac: false,
-                        amp: false,
-                        combo: false
-                      }
-                    })
-                  }}
-                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
-                >
-                  None
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    const newFilters = typeFilters.includes('cans')
-                      ? typeFilters.filter(f => f !== 'cans')
-                      : [...typeFilters, 'cans']
-                    setTypeFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                    updatePreferences({
-                      headphoneType: newType,
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
-                      }
-                    })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${typeFilters.includes('cans')
-                      ? 'bg-purple-600 text-white border-purple-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🎧 Over-Ear Headphones</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    typeFilters.includes('cans')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {typeFilters.includes('cans') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    const newFilters = typeFilters.includes('iems')
-                      ? typeFilters.filter(f => f !== 'iems')
-                      : [...typeFilters, 'iems']
-                    setTypeFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                    updatePreferences({
-                      headphoneType: newType,
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
-                      }
-                    })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${typeFilters.includes('iems')
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🔊 In-Ear Monitors (IEMs)</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    typeFilters.includes('iems')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {typeFilters.includes('iems') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    updatePreferences({
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        dac: !wantRecommendationsFor.dac
-                      }
-                    })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${wantRecommendationsFor.dac
-                      ? 'bg-green-600 text-white border-green-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🔄 DACs</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    wantRecommendationsFor.dac
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {wantRecommendationsFor.dac ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    updatePreferences({
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        amp: !wantRecommendationsFor.amp
-                      }
-                    })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${wantRecommendationsFor.amp
-                      ? 'bg-yellow-600 text-white border-yellow-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>⚡ Amplifiers</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    wantRecommendationsFor.amp
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {wantRecommendationsFor.amp ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    updatePreferences({
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        combo: !wantRecommendationsFor.combo
-                      }
-                    })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${wantRecommendationsFor.combo
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🔗 DAC/Amp Combos</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    wantRecommendationsFor.combo
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {wantRecommendationsFor.combo ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Sound Signature Filter */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
-
-              {/* All/None toggle buttons */}
-              <div className="flex gap-2 mb-3">
-                <button
-                  onClick={() => {
-                    // Select all sound signatures
-                    setSoundFilters(['neutral', 'warm', 'bright', 'fun'])
-                    updatePreferences({ soundSignature: 'any' })
-                  }}
-                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => {
-                    // Deselect all sound signatures
-                    setSoundFilters([])
-                    updatePreferences({ soundSignature: 'any' })
-                  }}
-                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
-                >
-                  None
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    const newFilters = soundFilters.includes('neutral')
-                      ? soundFilters.filter(f => f !== 'neutral')
-                      : [...soundFilters, 'neutral']
-                    setSoundFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                    updatePreferences({ soundSignature: newSignature })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${soundFilters.includes('neutral')
-                      ? 'bg-gray-600 text-white border-gray-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>⚖️ Neutral (Balanced)</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    soundFilters.includes('neutral')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {soundFilters.includes('neutral') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    const newFilters = soundFilters.includes('warm')
-                      ? soundFilters.filter(f => f !== 'warm')
-                      : [...soundFilters, 'warm']
-                    setSoundFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                    updatePreferences({ soundSignature: newSignature })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${soundFilters.includes('warm')
-                      ? 'bg-orange-600 text-white border-orange-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🔥 Warm (Enhanced Bass)</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    soundFilters.includes('warm')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {soundFilters.includes('warm') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    const newFilters = soundFilters.includes('bright')
-                      ? soundFilters.filter(f => f !== 'bright')
-                      : [...soundFilters, 'bright']
-                    setSoundFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                    updatePreferences({ soundSignature: newSignature })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${soundFilters.includes('bright')
-                      ? 'bg-cyan-600 text-white border-cyan-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>✨ Bright (Enhanced Treble)</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    soundFilters.includes('bright')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {soundFilters.includes('bright') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    const newFilters = soundFilters.includes('fun')
-                      ? soundFilters.filter(f => f !== 'fun')
-                      : [...soundFilters, 'fun']
-                    setSoundFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                    updatePreferences({ soundSignature: newSignature })
-                  }}
-                  className={`
-                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
-                    ${soundFilters.includes('fun')
-                      ? 'bg-pink-600 text-white border-pink-600 shadow-md transform scale-[1.02]'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span>🎉 Fun (V-Shaped)</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    soundFilters.includes('fun')
-                      ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {soundFilters.includes('fun') ? 'ON' : 'OFF'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
 
         {/* System Overview */}
         {(selectedHeadphoneItems.length > 0 || selectedDacItems.length > 0 || selectedAmpItems.length > 0 || selectedDacAmpItems.length > 0) && (
@@ -982,17 +998,17 @@ function RecommendationsContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Headphones Section */}
           {/* TEMPORARY DEBUG: Show headphones if they exist, regardless of wantRecommendationsFor */}
           {(wantRecommendationsFor.headphones || true) && headphones.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-accent-light px-6 py-4 border-b border-stroke">
+              <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
                   🎧 Headphones ({headphones.length} options)
                 </h2>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-3">
                 {headphones.map((headphone) => (
                   <div 
                     key={headphone.id} 
@@ -1003,20 +1019,23 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleHeadphoneSelection(headphone.id)}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-primary">{headphone.name}</h3>
                       <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
+                          Est. Used Price
+                        </div>
                         <div className="text-sm font-medium text-accent">
                           {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
                         </div>
                         {headphone.price_new && (
-                          <div className="text-xs text-tertiary">
+                          <div className="text-xs text-tertiary mt-1">
                             MSRP: {formatBudgetUSD(headphone.price_new)}
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                       <p className="text-sm text-secondary">{headphone.brand}</p>
                       {headphone.needs_amp && experience !== 'advanced' && (
                         <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-medium">
@@ -1027,7 +1046,7 @@ function RecommendationsContent() {
                     
                     {/* Enhanced Amplification Assessment */}
                     {headphone.amplificationAssessment && (
-                      <div className="mb-3">
+                      <div className="mb-2">
                         <AmplificationBadge 
                           difficulty={headphone.amplificationAssessment.difficulty}
                           className="mb-2"
@@ -1065,12 +1084,12 @@ function RecommendationsContent() {
           {/* DACs Section */}
           {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-success-light px-6 py-4 border-b border-stroke">
+              <div className="bg-green-100 dark:bg-green-900 px-6 py-4 border-b border-green-200 dark:border-green-700">
                 <h2 className="heading-3 text-center mb-4">
                   🔄 DACs ({dacs.length} options)
                 </h2>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-3">
                 {dacs.map((dac) => (
                   <div 
                     key={dac.id} 
@@ -1081,14 +1100,17 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleDacSelection(dac.id)}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-primary">{dac.name}</h3>
                       <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
+                          Est. Used Price
+                        </div>
                         <div className="text-sm font-medium text-success">
                           {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}
                         </div>
                         {dac.price_new && (
-                          <div className="text-xs text-tertiary">
+                          <div className="text-xs text-tertiary mt-1">
                             MSRP: {formatBudgetUSD(dac.price_new)}
                           </div>
                         )}
@@ -1115,12 +1137,12 @@ function RecommendationsContent() {
           {/* Amps Section */}
           {wantRecommendationsFor.amp && amps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-warning-light px-6 py-4 border-b border-stroke">
+              <div className="bg-yellow-100 dark:bg-yellow-900 px-6 py-4 border-b border-yellow-200 dark:border-yellow-700">
                 <h2 className="heading-3 text-center mb-4">
                   ⚡ Amplifiers ({amps.length} options)
                 </h2>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-3">
                 {amps.map((amp) => (
                   <div 
                     key={amp.id} 
@@ -1131,14 +1153,17 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleAmpSelection(amp.id)}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-primary">{amp.name}</h3>
                       <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
+                          Est. Used Price
+                        </div>
                         <div className="text-sm font-medium text-warning">
                           {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}
                         </div>
                         {amp.price_new && (
-                          <div className="text-xs text-tertiary">
+                          <div className="text-xs text-tertiary mt-1">
                             MSRP: {formatBudgetUSD(amp.price_new)}
                           </div>
                         )}
@@ -1168,12 +1193,12 @@ function RecommendationsContent() {
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && dacAmps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-accent-light px-6 py-4 border-b border-stroke">
+              <div className="bg-blue-100 dark:bg-blue-900 px-6 py-4 border-b border-blue-200 dark:border-blue-700">
                 <h2 className="heading-3 text-center mb-4">
                   🎯 DAC/Amp Combos ({dacAmps.length} options)
                 </h2>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-3">
                 {dacAmps.map((combo) => (
                   <div 
                     key={combo.id} 
@@ -1184,14 +1209,17 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleDacAmpSelection(combo.id)}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-primary">{combo.name}</h3>
                       <div className="text-right" style={{ minWidth: '140px' }}>
+                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
+                          Est. Used Price
+                        </div>
                         <div className="text-sm font-medium text-accent">
                           {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}
                         </div>
                         {combo.price_new && (
-                          <div className="text-xs text-tertiary">
+                          <div className="text-xs text-tertiary mt-1">
                             MSRP: {formatBudgetUSD(combo.price_new)}
                           </div>
                         )}
@@ -1220,7 +1248,7 @@ function RecommendationsContent() {
         </div>
 
         {/* Used Market Toggle */}
-        <div className="mt-12 text-center">
+        <div className="mt-12 mb-8 text-center">
           <button
             onClick={() => {
               console.log('Toggling used market:', !showUsedMarket)
@@ -1251,34 +1279,9 @@ function RecommendationsContent() {
           </div>
         )}
 
-        {/* System Builder Message */}
-        {showAmplification && !wantRecommendationsFor.amp && !wantRecommendationsFor.combo && (
-          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <span className="text-2xl">💡</span>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-lg font-medium text-yellow-800">
-                  Amplification Recommended
-                </h3>
-                <p className="mt-2 text-yellow-700">
-                  Based on your selected headphones (high impedance or marked as needing amplification), 
-                  we recommend adding a dedicated amplifier or DAC/amp combo to your system for optimal performance.
-                </p>
-                <Link 
-                  href="/onboarding?step=2" 
-                  className="mt-4 inline-block px-4 py-2 bg-yellow-200 text-yellow-800 rounded-md hover:bg-yellow-300 transition-colors"
-                >
-                  Update Component Preferences
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Back to Onboarding */}
-        <div className="mt-12 text-center">
+        <div className="mt-12 mb-8 text-center">
           <Link
             href="/onboarding"
             className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"

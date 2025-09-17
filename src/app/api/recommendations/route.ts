@@ -11,7 +11,7 @@ function generateCacheKey(params: {
   budget: number
   budgetRangeMin: number
   budgetRangeMax: number
-  headphoneType: string
+  headphoneTypes: string[]
   wantRecommendationsFor: object
   soundSignature: string
   usage: string
@@ -21,7 +21,7 @@ function generateCacheKey(params: {
     `exp_${params.experience}`,
     `budget_${params.budget}`,
     `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
-    `type_${params.headphoneType}`,
+    `types_${params.headphoneTypes.sort().join('-')}`,
     `want_${JSON.stringify(params.wantRecommendationsFor)}`,
     `sound_${params.soundSignature}`,
     `usage_${params.usage}`
@@ -63,7 +63,7 @@ interface RecommendationRequest {
   budget: number
   budgetRangeMin: number // Percentage below budget
   budgetRangeMax: number // Percentage above budget
-  headphoneType: string
+  headphoneTypes: string[]
   wantRecommendationsFor: {
     headphones: boolean
     dac: boolean
@@ -261,17 +261,39 @@ export async function GET(request: NextRequest) {
     const budgetParam = searchParams.get('budget') || '300'
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
-    const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
     const soundSignatureParam = searchParams.get('sound') || 'neutral'
 
-    // Validate experience level
-    const validExperience = ['beginner', 'intermediate', 'advanced']
+    // Parse headphone types from new parameter
+    let headphoneTypes: string[] = []
+    const headphoneTypesParam = searchParams.get('headphoneTypes')
+    if (headphoneTypesParam) {
+      try {
+        headphoneTypes = JSON.parse(headphoneTypesParam)
+      } catch {
+        // If JSON parsing fails, default to cans
+        headphoneTypes = ['cans']
+      }
+    } else {
+      // Support legacy headphoneType parameter for backward compatibility
+      const legacyHeadphoneType = searchParams.get('headphoneType') || 'cans'
+      if (legacyHeadphoneType === 'both') {
+        headphoneTypes = ['cans', 'iems']
+      } else {
+        headphoneTypes = [legacyHeadphoneType]
+      }
+    }
+
+    // Validate and normalize experience level
+    const validExperience = ['beginner', 'intermediate', 'advanced', 'enthusiast']
     if (!validExperience.includes(experienceParam)) {
       return NextResponse.json(
         { error: `Invalid experience level. Must be one of: ${validExperience.join(', ')}` },
         { status: 400 }
       )
     }
+
+    // Map enthusiast to advanced for internal logic
+    const normalizedExperience = experienceParam === 'enthusiast' ? 'advanced' : experienceParam
 
     // Validate budget
     const budget = parseInt(budgetParam)
@@ -298,11 +320,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Validate headphone type
-    const validHeadphoneTypes = ['cans', 'iems', 'both']
-    if (!validHeadphoneTypes.includes(headphoneTypeParam)) {
+    // Validate headphone types
+    const validIndividualTypes = ['cans', 'iems']
+    const invalidTypes = headphoneTypes.filter(type => !validIndividualTypes.includes(type))
+    if (invalidTypes.length > 0) {
       return NextResponse.json(
-        { error: `Invalid headphoneType. Must be one of: ${validHeadphoneTypes.join(', ')}` },
+        { error: `Invalid headphoneTypes: ${invalidTypes.join(', ')}. Must be one or more of: ${validIndividualTypes.join(', ')}` },
         { status: 400 }
       )
     }
@@ -349,11 +372,11 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      experience: experienceParam,
+      experience: normalizedExperience,
       budget,
       budgetRangeMin,
       budgetRangeMax,
-      headphoneType: headphoneTypeParam,
+      headphoneTypes: headphoneTypes,
       wantRecommendationsFor,
       existingGear,
       usage: searchParams.get('usage') || 'music',
@@ -373,7 +396,7 @@ export async function GET(request: NextRequest) {
       budget: req.budget,
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
-      headphoneType: req.headphoneType,
+      headphoneTypes: headphoneTypes,
       wantRecommendationsFor: req.wantRecommendationsFor,
       soundSignature: req.soundSignature,
       usage: req.usage
@@ -422,13 +445,14 @@ export async function GET(request: NextRequest) {
     const requestedCategories: string[] = []
 
     if (req.wantRecommendationsFor.headphones) {
-      if (req.headphoneType === 'cans') {
-        requestedCategories.push('cans')
-      } else if (req.headphoneType === 'iems') {
-        requestedCategories.push('iems')
-      } else {
-        requestedCategories.push('cans', 'iems')
-      }
+      // Use the new headphoneTypes array for filtering
+      headphoneTypes.forEach(type => {
+        if (type === 'cans') {
+          requestedCategories.push('cans')
+        } else if (type === 'iems') {
+          requestedCategories.push('iems')
+        }
+      })
     }
 
     if (req.wantRecommendationsFor.dac) {
@@ -457,7 +481,10 @@ export async function GET(request: NextRequest) {
     if (allComponentsData) {
       // Separate components by category for processing
       const componentsByCategory = {
-        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'),
+        headphones: allComponentsData.filter(c =>
+          (headphoneTypes.includes('cans') && c.category === 'cans') ||
+          (headphoneTypes.includes('iems') && c.category === 'iems')
+        ),
         dacs: allComponentsData.filter(c => c.category === 'dac'),
         amps: allComponentsData.filter(c => c.category === 'amp'),
         combos: allComponentsData.filter(c => c.category === 'dac_amp')
@@ -603,7 +630,16 @@ export async function POST(request: NextRequest) {
     const budgetParam = body.budget?.toString() || '300'
     const budgetRangeMinParam = body.budgetRangeMin?.toString() || '20'
     const budgetRangeMaxParam = body.budgetRangeMax?.toString() || '10'
-    const headphoneTypeParam = body.headphoneType || 'cans'
+    // Handle headphoneTypes array parameter (with legacy support)
+    let headphoneTypes: string[] = []
+    if (body.headphoneTypes && Array.isArray(body.headphoneTypes)) {
+      headphoneTypes = body.headphoneTypes
+    } else if (body.headphoneType) {
+      // Legacy support
+      headphoneTypes = body.headphoneType === 'both' ? ['cans', 'iems'] : [body.headphoneType]
+    } else {
+      headphoneTypes = ['cans'] // Default
+    }
     const soundSignatureParam = body.soundSignature || body.sound || 'neutral'
 
     // For POST, we can accept more complex objects directly
@@ -618,7 +654,7 @@ export async function POST(request: NextRequest) {
     const budget = parseInt(budgetParam, 10)
     const budgetRangeMin = parseInt(budgetRangeMinParam, 10)
     const budgetRangeMax = parseInt(budgetRangeMaxParam, 10)
-    const headphoneType = headphoneTypeParam
+    // headphoneTypes is already set above
     const soundSignature = soundSignatureParam
     const wantRecommendationsFor = wantRecommendationsForParam
     const existingGear = existingGearParam
@@ -632,7 +668,7 @@ export async function POST(request: NextRequest) {
       budget,
       budgetRangeMin,
       budgetRangeMax,
-      headphoneType,
+      headphoneTypes,
       wantRecommendationsFor,
       soundSignature,
       usage,
@@ -653,7 +689,7 @@ export async function POST(request: NextRequest) {
     mockUrl.searchParams.set('budget', budget.toString())
     mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
     mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())
-    mockUrl.searchParams.set('headphoneType', headphoneType)
+    mockUrl.searchParams.set('headphoneTypes', JSON.stringify(headphoneTypes))
     mockUrl.searchParams.set('sound', soundSignature)
     mockUrl.searchParams.set('wantRecommendationsFor', JSON.stringify(wantRecommendationsFor))
     mockUrl.searchParams.set('existingGear', JSON.stringify(existingGear))

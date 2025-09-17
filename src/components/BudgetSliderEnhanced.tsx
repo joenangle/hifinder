@@ -99,26 +99,78 @@ const getGradientBackground = (value: number, min: number, max: number) => {
   } as React.CSSProperties
 }
 
-// Dynamic tick marks based on current value and range
-const getDynamicTicks = (min: number, max: number, currentValue: number) => {
+// Dynamic tick marks based on current value and range with responsive breakpoints
+const getDynamicTicks = (min: number, max: number, currentValue: number, screenSize: 'mobile' | 'tablet' | 'desktop' = 'desktop') => {
   const allTicks = [20, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 10000]
 
-  return allTicks
+  // Progressive tick density based on screen size
+  const mobileTicks = [50, 100, 300, 500, 1000, 2000, 5000]      // Phone: 7 max
+  const tabletTicks = [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000]  // Tablet: 11 max
+  const desktopTicks = allTicks  // Desktop: 13 max
+
+  const relevantTicks = screenSize === 'mobile' ? mobileTicks :
+                       screenSize === 'tablet' ? tabletTicks :
+                       desktopTicks
+
+  const candidateTicks = relevantTicks
     .filter(tick => tick >= min && tick <= max)
     .map(tick => {
       const distance = Math.abs(Math.log(tick) - Math.log(currentValue))
       const maxDistance = Math.log(max) - Math.log(min)
       const relativeDistance = distance / maxDistance
 
+      // Responsive key ticks and visibility thresholds
+      const isKeyTick = screenSize === 'mobile'
+        ? [100, 500, 1000, 2000].includes(tick)
+        : screenSize === 'tablet'
+        ? [100, 300, 500, 1000, 2000, 3000].includes(tick)
+        : [100, 500, 1000, 3000].includes(tick)
+
+      const visibilityThreshold = screenSize === 'mobile' ? 0.25 :
+                                 screenSize === 'tablet' ? 0.35 :
+                                 0.4
+
       return {
         value: tick,
         label: formatBudgetShort(tick),
         position: budgetToSlider(tick, min, max),
-        visible: relativeDistance < 0.4 || [100, 500, 1000, 3000].includes(tick),
-        emphasized: [100, 500, 1000, 3000].includes(tick),
+        rawVisible: relativeDistance < visibilityThreshold || isKeyTick,
+        emphasized: isKeyTick,
+        distance: relativeDistance,
         opacity: Math.max(0.3, 1 - relativeDistance * 1.5)
       }
     })
+
+  // Filter ticks to prevent overlap by ensuring minimum spacing
+  const minSpacing = screenSize === 'mobile' ? 12 : screenSize === 'tablet' ? 8 : 6  // minimum % separation
+  const finalTicks = []
+
+  // Always include key ticks first
+  const keyTicks = candidateTicks.filter(t => t.emphasized && t.rawVisible)
+  finalTicks.push(...keyTicks)
+
+  // Add other visible ticks if they don't overlap
+  const otherTicks = candidateTicks
+    .filter(t => !t.emphasized && t.rawVisible)
+    .sort((a, b) => a.distance - b.distance)  // Sort by proximity to current value
+
+  for (const tick of otherTicks) {
+    const hasOverlap = finalTicks.some(existing =>
+      Math.abs(existing.position - tick.position) < minSpacing
+    )
+    if (!hasOverlap) {
+      finalTicks.push(tick)
+    }
+  }
+
+  return finalTicks.map(tick => ({
+    value: tick.value,
+    label: tick.label,
+    position: tick.position,
+    visible: true,
+    emphasized: tick.emphasized,
+    opacity: tick.opacity
+  }))
 }
 
 export function BudgetSliderEnhanced({
@@ -149,7 +201,26 @@ export function BudgetSliderEnhanced({
   const [isDualRange, setIsDualRange] = useState(false)
   const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
   const [rangeMax, setRangeMax] = useState(Math.round(budget * (1 + budgetRangeMax / 100)))
+  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
   const sliderRef = useRef<HTMLInputElement>(null)
+
+  // Responsive breakpoint detection
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      if (width < 640) {        // Tailwind's sm breakpoint (phones)
+        setScreenSize('mobile')
+      } else if (width < 1024) { // Tailwind's lg breakpoint (tablets/iPad)
+        setScreenSize('tablet')
+      } else {                  // Desktop
+        setScreenSize('desktop')
+      }
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
 
   // Determine if dual-range should be available based on user experience
   const shouldShowDualRangeOption = userExperience === 'enthusiast' || variant === 'dual-range'
@@ -173,17 +244,21 @@ export function BudgetSliderEnhanced({
 
   // Get dynamic tick marks
   const ticks = useMemo(
-    () => getDynamicTicks(minBudget, maxBudget, localBudget),
-    [minBudget, maxBudget, localBudget]
+    () => getDynamicTicks(minBudget, maxBudget, localBudget, screenSize),
+    [minBudget, maxBudget, localBudget, screenSize]
   )
 
-  // Handle slider change with immediate visual feedback
-  const handleSliderChange = (sliderValue: number) => {
-    const newBudget = sliderToBudget(sliderValue, minBudget, maxBudget)
+  // Throttled slider change for smooth scrolling
+  const handleSliderChange = useCallback((sliderValue: number) => {
+    const newBudget = memoizedSliderToBudget(sliderValue)
     setLocalBudget(newBudget)
     setBudgetInputValue(newBudget.toString())
-    onChange(newBudget)
-  }
+
+    // Use requestAnimationFrame for smooth updates
+    requestAnimationFrame(() => {
+      onChange(newBudget)
+    })
+  }, [memoizedSliderToBudget, onChange])
 
   // Handle dual-range slider changes
   const handleRangeMinChange = (sliderValue: number) => {
@@ -289,10 +364,21 @@ export function BudgetSliderEnhanced({
     }
   }
 
+  // Memoize conversion functions
+  const memoizedBudgetToSlider = useCallback(
+    (budget: number) => budgetToSlider(budget, minBudget, maxBudget),
+    [minBudget, maxBudget]
+  )
+
+  const memoizedSliderToBudget = useCallback(
+    (sliderValue: number) => sliderToBudget(sliderValue, minBudget, maxBudget),
+    [minBudget, maxBudget]
+  )
+
   // Memoize slider position
   const sliderPosition = useMemo(
-    () => budgetToSlider(localBudget, minBudget, maxBudget),
-    [localBudget, minBudget, maxBudget]
+    () => memoizedBudgetToSlider(localBudget),
+    [localBudget, memoizedBudgetToSlider]
   )
 
   return (
@@ -415,7 +501,7 @@ export function BudgetSliderEnhanced({
       )}
 
       {/* Slider container */}
-      <div className="relative py-6">
+      <div className="relative py-8">
         {/* Floating tooltip */}
         {showTooltip && (
           <div
@@ -441,9 +527,9 @@ export function BudgetSliderEnhanced({
                 transition: 'opacity 0.3s'
               }}
             >
-              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600' : 'bg-gray-400'}`} />
+              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-400 dark:bg-gray-500'}`} />
               {tick.visible && (
-                <span className={`absolute top-3 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
+                <span className={`absolute top-4 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-800 dark:text-gray-200 font-semibold' : 'text-gray-600 dark:text-gray-300'} whitespace-nowrap text-center`}>
                   {tick.label}
                 </span>
               )}
@@ -561,7 +647,7 @@ export function BudgetSliderEnhanced({
                   top: '50%',
                   transform: 'translateY(-50%)',
                   border: `4px solid ${currentTier.color}`,
-                  transition: isDragging ? 'none' : 'all 0.2s'
+                  transition: isDragging ? 'none' : 'left 0.1s ease-out, border-color 0.2s ease'
                 }}
               />
             </>
@@ -616,13 +702,6 @@ export function BudgetSliderEnhanced({
         </div>
       )}
 
-      {/* Logarithmic scale explanation */}
-      <div className="flex items-start gap-2 text-xs text-gray-500">
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>The slider uses a logarithmic scale for finer control at lower budgets where small differences matter more.</span>
-      </div>
     </div>
   )
 }
