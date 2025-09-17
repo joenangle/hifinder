@@ -142,20 +142,20 @@ export default function AboutPage() {
           <div className="card p-8 bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20">
             <h2 className="heading-2 mb-4">Ready to Find Your Perfect Audio Setup?</h2>
             <p className="text-secondary mb-6">
-              Start your journey with our quick start guide or dive deep into personalized recommendations.
+              Choose from quick budget-based recommendations or get a fully personalized experience.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/quick-start"
+              <Link
+                href="/"
                 className="button button-primary"
               >
-                Quick Start Guide
+                Quick Recommendations
               </Link>
-              <Link 
+              <Link
                 href="/onboarding"
                 className="button button-secondary"
               >
-                Get Full Recommendations
+                Full Onboarding
               </Link>
             </div>
           </div>

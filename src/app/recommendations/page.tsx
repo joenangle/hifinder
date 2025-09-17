@@ -53,8 +53,12 @@ function RecommendationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Quick-start detection
-  const isQuickStart = searchParams.get('source') === 'quick-start'
+  // Budget-focused flow detection (simplified preferences)
+  const isBudgetFocused = searchParams.get('source') === 'quick-start' || (
+    searchParams.get('budget') &&
+    !searchParams.get('experience') &&
+    !searchParams.get('headphoneType')
+  )
 
   // User preferences state - make them editable
   const [userPrefs, setUserPrefs] = useState({
@@ -396,14 +400,14 @@ function RecommendationsContent() {
 
   // Dynamic title and description 
   const getTitle = () => {
-    if (isQuickStart) {
+    if (isBudgetFocused) {
       return `${getBudgetRangeLabel(budget)} Audio Gear Under ${formatBudgetUSD(budget)}`
     }
     return "Your Audio System Recommendations"
   }
 
   const getDescription = () => {
-    if (isQuickStart) {
+    if (isBudgetFocused) {
       return `Here are highly-rated headphones and IEMs in your ${formatBudgetUSD(budget)} budget range. Use the filters below to narrow results by type and sound signature.`
     }
     

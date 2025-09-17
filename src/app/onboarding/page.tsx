@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
-import { BudgetSlider } from '@/components/BudgetSlider'
+import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { useBudgetState } from '@/hooks/useBudgetState'
 
 // Types
 interface Preferences {
@@ -331,6 +332,20 @@ export default function OnboardingPage() {
   })
   // const [_budgetInputValue, _setBudgetInputValue] = useState('100')
   const [budgetError, setBudgetError] = useState('')
+
+  // Enhanced budget state management
+  const budgetState = useBudgetState({
+    initialBudget: preferences.budget,
+    minBudget: 20,
+    maxBudget: 10000,
+    budgetRangeMin: preferences.budgetRange.minPercent,
+    budgetRangeMax: preferences.budgetRange.maxPercent,
+    onBudgetChange: (newBudget) => {
+      setPreferences(prev => ({ ...prev, budget: newBudget }))
+    },
+    enableAnalytics: true,
+    enablePersistence: false // Don't persist in onboarding
+  })
   
   // Headphone selection state
   const [brands, setBrands] = useState<string[]>([])
@@ -1168,11 +1183,11 @@ const handleNext = useCallback(() => {
                   <button
                     key={preset.amount}
                     onClick={() => {
-                      setPreferences({...preferences, budget: preset.amount})
-                      // _setBudgetInputValue(preset.amount.toString())
+                      budgetState.handleBudgetChange(preset.amount)
+                      budgetState.handleBudgetChangeComplete(preset.amount)
                     }}
                     className={`card-interactive p-3 text-center hover:scale-105 transition-all ${
-                      preferences.budget === preset.amount ? 'card-interactive-selected' : ''
+                      budgetState.budget === preset.amount ? 'card-interactive-selected' : ''
                     }`}
                   >
                     <div className="text-xl font-bold mb-1">${preset.amount}</div>
@@ -1182,18 +1197,23 @@ const handleNext = useCallback(() => {
                 ))}
               </div>
               
-              {/* Simple budget slider using reusable component */}
+              {/* Simple budget slider using enhanced component */}
               <div>
                 <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
-                <BudgetSlider
-                  budget={preferences.budget}
-                  onBudgetChange={(budget) => {
-                    setPreferences({...preferences, budget})
-                    // _setBudgetInputValue(budget.toString())
-                  }}
+                <BudgetSliderEnhanced
+                  budget={budgetState.budget}
+                  displayBudget={budgetState.displayBudget}
+                  onChange={budgetState.handleBudgetChange}
+                  onChangeComplete={budgetState.handleBudgetChangeComplete}
+                  isUpdating={budgetState.isUpdating}
                   variant="simple"
+                  userExperience="beginner"
+                  showInput={false}
                   showLabels={true}
+                  showItemCount={false}
+                  minBudget={20}
                   maxBudget={3000}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -1215,24 +1235,28 @@ const handleNext = useCallback(() => {
               <div className="card mb-8" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
                 {/* Budget Tier Labels */}
                 <div className="flex justify-between text-xs text-tertiary mb-3">
-                  <span className={`text-center ${preferences.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
-                  <span className={`text-center ${preferences.budget > 100 && preferences.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
-                  <span className={`text-center ${preferences.budget > 400 && preferences.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
-                  <span className={`text-center ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
-                  <span className={`text-center ${preferences.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
+                  <span className={`text-center ${budgetState.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
+                  <span className={`text-center ${budgetState.budget > 100 && budgetState.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
+                  <span className={`text-center ${budgetState.budget > 400 && budgetState.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
+                  <span className={`text-center ${budgetState.budget > 1000 && budgetState.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
+                  <span className={`text-center ${budgetState.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
                 </div>
-                <BudgetSlider
-                  budget={preferences.budget}
-                  onBudgetChange={(budget) => {
-                    setPreferences({...preferences, budget})
-                    // _setBudgetInputValue(budget.toString())
-                    setBudgetError('')
-                  }}
+                <BudgetSliderEnhanced
+                  budget={budgetState.budget}
+                  displayBudget={budgetState.displayBudget}
+                  onChange={budgetState.handleBudgetChange}
+                  onChangeComplete={budgetState.handleBudgetChangeComplete}
+                  isUpdating={budgetState.isUpdating}
                   variant="advanced"
+                  userExperience={preferences.experience as 'beginner' | 'intermediate' | 'enthusiast'}
                   showInput={true}
                   showLabels={true}
+                  showItemCount={false}
                   minBudget={20}
                   maxBudget={10000}
+                  budgetRangeMin={preferences.budgetRange.minPercent}
+                  budgetRangeMax={preferences.budgetRange.maxPercent}
+                  className="w-full"
                 />
                 
                 {budgetError && (
