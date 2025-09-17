@@ -260,6 +260,14 @@ function RecommendationsContent() {
         combos: recommendations.combos?.length || 0,
         needsAmplification: recommendations.needsAmplification
       })
+
+      // Debug: Log current state values for troubleshooting
+      console.log('🔍 Frontend State Check:', {
+        wantRecommendationsFor,
+        'wantRecommendationsFor.headphones': wantRecommendationsFor?.headphones,
+        'headphones.length': recommendations.headphones?.length || 0,
+        'will render headphones': wantRecommendationsFor?.headphones && (recommendations.headphones?.length || 0) > 0
+      })
       
       // Set recommendations with fallbacks
       setHeadphones(recommendations.headphones || [])
@@ -413,6 +421,24 @@ function RecommendationsContent() {
     return experience === 'intermediate' || experience === 'enthusiast'
   }
 
+  // Amplification detection for beginner/intermediate users
+  const getAmplificationNeeds = () => {
+    // Only show for beginners and intermediates
+    if (experience === 'advanced') return null
+
+    const selectedHeadphonesThatNeedAmp = selectedHeadphoneItems.filter(hp => hp.needs_amp)
+    const recommendedHeadphonesThatNeedAmp = headphones.filter(hp => hp.needs_amp)
+
+    return {
+      selectedNeedAmp: selectedHeadphonesThatNeedAmp,
+      recommendedNeedAmp: recommendedHeadphonesThatNeedAmp,
+      hasAmplification: wantRecommendationsFor.amp || wantRecommendationsFor.combo,
+      shouldShowWarning: (selectedHeadphonesThatNeedAmp.length > 0 || recommendedHeadphonesThatNeedAmp.length > 0) && !wantRecommendationsFor.amp && !wantRecommendationsFor.combo
+    }
+  }
+
+  const amplificationNeeds = getAmplificationNeeds()
+
 
   if (loading) {
     return (
@@ -467,6 +493,40 @@ function RecommendationsContent() {
             {getDescription()}
           </p>
         </div>
+
+        {/* Amplification Warning Banner for Beginners/Intermediates */}
+        {amplificationNeeds?.shouldShowWarning && (
+          <div className="card mb-6 p-6 border-l-4 border-yellow-500 bg-yellow-50">
+            <div className="flex items-start space-x-3">
+              <div className="text-2xl">⚡</div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-yellow-800 mb-2">
+                  Amplification Recommended
+                </h3>
+                <p className="text-yellow-700 mb-3">
+                  {amplificationNeeds.selectedNeedAmp.length > 0
+                    ? `Your selected headphones (${amplificationNeeds.selectedNeedAmp.map(h => h.name).join(', ')}) benefit from dedicated amplification for optimal performance.`
+                    : `Some recommended headphones require amplification to reach their full potential.`
+                  }
+                </p>
+                <button
+                  onClick={() => {
+                    updatePreferences({
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        amp: true,
+                        combo: true
+                      }
+                    })
+                  }}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Add Amplifier & Combo Recommendations
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Enhanced Budget Control */}
         <div className="card mb-6 p-6">
@@ -525,6 +585,7 @@ function RecommendationsContent() {
                     updatePreferences({
                       headphoneType: 'both',
                       wantRecommendationsFor: {
+                        headphones: false, // Also disable headphone recommendations when no types selected
                         dac: false,
                         amp: false,
                         combo: false
@@ -546,10 +607,16 @@ function RecommendationsContent() {
                     setTypeFilters(newFilters)
                     // Update userPrefs for backward compatibility
                     const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                    updatePreferences({ headphoneType: newType })
+                    updatePreferences({
+                      headphoneType: newType,
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
+                      }
+                    })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${typeFilters.includes('cans')
                       ? 'bg-purple-600 text-white border-purple-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -573,10 +640,16 @@ function RecommendationsContent() {
                     setTypeFilters(newFilters)
                     // Update userPrefs for backward compatibility
                     const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                    updatePreferences({ headphoneType: newType })
+                    updatePreferences({
+                      headphoneType: newType,
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
+                      }
+                    })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${typeFilters.includes('iems')
                       ? 'bg-indigo-600 text-white border-indigo-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -602,7 +675,7 @@ function RecommendationsContent() {
                     })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${wantRecommendationsFor.dac
                       ? 'bg-green-600 text-white border-green-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -628,7 +701,7 @@ function RecommendationsContent() {
                     })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${wantRecommendationsFor.amp
                       ? 'bg-yellow-600 text-white border-yellow-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -654,7 +727,7 @@ function RecommendationsContent() {
                     })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${wantRecommendationsFor.combo
                       ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -713,7 +786,7 @@ function RecommendationsContent() {
                     updatePreferences({ soundSignature: newSignature })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${soundFilters.includes('neutral')
                       ? 'bg-gray-600 text-white border-gray-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -740,7 +813,7 @@ function RecommendationsContent() {
                     updatePreferences({ soundSignature: newSignature })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${soundFilters.includes('warm')
                       ? 'bg-orange-600 text-white border-orange-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -767,7 +840,7 @@ function RecommendationsContent() {
                     updatePreferences({ soundSignature: newSignature })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${soundFilters.includes('bright')
                       ? 'bg-cyan-600 text-white border-cyan-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -794,7 +867,7 @@ function RecommendationsContent() {
                     updatePreferences({ soundSignature: newSignature })
                   }}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
+                    flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 w-full justify-between relative border-2
                     ${soundFilters.includes('fun')
                       ? 'bg-pink-600 text-white border-pink-600 shadow-md transform scale-[1.02]'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -911,7 +984,8 @@ function RecommendationsContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10">
           {/* Headphones Section */}
-          {wantRecommendationsFor.headphones && headphones.length > 0 && (
+          {/* TEMPORARY DEBUG: Show headphones if they exist, regardless of wantRecommendationsFor */}
+          {(wantRecommendationsFor.headphones || true) && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-accent-light px-6 py-4 border-b border-stroke">
                 <h2 className="heading-3 text-center mb-4">
@@ -942,7 +1016,14 @@ function RecommendationsContent() {
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-secondary mb-3">{headphone.brand}</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-sm text-secondary">{headphone.brand}</p>
+                      {headphone.needs_amp && experience !== 'advanced' && (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-medium">
+                          ⚡ Requires Amp
+                        </span>
+                      )}
+                    </div>
                     
                     {/* Enhanced Amplification Assessment */}
                     {headphone.amplificationAssessment && (

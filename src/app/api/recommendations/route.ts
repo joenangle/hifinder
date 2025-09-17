@@ -195,14 +195,7 @@ function filterAndScoreComponents(
   const minAcceptable = budget < 500 ? Math.max(20, baseMinAcceptable * 0.7) : Math.max(20, baseMinAcceptable)
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
 
-  console.log('🔍 Filter params:', {
-    budget,
-    budgetRangeMin,
-    budgetRangeMax,
-    minAcceptable,
-    maxAcceptable,
-    inputCount: components.length
-  })
+  // Removed verbose logging - keeping only essential logs
 
   return components
     .map(c => {
