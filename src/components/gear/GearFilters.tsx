@@ -113,28 +113,47 @@ export function GearFilters({
               </button>
             )}
             {viewMode && onViewModeChange && (
-              <div className="flex rounded-md overflow-hidden bg-secondary">
-                <button
-                  onClick={() => onViewModeChange('grid')}
-                  className={`px-3 py-1.5 transition-colors flex items-center justify-center ${viewMode === 'grid' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Grid View"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onViewModeChange('list')}
-                  className={`px-3 py-1.5 transition-colors flex items-center justify-center ${viewMode === 'list' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="List View"
-                >
-                  <List className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onViewModeChange('stacks')}
-                  className={`px-3 py-1.5 transition-colors flex items-center justify-center ${viewMode === 'stacks' ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-tertiary'}`}
-                  title="Stacks View"
-                >
-                  <Layers className="w-4 h-4" />
-                </button>
+              <div className="flex items-center gap-2">
+                {/* View Mode Selector with Labels */}
+                <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => onViewModeChange('grid')}
+                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
+                      viewMode === 'grid'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                    <span className="hidden lg:inline">Grid</span>
+                  </button>
+                  <button
+                    onClick={() => onViewModeChange('list')}
+                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium border-x border-gray-200 dark:border-gray-700 ${
+                      viewMode === 'list'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    title="List View"
+                  >
+                    <List className="w-4 h-4" />
+                    <span className="hidden lg:inline">List</span>
+                  </button>
+                  <button
+                    onClick={() => onViewModeChange('stacks')}
+                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
+                      viewMode === 'stacks'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    title="Stack Builder - Organize your gear into purposeful setups"
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span className="hidden lg:inline font-semibold">Stacks</span>
+                    <span className="hidden xl:inline text-xs ml-1 px-1.5 py-0.5 bg-orange-500/20 text-orange-300 rounded">NEW</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -790,16 +790,61 @@ function GearContent() {
 
                 {/* Stacks List */}
                 {stacks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Layers className="w-16 h-16 text-secondary mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold text-primary mb-2">No stacks yet</h2>
-                    <p className="text-secondary mb-6">Create your first stack to group related gear together</p>
-                    <button
-                      onClick={() => setShowCreateStackModal(true)}
-                      className="button button-primary mb-6"
-                    >
-                      Create Your First Stack
-                    </button>
+                  <div className="max-w-4xl mx-auto py-8">
+                    {/* Welcome Header */}
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center justify-center p-3 bg-orange-500/10 rounded-2xl mb-4">
+                        <Layers className="w-12 h-12 text-orange-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold mb-3" style={{color: 'var(--text-primary)'}}>
+                        Welcome to Stack Builder
+                      </h2>
+                      <p className="text-base max-w-2xl mx-auto" style={{color: 'var(--text-secondary)'}}>
+                        Organize your audio gear into purposeful setups. Perfect for managing multiple listening
+                        environments or tracking what's at home vs. what you travel with.
+                      </p>
+                    </div>
+
+                    {/* What are Stacks? */}
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-8">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2" style={{color: 'var(--text-primary)'}}>
+                        <span className="text-lg">🎯</span> What are Stacks?
+                      </h3>
+                      <div className="grid sm:grid-cols-3 gap-4">
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🏠</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Desktop Setup</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Your main listening station at home</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🎒</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Portable Rig</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Gear for commute and travel</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🎮</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Gaming Setup</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Optimized for competitive gaming</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="text-center mb-8">
+                      <button
+                        onClick={() => setShowCreateStackModal(true)}
+                        className="button button-primary text-base px-6 py-3"
+                      >
+                        <PlusIcon className="w-5 h-5 mr-2" />
+                        Create Your First Stack
+                      </button>
+                    </div>
                     
                     {/* Stack Templates */}
                     <div className="mt-6">
