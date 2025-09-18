@@ -102,44 +102,49 @@ const getGradientBackground = (value: number, min: number, max: number) => {
 // Dynamic tick marks based on current value and range - responsive to viewport
 const getDynamicTicks = (min: number, max: number, currentValue: number, viewportWidth?: number) => {
   const allTicks = [20, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 10000]
+  const emphasizedTicks = [100, 500, 1000, 3000]
 
-  // Determine how many ticks to show based on viewport width
-  const getMaxTicks = () => {
+  // Get viewport-specific tick sets that ensure good spacing
+  const getViewportTicks = () => {
     if (typeof window !== 'undefined') {
-      if (window.innerWidth < 640) return 4  // sm: show fewer ticks
-      if (window.innerWidth < 768) return 6  // md: moderate number
-      if (window.innerWidth < 1024) return 8 // lg: more ticks
-      return 10 // xl+: show most ticks
+      if (window.innerWidth < 640) {
+        // Mobile: Use well-spaced ticks prioritizing key values
+        return [50, 100, 500, 1000, 3000]
+      }
+      if (window.innerWidth < 768) {
+        // Small tablet: Add a few more ticks
+        return [50, 100, 200, 500, 1000, 2000, 3000]
+      }
+      if (window.innerWidth < 1024) {
+        // Large tablet: More ticks but still well-spaced
+        return [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000]
+      }
+      // Desktop: Show all ticks
+      return allTicks
     }
-    return 8 // default server-side
+    return [50, 100, 200, 500, 1000, 2000, 3000] // default server-side
   }
 
-  const maxVisibleTicks = getMaxTicks()
+  const viewportTicks = getViewportTicks()
 
-  return allTicks
+  return viewportTicks
     .filter(tick => tick >= min && tick <= max)
     .map(tick => {
       const distance = Math.abs(Math.log(tick) - Math.log(currentValue))
       const maxDistance = Math.log(max) - Math.log(min)
       const relativeDistance = distance / maxDistance
-      const isEmphasized = [100, 500, 1000, 3000].includes(tick)
+      const isEmphasized = emphasizedTicks.includes(tick)
 
       return {
         value: tick,
         label: formatBudgetShort(tick),
         position: budgetToSlider(tick, min, max),
-        visible: relativeDistance < 0.4 || isEmphasized,
+        visible: true, // All selected ticks are visible
         emphasized: isEmphasized,
-        opacity: Math.max(0.3, 1 - relativeDistance * 1.5)
+        opacity: Math.max(0.4, 1 - relativeDistance * 1.2)
       }
     })
-    .sort((a, b) => {
-      // Prioritize emphasized ticks and closer ones
-      const aScore = (a.emphasized ? 2 : 0) + (1 - a.opacity)
-      const bScore = (b.emphasized ? 2 : 0) + (1 - b.opacity)
-      return aScore - bScore
-    })
-    .slice(0, maxVisibleTicks) // Limit total visible ticks
+    .sort((a, b) => a.value - b.value) // Sort by value for consistent positioning
 }
 
 export function BudgetSliderEnhanced({
