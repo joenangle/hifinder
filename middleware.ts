@@ -29,20 +29,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check for password in query param (for initial access)
-  const password = url.searchParams.get('pwd')
+  // Check for password in form submission (POST request)
   const stagingPassword = process.env.STAGING_PASSWORD || 'hifi2024'
 
-  if (password === stagingPassword) {
-    const response = NextResponse.next()
-    // Set cookie for 24 hours
-    response.cookies.set('staging-access', 'granted', {
-      maxAge: 24 * 60 * 60,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax'
-    })
-    return response
+  if (request.method === 'POST') {
+    try {
+      const formData = await request.formData()
+      const password = formData.get('pwd')
+
+      if (password === stagingPassword) {
+        const response = NextResponse.redirect(request.url)
+        // Set cookie for 24 hours
+        response.cookies.set('staging-access', 'granted', {
+          maxAge: 24 * 60 * 60,
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax'
+        })
+        return response
+      }
+    } catch (error) {
+      console.error('Error processing form data:', error)
+    }
   }
 
   // Show password prompt page
@@ -135,7 +143,7 @@ export function middleware(request: NextRequest) {
         <div class="logo">🎧 HiFinder</div>
         <h1>Staging Environment</h1>
         <p>This is a private staging environment. Please enter the access password to continue.</p>
-        <form method="get">
+        <form method="post">
           <input type="password" name="pwd" placeholder="Enter staging password" required autofocus>
           <button type="submit">Access Staging</button>
         </form>
