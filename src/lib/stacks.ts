@@ -93,7 +93,7 @@ export async function createStack(
 
 export async function updateStack(
   stackId: string,
-  updates: Partial<Pick<UserStack, 'name' | 'description'>>
+  updates: Partial<Pick<UserStack, 'name' | 'description' | 'purpose' | 'is_primary'>>
 ): Promise<UserStack | null> {
   const { data, error } = await supabase
     .from('user_stacks')

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, StackPurpose, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
+import { StackWithGear, StackPurpose, createStack, deleteStack, calculateStackValue, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -245,6 +245,9 @@ function GearContent() {
   const [editStackName, setEditStackName] = useState('')
   const [editStackDescription, setEditStackDescription] = useState('')
   const [editStackPurpose, setEditStackPurpose] = useState<StackPurpose>('general')
+  // TODO: Implement edit stack purpose functionality
+  void editStackPurpose
+  void setEditStackPurpose
 
   // State for drag and drop
   const [draggedGear, setDraggedGear] = useState<UserGearItem | null>(null)
@@ -801,7 +804,7 @@ function GearContent() {
                       </h2>
                       <p className="text-base max-w-2xl mx-auto" style={{color: 'var(--text-secondary)'}}>
                         Organize your audio gear into purposeful setups. Perfect for managing multiple listening
-                        environments or tracking what's at home vs. what you travel with.
+                        environments or tracking what&apos;s at home vs. what you travel with.
                       </p>
                     </div>
 

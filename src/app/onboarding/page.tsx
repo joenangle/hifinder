@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
+import { UserStack } from '@/lib/stacks'
 
 // Types
 interface Preferences {
@@ -293,7 +294,11 @@ export default function OnboardingPage() {
   } | null>(null)
 
   // Stack selection state
-  const [userStacks, setUserStacks] = useState<any[]>([])
+  type UserStackWithCounts = UserStack & {
+    gearByCategory?: Record<string, number>
+    gearCount?: number
+  }
+  const [userStacks, setUserStacks] = useState<UserStackWithCounts[]>([])
   const [loadingStacks, setLoadingStacks] = useState(false)
   const [selectedStack, setSelectedStack] = useState<string | 'all' | 'fresh'>('all')
   const [stackView, setStackView] = useState<'selection' | 'gear'>('selection')
@@ -337,7 +342,7 @@ export default function OnboardingPage() {
     soundSignature: ''
   })
   // const [_budgetInputValue, _setBudgetInputValue] = useState('100')
-  const [budgetError, setBudgetError] = useState('')
+  const [budgetError] = useState('')
 
   // Enhanced budget state management
   const budgetState = useBudgetState({
@@ -364,7 +369,7 @@ export default function OnboardingPage() {
   // Optimization headphone selection state (for existing headphones)
   const [optimizeBrands, setOptimizeBrands] = useState<string[]>([])
   const [optimizeModels, setOptimizeModels] = useState<{[brand: string]: string[]}>({})
-  const [selectedOptimizeBrand, setSelectedOptimizeBrand] = useState('')
+  const [selectedOptimizeBrand] = useState('')
   // const [selectedOptimizeModel, setSelectedOptimizeModel] = useState('')
   // const [loadingOptimizeBrands, setLoadingOptimizeBrands] = useState(false)
   // const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
@@ -396,11 +401,11 @@ const fetchUserStacks = useCallback(async () => {
     const stacks = await response.json()
 
     // Process stacks to add gear counts by category
-    const stacksWithCounts = stacks.map((stack: any) => {
+    const stacksWithCounts = stacks.map((stack: UserStack): UserStackWithCounts => {
       const gearByCategory: { [key: string]: number } = {}
 
       if (stack.stack_components) {
-        stack.stack_components.forEach((component: any) => {
+        stack.stack_components.forEach((component) => {
           if (component.user_gear?.components?.category) {
             const category = component.user_gear.components.category.toLowerCase()
             if (category.includes('headphone')) {
@@ -1148,7 +1153,7 @@ const handleNext = useCallback(() => {
                       {userStacks.length === 0 && (
                         <div className="card p-4 bg-surface-secondary">
                           <p className="text-secondary mb-4">
-                            💡 You haven't created any stacks yet. Stacks help organize your gear by use case.
+                            💡 You haven&apos;t created any stacks yet. Stacks help organize your gear by use case.
                           </p>
                           <Link
                             href="/stack-builder"
