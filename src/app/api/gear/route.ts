@@ -3,15 +3,19 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: gear, error } = await supabaseServer
+    const url = new URL(request.url)
+    const showAll = url.searchParams.get('all') === 'true'
+    const stackId = url.searchParams.get('stack_id')
+
+    let query = supabaseServer
       .from('user_gear')
       .select(`
         *,
@@ -22,8 +26,36 @@ export async function GET() {
         )
       `)
       .eq('user_id', session.user.id)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
+
+    // If stack_id provided, get gear for that specific stack
+    if (stackId) {
+      // First get the gear IDs for this stack
+      const { data: stackComponents, error: stackError } = await supabaseServer
+        .from('stack_components')
+        .select('user_gear_id')
+        .eq('stack_id', stackId)
+
+      if (stackError) {
+        console.error('Error fetching stack components:', stackError)
+        return NextResponse.json({ error: 'Failed to fetch stack gear' }, { status: 500 })
+      }
+
+      const gearIds = stackComponents?.map(sc => sc.user_gear_id) || []
+      if (gearIds.length > 0) {
+        query = query.in('id', gearIds)
+      } else {
+        // Empty stack - return empty array
+        return NextResponse.json([])
+      }
+    } else if (!showAll) {
+      // Default behavior - only show active gear
+      query = query.eq('is_active', true)
+    }
+    // If showAll=true, don't filter by is_active (shows all gear)
+
+    query = query.order('created_at', { ascending: false })
+
+    const { data: gear, error } = await query
     
     if (error) {
       console.error('Database error:', error)

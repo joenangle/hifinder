@@ -291,6 +291,12 @@ export default function OnboardingPage() {
     currentHighestTier?: string
     averagePrice?: number
   } | null>(null)
+
+  // Stack selection state
+  const [userStacks, setUserStacks] = useState<any[]>([])
+  const [loadingStacks, setLoadingStacks] = useState(false)
+  const [selectedStack, setSelectedStack] = useState<string | 'all' | 'fresh'>('all')
+  const [stackView, setStackView] = useState<'selection' | 'gear'>('selection')
   const [preferences, setPreferences] = useState({
     experience: '',
     budget: 100,
@@ -378,11 +384,61 @@ export default function OnboardingPage() {
     }
   }, [step])
 
-// Fetch user gear
-const fetchUserGear = useCallback(async () => {
+// Fetch user stacks with gear counts
+const fetchUserStacks = useCallback(async () => {
+  if (!session?.user?.id) return
+
+  setLoadingStacks(true)
+  try {
+    const response = await fetch('/api/stacks')
+    if (!response.ok) throw new Error('Failed to fetch stacks')
+
+    const stacks = await response.json()
+
+    // Process stacks to add gear counts by category
+    const stacksWithCounts = stacks.map((stack: any) => {
+      const gearByCategory: { [key: string]: number } = {}
+
+      if (stack.stack_components) {
+        stack.stack_components.forEach((component: any) => {
+          if (component.user_gear?.components?.category) {
+            const category = component.user_gear.components.category.toLowerCase()
+            if (category.includes('headphone')) {
+              gearByCategory.headphones = (gearByCategory.headphones || 0) + 1
+            } else if (category.includes('iem')) {
+              gearByCategory.iems = (gearByCategory.iems || 0) + 1
+            } else if (category.includes('dac') && !category.includes('combo')) {
+              gearByCategory.dacs = (gearByCategory.dacs || 0) + 1
+            } else if (category.includes('amp') && !category.includes('combo')) {
+              gearByCategory.amps = (gearByCategory.amps || 0) + 1
+            } else if (category.includes('combo')) {
+              gearByCategory.combos = (gearByCategory.combos || 0) + 1
+            }
+          }
+        })
+      }
+
+      return {
+        ...stack,
+        gearCount: stack.stack_components?.length || 0,
+        gearByCategory
+      }
+    })
+
+    setUserStacks(stacksWithCounts)
+  } catch (error) {
+    console.error('Error fetching stacks:', error)
+  } finally {
+    setLoadingStacks(false)
+  }
+}, [session?.user?.id])
+
+// Fetch user gear - optionally by stack
+const fetchUserGear = useCallback(async (stackId?: string) => {
   console.log('[GEAR DEBUG] fetchUserGear called, session:', {
     hasSession: !!session,
-    userId: session?.user?.id
+    userId: session?.user?.id,
+    stackId
   })
 
   if (!session?.user?.id) {
@@ -394,8 +450,13 @@ const fetchUserGear = useCallback(async () => {
   setLoadingUserGear(true)
 
   try {
-    console.log('[GEAR DEBUG] Making API call to /api/gear')
-    const response = await fetch('/api/gear')
+    // Build URL with query params
+    const url = stackId
+      ? `/api/gear?stack_id=${stackId}`
+      : '/api/gear?all=true' // Show all gear by default in onboarding
+
+    console.log('[GEAR DEBUG] Making API call to:', url)
+    const response = await fetch(url)
 
     console.log('[GEAR DEBUG] API response received:', {
       status: response.status,
@@ -521,7 +582,7 @@ const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
   }
 }
 
-// Load user gear when step 2 is reached and user is enthusiast
+// Load user stacks when step 2 is reached and user is enthusiast
 useEffect(() => {
   console.log('[GEAR DEBUG] useEffect triggered:', {
     step,
@@ -532,12 +593,13 @@ useEffect(() => {
   })
 
   if (step === 2 && preferences.experience === 'enthusiast' && session?.user?.id) {
-    console.log('[GEAR DEBUG] Calling fetchUserGear...')
-    fetchUserGear()
+    console.log('[GEAR DEBUG] Fetching user stacks...')
+    fetchUserStacks() // Fetch stacks first to show selection
+    // Don't fetch gear yet - wait for stack selection
   } else {
-    console.log('[GEAR DEBUG] Skipping fetchUserGear - conditions not met')
+    console.log('[GEAR DEBUG] Skipping fetch - conditions not met')
   }
-}, [step, preferences.experience, session?.user?.id, fetchUserGear])
+}, [step, preferences.experience, session?.user?.id, fetchUserStacks])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = useCallback(() => {
@@ -970,19 +1032,153 @@ const handleNext = useCallback(() => {
 
           {step === 2 && isAdvanced() && (
             <div>
-              <h2 className="heading-2 mb-4">Your Audio Gear</h2>
+              <h2 className="heading-2 mb-4">
+                {stackView === 'selection' ? 'Choose Your Setup' : 'Your Audio Gear'}
+              </h2>
 
               {(() => {
-                console.log('[GEAR DEBUG] Rendering step 2 gear section:', {
+                console.log('[GEAR DEBUG] Rendering step 2:', {
+                  stackView,
+                  selectedStack,
+                  stacksCount: userStacks.length,
+                  loadingStacks,
                   loadingUserGear,
-                  hasSession: !!session?.user?.id,
-                  userGearCount: userGear.length,
-                  userGear: userGear
+                  userGearCount: userGear.length
                 })
                 return null
               })()}
 
-              {loadingUserGear ? (
+              {/* Stack Selection View */}
+              {stackView === 'selection' && (
+                <div>
+                  <p className="text-secondary mb-6">
+                    Select which setup you want to upgrade, or start fresh with new recommendations
+                  </p>
+
+                  {loadingStacks ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mx-auto mb-4" />
+                      <p className="text-secondary">Loading your setups...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* User's Stacks */}
+                      {userStacks.length > 0 && (
+                        <>
+                          <h3 className="heading-3 mb-3">Your Stacks</h3>
+                          {userStacks.map(stack => {
+                            const categorySummary = Object.entries(stack.gearByCategory || {})
+                              .map(([cat, count]) => {
+                                const labels: { [key: string]: string } = {
+                                  headphones: count === 1 ? 'headphone' : 'headphones',
+                                  iems: count === 1 ? 'IEM' : 'IEMs',
+                                  dacs: count === 1 ? 'DAC' : 'DACs',
+                                  amps: count === 1 ? 'amp' : 'amps',
+                                  combos: count === 1 ? 'combo' : 'combos'
+                                }
+                                return `${count} ${labels[cat] || cat}`
+                              })
+                              .join(', ')
+
+                            return (
+                              <button
+                                key={stack.id}
+                                onClick={() => {
+                                  setSelectedStack(stack.id)
+                                  setStackView('gear')
+                                  fetchUserGear(stack.id)
+                                }}
+                                className="card-interactive text-left w-full hover:scale-[1.02] transition-transform"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="font-semibold text-lg">{stack.name}</h4>
+                                  <span className="text-sm text-tertiary">
+                                    {stack.gearCount} {stack.gearCount === 1 ? 'item' : 'items'}
+                                  </span>
+                                </div>
+                                {stack.description && (
+                                  <p className="text-secondary text-sm mb-2">{stack.description}</p>
+                                )}
+                                {categorySummary && (
+                                  <p className="text-sm text-accent">{categorySummary}</p>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </>
+                      )}
+
+                      {/* All Gear Option */}
+                      <div className="border-t border-subtle pt-4">
+                        <h3 className="heading-3 mb-3">Other Options</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedStack('all')
+                            setStackView('gear')
+                            fetchUserGear() // No stack_id = all gear
+                          }}
+                          className="card-interactive text-left w-full hover:scale-[1.02] transition-transform mb-4"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg">📦 All Gear</h4>
+                          </div>
+                          <p className="text-secondary text-sm">
+                            View and upgrade from your entire collection
+                          </p>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedStack('fresh')
+                            // Skip directly to step 3 for fresh start
+                            setStep(3)
+                          }}
+                          className="card-interactive text-left w-full hover:scale-[1.02] transition-transform"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg">✨ Start Fresh</h4>
+                          </div>
+                          <p className="text-secondary text-sm">
+                            Get recommendations without considering existing gear
+                          </p>
+                        </button>
+                      </div>
+
+                      {/* No stacks? Show helpful message */}
+                      {userStacks.length === 0 && (
+                        <div className="card p-4 bg-surface-secondary">
+                          <p className="text-secondary mb-4">
+                            💡 You haven't created any stacks yet. Stacks help organize your gear by use case.
+                          </p>
+                          <Link
+                            href="/stack-builder"
+                            className="button button-secondary"
+                          >
+                            Create Your First Stack
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Gear View (existing code) */}
+              {stackView === 'gear' && (
+                <>
+                  {/* Back to stack selection button */}
+                  <button
+                    onClick={() => {
+                      setStackView('selection')
+                      setUserGear([])
+                      setUpgradeAnalysis(null)
+                    }}
+                    className="text-secondary hover:text-primary mb-4 inline-flex items-center gap-2"
+                  >
+                    ← Back to Stack Selection
+                  </button>
+
+                  {loadingUserGear ? (
                 <div className="text-center py-8">
                   <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mx-auto mb-4" />
                   <p className="text-secondary">Loading your gear...</p>
@@ -1109,6 +1305,8 @@ const handleNext = useCallback(() => {
                     </div>
                   </div>
                 </div>
+              )}
+                </>
               )}
             </div>
           )}
