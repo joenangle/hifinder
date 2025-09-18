@@ -99,9 +99,22 @@ const getGradientBackground = (value: number, min: number, max: number) => {
   } as React.CSSProperties
 }
 
-// Dynamic tick marks based on current value and range
-const getDynamicTicks = (min: number, max: number, currentValue: number) => {
+// Dynamic tick marks based on current value and range - responsive to viewport
+const getDynamicTicks = (min: number, max: number, currentValue: number, viewportWidth?: number) => {
   const allTicks = [20, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 10000]
+
+  // Determine how many ticks to show based on viewport width
+  const getMaxTicks = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return 4  // sm: show fewer ticks
+      if (window.innerWidth < 768) return 6  // md: moderate number
+      if (window.innerWidth < 1024) return 8 // lg: more ticks
+      return 10 // xl+: show most ticks
+    }
+    return 8 // default server-side
+  }
+
+  const maxVisibleTicks = getMaxTicks()
 
   return allTicks
     .filter(tick => tick >= min && tick <= max)
@@ -109,16 +122,24 @@ const getDynamicTicks = (min: number, max: number, currentValue: number) => {
       const distance = Math.abs(Math.log(tick) - Math.log(currentValue))
       const maxDistance = Math.log(max) - Math.log(min)
       const relativeDistance = distance / maxDistance
+      const isEmphasized = [100, 500, 1000, 3000].includes(tick)
 
       return {
         value: tick,
         label: formatBudgetShort(tick),
         position: budgetToSlider(tick, min, max),
-        visible: relativeDistance < 0.4 || [100, 500, 1000, 3000].includes(tick),
-        emphasized: [100, 500, 1000, 3000].includes(tick),
+        visible: relativeDistance < 0.4 || isEmphasized,
+        emphasized: isEmphasized,
         opacity: Math.max(0.3, 1 - relativeDistance * 1.5)
       }
     })
+    .sort((a, b) => {
+      // Prioritize emphasized ticks and closer ones
+      const aScore = (a.emphasized ? 2 : 0) + (1 - a.opacity)
+      const bScore = (b.emphasized ? 2 : 0) + (1 - b.opacity)
+      return aScore - bScore
+    })
+    .slice(0, maxVisibleTicks) // Limit total visible ticks
 }
 
 export function BudgetSliderEnhanced({
@@ -171,10 +192,20 @@ export function BudgetSliderEnhanced({
   // Get current tier
   const currentTier = getBudgetTier(localBudget)
 
-  // Get dynamic tick marks
+  // Get dynamic tick marks with viewport responsiveness
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleResize = () => setViewportWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const ticks = useMemo(
-    () => getDynamicTicks(minBudget, maxBudget, localBudget),
-    [minBudget, maxBudget, localBudget]
+    () => getDynamicTicks(minBudget, maxBudget, localBudget, viewportWidth),
+    [minBudget, maxBudget, localBudget, viewportWidth]
   )
 
   // Handle slider change with immediate visual feedback
@@ -616,13 +647,6 @@ export function BudgetSliderEnhanced({
         </div>
       )}
 
-      {/* Logarithmic scale explanation */}
-      <div className="flex items-start gap-2 text-xs text-gray-500">
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>The slider uses a logarithmic scale for finer control at lower budgets where small differences matter more.</span>
-      </div>
     </div>
   )
 }
