@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
+import { StackWithGear, StackPurpose, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -241,8 +241,10 @@ function GearContent() {
   const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
+  const [newStackPurpose, setNewStackPurpose] = useState<StackPurpose>('general')
   const [editStackName, setEditStackName] = useState('')
   const [editStackDescription, setEditStackDescription] = useState('')
+  const [editStackPurpose, setEditStackPurpose] = useState<StackPurpose>('general')
 
   // State for drag and drop
   const [draggedGear, setDraggedGear] = useState<UserGearItem | null>(null)
@@ -484,7 +486,8 @@ function GearContent() {
         credentials: 'include',
         body: JSON.stringify({
           name: newStackName.trim(),
-          description: newStackDescription.trim() || null
+          description: newStackDescription.trim() || null,
+          purpose: newStackPurpose
         })
       })
 
@@ -493,6 +496,7 @@ function GearContent() {
         setShowCreateStackModal(false)
         setNewStackName('')
         setNewStackDescription('')
+        setNewStackPurpose('general')
       } else {
         const error = await response.json()
         console.error('Failed to create stack:', error)
@@ -511,7 +515,8 @@ function GearContent() {
       selectedStackForEdit.id, 
       {
         name: editStackName.trim(),
-        description: editStackDescription.trim() || undefined
+        description: editStackDescription.trim() || undefined,
+        purpose: editStackPurpose
       }
     )
     
@@ -1832,6 +1837,25 @@ function GearContent() {
                   rows={3}
                 />
               </div>
+
+              <div className="form-group">
+                <label className="label">Purpose</label>
+                <select
+                  value={newStackPurpose}
+                  onChange={(e) => setNewStackPurpose(e.target.value as StackPurpose)}
+                  className="input"
+                >
+                  <option value="general">General</option>
+                  <option value="desktop">Desktop</option>
+                  <option value="portable">Portable</option>
+                  <option value="studio">Studio</option>
+                  <option value="gaming">Gaming</option>
+                  <option value="office">Office</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Categorize your stack by its primary use case
+                </p>
+              </div>
             </div>
 
             <div className="modal-footer">
@@ -1841,6 +1865,7 @@ function GearContent() {
                   setShowCreateStackModal(false)
                   setNewStackName('')
                   setNewStackDescription('')
+                  setNewStackPurpose('general')
                 }}
                 className="button button-secondary"
               >
