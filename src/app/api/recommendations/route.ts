@@ -265,7 +265,7 @@ export async function GET(request: NextRequest) {
     const soundSignatureParam = searchParams.get('sound') || 'neutral'
 
     // Validate experience level
-    const validExperience = ['beginner', 'intermediate', 'advanced']
+    const validExperience = ['beginner', 'intermediate', 'enthusiast']
     if (!validExperience.includes(experienceParam)) {
       return NextResponse.json(
         { error: `Invalid experience level. Must be one of: ${validExperience.join(', ')}` },

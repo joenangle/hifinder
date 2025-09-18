@@ -5,7 +5,7 @@ export type BudgetTier = 'budget' | 'entry' | 'mid_range' | 'high_end' | 'summit
 
 export type UserSegment = {
   budget_tier: BudgetTier
-  experience_level: 'beginner' | 'intermediate' | 'advanced'
+  experience_level: 'beginner' | 'intermediate' | 'enthusiast'
   primary_category: 'headphones' | 'iems' | 'dac' | 'amp' | 'combo'
 }
 
