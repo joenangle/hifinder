@@ -1,11 +1,15 @@
 import { supabase } from './supabase'
 import { UserGearItem } from './gear'
 
+export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general'
+
 export interface UserStack {
   id: string
   user_id: string
   name: string
   description?: string
+  purpose?: StackPurpose
+  is_primary?: boolean
   created_at: string
   updated_at: string
   stack_components?: StackComponent[]
