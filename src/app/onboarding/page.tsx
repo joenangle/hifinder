@@ -380,24 +380,55 @@ export default function OnboardingPage() {
 
 // Fetch user gear
 const fetchUserGear = useCallback(async () => {
-  if (!session?.user?.id) return
+  console.log('[GEAR DEBUG] fetchUserGear called, session:', {
+    hasSession: !!session,
+    userId: session?.user?.id
+  })
 
+  if (!session?.user?.id) {
+    console.log('[GEAR DEBUG] No session or user ID, returning early')
+    return
+  }
+
+  console.log('[GEAR DEBUG] Starting gear fetch, setting loading to true')
   setLoadingUserGear(true)
+
   try {
+    console.log('[GEAR DEBUG] Making API call to /api/gear')
     const response = await fetch('/api/gear')
-    if (!response.ok) throw new Error('Failed to fetch user gear')
+
+    console.log('[GEAR DEBUG] API response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user gear: ${response.status} ${response.statusText}`)
+    }
 
     const gear = await response.json()
+    console.log('[GEAR DEBUG] Gear data received:', {
+      gearCount: gear?.length || 0,
+      gear: gear
+    })
+
     setUserGear(gear)
 
     // Analyze gear for upgrade recommendations
     if (gear.length > 0) {
+      console.log('[GEAR DEBUG] Analyzing gear for upgrades...')
       const analysis = analyzeGearForUpgrades(gear)
+      console.log('[GEAR DEBUG] Upgrade analysis completed:', analysis)
       setUpgradeAnalysis(analysis)
+    } else {
+      console.log('[GEAR DEBUG] No gear found, skipping upgrade analysis')
+      setUpgradeAnalysis(null)
     }
   } catch (error) {
-    console.error('Error fetching user gear:', error)
+    console.error('[GEAR DEBUG] Error fetching user gear:', error)
   } finally {
+    console.log('[GEAR DEBUG] Setting loading to false')
     setLoadingUserGear(false)
   }
 }, [session?.user?.id])
@@ -492,8 +523,19 @@ const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
 
 // Load user gear when step 2 is reached and user is enthusiast
 useEffect(() => {
+  console.log('[GEAR DEBUG] useEffect triggered:', {
+    step,
+    experience: preferences.experience,
+    hasSession: !!session,
+    userId: session?.user?.id,
+    shouldFetch: step === 2 && preferences.experience === 'enthusiast' && session?.user?.id
+  })
+
   if (step === 2 && preferences.experience === 'enthusiast' && session?.user?.id) {
+    console.log('[GEAR DEBUG] Calling fetchUserGear...')
     fetchUserGear()
+  } else {
+    console.log('[GEAR DEBUG] Skipping fetchUserGear - conditions not met')
   }
 }, [step, preferences.experience, session?.user?.id, fetchUserGear])
 
@@ -929,6 +971,16 @@ const handleNext = useCallback(() => {
           {step === 2 && isAdvanced() && (
             <div>
               <h2 className="heading-2 mb-4">Your Audio Gear</h2>
+
+              {(() => {
+                console.log('[GEAR DEBUG] Rendering step 2 gear section:', {
+                  loadingUserGear,
+                  hasSession: !!session?.user?.id,
+                  userGearCount: userGear.length,
+                  userGear: userGear
+                })
+                return null
+              })()}
 
               {loadingUserGear ? (
                 <div className="text-center py-8">
