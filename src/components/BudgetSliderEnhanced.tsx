@@ -470,7 +470,7 @@ export function BudgetSliderEnhanced({
           {ticks.map(tick => (
             <div
               key={tick.value}
-              className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2"
+              className="absolute top-1/2 transform -translate-y-1/2"
               style={{
                 left: `${tick.position}%`,
                 opacity: tick.visible ? tick.opacity : 0,
