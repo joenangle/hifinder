@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Skip protection for production domain and localhost
+  // Skip protection for production domain and localhost only (not staging.hifinder.app)
   if (hostname === 'hifinder.app' || hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
     return NextResponse.next()
   }
