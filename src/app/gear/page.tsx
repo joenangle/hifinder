@@ -746,7 +746,7 @@ function GearContent() {
       />
       
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-40 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
+      <div className="sticky top-[120px] z-20 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
