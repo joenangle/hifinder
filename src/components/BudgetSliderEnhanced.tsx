@@ -174,7 +174,7 @@ export function BudgetSliderEnhanced({
   const [showRangeAdjust, setShowRangeAdjust] = useState(false)
   const [isDualRange, setIsDualRange] = useState(false)
   const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
-  const [rangeMax, setRangeMax] = useState(Math.round(budget * (1 + budgetRangeMax / 100)))
+  const [rangeMax, setRangeMax] = useState(Math.min(maxBudget, Math.round(budget * (1 + budgetRangeMax / 100))))
   const sliderRef = useRef<HTMLInputElement>(null)
 
   // Determine if dual-range should be available based on user experience
@@ -434,7 +434,16 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMin}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
+              onChange={(e) => {
+                const newMin = parseInt(e.target.value)
+                // Update the parent component's budget range state
+                if (onRangeChange) {
+                  const newRangeMin = Math.max(minBudget, Math.round(localBudget * (1 - newMin / 100)))
+                  const newRangeMax = Math.round(localBudget * (1 + budgetRangeMax / 100))
+                  onRangeChange(newRangeMin, newRangeMax)
+                }
+              }}
+              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
             />
           </div>
           <div>
@@ -444,7 +453,16 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMax}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
+              onChange={(e) => {
+                const newMax = parseInt(e.target.value)
+                // Update the parent component's budget range state
+                if (onRangeChange) {
+                  const newRangeMin = Math.max(minBudget, Math.round(localBudget * (1 - budgetRangeMin / 100)))
+                  const newRangeMax = Math.round(localBudget * (1 + newMax / 100))
+                  onRangeChange(newRangeMin, newRangeMax)
+                }
+              }}
+              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
             />
           </div>
         </div>
@@ -517,7 +535,7 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0 bg-transparent"
+                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
                 aria-label="Minimum budget"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
@@ -535,32 +553,13 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0 bg-transparent"
+                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
                 aria-label="Maximum budget"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
                 aria-valuenow={rangeMax}
               />
 
-              {/* Custom thumbs for dual-range */}
-              <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
-                  top: '50%',
-                  border: '3px solid #3b82f6',
-                  transition: isDragging ? 'none' : 'all 0.2s'
-                }}
-              />
-              <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${budgetToSlider(rangeMax, minBudget, maxBudget)}%`,
-                  top: '50%',
-                  border: '3px solid #3b82f6',
-                  transition: isDragging ? 'none' : 'all 0.2s'
-                }}
-              />
             </>
           ) : (
             <>
@@ -582,23 +581,15 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0"
+                className="absolute w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-4 [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer"
+                style={{
+                  '--webkit-slider-thumb-border': `4px solid ${currentTier.color}`,
+                  '--moz-border-color': currentTier.color
+                } as React.CSSProperties}
                 aria-label="Budget slider"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
                 aria-valuenow={localBudget}
-              />
-
-              {/* Custom thumb for single budget */}
-              <div
-                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
-                style={{
-                  left: `calc(${sliderPosition}% - 12px)`,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  border: `4px solid ${currentTier.color}`,
-                  transition: isDragging ? 'none' : 'all 0.2s'
-                }}
               />
             </>
           )}

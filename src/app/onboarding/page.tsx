@@ -1501,6 +1501,24 @@ const handleNext = useCallback(() => {
                   displayBudget={budgetState.displayBudget}
                   onChange={budgetState.handleBudgetChange}
                   onChangeComplete={budgetState.handleBudgetChangeComplete}
+                  onRangeChange={(min, max) => {
+                    // Update the budget range in preferences when dual-range mode is used
+                    const centerBudget = (min + max) / 2
+                    const minPercent = Math.round(((centerBudget - min) / centerBudget) * 100)
+                    const maxPercent = Math.round(((max - centerBudget) / centerBudget) * 100)
+
+                    setPreferences(prev => ({
+                      ...prev,
+                      budget: Math.round(centerBudget),
+                      budgetRange: {
+                        minPercent: Math.max(0, minPercent),
+                        maxPercent: Math.max(0, maxPercent)
+                      }
+                    }))
+
+                    // Also update the budget state
+                    budgetState.handleBudgetChange(Math.round(centerBudget))
+                  }}
                   isUpdating={budgetState.isUpdating}
                   variant="advanced"
                   userExperience={preferences.experience as 'beginner' | 'intermediate' | 'enthusiast'}
