@@ -4,10 +4,15 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
-  // Only protect staging.hifinder.app
-  if (!hostname.includes('staging.hifinder.app')) {
+  console.log('[MIDDLEWARE] Host:', hostname)
+
+  // Only protect staging.hifinder.app (but allow through production and localhost)
+  if (hostname === 'hifinder.app' || hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+    console.log('[MIDDLEWARE] Allowing production/localhost')
     return NextResponse.next()
   }
+
+  console.log('[MIDDLEWARE] Requiring auth for:', hostname)
 
   // Check for Basic Auth header
   const auth = request.headers.get('authorization')
