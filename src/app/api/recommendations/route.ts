@@ -190,9 +190,8 @@ function filterAndScoreComponents(
   primaryUsage: string,
   maxOptions: number
 ): RecommendationComponent[] {
-  // For smaller budgets, use more lenient minimum thresholds
-  const baseMinAcceptable = budget * (1 - budgetRangeMin / 100)
-  const minAcceptable = budget < 500 ? Math.max(20, baseMinAcceptable * 0.7) : Math.max(20, baseMinAcceptable)
+  // Budget range logic: allow items from very low prices up to budget + max range
+  const minAcceptable = 20 // Always allow cheap options
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
 
   // Removed verbose logging - keeping only essential logs
