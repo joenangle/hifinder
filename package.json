@@ -6,7 +6,22 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+
+    "// Listing aggregation scripts": "",
+    "scrape:setup": "node scripts/setup-aggregation-infrastructure.js",
+    "scrape:reddit": "node scripts/reddit-scraper-simple.js",
+    "scrape:ebay": "node scripts/ebay-integration.js",
+    "scrape:all": "node scripts/listing-scheduler.js",
+
+    "// Moderation and admin scripts": "",
+    "moderate": "node scripts/admin-moderation.js",
+    "moderate:report": "node scripts/admin-moderation.js report",
+    "moderate:quality": "node scripts/admin-moderation.js quality",
+
+    "// Maintenance scripts": "",
+    "archive:old": "node scripts/listing-scheduler.js",
+    "cleanup:duplicates": "node scripts/admin-moderation.js quality"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.10.0",
