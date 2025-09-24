@@ -36,3 +36,4 @@ jobs:
         run: |
           echo "✅ Reddit scraping completed at $(date)"
           echo "🔍 Check Supabase used_listings table for new entries"
+          echo "🚀 Workflow triggered successfully"
