@@ -1,7 +1,7 @@
 'use client'
 
 import { Component, UsedListing } from '@/types'
-import { Clock, MapPin, User, Star, AlertTriangle } from 'lucide-react'
+import { Clock, MapPin, User, Star, AlertTriangle, TrendingDown, TrendingUp, ExternalLink, Award } from 'lucide-react'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 
@@ -40,27 +40,55 @@ export function UsedMarketListingCard({
   }
 
   const getSourceDisplay = (source: string) => {
-    const sourceMap: { [key: string]: { name: string; color: string } } = {
-      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800' },
-      'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800' },
-      'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800' },
-      'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800' },
-      'manual': { name: 'Curated', color: 'bg-gray-100 text-gray-800' }
+    const sourceMap: { [key: string]: { name: string; color: string; icon: string } } = {
+      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800 border-orange-200', icon: '🔥' },
+      'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🛒' },
+      'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: '🎧' },
+      'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800 border-green-200', icon: '🎵' },
+      'manual': { name: 'Curated', color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '⭐' }
     }
-    return sourceMap[source] || { name: source, color: 'bg-gray-100 text-gray-800' }
+    return sourceMap[source] || { name: source, color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '📦' }
   }
 
   const timeAgo = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
-    if (diffInHours < 1) return 'Just now'
-    if (diffInHours < 24) return `${diffInHours}h ago`
+
+    if (diffInHours < 1) return { text: 'Just now', urgent: true }
+    if (diffInHours < 6) return { text: `${diffInHours}h ago`, urgent: true }
+    if (diffInHours < 24) return { text: `${diffInHours}h ago`, urgent: false }
     const diffInDays = Math.floor(diffInHours / 24)
-    if (diffInDays < 7) return `${diffInDays}d ago`
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)}w ago`
-    return `${Math.floor(diffInDays / 30)}mo ago`
+    if (diffInDays < 7) return { text: `${diffInDays}d ago`, urgent: false }
+    if (diffInDays < 30) return { text: `${Math.floor(diffInDays / 7)}w ago`, urgent: false }
+    return { text: `${Math.floor(diffInDays / 30)}mo ago`, urgent: false }
+  }
+
+  const getPriceAnalysis = (listingPrice: number) => {
+    if (!component.price_used_min || !component.price_used_max) {
+      return { type: 'neutral', message: '', percentage: 0, trend: 'stable' }
+    }
+
+    const expectedMin = component.price_used_min
+    const expectedMax = component.price_used_max
+    const expectedAvg = (expectedMin + expectedMax) / 2
+    const percentage = Math.round(((listingPrice - expectedAvg) / expectedAvg) * 100)
+
+    // Price trend analysis based on position in range
+    const rangePosition = (listingPrice - expectedMin) / (expectedMax - expectedMin)
+    let trend = 'stable'
+    if (rangePosition < 0.3) trend = 'dropping'
+    else if (rangePosition > 0.7) trend = 'rising'
+
+    if (percentage < -25) {
+      return { type: 'great-deal', message: 'Great Deal!', percentage, trend }
+    } else if (percentage < -10) {
+      return { type: 'good-deal', message: 'Good Deal', percentage, trend }
+    } else if (percentage > 30) {
+      return { type: 'overpriced', message: 'Above Market', percentage, trend }
+    } else {
+      return { type: 'fair', message: 'Fair Price', percentage, trend }
+    }
   }
 
   const amplificationAssessment = assessAmplificationFromImpedance(
@@ -71,6 +99,8 @@ export function UsedMarketListingCard({
   )
 
   const sourceInfo = getSourceDisplay(listing.source)
+  const timeInfo = timeAgo(listing.date_posted)
+  const priceAnalysis = getPriceAnalysis(listing.price)
 
   if (viewMode === 'list') {
     return (
@@ -123,8 +153,9 @@ export function UsedMarketListingCard({
                 <span>{listing.location}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{timeAgo(listing.date_posted)}</span>
+                <Clock className={`w-4 h-4 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
+                <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
+                {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
@@ -137,6 +168,35 @@ export function UsedMarketListingCard({
                 </div>
               )}
             </div>
+
+            {/* Price Analysis Badge */}
+            {priceAnalysis.type !== 'fair' && (
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
+                  priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
+                  priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                  priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
+                  'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                  {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
+                   priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
+                   priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3 h-3" /> : null}
+                  <span>{priceAnalysis.message}</span>
+                  {priceAnalysis.percentage !== 0 && (
+                    <span className="font-bold">({priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%)</span>
+                  )}
+                </div>
+                {priceAnalysis.trend !== 'stable' && (
+                  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                    priceAnalysis.trend === 'dropping' ? 'bg-green-50 text-green-700 border border-green-200' :
+                    'bg-orange-50 text-orange-700 border border-orange-200'
+                  }`}>
+                    <Award className="w-3 h-3" />
+                    <span>{priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Price Warning */}
             {listing.price_warning && (
@@ -154,13 +214,14 @@ export function UsedMarketListingCard({
                 Demo Listing
               </div>
             ) : (
-              <a 
+              <a
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
+                className="inline-flex items-center gap-1 px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
               >
-                View Listing →
+                <span>View Listing</span>
+                <ExternalLink className="w-4 h-4" />
               </a>
             )}
             {onViewDetails && (
@@ -208,8 +269,9 @@ export function UsedMarketListingCard({
           <span className="truncate">{listing.location}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Clock className="w-4 h-4" />
-          <span>{timeAgo(listing.date_posted)}</span>
+          <Clock className={`w-4 h-4 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
+          <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
+          {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
         </div>
         <div className="flex items-center gap-1">
           <User className="w-4 h-4" />
@@ -222,6 +284,35 @@ export function UsedMarketListingCard({
           </div>
         )}
       </div>
+
+      {/* Price Analysis Badge */}
+      {priceAnalysis.type !== 'fair' && (
+        <div className="flex flex-col gap-1 mb-3">
+          <div className={`flex items-center gap-1 p-2 rounded text-xs font-medium ${
+            priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
+            priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+            priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
+            'bg-gray-100 text-gray-800 border border-gray-200'
+          }`}>
+            {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
+             priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
+             priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3 h-3" /> : null}
+            <span>{priceAnalysis.message}</span>
+            {priceAnalysis.percentage !== 0 && (
+              <span className="font-bold">({priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%)</span>
+            )}
+          </div>
+          {priceAnalysis.trend !== 'stable' && (
+            <div className={`flex items-center gap-1 p-1 rounded text-xs ${
+              priceAnalysis.trend === 'dropping' ? 'bg-green-50 text-green-700 border border-green-200' :
+              'bg-orange-50 text-orange-700 border border-orange-200'
+            }`}>
+              <Award className="w-3 h-3" />
+              <span>{priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Price Warning */}
       {listing.price_warning && (
@@ -253,13 +344,14 @@ export function UsedMarketListingCard({
               Demo Listing
             </div>
           ) : (
-            <a 
+            <a
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm text-center"
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
             >
-              View Listing →
+              <span>View Listing</span>
+              <ExternalLink className="w-4 h-4" />
             </a>
           )}
           {onViewDetails && (

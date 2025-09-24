@@ -25,3 +25,20 @@
 - Audio46, Drop, Amazon - current pricing
 
 **To implement:** Ask Claude to "start the summit-fi component data project"
+
+## Claude Code Skill Development
+
+**User Request:** Be proactive about suggesting optimizations and advanced techniques
+
+**Current Level:** ~3 weeks experience
+- ✅ Basic file operations, bash commands
+- ✅ Background processes, multi-tool calls
+- ✅ Database queries, git workflows
+- 🎯 **Next:** Project files, advanced patterns, automation
+
+**Optimization Areas to Watch:**
+- Suggest parallel tool usage when sequential operations are independent
+- Recommend Glob over manual file searches
+- Point out MultiEdit opportunities for complex refactoring
+- Suggest background processes for long-running tasks
+- Share advanced grep/search patterns
