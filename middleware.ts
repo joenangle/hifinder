@@ -32,8 +32,22 @@ export function middleware(request: NextRequest) {
   // Check for password in form submission (POST request)
   const stagingPassword = process.env.STAGING_PASSWORD || 'hifi2024'
 
-  // Skip form processing for now - this was causing issues
-  // TODO: Implement proper form handling later
+  // Handle form submission
+  if (request.method === 'POST') {
+    const formData = await request.formData()
+    const password = formData.get('pwd')
+
+    if (password === stagingPassword) {
+      const response = NextResponse.redirect(url)
+      response.cookies.set('staging-access', 'granted', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7 // 7 days
+      })
+      return response
+    }
+  }
 
   // Show password prompt page
   return new NextResponse(`
