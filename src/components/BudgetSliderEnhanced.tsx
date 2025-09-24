@@ -190,7 +190,7 @@ export function BudgetSliderEnhanced({
 
   const ticks = useMemo(
     () => getDynamicTicks(minBudget, maxBudget, localBudget),
-    [minBudget, maxBudget, localBudget, viewportWidth]
+    [minBudget, maxBudget, localBudget]
   )
 
   // Handle slider change with immediate visual feedback

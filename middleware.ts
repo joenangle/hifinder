@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Only protect staging/preview deployments, not production
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
