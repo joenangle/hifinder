@@ -1,0 +1,38 @@
+name: Scrape Used Market Listings
+
+on:
+  schedule:
+    # Run every 4 hours (6 times daily: 12am, 4am, 8am, 12pm, 4pm, 8pm UTC)
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  scrape-reddit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scrape Reddit r/AVexchange
+        run: npm run scrape:reddit
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+      - name: Log completion
+        run: |
+          echo "✅ Reddit scraping completed at $(date)"
+          echo "🔍 Check Supabase used_listings table for new entries"
