@@ -54,6 +54,8 @@
   outline: none;
   cursor: pointer;
   touch-action: manipulation;
+  position: relative;
+  z-index: 10;
 }
 
 .single-budget-slider:focus {
@@ -71,6 +73,8 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.15s ease;
+  position: relative;
+  z-index: 20;
 }
 
 .single-budget-slider::-webkit-slider-thumb:hover {
@@ -114,6 +118,7 @@
   touch-action: manipulation;
   position: absolute;
   pointer-events: auto;
+  z-index: 10;
 }
 
 .dual-range-slider:focus {
@@ -132,6 +137,8 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.15s ease;
   pointer-events: auto;
+  position: relative;
+  z-index: 20;
 }
 
 .dual-range-slider::-webkit-slider-thumb:hover {
@@ -176,6 +183,7 @@
     #8b5cf6 45%,
     #f59e0b 70%,
     #ef4444 100%);
+  z-index: 1;
 }
 
 /* Range highlight for dual-range mode */
@@ -185,6 +193,7 @@
   background: rgba(59, 130, 246, 0.3);
   border-radius: 6px;
   pointer-events: none;
+  z-index: 2;
 }
 
 /* Accessibility improvements */
