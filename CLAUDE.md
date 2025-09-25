@@ -4,6 +4,8 @@
 - ✅ Authentication performance fix (2000ms+ → <200ms)
 - ✅ Development environment cleanup
 - ✅ CSV import path fixes
+- ✅ Component count accuracy fix (1,200+ → 550+ dynamic)
+- ✅ Automated staging deployment pipeline
 - ✅ BudgetSliderEnhanced dual-range functionality fix
 - ✅ $1000 IEM budget filtering bug fix (0 → 10+ results)
 - ✅ Category correction (82 headphones + 316 IEMs from Crinacle data)
@@ -187,3 +189,4 @@ Natural language hints that auto-select signatures:
 
 ### Recommended Approach:
 Start with **Progressive Disclosure (#1)** for immediate impact, then explore **Experience-Driven (#4)** for long-term UX sophistication. This leverages our dual-layer architecture while maintaining backward compatibility.
+- claude remind me to use git push origin staging when ready to push to staging. Remember that's what I'm asking you to do if I say "push to staging"

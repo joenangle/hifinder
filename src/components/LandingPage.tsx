@@ -1,9 +1,35 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { trackEvent } from '@/lib/analytics'
 
+interface SiteStats {
+  components: number
+  listings: number
+  budgetRange: {
+    min: number
+    max: number
+  }
+}
+
 export function LandingPage() {
+  const [stats, setStats] = useState<SiteStats>({
+    components: 550, // Static fallback
+    listings: 0,
+    budgetRange: { min: 20, max: 10000 }
+  })
+
+  useEffect(() => {
+    // Fetch real-time stats
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => {
+        console.warn('Failed to load stats, using fallback:', err)
+        // Keep fallback values
+      })
+  }, [])
   return (
     <main className="page-container relative">
       {/* Background pattern - Phase 2 with all sections deployed */}
@@ -90,7 +116,7 @@ export function LandingPage() {
         <section className="mb-12 pt-20 pb-3 animate-fadeIn">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
-              <div className="text-3xl font-bold text-accent mb-2">1,200+</div>
+              <div className="text-3xl font-bold text-accent mb-2">{stats.components >= 1000 ? `${Math.round(stats.components / 100) / 10}k+` : `${stats.components}+`}</div>
               <div className="text-foreground text-sm font-semibold">Components</div>
             </div>
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
