@@ -84,17 +84,16 @@
 
 **Required GitHub Secrets:**
 1. **VERCEL_TOKEN**: Personal access token from Vercel dashboard
-2. **VERCEL_ORG_ID**: Organization ID from Vercel (usually starts with `team_`)
+2. **VERCEL_ORG_ID**: Organization ID = `joenangles-projects`
 
 **Setup Instructions:**
 1. Go to Vercel Dashboard → Settings → Tokens → Create new token
 2. Copy token to GitHub repo → Settings → Secrets → Actions → New repository secret
    - Name: `VERCEL_TOKEN`
-   - Value: [your token]
-3. Get Vercel Org ID from Vercel dashboard URL or CLI: `vercel teams ls`
-4. Add as GitHub secret:
+   - Value: [your personal access token]
+3. Add org ID as GitHub secret:
    - Name: `VERCEL_ORG_ID`
-   - Value: [your org ID]
+   - Value: `joenangles-projects`
 
 **How it works:**
 - Push to staging branch → GitHub Action triggers
@@ -267,3 +266,4 @@ Start with **Progressive Disclosure (#1)** for immediate impact, then explore **
   1. Always check existing imports before using them
   2. Use Grep to verify function signatures in the codebase
   3. Test API endpoints locally before pushing to staging
+- remember my oWf66CSqfgdR1Ad3TvPpXF3H VERCEL_ORG_ID token
