@@ -18,5 +18,18 @@
         }
       ]
     }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "staging": true
+    }
+  },
+  "alias": [
+    {
+      "domain": "staging.hifinder.app",
+      "deployment": {
+        "gitBranch": "staging"
+      }
+    }
   ]
 }
