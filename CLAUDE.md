@@ -124,3 +124,66 @@ node scripts/merge-crinacle-cans.js data.csv --execute
 - Price/availability updates from retailers
 
 **Key Insight:** Dual-layer approach preserves backward compatibility while enabling sophisticated matching for users who benefit from expert-level distinctions.
+
+## Advanced Sound Signature Filtering Ideas
+
+**Current State (Sept 2025):**
+- Basic 4 categories: neutral, warm, bright, fun (559 components)
+- Detailed Crinacle signatures: ~20 variations like "Bright neutral", "Mild V-shape" (398 components)
+- Users currently limited to basic dropdown selection
+
+**HMW Display More Detailed Filtering:**
+
+### 1. Progressive Disclosure - Expandable Categories
+```
+☐ Neutral (89 items) [+]
+   ☐ Bright neutral (23)
+   ☐ Warm neutral (31)
+   ☐ Bass-rolled neutral (12)
+   ☐ DF-neutral (8)
+```
+**Pros:** Familiar starting point, expert depth on demand, maintains hierarchy
+**Cons:** Could get complex with many subcategories, requires nested UI logic
+
+### 2. Visual Signature Map
+Interactive 2D grid: X-axis (warm→bright), Y-axis (laid-back→energetic)
+- Plot signatures as clickable regions with component counts
+- Hover shows signature description + sample components
+**Pros:** Intuitive spatial understanding, visual relationships clear
+**Cons:** Requires careful signature positioning, complex responsive design
+
+### 3. Multi-Select with Live Preview
+Checkbox interface with real-time result counts:
+```
+☑ Bright neutral (23 results)
+☑ Neutral (31 results)
+☐ V-shaped (15 results)
+Total: 54 matching components
+```
+**Pros:** Clear feedback, allows signature combinations, power user friendly
+**Cons:** Can overwhelm beginners, OR vs AND logic complexity
+
+### 4. Experience-Driven Progressive Enhancement
+- **Beginner Mode:** 4 basic categories only
+- **Enthusiast Mode:** Basic + 8 most popular detailed signatures
+- **Advanced Mode:** Full signature library + custom descriptions
+**Pros:** Scales with user knowledge, reduces cognitive load for beginners
+**Cons:** Requires user profiling, mode switching complexity
+
+### 5. Contextual Smart Filtering
+Natural language hints that auto-select signatures:
+- "I want something for rock music" → V-shaped, fun signatures
+- "Similar to HD600" → warm neutral, neutral options
+- "Bright but not harsh" → bright neutral, excluding aggressive signatures
+**Pros:** Reduces learning curve, leverages existing component knowledge
+**Cons:** Requires extensive signature-to-use-case mapping, complex NLP
+
+### Implementation Considerations:
+- **Data Coverage:** Handle 161 components without detailed signatures gracefully
+- **Query Logic:** Support both OR (broader results) and AND (narrower) combinations
+- **Performance:** Pre-compute signature counts, cache popular combinations
+- **Education:** Include signature descriptions/examples for learning
+- **Mobile UX:** Ensure filtering works well on touch devices
+
+### Recommended Approach:
+Start with **Progressive Disclosure (#1)** for immediate impact, then explore **Experience-Driven (#4)** for long-term UX sophistication. This leverages our dual-layer architecture while maintaining backward compatibility.

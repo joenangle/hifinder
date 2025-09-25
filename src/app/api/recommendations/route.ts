@@ -46,6 +46,15 @@ interface RecommendationComponent {
   amazon_url?: string
   why_recommended?: string
   image_url?: string
+  // Expert analysis fields
+  crinacle_sound_signature?: string
+  tone_grade?: string
+  technical_grade?: string
+  crinacle_comments?: string
+  driver_type?: string
+  fit?: string
+  crinacle_rank?: number
+  value_rating?: number
   // Computed fields
   avgPrice: number
   synergyScore: number
@@ -294,8 +303,8 @@ function filterAndScoreComponents(
       const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
 
       // 5% expert data bonus for components with Crinacle data (only if already compatible)
-      const hasExpertDataA = !!(a as any).crinacle_sound_signature || !!(a as any).tone_grade || !!(a as any).technical_grade
-      const hasExpertDataB = !!(b as any).crinacle_sound_signature || !!(b as any).tone_grade || !!(b as any).technical_grade
+      const hasExpertDataA = !!(a as RecommendationComponent).crinacle_sound_signature || !!(a as RecommendationComponent).tone_grade || !!(a as RecommendationComponent).technical_grade
+      const hasExpertDataB = !!(b as RecommendationComponent).crinacle_sound_signature || !!(b as RecommendationComponent).tone_grade || !!(b as RecommendationComponent).technical_grade
       const expertBonusA = (hasExpertDataA && a.synergyScore > 0.6) ? 0.05 : 0
       const expertBonusB = (hasExpertDataB && b.synergyScore > 0.6) ? 0.05 : 0
 

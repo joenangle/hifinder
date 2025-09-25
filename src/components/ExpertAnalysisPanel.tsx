@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 
 interface ExpertAnalysisProps {
   component: {
@@ -89,9 +88,13 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
       >
         <span className="font-medium">Expert Analysis</span>
         {isExpanded ? (
-          <ChevronUpIcon className="w-3 h-3" />
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
         ) : (
-          <ChevronDownIcon className="w-3 h-3" />
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         )}
       </button>
 
@@ -102,7 +105,7 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
           {/* Show original comments if available */}
           {component.crinacle_comments && (
             <div className="bg-gray-50 p-2 rounded text-xs italic">
-              <strong>Crinacle:</strong> "{component.crinacle_comments}"
+              <strong>Crinacle:</strong> &ldquo;{component.crinacle_comments}&rdquo;
             </div>
           )}
         </div>
