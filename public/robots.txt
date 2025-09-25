@@ -15,5 +15,4 @@ Allow: /gear
 Allow: /used-market
 Allow: /alerts
 Allow: /wishlist
-Allow: /quick-start
 Allow: /learn

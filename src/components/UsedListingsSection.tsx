@@ -89,10 +89,10 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         
         <div className="flex gap-2">
           {/* Source Filter */}
-          <select 
+          <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as typeof filter)}
-            className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm text-white"
+            className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-sm text-gray-900 dark:text-white"
           >
             <option value="all">All Sources</option>
             <option value="reddit">Reddit</option>
@@ -103,10 +103,10 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
           </select>
 
           {/* Sort Filter */}
-          <select 
+          <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm text-white"
+            className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-sm text-gray-900 dark:text-white"
           >
             <option value="newest">Newest First</option>
             <option value="price_low">Price: Low to High</option>
@@ -117,8 +117,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
 
 {/* Demo Data Warning */}
       {filteredListings.some(listing => listing.url.includes('/sample')) && (
-        <div className="bg-blue-900/20 border border-blue-600/50 p-4 rounded-lg mb-4">
-          <p className="text-blue-200 text-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-600/50 p-4 rounded-lg mb-4">
+          <p className="text-blue-800 dark:text-blue-200 text-sm">
             ℹ️ <strong>Demo Data:</strong> These are sample listings for demonstration purposes. 
             In a live system, these would be real marketplace listings from Reddit, eBay, and other sources.
           </p>
@@ -126,8 +126,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       )}
 
       {/* Safety Warning */}
-      <div className="bg-yellow-900/20 border border-yellow-600/50 p-4 rounded-lg mb-4">
-        <p className="text-yellow-200 text-sm">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-600/50 p-4 rounded-lg mb-4">
+        <p className="text-yellow-800 dark:text-yellow-200 text-sm">
           ⚠️ <strong>Safety First:</strong> Always use PayPal Goods & Services for buyer protection. 
           Verify seller reputation and ask for additional photos before purchasing.
         </p>
@@ -146,9 +146,9 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
 
       {/* Affiliate Fallback */}
       {component.amazon_url && (
-        <div className="mt-6 bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+        <div className="mt-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center">
-            <p className="text-gray-400 mb-3">Prefer to buy new?</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-3">Prefer to buy new?</p>
             <a 
               href={component.amazon_url}
               target="_blank"
@@ -157,8 +157,8 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
             >
               Buy New on Amazon →
             </a>
-            <div className="text-xs text-gray-400 mt-2">
-              <span className="inline-block bg-gray-700 px-2 py-1 rounded">
+            <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+              <span className="inline-block bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
                 Affiliate Link - HiFinder may earn a commission at no additional cost to you
               </span>
             </div>

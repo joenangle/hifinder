@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
-import { BudgetSlider } from '@/components/BudgetSlider'
+import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { useBudgetState } from '@/hooks/useBudgetState'
+import { UserStack } from '@/lib/stacks'
 
 // Types
 interface Preferences {
@@ -290,6 +292,16 @@ export default function OnboardingPage() {
     currentHighestTier?: string
     averagePrice?: number
   } | null>(null)
+
+  // Stack selection state
+  type UserStackWithCounts = UserStack & {
+    gearByCategory?: Record<string, number>
+    gearCount?: number
+  }
+  const [userStacks, setUserStacks] = useState<UserStackWithCounts[]>([])
+  const [loadingStacks, setLoadingStacks] = useState(false)
+  const [selectedStack, setSelectedStack] = useState<string | 'all' | 'fresh'>('all')
+  const [stackView, setStackView] = useState<'selection' | 'gear'>('selection')
   const [preferences, setPreferences] = useState({
     experience: '',
     budget: 100,
@@ -330,7 +342,21 @@ export default function OnboardingPage() {
     soundSignature: ''
   })
   // const [_budgetInputValue, _setBudgetInputValue] = useState('100')
-  const [budgetError, setBudgetError] = useState('')
+  const [budgetError] = useState('')
+
+  // Enhanced budget state management
+  const budgetState = useBudgetState({
+    initialBudget: preferences.budget,
+    minBudget: 20,
+    maxBudget: 10000,
+    budgetRangeMin: preferences.budgetRange.minPercent,
+    budgetRangeMax: preferences.budgetRange.maxPercent,
+    onBudgetChange: (newBudget) => {
+      setPreferences(prev => ({ ...prev, budget: newBudget }))
+    },
+    enableAnalytics: true,
+    enablePersistence: false // Don't persist in onboarding
+  })
   
   // Headphone selection state
   const [brands, setBrands] = useState<string[]>([])
@@ -343,7 +369,7 @@ export default function OnboardingPage() {
   // Optimization headphone selection state (for existing headphones)
   const [optimizeBrands, setOptimizeBrands] = useState<string[]>([])
   const [optimizeModels, setOptimizeModels] = useState<{[brand: string]: string[]}>({})
-  const [selectedOptimizeBrand, setSelectedOptimizeBrand] = useState('')
+  const [selectedOptimizeBrand] = useState('')
   // const [selectedOptimizeModel, setSelectedOptimizeModel] = useState('')
   // const [loadingOptimizeBrands, setLoadingOptimizeBrands] = useState(false)
   // const [loadingOptimizeModels, setLoadingOptimizeModels] = useState(false)
@@ -363,26 +389,112 @@ export default function OnboardingPage() {
     }
   }, [step])
 
-// Fetch user gear
-const fetchUserGear = useCallback(async () => {
+// Fetch user stacks with gear counts
+const fetchUserStacks = useCallback(async () => {
   if (!session?.user?.id) return
 
-  setLoadingUserGear(true)
+  setLoadingStacks(true)
   try {
-    const response = await fetch('/api/gear')
-    if (!response.ok) throw new Error('Failed to fetch user gear')
+    const response = await fetch('/api/stacks')
+    if (!response.ok) throw new Error('Failed to fetch stacks')
+
+    const stacks = await response.json()
+
+    // Process stacks to add gear counts by category
+    const stacksWithCounts = stacks.map((stack: UserStack): UserStackWithCounts => {
+      const gearByCategory: { [key: string]: number } = {}
+
+      if (stack.stack_components) {
+        stack.stack_components.forEach((component) => {
+          if (component.user_gear?.components?.category) {
+            const category = component.user_gear.components.category.toLowerCase()
+            if (category.includes('headphone')) {
+              gearByCategory.headphones = (gearByCategory.headphones || 0) + 1
+            } else if (category.includes('iem')) {
+              gearByCategory.iems = (gearByCategory.iems || 0) + 1
+            } else if (category.includes('dac') && !category.includes('combo')) {
+              gearByCategory.dacs = (gearByCategory.dacs || 0) + 1
+            } else if (category.includes('amp') && !category.includes('combo')) {
+              gearByCategory.amps = (gearByCategory.amps || 0) + 1
+            } else if (category.includes('combo')) {
+              gearByCategory.combos = (gearByCategory.combos || 0) + 1
+            }
+          }
+        })
+      }
+
+      return {
+        ...stack,
+        gearCount: stack.stack_components?.length || 0,
+        gearByCategory
+      }
+    })
+
+    setUserStacks(stacksWithCounts)
+  } catch (error) {
+    console.error('Error fetching stacks:', error)
+  } finally {
+    setLoadingStacks(false)
+  }
+}, [session?.user?.id])
+
+// Fetch user gear - optionally by stack
+const fetchUserGear = useCallback(async (stackId?: string) => {
+  console.log('[GEAR DEBUG] fetchUserGear called, session:', {
+    hasSession: !!session,
+    userId: session?.user?.id,
+    stackId
+  })
+
+  if (!session?.user?.id) {
+    console.log('[GEAR DEBUG] No session or user ID, returning early')
+    return
+  }
+
+  console.log('[GEAR DEBUG] Starting gear fetch, setting loading to true')
+  setLoadingUserGear(true)
+
+  try {
+    // Build URL with query params
+    const url = stackId
+      ? `/api/gear?stack_id=${stackId}`
+      : '/api/gear?all=true' // Show all gear by default in onboarding
+
+    console.log('[GEAR DEBUG] Making API call to:', url)
+    const response = await fetch(url)
+
+    console.log('[GEAR DEBUG] API response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user gear: ${response.status} ${response.statusText}`)
+    }
 
     const gear = await response.json()
+    console.log('[GEAR DEBUG] Gear data received:', {
+      gearCount: gear?.length || 0,
+      gear: gear
+    })
+
     setUserGear(gear)
 
     // Analyze gear for upgrade recommendations
     if (gear.length > 0) {
+      console.log('[GEAR DEBUG] Analyzing gear for upgrades...')
       const analysis = analyzeGearForUpgrades(gear)
+      console.log('[GEAR DEBUG] Upgrade analysis completed:', analysis)
       setUpgradeAnalysis(analysis)
+    } else {
+      console.log('[GEAR DEBUG] No gear found, skipping upgrade analysis')
+      setUpgradeAnalysis(null)
     }
   } catch (error) {
-    console.error('Error fetching user gear:', error)
+    console.error('[GEAR DEBUG] Error fetching user gear:', error)
   } finally {
+    console.log('[GEAR DEBUG] Setting loading to false')
     setLoadingUserGear(false)
   }
 }, [session?.user?.id])
@@ -475,12 +587,24 @@ const analyzeGearForUpgrades = (gear: UserGearItem[]) => {
   }
 }
 
-// Load user gear when step 2 is reached and user is enthusiast
+// Load user stacks when step 2 is reached and user is enthusiast
 useEffect(() => {
+  console.log('[GEAR DEBUG] useEffect triggered:', {
+    step,
+    experience: preferences.experience,
+    hasSession: !!session,
+    userId: session?.user?.id,
+    shouldFetch: step === 2 && preferences.experience === 'enthusiast' && session?.user?.id
+  })
+
   if (step === 2 && preferences.experience === 'enthusiast' && session?.user?.id) {
-    fetchUserGear()
+    console.log('[GEAR DEBUG] Fetching user stacks...')
+    fetchUserStacks() // Fetch stacks first to show selection
+    // Don't fetch gear yet - wait for stack selection
+  } else {
+    console.log('[GEAR DEBUG] Skipping fetch - conditions not met')
   }
-}, [step, preferences.experience, session?.user?.id, fetchUserGear])
+}, [step, preferences.experience, session?.user?.id, fetchUserStacks])
 
 // Helper functions to determine which questions to show
 const needsHeadphoneQuestions = useCallback(() => {
@@ -913,9 +1037,153 @@ const handleNext = useCallback(() => {
 
           {step === 2 && isAdvanced() && (
             <div>
-              <h2 className="heading-2 mb-4">Your Audio Gear</h2>
+              <h2 className="heading-2 mb-4">
+                {stackView === 'selection' ? 'Choose Your Setup' : 'Your Audio Gear'}
+              </h2>
 
-              {loadingUserGear ? (
+              {(() => {
+                console.log('[GEAR DEBUG] Rendering step 2:', {
+                  stackView,
+                  selectedStack,
+                  stacksCount: userStacks.length,
+                  loadingStacks,
+                  loadingUserGear,
+                  userGearCount: userGear.length
+                })
+                return null
+              })()}
+
+              {/* Stack Selection View */}
+              {stackView === 'selection' && (
+                <div>
+                  <p className="text-secondary mb-6">
+                    Select which setup you want to upgrade, or start fresh with new recommendations
+                  </p>
+
+                  {loadingStacks ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mx-auto mb-4" />
+                      <p className="text-secondary">Loading your setups...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* User's Stacks */}
+                      {userStacks.length > 0 && (
+                        <>
+                          <h3 className="heading-3 mb-3">Your Stacks</h3>
+                          {userStacks.map(stack => {
+                            const categorySummary = Object.entries(stack.gearByCategory || {})
+                              .map(([cat, count]) => {
+                                const labels: { [key: string]: string } = {
+                                  headphones: count === 1 ? 'headphone' : 'headphones',
+                                  iems: count === 1 ? 'IEM' : 'IEMs',
+                                  dacs: count === 1 ? 'DAC' : 'DACs',
+                                  amps: count === 1 ? 'amp' : 'amps',
+                                  combos: count === 1 ? 'combo' : 'combos'
+                                }
+                                return `${count} ${labels[cat] || cat}`
+                              })
+                              .join(', ')
+
+                            return (
+                              <button
+                                key={stack.id}
+                                onClick={() => {
+                                  setSelectedStack(stack.id)
+                                  setStackView('gear')
+                                  fetchUserGear(stack.id)
+                                }}
+                                className="card-interactive text-left w-full hover:scale-[1.02] transition-transform"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="font-semibold text-lg">{stack.name}</h4>
+                                  <span className="text-sm text-tertiary">
+                                    {stack.gearCount} {stack.gearCount === 1 ? 'item' : 'items'}
+                                  </span>
+                                </div>
+                                {stack.description && (
+                                  <p className="text-secondary text-sm mb-2">{stack.description}</p>
+                                )}
+                                {categorySummary && (
+                                  <p className="text-sm text-accent">{categorySummary}</p>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </>
+                      )}
+
+                      {/* All Gear Option */}
+                      <div className="border-t border-subtle pt-4">
+                        <h3 className="heading-3 mb-3">Other Options</h3>
+                        <button
+                          onClick={() => {
+                            setSelectedStack('all')
+                            setStackView('gear')
+                            fetchUserGear() // No stack_id = all gear
+                          }}
+                          className="card-interactive text-left w-full hover:scale-[1.02] transition-transform mb-4"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg">📦 All Gear</h4>
+                          </div>
+                          <p className="text-secondary text-sm">
+                            View and upgrade from your entire collection
+                          </p>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedStack('fresh')
+                            // Skip directly to step 3 for fresh start
+                            setStep(3)
+                          }}
+                          className="card-interactive text-left w-full hover:scale-[1.02] transition-transform"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg">✨ Start Fresh</h4>
+                          </div>
+                          <p className="text-secondary text-sm">
+                            Get recommendations without considering existing gear
+                          </p>
+                        </button>
+                      </div>
+
+                      {/* No stacks? Show helpful message */}
+                      {userStacks.length === 0 && (
+                        <div className="card p-4 bg-surface-secondary">
+                          <p className="text-secondary mb-4">
+                            💡 You haven&apos;t created any stacks yet. Stacks help organize your gear by use case.
+                          </p>
+                          <Link
+                            href="/stack-builder"
+                            className="button button-secondary"
+                          >
+                            Create Your First Stack
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Gear View (existing code) */}
+              {stackView === 'gear' && (
+                <>
+                  {/* Back to stack selection button */}
+                  <button
+                    onClick={() => {
+                      setStackView('selection')
+                      setUserGear([])
+                      setUpgradeAnalysis(null)
+                    }}
+                    className="text-secondary hover:text-primary mb-4 inline-flex items-center gap-2"
+                  >
+                    ← Back to Stack Selection
+                  </button>
+
+                  {loadingUserGear ? (
                 <div className="text-center py-8">
                   <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mx-auto mb-4" />
                   <p className="text-secondary">Loading your gear...</p>
@@ -1043,6 +1311,8 @@ const handleNext = useCallback(() => {
                   </div>
                 </div>
               )}
+                </>
+              )}
             </div>
           )}
 
@@ -1168,11 +1438,11 @@ const handleNext = useCallback(() => {
                   <button
                     key={preset.amount}
                     onClick={() => {
-                      setPreferences({...preferences, budget: preset.amount})
-                      // _setBudgetInputValue(preset.amount.toString())
+                      budgetState.handleBudgetChange(preset.amount)
+                      budgetState.handleBudgetChangeComplete(preset.amount)
                     }}
                     className={`card-interactive p-3 text-center hover:scale-105 transition-all ${
-                      preferences.budget === preset.amount ? 'card-interactive-selected' : ''
+                      budgetState.budget === preset.amount ? 'card-interactive-selected' : ''
                     }`}
                   >
                     <div className="text-xl font-bold mb-1">${preset.amount}</div>
@@ -1182,18 +1452,23 @@ const handleNext = useCallback(() => {
                 ))}
               </div>
               
-              {/* Simple budget slider using reusable component */}
+              {/* Simple budget slider using enhanced component */}
               <div>
                 <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
-                <BudgetSlider
-                  budget={preferences.budget}
-                  onBudgetChange={(budget) => {
-                    setPreferences({...preferences, budget})
-                    // _setBudgetInputValue(budget.toString())
-                  }}
+                <BudgetSliderEnhanced
+                  budget={budgetState.budget}
+                  displayBudget={budgetState.displayBudget}
+                  onChange={budgetState.handleBudgetChange}
+                  onChangeComplete={budgetState.handleBudgetChangeComplete}
+                  isUpdating={budgetState.isUpdating}
                   variant="simple"
+                  userExperience="beginner"
+                  showInput={false}
                   showLabels={true}
+                  showItemCount={false}
+                  minBudget={20}
                   maxBudget={3000}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -1215,24 +1490,46 @@ const handleNext = useCallback(() => {
               <div className="card mb-8" style={{ minHeight: '140px', width: '100%', maxWidth: '100%' }}>
                 {/* Budget Tier Labels */}
                 <div className="flex justify-between text-xs text-tertiary mb-3">
-                  <span className={`text-center ${preferences.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
-                  <span className={`text-center ${preferences.budget > 100 && preferences.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
-                  <span className={`text-center ${preferences.budget > 400 && preferences.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
-                  <span className={`text-center ${preferences.budget > 1000 && preferences.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
-                  <span className={`text-center ${preferences.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
+                  <span className={`text-center ${budgetState.budget <= 100 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Budget</span>
+                  <span className={`text-center ${budgetState.budget > 100 && budgetState.budget <= 400 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>Entry</span>
+                  <span className={`text-center ${budgetState.budget > 400 && budgetState.budget <= 1000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Mid Range</span>
+                  <span className={`text-center ${budgetState.budget > 1000 && budgetState.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
+                  <span className={`text-center ${budgetState.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
                 </div>
-                <BudgetSlider
-                  budget={preferences.budget}
-                  onBudgetChange={(budget) => {
-                    setPreferences({...preferences, budget})
-                    // _setBudgetInputValue(budget.toString())
-                    setBudgetError('')
+                <BudgetSliderEnhanced
+                  budget={budgetState.budget}
+                  displayBudget={budgetState.displayBudget}
+                  onChange={budgetState.handleBudgetChange}
+                  onChangeComplete={budgetState.handleBudgetChangeComplete}
+                  onRangeChange={(min, max) => {
+                    // Update the budget range in preferences when dual-range mode is used
+                    const centerBudget = (min + max) / 2
+                    const minPercent = Math.round(((centerBudget - min) / centerBudget) * 100)
+                    const maxPercent = Math.round(((max - centerBudget) / centerBudget) * 100)
+
+                    setPreferences(prev => ({
+                      ...prev,
+                      budget: Math.round(centerBudget),
+                      budgetRange: {
+                        minPercent: Math.max(0, minPercent),
+                        maxPercent: Math.max(0, maxPercent)
+                      }
+                    }))
+
+                    // Also update the budget state
+                    budgetState.handleBudgetChange(Math.round(centerBudget))
                   }}
+                  isUpdating={budgetState.isUpdating}
                   variant="advanced"
+                  userExperience={preferences.experience as 'beginner' | 'intermediate' | 'enthusiast'}
                   showInput={true}
                   showLabels={true}
+                  showItemCount={false}
                   minBudget={20}
                   maxBudget={10000}
+                  budgetRangeMin={preferences.budgetRange.minPercent}
+                  budgetRangeMax={preferences.budgetRange.maxPercent}
+                  className="w-full"
                 />
                 
                 {budgetError && (

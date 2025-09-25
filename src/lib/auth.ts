@@ -55,24 +55,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile: _profile }) { // profile unused
       if (account?.provider === 'google') {
-        try {
-          // Store user in our own users table
-          const { data: existingUser, error: fetchError } = await supabaseAuth
-            .from('users')
-            .select('*')
-            .eq('email', user.email)
-            .single()
-          
-          if (fetchError && fetchError.code !== 'PGRST116') {
-            console.error('Error fetching user:', fetchError)
-            return false
-          }
-          
-          if (!existingUser) {
-            // Create new user
-            const { error: insertError } = await supabaseAuth
+        // PERFORMANCE FIX: Move user DB operations to background
+        // Don't block the authentication flow with DB queries
+        setImmediate(async () => {
+          try {
+            console.time('Auth-DB-Operation')
+
+            // Use upsert for atomic operation (faster than select + insert/update)
+            const { error } = await supabaseAuth
               .from('users')
-              .insert({
+              .upsert({
                 id: user.id,
                 email: user.email,
                 name: user.name,
@@ -80,30 +72,20 @@ export const authOptions: NextAuthOptions = {
                 provider: account.provider,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
+              }, {
+                onConflict: 'email',
+                ignoreDuplicates: false
               })
-            
-            if (insertError) {
-              console.error('Error creating user:', insertError)
-              // Continue anyway - user can still use the app
+
+            console.timeEnd('Auth-DB-Operation')
+
+            if (error) {
+              console.error('Background user upsert error:', error)
             }
-          } else {
-            // Update existing user
-            const { error: updateError } = await supabaseAuth
-              .from('users')
-              .update({
-                name: user.name,
-                image: user.image,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('email', user.email)
-            
-            if (updateError) {
-              console.error('Error updating user:', updateError)
-            }
+          } catch (error) {
+            console.error('Error in background user sync:', error)
           }
-        } catch (error) {
-          console.error('Error in signIn callback:', error)
-        }
+        })
       }
       return true
     },

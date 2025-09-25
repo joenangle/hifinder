@@ -11,7 +11,7 @@ function generateCacheKey(params: {
   budget: number
   budgetRangeMin: number
   budgetRangeMax: number
-  headphoneTypes: string[]
+  headphoneType: string
   wantRecommendationsFor: object
   soundSignature: string
   usage: string
@@ -21,7 +21,7 @@ function generateCacheKey(params: {
     `exp_${params.experience}`,
     `budget_${params.budget}`,
     `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
-    `types_${params.headphoneTypes.sort().join('-')}`,
+    `type_${params.headphoneType}`,
     `want_${JSON.stringify(params.wantRecommendationsFor)}`,
     `sound_${params.soundSignature}`,
     `usage_${params.usage}`
@@ -46,6 +46,15 @@ interface RecommendationComponent {
   amazon_url?: string
   why_recommended?: string
   image_url?: string
+  // Expert analysis fields
+  crinacle_sound_signature?: string
+  tone_grade?: string
+  technical_grade?: string
+  crinacle_comments?: string
+  driver_type?: string
+  fit?: string
+  crinacle_rank?: number
+  value_rating?: number
   // Computed fields
   avgPrice: number
   synergyScore: number
@@ -63,7 +72,7 @@ interface RecommendationRequest {
   budget: number
   budgetRangeMin: number // Percentage below budget
   budgetRangeMax: number // Percentage above budget
-  headphoneTypes: string[]
+  headphoneType: string
   wantRecommendationsFor: {
     headphones: boolean
     dac: boolean
@@ -93,44 +102,92 @@ interface RecommendationRequest {
   optimizeAroundHeadphones?: string
 }
 
-// Calculate synergy score based on sound signature and usage
+// Enhanced dual-layer synergy scoring with detailed Crinacle signatures
 function calculateSynergyScore(component: unknown, soundSig: string, primaryUsage: string): number {
   const comp = component as {
     sound_signature?: string
+    crinacle_sound_signature?: string
     use_cases?: string | string[]
   }
-  let score = 0.5 // Base score
-  
-  // Sound signature matching (30% weight)
-  if (comp.sound_signature) {
+  let score = 0.6 // Base score - slightly lower to make room for bonuses
+
+  // Layer 1: Basic signature matching (existing system)
+  if (comp.sound_signature && soundSig !== 'any') {
     if (comp.sound_signature === soundSig) {
-      score += 0.3
+      score += 0.15 // Basic perfect match
     } else if (soundSig === 'neutral' && comp.sound_signature === 'balanced') {
-      score += 0.25
+      score += 0.12 // Close match
     } else if (
       (soundSig === 'warm' && comp.sound_signature === 'neutral') ||
       (soundSig === 'bright' && comp.sound_signature === 'neutral')
     ) {
-      score += 0.15
+      score += 0.08 // Compatible match
     }
   }
-  
-  // Usage case matching (20% weight)
+
+  // Layer 2: Detailed Crinacle signature matching (enhanced system)
+  if (comp.crinacle_sound_signature && soundSig !== 'any') {
+    const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, soundSig);
+    score += detailedMatch * 0.2; // Up to 20% bonus for detailed matching
+  }
+
+  // Usage case matching - BONUS only, not penalty for missing
   if (comp.use_cases && primaryUsage) {
-    const useCases = Array.isArray(comp.use_cases) 
-      ? comp.use_cases 
-      : (typeof comp.use_cases === 'string' 
+    const useCases = Array.isArray(comp.use_cases)
+      ? comp.use_cases
+      : (typeof comp.use_cases === 'string'
         ? comp.use_cases.split(',').map(u => u.trim().toLowerCase())
         : [])
-    
+
     if (useCases.includes(primaryUsage.toLowerCase())) {
-      score += 0.2
+      score += 0.1 // Usage match bonus
     } else if (useCases.includes('music') && primaryUsage.toLowerCase() === 'gaming') {
-      score += 0.1 // Music gear often works well for gaming
+      score += 0.05 // Music gear often works well for gaming
     }
   }
-  
+
   return Math.min(1, score)
+}
+
+// Detailed signature matching with partial scoring
+function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
+  if (!crinSig || !userPref) return 0;
+
+  // Exact match mappings for maximum compatibility
+  const exactMatches: Record<string, Record<string, number>> = {
+    'neutral': {
+      'Neutral': 1.0,
+      'Bass-rolled neutral': 0.85,
+      'Warm neutral': 0.75,
+      'Bright neutral': 0.75,
+      'Harman neutral': 0.9,
+      'DF-neutral': 0.85,
+      '"""Balanced"""': 0.8
+    },
+    'bright': {
+      'Bright neutral': 1.0,
+      'Bright': 0.95,
+      'Neutral': 0.7,
+      'Bass-rolled neutral': 0.5 // Less bass = more apparent brightness
+    },
+    'warm': {
+      'Warm neutral': 1.0,
+      'Warm': 0.95,
+      'Warm V-shape': 0.85,
+      'Warm U-shape': 0.8,
+      'Neutral': 0.6,
+      'Neutral with bass boost': 0.8
+    },
+    'fun': {
+      'V-shaped': 1.0,
+      'U-shaped': 0.95,
+      'Warm V-shape': 0.9,
+      'Mild V-shape': 0.85,
+      'Mid-centric': 0.3 // Fun seekers usually don't want mid-forward
+    }
+  };
+
+  return exactMatches[userPref]?.[crinSig] || 0;
 }
 
 // Calculate budget allocation across requested components
@@ -190,9 +247,8 @@ function filterAndScoreComponents(
   primaryUsage: string,
   maxOptions: number
 ): RecommendationComponent[] {
-  // For smaller budgets, use more lenient minimum thresholds
-  const baseMinAcceptable = budget * (1 - budgetRangeMin / 100)
-  const minAcceptable = budget < 500 ? Math.max(20, baseMinAcceptable * 0.7) : Math.max(20, baseMinAcceptable)
+  // Budget range logic: allow items from very low prices up to budget + max range
+  const minAcceptable = 20 // Always allow cheap options
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
 
   // Removed verbose logging - keeping only essential logs
@@ -242,11 +298,18 @@ function filterAndScoreComponents(
       return isAffordable && isInRange && hasReasonableRange
     })
     .sort((a, b) => {
-      // Multi-factor scoring: price fit + synergy
+      // Multi-factor scoring: price fit + synergy + expert data bonus
       const aPriceFit = 1 - Math.abs(budget - a.avgPrice) / budget
       const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
-      const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4
-      const bScore = bPriceFit * 0.6 + b.synergyScore * 0.4
+
+      // 5% expert data bonus for components with Crinacle data (only if already compatible)
+      const hasExpertDataA = !!(a as RecommendationComponent).crinacle_sound_signature || !!(a as RecommendationComponent).tone_grade || !!(a as RecommendationComponent).technical_grade
+      const hasExpertDataB = !!(b as RecommendationComponent).crinacle_sound_signature || !!(b as RecommendationComponent).tone_grade || !!(b as RecommendationComponent).technical_grade
+      const expertBonusA = (hasExpertDataA && a.synergyScore > 0.6) ? 0.05 : 0
+      const expertBonusB = (hasExpertDataB && b.synergyScore > 0.6) ? 0.05 : 0
+
+      const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4 + expertBonusA
+      const bScore = bPriceFit * 0.6 + b.synergyScore * 0.4 + expertBonusB
       return bScore - aScore
     })
     .slice(0, maxOptions)
@@ -261,39 +324,17 @@ export async function GET(request: NextRequest) {
     const budgetParam = searchParams.get('budget') || '300'
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
+    const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
     const soundSignatureParam = searchParams.get('sound') || 'neutral'
 
-    // Parse headphone types from new parameter
-    let headphoneTypes: string[] = []
-    const headphoneTypesParam = searchParams.get('headphoneTypes')
-    if (headphoneTypesParam) {
-      try {
-        headphoneTypes = JSON.parse(headphoneTypesParam)
-      } catch {
-        // If JSON parsing fails, default to cans
-        headphoneTypes = ['cans']
-      }
-    } else {
-      // Support legacy headphoneType parameter for backward compatibility
-      const legacyHeadphoneType = searchParams.get('headphoneType') || 'cans'
-      if (legacyHeadphoneType === 'both') {
-        headphoneTypes = ['cans', 'iems']
-      } else {
-        headphoneTypes = [legacyHeadphoneType]
-      }
-    }
-
-    // Validate and normalize experience level
-    const validExperience = ['beginner', 'intermediate', 'advanced', 'enthusiast']
+    // Validate experience level
+    const validExperience = ['beginner', 'intermediate', 'enthusiast']
     if (!validExperience.includes(experienceParam)) {
       return NextResponse.json(
         { error: `Invalid experience level. Must be one of: ${validExperience.join(', ')}` },
         { status: 400 }
       )
     }
-
-    // Map enthusiast to advanced for internal logic
-    const normalizedExperience = experienceParam === 'enthusiast' ? 'advanced' : experienceParam
 
     // Validate budget
     const budget = parseInt(budgetParam)
@@ -320,12 +361,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Validate headphone types
-    const validIndividualTypes = ['cans', 'iems']
-    const invalidTypes = headphoneTypes.filter(type => !validIndividualTypes.includes(type))
-    if (invalidTypes.length > 0) {
+    // Validate headphone type
+    const validHeadphoneTypes = ['cans', 'iems', 'both']
+    if (!validHeadphoneTypes.includes(headphoneTypeParam)) {
       return NextResponse.json(
-        { error: `Invalid headphoneTypes: ${invalidTypes.join(', ')}. Must be one or more of: ${validIndividualTypes.join(', ')}` },
+        { error: `Invalid headphoneType. Must be one of: ${validHeadphoneTypes.join(', ')}` },
         { status: 400 }
       )
     }
@@ -372,11 +412,11 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      experience: normalizedExperience,
+      experience: experienceParam,
       budget,
       budgetRangeMin,
       budgetRangeMax,
-      headphoneTypes: headphoneTypes,
+      headphoneType: headphoneTypeParam,
       wantRecommendationsFor,
       existingGear,
       usage: searchParams.get('usage') || 'music',
@@ -396,7 +436,7 @@ export async function GET(request: NextRequest) {
       budget: req.budget,
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
-      headphoneTypes: headphoneTypes,
+      headphoneType: req.headphoneType,
       wantRecommendationsFor: req.wantRecommendationsFor,
       soundSignature: req.soundSignature,
       usage: req.usage
@@ -445,14 +485,13 @@ export async function GET(request: NextRequest) {
     const requestedCategories: string[] = []
 
     if (req.wantRecommendationsFor.headphones) {
-      // Use the new headphoneTypes array for filtering
-      headphoneTypes.forEach(type => {
-        if (type === 'cans') {
-          requestedCategories.push('cans')
-        } else if (type === 'iems') {
-          requestedCategories.push('iems')
-        }
-      })
+      if (req.headphoneType === 'cans') {
+        requestedCategories.push('cans')
+      } else if (req.headphoneType === 'iems') {
+        requestedCategories.push('iems')
+      } else {
+        requestedCategories.push('cans', 'iems')
+      }
     }
 
     if (req.wantRecommendationsFor.dac) {
@@ -481,10 +520,7 @@ export async function GET(request: NextRequest) {
     if (allComponentsData) {
       // Separate components by category for processing
       const componentsByCategory = {
-        headphones: allComponentsData.filter(c =>
-          (headphoneTypes.includes('cans') && c.category === 'cans') ||
-          (headphoneTypes.includes('iems') && c.category === 'iems')
-        ),
+        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'),
         dacs: allComponentsData.filter(c => c.category === 'dac'),
         amps: allComponentsData.filter(c => c.category === 'amp'),
         combos: allComponentsData.filter(c => c.category === 'dac_amp')
@@ -630,16 +666,7 @@ export async function POST(request: NextRequest) {
     const budgetParam = body.budget?.toString() || '300'
     const budgetRangeMinParam = body.budgetRangeMin?.toString() || '20'
     const budgetRangeMaxParam = body.budgetRangeMax?.toString() || '10'
-    // Handle headphoneTypes array parameter (with legacy support)
-    let headphoneTypes: string[] = []
-    if (body.headphoneTypes && Array.isArray(body.headphoneTypes)) {
-      headphoneTypes = body.headphoneTypes
-    } else if (body.headphoneType) {
-      // Legacy support
-      headphoneTypes = body.headphoneType === 'both' ? ['cans', 'iems'] : [body.headphoneType]
-    } else {
-      headphoneTypes = ['cans'] // Default
-    }
+    const headphoneTypeParam = body.headphoneType || 'cans'
     const soundSignatureParam = body.soundSignature || body.sound || 'neutral'
 
     // For POST, we can accept more complex objects directly
@@ -654,7 +681,7 @@ export async function POST(request: NextRequest) {
     const budget = parseInt(budgetParam, 10)
     const budgetRangeMin = parseInt(budgetRangeMinParam, 10)
     const budgetRangeMax = parseInt(budgetRangeMaxParam, 10)
-    // headphoneTypes is already set above
+    const headphoneType = headphoneTypeParam
     const soundSignature = soundSignatureParam
     const wantRecommendationsFor = wantRecommendationsForParam
     const existingGear = existingGearParam
@@ -668,7 +695,7 @@ export async function POST(request: NextRequest) {
       budget,
       budgetRangeMin,
       budgetRangeMax,
-      headphoneTypes,
+      headphoneType,
       wantRecommendationsFor,
       soundSignature,
       usage,
@@ -689,7 +716,7 @@ export async function POST(request: NextRequest) {
     mockUrl.searchParams.set('budget', budget.toString())
     mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
     mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())
-    mockUrl.searchParams.set('headphoneTypes', JSON.stringify(headphoneTypes))
+    mockUrl.searchParams.set('headphoneType', headphoneType)
     mockUrl.searchParams.set('sound', soundSignature)
     mockUrl.searchParams.set('wantRecommendationsFor', JSON.stringify(wantRecommendationsFor))
     mockUrl.searchParams.set('existingGear', JSON.stringify(existingGear))

@@ -10,6 +10,7 @@ import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { AmplificationBadge } from '@/components/AmplificationIndicator'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
+import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -22,6 +23,15 @@ interface AudioComponent extends Component {
     explanation: string;
     estimatedSensitivity?: number;
   }
+  // Expert analysis fields
+  crinacle_sound_signature?: string
+  tone_grade?: string
+  technical_grade?: string
+  crinacle_comments?: string
+  driver_type?: string
+  fit?: string
+  crinacle_rank?: number
+  value_rating?: number
 }
 
 function RecommendationsContent() {
@@ -53,8 +63,12 @@ function RecommendationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Quick-start detection
-  const isQuickStart = searchParams.get('source') === 'quick-start'
+  // Budget-focused flow detection (simplified preferences)
+  const isBudgetFocused = searchParams.get('source') === 'quick-start' || (
+    searchParams.get('budget') &&
+    !searchParams.get('experience') &&
+    !searchParams.get('headphoneType')
+  )
 
   // User preferences state - make them editable
   const [userPrefs, setUserPrefs] = useState({
@@ -401,14 +415,14 @@ function RecommendationsContent() {
 
   // Dynamic title and description 
   const getTitle = () => {
-    if (isQuickStart) {
+    if (isBudgetFocused) {
       return `${getBudgetRangeLabel(budget)} Audio Gear Under ${formatBudgetUSD(budget)}`
     }
     return "Your Audio System Recommendations"
   }
 
   const getDescription = () => {
-    if (isQuickStart) {
+    if (isBudgetFocused) {
       return `Here are highly-rated headphones and IEMs in your ${formatBudgetUSD(budget)} budget range. Use the filters below to narrow results by type and sound signature.`
     }
     
@@ -1000,8 +1014,8 @@ function RecommendationsContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Headphones Section */}
-          {/* TEMPORARY DEBUG: Show headphones if they exist, regardless of wantRecommendationsFor */}
-          {(wantRecommendationsFor.headphones || true) && headphones.length > 0 && (
+          {/* Show headphones section for both headphones and IEMs requests */}
+          {(wantRecommendationsFor.headphones || wantRecommendationsFor.iems) && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
@@ -1058,7 +1072,9 @@ function RecommendationsContent() {
                         )}
                       </div>
                     )}
-                    
+
+                    <ExpertAnalysisPanel component={headphone} />
+
                     {shouldShowTechnicalSpecs() && (
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
                         {headphone.impedance && (
@@ -1117,7 +1133,7 @@ function RecommendationsContent() {
                       </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{dac.brand}</p>
-                    
+
                     {shouldShowTechnicalSpecs() && (
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
                         {dac.sound_signature && (
@@ -1170,7 +1186,7 @@ function RecommendationsContent() {
                       </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{amp.brand}</p>
-                    
+
                     {shouldShowTechnicalSpecs() && (
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
                         {amp.sound_signature && (
@@ -1226,7 +1242,7 @@ function RecommendationsContent() {
                       </div>
                     </div>
                     <p className="text-sm text-secondary mb-2">{combo.brand}</p>
-                    
+
                     {shouldShowTechnicalSpecs() && (
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
                         {combo.sound_signature && (

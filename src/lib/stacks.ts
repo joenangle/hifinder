@@ -1,11 +1,15 @@
 import { supabase } from './supabase'
 import { UserGearItem } from './gear'
 
+export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general'
+
 export interface UserStack {
   id: string
   user_id: string
   name: string
   description?: string
+  purpose?: StackPurpose
+  is_primary?: boolean
   created_at: string
   updated_at: string
   stack_components?: StackComponent[]
@@ -89,7 +93,7 @@ export async function createStack(
 
 export async function updateStack(
   stackId: string,
-  updates: Partial<Pick<UserStack, 'name' | 'description'>>
+  updates: Partial<Pick<UserStack, 'name' | 'description' | 'purpose' | 'is_primary'>>
 ): Promise<UserStack | null> {
   const { data, error } = await supabase
     .from('user_stacks')

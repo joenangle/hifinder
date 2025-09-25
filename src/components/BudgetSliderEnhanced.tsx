@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import './BudgetSliderEnhanced.css'
 
 interface BudgetSliderEnhancedProps {
   budget: number
@@ -77,100 +78,53 @@ const getBudgetTier = (budget: number) => {
   return { name: 'Summit-Fi', color: '#ef4444' }
 }
 
-// Get gradient background showing logarithmic scale
-const getGradientBackground = (value: number, min: number, max: number) => {
-  const position = budgetToSlider(value, min, max)
-  const stops = [
-    { pos: 0, color: '#22c55e' },     // Green (Budget)
-    { pos: budgetToSlider(100, min, max), color: '#3b82f6' },   // Blue (Entry)
-    { pos: budgetToSlider(400, min, max), color: '#8b5cf6' },   // Purple (Mid)
-    { pos: budgetToSlider(1000, min, max), color: '#f59e0b' },  // Orange (High)
-    { pos: budgetToSlider(3000, min, max), color: '#ef4444' },  // Red (Summit)
-  ].filter(s => s.pos >= 0 && s.pos <= 100)
 
-  const gradient = stops.map(s => `${s.color} ${s.pos}%`).join(', ')
-  const filled = `linear-gradient(to right, ${gradient})`
-  const track = `linear-gradient(to right, ${gradient})`
-
-  return {
-    background: track,
-    '--slider-filled': filled,
-    '--slider-position': `${position}%`
-  } as React.CSSProperties
-}
-
-// Dynamic tick marks based on current value and range with responsive breakpoints
-const getDynamicTicks = (min: number, max: number, currentValue: number, screenSize: 'mobile' | 'tablet' | 'desktop' = 'desktop') => {
+// Dynamic tick marks based on current value and range - responsive to viewport
+const getDynamicTicks = (min: number, max: number, currentValue: number) => {
   const allTicks = [20, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 10000]
+  const emphasizedTicks = [100, 500, 1000, 3000]
 
-  // Progressive tick density based on screen size
-  const mobileTicks = [50, 100, 300, 500, 1000, 2000, 5000]      // Phone: 7 max
-  const tabletTicks = [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000]  // Tablet: 11 max
-  const desktopTicks = allTicks  // Desktop: 13 max
+  // Get viewport-specific tick sets that ensure good spacing
+  const getViewportTicks = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) {
+        // Mobile: Use well-spaced ticks prioritizing key values
+        return [50, 100, 500, 1000, 3000]
+      }
+      if (window.innerWidth < 768) {
+        // Small tablet: Add a few more ticks
+        return [50, 100, 200, 500, 1000, 2000, 3000]
+      }
+      if (window.innerWidth < 1024) {
+        // Large tablet: More ticks but still well-spaced
+        return [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000]
+      }
+      // Desktop: Show all ticks
+      return allTicks
+    }
+    return [50, 100, 200, 500, 1000, 2000, 3000] // default server-side
+  }
 
-  const relevantTicks = screenSize === 'mobile' ? mobileTicks :
-                       screenSize === 'tablet' ? tabletTicks :
-                       desktopTicks
+  const viewportTicks = getViewportTicks()
 
-  const candidateTicks = relevantTicks
+  return viewportTicks
     .filter(tick => tick >= min && tick <= max)
     .map(tick => {
       const distance = Math.abs(Math.log(tick) - Math.log(currentValue))
       const maxDistance = Math.log(max) - Math.log(min)
       const relativeDistance = distance / maxDistance
-
-      // Responsive key ticks and visibility thresholds
-      const isKeyTick = screenSize === 'mobile'
-        ? [100, 500, 1000, 2000].includes(tick)
-        : screenSize === 'tablet'
-        ? [100, 300, 500, 1000, 2000, 3000].includes(tick)
-        : [100, 500, 1000, 3000].includes(tick)
-
-      const visibilityThreshold = screenSize === 'mobile' ? 0.25 :
-                                 screenSize === 'tablet' ? 0.35 :
-                                 0.4
+      const isEmphasized = emphasizedTicks.includes(tick)
 
       return {
         value: tick,
         label: formatBudgetShort(tick),
         position: budgetToSlider(tick, min, max),
-        rawVisible: relativeDistance < visibilityThreshold || isKeyTick,
-        emphasized: isKeyTick,
-        distance: relativeDistance,
-        opacity: Math.max(0.3, 1 - relativeDistance * 1.5)
+        visible: true, // All selected ticks are visible
+        emphasized: isEmphasized,
+        opacity: Math.max(0.4, 1 - relativeDistance * 1.2)
       }
     })
-
-  // Filter ticks to prevent overlap by ensuring minimum spacing
-  const minSpacing = screenSize === 'mobile' ? 12 : screenSize === 'tablet' ? 8 : 6  // minimum % separation
-  const finalTicks = []
-
-  // Always include key ticks first
-  const keyTicks = candidateTicks.filter(t => t.emphasized && t.rawVisible)
-  finalTicks.push(...keyTicks)
-
-  // Add other visible ticks if they don't overlap
-  const otherTicks = candidateTicks
-    .filter(t => !t.emphasized && t.rawVisible)
-    .sort((a, b) => a.distance - b.distance)  // Sort by proximity to current value
-
-  for (const tick of otherTicks) {
-    const hasOverlap = finalTicks.some(existing =>
-      Math.abs(existing.position - tick.position) < minSpacing
-    )
-    if (!hasOverlap) {
-      finalTicks.push(tick)
-    }
-  }
-
-  return finalTicks.map(tick => ({
-    value: tick.value,
-    label: tick.label,
-    position: tick.position,
-    visible: true,
-    emphasized: tick.emphasized,
-    opacity: tick.opacity
-  }))
+    .sort((a, b) => a.value - b.value) // Sort by value for consistent positioning
 }
 
 export function BudgetSliderEnhanced({
@@ -200,27 +154,8 @@ export function BudgetSliderEnhanced({
   const [showRangeAdjust, setShowRangeAdjust] = useState(false)
   const [isDualRange, setIsDualRange] = useState(false)
   const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
-  const [rangeMax, setRangeMax] = useState(Math.round(budget * (1 + budgetRangeMax / 100)))
-  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
+  const [rangeMax, setRangeMax] = useState(Math.min(maxBudget, Math.round(budget * (1 + budgetRangeMax / 100))))
   const sliderRef = useRef<HTMLInputElement>(null)
-
-  // Responsive breakpoint detection
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth
-      if (width < 640) {        // Tailwind's sm breakpoint (phones)
-        setScreenSize('mobile')
-      } else if (width < 1024) { // Tailwind's lg breakpoint (tablets/iPad)
-        setScreenSize('tablet')
-      } else {                  // Desktop
-        setScreenSize('desktop')
-      }
-    }
-
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
-    return () => window.removeEventListener('resize', checkScreenSize)
-  }, [])
 
   // Determine if dual-range should be available based on user experience
   const shouldShowDualRangeOption = userExperience === 'enthusiast' || variant === 'dual-range'
@@ -242,23 +177,29 @@ export function BudgetSliderEnhanced({
   // Get current tier
   const currentTier = getBudgetTier(localBudget)
 
-  // Get dynamic tick marks
+  // Get dynamic tick marks with viewport responsiveness
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleResize = () => setViewportWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const ticks = useMemo(
-    () => getDynamicTicks(minBudget, maxBudget, localBudget, screenSize),
-    [minBudget, maxBudget, localBudget, screenSize]
+    () => getDynamicTicks(minBudget, maxBudget, localBudget),
+    [minBudget, maxBudget, localBudget]
   )
 
-  // Throttled slider change for smooth scrolling
-  const handleSliderChange = useCallback((sliderValue: number) => {
-    const newBudget = memoizedSliderToBudget(sliderValue)
+  // Handle slider change with immediate visual feedback
+  const handleSliderChange = (sliderValue: number) => {
+    const newBudget = sliderToBudget(sliderValue, minBudget, maxBudget)
     setLocalBudget(newBudget)
     setBudgetInputValue(newBudget.toString())
-
-    // Use requestAnimationFrame for smooth updates
-    requestAnimationFrame(() => {
-      onChange(newBudget)
-    })
-  }, [memoizedSliderToBudget, onChange])
+    onChange(newBudget)
+  }
 
   // Handle dual-range slider changes
   const handleRangeMinChange = (sliderValue: number) => {
@@ -364,21 +305,10 @@ export function BudgetSliderEnhanced({
     }
   }
 
-  // Memoize conversion functions
-  const memoizedBudgetToSlider = useCallback(
-    (budget: number) => budgetToSlider(budget, minBudget, maxBudget),
-    [minBudget, maxBudget]
-  )
-
-  const memoizedSliderToBudget = useCallback(
-    (sliderValue: number) => sliderToBudget(sliderValue, minBudget, maxBudget),
-    [minBudget, maxBudget]
-  )
-
   // Memoize slider position
   const sliderPosition = useMemo(
-    () => memoizedBudgetToSlider(localBudget),
-    [localBudget, memoizedBudgetToSlider]
+    () => budgetToSlider(localBudget, minBudget, maxBudget),
+    [localBudget, minBudget, maxBudget]
   )
 
   return (
@@ -484,7 +414,16 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMin}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
+              onChange={(e) => {
+                const newMin = parseInt(e.target.value)
+                // Update the parent component's budget range state
+                if (onRangeChange) {
+                  const newRangeMin = Math.max(minBudget, Math.round(localBudget * (1 - newMin / 100)))
+                  const newRangeMax = Math.round(localBudget * (1 + budgetRangeMax / 100))
+                  onRangeChange(newRangeMin, newRangeMax)
+                }
+              }}
+              className="range-adjustment-slider"
             />
           </div>
           <div>
@@ -494,24 +433,30 @@ export function BudgetSliderEnhanced({
               min="0"
               max="50"
               value={budgetRangeMax}
-              className="w-full h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0"
+              onChange={(e) => {
+                const newMax = parseInt(e.target.value)
+                // Update the parent component's budget range state
+                if (onRangeChange) {
+                  const newRangeMin = Math.max(minBudget, Math.round(localBudget * (1 - budgetRangeMin / 100)))
+                  const newRangeMax = Math.round(localBudget * (1 + newMax / 100))
+                  onRangeChange(newRangeMin, newRangeMax)
+                }
+              }}
+              className="range-adjustment-slider"
             />
           </div>
         </div>
       )}
 
       {/* Slider container */}
-      <div className="relative py-8">
+      <div className="slider-container">
         {/* Floating tooltip */}
         {showTooltip && (
           <div
-            className="absolute -top-2 transform -translate-x-1/2 pointer-events-none z-20 transition-all duration-75"
-            style={{ left: `${sliderPosition}%` }}
+            className="slider-tooltip"
+            style={{ left: `${sliderPosition}%`, opacity: 1, visibility: 'visible' }}
           >
-            <div className="bg-gray-900 text-white text-sm font-bold px-3 py-1.5 rounded-md whitespace-nowrap">
-              {formatBudget(localBudget)}
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
-            </div>
+            {formatBudget(localBudget)}
           </div>
         )}
 
@@ -520,16 +465,16 @@ export function BudgetSliderEnhanced({
           {ticks.map(tick => (
             <div
               key={tick.value}
-              className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2"
+              className="absolute top-1/2 transform -translate-y-1/2"
               style={{
                 left: `${tick.position}%`,
                 opacity: tick.visible ? tick.opacity : 0,
                 transition: 'opacity 0.3s'
               }}
             >
-              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-400 dark:bg-gray-500'}`} />
+              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600' : 'bg-gray-400'}`} />
               {tick.visible && (
-                <span className={`absolute top-4 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-800 dark:text-gray-200 font-semibold' : 'text-gray-600 dark:text-gray-300'} whitespace-nowrap text-center`}>
+                <span className={`absolute top-3 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
                   {tick.label}
                 </span>
               )}
@@ -542,14 +487,11 @@ export function BudgetSliderEnhanced({
           {effectiveVariant === 'dual-range' ? (
             <>
               {/* Dual-range sliders */}
-              <div
-                className="absolute w-full h-3 rounded-lg"
-                style={getGradientBackground(localBudget, minBudget, maxBudget)}
-              />
+              <div className="slider-track" />
 
               {/* Range fill between thumbs */}
               <div
-                className="absolute h-3 bg-blue-500 bg-opacity-30 rounded-lg"
+                className="dual-range-highlight"
                 style={{
                   left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
                   width: `${budgetToSlider(rangeMax, minBudget, maxBudget) - budgetToSlider(rangeMin, minBudget, maxBudget)}%`
@@ -567,7 +509,7 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0 bg-transparent"
+                className="dual-range-slider"
                 aria-label="Minimum budget"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
@@ -585,40 +527,18 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0 bg-transparent"
+                className="dual-range-slider"
                 aria-label="Maximum budget"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
                 aria-valuenow={rangeMax}
               />
 
-              {/* Custom thumbs for dual-range */}
-              <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${budgetToSlider(rangeMin, minBudget, maxBudget)}%`,
-                  top: '50%',
-                  border: '3px solid #3b82f6',
-                  transition: isDragging ? 'none' : 'all 0.2s'
-                }}
-              />
-              <div
-                className="absolute w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${budgetToSlider(rangeMax, minBudget, maxBudget)}%`,
-                  top: '50%',
-                  border: '3px solid #3b82f6',
-                  transition: isDragging ? 'none' : 'all 0.2s'
-                }}
-              />
             </>
           ) : (
             <>
               {/* Gradient track background */}
-              <div
-                className="absolute w-full h-3 rounded-lg"
-                style={getGradientBackground(localBudget, minBudget, maxBudget)}
-              />
+              <div className="slider-track" />
 
               {/* Single budget slider */}
               <input
@@ -632,23 +552,14 @@ export function BudgetSliderEnhanced({
                 onMouseUp={handleSliderEnd}
                 onTouchStart={handleSliderStart}
                 onTouchEnd={handleSliderEnd}
-                className="absolute w-full h-3 bg-transparent rounded-lg appearance-none cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-0 [&::-ms-thumb]:h-0 [&::-ms-thumb]:opacity-0"
+                className="single-budget-slider"
+                style={{
+                  '--thumb-color': currentTier.color
+                } as React.CSSProperties}
                 aria-label="Budget slider"
                 aria-valuemin={minBudget}
                 aria-valuemax={maxBudget}
                 aria-valuenow={localBudget}
-              />
-
-              {/* Custom thumb for single budget */}
-              <div
-                className="absolute w-6 h-6 bg-white rounded-full shadow-lg pointer-events-none"
-                style={{
-                  left: `calc(${sliderPosition}% - 12px)`,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  border: `4px solid ${currentTier.color}`,
-                  transition: isDragging ? 'none' : 'left 0.1s ease-out, border-color 0.2s ease'
-                }}
               />
             </>
           )}

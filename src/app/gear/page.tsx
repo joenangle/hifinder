@@ -4,19 +4,15 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, createStack, deleteStack, removeGearFromStack, calculateStackValue, addGearToStack, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
+import { StackWithGear, StackPurpose, createStack, deleteStack, calculateStackValue, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
 import Image from 'next/image'
-import { 
-  Package, 
+import {
+  Package,
   Search,
   X,
-  Headphones,
-  Cpu,
-  Speaker,
-  Cable,
   Layers,
   Edit2,
   Trash2,
@@ -25,192 +21,10 @@ import {
 } from 'lucide-react'
 import { GearPageHeader } from '@/components/gear/GearPageHeader'
 import { GearFilters } from '@/components/gear/GearFilters'
+import { BrandCombobox } from '@/components/gear/BrandCombobox'
+import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon } from '@/lib/gear-utils'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
-type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
-
-// Helper function for string similarity
-function findSimilarStrings(target: string, strings: string[], threshold: number): string[] {
-  const targetLower = target.toLowerCase()
-  return strings.filter(str => {
-    const strLower = str.toLowerCase()
-    // Simple similarity check - contains or length similarity
-    if (strLower.includes(targetLower) || targetLower.includes(strLower)) {
-      return true
-    }
-    // Basic character overlap
-    const overlap = [...targetLower].filter(char => strLower.includes(char)).length
-    return overlap / targetLower.length >= threshold
-  })
-}
-
-
-// Brand Combobox Component
-interface BrandComboboxProps {
-  value: string
-  onChange: (value: string) => void
-  availableBrands: string[]
-  placeholder?: string
-  className?: string
-  style?: React.CSSProperties
-}
-
-function BrandCombobox({ value, onChange, availableBrands, placeholder, className, style }: BrandComboboxProps) {
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [filteredBrands, setFilteredBrands] = useState<string[]>([])
-  const [similarBrands, setSimilarBrands] = useState<string[]>([])
-
-  useEffect(() => {
-    if (value.length > 0) {
-      // Filter brands that contain the typed text
-      const filtered = availableBrands.filter(brand => 
-        brand.toLowerCase().includes(value.toLowerCase())
-      )
-      setFilteredBrands(filtered)
-
-      // Find similar brands for typo detection
-      const similar = findSimilarStrings(value, availableBrands, 0.6)
-      setSimilarBrands(similar)
-    } else {
-      setFilteredBrands(availableBrands.slice(0, 10)) // Show first 10 brands
-      setSimilarBrands([])
-    }
-  }, [value, availableBrands])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
-    onChange(newValue)
-    setShowSuggestions(true)
-  }
-
-  const handleBrandSelect = (brand: string) => {
-    onChange(brand)
-    setShowSuggestions(false)
-  }
-
-  const handleInputFocus = () => {
-    setShowSuggestions(true)
-  }
-
-  const handleInputBlur = () => {
-    // Delay hiding suggestions to allow clicking on them
-    setTimeout(() => setShowSuggestions(false), 150)
-  }
-
-  return (
-    <div className={`relative ${showSuggestions && (filteredBrands.length > 0 || similarBrands.length > 0) ? 'mb-16' : ''}`}>
-      <input
-        type="text"
-        value={value}
-        onChange={handleInputChange}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        className={className}
-        style={style}
-        placeholder={placeholder}
-      />
-      
-      {/* Suggestions Dropdown */}
-      {showSuggestions && (filteredBrands.length > 0 || similarBrands.length > 0) && (
-        <div
-          className="absolute z-[60] w-full mt-1 rounded-md border shadow-lg max-h-60 overflow-y-auto"
-          style={{
-            backgroundColor: 'var(--background-secondary)',
-            borderColor: 'var(--border-default)',
-            top: '100%',
-            left: 0,
-            right: 0
-          }}
-        >
-          {/* Exact/partial matches */}
-          {filteredBrands.length > 0 && (
-            <div>
-              {filteredBrands.slice(0, 8).map((brand) => (
-                <div
-                  key={brand}
-                  className="px-3 py-2 cursor-pointer hover:bg-tertiary transition-colors text-sm"
-                  style={{color: 'var(--text-primary)'}}
-                  onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-                  onClick={() => handleBrandSelect(brand)}
-                >
-                  {brand}
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Similar brands warning */}
-          {similarBrands.length > 0 && !filteredBrands.some(b => b.toLowerCase() === value.toLowerCase()) && (
-            <div className="border-t" style={{borderColor: 'var(--border-default)'}}>
-              <div className="px-3 py-2 text-xs font-medium" style={{color: 'var(--text-secondary)'}}>
-                Did you mean?
-              </div>
-              {similarBrands.slice(0, 3).map((brand) => (
-                <div
-                  key={brand}
-                  className="px-3 py-2 cursor-pointer hover:bg-tertiary transition-colors text-sm"
-                  style={{color: 'var(--warning)'}}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => handleBrandSelect(brand)}
-                >
-                  {brand}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Helper function to get the category of a gear item
-function getGearCategory(item: UserGearItem): CategoryFilter {
-  // Check custom category first (for manually added items)
-  if (item.custom_category) {
-    // Map old dac_amp to combo
-    const category = item.custom_category === 'dac_amp' ? 'combo' : item.custom_category
-    // Ensure it's a valid CategoryFilter, default to 'headphones' if not
-    return ['headphones', 'iems', 'dacs', 'amps', 'combo'].includes(category) 
-      ? category as CategoryFilter 
-      : 'headphones'
-  }
-  // Fall back to components category (for database items)
-  const category = item.components?.category || 'headphones'
-  // Map old dac_amp to combo
-  const mappedCategory = category === 'dac_amp' ? 'combo' : category
-  // Ensure it's a valid CategoryFilter, default to 'headphones' if not
-  return ['headphones', 'iems', 'dacs', 'amps', 'combo'].includes(mappedCategory) 
-    ? mappedCategory as CategoryFilter 
-    : 'headphones'
-}
-
-// Helper function to calculate current value of gear item
-function calculateCurrentValue(item: UserGearItem): number {
-  if (item.components?.price_used_min && item.components?.price_used_max) {
-    return (item.components.price_used_min + item.components.price_used_max) / 2
-  }
-  if (item.components?.price_new) {
-    return item.components.price_new * 0.7 // 70% of new price
-  }
-  return item.purchase_price || 0
-}
-
-// Helper function to get the category icon
-function getCategoryIcon(category: string) {
-  switch (category) {
-    case 'headphones':
-    case 'iems':
-      return <Headphones className="w-5 h-5" />
-    case 'dacs':
-      return <Cpu className="w-5 h-5" />
-    case 'amps':
-    case 'combo':
-      return <Speaker className="w-5 h-5" />
-    default:
-      return <Cable className="w-5 h-5" />
-  }
-}
 
 
 function GearContent() {
@@ -241,8 +55,13 @@ function GearContent() {
   const [collectionStats, setCollectionStats] = useState<CollectionStats | null>(null)
   const [newStackName, setNewStackName] = useState('')
   const [newStackDescription, setNewStackDescription] = useState('')
+  const [newStackPurpose, setNewStackPurpose] = useState<StackPurpose>('general')
   const [editStackName, setEditStackName] = useState('')
   const [editStackDescription, setEditStackDescription] = useState('')
+  const [editStackPurpose, setEditStackPurpose] = useState<StackPurpose>('general')
+  // TODO: Implement edit stack purpose functionality
+  void editStackPurpose
+  void setEditStackPurpose
 
   // State for drag and drop
   const [draggedGear, setDraggedGear] = useState<UserGearItem | null>(null)
@@ -484,7 +303,8 @@ function GearContent() {
         credentials: 'include',
         body: JSON.stringify({
           name: newStackName.trim(),
-          description: newStackDescription.trim() || null
+          description: newStackDescription.trim() || null,
+          purpose: newStackPurpose
         })
       })
 
@@ -493,6 +313,7 @@ function GearContent() {
         setShowCreateStackModal(false)
         setNewStackName('')
         setNewStackDescription('')
+        setNewStackPurpose('general')
       } else {
         const error = await response.json()
         console.error('Failed to create stack:', error)
@@ -511,7 +332,8 @@ function GearContent() {
       selectedStackForEdit.id, 
       {
         name: editStackName.trim(),
-        description: editStackDescription.trim() || undefined
+        description: editStackDescription.trim() || undefined,
+        purpose: editStackPurpose
       }
     )
     
@@ -738,7 +560,7 @@ function GearContent() {
       />
       
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-40 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
+      <div className="sticky top-[120px] z-20 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
@@ -785,16 +607,61 @@ function GearContent() {
 
                 {/* Stacks List */}
                 {stacks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Layers className="w-16 h-16 text-secondary mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold text-primary mb-2">No stacks yet</h2>
-                    <p className="text-secondary mb-6">Create your first stack to group related gear together</p>
-                    <button
-                      onClick={() => setShowCreateStackModal(true)}
-                      className="button button-primary mb-6"
-                    >
-                      Create Your First Stack
-                    </button>
+                  <div className="max-w-4xl mx-auto py-8">
+                    {/* Welcome Header */}
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center justify-center p-3 bg-orange-500/10 rounded-2xl mb-4">
+                        <Layers className="w-12 h-12 text-orange-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold mb-3" style={{color: 'var(--text-primary)'}}>
+                        Welcome to Stack Builder
+                      </h2>
+                      <p className="text-base max-w-2xl mx-auto" style={{color: 'var(--text-secondary)'}}>
+                        Organize your audio gear into purposeful setups. Perfect for managing multiple listening
+                        environments or tracking what&apos;s at home vs. what you travel with.
+                      </p>
+                    </div>
+
+                    {/* What are Stacks? */}
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-8">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2" style={{color: 'var(--text-primary)'}}>
+                        <span className="text-lg">🎯</span> What are Stacks?
+                      </h3>
+                      <div className="grid sm:grid-cols-3 gap-4">
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🏠</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Desktop Setup</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Your main listening station at home</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🎒</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Portable Rig</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Gear for commute and travel</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <span className="text-2xl">🎮</span>
+                          <div>
+                            <div className="font-medium text-sm mb-1" style={{color: 'var(--text-primary)'}}>Gaming Setup</div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>Optimized for competitive gaming</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="text-center mb-8">
+                      <button
+                        onClick={() => setShowCreateStackModal(true)}
+                        className="button button-primary text-base px-6 py-3"
+                      >
+                        <PlusIcon className="w-5 h-5 mr-2" />
+                        Create Your First Stack
+                      </button>
+                    </div>
                     
                     {/* Stack Templates */}
                     <div className="mt-6">
@@ -1832,6 +1699,25 @@ function GearContent() {
                   rows={3}
                 />
               </div>
+
+              <div className="form-group">
+                <label className="label">Purpose</label>
+                <select
+                  value={newStackPurpose}
+                  onChange={(e) => setNewStackPurpose(e.target.value as StackPurpose)}
+                  className="input"
+                >
+                  <option value="general">General</option>
+                  <option value="desktop">Desktop</option>
+                  <option value="portable">Portable</option>
+                  <option value="studio">Studio</option>
+                  <option value="gaming">Gaming</option>
+                  <option value="office">Office</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Categorize your stack by its primary use case
+                </p>
+              </div>
             </div>
 
             <div className="modal-footer">
@@ -1841,6 +1727,7 @@ function GearContent() {
                   setShowCreateStackModal(false)
                   setNewStackName('')
                   setNewStackDescription('')
+                  setNewStackPurpose('general')
                 }}
                 className="button button-secondary"
               >
