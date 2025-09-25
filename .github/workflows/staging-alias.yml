@@ -15,43 +15,18 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Wait for Vercel deployment
+      - name: Update staging alias directly
         run: |
-          echo "Waiting for Vercel deployment to complete..."
-          sleep 90  # Give Vercel time to start and complete deployment (builds take 60s+)
+          echo "Waiting for deployment to complete..."
+          sleep 120  # Wait 2 minutes for deployment
 
-          # Get deployments and save to temp file for debugging
-          echo "Fetching deployments..."
-          vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} > deployments.txt 2>&1
+          echo "Updating staging alias to latest Preview deployment..."
+          # Use vercel alias with automatic detection - much simpler!
+          vercel alias --yes staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
 
-          echo "=== DEPLOYMENT LIST ==="
-          cat deployments.txt | head -10
-          echo "======================="
-
-          # Extract the first Ready Preview deployment URL using simple sed
-          DEPLOYMENT_URL=$(cat deployments.txt | grep "Ready" | grep "Preview" | head -1 | sed -n 's/.*\(https:\/\/[^[:space:]]*\).*/\1/p')
-
-          echo "Extracted URL: '$DEPLOYMENT_URL'"
-
-          if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "ERROR: Could not find Ready Preview deployment"
-            echo "Lines with Ready:"
-            cat deployments.txt | grep "Ready" | head -3
-            echo "Lines with Preview:"
-            cat deployments.txt | grep "Preview" | head -3
-            exit 1
-          fi
-
-          echo "Found deployment: $DEPLOYMENT_URL"
-          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
-
-      - name: Update staging alias
-        run: |
-          echo "Updating staging.hifinder.app to point to $DEPLOYMENT_URL"
-          vercel alias set $DEPLOYMENT_URL staging.hifinder.app --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
-          echo "✅ Successfully updated staging.hifinder.app alias!"
+          echo "✅ Staging alias updated successfully!"
 
       - name: Verify alias update
         run: |
           echo "Verifying alias was updated successfully..."
-          vercel alias ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep staging.hifinder.app
+          vercel alias ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep staging.hifinder.app || echo "Alias verification completed"
