@@ -4,12 +4,13 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
-  // Allow production domain only
-  if (hostname === 'hifinder.app') {
+  // Only protect staging.hifinder.app specifically
+  // Allow production (hifinder.app) and preview URLs to pass through
+  if (hostname !== 'staging.hifinder.app') {
     return NextResponse.next()
   }
 
-  // Check for Basic Auth header
+  // Check for Basic Auth header on staging only
   const auth = request.headers.get('authorization')
 
   if (!auth?.startsWith('Basic ')) {
