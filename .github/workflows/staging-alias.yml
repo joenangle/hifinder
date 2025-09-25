@@ -20,14 +20,25 @@ jobs:
           echo "Waiting for Vercel deployment to complete..."
           sleep 90  # Give Vercel time to start and complete deployment (builds take 60s+)
 
-          # Get the latest Preview deployment URL - simple and bulletproof approach
-          DEPLOYMENT_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep -E 'Ready.*Preview|Preview.*Ready' | head -1 | grep -o 'https://[^[:space:]]*')
+          # Get deployments and save to temp file for debugging
+          echo "Fetching deployments..."
+          vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} > deployments.txt 2>&1
+
+          echo "=== DEPLOYMENT LIST ==="
+          cat deployments.txt | head -10
+          echo "======================="
+
+          # Extract the first Ready Preview deployment URL using simple sed
+          DEPLOYMENT_URL=$(cat deployments.txt | grep "Ready" | grep "Preview" | head -1 | sed -n 's/.*\(https:\/\/[^[:space:]]*\).*/\1/p')
+
+          echo "Extracted URL: '$DEPLOYMENT_URL'"
 
           if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "No Ready Preview deployment found. Showing debug output:"
-            vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | head -5
-            echo "Raw first line with Ready:"
-            vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep Ready | head -1
+            echo "ERROR: Could not find Ready Preview deployment"
+            echo "Lines with Ready:"
+            cat deployments.txt | grep "Ready" | head -3
+            echo "Lines with Preview:"
+            cat deployments.txt | grep "Preview" | head -3
             exit 1
           fi
 
