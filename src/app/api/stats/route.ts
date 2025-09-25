@@ -14,7 +14,7 @@ export async function GET() {
       return NextResponse.json(cached.data)
     }
 
-    const supabase = supabaseServer()
+    const supabase = supabaseServer
 
     // Get component count
     const { count: componentCount, error: componentError } = await supabase
