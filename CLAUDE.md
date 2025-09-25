@@ -4,6 +4,11 @@
 - ✅ Authentication performance fix (2000ms+ → <200ms)
 - ✅ Development environment cleanup
 - ✅ CSV import path fixes
+- ✅ BudgetSliderEnhanced dual-range functionality fix
+- ✅ $1000 IEM budget filtering bug fix (0 → 10+ results)
+- ✅ Category correction (82 headphones + 316 IEMs from Crinacle data)
+- ✅ Dual-layer sound signature system implementation
+- ✅ 100% sound signature constraint violation fixes
 
 ## High Priority: Summit-Fi Component Data Gaps
 
@@ -42,3 +47,80 @@
 - Point out MultiEdit opportunities for complex refactoring
 - Suggest background processes for long-running tasks
 - Share advanced grep/search patterns
+
+## Database Enhancement Procedures
+
+**Successfully Established Patterns (Sept 2025):**
+
+### Dual-Layer Sound Signature System
+```sql
+-- Basic compatibility layer (existing)
+sound_signature: 'neutral' | 'warm' | 'bright' | 'fun'
+
+-- Expert data layer (new)
+crinacle_sound_signature: 'Bright neutral', 'Mild V-shape', 'Dark neutral', etc.
+```
+
+**Implementation:** Progressive enhancement in recommendations algorithm
+- Basic signatures for broad matching
+- Detailed signatures for nuanced scoring when available
+- Null values treated as bonus-only (no penalties)
+
+### Expert Data Integration Workflow
+
+**1. Data Preparation:**
+```bash
+# CSV format with columns: Model, CrinSignature, CrinValue, CrinRank, etc.
+# Supports both CSV and ODS formats via xlsx package
+```
+
+**2. Fuzzy Matching Pipeline:**
+```javascript
+// Key functions in scripts/merge-crinacle-cans.js
+splitBrandAndModel()     // Handle multi-word brands
+fuzzyMatch()             // Levenshtein similarity ≥ 0.8
+levenshteinDistance()    // String comparison
+```
+
+**3. Sound Signature Normalization:**
+```javascript
+// Comprehensive mapping for constraint compliance
+const signatureMap = {
+  'Neutral': 'neutral',
+  'Bright neutral': 'bright',
+  'Bass-rolled neutral': 'neutral',
+  'Warm neutral': 'warm',
+  'Mild V-shape': 'fun',
+  'Dark neutral': 'neutral',
+  // ... 20+ mappings for edge cases
+};
+```
+
+**4. Batch Processing Pattern:**
+```bash
+# Dry run (preview changes)
+node scripts/merge-crinacle-cans.js data.csv
+
+# Execute updates
+node scripts/merge-crinacle-cans.js data.csv --execute
+```
+
+### Proven Results
+- **398 components enhanced** (82 headphones + 316 IEMs)
+- **100% constraint compliance** (fixed all 165 signature violations)
+- **Category correction** (headphones mislabeled as IEMs)
+- **Recommendation quality boost** via detailed signature matching
+
+### Reusable Components
+- `scripts/merge-crinacle-cans.js` - Production fuzzy matcher
+- `MULTI_WORD_BRANDS` array - Handle "Audio Technica", "Ultimate Ears", etc.
+- Signature mapping dictionaries for other expert sources
+- Dry-run → execute safety pattern
+
+### Future Applications
+- ASR measurement data integration
+- Head-Fi community ratings
+- Other expert reviewer data (Z Reviews, DMS, etc.)
+- Price/availability updates from retailers
+
+**Key Insight:** Dual-layer approach preserves backward compatibility while enabling sophisticated matching for users who benefit from expert-level distinctions.

@@ -1,0 +1,135 @@
+CrinRank,CrinValue,Model,CrinSignature,CrinComments,CrinTone,CrinTech,CrinDriver,CrinFit
+A,2,Aurorus Borealis,Neutral,"Sounds like an odd mashup of the HD600 and the Clear, in a good way.",A+,A,Dynamic,Open Circumaural
+A,1,HEDDphone,Warm neutral,"An interesting in-between of DD and estat timbre, though tuning around the lower midrange may be off.",A,A+,AMT,Open Circumaural
+A,1,Nectar Hive,Bright neutral,"Some spiciness in the treble that is HD800-esque, but with a better midrange presentation.",A,A,Electrostatic,Open Circumaural
+A,0,Hifiman Jade II,Bass-rolled neutral,"Suffers from typical estat timbre and bass extension issues, but otherwise a very resolving and well-tuned headphone.",A,S-,Electrostatic,Open Circumaural
+A,0,"Stax SR-007
+(Mk2.5)",Warm neutral,"Arguably the least wonky-sounding of the mainstream Staxes, with resolution just shy of the flagship 009.",A-,S+,Electrostatic,Open Circumaural
+A-,2,Sennheiser HD600,Neutral,The legendary neutral reference. Slightly better clarity and imaging than the HD650.,S-,B+,Dynamic,Open Circumaural
+A-,2,Audio Technica ATH-R70x,Warm neutral,Excellent imaging. Mostly neutral/flat tuning with an ever-so-slight tilt towards warmth.,A+,B+,Dynamic,Open Circumaural
+A-,0,Hifiman Edition X V2,Neutral,Excellent tonal balance though limited by blunted notes and resolution.,S,B+,Planar,Open Circumaural
+A-,0,Stax SR-Lambda Pro,Neutral,"One of the original Lambda models, and arguably the best tuned of the Lambda-styled Staxes.",B+,S-,Electrostatic,Open Circumaural
+A+,1,Hifiman Arya,Bright neutral,High resolution planar that may be a little peaky in the treble for some.,A+,S-,Planar,Open Circumaural
+A+,0,Focal Clear,Warm neutral,A decent Utopia alternative for thinner wallets. Slightly warmer sound may be more pleasant for some.,S-,A+,Dynamic,Open Circumaural
+A+,0,Hifiman HE1000se,Bright neutral,Basically a brighter and slightly shoutier version of the OG; may be a little too intense for some.,A+,S-,Planar,Open Circumaural
+A+,0,Hifiman Shangri-La Jr,Bright neutral,"A tad too shouty for my tastes, but far less offensive tonal characteristics than the average estat.",A,S,Electrostatic,Open Circumaural
+B,3,Shure SRH440,Harman,Closest thing to Harman thus far. Comes with a small upper treble spike and lacking raw resolution.,S-,C+,Dynamic,Closed Circumaural
+B,2,AKG K371,Harman,"Expectedly Harman tuning but lacks a bit of bite in the upper midrange for ""true Harman"".",A,B-,Dynamic,Closed Circumaural
+B,2,Hifiman HE400i (2020),Neutral,Well-executed reference-ish tuning with a slight treble emphasis.,B,B,Planar,Open Circumaural
+B,1,AKG K701,Bright neutral,"The brightest and arguably harshest of the K7-- lineup, but still very competent overall.",A-,B,Dynamic,Open Circumaural
+B,1,Sennheiser HD560S,Neutral,"Well-balanced tonality with good bass extension, just slightly hot in the upper-mids and treble.",A,B-,Dynamic,Open Circumaural
+B,1,Hifiman Deva,Neutral,"Probably the most ""mellow"" of the Hifiman planars with the least resolving ability.",S-,C+,Planar,Open Circumaural
+B,1,Sennheiser HD660S,Warm neutral,An even darker HD6X0. A comparatively muffled mess just barely propped up by its decent resolving ability.,B,B+,Dynamic,Open Circumaural
+B,1,"Beyerdynamic DT880 Pro
+(32Ω)",Warm V-shape,"Certainly a ""mini-HD800"" in terms of tonality only, however still far inferior in technical ability.",B+,B,Dynamic,Open Circumaural
+B,1,HarmonicDyne Zeus,Warm,A rare combination of a warm-focused tonality with decent technicalities.,B+,B,Dynamic,Open Circumaural
+B,1,Sennheiser Momentum 3 Wireless,U-shaped,A massive improvement over its predecessor. Limited resolution and potentially intense tonality.,A-,B-,Dynamic,Closed Circumaural
+B,1,"Beyerdynamic DT990 Pro
+(250Ω)",V-shaped,Pretty bog-standard V-shaped response with forward upper-midrange and decently high resolution.,B,B,Dynamic,Open Circumaural
+B,1,Beyerdynamic TYGR 300 R,V-shaped,Very reminiscent of the DT990.,B,B,Dynamic,Open Circumaural
+B,0,Stax SR-L300,Neutral,"Generally pleasing tuning, though a little honky and fatiguing in the treble.",B,A-,Electrostatic,Open Circumaural
+B,0,"ZMF Aeolus
+(Pref. suede Universe pads)",Bright neutral,"Tonally, a vast improvement over the Aeolus with stock pads, bringing in extra clarity and bite.",B,A-,Dynamic,Open Circumaural
+B,0,Hifiman HE6se,Neutral,Comes with an odd midrange dip. It's no HE6 replacement for sure.,B-,A,Planar,Open Circumaural
+B,0,"Hifiman HE560
+(V1)",Neutral,"Slight wonkiness around the lower midrange, but otherwise a capable planar headphone.",B-,A,Planar,Open Circumaural
+B,0,Final D8000 Pro,Bright,"Highly resolving headphone with solid imaging capabilities, limited by its somewhat wonky tonality.",B-,A,Planar,Open Circumaural
+B,0,Final Audio D8000,Bright,High treble-to-midrange contrast makes things sound shrill and borderline-sibilant.,B-,A,Planar,Open Circumaural
+B,0,RAAL-requisite SR1a,Neutral,"Weak, limp bass is the killing blow for what is an otherwise highly resolving and decently-tuned earspeaker.",B-,A,Ribbon,Earspeaker
+B,0,Focal Stellia,Neutral with bass boost,"""Harman-inspired"" tuning works decently well, though a myriad of small quirks ultimately screws its tonal balance.",C+,S-,Dynamic,Closed Circumaural
+B,0,Stax SR-L700,Neutral,"Probably the most balanced tuning of the L-series, with the usual e-stat technicalities.",C+,S-,Electrostatic,Open Circumaural
+B,0,"ZMF Verite Closed
+(Hybrid Universe pads)",Neutral with bass boost,"Far more tonally balanced than its open counterpart, whilst retaining its reverberant staging.",C+,S-,Dynamic,Closed Circumaural
+B,0,Audio Technica ATH-ADX5000,Bright neutral,"Clean, open sound reminsicent of the HD800, with a bit of midbass bloat and upper midrange shoutiness.",C+,S-,Dynamic,Open Circumaural
+B,0,Stax SR-L300 Limited,Neutral,Honkier version of the standard L300.,C+,S-,Electrostatic,Open Circumaural
+B,0,"Sony MDR-SA5000
+(w/ AliExpress replacement pads)",Bass-rolled neutral,Surprisingly competent for a decades-old set. Midrange is a little uneven but beats out many other modern TOTLs.,B,B+,Dynamic,Open Circumaural
+B,0,Hifiman HE5,Neutral,The original Hifiman. Midrange is a little too scooped out but remains competitive even today.,B+,B,Planar,Open Circumaural
+B,0,Denon AH-D5000,V-shaped,"The usual ""Foster biodyna dynamics"" are at play here, with a somewhat fatiguing treble spike.",B,B+,Dynamic,Semi-open Circumaural
+B,0,Kennerton Odin,Warm neutral,"Generally ""okay"" tonality with some odd dips here and there. Lacking serious extension for a planar.",B+,B,Planar,Open Circumaural
+B,0,Kennerton Thror,Warm neutral,"Kind of a ""nothing headphone""; not bad, not great, just good enough to be okay.",B+,B,Planar,Open Circumaural
+B,0,Focal Radiance,Harman neutral,"Probably the best of the closed-back Focals. Some tuning refinements over the Stellia, though technically limited.",B+,B,Dynamic,Closed Circumaural
+B,0,Focal Clear Mg,Warm neutral,Lacks upper mids and resolution compared to its predecessor.,B-,A-,Dynamic,Open Circumaural
+B,0,Audeze LCD-XC,"""Balanced""","Definitely the least Audeze-sounding Audeze. A little quirky tonally, but nothing too offensive.",B-,A-,Planar,Closed Circumaural
+B,0,Focal Elear,Warm neutral,Subdued upper midrange with the odd treble spike makes this a weird headphone to listen to.,B-,A-,Dynamic,Open Circumaural
+B,0,Meze Empyrean,Warm,Bland and unexciting tuning with compressed staging and generally underperforming technicalities.,B,B,Planar,Open Circumaural
+B-,3,Koss KSC75,Bass-rolled neutral,Non-existent sub-bass and poor resolution. But it's so well-tuned you may not even care.,A,C,Dynamic,Open Clip-on
+B-,1,Sivga Phoenix,Warm neutral,A fairly competent warm-neutral monitor slightly held back by limited detail retrieval.,B+,B-,Dynamic,Open Circumaural
+B-,1,Audio Technica ATH-M70x,Neutral,The most neutral of the M-series. Good tonality but still suffers from narrow imaging.,B,B-,Dynamic,Closed Circumaural
+B-,1,Sennheiser HD25 Plus,U-shaped,"Punchy, energetic sound with decently balanced tonality. A pretty good beat-tracking monitor.",B,B-,Dynamic,Closed Supra-aural
+B-,1,BLON B20,Warm neutral,"Basically a darker planar HD6X0, with equally closed-in staging and lacking the final resolving edge.",A,C,Planar,Open Circumaural
+B-,1,Massdrop x Koss ESP/95X,Mid-centric,"Good resolving ability and imaging, marred by its odd and honky midrange.",C,A,Electrostatic,Open Circumaural
+B-,1,ASTRO A40 TR,Warm V-shape,"Middling technicalities, but for a gaming headphone its tonality is surprisingly balanced.",B+,C+,Dynamic,Closed Circumaural
+B-,1,Audio Technica ATH-M40x,Neutral with bass boost,Well-balanced tonality with disappointing detailing and claustrophobic imaging.,A-,C,Dynamic,Closed Circumaural
+B-,1,Moondrop Void,Warm neutral,"Slightly midbass/lower-mid emphasised with good tonal balance, if rather ""cheap""-sounding.",A-,C,Dynamic,Open Circumaural
+B-,1,E-MU Walnut,"""Balanced""","Tonality is somewhat off with peaks and dips here and there, but overall not a bad sounding headphone.",B-,B-,Dynamic,Closed Circumaural
+B-,0,"Hifiman HE500
+(w/ FocusPad-A)",Warm neutral,Perhaps the warmest of the Hifiman lineup. Not the most resolving.,B+,B-,Planar,Open Circumaural
+B-,0,Audeze LCD-24,Warm neutral,"A slight tonal improvement over the LCD-4, but also comes with a slight hit in resolution.",C,S-,Planar,Open Circumaural
+B-,0,"Abyss Diana Phi
+Abyss Diana V2",Warm,Needs a little more upper midrange to balance out the honkiness. Good dynamic performance especially in the bass.,C,A+,Planar,Open Circumaural
+B-,0,Audeze LCD-X (2021),Warm neutral,"Tonally, a massive improvement over the previous version(s) though with the usual pitfalls of the Audeze house sound.",C,A+,Planar,Open Circumaural
+B-,0,Denon AH-D5200,Warm neutral,Probably the least wonky of the new Denons. Suffers from some mid-bass bloat.,B-,B,Dynamic,Closed Circumaural
+B-,0,"Beyerdynamic DT1990 Pro
+(Balanced pads)",Warm V-shape,"An intense sound given its significant treble boost, but countered by a smooth lower-midrange bump.",B-,B,Dynamic,Open Circumaural
+B-,0,Audeze LCD-GX,Warm neutral,"As a gaming headphone, possibly the best technically though with the usual pitfalls of the Audeze house sound.",C,A,Planar,Open Circumaural
+B-,0,Audeze LCD-2 Closed-back,Warm V-shape,"Not the worst Audeze in terms of tonality, but its tuning still doesn't live up to its technical capabilities.",C,A,Planar,Closed Circumaural
+B-,0,Audeze LCD-2 Classic,Warm,Classic Audeze combo of solid resolution with a confusing lack of upper midrange.,C,A,Planar,Open Circumaural
+B-,0,Apple AirPods Max,U-shaped,"Great tonality, sub-focused bass emphasis, bassy without being muddy. Average imaging and resolution.",B+,C+,Dynamic,Closed Circumaural
+B-,0,"ZMF Verite
+(Pref. lambskin Verite pads)",Warm,Excellent resolution unfortunately marred by suppressed harmonics and a harsh upper-midrange.,C-,S-,Dynamic,Open Circumaural
+B-,0,ES Lab ES-1a,Bright neutral,"Seems inspired by the tuning of the SR-009 with some minor improvements, though not enough to call it ""good"".",C-,S-,Electrostatic,Open Circumaural
+B-,0,Fostex TR80,Neutral with bass boost,"A very well-tuned monitor-style headphone, if heavily bottlenecked by narrow imaging and blunt hits.",A+,C-,Dynamic,Open Circumaural
+B+,3,AKG K612 Pro,Neutral,"Basically dead-neutral tuning, emphasis on ""dead"". Strong all-rounder whose only fault is not having that ""wow-factor"".",S-,B,Dynamic,Open Circumaural
+B+,3,Sennheiser HD650/HD6XX,Warm neutral,"The legendary neutral reference. ""Veiled"" with a warm tilt (in comparison to HD600), and pretty terrible at imaging.",A+,B,Dynamic,Open Circumaural
+B+,3,Shure SRH840,V-shaped,Extremely well-executed V-shaped tuning with no erronous peaks or dips. More mid-bassy than sub-bassy.,A+,B-,Dynamic,Closed Circumaural
+B+,2,Hifiman Sundara,Neutral,Solid tuning with a little treble spiciness for the daring. One of the better midrange planars out there.,A+,B,Planar,Open Circumaural
+B+,2,Moondrop Para,Neutral,,A+,B,Planar,Open Circumaural
+B+,2,AKG K702,Mid-centric,Slightly more upper-mid-forward (read: shoutier) version of the K612.,A,B,Dynamic,Open Circumaural
+B+,1,Hifiman Ananda,Neutral,"One of the best tuned headphones available, only limited by its raw resolving ability.",S-,B,Planar,Open Circumaural
+B+,1,Fostex TH610,Mild V-shape,The most neutral of the Foster biodyna models. If you want a little more balance than the Teaks.,B+,A-,Dynamic,Closed Circumaural
+B+,1,E-MU Teak,V-shaped,"Excellent dynamics with one of the best bass I've heard in a headphone, though the midrange can be a little harsh.",B+,A-,Dynamic,Semi-open Circumaural
+B+,1,Shure SRH1540,Neutral with bass boost,"Almost ""Harman"" tuning with some undesirable mid-bass bloat.",A,B,Dynamic,Closed Circumaural
+B+,0,"Stax SR-404
+Stax SR-404 Limited",Neutral,Similar tuning to that of the Lambda Pro. Sonically identical between 404 and 404LE.,B,S-,Electrostatic,Open Circumaural
+B+,0,Stax SR-507,Neutral,Similar tuning to that of the Lambda Pro.,B,S-,Electrostatic,Open Circumaural
+B+,0,Hifiman HE6,Bright neutral,"Clean, resolving yet intense sound scratches the detail itch but is a little too edgy for long listens.",B,S-,Planar,Open Circumaural
+B+,0,Stax SR-4070,Mid-centric,Surprisingly wide and spacious soundstage for a closed-back. Good low-end extension but rather shouty.,B,S-,Electrostatic,Closed Circumaural
+B+,0,"ZMF Auteur
+(Teak)
+(pref. lambskin Auteur pads)",Bright neutral,Very pleasant tonality but lacking that last bit of definition for true top-tier status.,A,B+,Dynamic,Open Circumaural
+B+,0,Sennheiser HD800/HD800S,Bright neutral,"Arguably the king of soundstage and raw detail, though at the cost of its infamous treble spike.",B-,S,Dynamic,Open Circumaural
+B+,0,Beyerdynamic T70,Bright neutral,"Treble peak may offend some, but otherwise very well balanced and natural tonality with decent technicalities.",A,B,Dynamic,Closed Circumaural
+B+,0,MrSpeakers Ether C,DF-neutral,"Forward, in-your-face sound that's shouty and thin at the same time. A good reference for ""true DF neutral"".",A,B,Planar,Closed Circumaural
+B+,0,Stax SR-L500,Neutral,Generally pleasing tuning with a little honkiness in the centre-midrange.,B-,S-,Electrostatic,Open Circumaural
+C+,1,Sennheiser HD599,V-shaped,"A little too sharp, a little too midbassy, but overall not the most offensive headphone out there.",B,C+,Dynamic,Open Circumaural
+C+,1,Massdrop x AKG K7XX,Warm,A more bloated-sounding K712.,C+,B,Dynamic,Open Circumaural
+C+,1,HarmonicDyne Helios,V-shaped,Lack of bass extension is its biggest dealbreaker of what would be an otherwise solid headphone.,B,C+,Dynamic,Open Circumaural
+C+,1,1MORE MK801,Neutral with bass boost,"Smooth, generally pleasing tonality throughout with no offensive characteristics.",A-,C-,Dynamic,Closed Circumaural
+C+,1,Sennheiser HD579,Warm neutral,More or less a HD599 with slightly worse resolution.,B,C,Dynamic,Open Circumaural
+C+,0,Acoustic Research AR-H1,Neutral,"A tempered, almost bright-leaning planar (but not quite). Decent tonality and technical ability.",C+,B,Dynamic,Open Circumaural
+C+,0,Beyerdynamic T5p (1st Gen),V-shaped,"Choppy midrange response is its biggest turnoff, but otherwise a decent V-shaped headphone.",C+,B,Dynamic,Closed Circumaural
+C+,0,Timsok TS-1024,Warm V-shape,Somewhat warm midrange plagued with sharp and offensive treble.,C+,B,Planar,Open Circumaural
+C+,0,Sendy Aiva,Warm neutral,"A slightly worse-tuned B20, kinda.",B,C+,Planar,Open Circumaural
+C+,0,AKG K712 Pro,Warm,Sizeable mid-bass bloat that's barely reigned in by an equally sizeable upper-midrange emphasis.,C+,B,Dynamic,Open Circumaural
+C+,0,Fostex TH7,Neutral,Fairly neutral monitor-style headphone with poor imaging and detail retrieval.,B+,C,Dynamic,Closed Circumaural
+C+,0,Sony MDR-Z1R,V-shaped,Holes in the midrange. Big spike in the treble. Strangely disjointed soundstage. Decently resolving.,C,B+,Dynamic,Closed Circumaural
+C+,0,Fostex TH900,V-shaped,Spicy sibilance and bloated bass are disappointments in what is otherwise an extremely dynamic headphone.,C-,A,Dynamic,Closed Circumaural
+C+,0,DCA Aeon 2 Closed,U-shaped,Passable tonality with dulled and blunted transients make for lacklustre detailing.,B+,C,Planar,Closed Circumaural
+C+,0,Stax SR-009/SR-009S,Bright neutral,"Detail and resolution worthy of being called ""the best"", marred by the tonally-off midrange.",D+,S+,Electrostatic,Open Circumaural
+C+,0,Audeze LCD-4,Warm,A classic example of a highly resolving yet wonky sounding headphone. Needs more upper midrange.,D+,S,Planar,Open Circumaural
+C+,0,Sony MDR-MA900,Bass-rolled neutral,Imaging as expected of an earspeaker configuration; surprisingly good tonality and expected bad extension.,C+,B-,Dynamic,Earspeaker
+C+,0,Fostex TH909,V-shaped,A slightly more balanced TH900 with similar sibilance issues.,C-,A-,Dynamic,Open Circumaural
+C+,0,Neumann NDH 20,Neutral with bass boost,Feels like an attempt at Harman but ultimately missing the mark in the midrange tuning.,C+,B-,Dynamic,Closed Circumaural
+C+,0,Rosson RAD-0,Warm neutral,Middling technicalities with suppressed upper midrange.,C,B,Planar,Open Circumaural
+C+,0,Sony MDR-1AM2,Warm U-shape,Harman-ish tuning with a strong mid-bass presence and piercing upper treble response.,B,C,Dynamic,Closed Circumaural
+C+,0,"Abyss AB-1266 Phi CC
+Abyss AB-1266 Phi","""Balanced""","Sinfully addictive bass and treble reponse, but the midrange tonality needs a lot of work.",D+,A+,Planar,Open Circumaural
+C+,0,Audeze LCD-MX4,Warm,Classic Audeze combo of solid resolution with a confusing lack of upper midrange.,D+,A+,Planar,Open Circumaural
+C+,0,Hifiman HE5SE,V-shaped,"Strong contender for an excellent headphone, if not for the inexplicable hole in the mids.",D+,A,Planar,Open Circumaural
+C+,0,Sony MDR-CD380,DF-neutral,"Shouty and thin-sounding, though surprisingly competent imaging ability.",C+,C+,Dynamic,Closed Circumaural
+S,1,Hifiman Susvara,Neutral,Subtle refinements to the already-great HE1000 makes this arguably the best planar in the world.,S,S,Planar,Open Circumaural
+S,0,Sennheiser HE-1,Harman neutral,"Mostly neutral, slight bass lift, highly resolving and natural both in tone and timbre. The world's best headphone.",S+,S,Electrostatic,Open Circumaural
+S-,1,Focal Utopia,Neutral,Solid tuning with close to top-tier resolution. An inoffensive all-rounder that lives up to its reputation.,S,S-,Dynamic,Open Circumaural
+S-,0,"Hifiman HE1000
+(V2)",Neutral,"A planar that comes unnervingly close estat speed, but not quite. Solid technicalities with excellent tone.",S,S-,Planar,Open Circumaural

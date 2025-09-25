@@ -93,44 +93,92 @@ interface RecommendationRequest {
   optimizeAroundHeadphones?: string
 }
 
-// Calculate synergy score based on sound signature and usage
+// Enhanced dual-layer synergy scoring with detailed Crinacle signatures
 function calculateSynergyScore(component: unknown, soundSig: string, primaryUsage: string): number {
   const comp = component as {
     sound_signature?: string
+    crinacle_sound_signature?: string
     use_cases?: string | string[]
   }
-  let score = 0.5 // Base score
-  
-  // Sound signature matching (30% weight)
-  if (comp.sound_signature) {
+  let score = 0.6 // Base score - slightly lower to make room for bonuses
+
+  // Layer 1: Basic signature matching (existing system)
+  if (comp.sound_signature && soundSig !== 'any') {
     if (comp.sound_signature === soundSig) {
-      score += 0.3
+      score += 0.15 // Basic perfect match
     } else if (soundSig === 'neutral' && comp.sound_signature === 'balanced') {
-      score += 0.25
+      score += 0.12 // Close match
     } else if (
       (soundSig === 'warm' && comp.sound_signature === 'neutral') ||
       (soundSig === 'bright' && comp.sound_signature === 'neutral')
     ) {
-      score += 0.15
+      score += 0.08 // Compatible match
     }
   }
-  
-  // Usage case matching (20% weight)
+
+  // Layer 2: Detailed Crinacle signature matching (enhanced system)
+  if (comp.crinacle_sound_signature && soundSig !== 'any') {
+    const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, soundSig);
+    score += detailedMatch * 0.2; // Up to 20% bonus for detailed matching
+  }
+
+  // Usage case matching - BONUS only, not penalty for missing
   if (comp.use_cases && primaryUsage) {
-    const useCases = Array.isArray(comp.use_cases) 
-      ? comp.use_cases 
-      : (typeof comp.use_cases === 'string' 
+    const useCases = Array.isArray(comp.use_cases)
+      ? comp.use_cases
+      : (typeof comp.use_cases === 'string'
         ? comp.use_cases.split(',').map(u => u.trim().toLowerCase())
         : [])
-    
+
     if (useCases.includes(primaryUsage.toLowerCase())) {
-      score += 0.2
+      score += 0.1 // Usage match bonus
     } else if (useCases.includes('music') && primaryUsage.toLowerCase() === 'gaming') {
-      score += 0.1 // Music gear often works well for gaming
+      score += 0.05 // Music gear often works well for gaming
     }
   }
-  
+
   return Math.min(1, score)
+}
+
+// Detailed signature matching with partial scoring
+function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
+  if (!crinSig || !userPref) return 0;
+
+  // Exact match mappings for maximum compatibility
+  const exactMatches: Record<string, Record<string, number>> = {
+    'neutral': {
+      'Neutral': 1.0,
+      'Bass-rolled neutral': 0.85,
+      'Warm neutral': 0.75,
+      'Bright neutral': 0.75,
+      'Harman neutral': 0.9,
+      'DF-neutral': 0.85,
+      '"""Balanced"""': 0.8
+    },
+    'bright': {
+      'Bright neutral': 1.0,
+      'Bright': 0.95,
+      'Neutral': 0.7,
+      'Bass-rolled neutral': 0.5 // Less bass = more apparent brightness
+    },
+    'warm': {
+      'Warm neutral': 1.0,
+      'Warm': 0.95,
+      'Warm V-shape': 0.85,
+      'Warm U-shape': 0.8,
+      'Neutral': 0.6,
+      'Neutral with bass boost': 0.8
+    },
+    'fun': {
+      'V-shaped': 1.0,
+      'U-shaped': 0.95,
+      'Warm V-shape': 0.9,
+      'Mild V-shape': 0.85,
+      'Mid-centric': 0.3 // Fun seekers usually don't want mid-forward
+    }
+  };
+
+  return exactMatches[userPref]?.[crinSig] || 0;
 }
 
 // Calculate budget allocation across requested components
@@ -241,11 +289,18 @@ function filterAndScoreComponents(
       return isAffordable && isInRange && hasReasonableRange
     })
     .sort((a, b) => {
-      // Multi-factor scoring: price fit + synergy
+      // Multi-factor scoring: price fit + synergy + expert data bonus
       const aPriceFit = 1 - Math.abs(budget - a.avgPrice) / budget
       const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
-      const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4
-      const bScore = bPriceFit * 0.6 + b.synergyScore * 0.4
+
+      // 5% expert data bonus for components with Crinacle data (only if already compatible)
+      const hasExpertDataA = !!(a as any).crinacle_sound_signature || !!(a as any).tone_grade || !!(a as any).technical_grade
+      const hasExpertDataB = !!(b as any).crinacle_sound_signature || !!(b as any).tone_grade || !!(b as any).technical_grade
+      const expertBonusA = (hasExpertDataA && a.synergyScore > 0.6) ? 0.05 : 0
+      const expertBonusB = (hasExpertDataB && b.synergyScore > 0.6) ? 0.05 : 0
+
+      const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4 + expertBonusA
+      const bScore = bPriceFit * 0.6 + b.synergyScore * 0.4 + expertBonusB
       return bScore - aScore
     })
     .slice(0, maxOptions)
