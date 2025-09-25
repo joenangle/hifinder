@@ -4,13 +4,15 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
-  // Only protect staging.hifinder.app specifically
-  // Allow production (hifinder.app) and preview URLs to pass through
-  if (hostname !== 'staging.hifinder.app') {
+  // Allow production domain to pass through
+  if (hostname === 'hifinder.app') {
     return NextResponse.next()
   }
 
-  // Check for Basic Auth header on staging only
+  // Protect all Vercel deployment URLs (staging/preview)
+  // These follow the pattern: hifinder-[hash]-joenangles-projects.vercel.app
+
+  // Check for Basic Auth header on all non-production URLs
   const auth = request.headers.get('authorization')
 
   if (!auth?.startsWith('Basic ')) {
