@@ -18,20 +18,19 @@ jobs:
       - name: Wait for Vercel deployment
         run: |
           echo "Waiting for Vercel deployment to complete..."
-          sleep 30  # Give Vercel time to start the deployment
+          sleep 60  # Give Vercel time to start and complete deployment
 
-          # Get the latest Preview deployment URL - look for Ready status AND Preview environment
-          DEPLOYMENT_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "● Ready" | grep "Preview" | head -1 | sed -n 's/.*\(https:\/\/[^[:space:]]*\).*/\1/p')
+          # Get the latest Preview deployment URL using awk for reliable parsing
+          DEPLOYMENT_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | awk '/Ready.*Preview/ {print $2; exit}')
 
           if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "No deployment URL found, waiting longer..."
-            sleep 60
-            DEPLOYMENT_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "● Ready" | grep "Preview" | head -1 | sed -n 's/.*\(https:\/\/[^[:space:]]*\).*/\1/p')
+            echo "No Ready Preview deployment found. Trying alternative parsing..."
+            DEPLOYMENT_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | awk '/Preview.*Ready/ {print $2; exit}')
           fi
 
           if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "Still no deployment found, checking all deployments..."
-            vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+            echo "Still no deployment found. Debug output:"
+            vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | head -10
             exit 1
           fi
 
