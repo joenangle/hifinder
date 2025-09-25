@@ -1,0 +1,49 @@
+name: Update Staging Alias
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  update-staging-alias:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Wait for Vercel deployment
+        run: |
+          echo "Waiting for Vercel deployment to complete..."
+          sleep 30  # Give Vercel time to start the deployment
+
+          # Get the latest deployment for this commit
+          DEPLOYMENT_URL=$(vercel ls --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "Preview" | head -1 | awk '{print $2}')
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "No deployment URL found, waiting longer..."
+            sleep 60
+            DEPLOYMENT_URL=$(vercel ls --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "Preview" | head -1 | awk '{print $2}')
+          fi
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "Still no deployment found, exiting..."
+            exit 1
+          fi
+
+          echo "Found deployment: $DEPLOYMENT_URL"
+          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+
+      - name: Update staging alias
+        run: |
+          echo "Updating staging.hifinder.app to point to $DEPLOYMENT_URL"
+          vercel alias set $DEPLOYMENT_URL staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+          echo "✅ Successfully updated staging.hifinder.app alias!"
+
+      - name: Verify alias update
+        run: |
+          echo "Verifying alias was updated successfully..."
+          vercel alias ls --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep staging.hifinder.app

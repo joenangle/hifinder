@@ -6,6 +6,7 @@
 - ✅ CSV import path fixes
 - ✅ Component count accuracy fix (1,200+ → 550+ dynamic)
 - ✅ Automated staging deployment pipeline
+- ✅ GitHub Actions for automatic staging alias updates
 - ✅ BudgetSliderEnhanced dual-range functionality fix
 - ✅ $1000 IEM budget filtering bug fix (0 → 10+ results)
 - ✅ Category correction (82 headphones + 316 IEMs from Crinacle data)
@@ -78,6 +79,31 @@
 **Differentiation from Recommendations:**
 - **Recommendations**: "What should I buy?" (personalized, algorithm-driven)
 - **Used Listings**: "What's available right now?" (inventory-driven, market-focused)
+
+## GitHub Actions Setup for Staging Automation
+
+**Required GitHub Secrets:**
+1. **VERCEL_TOKEN**: Personal access token from Vercel dashboard
+2. **VERCEL_ORG_ID**: Organization ID from Vercel (usually starts with `team_`)
+
+**Setup Instructions:**
+1. Go to Vercel Dashboard → Settings → Tokens → Create new token
+2. Copy token to GitHub repo → Settings → Secrets → Actions → New repository secret
+   - Name: `VERCEL_TOKEN`
+   - Value: [your token]
+3. Get Vercel Org ID from Vercel dashboard URL or CLI: `vercel teams ls`
+4. Add as GitHub secret:
+   - Name: `VERCEL_ORG_ID`
+   - Value: [your org ID]
+
+**How it works:**
+- Push to staging branch → GitHub Action triggers
+- Action waits for Vercel deployment to complete
+- Automatically updates staging.hifinder.app alias to point to new deployment
+- Provides verification and error logging
+
+**Files:**
+- `.github/workflows/staging-alias.yml` - Main automation workflow
 
 ## Claude Code Skill Development
 
