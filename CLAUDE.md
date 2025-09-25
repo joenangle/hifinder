@@ -33,6 +33,52 @@
 
 **To implement:** Ask Claude to "start the summit-fi component data project"
 
+## Used Listings Page Strategy
+
+**Current State:**
+- Homepage shows actual used listings count (179+ as of latest)
+- Used listings integrated into recommendations page
+- Scraped data from Reddit r/AVexchange, eBay, other sources
+
+**Proposed Separate Used Listings Page (`/used-listings`):**
+
+**Phase 1: Basic Browse & Filter**
+- **URL Structure**: `/used-listings` (separate from `/used-market` redirect page)
+- **Core Features**:
+  - Grid/list view of all available used listings
+  - Filter by: category (cans/iems/dacs/amps), price range, condition, source
+  - Search by brand/model name
+  - Sort by: price, date posted, condition, location
+
+**Phase 2: Enhanced Discovery**
+- **Smart Recommendations**: "Users who viewed this also looked at..."
+- **Price History**: Show if item has had price drops
+- **Condition Indicators**: Visual condition ratings (Mint, Excellent, Good, Fair)
+- **Source Integration**: Direct links to original listings (Reddit, eBay, etc.)
+
+**Phase 3: Advanced Features**
+- **Saved Searches**: Alert users when matching items appear
+- **Wishlist Integration**: "Items similar to your wishlist are available"
+- **Negotiation Tools**: Contact sellers through platform (long-term)
+- **Verified Sellers**: Reputation system for trusted sources
+
+**Technical Implementation:**
+- **Database**: Leverage existing `used_listings` table (179 records)
+- **API**: `/api/used-listings` with pagination, filtering, search
+- **Real-time Updates**: WebSocket or polling for new listings
+- **Performance**: Infinite scroll, image lazy loading, search debouncing
+
+**User Journey:**
+1. **Discovery**: User visits `/used-listings` to browse available gear
+2. **Filter**: Narrows down by budget, category, condition
+3. **Compare**: Views multiple similar items, checks condition/price
+4. **Action**: Clicks through to original listing to purchase
+5. **Follow-up**: Sets up alerts for similar items in the future
+
+**Differentiation from Recommendations:**
+- **Recommendations**: "What should I buy?" (personalized, algorithm-driven)
+- **Used Listings**: "What's available right now?" (inventory-driven, market-focused)
+
 ## Claude Code Skill Development
 
 **User Request:** Be proactive about suggesting optimizations and advanced techniques
@@ -190,3 +236,8 @@ Natural language hints that auto-select signatures:
 ### Recommended Approach:
 Start with **Progressive Disclosure (#1)** for immediate impact, then explore **Experience-Driven (#4)** for long-term UX sophistication. This leverages our dual-layer architecture while maintaining backward compatibility.
 - claude remind me to use git push origin staging when ready to push to staging. Remember that's what I'm asking you to do if I say "push to staging"
+- CLAUDE remember this going forward
+- also remember To prevent these variable/function name errors in the future, I should:
+  1. Always check existing imports before using them
+  2. Use Grep to verify function signatures in the codebase
+  3. Test API endpoints locally before pushing to staging

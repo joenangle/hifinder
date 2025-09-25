@@ -124,8 +124,8 @@ export function LandingPage() {
               <div className="text-foreground text-sm font-semibold">Budget Range</div>
             </div>
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
-              <div className="text-3xl font-bold text-accent mb-2">Live</div>
-              <div className="text-foreground text-sm font-semibold">Used Market</div>
+              <div className="text-3xl font-bold text-accent mb-2">{stats.listings >= 1000 ? `${Math.round(stats.listings / 100) / 10}k+` : `${stats.listings}+`}</div>
+              <div className="text-foreground text-sm font-semibold">Used Listings</div>
             </div>
             <div className="card text-center p-4 bg-gradient-to-br from-surface-card to-surface-hover border-2 hover:border-accent/30 transition-all duration-300 hover:scale-105 flex flex-col justify-center">
               <div className="text-3xl font-bold text-accent mb-2">Smart</div>
