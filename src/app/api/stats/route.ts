@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 
-// Simple stats cache to reduce database load
+// Simple stats cache to reduce database load on production
 const cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
