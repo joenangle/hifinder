@@ -15,18 +15,22 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Update staging alias directly
+      - name: Update staging alias
         run: |
           echo "Waiting for deployment to complete..."
-          sleep 90   # Wait 90 seconds for deployment
+          sleep 90
 
-          echo "Updating staging alias to latest Preview deployment..."
-          # Use vercel alias with automatic detection - much simpler!
-          vercel alias staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+          echo "Getting latest deployment..."
+          LATEST_URL=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "https://" | head -1 | awk '{print $1}')
 
-          echo "✅ Staging alias updated successfully!"
+          echo "Latest deployment URL: $LATEST_URL"
 
-      - name: Verify alias update
-        run: |
-          echo "Verifying alias was updated successfully..."
-          vercel alias ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep staging.hifinder.app || echo "Alias verification completed"
+          if [ -z "$LATEST_URL" ]; then
+            echo "ERROR: No deployment URL found"
+            exit 1
+          fi
+
+          echo "Updating staging alias..."
+          vercel alias set $LATEST_URL staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+
+          echo "✅ Successfully updated staging.hifinder.app!"
