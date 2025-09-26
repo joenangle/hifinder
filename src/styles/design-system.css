@@ -1972,16 +1972,16 @@ select.input {
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .filter-label-compact {
     min-width: auto;
     margin-bottom: 8px;
   }
-
+  
   .filter-buttons-compact {
     width: 100%;
   }
-
+  
   .toggle-compact {
     padding: 8px 12px;
     font-size: 0.8125rem;
