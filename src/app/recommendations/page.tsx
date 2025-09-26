@@ -244,13 +244,13 @@ function RecommendationsContent() {
         budget: budgetForAPI.toString(),
         budgetRangeMin: debouncedBudgetRangeMin.toString(),
         budgetRangeMax: debouncedBudgetRangeMax.toString(),
-        headphoneTypes: JSON.stringify(debouncedHeadphoneType === 'both' ? ['cans', 'iems'] : [debouncedHeadphoneType]),
+        headphoneType: debouncedHeadphoneType,
         wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor),
         existingGear: JSON.stringify(debouncedExistingGear),
         usage: debouncedUsage,
         usageRanking: JSON.stringify(debouncedUsageRanking),
         excludedUsages: JSON.stringify(debouncedExcludedUsages),
-        sound: debouncedSoundSignature
+        soundSignature: debouncedSoundSignature
       })
 
       const response = await fetch(`/api/recommendations?${params.toString()}`)
