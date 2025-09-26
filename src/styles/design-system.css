@@ -1734,41 +1734,108 @@ select.input {
   --ui-hover-bg-opacity: 0.15;
 }
 
-/* Filter Toggle Button Styles */
+/* ============================================
+   FILTER TOGGLE BUTTONS
+   ============================================ */
+
 .filter-toggle-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--border-default);
-  border-radius: var(--radius-full);
-  background: var(--background-secondary);
-  color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 2px solid;
   transition: all 0.2s ease;
-  outline: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  background-color: var(--background-secondary);
+  border-color: var(--border-default);
+  color: var(--text-secondary);
 }
 
 .filter-toggle-btn:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.filter-toggle-btn:focus-visible {
-  outline: 3px solid var(--accent-primary);
-  outline-offset: 2px;
+.filter-toggle-btn:active {
+  transform: translateY(0);
 }
 
 .filter-toggle-badge {
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .filter-toggle-btn:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Filter button color variants */
+.filter-btn-purple.active {
+  background-color: rgba(139, 92, 246, 0.15);
+  border-color: var(--ui-purple);
+  color: var(--ui-purple);
+}
+
+.filter-btn-indigo.active {
+  background-color: rgba(99, 102, 241, 0.15);
+  border-color: var(--ui-indigo);
+  color: var(--ui-indigo);
+}
+
+.filter-btn-green.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: var(--ui-green);
+  color: var(--ui-green);
+}
+
+.filter-btn-amber.active {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: var(--ui-amber);
+  color: var(--ui-amber);
+}
+
+.filter-btn-blue.active {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: var(--ui-blue);
+  color: var(--ui-blue);
+}
+
+.filter-btn-neutral.active {
+  background-color: rgba(107, 114, 128, 0.15);
+  border-color: var(--ui-neutral);
+  color: var(--ui-neutral);
+}
+
+.filter-btn-warm.active {
+  background-color: rgba(251, 146, 60, 0.15);
+  border-color: var(--ui-warm);
+  color: var(--ui-warm);
+}
+
+.filter-btn-bright.active {
+  background-color: rgba(56, 189, 248, 0.15);
+  border-color: var(--ui-bright);
+  color: var(--ui-bright);
+}
+
+.filter-btn-fun.active {
+  background-color: rgba(244, 114, 182, 0.15);
+  border-color: var(--ui-fun);
+  color: var(--ui-fun);
+}
+
+.filter-toggle-btn.active .filter-toggle-badge {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .filter-toggle-btn.active .filter-toggle-badge {
+  background-color: rgba(255, 255, 255, 0.1);
 }

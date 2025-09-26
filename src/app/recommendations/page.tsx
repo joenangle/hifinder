@@ -557,33 +557,7 @@ function RecommendationsContent() {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <button
-                  onClick={() => {
-                    const newFilters = typeFilters.includes('cans')
-                      ? typeFilters.filter(f => f !== 'cans')
-                      : [...typeFilters, 'cans']
-                    setTypeFilters(newFilters)
-                    // Update userPrefs for backward compatibility
-                    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                    updatePreferences({
-                      headphoneType: newType,
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        headphones: newFilters.length > 0 // Enable headphones if any type is selected
-                      }
-                    })
-                  }}
-                  style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '4px', paddingBottom: '4px' }}
-                  className={`
-                    flex items-center justify-between rounded-full text-sm font-medium transition-all duration-200 w-full relative border-2
-                    ${typeFilters.includes('cans')
-                      ? 'bg-purple-600 text-white border-purple-600 shadow-md dark:bg-purple-700 dark:border-purple-700'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700'
-                    }
-                  `}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <FilterToggleButton
                     label="Over-Ear Headphones"
                     icon="🎧"
@@ -763,6 +737,9 @@ function RecommendationsContent() {
                 color="fun"
               />
             </div>
+            </div>
+          </div>
+        </div>
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}
         {amplificationNeeds?.shouldShowWarning && (
@@ -1346,6 +1323,7 @@ function RecommendationsContent() {
           setShowStackBuilder(false)
         }}
       />
+      </div>
     </div>
   )
 }
