@@ -1692,3 +1692,44 @@ select.input {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ============================================
+   REFINED AUDIO UI COLORS
+   Add this section to your design-system.css
+   ============================================ */
+
+:root {
+  /* Muted UI Colors for Toggle Buttons */
+  --ui-purple: #8B5CF6;      /* Softer purple for headphones */
+  --ui-indigo: #6366F1;       /* Softer indigo for IEMs */
+  --ui-green: #10B981;        /* Softer green for DACs */
+  --ui-amber: #F59E0B;        /* Softer amber for Amps */
+  --ui-blue: #3B82F6;         /* Softer blue for Combos */
+  
+  /* Muted Sound Signature Colors */
+  --ui-neutral: #6B7280;      /* Gray for neutral */
+  --ui-warm: #FB923C;         /* Soft orange for warm */
+  --ui-bright: #38BDF8;       /* Soft cyan for bright */
+  --ui-fun: #F472B6;          /* Soft pink for fun */
+  
+  /* Refined backgrounds for active states */
+  --ui-active-bg-opacity: 0.15;
+  --ui-hover-bg-opacity: 0.08;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] {
+  --ui-purple: #A78BFA;
+  --ui-indigo: #818CF8;
+  --ui-green: #34D399;
+  --ui-amber: #FCD34D;
+  --ui-blue: #60A5FA;
+  
+  --ui-neutral: #9CA3AF;
+  --ui-warm: #FDBA74;
+  --ui-bright: #7DD3FC;
+  --ui-fun: #F9A8D4;
+  
+  --ui-active-bg-opacity: 0.25;
+  --ui-hover-bg-opacity: 0.15;
+}
