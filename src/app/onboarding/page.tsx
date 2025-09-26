@@ -816,7 +816,7 @@ const handleNext = useCallback(() => {
       usage: finalPrefs.usage,
       usageRanking: JSON.stringify(finalPrefs.usageRanking),
       excludedUsages: JSON.stringify(finalPrefs.excludedUsages),
-      sound: finalPrefs.soundSignature
+      soundSignature: finalPrefs.soundSignature
     })
     router.push(`/recommendations?${params.toString()}`)
   }
