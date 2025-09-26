@@ -1839,3 +1839,151 @@ select.input {
 [data-theme="dark"] .filter-toggle-btn.active .filter-toggle-badge {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* ============================================
+   COMPACT FILTER BUTTONS
+   ============================================ */
+
+/* Compact Filter Container */
+.filter-card-compact {
+  background: var(--background-secondary);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.filter-title-compact {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label-compact {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.filter-buttons-compact {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+/* Compact Toggle Button */
+.toggle-compact {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-default);
+  background: var(--background-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.toggle-compact:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] .toggle-compact:hover {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* Active states for each color */
+.toggle-compact.active-purple {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--ui-purple);
+  color: var(--ui-purple);
+}
+
+.toggle-compact.active-indigo {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--ui-indigo);
+  color: var(--ui-indigo);
+}
+
+.toggle-compact.active-green {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: var(--ui-green);
+  color: var(--ui-green);
+}
+
+.toggle-compact.active-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: var(--ui-amber);
+  color: var(--ui-amber);
+}
+
+.toggle-compact.active-blue {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--ui-blue);
+  color: var(--ui-blue);
+}
+
+.toggle-compact.active-neutral {
+  background: rgba(107, 114, 128, 0.08);
+  border-color: var(--ui-neutral);
+  color: var(--ui-neutral);
+}
+
+.toggle-compact.active-warm {
+  background: rgba(251, 146, 60, 0.08);
+  border-color: var(--ui-warm);
+  color: var(--ui-warm);
+}
+
+.toggle-compact.active-bright {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: var(--ui-bright);
+  color: var(--ui-bright);
+}
+
+.toggle-compact.active-fun {
+  background: rgba(244, 114, 182, 0.08);
+  border-color: var(--ui-fun);
+  color: var(--ui-fun);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-label-compact {
+    min-width: auto;
+    margin-bottom: 8px;
+  }
+
+  .filter-buttons-compact {
+    width: 100%;
+  }
+
+  .toggle-compact {
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+  }
+}
