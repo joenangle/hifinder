@@ -1553,3 +1553,142 @@ select.input {
     text-align: center;
   }
 }
+
+/* ============================================
+   HIFINDER DESIGN SYSTEM EXTENSIONS
+   Added to support existing React components
+   ============================================ */
+
+/* Component Class Mappings - Maps Tailwind classes to CSS variables */
+.bg-surface-elevated { background-color: var(--surface-card); }
+.bg-surface-secondary { background-color: var(--background-secondary); }
+.text-foreground { color: var(--text-primary); }
+.text-muted { color: var(--text-secondary); }
+.text-accent-foreground { color: var(--text-inverse); }
+.bg-accent { background-color: var(--accent-primary); }
+.bg-accent-hover { background-color: var(--accent-hover); }
+.border-border { border-color: var(--border-default); }
+.border-accent { border-color: var(--accent-primary); }
+
+/* Audio-Specific Colors */
+:root {
+  --sound-neutral: #6C757D;
+  --sound-warm: #F57C00;
+  --sound-bright: #FFB74D;
+  --sound-fun: #E85A4F;
+  --category-cans: var(--accent-primary);
+  --category-iems: #7C4DFF;
+  --category-dac: #00ACC1;
+  --category-amp: #43A047;
+  --price-great-deal: #2E7D32;
+  --price-good-deal: #0288D1;
+  --source-reddit: #FF4500;
+  --source-ebay: #0064D2;
+  --source-headfi: #6A4C93;
+  --source-reverb: #00B37D;
+  --amp-easy: #43A047;
+  --amp-moderate: #FFB74D;
+  --amp-demanding: #FF9800;
+  --amp-very-demanding: #EF5350;
+}
+
+/* Condition Colors for UsedMarketListingCard */
+.text-green-600 { color: #16a34a; }
+.text-green-700 { color: #15803d; }
+.bg-green-50 { background-color: #f0fdf4; }
+.bg-green-100 { background-color: #dcfce7; }
+.border-green-200 { border-color: #bbf7d0; }
+.text-blue-600 { color: #2563eb; }
+.text-blue-700 { color: #1d4ed8; }
+.text-blue-800 { color: #1e40af; }
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+.border-blue-200 { border-color: #bfdbfe; }
+.text-yellow-600 { color: #ca8a04; }
+.text-yellow-700 { color: #a16207; }
+.text-yellow-800 { color: #854d0e; }
+.bg-yellow-50 { background-color: #fefce8; }
+.border-yellow-200 { border-color: #fef08a; }
+.text-orange-500 { color: #f97316; }
+.text-orange-600 { color: #ea580c; }
+.text-orange-700 { color: #c2410c; }
+.text-orange-800 { color: #9a3412; }
+.bg-orange-50 { background-color: #fff7ed; }
+.bg-orange-100 { background-color: #fed7aa; }
+.border-orange-200 { border-color: #fdba74; }
+.text-red-600 { color: #dc2626; }
+.text-red-800 { color: #991b1b; }
+.bg-red-50 { background-color: #fef2f2; }
+.bg-red-100 { background-color: #fee2e2; }
+.border-red-200 { border-color: #fecaca; }
+.text-purple-800 { color: #6b21a8; }
+.bg-purple-100 { background-color: #f3e8ff; }
+.border-purple-200 { border-color: #e9d5ff; }
+.text-gray-500 { color: #6b7280; }
+.text-gray-600 { color: #4b5563; }
+.text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
+.bg-gray-50 { background-color: #f9fafb; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.border-gray-200 { border-color: #e5e7eb; }
+
+/* Dark mode adjustments */
+[data-theme="dark"] .bg-green-50 { background-color: rgba(34, 197, 94, 0.1); }
+[data-theme="dark"] .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1); }
+[data-theme="dark"] .bg-yellow-50 { background-color: rgba(250, 204, 21, 0.1); }
+[data-theme="dark"] .bg-orange-50 { background-color: rgba(249, 115, 22, 0.1); }
+[data-theme="dark"] .bg-red-50 { background-color: rgba(239, 68, 68, 0.1); }
+[data-theme="dark"] .bg-gray-100 { background-color: var(--background-secondary); }
+
+/* Missing utility classes */
+.z-\[9999\] { z-index: 9999; }
+.bg-opacity-50 { opacity: 0.5; }
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cursor-not-allowed { cursor: not-allowed; }
+.max-w-2xl { max-width: 42rem; }
+.max-h-\[90vh\] { max-height: 90vh; }
+.fixed { position: fixed; }
+.inset-0 { inset: 0; }
+.overflow-y-auto { overflow-y: auto; }
+.overflow-hidden { overflow: hidden; }
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover utilities */
+.hover\:text-foreground:hover { color: var(--text-primary); }
+.hover\:bg-accent-hover:hover { background-color: var(--accent-hover); }
+.hover\:bg-surface-secondary:hover { background-color: var(--background-secondary); }
+.hover\:border-accent:hover { border-color: var(--accent-primary); }
+
+/* Transition utilities */
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Responsive grid */
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
