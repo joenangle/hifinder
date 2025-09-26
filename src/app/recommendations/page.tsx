@@ -11,7 +11,6 @@ import { useBudgetState } from '@/hooks/useBudgetState'
 import { AmplificationBadge } from '@/components/AmplificationIndicator'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
-import { FilterToggleButton } from '@/components/FilterToggleButton'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -83,7 +82,7 @@ function RecommendationsContent() {
     usage: searchParams.get('usage') || 'music',
     usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
     excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-    soundSignature: searchParams.get('sound') || 'any' // Show all for quick-start
+    soundSignature: searchParams.get('soundSignature') || 'any' // Show all for quick-start
   })
 
   // Debounced values for API calls (prevents excessive fetching)
@@ -149,7 +148,7 @@ function RecommendationsContent() {
       }
     }
     // Legacy support for single sound param
-    const legacySound = searchParams.get('sound')
+    const legacySound = searchParams.get('sound') // Keep for legacy support
     if (legacySound && legacySound !== 'any') return [legacySound]
     return ['neutral', 'warm', 'bright', 'fun'] // Default to all
   })
@@ -167,7 +166,7 @@ function RecommendationsContent() {
       usage: searchParams.get('usage') || 'music',
       usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
       excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-      soundSignature: searchParams.get('sound') || 'neutral'
+      soundSignature: searchParams.get('soundSignature') || searchParams.get('sound') || 'neutral' // Support both new and legacy params
     }
     setUserPrefs(urlPrefs)
   }, [searchParams])
@@ -486,7 +485,7 @@ function RecommendationsContent() {
 
 
         {/* Enhanced Budget Control */}
-        <div className="card p-6" style={{ marginBottom: '32px' }}>
+        <div className="card p-6" style={{ marginBottom: '32px', width: '100%' }}>
           <BudgetSliderEnhanced
             budget={budgetState.budget}
             displayBudget={budgetState.displayBudget}
@@ -503,184 +502,113 @@ function RecommendationsContent() {
             maxBudget={10000}
             budgetRangeMin={userPrefs.budgetRangeMin}
             budgetRangeMax={userPrefs.budgetRangeMax}
-            className="w-full"
+            className="w-full" // Ensure this is set
           />
         </div>
 
-        {/* Optional Filters */}
-        <div className="card p-6" style={{ marginBottom: '32px' }}>
-          <h3 className="heading-3 text-center mb-4">Refine Your Search</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Headphone & Audio Gear Toggles */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Headphone & Audio Gear</label>
-
-              {/* All/None toggle buttons */}
-              <div className="flex gap-2" style={{ marginBottom: '12px' }}>
-                <button
-                  onClick={() => {
-                    // Select all gear types
-                    setTypeFilters(['cans', 'iems'])
-                    updatePreferences({
-                      headphoneType: 'both',
-                      wantRecommendationsFor: {
-                        dac: true,
-                        amp: true,
-                        combo: true
-                      }
-                    })
-                  }}
-                  className="rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
-                  style={{ padding: '6px 16px' }}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => {
-                    // Deselect all gear types
-                    setTypeFilters([])
-                    updatePreferences({
-                      headphoneType: 'both',
-                      wantRecommendationsFor: {
-                        headphones: false, // Also disable headphone recommendations when no types selected
-                        dac: false,
-                        amp: false,
-                        combo: false
-                      }
-                    })
-                  }}
-                  className="rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
-                  style={{ padding: '6px 16px' }}
-                >
-                  None
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <FilterToggleButton
-                    label="Over-Ear Headphones"
-                    icon="🎧"
-                    active={typeFilters.includes('cans')}
-                    onClick={() => {
-                      const newFilters = typeFilters.includes('cans')
-                        ? typeFilters.filter(f => f !== 'cans')
-                        : [...typeFilters, 'cans']
-                      setTypeFilters(newFilters)
-                      const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                      updatePreferences({
-                        headphoneType: newType,
-                        wantRecommendationsFor: {
-                          ...wantRecommendationsFor,
-                          headphones: newFilters.length > 0
-                        }
-                      })
-                    }}
-                    color="purple"
-                  />
-                  
-                  <FilterToggleButton
-                    label="In-Ear Monitors (IEMs)"
-                    icon="🎵"
-                    active={typeFilters.includes('iems')}
-                    onClick={() => {
-                      const newFilters = typeFilters.includes('iems')
-                        ? typeFilters.filter(f => f !== 'iems')
-                        : [...typeFilters, 'iems']
-                      setTypeFilters(newFilters)
-                      const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                      updatePreferences({
-                        headphoneType: newType,
-                        wantRecommendationsFor: {
-                          ...wantRecommendationsFor,
-                          headphones: newFilters.length > 0
-                        }
-                      })
-                    }}
-                    color="indigo"
-                  />
-                  
-                  <FilterToggleButton
-                    label="DACs"
-                    icon="🔄"
-                    active={wantRecommendationsFor.dac}
-                    onClick={() => {
-                      updatePreferences({
-                        wantRecommendationsFor: {
-                          ...wantRecommendationsFor,
-                          dac: !wantRecommendationsFor.dac
-                        }
-                      })
-                    }}
-                    color="green"
-                  />
-                  
-                  <FilterToggleButton
-                    label="Amplifiers"
-                    icon="⚡"
-                    active={wantRecommendationsFor.amp}
-                    onClick={() => {
-                      updatePreferences({
-                        wantRecommendationsFor: {
-                          ...wantRecommendationsFor,
-                          amp: !wantRecommendationsFor.amp
-                        }
-                      })
-                    }}
-                    color="amber"
-                  />
-                  
-                  <FilterToggleButton
-                    label="DAC/Amp Combos"
-                    icon="🔗"
-                    active={wantRecommendationsFor.combo}
-                    onClick={() => {
-                      updatePreferences({
-                        wantRecommendationsFor: {
-                          ...wantRecommendationsFor,
-                          combo: !wantRecommendationsFor.combo
-                        }
-                      })
-                    }}
-                    color="blue"
-                  />
-                </div>
-
-            {/* Sound Signature Filter */}
-            <div>
-              <label className="block text-sm font-medium text-primary mb-3">Sound Signature</label>
-
-              {/* All/None toggle buttons */}
-              <div className="flex gap-2" style={{ marginBottom: '12px' }}>
-                <button
-                  onClick={() => {
-                    // Select all sound signatures
-                    setSoundFilters(['neutral', 'warm', 'bright', 'fun'])
-                    updatePreferences({ soundSignature: 'any' })
-                  }}
-                  className="rounded-full text-xs font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600"
-                  style={{ padding: '6px 16px' }}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => {
-                    // Deselect all sound signatures
-                    setSoundFilters([])
-                    updatePreferences({ soundSignature: 'any' })
-                  }}
-                  className="rounded-full text-xs font-medium transition-colors bg-gray-500 text-white hover:bg-gray-600"
-                  style={{ padding: '6px 16px' }}
-                >
-                  None
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <FilterToggleButton
-                label="Neutral (Balanced)"
-                icon="⚖️"
-                active={soundFilters.includes('neutral')}
+       {/* Compact Filters */}
+        <div className="filter-card-compact">
+          <h3 className="filter-title-compact">Refine Your Search</h3>
+          
+          {/* Equipment Type Row */}
+          <div className="filter-row">
+            <span className="filter-label-compact">Equipment</span>
+            <div className="filter-buttons-compact">
+              <button
+                className={`toggle-compact ${typeFilters.includes('cans') ? 'active-purple' : ''}`}
+                onClick={() => {
+                  const newFilters = typeFilters.includes('cans')
+                    ? typeFilters.filter(f => f !== 'cans')
+                    : [...typeFilters, 'cans']
+                  setTypeFilters(newFilters)
+                  const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                  updatePreferences({
+                    headphoneType: newType,
+                    wantRecommendationsFor: {
+                      ...wantRecommendationsFor,
+                      headphones: newFilters.length > 0
+                    }
+                  })
+                }}
+              >
+                <span>🎧</span>
+                <span>Headphones</span>
+              </button>
+              
+              <button
+                className={`toggle-compact ${typeFilters.includes('iems') ? 'active-indigo' : ''}`}
+                onClick={() => {
+                  const newFilters = typeFilters.includes('iems')
+                    ? typeFilters.filter(f => f !== 'iems')
+                    : [...typeFilters, 'iems']
+                  setTypeFilters(newFilters)
+                  const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                  updatePreferences({
+                    headphoneType: newType,
+                    wantRecommendationsFor: {
+                      ...wantRecommendationsFor,
+                      headphones: newFilters.length > 0
+                    }
+                  })
+                }}
+              >
+                <span>🎵</span>
+                <span>IEMs</span>
+              </button>
+              
+              <button
+                className={`toggle-compact ${wantRecommendationsFor.dac ? 'active-green' : ''}`}
+                onClick={() => {
+                  updatePreferences({
+                    wantRecommendationsFor: {
+                      ...wantRecommendationsFor,
+                      dac: !wantRecommendationsFor.dac
+                    }
+                  })
+                }}
+              >
+                <span>🔄</span>
+                <span>DACs</span>
+              </button>
+              
+              <button
+                className={`toggle-compact ${wantRecommendationsFor.amp ? 'active-amber' : ''}`}
+                onClick={() => {
+                  updatePreferences({
+                    wantRecommendationsFor: {
+                      ...wantRecommendationsFor,
+                      amp: !wantRecommendationsFor.amp
+                    }
+                  })
+                }}
+              >
+                <span>⚡</span>
+                <span>Amps</span>
+              </button>
+              
+              <button
+                className={`toggle-compact ${wantRecommendationsFor.combo ? 'active-blue' : ''}`}
+                onClick={() => {
+                  updatePreferences({
+                    wantRecommendationsFor: {
+                      ...wantRecommendationsFor,
+                      combo: !wantRecommendationsFor.combo
+                    }
+                  })
+                }}
+              >
+                <span>🔗</span>
+                <span>Combos</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Sound Signature Row */}
+          <div className="filter-row">
+            <span className="filter-label-compact">Sound</span>
+            <div className="filter-buttons-compact">
+              <button
+                className={`toggle-compact ${soundFilters.includes('neutral') ? 'active-neutral' : ''}`}
                 onClick={() => {
                   const newFilters = soundFilters.includes('neutral')
                     ? soundFilters.filter(f => f !== 'neutral')
@@ -689,13 +617,13 @@ function RecommendationsContent() {
                   const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
                   updatePreferences({ soundSignature: newSignature })
                 }}
-                color="neutral"
-              />
+              >
+                <span>⚖️</span>
+                <span>Neutral</span>
+              </button>
               
-              <FilterToggleButton
-                label="Warm (Enhanced Bass)"
-                icon="🔥"
-                active={soundFilters.includes('warm')}
+              <button
+                className={`toggle-compact ${soundFilters.includes('warm') ? 'active-warm' : ''}`}
                 onClick={() => {
                   const newFilters = soundFilters.includes('warm')
                     ? soundFilters.filter(f => f !== 'warm')
@@ -704,13 +632,13 @@ function RecommendationsContent() {
                   const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
                   updatePreferences({ soundSignature: newSignature })
                 }}
-                color="warm"
-              />
+              >
+                <span>🔥</span>
+                <span>Warm</span>
+              </button>
               
-              <FilterToggleButton
-                label="Bright (Enhanced Treble)"
-                icon="✨"
-                active={soundFilters.includes('bright')}
+              <button
+                className={`toggle-compact ${soundFilters.includes('bright') ? 'active-bright' : ''}`}
                 onClick={() => {
                   const newFilters = soundFilters.includes('bright')
                     ? soundFilters.filter(f => f !== 'bright')
@@ -719,13 +647,13 @@ function RecommendationsContent() {
                   const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
                   updatePreferences({ soundSignature: newSignature })
                 }}
-                color="bright"
-              />
+              >
+                <span>✨</span>
+                <span>Bright</span>
+              </button>
               
-              <FilterToggleButton
-                label="Fun (V-Shaped)"
-                icon="🎉"
-                active={soundFilters.includes('fun')}
+              <button
+                className={`toggle-compact ${soundFilters.includes('fun') ? 'active-fun' : ''}`}
                 onClick={() => {
                   const newFilters = soundFilters.includes('fun')
                     ? soundFilters.filter(f => f !== 'fun')
@@ -734,9 +662,10 @@ function RecommendationsContent() {
                   const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
                   updatePreferences({ soundSignature: newSignature })
                 }}
-                color="fun"
-              />
-            </div>
+              >
+                <span>🎉</span>
+                <span>V-Shaped</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1324,7 +1253,6 @@ function RecommendationsContent() {
         }}
       />
       </div>
-    </div>
   )
 }
 

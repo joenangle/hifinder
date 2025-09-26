@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const rangeMinParam = searchParams.get('rangeMin')
     const rangeMaxParam = searchParams.get('rangeMax')
     const headphoneType = searchParams.get('headphoneType') || 'both'
-    const soundSignature = searchParams.get('sound') || 'any'
+    const soundSignature = searchParams.get('soundSignature') || 'any'
 
     // Validate budget
     const budget = parseInt(budgetParam || '300')

@@ -325,7 +325,7 @@ export async function GET(request: NextRequest) {
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
     const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
-    const soundSignatureParam = searchParams.get('sound') || 'neutral'
+    const soundSignatureParam = searchParams.get('soundSignature') || 'neutral'
 
     // Validate experience level
     const validExperience = ['beginner', 'intermediate', 'enthusiast']
@@ -717,7 +717,7 @@ export async function POST(request: NextRequest) {
     mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
     mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())
     mockUrl.searchParams.set('headphoneType', headphoneType)
-    mockUrl.searchParams.set('sound', soundSignature)
+    mockUrl.searchParams.set('soundSignature', soundSignature)
     mockUrl.searchParams.set('wantRecommendationsFor', JSON.stringify(wantRecommendationsFor))
     mockUrl.searchParams.set('existingGear', JSON.stringify(existingGear))
     mockUrl.searchParams.set('usage', usage)
