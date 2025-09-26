@@ -307,10 +307,10 @@ body {
   cursor: not-allowed;
 }
 
-.button-primary {
-  background: var(--accent-primary);
-  color: white;
-  padding: var(--space-2) var(--space-4);
+.button-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .button-primary:hover:not(:disabled) {
@@ -1986,4 +1986,29 @@ select.input {
     padding: 8px 12px;
     font-size: 0.8125rem;
   }
+}
+
+/* Opacity utilities for accent color */
+.text-accent\/70 { color: rgba(232, 90, 79, 0.7); }
+.text-accent\/60 { color: rgba(232, 90, 79, 0.6); }
+.bg-accent\/10 { background: rgba(232, 90, 79, 0.1); }
+.bg-accent\/5 { background: rgba(232, 90, 79, 0.05); }
+.border-accent\/20 { border-color: rgba(232, 90, 79, 0.2); }
+.text-accent-muted { 
+  color: var(--accent-primary);
+  opacity: 0.7;
+}
+
+/* Better contrast for dark mode */
+[data-theme="dark"] {
+  --text-secondary: #9CA3AF;  /* Lighter gray for better readability */
+  --text-tertiary: #6B7280;   /* Adjust tertiary too */
+}
+[data-theme="dark"] .card {
+  border-color: var(--border-subtle);  /* More visible border in dark */
+}
+
+/* Fix the checkmark visibility */
+[data-theme="dark"] .text-green-500 {
+  color: #34D399;  /* Brighter green for dark mode */
 }

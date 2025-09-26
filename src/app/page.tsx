@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { LandingPage } from '@/components/LandingPage'
 import { UserDashboard } from '@/components/UserDashboard'
+import { Analytics } from "@vercel/analytics/next"
 
 export default function Home() {
   const { data: session, status } = useSession()
