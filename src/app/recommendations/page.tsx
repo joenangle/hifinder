@@ -253,7 +253,7 @@ function RecommendationsContent() {
         sound: debouncedSoundSignature
       })
 
-      const response = await fetch(`/api/recommendations?${params.toString()}`)
+      const response = await fetch(`/api/recommendations/v2?${params.toString()}`)
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
