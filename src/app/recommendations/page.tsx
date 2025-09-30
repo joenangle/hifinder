@@ -253,7 +253,7 @@ function RecommendationsContent() {
         soundSignature: debouncedSoundSignature
       })
 
-      const response = await fetch(`/api/recommendations?${params.toString()}`)
+      const response = await fetch(`/api/recommendations/v2?${params.toString()}`)
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -284,9 +284,7 @@ function RecommendationsContent() {
       })
       
       // Set recommendations with fallbacks
-      console.log('🐛 DEBUG: Setting headphones state - API returned:', recommendations.headphones?.length, 'items')
       setHeadphones(recommendations.headphones || [])
-      console.log('🐛 DEBUG: setHeadphones called with:', (recommendations.headphones || []).length, 'items')
       setDacs(recommendations.dacs || [])
       setAmps(recommendations.amps || [])
       setDacAmps(recommendations.combos || [])
@@ -807,8 +805,8 @@ function RecommendationsContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Headphones Section */}
-          {/* Show headphones section for both headphones and IEMs requests */}
-          {(console.log('🐛 RENDER: headphones.length =', headphones.length, 'headphones:', headphones.slice(0,2)), headphones.length > 0) && (
+          {/* Show headphones section (includes both headphones and IEMs) */}
+          {wantRecommendationsFor.headphones && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
