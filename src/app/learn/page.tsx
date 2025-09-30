@@ -598,7 +598,7 @@ export default function LearnPage() {
               📧 Suggest a Resource
             </a>
             <Link
-              href="/onboarding"
+              href="/onboarding-v2"
               className="button button-secondary"
             >
               Get Recommendations
