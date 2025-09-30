@@ -1014,8 +1014,8 @@ function RecommendationsContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Headphones Section */}
-          {/* Show headphones section for both headphones and IEMs requests */}
-          {(wantRecommendationsFor.headphones || wantRecommendationsFor.iems) && headphones.length > 0 && (
+          {/* Show headphones section (includes both headphones and IEMs) */}
+          {wantRecommendationsFor.headphones && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
