@@ -476,8 +476,8 @@ function filterAndScoreComponents(
       }
 
       // Power adequacy for amps (if applicable)
-      const aPowerBonus = a.category === 'amp' ? a.powerAdequacy * 0.1 : 0
-      const bPowerBonus = b.category === 'amp' ? b.powerAdequacy * 0.1 : 0
+      const aPowerBonus = a.category === 'amp' ? (a.powerAdequacy || 0.5) * 0.1 : 0
+      const bPowerBonus = b.category === 'amp' ? (b.powerAdequacy || 0.5) * 0.1 : 0
 
       // Final scoring: 60% price, 40% synergy, plus bonuses
       const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4 + aExpertBonus + aPowerBonus
@@ -698,7 +698,7 @@ export async function GET(request: NextRequest) {
           req.usageRanking[0] || req.usage,
           maxOptions,
           undefined,
-          existingHeadphonesData
+          existingHeadphonesData || undefined
         )
       }
 
