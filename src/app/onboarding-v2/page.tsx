@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ChevronRight, Headphones, Music, Volume2, Zap, Globe, Home } from 'lucide-react'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
@@ -144,17 +144,18 @@ function OptionCard({
 
 export default function OnboardingV2() {
   const router = useRouter()
-  const {
-    budget,
-    budgetRange,
-    updateBudget,
-    updateBudgetRange
-  } = useBudgetState()
+  const { budget, handleBudgetChange } = useBudgetState({
+    initialBudget: 300,
+    minBudget: 20,
+    maxBudget: 10000,
+    enableAnalytics: true,
+    enablePersistence: true
+  })
 
   const [state, setState] = useState<OnboardingState>({
     experience: null,
     budget: budget,
-    budgetRange: { min: budgetRange.min, max: budgetRange.max },
+    budgetRange: { min: Math.max(50, budget * 0.8), max: Math.min(10000, budget * 1.2) },
     headphoneType: null,
     wantRecommendations: {
       headphones: false,
@@ -587,15 +588,13 @@ export default function OnboardingV2() {
             <div className="space-y-4">
               <BudgetSliderEnhanced
                 budget={state.budget}
-                budgetRange={state.budgetRange}
-                onBudgetChange={(value) => {
+                budgetRangeMin={state.budgetRange.min}
+                budgetRangeMax={state.budgetRange.max}
+                onChange={(value: number) => {
                   setState({ ...state, budget: value })
-                  updateBudget(value)
+                  handleBudgetChange(value)
                 }}
-                onRangeChange={(range) => {
-                  setState({ ...state, budgetRange: range })
-                  updateBudgetRange(range)
-                }}
+                variant="dual-range"
               />
               <div className="flex justify-between text-sm text-text-secondary">
                 <span>Flexible range: ${state.budgetRange.min} - ${state.budgetRange.max}</span>
@@ -623,7 +622,7 @@ export default function OnboardingV2() {
 
             {/* Teaser for chat refinement */}
             <p className="text-center text-sm text-text-secondary mt-4">
-              You'll be able to refine your results with our AI assistant
+              You&apos;ll be able to refine your results with our AI assistant
             </p>
           </div>
         )}

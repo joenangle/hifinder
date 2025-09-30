@@ -3,27 +3,44 @@
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, Send, X, Sparkles, RefreshCw, Settings } from 'lucide-react'
 
+interface ComponentUpdate {
+  type: 'filter' | 'sort' | 'refine'
+  data: {
+    sortBy?: string
+    soundSignature?: string[]
+    category?: string[]
+    features?: string[]
+  }
+}
+
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
   suggestions?: string[]
-  componentUpdate?: {
-    type: 'filter' | 'sort' | 'refine'
-    data: any
-  }
+  componentUpdate?: ComponentUpdate
+}
+
+interface Component {
+  id: string
+  name: string
+  brand: string
+  category: string
+  price_used_min?: number
+  price_used_max?: number
+  [key: string]: unknown
 }
 
 interface ChatbotProps {
-  initialRecommendations: any[]
+  initialRecommendations: Component[]
   userPreferences: {
     budget: number
     experience: string
     usage: string
     soundSignature: string
   }
-  onUpdateRecommendations: (updates: any) => void
+  onUpdateRecommendations: (updates: ComponentUpdate) => void
 }
 
 export function RecommendationsChatbot({
@@ -223,7 +240,18 @@ export function RecommendationsChatbot({
 }
 
 // Simulate AI processing logic
-function processUserQuery(query: string, recommendations: any[], preferences: any) {
+interface UserPreferences {
+  budget: number
+  experience: string
+  usage: string
+  soundSignature: string
+}
+
+function processUserQuery(query: string, recommendations: Component[], preferences: UserPreferences): {
+  message: string
+  suggestions: string[]
+  update?: ComponentUpdate
+} {
   const lowerQuery = query.toLowerCase()
 
   // Value-focused queries
@@ -236,7 +264,7 @@ function processUserQuery(query: string, recommendations: any[], preferences: an
         "Show budget options under $200"
       ],
       update: {
-        type: 'sort',
+        type: 'sort' as const,
         data: { sortBy: 'value' }
       }
     }
@@ -252,7 +280,7 @@ function processUserQuery(query: string, recommendations: any[], preferences: an
         "What about balanced bass?"
       ],
       update: {
-        type: 'filter',
+        type: 'filter' as const,
         data: { soundSignature: ['warm', 'fun'] }
       }
     }
@@ -268,7 +296,7 @@ function processUserQuery(query: string, recommendations: any[], preferences: an
         "Battery life important?"
       ],
       update: {
-        type: 'filter',
+        type: 'filter' as const,
         data: { category: ['iems'], features: ['portable'] }
       }
     }
@@ -284,7 +312,7 @@ function processUserQuery(query: string, recommendations: any[], preferences: an
         "Any downsides to this?",
         "Where can I buy it?"
       ],
-      update: null
+      update: undefined
     }
   }
 
@@ -296,7 +324,6 @@ function processUserQuery(query: string, recommendations: any[], preferences: an
       "Need amplification advice",
       "Compare top 3 options",
       "Show expert reviews"
-    ],
-    update: null
+    ]
   }
 }
