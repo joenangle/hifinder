@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, ChevronRight, Headphones, Music, Volume2, Zap, Globe, Home } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
 
@@ -630,7 +630,7 @@ export default function OnboardingV2() {
                 </button>
 
                 <p className="text-center text-sm text-text-secondary">
-                  You'll be able to fine-tune your results and explore used listings
+                  You&apos;ll be able to fine-tune your results and explore used listings
                 </p>
               </div>
             </StepSection>
