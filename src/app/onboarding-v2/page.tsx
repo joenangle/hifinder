@@ -213,46 +213,44 @@ export default function OnboardingV2() {
 
   const currentStep = getCurrentStep()
   const allComplete = steps.experience && steps.products && steps.existingGear && steps.usage && steps.sound
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
-  // Auto-navigate to recommendations when all complete
+  // Auto-scroll to budget section when all steps complete
   useEffect(() => {
     if (allComplete) {
-      // Scroll to budget section first
       const budgetSection = document.getElementById('budget-section')
       if (budgetSection) {
         budgetSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-
-      // Auto-navigate after a short delay to show budget section
-      const timer = setTimeout(() => {
-        handleGetRecommendations()
-      }, 3000)
-
-      return () => clearTimeout(timer)
     }
   }, [allComplete])
 
-  // Handle final submission
+  // Handle final submission with transition state
   const handleGetRecommendations = () => {
-    const params = new URLSearchParams({
-      experience: state.experience || 'intermediate',
-      budget: state.budget.toString(),
-      budgetRangeMin: '20', // Fixed percentage
-      budgetRangeMax: '10', // Fixed percentage
-      headphoneType: state.headphoneType || 'both',
-      wantRecommendationsFor: JSON.stringify(state.wantRecommendations),
-      existingGear: JSON.stringify({
-        ...state.existingGear,
-        specificModels: { headphones: '', dac: '', amp: '', combo: '' }
-      }),
-      usage: state.primaryUsage || 'music',
-      usageRanking: JSON.stringify([state.primaryUsage || 'music']),
-      excludedUsages: JSON.stringify([]),
-      sound: state.soundSignature || 'neutral',
-    })
+    setIsTransitioning(true)
 
-    // Navigate with a flag indicating chat should be available
-    router.push(`/recommendations?${params.toString()}&enableChat=true`)
+    // Show transition state for 2 seconds before navigating
+    setTimeout(() => {
+      const params = new URLSearchParams({
+        experience: state.experience || 'intermediate',
+        budget: state.budget.toString(),
+        budgetRangeMin: '20', // Fixed percentage
+        budgetRangeMax: '10', // Fixed percentage
+        headphoneType: state.headphoneType || 'both',
+        wantRecommendationsFor: JSON.stringify(state.wantRecommendations),
+        existingGear: JSON.stringify({
+          ...state.existingGear,
+          specificModels: { headphones: '', dac: '', amp: '', combo: '' }
+        }),
+        usage: state.primaryUsage || 'music',
+        usageRanking: JSON.stringify([state.primaryUsage || 'music']),
+        excludedUsages: JSON.stringify([]),
+        sound: state.soundSignature || 'neutral',
+      })
+
+      // Navigate with a flag indicating chat should be available
+      router.push(`/recommendations?${params.toString()}&enableChat=true`)
+    }, 2000)
   }
 
   return (
@@ -283,35 +281,35 @@ export default function OnboardingV2() {
           ))}
         </div>
 
-        {/* Step 1: Experience Level - 3 columns responsive */}
+        {/* Step 1: Experience Level - 3 columns */}
         <StepSection
           stepNumber={1}
-          title="Experience Level"
+          title="👤 Experience Level"
           subtitle="How familiar are you with hi-fi audio?"
           isActive={currentStep === 1}
           isCompleted={steps.experience}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <OptionCard
               selected={state.experience === 'beginner'}
               onClick={() => setState({ ...state, experience: 'beginner' })}
               description="New to quality audio"
             >
-              Beginner
+              🌱 Beginner
             </OptionCard>
             <OptionCard
               selected={state.experience === 'intermediate'}
               onClick={() => setState({ ...state, experience: 'intermediate' })}
               description="Some knowledge"
             >
-              Intermediate
+              🎯 Intermediate
             </OptionCard>
             <OptionCard
               selected={state.experience === 'enthusiast'}
               onClick={() => setState({ ...state, experience: 'enthusiast' })}
               description="Expert level"
             >
-              Enthusiast
+              🔥 Enthusiast
             </OptionCard>
           </div>
         </StepSection>
@@ -319,7 +317,7 @@ export default function OnboardingV2() {
         {/* Step 2: Product Selection */}
         <StepSection
           stepNumber={2}
-          title="What You Need"
+          title="🎧 What You Need"
           subtitle="Select all components you're interested in"
           isActive={currentStep === 2}
           isCompleted={steps.products}
@@ -336,9 +334,9 @@ export default function OnboardingV2() {
                   },
                   headphoneType: state.wantRecommendations.headphones ? null : 'both'
                 })}
-                icon={<Headphones className="w-5 h-5" />}
+                description="Over-ear or in-ear"
               >
-                Headphones/IEMs
+                🎧 Headphones/IEMs
               </OptionCard>
               <OptionCard
                 selected={state.wantRecommendations.dac}
@@ -351,7 +349,7 @@ export default function OnboardingV2() {
                 })}
                 description="Digital to Analog"
               >
-                DAC
+                📊 DAC
               </OptionCard>
               <OptionCard
                 selected={state.wantRecommendations.amp}
@@ -364,7 +362,7 @@ export default function OnboardingV2() {
                 })}
                 description="Power for headphones"
               >
-                Amplifier
+                ⚡ Amplifier
               </OptionCard>
               <OptionCard
                 selected={state.wantRecommendations.combo}
@@ -377,7 +375,7 @@ export default function OnboardingV2() {
                 })}
                 description="All-in-one solution"
               >
-                DAC/Amp Combo
+                🎛️ DAC/Amp Combo
               </OptionCard>
             </div>
 
@@ -413,7 +411,7 @@ export default function OnboardingV2() {
         {/* Step 3: Existing Gear */}
         <StepSection
           stepNumber={3}
-          title="Your Current Setup"
+          title="🔧 Your Current Setup"
           subtitle="Do you have any existing audio gear?"
           isActive={currentStep === 3}
           isCompleted={steps.existingGear}
@@ -432,17 +430,16 @@ export default function OnboardingV2() {
                     combo: false
                   }
                 })}
-                icon={<Zap className="w-5 h-5" />}
                 description="Building from scratch"
               >
-                Starting Fresh
+                ✨ Starting Fresh
               </OptionCard>
               <OptionCard
                 selected={state.hasExistingGear === true}
                 onClick={() => setState({ ...state, hasExistingGear: true })}
                 description="Upgrading my system"
               >
-                I Have Gear
+                📦 I Have Gear
               </OptionCard>
             </div>
 
@@ -460,7 +457,7 @@ export default function OnboardingV2() {
                       }
                     })}
                   >
-                    Headphones
+                    🎧 Headphones
                   </OptionCard>
                   <OptionCard
                     selected={state.existingGear.dac}
@@ -472,7 +469,7 @@ export default function OnboardingV2() {
                       }
                     })}
                   >
-                    DAC
+                    📊 DAC
                   </OptionCard>
                   <OptionCard
                     selected={state.existingGear.amp}
@@ -484,7 +481,7 @@ export default function OnboardingV2() {
                       }
                     })}
                   >
-                    Amplifier
+                    ⚡ Amplifier
                   </OptionCard>
                   <OptionCard
                     selected={state.existingGear.combo}
@@ -496,7 +493,7 @@ export default function OnboardingV2() {
                       }
                     })}
                   >
-                    Combo Unit
+                    🎛️ Combo Unit
                   </OptionCard>
                 </div>
               </div>
@@ -507,7 +504,7 @@ export default function OnboardingV2() {
         {/* Step 4: Primary Usage */}
         <StepSection
           stepNumber={4}
-          title="Primary Usage"
+          title="🎯 Primary Usage"
           subtitle="How will you mainly use your audio system?"
           isActive={currentStep === 4}
           isCompleted={steps.usage}
@@ -516,47 +513,44 @@ export default function OnboardingV2() {
             <OptionCard
               selected={state.primaryUsage === 'music'}
               onClick={() => setState({ ...state, primaryUsage: 'music' })}
-              icon={<Music className="w-5 h-5" />}
               description="Critical listening"
             >
-              Music
+              🎵 Music
             </OptionCard>
             <OptionCard
               selected={state.primaryUsage === 'gaming'}
               onClick={() => setState({ ...state, primaryUsage: 'gaming' })}
               description="Competitive & immersive"
             >
-              Gaming
+              🎮 Gaming
             </OptionCard>
             <OptionCard
               selected={state.primaryUsage === 'movies'}
               onClick={() => setState({ ...state, primaryUsage: 'movies' })}
               description="Cinema experience"
             >
-              Movies & TV
+              🎬 Movies & TV
             </OptionCard>
             <OptionCard
               selected={state.primaryUsage === 'work'}
               onClick={() => setState({ ...state, primaryUsage: 'work' })}
-              icon={<Home className="w-5 h-5" />}
               description="Calls & productivity"
             >
-              Work from Home
+              💼 Work from Home
             </OptionCard>
             <OptionCard
               selected={state.primaryUsage === 'studio'}
               onClick={() => setState({ ...state, primaryUsage: 'studio' })}
               description="Production & mixing"
             >
-              Studio/Production
+              🎚️ Studio/Production
             </OptionCard>
             <OptionCard
               selected={state.primaryUsage === 'travel'}
               onClick={() => setState({ ...state, primaryUsage: 'travel' })}
-              icon={<Globe className="w-5 h-5" />}
               description="On-the-go listening"
             >
-              Travel/Commute
+              ✈️ Travel/Commute
             </OptionCard>
           </div>
         </StepSection>
@@ -564,7 +558,7 @@ export default function OnboardingV2() {
         {/* Step 5: Sound Signature */}
         <StepSection
           stepNumber={5}
-          title="Sound Preference"
+          title="🔊 Sound Preference"
           subtitle="What kind of sound do you enjoy?"
           isActive={currentStep === 5}
           isCompleted={steps.sound}
@@ -573,46 +567,45 @@ export default function OnboardingV2() {
             <OptionCard
               selected={state.soundSignature === 'neutral'}
               onClick={() => setState({ ...state, soundSignature: 'neutral' })}
-              icon={<Volume2 className="w-5 h-5" />}
               description="Accurate, uncolored"
             >
-              Neutral/Reference
+              ⚖️ Neutral/Reference
             </OptionCard>
             <OptionCard
               selected={state.soundSignature === 'warm'}
               onClick={() => setState({ ...state, soundSignature: 'warm' })}
               description="Rich bass, smooth"
             >
-              Warm & Musical
+              🔥 Warm & Musical
             </OptionCard>
             <OptionCard
               selected={state.soundSignature === 'bright'}
               onClick={() => setState({ ...state, soundSignature: 'bright' })}
               description="Detailed treble, clarity"
             >
-              Bright & Analytical
+              ✨ Bright & Analytical
             </OptionCard>
             <OptionCard
               selected={state.soundSignature === 'fun'}
               onClick={() => setState({ ...state, soundSignature: 'fun' })}
               description="V-shaped, exciting"
             >
-              Fun & Engaging
+              🎉 Fun & Engaging
             </OptionCard>
           </div>
         </StepSection>
 
         {/* Step 6: Budget - Using simple slider */}
-        {allComplete && (
+        {allComplete && !isTransitioning && (
           <div id="budget-section">
             <StepSection
               stepNumber={6}
-              title="Budget Range"
+              title="💰 Budget Range"
               subtitle="Set your comfortable spending range"
               isActive={true}
               isCompleted={true}
             >
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <BudgetSliderEnhanced
                   budget={budget}
                   displayBudget={displayBudget}
@@ -621,36 +614,61 @@ export default function OnboardingV2() {
                   showInput={true}
                   showLabels={true}
                 />
-                <div className="text-center">
-                  <p className="text-sm text-text-secondary">
-                    Redirecting to your personalized recommendations in 3 seconds...
-                  </p>
-                </div>
+
+                {/* Continue button */}
+                <button
+                  onClick={handleGetRecommendations}
+                  className="
+                    w-full py-4 bg-accent-primary text-white font-semibold rounded-xl
+                    hover:bg-accent-primary/90 transition-all duration-200
+                    flex items-center justify-center gap-2 shadow-lg
+                    transform hover:scale-[1.02] active:scale-[0.98]
+                  "
+                >
+                  Continue to Recommendations
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                <p className="text-center text-sm text-text-secondary">
+                  You'll be able to fine-tune your results and explore used listings
+                </p>
               </div>
             </StepSection>
           </div>
         )}
 
-        {/* Get Recommendations Button (optional - for manual navigation) */}
-        {allComplete && (
-          <div className="mt-8 transition-all duration-300">
-            <button
-              onClick={handleGetRecommendations}
-              className="
-                w-full py-4 bg-accent-primary text-white font-semibold rounded-xl
-                hover:bg-accent-primary/90 transition-all duration-200
-                flex items-center justify-center gap-2 shadow-lg
-                transform hover:scale-[1.02] active:scale-[0.98]
-              "
-            >
-              Get My Personalized Recommendations Now
-              <ChevronRight className="w-5 h-5" />
-            </button>
+        {/* Transition/Loading State */}
+        {isTransitioning && (
+          <div className="fixed inset-0 bg-background-primary/95 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center space-y-6 max-w-md px-4">
+              <div className="animate-pulse">
+                <div className="w-20 h-20 bg-accent-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">🎧</span>
+                </div>
+              </div>
 
-            {/* Teaser for chat refinement */}
-            <p className="text-center text-sm text-text-secondary mt-4">
-              You&apos;ll be able to refine your results with our AI assistant
-            </p>
+              <h2 className="text-2xl font-bold text-text-primary">
+                Finding Your Perfect Audio Match...
+              </h2>
+
+              <div className="space-y-2">
+                <p className="text-text-secondary">
+                  Analyzing {Object.values(state.wantRecommendations).filter(Boolean).length} component types
+                </p>
+                <p className="text-text-secondary">
+                  Optimizing for {state.primaryUsage || 'music'} listening
+                </p>
+                <p className="text-text-secondary">
+                  Within your ${displayBudget} budget
+                </p>
+              </div>
+
+              <div className="flex justify-center gap-2">
+                <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-accent-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
           </div>
         )}
 
