@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ChevronRight, Headphones, Music, Volume2, Zap, Globe, Home } from 'lucide-react'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
@@ -55,8 +55,18 @@ function StepSection({
   isCompleted: boolean
   children: React.ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll when section becomes active
+  useEffect(() => {
+    if (isActive && ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [isActive])
+
   return (
     <div
+      ref={ref}
       className={`
         border rounded-xl mb-4 transition-all duration-300 ease-in-out
         ${isActive ? 'border-accent-primary bg-surface-primary shadow-lg' :
@@ -92,7 +102,7 @@ function StepSection({
   )
 }
 
-// Option card component
+// Option card component with better visual feedback
 function OptionCard({
   selected,
   onClick,
@@ -113,11 +123,11 @@ function OptionCard({
       onClick={onClick}
       disabled={disabled}
       className={`
-        relative p-4 rounded-lg border-2 transition-all text-left w-full
+        relative p-4 rounded-lg border-2 transition-all text-left w-full overflow-hidden
         ${disabled ? 'opacity-50 cursor-not-allowed' :
           selected
-            ? 'border-accent-primary bg-accent-primary/10 transform scale-[1.02]'
-            : 'border-border-secondary hover:border-border-primary hover:bg-surface-hover hover:transform hover:scale-[1.01]'}
+            ? 'border-orange-500 bg-orange-500/10 shadow-md dark:border-orange-400'
+            : 'border-border-secondary hover:border-border-primary hover:bg-surface-hover'}
       `}
     >
       {icon && (
@@ -135,7 +145,7 @@ function OptionCard({
       )}
       {selected && (
         <div className="absolute top-2 right-2 transition-transform duration-200 scale-100">
-          <Check className="w-5 h-5 text-accent-primary" />
+          <Check className="w-5 h-5 text-orange-500 dark:text-orange-400" />
         </div>
       )}
     </button>
@@ -144,7 +154,7 @@ function OptionCard({
 
 export default function OnboardingV2() {
   const router = useRouter()
-  const { budget, handleBudgetChange } = useBudgetState({
+  const { budget, handleBudgetChange, displayBudget } = useBudgetState({
     initialBudget: 300,
     minBudget: 20,
     maxBudget: 10000,
@@ -176,6 +186,11 @@ export default function OnboardingV2() {
     powerNeeds: null
   })
 
+  // Update budget in state when it changes
+  useEffect(() => {
+    setState(prev => ({ ...prev, budget: budget }))
+  }, [budget])
+
   // Determine which steps are completed
   const steps = {
     experience: state.experience !== null,
@@ -186,7 +201,7 @@ export default function OnboardingV2() {
     sound: state.soundSignature !== null,
   }
 
-  // Determine current active step (only one at a time for cleaner UX)
+  // Determine current active step
   const getCurrentStep = () => {
     if (!steps.experience) return 1
     if (!steps.products) return 2
@@ -199,13 +214,31 @@ export default function OnboardingV2() {
   const currentStep = getCurrentStep()
   const allComplete = steps.experience && steps.products && steps.existingGear && steps.usage && steps.sound
 
+  // Auto-navigate to recommendations when all complete
+  useEffect(() => {
+    if (allComplete) {
+      // Scroll to budget section first
+      const budgetSection = document.getElementById('budget-section')
+      if (budgetSection) {
+        budgetSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+
+      // Auto-navigate after a short delay to show budget section
+      const timer = setTimeout(() => {
+        handleGetRecommendations()
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [allComplete])
+
   // Handle final submission
   const handleGetRecommendations = () => {
     const params = new URLSearchParams({
       experience: state.experience || 'intermediate',
       budget: state.budget.toString(),
-      budgetRangeMin: ((budget - state.budgetRange.min) / budget * 100).toString(),
-      budgetRangeMax: ((state.budgetRange.max - budget) / budget * 100).toString(),
+      budgetRangeMin: '20', // Fixed percentage
+      budgetRangeMax: '10', // Fixed percentage
       headphoneType: state.headphoneType || 'both',
       wantRecommendationsFor: JSON.stringify(state.wantRecommendations),
       existingGear: JSON.stringify({
@@ -250,7 +283,7 @@ export default function OnboardingV2() {
           ))}
         </div>
 
-        {/* Step 1: Experience Level */}
+        {/* Step 1: Experience Level - 3 columns responsive */}
         <StepSection
           stepNumber={1}
           title="Experience Level"
@@ -258,34 +291,27 @@ export default function OnboardingV2() {
           isActive={currentStep === 1}
           isCompleted={steps.experience}
         >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <OptionCard
               selected={state.experience === 'beginner'}
               onClick={() => setState({ ...state, experience: 'beginner' })}
               description="New to quality audio"
             >
-              Complete Beginner
+              Beginner
             </OptionCard>
             <OptionCard
               selected={state.experience === 'intermediate'}
               onClick={() => setState({ ...state, experience: 'intermediate' })}
               description="Some knowledge"
             >
-              Some Experience
+              Intermediate
             </OptionCard>
             <OptionCard
               selected={state.experience === 'enthusiast'}
               onClick={() => setState({ ...state, experience: 'enthusiast' })}
-              description="Deep understanding"
-            >
-              Enthusiast
-            </OptionCard>
-            <OptionCard
-              selected={state.experience === 'audiophile'}
-              onClick={() => setState({ ...state, experience: 'audiophile' })}
               description="Expert level"
             >
-              Audiophile
+              Enthusiast
             </OptionCard>
           </div>
         </StepSection>
@@ -576,35 +602,36 @@ export default function OnboardingV2() {
           </div>
         </StepSection>
 
-        {/* Step 6: Budget (Always visible once other steps complete) */}
+        {/* Step 6: Budget - Using simple slider */}
         {allComplete && (
-          <StepSection
-            stepNumber={6}
-            title="Budget Range"
-            subtitle="Set your comfortable spending range"
-            isActive={true}
-            isCompleted={true}
-          >
-            <div className="space-y-4">
-              <BudgetSliderEnhanced
-                budget={state.budget}
-                budgetRangeMin={state.budgetRange.min}
-                budgetRangeMax={state.budgetRange.max}
-                onChange={(value: number) => {
-                  setState({ ...state, budget: value })
-                  handleBudgetChange(value)
-                }}
-                variant="dual-range"
-              />
-              <div className="flex justify-between text-sm text-text-secondary">
-                <span>Flexible range: ${state.budgetRange.min} - ${state.budgetRange.max}</span>
-                <span className="font-medium">Target: ${state.budget}</span>
+          <div id="budget-section">
+            <StepSection
+              stepNumber={6}
+              title="Budget Range"
+              subtitle="Set your comfortable spending range"
+              isActive={true}
+              isCompleted={true}
+            >
+              <div className="space-y-4">
+                <BudgetSliderEnhanced
+                  budget={budget}
+                  displayBudget={displayBudget}
+                  onChange={handleBudgetChange}
+                  variant="simple"
+                  showInput={true}
+                  showLabels={true}
+                />
+                <div className="text-center">
+                  <p className="text-sm text-text-secondary">
+                    Redirecting to your personalized recommendations in 3 seconds...
+                  </p>
+                </div>
               </div>
-            </div>
-          </StepSection>
+            </StepSection>
+          </div>
         )}
 
-        {/* Get Recommendations Button */}
+        {/* Get Recommendations Button (optional - for manual navigation) */}
         {allComplete && (
           <div className="mt-8 transition-all duration-300">
             <button
@@ -616,7 +643,7 @@ export default function OnboardingV2() {
                 transform hover:scale-[1.02] active:scale-[0.98]
               "
             >
-              Get My Personalized Recommendations
+              Get My Personalized Recommendations Now
               <ChevronRight className="w-5 h-5" />
             </button>
 
