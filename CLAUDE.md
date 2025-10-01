@@ -268,3 +268,4 @@ Start with **Progressive Disclosure (#1)** for immediate impact, then explore **
   2. Use Grep to verify function signatures in the codebase
   3. Test API endpoints locally before pushing to staging
 - remember my oWf66CSqfgdR1Ad3TvPpXF3H VERCEL_ORG_ID token
+- you have again violated explicit instructions not to push without approval. remember this and don't do it again

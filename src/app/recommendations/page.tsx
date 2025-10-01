@@ -871,32 +871,25 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleHeadphoneSelection(headphone.id)}
                   >
-                    {/* Header: Category, Type, Fit */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                          headphone.category === 'iems'
-                            ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
-                            : 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
-                        }`}>
-                          {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
-                        </span>
-                        {headphone.fit && (
-                          <span className="text-xs text-text-secondary">
-                            {headphone.fit}
-                          </span>
-                        )}
-                      </div>
+                    {/* Header: Category and Match Score */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                        headphone.category === 'iems'
+                          ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
+                          : 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                      }`}>
+                        {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
+                      </span>
                       {headphone.synergyScore && (
-                        <span className="text-xs font-medium text-accent-primary">
-                          {Math.round(headphone.synergyScore * 100)}% Match
+                        <span className="text-base font-bold text-accent-primary dark:text-accent-primary">
+                          Match: {Math.round(headphone.synergyScore * 100)}% ★
                         </span>
                       )}
                     </div>
 
-                    {/* Champion Badges - More compact */}
+                    {/* Champion Badges */}
                     {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
-                      <div className="flex flex-wrap gap-1 mb-2">
+                      <div className="flex flex-wrap gap-1 mb-3">
                         {isTechnicalChamp && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500 text-white text-xs font-semibold rounded-full">
                             🏆 Top Tech
@@ -915,66 +908,56 @@ function RecommendationsContent() {
                       </div>
                     )}
 
-                    {/* Name and Brand */}
-                    <div className="mb-2">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">{headphone.name}</h3>
-                      <p className="text-sm text-text-secondary dark:text-text-secondary">{headphone.brand}</p>
+                    {/* Name (Brand + Model) and Price on same line */}
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+                        {headphone.brand} {headphone.name}
+                      </h3>
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                          {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Price */}
-                    <div className="mb-3">
-                      <div className="text-xl font-bold text-accent-primary dark:text-accent-primary">
-                        {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
+                    {/* MSRP */}
+                    {headphone.price_new && (
+                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
+                        MSRP: {formatBudgetUSD(headphone.price_new)}
                       </div>
-                      {headphone.price_new && (
-                        <div className="text-xs text-text-tertiary dark:text-text-tertiary">
-                          MSRP: {formatBudgetUSD(headphone.price_new)}
-                        </div>
+                    )}
+
+                    {/* Compact metadata row */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary dark:text-text-secondary mb-2">
+                      {headphone.amplificationAssessment && (
+                        <span className="inline-flex items-center gap-1">
+                          ⚡ {headphone.amplificationAssessment.difficulty === 'easy' ? 'Easy to Drive' :
+                             headphone.amplificationAssessment.difficulty === 'moderate' ? 'Moderate Power' :
+                             headphone.amplificationAssessment.difficulty === 'demanding' ? 'Needs Good Amp' :
+                             headphone.amplificationAssessment.difficulty === 'very_demanding' ? 'Needs Powerful Amp' : 'Unknown'}
+                        </span>
+                      )}
+                      {headphone.sound_signature && (
+                        <>
+                          <span>|</span>
+                          <span>Sound: {headphone.sound_signature}</span>
+                        </>
+                      )}
+                      {headphone.impedance && (
+                        <>
+                          <span>|</span>
+                          <span>{headphone.impedance}Ω</span>
+                        </>
+                      )}
+                      {headphone.fit && (
+                        <>
+                          <span>|</span>
+                          <span>{headphone.fit}</span>
+                        </>
                       )}
                     </div>
 
-                    {/* Amplification Badge */}
-                    {headphone.needs_amp && experience !== 'advanced' && (
-                      <div className="mb-2">
-                        <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-full font-medium">
-                          ⚡ Requires Amp
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Enhanced Amplification Assessment */}
-                    {headphone.amplificationAssessment && (
-                      <div className="mb-2">
-                        <AmplificationBadge 
-                          difficulty={headphone.amplificationAssessment.difficulty}
-                          className="mb-2"
-                        />
-                        {shouldShowTechnicalSpecs() && (
-                          <p className="text-xs text-gray-600 leading-relaxed">
-                            {headphone.amplificationAssessment.explanation}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
                     <ExpertAnalysisPanel component={headphone} />
-
-                    {shouldShowTechnicalSpecs() && (
-                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                        {headphone.impedance && (
-                          <div>Impedance: {headphone.impedance}Ω</div>
-                        )}
-                        {headphone.sound_signature && (
-                          <div>Sound: {headphone.sound_signature}</div>
-                        )}
-                        {headphone.amplificationAssessment?.estimatedSensitivity && (
-                          <div>Est. Sens: {headphone.amplificationAssessment.estimatedSensitivity} dB/mW</div>
-                        )}
-                        {headphone.synergyScore && (
-                          <div>Match: {Math.round(headphone.synergyScore * 100)}%</div>
-                        )}
-                      </div>
-                    )}
                   </div>
                   )
                 })}
