@@ -139,7 +139,7 @@ function OptionCard({
         {children}
       </div>
       {description && (
-        <div className={`text-sm mt-1 ${selected ? 'text-gray-700 dark:text-gray-300' : 'text-text-secondary'}`}>
+        <div className={`text-sm mt-1 ${selected ? 'text-orange-900 dark:text-orange-100' : 'text-text-secondary'}`}>
           {description}
         </div>
       )}
