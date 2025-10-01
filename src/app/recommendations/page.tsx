@@ -843,8 +843,8 @@ function RecommendationsContent() {
                 })
 
                 const topBudget = headphones.reduce((prev, current) => {
-                  const prevValue = (prev.value_rating || 0) / ((prev.price_used_min + prev.price_used_max) / 2 || 1)
-                  const currValue = (current.value_rating || 0) / ((current.price_used_min + current.price_used_max) / 2 || 1)
+                  const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
+                  const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
                   return currValue > prevValue ? current : prev
                 })
 
