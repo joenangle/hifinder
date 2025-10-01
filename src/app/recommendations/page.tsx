@@ -42,8 +42,8 @@ function RecommendationsContent() {
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [showAmplification, setShowAmplification] = useState(false)
+  const [, setError] = useState<string | null>(null)
+  const [, setShowAmplification] = useState(false)
 
   // Selection state
   const [selectedHeadphones, setSelectedHeadphones] = useState<string[]>([])
@@ -173,7 +173,7 @@ function RecommendationsContent() {
   }, [searchParams])
 
   // Extract values for convenience (using budget from enhanced state)
-  const { experience, budgetRangeMin, budgetRangeMax, headphoneType, wantRecommendationsFor, existingGear, usage, usageRanking, soundSignature } = userPrefs
+  const { experience, wantRecommendationsFor, soundSignature } = userPrefs
   const budget = budgetState.budget // For UI display (immediate updates)
   const budgetForAPI = debouncedBudget // For API calls (debounced)
 
