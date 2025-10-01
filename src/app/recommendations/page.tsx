@@ -871,51 +871,76 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleHeadphoneSelection(headphone.id)}
                   >
-                    {/* Champion Badges */}
+                    {/* Header: Category, Type, Fit */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                          headphone.category === 'iems'
+                            ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
+                            : 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                        }`}>
+                          {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
+                        </span>
+                        {headphone.fit && (
+                          <span className="text-xs text-text-secondary">
+                            {headphone.fit}
+                          </span>
+                        )}
+                      </div>
+                      {headphone.synergyScore && (
+                        <span className="text-xs font-medium text-accent-primary">
+                          {Math.round(headphone.synergyScore * 100)}% Match
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Champion Badges - More compact */}
                     {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
-                      <div className="flex flex-wrap gap-2 mb-3">
+                      <div className="flex flex-wrap gap-1 mb-2">
                         {isTechnicalChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-semibold rounded-full shadow-sm">
-                            🏆 Top Technical Performance
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500 text-white text-xs font-semibold rounded-full">
+                            🏆 Top Tech
                           </span>
                         )}
                         {isToneChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-semibold rounded-full shadow-sm">
-                            🎵 Best Tone Match
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500 text-white text-xs font-semibold rounded-full">
+                            🎵 Best Match
                           </span>
                         )}
                         {isBudgetChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-semibold rounded-full shadow-sm">
-                            💰 Budget Champion
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500 text-white text-xs font-semibold rounded-full">
+                            💰 Value
                           </span>
                         )}
                       </div>
                     )}
 
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-medium text-primary">{headphone.name}</h3>
-                      <div className="text-right" style={{ minWidth: '140px' }}>
-                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
-                          Est. Used Price
-                        </div>
-                        <div className="text-sm font-medium text-accent">
-                          {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
-                        </div>
-                        {headphone.price_new && (
-                          <div className="text-xs text-tertiary mt-1">
-                            MSRP: {formatBudgetUSD(headphone.price_new)}
-                          </div>
-                        )}
-                      </div>
+                    {/* Name and Brand */}
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">{headphone.name}</h3>
+                      <p className="text-sm text-text-secondary dark:text-text-secondary">{headphone.brand}</p>
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="text-sm text-secondary">{headphone.brand}</p>
-                      {headphone.needs_amp && experience !== 'advanced' && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-medium">
-                          ⚡ Requires Amp
-                        </span>
+
+                    {/* Price */}
+                    <div className="mb-3">
+                      <div className="text-xl font-bold text-accent-primary dark:text-accent-primary">
+                        {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
+                      </div>
+                      {headphone.price_new && (
+                        <div className="text-xs text-text-tertiary dark:text-text-tertiary">
+                          MSRP: {formatBudgetUSD(headphone.price_new)}
+                        </div>
                       )}
                     </div>
+
+                    {/* Amplification Badge */}
+                    {headphone.needs_amp && experience !== 'advanced' && (
+                      <div className="mb-2">
+                        <span className="inline-flex items-center gap-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-full font-medium">
+                          ⚡ Requires Amp
+                        </span>
+                      </div>
+                    )}
                     
                     {/* Enhanced Amplification Assessment */}
                     {headphone.amplificationAssessment && (

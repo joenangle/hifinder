@@ -68,23 +68,19 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
   )
 
   if (!hasExpertData) {
-    return (
-      <div className="text-xs text-gray-400 italic py-2">
-        Expert analysis not yet available
-      </div>
-    )
+    return null
   }
 
   const blurb = generateExpertBlurb(component)
 
   return (
-    <div className="border-t border-gray-100 pt-2 mt-2">
+    <div className="border-t border-border-default dark:border-border-default pt-2 mt-2">
       <button
         onClick={(e) => {
           e.stopPropagation() // Prevent card selection
           setIsExpanded(!isExpanded)
         }}
-        className="flex items-center justify-between w-full text-left text-xs text-gray-600 hover:text-gray-800 transition-colors"
+        className="flex items-center justify-between w-full text-left text-xs text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary transition-colors"
       >
         <span className="font-medium">Expert Analysis</span>
         {isExpanded ? (
@@ -99,12 +95,12 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
       </button>
 
       {isExpanded && (
-        <div className="mt-2 text-xs text-gray-700 leading-relaxed">
+        <div className="mt-2 text-xs text-text-primary dark:text-text-primary leading-relaxed">
           <p className="mb-2">{blurb}</p>
 
           {/* Show original comments if available */}
           {component.crinacle_comments && (
-            <div className="bg-gray-50 p-2 rounded text-xs italic">
+            <div className="bg-surface-hover dark:bg-surface-hover p-2 rounded text-xs italic border-l-2 border-accent-primary dark:border-accent-primary">
               <strong>Crinacle:</strong> &ldquo;{component.crinacle_comments}&rdquo;
             </div>
           )}
