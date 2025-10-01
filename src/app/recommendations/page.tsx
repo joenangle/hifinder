@@ -827,7 +827,27 @@ function RecommendationsContent() {
             <div className={gridClass}>
               {/* Headphones Section */}
               {/* Show headphones section (includes both headphones and IEMs) */}
-              {wantRecommendationsFor.headphones && headphones.length > 0 && (
+              {wantRecommendationsFor.headphones && headphones.length > 0 && (() => {
+                // Identify top performers
+                const topTechnical = headphones.reduce((prev, current) => {
+                  const prevGrade = prev.expert_grade_numeric || 0
+                  const currGrade = current.expert_grade_numeric || 0
+                  return currGrade > prevGrade ? current : prev
+                })
+
+                const topTone = headphones.reduce((prev, current) => {
+                  const prevScore = prev.synergyScore || 0
+                  const currScore = current.synergyScore || 0
+                  return currScore > prevScore ? current : prev
+                })
+
+                const topBudget = headphones.reduce((prev, current) => {
+                  const prevValue = (prev.value_rating || 0) / ((prev.price_used_min + prev.price_used_max) / 2 || 1)
+                  const currValue = (current.value_rating || 0) / ((current.price_used_min + current.price_used_max) / 2 || 1)
+                  return currValue > prevValue ? current : prev
+                })
+
+                return (
             <div className="card overflow-hidden">
               <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
@@ -835,16 +855,42 @@ function RecommendationsContent() {
                 </h2>
               </div>
               <div className="p-6 space-y-3">
-                {headphones.map((headphone) => (
-                  <div 
-                    key={headphone.id} 
+                {headphones.map((headphone) => {
+                  const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
+                  const isToneChamp = headphone.id === topTone.id && (topTone.synergyScore || 0) >= 0.9
+                  const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
+
+                  return (
+                  <div
+                    key={headphone.id}
                     className={`card-interactive ${
-                      selectedHeadphones.includes(headphone.id) 
-                        ? 'selected' 
+                      selectedHeadphones.includes(headphone.id)
+                        ? 'selected'
                         : ''
                     }`}
                     onClick={() => toggleHeadphoneSelection(headphone.id)}
                   >
+                    {/* Champion Badges */}
+                    {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {isTechnicalChamp && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-semibold rounded-full shadow-sm">
+                            🏆 Top Technical Performance
+                          </span>
+                        )}
+                        {isToneChamp && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-semibold rounded-full shadow-sm">
+                            🎵 Best Tone Match
+                          </span>
+                        )}
+                        {isBudgetChamp && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-semibold rounded-full shadow-sm">
+                            💰 Budget Champion
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-primary">{headphone.name}</h3>
                       <div className="text-right" style={{ minWidth: '140px' }}>
@@ -904,10 +950,12 @@ function RecommendationsContent() {
                       </div>
                     )}
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
-          )}
+                )
+          })()}
 
           {/* DACs Section */}
           {wantRecommendationsFor.dac && dacs.length > 0 && (
