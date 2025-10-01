@@ -27,6 +27,7 @@ interface AudioComponent extends Component {
   crinacle_sound_signature?: string
   tone_grade?: string
   technical_grade?: string
+  expert_grade_numeric?: number
   crinacle_comments?: string
   driver_type?: string
   fit?: string
