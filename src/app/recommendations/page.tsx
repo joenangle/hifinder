@@ -331,6 +331,11 @@ function RecommendationsContent() {
     fetchRecommendations()
   }, []) // Run once on mount
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
+
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
     if (!showUsedMarket) return
@@ -803,10 +808,26 @@ function RecommendationsContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {/* Headphones Section */}
-          {/* Show headphones section (includes both headphones and IEMs) */}
-          {wantRecommendationsFor.headphones && headphones.length > 0 && (
+        {/* Dynamic grid based on number of component types */}
+        {(() => {
+          const activeTypes = [
+            wantRecommendationsFor.headphones && headphones.length > 0,
+            wantRecommendationsFor.dac && dacs.length > 0,
+            wantRecommendationsFor.amp && amps.length > 0,
+            wantRecommendationsFor.combo && dacAmps.length > 0
+          ].filter(Boolean).length
+
+          const gridClass = activeTypes === 1
+            ? 'grid grid-cols-1 gap-8 max-w-2xl mx-auto'
+            : activeTypes === 2
+            ? 'grid grid-cols-1 lg:grid-cols-2 gap-8'
+            : 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'
+
+          return (
+            <div className={gridClass}>
+              {/* Headphones Section */}
+              {/* Show headphones section (includes both headphones and IEMs) */}
+              {wantRecommendationsFor.headphones && headphones.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
                 <h2 className="heading-3 text-center mb-4">
@@ -1052,7 +1073,9 @@ function RecommendationsContent() {
               </div>
             </div>
           )}
-        </div>
+            </div>
+          )
+        })()}
 
         {/* Used Market Toggle */}
         <div className="mt-12 mb-8 text-center">

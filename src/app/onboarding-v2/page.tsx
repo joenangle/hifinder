@@ -126,26 +126,26 @@ function OptionCard({
         relative p-4 rounded-lg border-2 transition-all text-left w-full overflow-hidden
         ${disabled ? 'opacity-50 cursor-not-allowed' :
           selected
-            ? 'border-orange-500 bg-orange-500/10 shadow-md dark:border-orange-400'
+            ? 'border-orange-500 bg-orange-500/10 shadow-md dark:border-orange-400 dark:bg-orange-400/20'
             : 'border-border-secondary hover:border-border-primary hover:bg-surface-hover'}
       `}
     >
       {icon && (
-        <div className="mb-2 text-accent-primary">
+        <div className={`mb-2 ${selected ? 'text-orange-600 dark:text-orange-300' : 'text-accent-primary'}`}>
           {icon}
         </div>
       )}
-      <div className="font-medium text-text-primary">
+      <div className={`font-medium ${selected ? 'text-gray-900 dark:text-gray-100' : 'text-text-primary'}`}>
         {children}
       </div>
       {description && (
-        <div className="text-sm text-text-secondary mt-1">
+        <div className={`text-sm mt-1 ${selected ? 'text-gray-700 dark:text-gray-300' : 'text-text-secondary'}`}>
           {description}
         </div>
       )}
       {selected && (
         <div className="absolute top-2 right-2 transition-transform duration-200 scale-100">
-          <Check className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+          <Check className="w-5 h-5 text-orange-600 dark:text-orange-300" />
         </div>
       )}
     </button>
@@ -247,6 +247,9 @@ export default function OnboardingV2() {
         excludedUsages: JSON.stringify([]),
         sound: state.soundSignature || 'neutral',
       })
+
+      // Scroll to top before navigation
+      window.scrollTo({ top: 0, behavior: 'instant' })
 
       // Navigate with a flag indicating chat should be available
       router.push(`/recommendations?${params.toString()}&enableChat=true`)
