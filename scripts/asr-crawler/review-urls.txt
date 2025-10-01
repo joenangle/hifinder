@@ -1,0 +1,35 @@
+# ASR Review URLs - Curated List
+# Format: One URL per line, # for comments
+
+# High-End DACs
+https://www.audiosciencereview.com/forum/index.php?threads/benchmark-dac3-b-review-stereo-dac.24716/
+https://www.audiosciencereview.com/forum/index.php?threads/rme-adi-2-dac-fs-review-stereo-dac.13379/
+https://www.audiosciencereview.com/forum/index.php?threads/topping-d90-dac-review.10291/
+https://www.audiosciencereview.com/forum/index.php?threads/gustard-x26-pro-dac-review.31126/
+https://www.audiosciencereview.com/forum/index.php?threads/topping-e70-velvet-dac-review.46092/
+https://www.audiosciencereview.com/forum/index.php?threads/chord-hugo-2-dac-review.25486/
+
+# High-End Amplifiers
+https://www.audiosciencereview.com/forum/index.php?threads/benchmark-hpa4-review-headphone-amplifier.24986/
+https://www.audiosciencereview.com/forum/index.php?threads/topping-a90-discrete-headphone-amp-review.31050/
+https://www.audiosciencereview.com/forum/index.php?threads/topping-a90-review-headphone-amplifier.10598/
+https://www.audiosciencereview.com/forum/index.php?threads/schiit-magnius-review-balanced-headphone-amp.15848/
+https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-atom-amp-review-headphone-amplifier.24680/
+
+# DAC/Amp Combos
+https://www.audiosciencereview.com/forum/index.php?threads/topping-dx3-pro-review-dac-headphone-amp.10370/
+https://www.audiosciencereview.com/forum/index.php?threads/topping-dx5-review-dac-headphone-amp.32832/
+https://www.audiosciencereview.com/forum/index.php?threads/fiio-k7-review-balanced-dac-headphone-amp.34901/
+https://www.audiosciencereview.com/forum/index.php?threads/smsl-do200-mkii-review-dac-headphone-amp.40816/
+https://www.audiosciencereview.com/forum/index.php?threads/rme-adi-2-pro-fs-r-black-edition-review-studio-dac.14203/
+
+# Budget/Mid-Range DACs
+https://www.audiosciencereview.com/forum/index.php?threads/topping-e50-dac-review.28122/
+https://www.audiosciencereview.com/forum/index.php?threads/smsl-su-9-balanced-dac-review.17642/
+https://www.audiosciencereview.com/forum/index.php?threads/schiit-modi-review-stereo-dac.41005/
+https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-atom-dac-review.33500/
+
+# Budget/Mid-Range Amps
+https://www.audiosciencereview.com/forum/index.php?threads/topping-l30-ii-review-headphone-amplifier.35677/
+https://www.audiosciencereview.com/forum/index.php?threads/schiit-heresy-review-headphone-amp.12999/
+https://www.audiosciencereview.com/forum/index.php?threads/ifi-audio-zen-can-review-headphone-amplifier.13033/

@@ -13,27 +13,41 @@
 - ✅ Category correction (82 headphones + 316 IEMs from Crinacle data)
 - ✅ Dual-layer sound signature system implementation
 - ✅ 100% sound signature constraint violation fixes
+- ✅ Conditional onboarding questions (usage for beginners/intermediates, sound for enthusiasts)
+
+## To-Do: Revisit Later
+- 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.
 
 ## High Priority: Summit-Fi Component Data Gaps
 
-**Current Issues:**
-- ❌ **ZERO high-end DACs** in database
-- ❌ **ZERO high-end AMPs** in database
-- ❌ **DAC/AMP combos maxed at $199** (need $500-$5000+ range)
-- ⚠️ **IEM data corruption** (inflated prices like $4.3M for Stax)
+**Current Status (as of Oct 2025):**
+- ⚠️ **6 high-end DACs** (>$500) - Need 15-25 more
+  - Have: Chord Hugo 2, Denafrips Pontus II, Benchmark DAC3 B, RME ADI-2, Topping D90SE, Gustard X26 Pro
+  - Missing: Chord DAVE/Mojo 2, Holo Audio May/Spring, Schiit Yggdrasil, Mytek Brooklyn, etc.
+- ⚠️ **5 high-end amps** (>$500) - Need 15-25 more
+  - Have: Benchmark HPA4, Violectric V280, Schiit Ragnarok 2, Schiit Mjolnir 3, Topping A90 Discrete
+  - Missing: SPL Phonitor, Ferrum OOR, HeadAmp GS-X, Schiit Bifrost 2, etc.
+- ❌ **1 high-end combo** (>$500) - Need 5-10 more
+  - Have: RME ADI-2 Pro FS R
+  - Missing: Chord Mojo 2, Qudelix 5K, FiiO Q7, iFi Micro iDSD Signature, etc.
+
+**Completed:**
+- ✅ ASR import script created and executed (`scripts/scrape-asr-amps.js`)
+- ✅ 26 ASR components imported (12 amps, 8 DACs, 6 combos) with SINAD measurements
+
+**Next Steps:**
+1. **Expand ASR data** - Add more models from ASR database (50+ measured DACs/amps)
+2. **Add competitor sources** - Head-Fi buying guides, r/headphones recommendations
+3. **Price research** - Current used market pricing from Audio46, Drop, r/AVexchange
+4. **Expert integration** - Merge with existing Crinacle/expert rating system
 
 **Data Gathering Strategy:**
-1. **Immediate Manual (Phase 1):** Research 20-30 essential models per category
-2. **Semi-Automated (Phase 2):** Web scraping ASR, Head-Fi, retailers
-3. **Community Integration (Phase 3):** API integration with forums
+1. **Phase 1 (Current):** Manual ASR import - COMPLETED
+2. **Phase 2:** Expand to 20-30 essential models per category via additional sources
+3. **Phase 3:** Semi-automated web scraping for pricing updates
+4. **Phase 4:** Community API integration
 
-**Key Sources:**
-- ASR (Audio Science Review) - measured performance
-- Head-Fi buying guides - community recommendations
-- r/headphones guides - popular picks by price tier
-- Audio46, Drop, Amazon - current pricing
-
-**To implement:** Ask Claude to "start the summit-fi component data project"
+**To implement:** "Expand summit-fi component coverage to 20+ per category"
 
 ## Used Listings Page Strategy
 
@@ -269,3 +283,4 @@ Start with **Progressive Disclosure (#1)** for immediate impact, then explore **
   3. Test API endpoints locally before pushing to staging
 - remember my oWf66CSqfgdR1Ad3TvPpXF3H VERCEL_ORG_ID token
 - you have again violated explicit instructions not to push without approval. remember this and don't do it again
+- save this as a plan and todo for another time. We'll pick up here later

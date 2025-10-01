@@ -197,8 +197,11 @@ export default function OnboardingV2() {
     products: Object.values(state.wantRecommendations).some(v => v),
     budget: true, // Always considered complete since it has a default
     existingGear: state.hasExistingGear !== null,
-    usage: state.primaryUsage !== null,
-    sound: state.soundSignature !== null,
+    // For beginners/intermediates, usage sets sound signature automatically
+    // For enthusiasts, they choose sound signature directly
+    preferences: state.experience === 'enthusiast'
+      ? state.soundSignature !== null
+      : state.primaryUsage !== null,
   }
 
   // Determine current active step
@@ -206,13 +209,12 @@ export default function OnboardingV2() {
     if (!steps.experience) return 1
     if (!steps.products) return 2
     if (!steps.existingGear) return 3
-    if (!steps.usage) return 4
-    if (!steps.sound) return 5
-    return 6 // All complete, show budget
+    if (!steps.preferences) return 4
+    return 5 // All complete, show budget
   }
 
   const currentStep = getCurrentStep()
-  const allComplete = steps.experience && steps.products && steps.existingGear && steps.usage && steps.sound
+  const allComplete = steps.experience && steps.products && steps.existingGear && steps.preferences
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   // Auto-scroll to budget section when all steps complete
@@ -271,7 +273,7 @@ export default function OnboardingV2() {
 
         {/* Progress indicator */}
         <div className="flex gap-1 mb-8 max-w-md mx-auto">
-          {[1, 2, 3, 4, 5].map(step => (
+          {[1, 2, 3, 4].map(step => (
             <div
               key={step}
               className={`
@@ -504,105 +506,146 @@ export default function OnboardingV2() {
           </div>
         </StepSection>
 
-        {/* Step 4: Primary Usage */}
-        <StepSection
-          stepNumber={4}
-          title="🎯 Primary Usage"
-          subtitle="How will you mainly use your audio system?"
-          isActive={currentStep === 4}
-          isCompleted={steps.usage}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <OptionCard
-              selected={state.primaryUsage === 'music'}
-              onClick={() => setState({ ...state, primaryUsage: 'music' })}
-              description="Critical listening"
-            >
-              🎵 Music
-            </OptionCard>
-            <OptionCard
-              selected={state.primaryUsage === 'gaming'}
-              onClick={() => setState({ ...state, primaryUsage: 'gaming' })}
-              description="Competitive & immersive"
-            >
-              🎮 Gaming
-            </OptionCard>
-            <OptionCard
-              selected={state.primaryUsage === 'movies'}
-              onClick={() => setState({ ...state, primaryUsage: 'movies' })}
-              description="Cinema experience"
-            >
-              🎬 Movies & TV
-            </OptionCard>
-            <OptionCard
-              selected={state.primaryUsage === 'work'}
-              onClick={() => setState({ ...state, primaryUsage: 'work' })}
-              description="Calls & productivity"
-            >
-              💼 Work from Home
-            </OptionCard>
-            <OptionCard
-              selected={state.primaryUsage === 'studio'}
-              onClick={() => setState({ ...state, primaryUsage: 'studio' })}
-              description="Production & mixing"
-            >
-              🎚️ Studio/Production
-            </OptionCard>
-            <OptionCard
-              selected={state.primaryUsage === 'travel'}
-              onClick={() => setState({ ...state, primaryUsage: 'travel' })}
-              description="On-the-go listening"
-            >
-              ✈️ Travel/Commute
-            </OptionCard>
-          </div>
-        </StepSection>
+        {/* Step 4: Conditional Preferences - Usage for beginners/intermediates, Sound for enthusiasts */}
+        {state.experience !== 'enthusiast' ? (
+          <StepSection
+            stepNumber={4}
+            title="🎯 Primary Usage"
+            subtitle="How will you mainly use your audio system?"
+            isActive={currentStep === 4}
+            isCompleted={steps.preferences}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <OptionCard
+                selected={state.primaryUsage === 'music'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'music',
+                  soundSignature: 'neutral' // Accurate reproduction for critical listening
+                })}
+                description="Critical listening"
+              >
+                🎵 Music
+              </OptionCard>
+              <OptionCard
+                selected={state.primaryUsage === 'gaming'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'gaming',
+                  soundSignature: 'fun' // V-shaped for excitement and spatial cues
+                })}
+                description="Competitive & immersive"
+              >
+                🎮 Gaming
+              </OptionCard>
+              <OptionCard
+                selected={state.primaryUsage === 'movies'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'movies',
+                  soundSignature: 'fun' // V-shaped for cinematic impact
+                })}
+                description="Cinema experience"
+              >
+                🎬 Movies & TV
+              </OptionCard>
+              <OptionCard
+                selected={state.primaryUsage === 'work'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'work',
+                  soundSignature: 'neutral' // Clear voice reproduction
+                })}
+                description="Calls & productivity"
+              >
+                💼 Work from Home
+              </OptionCard>
+              <OptionCard
+                selected={state.primaryUsage === 'studio'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'studio',
+                  soundSignature: 'neutral' // Accurate monitoring
+                })}
+                description="Production & mixing"
+              >
+                🎚️ Studio/Production
+              </OptionCard>
+              <OptionCard
+                selected={state.primaryUsage === 'travel'}
+                onClick={() => setState({
+                  ...state,
+                  primaryUsage: 'travel',
+                  soundSignature: 'warm' // Fatigue-free for long sessions
+                })}
+                description="On-the-go listening"
+              >
+                ✈️ Travel/Commute
+              </OptionCard>
+            </div>
+          </StepSection>
+        ) : (
+          <StepSection
+            stepNumber={4}
+            title="🔊 Sound Preference"
+            subtitle="What kind of sound do you enjoy?"
+            isActive={currentStep === 4}
+            isCompleted={steps.preferences}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <OptionCard
+                selected={state.soundSignature === 'neutral'}
+                onClick={() => setState({
+                  ...state,
+                  soundSignature: 'neutral',
+                  primaryUsage: 'music' // Still set usage for backend compatibility
+                })}
+                description="Accurate, uncolored"
+              >
+                ⚖️ Neutral/Reference
+              </OptionCard>
+              <OptionCard
+                selected={state.soundSignature === 'warm'}
+                onClick={() => setState({
+                  ...state,
+                  soundSignature: 'warm',
+                  primaryUsage: 'music' // Still set usage for backend compatibility
+                })}
+                description="Rich bass, smooth"
+              >
+                🔥 Warm & Musical
+              </OptionCard>
+              <OptionCard
+                selected={state.soundSignature === 'bright'}
+                onClick={() => setState({
+                  ...state,
+                  soundSignature: 'bright',
+                  primaryUsage: 'music' // Still set usage for backend compatibility
+                })}
+                description="Detailed treble, clarity"
+              >
+                ✨ Bright & Analytical
+              </OptionCard>
+              <OptionCard
+                selected={state.soundSignature === 'fun'}
+                onClick={() => setState({
+                  ...state,
+                  soundSignature: 'fun',
+                  primaryUsage: 'music' // Still set usage for backend compatibility
+                })}
+                description="V-shaped, exciting"
+              >
+                🎉 Fun & Engaging
+              </OptionCard>
+            </div>
+          </StepSection>
+        )}
 
-        {/* Step 5: Sound Signature */}
-        <StepSection
-          stepNumber={5}
-          title="🔊 Sound Preference"
-          subtitle="What kind of sound do you enjoy?"
-          isActive={currentStep === 5}
-          isCompleted={steps.sound}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <OptionCard
-              selected={state.soundSignature === 'neutral'}
-              onClick={() => setState({ ...state, soundSignature: 'neutral' })}
-              description="Accurate, uncolored"
-            >
-              ⚖️ Neutral/Reference
-            </OptionCard>
-            <OptionCard
-              selected={state.soundSignature === 'warm'}
-              onClick={() => setState({ ...state, soundSignature: 'warm' })}
-              description="Rich bass, smooth"
-            >
-              🔥 Warm & Musical
-            </OptionCard>
-            <OptionCard
-              selected={state.soundSignature === 'bright'}
-              onClick={() => setState({ ...state, soundSignature: 'bright' })}
-              description="Detailed treble, clarity"
-            >
-              ✨ Bright & Analytical
-            </OptionCard>
-            <OptionCard
-              selected={state.soundSignature === 'fun'}
-              onClick={() => setState({ ...state, soundSignature: 'fun' })}
-              description="V-shaped, exciting"
-            >
-              🎉 Fun & Engaging
-            </OptionCard>
-          </div>
-        </StepSection>
-
-        {/* Step 6: Budget - Using simple slider */}
+        {/* Step 5: Budget - Using simple slider */}
         {allComplete && !isTransitioning && (
           <div id="budget-section">
             <StepSection
-              stepNumber={6}
+              stepNumber={5}
               title="💰 Budget Range"
               subtitle="Set your comfortable spending range"
               isActive={true}
@@ -622,14 +665,16 @@ export default function OnboardingV2() {
                 <button
                   onClick={handleGetRecommendations}
                   className="
-                    w-full py-4 bg-accent-primary text-white font-semibold rounded-xl
-                    hover:bg-accent-primary/90 transition-all duration-200
-                    flex items-center justify-center gap-2 shadow-lg
+                    w-full py-5 px-8 bg-orange-500 text-white text-lg font-bold rounded-xl
+                    hover:bg-orange-600 transition-all duration-200
+                    flex items-center justify-center gap-2 shadow-xl
                     transform hover:scale-[1.02] active:scale-[0.98]
+                    ring-2 ring-orange-300 ring-offset-2 dark:ring-orange-700 dark:ring-offset-gray-900
+                    animate-pulse hover:animate-none
                   "
                 >
                   Continue to Recommendations
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </button>
 
                 <p className="text-center text-sm text-text-secondary">
