@@ -6,14 +6,14 @@
  */
 
 interface EbayAffiliateConfig {
-  campaignId: string;
+  campaignId?: string;
   customId?: string; // Optional tracking parameter
 }
 
 interface ComponentSearchParams {
   brand: string;
   name: string;
-  category?: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp';
+  category?: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable';
 }
 
 /**
@@ -38,7 +38,8 @@ export function generateEbayAffiliateLink(
     'iems': '112529',       // Same category for IEMs
     'dac': '14990',         // Musical Instruments & Gear > Pro Audio Equipment > Signal Processors & Effects
     'amp': '41410',         // Musical Instruments & Gear > Pro Audio Equipment > Amplifiers
-    'dac_amp': '41410'      // Same as amp
+    'dac_amp': '41410',     // Same as amp
+    'cable': '112529'       // Same as headphones category
   };
 
   const params = new URLSearchParams({
