@@ -95,6 +95,42 @@
 - **Recommendations**: "What should I buy?" (personalized, algorithm-driven)
 - **Used Listings**: "What's available right now?" (inventory-driven, market-focused)
 
+### Active Data Sources
+
+**1. Reddit r/AVexchange (Primary)**
+- ✅ Production-ready scraper
+- ✅ OAuth authentication working
+- ✅ Fuzzy matching for better accuracy
+- ✅ Enhanced price extraction
+- Configuration: Search past month, 100 results per query
+- Script: `scripts/reddit-avexchange-scraper.js`
+- Rate limit: 2s between requests
+
+**2. Head-Fi Classifieds (Secondary)**
+- Integration exists but needs testing
+- Script: `scripts/headfi-scraper.js`
+
+**3. Reverb (Audio Gear)**
+- Integration exists but needs API key
+- Script: `scripts/reverb-integration.js`
+
+**4. eBay → Affiliate Model Only** ⚠️
+- **NO API scraping** (violates TOS)
+- Use affiliate links instead: `src/lib/ebay-affiliate.ts`
+- See `EBAY_AFFILIATE_STRATEGY.md` for details
+
+**Running Scrapers:**
+```bash
+# Test Reddit scraper
+node scripts/test-reddit-scraper-production.js
+
+# Run full Reddit scrape (all components)
+node scripts/reddit-avexchange-scraper.js
+
+# Unified aggregator (all sources)
+node scripts/unified-listing-aggregator.js reddit
+```
+
 ## GitHub Actions Setup for Staging Automation
 
 **Required GitHub Secrets:**

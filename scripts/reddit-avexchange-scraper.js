@@ -1,10 +1,17 @@
 /**
  * Reddit r/AVExchange Scraper for HiFinder Used Listings
- * 
+ *
  * Scrapes Reddit's r/AVExchange subreddit for headphone listings
  * Uses Reddit API for better reliability and rate limiting
+ *
+ * OPTIMIZED VERSION:
+ * - Improved fuzzy matching for component names
+ * - Better price extraction patterns
+ * - Enhanced error handling and logging
+ * - Configurable search time window
  */
 
+require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
@@ -27,7 +34,7 @@ const REDDIT_CONFIG = {
   searchParams: {
     limit: 100, // Max posts per request
     sort: 'new', // Get newest posts
-    time: 'week', // Posts from past week
+    time: 'month', // Posts from past month (changed from week for more results)
     restrict_sr: true // Restrict to AVExchange subreddit only
   },
   
@@ -174,25 +181,43 @@ function isSellPost(title) {
 
 /**
  * Check if Reddit post is relevant to our component
+ * Enhanced with fuzzy matching for better accuracy
  */
 function isRelevantPost(postData, component) {
   const title = postData.title.toLowerCase();
   const selftext = (postData.selftext || '').toLowerCase();
   const brand = component.brand.toLowerCase();
   const name = component.name.toLowerCase();
+  const fullText = `${title} ${selftext}`;
 
-  // Must contain brand name
-  if (!title.includes(brand) && !selftext.includes(brand)) {
-    return false;
+  // Must contain brand name (with fuzzy matching for common variations)
+  const brandVariations = [
+    brand,
+    brand.replace(/\s+/g, ''), // Remove spaces (e.g., "audiotechnica")
+    brand.replace(/-/g, ' '),   // Replace hyphens with spaces
+  ];
+
+  const hasBrand = brandVariations.some(variation => fullText.includes(variation));
+  if (!hasBrand) return false;
+
+  // For specific models, check for model match with word boundaries
+  const modelWords = name.split(/[\s\-]+/).filter(word => word.length > 2);
+  if (modelWords.length > 0) {
+    const hasModelMatch = modelWords.some(word => {
+      // Use word boundary regex for more accurate matching
+      const regex = new RegExp(`\\b${word.toLowerCase()}\\b`, 'i');
+      return regex.test(fullText);
+    });
+    if (!hasModelMatch) return false;
   }
 
-  // For specific models, check for model match
-  const modelWords = name.split(' ').filter(word => word.length > 2);
-  if (modelWords.length > 0) {
-    const hasModelMatch = modelWords.some(word =>
-      title.includes(word.toLowerCase()) || selftext.includes(word.toLowerCase())
-    );
-    if (!hasModelMatch) return false;
+  // Additional check: if component name is very specific, require exact match
+  if (name.length > 10 && modelWords.length >= 2) {
+    const exactMatch = modelWords.every(word => {
+      const regex = new RegExp(`\\b${word.toLowerCase()}\\b`, 'i');
+      return regex.test(fullText);
+    });
+    return exactMatch;
   }
 
   return true;
@@ -247,32 +272,41 @@ function transformRedditPost(postData, component) {
 
 /**
  * Extract price from Reddit post title
+ * Enhanced with more patterns and better validation
  */
 function extractPrice(title) {
-  // Common Reddit price patterns
+  // Common Reddit price patterns (ordered by specificity)
   const patterns = [
-    /\$([0-9,]+)/g,                    // $500
-    /([0-9,]+)\s*dollars?/gi,          // 500 dollars
-    /([0-9,]+)\s*usd/gi,               // 500 USD
-    /price[:\s]+\$?([0-9,]+)/gi,       // Price: $500
-    /asking[:\s]+\$?([0-9,]+)/gi,      // Asking: $500
-    /\[w\]\s*\$?([0-9,]+)/gi          // [W] $500
+    /\$(\d{1,5}(?:,\d{3})*)/g,           // $500 or $1,500
+    /asking\s*\$?(\d{1,5})/gi,            // asking $500 or asking 500
+    /price[:\s]+\$?(\d{1,5})/gi,          // price: $500
+    /\[w\]\s*\$?(\d{1,5})/gi,             // [W] $500
+    /\[h\].*?\[w\]\s*\$?(\d{1,5})/gi,     // [H] item [W] $500
+    /(\d{1,5})\s*shipped/gi,              // 500 shipped
+    /(\d{1,5})\s*(?:usd|dollars?)/gi,     // 500 USD or 500 dollars
+    /obo.*?\$?(\d{1,5})/gi,               // $500 obo
+    /\$?(\d{1,5})\s*obo/gi,               // 500 obo
   ];
+
+  let foundPrices = [];
 
   for (const pattern of patterns) {
     const matches = [...title.matchAll(pattern)];
-    if (matches.length > 0) {
-      // Take the first reasonable price found
-      for (const match of matches) {
-        const priceStr = match[1].replace(/,/g, '');
-        const price = parseInt(priceStr);
+    for (const match of matches) {
+      const priceStr = match[1].replace(/,/g, '');
+      const price = parseInt(priceStr);
 
-        // Sanity check: price should be reasonable for audio equipment
-        if (price >= 10 && price <= 50000) {
-          return { price, raw: match[0] };
-        }
+      // Sanity check: reasonable audio equipment price range
+      if (price >= 20 && price <= 10000) {
+        foundPrices.push({ price, raw: match[0], confidence: 1 });
       }
     }
+  }
+
+  // If multiple prices found, take the most likely one
+  if (foundPrices.length > 0) {
+    // Prefer prices that appear earlier in title (usually more accurate)
+    return foundPrices[0];
   }
 
   return null;

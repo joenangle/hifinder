@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Component, UsedListing } from '@/types'
 import { ListingCard } from './ListingCard'
+import { EbayAffiliateCTA } from './EbayAffiliateCTA'
 
 interface UsedListingsSectionProps {
   component: Component;
@@ -10,14 +11,13 @@ interface UsedListingsSectionProps {
 }
 
 export function UsedListingsSection({ component, listings }: UsedListingsSectionProps) {
-  const [filter, setFilter] = useState<'all' | 'reddit' | 'ebay' | 'head_fi' | 'reverb' | 'manual'>('all')
+  const [filter, setFilter] = useState<'all' | 'reddit' | 'head_fi' | 'reverb' | 'manual'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'price_low' | 'price_high'>('newest')
 
   const filteredListings = listings
     .filter(listing => {
       if (filter === 'all') return true
       if (filter === 'reddit') return listing.source === 'reddit_avexchange'
-      if (filter === 'ebay') return listing.source === 'ebay'
       if (filter === 'head_fi') return listing.source === 'head_fi'
       if (filter === 'reverb') return listing.source === 'reverb'
       if (filter === 'manual') return listing.source === 'manual'
@@ -96,7 +96,6 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
           >
             <option value="all">All Sources</option>
             <option value="reddit">Reddit</option>
-            <option value="ebay">eBay</option>
             <option value="head_fi">Head-Fi</option>
             <option value="reverb">Reverb</option>
             <option value="manual">Curated</option>
@@ -136,7 +135,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       {/* Listings */}
       <div className="space-y-3">
         {filteredListings.map(listing => (
-          <ListingCard 
+          <ListingCard
             key={listing.id}
             listing={listing}
             expectedPrice={expectedPrice}
@@ -144,12 +143,43 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         ))}
       </div>
 
-      {/* Affiliate Fallback */}
+      {/* eBay Affiliate CTA */}
+      {filteredListings.length > 0 && (
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-1">
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.5 21c0-1.5-1.5-2.5-3.5-2.5-1 0-2 0-2.5-.5S1 16.5 1 15.5s0-2 .5-2.5S3 12.5 4 12.5c2 0 3.5-1 3.5-2.5V6c0-3 2-5 5-5s5 2 5 5v4c0 1.5 1.5 2.5 3.5 2.5 1 0 2 0 2.5.5s.5 1.5.5 2.5 0 2-.5 2.5-1.5.5-2.5.5c-2 0-3.5 1-3.5 2.5v2c0 .5-.5 1-1 1h-8c-.5 0-1-.5-1-1v-2z"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                Want more options?
+              </h4>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                Check eBay for additional listings of {component.name}
+              </p>
+              <EbayAffiliateCTA
+                component={{
+                  id: component.id,
+                  brand: component.brand,
+                  name: component.name,
+                  category: component.category
+                }}
+                source="used_listings"
+                variant="secondary"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Amazon Affiliate Fallback */}
       {component.amazon_url && (
         <div className="mt-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <p className="text-gray-600 dark:text-gray-400 mb-3">Prefer to buy new?</p>
-            <a 
+            <a
               href={component.amazon_url}
               target="_blank"
               rel="noopener noreferrer"

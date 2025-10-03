@@ -11,7 +11,8 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
-const ebayIntegration = require('./ebay-integration');
+// eBay integration removed - using affiliate links instead (see EBAY_AFFILIATE_STRATEGY.md)
+// const ebayIntegration = require('./ebay-integration');
 const headFiScraper = require('./headfi-scraper');
 const reverbIntegration = require('./reverb-integration');
 const redditScraper = require('./reddit-avexchange-scraper');
@@ -27,7 +28,7 @@ const AGGREGATOR_CONFIG = {
   sourcePriorities: {
     'reddit_avexchange': 10, // Best for enthusiast gear, fair pricing
     'reverb': 8,            // Good for pro audio, authenticated sellers
-    'ebay': 6,              // High volume but mixed quality
+    // 'ebay': 6,           // REMOVED: Using affiliate links instead
     'head_fi': 7,           // Enthusiast community, good condition info
     'manual': 9             // Curated listings
   },
@@ -68,7 +69,7 @@ class ListingAggregator {
     };
     
     this.sourceIntegrations = {
-      'ebay': ebayIntegration,
+      // 'ebay': ebayIntegration, // REMOVED: Using affiliate links instead
       'head_fi': headFiScraper,
       'reverb': reverbIntegration,
       'reddit_avexchange': redditScraper
@@ -162,14 +163,12 @@ class ListingAggregator {
           while (retries < AGGREGATOR_CONFIG.maxRetries) {
             try {
               const sourceListings = await integration.searchHeadFiForComponent?.(component) ||
-                                   await integration.searchEbayForComponent?.(component) ||
                                    await integration.searchReverbForComponent?.(component) ||
                                    await integration.searchRedditForComponent?.(component) ||
                                    [];
-              
+
               if (sourceListings.length > 0) {
                 await integration.saveHeadFiListings?.(sourceListings) ||
-                      await integration.saveEbayListings?.(sourceListings) ||
                       await integration.saveReverbListings?.(sourceListings) ||
                       await integration.saveRedditListings?.(sourceListings);
                 
@@ -481,9 +480,6 @@ if (require.main === module) {
   switch (command) {
     case 'health':
       runHealthCheck();
-      break;
-    case 'ebay':
-      runSingleSource('ebay', limit);
       break;
     case 'headfi':
       runSingleSource('head_fi', limit);
