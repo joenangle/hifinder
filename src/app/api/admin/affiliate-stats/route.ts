@@ -119,10 +119,10 @@ export async function GET(request: NextRequest) {
       recentRevenue: revenue?.slice(0, 10)
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching affiliate stats:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch stats' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch stats' },
       { status: 500 }
     )
   }

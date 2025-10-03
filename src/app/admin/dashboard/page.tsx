@@ -23,8 +23,18 @@ interface AffiliateStats {
     total_commission: number
     conversion_rate: number
   }>
-  recentClicks: Array<any>
-  recentRevenue: Array<any>
+  recentClicks: Array<{
+    id: string
+    platform: string
+    source: string
+    clicked_at: string
+  }>
+  recentRevenue: Array<{
+    id: string
+    platform: string
+    status: string
+    commission_amount: number
+  }>
 }
 
 export default function AdminDashboard() {
@@ -39,12 +49,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     checkAuth()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (!loading && !error) {
       fetchStats()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange, platform])
 
   async function checkAuth() {
@@ -65,8 +77,8 @@ export default function AdminDashboard() {
 
       setLoading(false)
       fetchStats()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Authentication failed')
       setLoading(false)
     }
   }
@@ -92,8 +104,8 @@ export default function AdminDashboard() {
 
       const data = await response.json()
       setStats(data)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch stats')
     }
   }
 
