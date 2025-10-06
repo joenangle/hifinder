@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   creator: "HiFinder",
   publisher: "HiFinder",
   metadataBase: new URL('https://hifinder.app'),
+  verification: {
+    other: {
+      'impact-site-verification': 'ab752c49-e654-41e0-a0ee-abc6dc0eb30b',
+    },
+  },
   alternates: {
     canonical: '/',
   },
