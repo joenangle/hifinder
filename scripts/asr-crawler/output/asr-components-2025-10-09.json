@@ -1,0 +1,242 @@
+[
+  {
+    "brand": "JDS Labs",
+    "name": "Element IV",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 499,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-element-iv-dac-hp-amp-with-eq-review.59002/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Zidoo",
+    "name": "EverSolo Z8",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 699,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/eversolo-z8-dac-amp-review.41512/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Sabaj",
+    "name": "A20d 2023",
+    "category": "dac_amp",
+    "asr_sinad": 123,
+    "price_new": 420,
+    "power_output": "2W @ 160Ω, 1W @ 32Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/sabaj-a20d-2023-dac-hp-amp-review.47440/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Loxjie",
+    "name": "D40 Pro",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 388,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/loxjie-d40-pro-dac-hp-amp-review.45646/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Fosi",
+    "name": "ZH3",
+    "category": "dac_amp",
+    "asr_sinad": 113,
+    "price_new": 199,
+    "power_output": "2.5W @ 300Ω, 2.5W @ 32Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/fosi-zh3-balanced-headphone-amp-dac-review.65913/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "DX5II",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 299,
+    "power_output": "1W @ 300Ω balanced, 3.5W @ 32Ω balanced",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-dx5ii-balanced-dac-and-headphone-amp-review.64264/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Fosi Audio",
+    "name": "K7 Gaming",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 199,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/fosi-k7-gaming-dac-and-hp-amp-review.63915/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Luxsin",
+    "name": "X9",
+    "category": "dac_amp",
+    "asr_sinad": 128,
+    "price_new": 1099,
+    "power_output": "3W @ 32Ω balanced, 920mW @ 300Ω balanced",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/luxsin-x9-smart-stereo-dac-preamp.63563/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "D&A",
+    "name": "Alpha PRO",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 699,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/d-a-alpha-pro-dac-headphone-amp-review.62862/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Leckerton Audio",
+    "name": "UHA-6S.MKII",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 239,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/leckerton-audio-uha-6s-mkii-portable-dac-amp-review.57202/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "SMSL",
+    "name": "RAW-MDA 1",
+    "category": "dac_amp",
+    "asr_sinad": 120,
+    "price_new": 246,
+    "power_output": "100mW @ 300Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/smsl-raw-mda-1-dac-headphone-amp-review.56430/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "SMSL",
+    "name": "DO200 Pro",
+    "category": "dac",
+    "asr_sinad": null,
+    "price_new": 399,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/smsl-do200-pro-dac-review.60095/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "SMSL",
+    "name": "RAW Pro-DAC1",
+    "category": "dac",
+    "asr_sinad": null,
+    "price_new": 699,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/smsl-raw-pro-dac1-balanced-dac-review.59960/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "Centaurus R2R",
+    "category": "dac",
+    "asr_sinad": null,
+    "price_new": 999,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-centaurus-r2r-dac-review.59283/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "D90 III Sabre",
+    "category": "dac",
+    "asr_sinad": null,
+    "price_new": 899,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-d90-iii-sabre-dac-review.51493/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "SMSL",
+    "name": "D400 Pro",
+    "category": "dac",
+    "asr_sinad": 132,
+    "price_new": 619,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/smsl-d400-pro-balanced-dac-review.49170/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Chord",
+    "name": "Alto",
+    "category": "amp",
+    "asr_sinad": 73,
+    "price_new": 4320,
+    "power_output": "6.079W @ 32Ω, 0.8717W @ 300Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/chord-alto-headphone-power-amp-review.61323/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Space Audio",
+    "name": "Space II",
+    "category": "amp",
+    "asr_sinad": null,
+    "price_new": 400,
+    "power_output": ">100mW @ 300Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/space-audio-space-ii-headphone-amp-review.57201/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "SMSL",
+    "name": "VMV P2",
+    "category": "amp",
+    "asr_sinad": null,
+    "price_new": 999,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/smsl-vmv-p2-headphone-amp-review.51710/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Midgard",
+    "category": "amp",
+    "asr_sinad": 118,
+    "price_new": 219,
+    "power_output": "4.8W @ 32Ω, 750mW @ 300Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/schiit-midgard-balanced-headphone-amp-review.48653/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Schiit",
+    "name": "KARA",
+    "category": "amp",
+    "asr_sinad": 117,
+    "price_new": 699,
+    "power_output": "1W @ 32Ω, 1W @ 300Ω",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/schiit-kara-preamp-and-headphone-amp-review.48048/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "A70 Pro",
+    "category": "amp",
+    "asr_sinad": 121,
+    "price_new": 499,
+    "power_output": "8W @ 32Ω dual channel",
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-a70-pro-hp-preamp-review.44636/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "A90 Discrete",
+    "category": "amp",
+    "asr_sinad": 119,
+    "price_new": 599,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-a90-discrete-review-headphone-amp-preamp.35114/",
+    "source": "asr_manual_2025_10_09"
+  },
+  {
+    "brand": "Topping",
+    "name": "DX5",
+    "category": "dac_amp",
+    "asr_sinad": null,
+    "price_new": 449,
+    "power_output": null,
+    "asr_review_url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-dx5-review-dac-hp-amp.32179/",
+    "source": "asr_manual_2025_10_09"
+  }
+]

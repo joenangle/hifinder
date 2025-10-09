@@ -102,12 +102,15 @@ interface RecommendationRequest {
   optimizeAroundHeadphones?: string
 }
 
-// Enhanced dual-layer synergy scoring with detailed Crinacle signatures
+// Enhanced dual-layer synergy scoring with detailed Crinacle signatures + ASR measurements
 function calculateSynergyScore(component: unknown, soundSig: string, primaryUsage: string): number {
   const comp = component as {
     sound_signature?: string
     crinacle_sound_signature?: string
     use_cases?: string | string[]
+    asr_sinad?: number
+    price_new?: number
+    category?: string
   }
   let score = 0.6 // Base score - slightly lower to make room for bonuses
 
@@ -131,6 +134,12 @@ function calculateSynergyScore(component: unknown, soundSig: string, primaryUsag
     score += detailedMatch * 0.2; // Up to 20% bonus for detailed matching
   }
 
+  // Layer 3: ASR measurement quality boost (DAC/amp/combo only)
+  if (comp.asr_sinad && ['dac', 'amp', 'dac_amp'].includes(comp.category || '')) {
+    const asrBoost = calculateASRQualityBoost(comp.asr_sinad, comp.price_new || 0);
+    score += asrBoost;
+  }
+
   // Usage case matching - BONUS only, not penalty for missing
   if (comp.use_cases && primaryUsage) {
     const useCases = Array.isArray(comp.use_cases)
@@ -147,6 +156,45 @@ function calculateSynergyScore(component: unknown, soundSig: string, primaryUsag
   }
 
   return Math.min(1, score)
+}
+
+// ASR measurement quality boost - budget-aware scoring
+function calculateASRQualityBoost(sinad: number, price: number): number {
+  // Budget tiers determine how much we care about measurements
+  const isBudget = price < 200;
+  const isMidRange = price >= 200 && price < 600;
+  const isHighEnd = price >= 600 && price < 1500;
+  const isSummitFi = price >= 1500;
+
+  // Exceptional performance (>120 dB SINAD)
+  if (sinad >= 120) {
+    if (isSummitFi) return 0.08; // Expected at this price, moderate boost
+    if (isHighEnd) return 0.12;  // Great value, strong boost
+    if (isMidRange) return 0.15; // Exceptional value, very strong boost
+    return 0.10; // Budget gear with great measurements
+  }
+
+  // Excellent performance (110-120 dB)
+  if (sinad >= 110) {
+    if (isSummitFi) return 0.05; // Acceptable but not exceptional
+    if (isHighEnd) return 0.08;  // Good performance
+    if (isMidRange) return 0.10; // Strong performance for price
+    return 0.08; // Very good for budget gear
+  }
+
+  // Good performance (100-110 dB)
+  if (sinad >= 100) {
+    if (isSummitFi) return -0.05; // Concerning at this price
+    if (isHighEnd) return 0.03;   // Acceptable but not great
+    if (isMidRange) return 0.05;  // Decent for the price
+    return 0.05; // Acceptable for budget
+  }
+
+  // Below average (<100 dB)
+  if (isSummitFi || isHighEnd) {
+    return -0.10; // Serious concern for expensive gear
+  }
+  return 0; // Neutral for budget gear (other factors matter more)
 }
 
 // Detailed signature matching with partial scoring
