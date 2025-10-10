@@ -416,7 +416,12 @@ function filterAndScoreComponents(
       }
 
       const avgPrice = ((component.price_used_min || 0) + (component.price_used_max || 0)) / 2
-      const synergyScore = calculateSynergyScore(component, soundSignature, primaryUsage)
+
+      // Only calculate synergy for headphones/IEMs (sound signature is meaningful)
+      // DACs/amps/combos get neutral score since they should be transparent
+      const synergyScore = (component.category === 'cans' || component.category === 'iems')
+        ? calculateSynergyScore(component, soundSignature, primaryUsage)
+        : 0.75 // Neutral score for DACs/amps (higher than base to avoid penalty)
 
       // Convert letter grades to numeric if not already done
       const toneGradeNumeric = component.expert_grade_numeric ?? gradeToNumeric(component.tone_grade)

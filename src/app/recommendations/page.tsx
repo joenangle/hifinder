@@ -976,41 +976,65 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {dacs.map((dac) => (
-                  <div 
-                    key={dac.id} 
+                  <div
+                    key={dac.id}
                     className={`card-interactive ${
-                      selectedDacs.includes(dac.id) 
-                        ? 'selected' 
+                      selectedDacs.includes(dac.id)
+                        ? 'selected'
                         : ''
                     }`}
                     onClick={() => toggleDacSelection(dac.id)}
                   >
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-medium text-primary">{dac.name}</h3>
-                      <div className="text-right" style={{ minWidth: '140px' }}>
-                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
-                          Est. Used Price
-                        </div>
-                        <div className="text-sm font-medium text-success">
-                          {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}
-                        </div>
+                    {/* Header with name and pricing */}
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{dac.brand} {dac.name}</h3>
+                      <div className="flex justify-between items-baseline text-sm">
+                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}</span>
                         {dac.price_new && (
-                          <div className="text-xs text-tertiary mt-1">
-                            MSRP: {formatBudgetUSD(dac.price_new)}
-                          </div>
+                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(dac.price_new)}</span>
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-secondary mb-2">{dac.brand}</p>
 
-                    {shouldShowTechnicalSpecs() && (
-                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                        {dac.sound_signature && (
-                          <div>Sound: {dac.sound_signature}</div>
-                        )}
-                        {dac.compatibilityScore && (
-                          <div>Compatibility: {Math.round(dac.compatibilityScore * 100)}%</div>
-                        )}
+                    {/* Performance Section */}
+                    {(dac.asr_sinad || dac.asr_review_url) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary">
+                          {dac.asr_sinad && (
+                            <div>• SINAD: {dac.asr_sinad} dB {
+                              dac.asr_sinad >= 120 ? '(Excellent)' :
+                              dac.asr_sinad >= 110 ? '(Very Good)' :
+                              dac.asr_sinad >= 100 ? '(Good)' : '(Fair)'
+                            }</div>
+                          )}
+                          {dac.asr_review_url && !dac.asr_sinad && (
+                            <div>• ASR Review Available</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Connectivity Section */}
+                    {(dac.input_types || dac.output_types) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
+                          {dac.input_types && (
+                            <div>• Inputs: {Array.isArray(dac.input_types) ? dac.input_types.join(', ') : dac.input_types}</div>
+                          )}
+                          {dac.output_types && (
+                            <div>• Outputs: {Array.isArray(dac.output_types) ? dac.output_types.join(', ') : dac.output_types}</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Why Recommended */}
+                    {dac.why_recommended && (
+                      <div>
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
+                        <p className="text-sm text-text-secondary dark:text-text-secondary">{dac.why_recommended}</p>
                       </div>
                     )}
                   </div>
@@ -1029,44 +1053,83 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {amps.map((amp) => (
-                  <div 
-                    key={amp.id} 
+                  <div
+                    key={amp.id}
                     className={`card-interactive ${
-                      selectedAmps.includes(amp.id) 
-                        ? 'selected' 
+                      selectedAmps.includes(amp.id)
+                        ? 'selected'
                         : ''
                     }`}
                     onClick={() => toggleAmpSelection(amp.id)}
                   >
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-medium text-primary">{amp.name}</h3>
-                      <div className="text-right" style={{ minWidth: '140px' }}>
-                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
-                          Est. Used Price
-                        </div>
-                        <div className="text-sm font-medium text-warning">
-                          {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}
-                        </div>
+                    {/* Header with name and pricing */}
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{amp.brand} {amp.name}</h3>
+                      <div className="flex justify-between items-baseline text-sm">
+                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}</span>
                         {amp.price_new && (
-                          <div className="text-xs text-tertiary mt-1">
-                            MSRP: {formatBudgetUSD(amp.price_new)}
-                          </div>
+                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(amp.price_new)}</span>
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-secondary mb-2">{amp.brand}</p>
 
-                    {shouldShowTechnicalSpecs() && (
-                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                        {amp.sound_signature && (
-                          <div>Sound: {amp.sound_signature}</div>
-                        )}
-                        {amp.compatibilityScore && (
-                          <div>Compatibility: {Math.round(amp.compatibilityScore * 100)}%</div>
-                        )}
-                        {amp.powerAdequacy && (
-                          <div>Power: {Math.round(amp.powerAdequacy * 100)}%</div>
-                        )}
+                    {/* Power Output Section */}
+                    {(amp.power_output || amp.powerAdequacy) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Power Output</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
+                          {amp.power_output && (
+                            <div>• {amp.power_output}</div>
+                          )}
+                          {amp.powerAdequacy && amp.powerAdequacy > 0.5 && (
+                            <div>• Power Match: {Math.round(amp.powerAdequacy * 100)}% {
+                              amp.powerAdequacy >= 0.9 ? '(Perfect)' :
+                              amp.powerAdequacy >= 0.7 ? '(Good)' : '(Adequate)'
+                            }</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Performance Section */}
+                    {(amp.asr_sinad || amp.asr_review_url) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">📊 Performance</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary">
+                          {amp.asr_sinad && (
+                            <div>• SINAD: {amp.asr_sinad} dB {
+                              amp.asr_sinad >= 110 ? '(Excellent)' :
+                              amp.asr_sinad >= 100 ? '(Very Good)' :
+                              amp.asr_sinad >= 90 ? '(Good)' : '(Fair)'
+                            }</div>
+                          )}
+                          {amp.asr_review_url && !amp.asr_sinad && (
+                            <div>• ASR Review Available</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Connectivity Section */}
+                    {(amp.input_types || amp.output_types) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
+                          {amp.input_types && (
+                            <div>• Inputs: {Array.isArray(amp.input_types) ? amp.input_types.join(', ') : amp.input_types}</div>
+                          )}
+                          {amp.output_types && (
+                            <div>• Outputs: {Array.isArray(amp.output_types) ? amp.output_types.join(', ') : amp.output_types}</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Why Recommended */}
+                    {amp.why_recommended && (
+                      <div>
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
+                        <p className="text-sm text-text-secondary dark:text-text-secondary">{amp.why_recommended}</p>
                       </div>
                     )}
                   </div>
@@ -1085,44 +1148,71 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {dacAmps.map((combo) => (
-                  <div 
-                    key={combo.id} 
+                  <div
+                    key={combo.id}
                     className={`card-interactive ${
-                      selectedDacAmps.includes(combo.id) 
-                        ? 'selected' 
+                      selectedDacAmps.includes(combo.id)
+                        ? 'selected'
                         : ''
                     }`}
                     onClick={() => toggleDacAmpSelection(combo.id)}
                   >
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-medium text-primary">{combo.name}</h3>
-                      <div className="text-right" style={{ minWidth: '140px' }}>
-                        <div className="text-xs text-gray-500 uppercase font-medium tracking-wide mb-1">
-                          Est. Used Price
-                        </div>
-                        <div className="text-sm font-medium text-accent">
-                          {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}
-                        </div>
+                    {/* Header with name and pricing */}
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{combo.brand} {combo.name}</h3>
+                      <div className="flex justify-between items-baseline text-sm">
+                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}</span>
                         {combo.price_new && (
-                          <div className="text-xs text-tertiary mt-1">
-                            MSRP: {formatBudgetUSD(combo.price_new)}
-                          </div>
+                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(combo.price_new)}</span>
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-secondary mb-2">{combo.brand}</p>
 
-                    {shouldShowTechnicalSpecs() && (
-                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                        {combo.sound_signature && (
-                          <div>Sound: {combo.sound_signature}</div>
-                        )}
-                        {combo.compatibilityScore && (
-                          <div>Compatibility: {Math.round(combo.compatibilityScore * 100)}%</div>
-                        )}
-                        {combo.powerAdequacy && (
-                          <div>Power: {Math.round(combo.powerAdequacy * 100)}%</div>
-                        )}
+                    {/* Performance Section (combines DAC + Amp specs) */}
+                    {(combo.asr_sinad || combo.power_output || combo.powerAdequacy) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
+                          {combo.asr_sinad && (
+                            <div>• DAC SINAD: {combo.asr_sinad} dB {
+                              combo.asr_sinad >= 120 ? '(Excellent)' :
+                              combo.asr_sinad >= 110 ? '(Very Good)' :
+                              combo.asr_sinad >= 100 ? '(Good)' : '(Fair)'
+                            }</div>
+                          )}
+                          {combo.power_output && (
+                            <div>• Amp Power: {combo.power_output}</div>
+                          )}
+                          {combo.powerAdequacy && combo.powerAdequacy > 0.5 && (
+                            <div>• Power Match: {Math.round(combo.powerAdequacy * 100)}% {
+                              combo.powerAdequacy >= 0.9 ? '(Perfect)' :
+                              combo.powerAdequacy >= 0.7 ? '(Good)' : '(Adequate)'
+                            }</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Connectivity Section */}
+                    {(combo.input_types || combo.output_types) && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
+                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
+                          {combo.input_types && (
+                            <div>• Inputs: {Array.isArray(combo.input_types) ? combo.input_types.join(', ') : combo.input_types}</div>
+                          )}
+                          {combo.output_types && (
+                            <div>• Outputs: {Array.isArray(combo.output_types) ? combo.output_types.join(', ') : combo.output_types}</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Why Recommended */}
+                    {combo.why_recommended && (
+                      <div>
+                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
+                        <p className="text-sm text-text-secondary dark:text-text-secondary">{combo.why_recommended}</p>
                       </div>
                     )}
                   </div>
