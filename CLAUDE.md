@@ -17,6 +17,7 @@
 
 ## To-Do: Revisit Later
 - 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.
+- ⏰ **eBay Partner Network Campaign ID** (Monday reminder): Waiting for eBay Campaign ID approval. Once received, add `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` to Vercel environment variables (all environments). Without this, eBay affiliate links will work but won't track commissions.
 
 ## High Priority: Summit-Fi Component Data Gaps
 

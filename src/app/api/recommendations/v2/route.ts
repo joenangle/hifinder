@@ -152,7 +152,20 @@ function translateUseCaseToSignature(useCase: string): string {
   return translations[useCase.toLowerCase()] || 'neutral'
 }
 
-// Enhanced synergy scoring with use case translation
+// Map sound signatures to beginner-friendly use cases
+function getUseCasesForSignature(signature: string): string[] {
+  const signatureToUseCases: { [key: string]: string[] } = {
+    'neutral': ['critical listening', 'all music genres', 'reference', 'studio work'],
+    'warm': ['relaxed listening', 'long sessions', 'acoustic', 'jazz', 'vocals'],
+    'bright': ['detail retrieval', 'classical', 'acoustic', 'competitive gaming'],
+    'fun': ['EDM', 'hip-hop', 'movies', 'gaming', 'bass-heavy music'],
+    'balanced': ['versatile listening', 'all genres', 'daily use']
+  }
+
+  return signatureToUseCases[signature] || signatureToUseCases['neutral']
+}
+
+// Enhanced dual-layer synergy scoring with detailed Crinacle signatures
 function calculateSynergyScore(
   component: unknown,
   soundSig: string,
@@ -164,33 +177,51 @@ function calculateSynergyScore(
     use_cases?: string | string[]
   }
 
-  let score = 0.5 // Lower base score for more differentiation
+  let score = 0.6 // Base score - slightly higher to leave room for bonuses
 
-  // Translate use case to sound signature preference
+  // Translate use case to sound signature preference (for 'any' signature)
   const usageSignature = translateUseCaseToSignature(primaryUsage)
   const effectiveSignature = soundSig !== 'any' ? soundSig : usageSignature
 
-  // Layer 1: Basic signature matching
+  // Layer 1: Basic signature matching (existing system)
   if (comp.sound_signature && effectiveSignature !== 'any') {
     if (comp.sound_signature === effectiveSignature) {
-      score += 0.25 // Perfect match
-    } else if (
-      (effectiveSignature === 'neutral' && comp.sound_signature === 'balanced') ||
-      (effectiveSignature === 'balanced' && comp.sound_signature === 'neutral')
-    ) {
-      score += 0.20 // Close match
+      score += 0.15 // Basic perfect match (reduced for more nuance)
+    } else if (effectiveSignature === 'neutral' && comp.sound_signature === 'balanced') {
+      score += 0.12 // Close match
     } else if (
       (effectiveSignature === 'warm' && comp.sound_signature === 'neutral') ||
       (effectiveSignature === 'bright' && comp.sound_signature === 'neutral')
     ) {
-      score += 0.10 // Compatible match
+      score += 0.08 // Compatible match
     }
   }
 
-  // Layer 2: Detailed Crinacle signature matching
+  // Layer 2: Detailed Crinacle signature matching (enhanced system)
   if (comp.crinacle_sound_signature && effectiveSignature !== 'any') {
     const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, effectiveSignature)
-    score += detailedMatch * 0.25 // Up to 25% bonus
+    score += detailedMatch * 0.2 // Up to 20% bonus for detailed matching
+  }
+
+  // Usage case matching - BONUS only, not penalty for missing
+  if (comp.use_cases && primaryUsage) {
+    const useCases = Array.isArray(comp.use_cases)
+      ? comp.use_cases
+      : (typeof comp.use_cases === 'string'
+        ? comp.use_cases.split(',').map(u => u.trim().toLowerCase())
+        : [])
+
+    if (useCases.includes(primaryUsage.toLowerCase())) {
+      score += 0.1 // Usage match bonus
+    } else if (useCases.includes('music') && primaryUsage.toLowerCase() === 'gaming') {
+      score += 0.05 // Music gear often works well for gaming
+    }
+  }
+
+  // Use case bonus based on sound signature translation (v2 enhancement)
+  const inferredUseCases = getUseCasesForSignature(comp.sound_signature || 'neutral')
+  if (inferredUseCases.some(uc => uc.toLowerCase().includes(primaryUsage.toLowerCase()))) {
+    score += 0.05 // Small bonus for inferred use case match
   }
 
   return Math.min(1, score)
@@ -215,8 +246,7 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
       'Bright neutral': 1.0,
       'Bright': 0.95,
       'Neutral': 0.7,
-      'Bass-rolled neutral': 0.8,
-      'V-shaped': 0.6
+      'Bass-rolled neutral': 0.5 // Less bass = more apparent brightness (more accurate)
     },
     'warm': {
       'Warm neutral': 1.0,
@@ -224,7 +254,7 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
       'Warm V-shape': 0.85,
       'Warm U-shape': 0.8,
       'Neutral': 0.6,
-      'Neutral with bass boost': 0.85,
+      'Neutral with bass boost': 0.8, // Better match for warm preference
       'Dark neutral': 0.9
     },
     'fun': {

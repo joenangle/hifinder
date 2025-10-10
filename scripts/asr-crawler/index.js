@@ -29,6 +29,7 @@ const config = {
   execute: process.argv.includes('--execute'),
   urlsFile: process.argv.find(arg => arg.startsWith('--urls='))?.split('=')[1],
   category: process.argv.find(arg => arg.startsWith('--category='))?.split('=')[1],
+  maxReviews: parseInt(process.argv.find(arg => arg.startsWith('--max='))?.split('=')[1] || '50'),
   maxConcurrent: 3, // Number of reviews to process simultaneously
   outputDir: path.join(__dirname, 'output'),
   cacheDir: path.join(__dirname, 'cache')
@@ -86,20 +87,53 @@ async function discoverReviewUrls() {
     return content.split('\n').filter(line => line.trim() && !line.startsWith('#'));
   }
 
-  // Otherwise, use Claude agent to discover URLs from ASR index pages
-  console.log('   Launching discovery agent...');
+  // Otherwise, discover reviews from ASR's master review index
+  console.log('   Fetching ASR review index...');
 
-  // For now, return a starter list of known high-quality reviews
-  // TODO: Implement full discovery agent
-  const starterUrls = [
-    'https://www.audiosciencereview.com/forum/index.php?threads/topping-dx3-pro-review-dac-headphone-amp.10370/',
-    'https://www.audiosciencereview.com/forum/index.php?threads/topping-d90-dac-review.10291/',
-    'https://www.audiosciencereview.com/forum/index.php?threads/benchmark-dac3-b-review-stereo-dac.24716/',
-    'https://www.audiosciencereview.com/forum/index.php?threads/benchmark-hpa4-review-headphone-amplifier.24986/',
-    'https://www.audiosciencereview.com/forum/index.php?threads/topping-a90-discrete-headphone-amp-review.31050/'
-  ];
+  const https = require('https');
+  const indexUrl = 'https://www.audiosciencereview.com/forum/index.php?pages/Reviews/';
 
-  return starterUrls;
+  const html = await new Promise((resolve, reject) => {
+    https.get(indexUrl, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+
+  // Extract review thread URLs using regex
+  // ASR review URLs follow pattern: /forum/index.php?threads/...review...
+  const urlPattern = /href="(\/forum\/index\.php\?threads\/[^"]+review[^"]+)"/gi;
+  const matches = [...html.matchAll(urlPattern)];
+
+  const reviewUrls = matches
+    .map(match => {
+      const path = match[1];
+      return `https://www.audiosciencereview.com${path}`;
+    })
+    .filter(url => {
+      // Filter by category if specified
+      if (!config.category) return true;
+
+      const lower = url.toLowerCase();
+      switch (config.category) {
+        case 'dac':
+          return lower.includes('dac') && !lower.includes('amp');
+        case 'amp':
+          return lower.includes('amp') && !lower.includes('dac');
+        case 'dac_amp':
+          return (lower.includes('dac') && lower.includes('amp')) ||
+                 lower.includes('combo');
+        default:
+          return true;
+      }
+    })
+    // Remove duplicates
+    .filter((url, index, self) => self.indexOf(url) === index)
+    // Limit to most recent (first N results)
+    .slice(0, config.maxReviews || 50);
+
+  return reviewUrls;
 }
 
 /**
@@ -130,13 +164,87 @@ async function parseReviews(urls) {
 }
 
 /**
- * Parse a single review using Claude agent
+ * Parse a single review using fetch + simple regex extraction
+ * This approach works standalone without requiring AI API keys
  */
 async function parseReviewWithAgent(url) {
-  // This will be implemented using the Task tool to launch a parsing agent
-  // For now, return placeholder
-  console.log('   [Agent parsing not yet implemented - placeholder]');
-  return null;
+  const https = require('https');
+
+  try {
+    // Fetch the review HTML
+    const html = await new Promise((resolve, reject) => {
+      https.get(url, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => resolve(data));
+      }).on('error', reject);
+    });
+
+    // Extract title to get brand/model/category
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+    const title = titleMatch ? titleMatch[1] : '';
+
+    // Parse brand, model, category from title
+    // Title format: "Brand Model Review Category" or "Brand Model Category Review"
+    let brand = null;
+    let name = null;
+    let category = null;
+
+    // Common patterns in ASR titles
+    if (title.toLowerCase().includes('dac') && title.toLowerCase().includes('amp')) {
+      category = 'dac_amp';
+    } else if (title.toLowerCase().includes('dac')) {
+      category = 'dac';
+    } else if (title.toLowerCase().includes('amp')) {
+      category = 'amp';
+    } else if (title.toLowerCase().includes('headphone')) {
+      category = 'amp';
+    }
+
+    // Extract brand and model from title (simplified - works for most cases)
+    const titleParts = title.replace(/Review|Stereo|DAC|Amp|Headphone|Amplifier|Balanced/gi, '').trim().split(/\s+/);
+    if (titleParts.length >= 2) {
+      brand = titleParts[0];
+      name = titleParts.slice(1).join(' ').trim();
+    }
+
+    // Extract SINAD measurement
+    const sinadMatch = html.match(/SINAD[\s:]+(\d+(?:\.\d+)?)\s*dB/i) ||
+                       html.match(/Signal[\s-]*to[\s-]*Noise[\s-]*and[\s-]*Distortion[\s:]+(\d+(?:\.\d+)?)\s*dB/i);
+    const asr_sinad = sinadMatch ? parseFloat(sinadMatch[1]) : null;
+
+    // Extract price (looking for $XXX patterns)
+    const priceMatch = html.match(/\$(\d+(?:,\d{3})*(?:\.\d{2})?)/);
+    const price_new = priceMatch ? parseInt(priceMatch[1].replace(/,/g, '')) : null;
+
+    // Extract power output for amps
+    let power_output = null;
+    if (category === 'amp' || category === 'dac_amp') {
+      const powerMatch = html.match(/(\d+(?:\.\d+)?)\s*(?:W|Watts?)\s*(?:@|at)\s*(\d+)\s*(?:Ω|ohm)/i);
+      if (powerMatch) {
+        power_output = `${powerMatch[1]}W @ ${powerMatch[2]}Ω`;
+      }
+    }
+
+    // Only return if we got at least brand, name, and one measurement
+    if (!brand || !name || !asr_sinad) {
+      return null;
+    }
+
+    return {
+      brand,
+      name,
+      category,
+      asr_sinad,
+      price_new,
+      power_output,
+      asr_review_url: url
+    };
+
+  } catch (error) {
+    console.error(`   ✗ Error fetching/parsing ${url}: ${error.message}`);
+    return null;
+  }
 }
 
 /**
