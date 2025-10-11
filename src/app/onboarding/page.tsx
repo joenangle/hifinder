@@ -746,8 +746,8 @@ const handleOptimizeModelSelect = (model: string) => {
 
 
 // Experience-based flow helpers
-const isBeginner = () => preferences.experience === 'beginner'
-const isAdvanced = () => preferences.experience === 'intermediate' || preferences.experience === 'enthusiast'
+const isBeginner = useCallback(() => preferences.experience === 'beginner', [preferences.experience])
+const isAdvanced = useCallback(() => preferences.experience === 'intermediate' || preferences.experience === 'enthusiast', [preferences.experience])
 
 const isStepValid = useCallback(() => {
   if (isBeginner()) {
