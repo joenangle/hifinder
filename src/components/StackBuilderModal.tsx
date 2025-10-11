@@ -220,9 +220,9 @@ export function StackBuilderModal({
               ))}
 
               {finalComponents.length === 0 && (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <p>No components selected</p>
-                  <p className="text-sm">Go back and select some components to build your stack</p>
+                <div className="text-center py-8 text-gray-500 dark:text-gray-300">
+                  <p className="text-gray-600 dark:text-gray-200">No components selected</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Go back and select some components to build your stack</p>
                 </div>
               )}
             </div>
@@ -253,27 +253,27 @@ export function StackBuilderModal({
           {/* Stack Details Form */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Stack Name
               </label>
               <input
                 type="text"
                 value={stackName}
                 onChange={(e) => setStackName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
                 placeholder="e.g., Desktop Listening Setup"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Description (Optional)
               </label>
               <textarea
                 value={stackDescription}
                 onChange={(e) => setStackDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
                 placeholder="Describe your stack, use cases, or notes..."
               />
             </div>
@@ -298,7 +298,7 @@ export function StackBuilderModal({
                 navigator.clipboard.writeText(shareUrl)
                 // TODO: Show toast notification
               }}
-              className="px-4 py-2 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="px-4 py-2 text-orange-600 dark:text-orange-400 border border-orange-300 dark:border-orange-600 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
             >
               Share Stack
             </button>
@@ -306,7 +306,7 @@ export function StackBuilderModal({
             <button
               onClick={handleSave}
               disabled={!stackName.trim() || finalComponents.length === 0 || saving}
-              className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-orange-600 dark:bg-orange-500 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {saving && (
                 <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
