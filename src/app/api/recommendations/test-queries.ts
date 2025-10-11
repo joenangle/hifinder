@@ -88,7 +88,7 @@ export const standardTestQueries = [
  * Run both v1 and v2 queries and compare results
  */
 export async function runTests() {
-  const results: any[] = []
+  const results: unknown[] = []
 
   for (const test of standardTestQueries) {
     console.log(`\n🧪 Testing: ${test.name}`)
