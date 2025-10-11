@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Component } from '@/types'
-import { checkStackCompatibility, CompatibilityWarning } from '@/lib/stacks'
+import { CompatibilityWarning } from '@/lib/stacks'
 
 interface StackBuilderModalProps {
   isOpen: boolean

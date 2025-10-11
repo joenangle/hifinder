@@ -8,7 +8,6 @@ import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
-import { AmplificationBadge } from '@/components/AmplificationIndicator'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 
