@@ -319,97 +319,88 @@ export default function OnboardingV2() {
           </div>
         </StepSection>
 
-        {/* Step 2: Product Selection */}
+        {/* Step 2: Product Selection - Simplified to 5 pills */}
         <StepSection
           stepNumber={2}
           title="🎧 What You Need"
-          subtitle="Select all components you're interested in"
+          subtitle="Select all components you're interested in (budget will be allocated automatically)"
           isActive={currentStep === 2}
           isCompleted={steps.products}
         >
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <OptionCard
-                selected={state.wantRecommendations.headphones}
-                onClick={() => setState({
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <OptionCard
+              selected={state.wantRecommendations.headphones && state.headphoneType === 'cans'}
+              onClick={() => {
+                const isCurrentlySelected = state.wantRecommendations.headphones && state.headphoneType === 'cans'
+                setState({
                   ...state,
                   wantRecommendations: {
                     ...state.wantRecommendations,
-                    headphones: !state.wantRecommendations.headphones
+                    headphones: !isCurrentlySelected || state.headphoneType === 'iems'
                   },
-                  headphoneType: state.wantRecommendations.headphones ? null : 'both'
-                })}
-                description="Over-ear or in-ear"
-              >
-                🎧 Headphones/IEMs
-              </OptionCard>
-              <OptionCard
-                selected={state.wantRecommendations.dac}
-                onClick={() => setState({
+                  headphoneType: isCurrentlySelected ? (state.headphoneType === 'iems' ? 'iems' : null) : 'cans'
+                })
+              }}
+              description="Over-ear"
+            >
+              🎧 Headphones
+            </OptionCard>
+            <OptionCard
+              selected={state.wantRecommendations.headphones && state.headphoneType === 'iems'}
+              onClick={() => {
+                const isCurrentlySelected = state.wantRecommendations.headphones && state.headphoneType === 'iems'
+                setState({
                   ...state,
                   wantRecommendations: {
                     ...state.wantRecommendations,
-                    dac: !state.wantRecommendations.dac
-                  }
-                })}
-                description="Digital to Analog"
-              >
-                📊 DAC
-              </OptionCard>
-              <OptionCard
-                selected={state.wantRecommendations.amp}
-                onClick={() => setState({
-                  ...state,
-                  wantRecommendations: {
-                    ...state.wantRecommendations,
-                    amp: !state.wantRecommendations.amp
-                  }
-                })}
-                description="Power for headphones"
-              >
-                ⚡ Amplifier
-              </OptionCard>
-              <OptionCard
-                selected={state.wantRecommendations.combo}
-                onClick={() => setState({
-                  ...state,
-                  wantRecommendations: {
-                    ...state.wantRecommendations,
-                    combo: !state.wantRecommendations.combo
-                  }
-                })}
-                description="All-in-one solution"
-              >
-                🎛️ DAC/Amp Combo
-              </OptionCard>
-            </div>
-
-            {/* Sub-question for headphone type */}
-            {state.wantRecommendations.headphones && (
-              <div className="pl-4 border-l-2 border-accent-primary/20 transition-all duration-300">
-                <p className="text-sm text-text-secondary mb-2">Headphone preference:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <OptionCard
-                    selected={state.headphoneType === 'cans'}
-                    onClick={() => setState({ ...state, headphoneType: 'cans' })}
-                  >
-                    Over-ear
-                  </OptionCard>
-                  <OptionCard
-                    selected={state.headphoneType === 'iems'}
-                    onClick={() => setState({ ...state, headphoneType: 'iems' })}
-                  >
-                    IEMs
-                  </OptionCard>
-                  <OptionCard
-                    selected={state.headphoneType === 'both'}
-                    onClick={() => setState({ ...state, headphoneType: 'both' })}
-                  >
-                    Both
-                  </OptionCard>
-                </div>
-              </div>
-            )}
+                    headphones: !isCurrentlySelected || state.headphoneType === 'cans'
+                  },
+                  headphoneType: isCurrentlySelected ? (state.headphoneType === 'cans' ? 'cans' : null) : 'iems'
+                })
+              }}
+              description="In-ear monitors"
+            >
+              🎵 IEMs
+            </OptionCard>
+            <OptionCard
+              selected={state.wantRecommendations.dac}
+              onClick={() => setState({
+                ...state,
+                wantRecommendations: {
+                  ...state.wantRecommendations,
+                  dac: !state.wantRecommendations.dac
+                }
+              })}
+              description="Digital to Analog"
+            >
+              📊 DAC
+            </OptionCard>
+            <OptionCard
+              selected={state.wantRecommendations.amp}
+              onClick={() => setState({
+                ...state,
+                wantRecommendations: {
+                  ...state.wantRecommendations,
+                  amp: !state.wantRecommendations.amp
+                }
+              })}
+              description="Power for headphones"
+            >
+              ⚡ Amplifier
+            </OptionCard>
+            <OptionCard
+              selected={state.wantRecommendations.combo}
+              onClick={() => setState({
+                ...state,
+                wantRecommendations: {
+                  ...state.wantRecommendations,
+                  combo: !state.wantRecommendations.combo
+                }
+              })}
+              description="All-in-one solution"
+            >
+              🎯 DAC/Amp Combo
+            </OptionCard>
           </div>
         </StepSection>
 
