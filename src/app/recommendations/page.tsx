@@ -72,18 +72,38 @@ function RecommendationsContent() {
   )
 
   // User preferences state - make them editable
-  const [userPrefs, setUserPrefs] = useState({
-    experience: searchParams.get('experience') || 'intermediate',
-    budget: parseInt(searchParams.get('budget') || '300'),
-    budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
-    budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
-    headphoneType: searchParams.get('headphoneType') || 'both', // Show both for quick-start
-    wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
-    existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
-    usage: searchParams.get('usage') || 'music',
-    usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
-    excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-    soundSignature: searchParams.get('soundSignature') || 'any' // Show all for quick-start
+  const [userPrefs, setUserPrefs] = useState(() => {
+    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
+
+    // Fix inconsistent state on initial load
+    const headphoneTypesParam = searchParams.get('headphoneTypes')
+    let hasHeadphoneTypes = false
+    if (headphoneTypesParam) {
+      try {
+        const types = JSON.parse(headphoneTypesParam)
+        hasHeadphoneTypes = Array.isArray(types) && types.length > 0
+      } catch {
+        hasHeadphoneTypes = false
+      }
+    }
+
+    if (hasHeadphoneTypes && !wantRecsRaw.headphones) {
+      wantRecsRaw.headphones = true
+    }
+
+    return {
+      experience: searchParams.get('experience') || 'intermediate',
+      budget: parseInt(searchParams.get('budget') || '300'),
+      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
+      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
+      headphoneType: searchParams.get('headphoneType') || 'both', // Show both for quick-start
+      wantRecommendationsFor: wantRecsRaw,
+      existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
+      usage: searchParams.get('usage') || 'music',
+      usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
+      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
+      soundSignature: searchParams.get('soundSignature') || 'any' // Show all for quick-start
+    }
   })
 
   // Debounced values for API calls (prevents excessive fetching)
@@ -156,13 +176,32 @@ function RecommendationsContent() {
   
   // Sync state with URL parameters when they change
   useEffect(() => {
+    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
+
+    // Fix inconsistent state: if headphoneTypes has values but wantRecommendationsFor.headphones is false, correct it
+    const headphoneTypesParam = searchParams.get('headphoneTypes')
+    let hasHeadphoneTypes = false
+    if (headphoneTypesParam) {
+      try {
+        const types = JSON.parse(headphoneTypesParam)
+        hasHeadphoneTypes = Array.isArray(types) && types.length > 0
+      } catch {
+        hasHeadphoneTypes = false
+      }
+    }
+
+    // Reconcile inconsistent state
+    if (hasHeadphoneTypes && !wantRecsRaw.headphones) {
+      wantRecsRaw.headphones = true
+    }
+
     const urlPrefs = {
       experience: searchParams.get('experience') || 'intermediate',
       budget: parseInt(searchParams.get('budget') || '300'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
       headphoneType: searchParams.get('headphoneType') || 'cans',
-      wantRecommendationsFor: JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}'),
+      wantRecommendationsFor: wantRecsRaw,
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
       usage: searchParams.get('usage') || 'music',
       usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
