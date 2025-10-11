@@ -732,7 +732,7 @@ function RecommendationsContent() {
               ))}
               {selectedDacItems.map(item => (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-text-primary">{item.name}</p>
                     <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
@@ -741,7 +741,7 @@ function RecommendationsContent() {
               ))}
               {selectedAmpItems.map(item => (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-                  <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-amber-500 dark:bg-amber-400 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-text-primary">{item.name}</p>
                     <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
@@ -750,7 +750,7 @@ function RecommendationsContent() {
               ))}
               {selectedDacAmpItems.map(item => (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-                  <div className="w-2 h-2 bg-purple-500 dark:bg-purple-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full"></div>
                   <div>
                     <p className="font-medium text-sm text-text-primary">{item.name}</p>
                     <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
@@ -850,8 +850,8 @@ function RecommendationsContent() {
 
                 return (
             <div className="card overflow-hidden">
-              <div className="bg-purple-100 dark:bg-purple-900 px-6 py-4 border-b border-purple-200 dark:border-purple-700">
-                <h2 className="heading-3 text-center mb-4">
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
+                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
                   🎧 Headphones ({headphones.length} options)
                 </h2>
               </div>
@@ -875,13 +875,13 @@ function RecommendationsContent() {
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
                         headphone.category === 'iems'
-                          ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
-                          : 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
+                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'
+                          : 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200'
                       }`}>
                         {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
                       </span>
                       {headphone.synergyScore && (
-                        <span className="text-base font-bold text-accent-primary dark:text-accent-primary">
+                        <span className="text-base font-bold text-orange-600 dark:text-orange-400">
                           Match: {Math.round(headphone.synergyScore * 100)}% ★
                         </span>
                       )}
@@ -891,17 +891,17 @@ function RecommendationsContent() {
                     {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
                       <div className="flex flex-wrap gap-1 mb-3">
                         {isTechnicalChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500 text-white text-xs font-semibold rounded-full">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-500 text-white text-xs font-semibold rounded-full">
                             🏆 Top Tech
                           </span>
                         )}
                         {isToneChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500 text-white text-xs font-semibold rounded-full">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 dark:bg-amber-500 text-white text-xs font-semibold rounded-full">
                             🎵 Best Match
                           </span>
                         )}
                         {isBudgetChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500 text-white text-xs font-semibold rounded-full">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-500 dark:bg-orange-400 text-white text-xs font-semibold rounded-full">
                             💰 Value
                           </span>
                         )}
@@ -969,8 +969,8 @@ function RecommendationsContent() {
           {/* DACs Section */}
           {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-green-100 dark:bg-green-900 px-6 py-4 border-b border-green-200 dark:border-green-700">
-                <h2 className="heading-3 text-center mb-4">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-red-950/30 dark:to-orange-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
+                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
                   🔄 DACs ({dacs.length} options)
                 </h2>
               </div>
@@ -1046,8 +1046,8 @@ function RecommendationsContent() {
           {/* Amps Section */}
           {wantRecommendationsFor.amp && amps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-yellow-100 dark:bg-yellow-900 px-6 py-4 border-b border-yellow-200 dark:border-yellow-700">
-                <h2 className="heading-3 text-center mb-4">
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/40 dark:to-yellow-950/30 px-6 py-4 border-b border-amber-200 dark:border-amber-800/50">
+                <h2 className="heading-3 text-center mb-4 text-amber-900 dark:text-amber-100">
                   ⚡ Amplifiers ({amps.length} options)
                 </h2>
               </div>
@@ -1074,7 +1074,7 @@ function RecommendationsContent() {
                     </div>
 
                     {/* Power Output Section */}
-                    {(amp.power_output || amp.powerAdequacy) && (
+                    {(amp.power_output || (amp.powerAdequacy && amp.powerAdequacy > 0.5)) && (
                       <div className="mb-3">
                         <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Power Output</h4>
                         <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
@@ -1141,8 +1141,8 @@ function RecommendationsContent() {
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && dacAmps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-blue-100 dark:bg-blue-900 px-6 py-4 border-b border-blue-200 dark:border-blue-700">
-                <h2 className="heading-3 text-center mb-4">
+              <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950/30 dark:via-amber-950/30 dark:to-yellow-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
+                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
                   🎯 DAC/Amp Combos ({dacAmps.length} options)
                 </h2>
               </div>
@@ -1169,7 +1169,7 @@ function RecommendationsContent() {
                     </div>
 
                     {/* Performance Section (combines DAC + Amp specs) */}
-                    {(combo.asr_sinad || combo.power_output || combo.powerAdequacy) && (
+                    {(combo.asr_sinad || combo.power_output || (combo.powerAdequacy && combo.powerAdequacy > 0.5)) && (
                       <div className="mb-3">
                         <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
                         <div className="text-sm text-text-primary dark:text-text-primary space-y-1">

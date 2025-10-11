@@ -1,0 +1,13 @@
+[dotenv@17.2.3] injecting env (18) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+Brand,Model,Price_Min,Price_Max,Price_New,SINAD,Power_Output,Input_Types,Output_Types,Why_Recommended
+Topping,"L30 II",98,136,160,121,"3.5W @ 32Ω","","",""
+Topping,"A30 Pro",120,160,349,,"","","",""
+SMSL,"SH-9",175,255,300,120,"3W @ 32Ω","","",""
+Topping,"A90",280,425,500,121,"500mW @ 32Ω, 7.8W @ 32Ω balanced","","",""
+Topping,"A70 Pro",349,424,499,121,"8W @ 32Ω dual channel","","",""
+Rupert Neve Designs,"RNHP",350,425,499,,"","","",""
+Schiit,"KARA",489,594,699,117,"1W @ 32Ω, 1W @ 300Ω","","",""
+Topping,"A90 Discrete",600,700,599,119,"","","",""
+Violectric,"V280",1400,1650,1899,,"","","",""
+Benchmark,"HPA4",1800,2000,2295,,"","","",""
+Chord,"Alto",3024,3672,4320,73,"6.079W @ 32Ω, 0.8717W @ 300Ω","","",""
