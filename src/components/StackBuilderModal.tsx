@@ -179,7 +179,7 @@ export function StackBuilderModal({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Stack Overview</h3>
               <div className="text-right">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatPrice(totalCost)}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Estimated Total</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300">Estimated Total</p>
               </div>
             </div>
 
@@ -196,7 +196,7 @@ export function StackBuilderModal({
                     </span>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{component.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{component.brand} • {component.category}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-300">{component.brand} • {component.category}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
