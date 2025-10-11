@@ -177,33 +177,43 @@ function calculateSynergyScore(
     use_cases?: string | string[]
   }
 
-  let score = 0.6 // Base score - slightly higher to leave room for bonuses
+  // New approach: Start at 0 and build up with clear component weights
+  // Max possible: 100%, but realistic excellent matches: 75-85%
+  let score = 0
 
   // Translate use case to sound signature preference (for 'any' signature)
   const usageSignature = translateUseCaseToSignature(primaryUsage)
   const effectiveSignature = soundSig !== 'any' ? soundSig : usageSignature
 
-  // Layer 1: Basic signature matching (existing system)
+  // Component 1: Sound Signature Match (max 30% weight)
+  let soundScore = 0
   if (comp.sound_signature && effectiveSignature !== 'any') {
     if (comp.sound_signature === effectiveSignature) {
-      score += 0.15 // Basic perfect match (reduced for more nuance)
+      soundScore = 0.20 // Perfect basic match
     } else if (effectiveSignature === 'neutral' && comp.sound_signature === 'balanced') {
-      score += 0.12 // Close match
+      soundScore = 0.16 // Close match
     } else if (
       (effectiveSignature === 'warm' && comp.sound_signature === 'neutral') ||
       (effectiveSignature === 'bright' && comp.sound_signature === 'neutral')
     ) {
-      score += 0.08 // Compatible match
+      soundScore = 0.12 // Compatible match
+    } else {
+      soundScore = 0.05 // Has signature but doesn't match
     }
+  } else {
+    soundScore = 0.10 // No signature = neutral baseline
   }
 
-  // Layer 2: Detailed Crinacle signature matching (enhanced system)
+  // Detailed Crinacle signature adds to sound score
   if (comp.crinacle_sound_signature && effectiveSignature !== 'any') {
     const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, effectiveSignature)
-    score += detailedMatch * 0.2 // Up to 20% bonus for detailed matching
+    soundScore += detailedMatch * 0.10 // Up to +10% for detailed match
   }
 
-  // Usage case matching - BONUS only, not penalty for missing
+  score += Math.min(0.30, soundScore)
+
+  // Component 2: Usage Match (max 20% weight)
+  let usageScore = 0
   if (comp.use_cases && primaryUsage) {
     const useCases = Array.isArray(comp.use_cases)
       ? comp.use_cases
@@ -212,18 +222,22 @@ function calculateSynergyScore(
         : [])
 
     if (useCases.includes(primaryUsage.toLowerCase())) {
-      score += 0.1 // Usage match bonus
+      usageScore = 0.15 // Direct usage match
     } else if (useCases.includes('music') && primaryUsage.toLowerCase() === 'gaming') {
-      score += 0.05 // Music gear often works well for gaming
+      usageScore = 0.08 // Music gear for gaming
     }
   }
 
-  // Use case bonus based on sound signature translation (v2 enhancement)
+  // Inferred use case bonus
   const inferredUseCases = getUseCasesForSignature(comp.sound_signature || 'neutral')
   if (inferredUseCases.some(uc => uc.toLowerCase().includes(primaryUsage.toLowerCase()))) {
-    score += 0.05 // Small bonus for inferred use case match
+    usageScore += 0.05
   }
 
+  score += Math.min(0.20, usageScore)
+
+  // Total from synergy: max 50%
+  // The other 50% comes from price fit + bonuses in sorting
   return Math.min(1, score)
 }
 
@@ -492,24 +506,28 @@ function filterAndScoreComponents(
         bPriceFit = Math.max(0, 1 - (b.avgPrice - budget) / budget * 1.5)
       }
 
-      // BONUSES - Calculate and cap at 0.10 total
-      const aValueBonus = (a.value_rating ?? 0) * 0.04
-      const bValueBonus = (b.value_rating ?? 0) * 0.04
+      // BONUSES - Quality and value indicators (max 20% total)
+      // Reduced bonus weights to prevent inflation with new scoring system
+      const aValueBonus = (a.value_rating ?? 0) * 0.02 // Max 10% (5 rating × 2%)
+      const bValueBonus = (b.value_rating ?? 0) * 0.02
 
       const aExpertBonus = (a.expert_grade_numeric && a.expert_grade_numeric >= 3.3) ? 0.05 : 0
       const bExpertBonus = (b.expert_grade_numeric && b.expert_grade_numeric >= 3.3) ? 0.05 : 0
 
-      const aPowerBonus = a.category === 'amp' ? (a.powerAdequacy || 0.5) * 0.1 : 0
-      const bPowerBonus = b.category === 'amp' ? (b.powerAdequacy || 0.5) * 0.1 : 0
+      const aPowerBonus = a.category === 'amp' ? (a.powerAdequacy || 0.5) * 0.05 : 0 // Reduced from 0.1
+      const bPowerBonus = b.category === 'amp' ? (b.powerAdequacy || 0.5) * 0.05 : 0
 
-      // Cap total bonuses at 0.10 to prevent score inflation
-      const aTotalBonus = Math.min(0.10, aValueBonus + aExpertBonus + aPowerBonus)
-      const bTotalBonus = Math.min(0.10, bValueBonus + bExpertBonus + bPowerBonus)
+      // Cap total bonuses at 0.20 (20%)
+      const aTotalBonus = Math.min(0.20, aValueBonus + aExpertBonus + aPowerBonus)
+      const bTotalBonus = Math.min(0.20, bValueBonus + bExpertBonus + bPowerBonus)
 
-      // Final scoring: 50% price, 50% synergy, plus capped bonuses
-      // This balances price and quality, letting synergy differentiate more
-      const aScore = aPriceFit * 0.5 + a.synergyScore * 0.5 + aTotalBonus
-      const bScore = bPriceFit * 0.5 + b.synergyScore * 0.5 + bTotalBonus
+      // Final scoring breakdown:
+      // - Price fit: 40% weight (was 50%)
+      // - Synergy score: 40% weight (was 50%, but synergy itself is now max 50% not 100%)
+      // - Bonuses: up to 20% (quality/value/power)
+      // Total possible: 100%, realistic excellent: 75-85%
+      const aScore = aPriceFit * 0.40 + a.synergyScore * 0.40 + aTotalBonus
+      const bScore = bPriceFit * 0.40 + b.synergyScore * 0.40 + bTotalBonus
 
       return bScore - aScore
     })
