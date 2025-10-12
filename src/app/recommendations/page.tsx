@@ -574,19 +574,24 @@ function RecommendationsContent() {
                     : [...typeFilters, 'cans']
                   setTypeFilters(newFilters)
                   const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                  // Only toggle wantRecommendationsFor.headphones if this changes whether we want ANY headphones/IEMs
+                  const wasWantingHeadphones = typeFilters.length > 0
+                  const nowWantingHeadphones = newFilters.length > 0
                   updatePreferences({
                     headphoneType: newType,
-                    wantRecommendationsFor: {
-                      ...wantRecommendationsFor,
-                      headphones: newFilters.length > 0
-                    }
+                    ...(wasWantingHeadphones !== nowWantingHeadphones ? {
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: nowWantingHeadphones
+                      }
+                    } : {})
                   })
                 }}
               >
                 <span>🎧</span>
                 <span>Headphones</span>
               </button>
-              
+
               <button
                 className={`toggle-compact ${typeFilters.includes('iems') ? 'active-indigo' : ''}`}
                 onClick={() => {
@@ -595,12 +600,17 @@ function RecommendationsContent() {
                     : [...typeFilters, 'iems']
                   setTypeFilters(newFilters)
                   const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+                  // Only toggle wantRecommendationsFor.headphones if this changes whether we want ANY headphones/IEMs
+                  const wasWantingHeadphones = typeFilters.length > 0
+                  const nowWantingHeadphones = newFilters.length > 0
                   updatePreferences({
                     headphoneType: newType,
-                    wantRecommendationsFor: {
-                      ...wantRecommendationsFor,
-                      headphones: newFilters.length > 0
-                    }
+                    ...(wasWantingHeadphones !== nowWantingHeadphones ? {
+                      wantRecommendationsFor: {
+                        ...wantRecommendationsFor,
+                        headphones: nowWantingHeadphones
+                      }
+                    } : {})
                   })
                 }}
               >
@@ -892,7 +902,7 @@ function RecommendationsContent() {
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
                 <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
-                  🎧 Headphones ({headphones.length} options)
+                  🎧 Headphones & IEMs ({headphones.length} options)
                 </h2>
               </div>
               <div className="p-6 space-y-3">

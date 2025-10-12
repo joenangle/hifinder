@@ -12,10 +12,10 @@ interface OnboardingState {
   budget: number
   budgetRange: { min: number; max: number }
 
-  // Product selection
-  headphoneType: string | null
+  // Product selection - independent toggles
   wantRecommendations: {
-    headphones: boolean
+    cans: boolean       // Over-ear headphones
+    iems: boolean       // In-ear monitors
     dac: boolean
     amp: boolean
     combo: boolean
@@ -166,9 +166,9 @@ export default function OnboardingV2() {
     experience: null,
     budget: budget,
     budgetRange: { min: Math.max(50, budget * 0.8), max: Math.min(10000, budget * 1.2) },
-    headphoneType: null,
     wantRecommendations: {
-      headphones: false,
+      cans: false,
+      iems: false,
       dac: false,
       amp: false,
       combo: false
@@ -233,13 +233,24 @@ export default function OnboardingV2() {
 
     // Show transition state for 2 seconds before navigating
     setTimeout(() => {
+      // Convert new model (cans/iems separate) to old model (headphones + headphoneType)
+      const wantsHeadphones = state.wantRecommendations.cans || state.wantRecommendations.iems
+      const headphoneType = state.wantRecommendations.cans && state.wantRecommendations.iems ? 'both' :
+                           state.wantRecommendations.cans ? 'cans' :
+                           state.wantRecommendations.iems ? 'iems' : 'both'
+
       const params = new URLSearchParams({
         experience: state.experience || 'intermediate',
         budget: state.budget.toString(),
         budgetRangeMin: '20', // Fixed percentage
         budgetRangeMax: '10', // Fixed percentage
-        headphoneType: state.headphoneType || 'both',
-        wantRecommendationsFor: JSON.stringify(state.wantRecommendations),
+        headphoneType: headphoneType,
+        wantRecommendationsFor: JSON.stringify({
+          headphones: wantsHeadphones,
+          dac: state.wantRecommendations.dac,
+          amp: state.wantRecommendations.amp,
+          combo: state.wantRecommendations.combo
+        }),
         existingGear: JSON.stringify({
           ...state.existingGear,
           specificModels: { headphones: '', dac: '', amp: '', combo: '' }
@@ -329,35 +340,27 @@ export default function OnboardingV2() {
         >
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <OptionCard
-              selected={state.wantRecommendations.headphones && state.headphoneType === 'cans'}
-              onClick={() => {
-                const isCurrentlySelected = state.wantRecommendations.headphones && state.headphoneType === 'cans'
-                setState({
-                  ...state,
-                  wantRecommendations: {
-                    ...state.wantRecommendations,
-                    headphones: !isCurrentlySelected || state.headphoneType === 'iems'
-                  },
-                  headphoneType: isCurrentlySelected ? (state.headphoneType === 'iems' ? 'iems' : null) : 'cans'
-                })
-              }}
+              selected={state.wantRecommendations.cans}
+              onClick={() => setState({
+                ...state,
+                wantRecommendations: {
+                  ...state.wantRecommendations,
+                  cans: !state.wantRecommendations.cans
+                }
+              })}
               description="Over-ear"
             >
               🎧 Headphones
             </OptionCard>
             <OptionCard
-              selected={state.wantRecommendations.headphones && state.headphoneType === 'iems'}
-              onClick={() => {
-                const isCurrentlySelected = state.wantRecommendations.headphones && state.headphoneType === 'iems'
-                setState({
-                  ...state,
-                  wantRecommendations: {
-                    ...state.wantRecommendations,
-                    headphones: !isCurrentlySelected || state.headphoneType === 'cans'
-                  },
-                  headphoneType: isCurrentlySelected ? (state.headphoneType === 'cans' ? 'cans' : null) : 'iems'
-                })
-              }}
+              selected={state.wantRecommendations.iems}
+              onClick={() => setState({
+                ...state,
+                wantRecommendations: {
+                  ...state.wantRecommendations,
+                  iems: !state.wantRecommendations.iems
+                }
+              })}
               description="In-ear monitors"
             >
               🎵 IEMs
