@@ -509,7 +509,7 @@ function filterAndScoreComponents(
       // - Synergy score: 40% weight (synergy itself is max 50%)
       // - Bonuses: up to 20% (quality/value/power)
       // Total possible: 100%, realistic excellent: 75-85%
-      const matchScore = priceFit * 0.40 + comp.synergyScore * 0.40 + totalBonus
+      const matchScore = priceFit * 0.40 + (comp.synergyScore || 0) * 0.40 + totalBonus
 
       return {
         ...comp,
