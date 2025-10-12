@@ -545,14 +545,11 @@ function transformRedditPost(postData, component) {
       seller_confirmed_trades: confirmedTrades,
       seller_feedback_score: 0, // Reddit doesn't have traditional feedback scores
       seller_feedback_percentage: 0,
-      images: [], // Would need to parse post content for images
       description: description,
       is_active: !postData.archived && !postData.locked,
       price_is_reasonable: isPriceReasonable,
       price_variance_percentage: Math.round(priceVariance * 10) / 10,
-      price_warning: priceWarning,
-      listing_type: listingInfo.isBundle ? 'bundle' : 'buy_it_now',
-      accepts_offers: listingInfo.acceptsOffers
+      price_warning: priceWarning
     };
     
   } catch (error) {

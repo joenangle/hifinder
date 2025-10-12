@@ -13,6 +13,11 @@ export async function GET(request: NextRequest) {
       .select('*')
       .eq('is_active', true)
 
+    // Filter out sample/demo listings in production
+    if (process.env.NODE_ENV === 'production') {
+      query = query.not('url', 'ilike', '%sample%').not('url', 'ilike', '%demo%')
+    }
+
     // Filter by component ID(s)
     if (component_id) {
       query = query.eq('component_id', component_id)
