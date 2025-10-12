@@ -464,27 +464,32 @@ function filterAndScoreComponents(
     })
     .map(comp => {
       // Calculate price fit for this component
+      // Goal: Strongly reward using the full budget, but allow good cheaper options
       let priceFit = 0
+      const priceRatio = comp.avgPrice / budget
+
       if (comp.avgPrice <= budget) {
-        // Under budget: 25% spread (0.75 to 1.00) for meaningful differentiation
-        priceFit = 0.75 + (comp.avgPrice / budget) * 0.25
+        // Under budget: Exponential curve to heavily favor items near budget
+        // 50% of budget = 0.25 score, 75% = 0.56, 90% = 0.81, 100% = 1.0
+        priceFit = Math.pow(priceRatio, 0.5)
       } else {
-        // Over budget: heavy penalty
-        priceFit = Math.max(0, 1 - (comp.avgPrice - budget) / budget * 1.5)
+        // Over budget: Steep penalty
+        const overageRatio = (comp.avgPrice - budget) / budget
+        priceFit = Math.max(0, 1 - overageRatio * 2)
       }
 
-      // Calculate bonuses - Quality and value indicators (max 20% total)
-      const valueBonus = (comp.value_rating ?? 0) * 0.02 // Max 10% (5 rating × 2%)
-      const expertBonus = (comp.expert_grade_numeric && comp.expert_grade_numeric >= 3.3) ? 0.05 : 0
-      const powerBonus = comp.category === 'amp' ? (comp.powerAdequacy || 0.5) * 0.05 : 0
-      const totalBonus = Math.min(0.20, valueBonus + expertBonus + powerBonus)
+      // Calculate bonuses - Quality and value indicators (max 15% total to reduce impact)
+      const valueBonus = (comp.value_rating ?? 0) * 0.015 // Max 7.5% (5 rating × 1.5%)
+      const expertBonus = (comp.expert_grade_numeric && comp.expert_grade_numeric >= 3.3) ? 0.04 : 0
+      const powerBonus = comp.category === 'amp' ? (comp.powerAdequacy || 0.5) * 0.035 : 0
+      const totalBonus = Math.min(0.15, valueBonus + expertBonus + powerBonus)
 
       // Final scoring breakdown:
-      // - Price fit: 40% weight
-      // - Synergy score: 40% weight (synergy itself is max 50%)
-      // - Bonuses: up to 20% (quality/value/power)
-      // Total possible: 100%, realistic excellent: 75-85%
-      const matchScore = priceFit * 0.40 + (comp.synergyScore || 0) * 0.40 + totalBonus
+      // - Price fit: 50% weight (increased importance)
+      // - Synergy score: 35% weight (sound/usage match)
+      // - Bonuses: up to 15% (quality/value/power)
+      // Total possible: 100%
+      const matchScore = priceFit * 0.50 + (comp.synergyScore || 0) * 0.35 + totalBonus
 
       return {
         ...comp,
