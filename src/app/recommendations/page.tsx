@@ -42,6 +42,7 @@ function RecommendationsContent() {
   const [dacs, setDacs] = useState<AudioComponent[]>([])
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
+  const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [, setError] = useState<string | null>(null)
   const [, setShowAmplification] = useState(false)
@@ -313,7 +314,8 @@ function RecommendationsContent() {
         dacs: recommendations.dacs?.length || 0,
         amps: recommendations.amps?.length || 0,
         combos: recommendations.combos?.length || 0,
-        needsAmplification: recommendations.needsAmplification
+        needsAmplification: recommendations.needsAmplification,
+        budgetAllocation: recommendations.budgetAllocation
       })
 
       // Debug: Log current state values for troubleshooting
@@ -323,10 +325,11 @@ function RecommendationsContent() {
         'headphones.length': recommendations.headphones?.length || 0,
         'will render headphones': wantRecommendationsFor?.headphones && (recommendations.headphones?.length || 0) > 0
       })
-      
+
       // Set recommendations with fallbacks
       setHeadphones(recommendations.headphones || [])
       setDacs(recommendations.dacs || [])
+      setBudgetAllocation(recommendations.budgetAllocation || {})
       setAmps(recommendations.amps || [])
       setDacAmps(recommendations.combos || [])
       setShowAmplification(recommendations.needsAmplification || false)
@@ -901,9 +904,17 @@ function RecommendationsContent() {
                 return (
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
-                  🎧 Headphones & IEMs ({headphones.length} options)
+                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+                  🎧 Headphones & IEMs
                 </h2>
+                <div className="text-center mt-1">
+                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                    {headphones.length} options
+                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 && (
+                      <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
+                    )}
+                  </span>
+                </div>
               </div>
               <div className="p-6 space-y-3">
                 {headphones.map((headphone) => {
@@ -1035,9 +1046,17 @@ function RecommendationsContent() {
           {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-red-950/30 dark:to-orange-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
-                  🔄 DACs ({dacs.length} options)
+                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+                  🔄 DACs
                 </h2>
+                <div className="text-center mt-1">
+                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                    {dacs.length} options
+                    {budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 && (
+                      <> • Budget: {formatBudgetUSD(budgetAllocation.dac)}</>
+                    )}
+                  </span>
+                </div>
               </div>
               <div className="p-6 space-y-3">
                 {dacs.map((dac) => (
@@ -1050,16 +1069,31 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleDacSelection(dac.id)}
                   >
-                    {/* Header with name and pricing */}
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{dac.brand} {dac.name}</h3>
-                      <div className="flex justify-between items-baseline text-sm">
-                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}</span>
-                        {dac.price_new && (
-                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(dac.price_new)}</span>
-                        )}
+                    {/* Header: Category badge */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200">
+                        🔄 DAC
+                      </span>
+                    </div>
+
+                    {/* Name (Brand + Model) and Price on same line */}
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+                        {dac.brand} {dac.name}
+                      </h3>
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                          {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}
+                        </div>
                       </div>
                     </div>
+
+                    {/* MSRP */}
+                    {dac.price_new && (
+                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
+                        MSRP: {formatBudgetUSD(dac.price_new)}
+                      </div>
+                    )}
 
                     {/* Performance Section */}
                     {(dac.asr_sinad || dac.asr_review_url) && (
@@ -1112,9 +1146,17 @@ function RecommendationsContent() {
           {wantRecommendationsFor.amp && amps.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/40 dark:to-yellow-950/30 px-6 py-4 border-b border-amber-200 dark:border-amber-800/50">
-                <h2 className="heading-3 text-center mb-4 text-amber-900 dark:text-amber-100">
-                  ⚡ Amplifiers ({amps.length} options)
+                <h2 className="heading-3 text-center text-amber-900 dark:text-amber-100">
+                  ⚡ Amplifiers
                 </h2>
+                <div className="text-center mt-1">
+                  <span className="text-sm text-amber-700 dark:text-amber-300">
+                    {amps.length} options
+                    {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 && (
+                      <> • Budget: {formatBudgetUSD(budgetAllocation.amp)}</>
+                    )}
+                  </span>
+                </div>
               </div>
               <div className="p-6 space-y-3">
                 {amps.map((amp) => (
@@ -1127,16 +1169,31 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleAmpSelection(amp.id)}
                   >
-                    {/* Header with name and pricing */}
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{amp.brand} {amp.name}</h3>
-                      <div className="flex justify-between items-baseline text-sm">
-                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}</span>
-                        {amp.price_new && (
-                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(amp.price_new)}</span>
-                        )}
+                    {/* Header: Category badge */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200">
+                        ⚡ Amplifier
+                      </span>
+                    </div>
+
+                    {/* Name (Brand + Model) and Price on same line */}
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+                        {amp.brand} {amp.name}
+                      </h3>
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                          {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}
+                        </div>
                       </div>
                     </div>
+
+                    {/* MSRP */}
+                    {amp.price_new && (
+                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
+                        MSRP: {formatBudgetUSD(amp.price_new)}
+                      </div>
+                    )}
 
                     {/* Power Output Section */}
                     {(amp.power_output || (amp.powerAdequacy && amp.powerAdequacy > 0.5)) && (
@@ -1207,9 +1264,17 @@ function RecommendationsContent() {
           {wantRecommendationsFor.combo && dacAmps.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950/30 dark:via-amber-950/30 dark:to-yellow-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center mb-4 text-orange-900 dark:text-orange-100">
-                  🎯 DAC/Amp Combos ({dacAmps.length} options)
+                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+                  🎯 DAC/Amp Combos
                 </h2>
+                <div className="text-center mt-1">
+                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                    {dacAmps.length} options
+                    {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 && (
+                      <> • Budget: {formatBudgetUSD(budgetAllocation.combo)}</>
+                    )}
+                  </span>
+                </div>
               </div>
               <div className="p-6 space-y-3">
                 {dacAmps.map((combo) => (
@@ -1222,16 +1287,31 @@ function RecommendationsContent() {
                     }`}
                     onClick={() => toggleDacAmpSelection(combo.id)}
                   >
-                    {/* Header with name and pricing */}
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary mb-1">{combo.brand} {combo.name}</h3>
-                      <div className="flex justify-between items-baseline text-sm">
-                        <span className="text-text-secondary dark:text-text-secondary">Used Est.: {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}</span>
-                        {combo.price_new && (
-                          <span className="text-text-tertiary dark:text-text-tertiary">MSRP: {formatBudgetUSD(combo.price_new)}</span>
-                        )}
+                    {/* Header: Category badge */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200">
+                        🎯 DAC/Amp Combo
+                      </span>
+                    </div>
+
+                    {/* Name (Brand + Model) and Price on same line */}
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+                        {combo.brand} {combo.name}
+                      </h3>
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                          {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}
+                        </div>
                       </div>
                     </div>
+
+                    {/* MSRP */}
+                    {combo.price_new && (
+                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
+                        MSRP: {formatBudgetUSD(combo.price_new)}
+                      </div>
+                    )}
 
                     {/* Performance Section (combines DAC + Amp specs) */}
                     {(combo.asr_sinad || combo.power_output || (combo.powerAdequacy && combo.powerAdequacy > 0.5)) && (

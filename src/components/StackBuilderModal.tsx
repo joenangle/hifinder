@@ -174,12 +174,12 @@ export function StackBuilderModal({
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Stack Overview */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Stack Overview</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Stack Overview</h3>
               <div className="text-right">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatPrice(totalCost)}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-300">Estimated Total</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatPrice(totalCost)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Estimated Total</p>
               </div>
             </div>
 
@@ -188,19 +188,19 @@ export function StackBuilderModal({
               {finalComponents.map((component) => (
                 <div
                   key={component.id}
-                  className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600"
+                  className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 rounded-lg border border-gray-300 dark:border-gray-700"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">
                       {getCategoryIcon(component.category)}
                     </span>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{component.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-300">{component.brand} • {component.category}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{component.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{component.brand} • {component.category}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {formatPrice(
                         component.price_used_min && component.price_used_max
                           ? (component.price_used_min + component.price_used_max) / 2
@@ -209,7 +209,7 @@ export function StackBuilderModal({
                     </span>
                     <button
                       onClick={() => removeComponent(component.id)}
-                      className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -260,7 +260,7 @@ export function StackBuilderModal({
                 type="text"
                 value={stackName}
                 onChange={(e) => setStackName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
                 placeholder="e.g., Desktop Listening Setup"
               />
             </div>
@@ -273,7 +273,7 @@ export function StackBuilderModal({
                 value={stackDescription}
                 onChange={(e) => setStackDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-transparent"
                 placeholder="Describe your stack, use cases, or notes..."
               />
             </div>
@@ -281,7 +281,7 @@ export function StackBuilderModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="flex justify-between items-center p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
