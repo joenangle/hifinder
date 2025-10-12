@@ -5,6 +5,7 @@ import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 // Intelligent caching system for recommendations
 const cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
+const SCORING_VERSION = 'v3' // Increment to invalidate all caches when scoring logic changes
 
 function generateCacheKey(params: {
   experience: string
@@ -18,6 +19,7 @@ function generateCacheKey(params: {
   driverType?: string
 }): string {
   const keyComponents = [
+    SCORING_VERSION,
     `exp_${params.experience}`,
     `budget_${params.budget}`,
     `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
