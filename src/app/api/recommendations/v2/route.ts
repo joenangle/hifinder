@@ -2,35 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 
-// Intelligent caching system for recommendations
-const cache = new Map<string, { data: unknown, expires: number }>()
-const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
-const SCORING_VERSION = 'v3' // Increment to invalidate all caches when scoring logic changes
-
-function generateCacheKey(params: {
-  experience: string
-  budget: number
-  budgetRangeMin: number
-  budgetRangeMax: number
-  headphoneType: string
-  wantRecommendationsFor: object
-  soundSignature: string
-  usage: string
-  driverType?: string
-}): string {
-  const keyComponents = [
-    SCORING_VERSION,
-    `exp_${params.experience}`,
-    `budget_${params.budget}`,
-    `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
-    `type_${params.headphoneType}`,
-    `want_${JSON.stringify(params.wantRecommendationsFor)}`,
-    `sound_${params.soundSignature}`,
-    `usage_${params.usage}`,
-    params.driverType ? `driver_${params.driverType}` : ''
-  ].filter(Boolean)
-  return `recommendations_v2_${keyComponents.join('_')}`
-}
+// No caching - always fetch fresh results for best UX
+// Users expect updated results when toggling between parameters
 
 // Enhanced component interface for recommendations
 interface RecommendationComponent {
@@ -578,25 +551,6 @@ export async function GET(request: NextRequest) {
       driverType: driverTypeParam
     }
 
-    // Generate cache key
-    const cacheKey = generateCacheKey({
-      experience: req.experience,
-      budget: req.budget,
-      budgetRangeMin: req.budgetRangeMin,
-      budgetRangeMax: req.budgetRangeMax,
-      headphoneType: req.headphoneType,
-      wantRecommendationsFor: req.wantRecommendationsFor,
-      soundSignature: req.soundSignature,
-      usage: req.usage,
-      driverType: req.driverType
-    })
-
-    // Check cache
-    const cached = cache.get(cacheKey)
-    if (cached && cached.expires > Date.now()) {
-      return NextResponse.json(cached.data)
-    }
-
     // Determine max options - NO LIMITS for enthusiasts
     const maxOptions = req.experience === 'beginner' ? 5 :
                       req.experience === 'intermediate' ? 8 : 15
@@ -750,22 +704,6 @@ export async function GET(request: NextRequest) {
           req.usageRanking[0] || req.usage,
           maxOptions
         )
-      }
-    }
-
-    // Cache results
-    cache.set(cacheKey, {
-      data: results,
-      expires: Date.now() + CACHE_DURATION
-    })
-
-    // Periodic cache cleanup
-    if (Math.random() < 0.1) {
-      const now = Date.now()
-      for (const [key, value] of cache.entries()) {
-        if (value.expires <= now) {
-          cache.delete(key)
-        }
       }
     }
 
