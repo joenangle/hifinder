@@ -15,6 +15,8 @@ import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 interface AudioComponent extends Component {
   avgPrice: number
   synergyScore?: number
+  matchScore?: number
+  priceFitScore?: number
   compatibilityScore?: number
   powerAdequacy?: number
   amplificationAssessment?: {
@@ -875,8 +877,8 @@ function RecommendationsContent() {
                 })
 
                 const topTone = headphones.reduce((prev, current) => {
-                  const prevScore = prev.synergyScore || 0
-                  const currScore = current.synergyScore || 0
+                  const prevScore = prev.matchScore || 0
+                  const currScore = current.matchScore || 0
                   return currScore > prevScore ? current : prev
                 })
 
@@ -896,7 +898,7 @@ function RecommendationsContent() {
               <div className="p-6 space-y-3">
                 {headphones.map((headphone) => {
                   const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = headphone.id === topTone.id && (topTone.synergyScore || 0) >= 0.9
+                  const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
                   const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
 
                   return (
@@ -918,9 +920,9 @@ function RecommendationsContent() {
                       }`}>
                         {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
                       </span>
-                      {headphone.synergyScore && (
+                      {headphone.matchScore && (
                         <span className="text-base font-bold text-orange-600 dark:text-orange-400">
-                          Match: {Math.round(headphone.synergyScore * 100)}% ★
+                          Match: {headphone.matchScore}% ★
                         </span>
                       )}
                     </div>
