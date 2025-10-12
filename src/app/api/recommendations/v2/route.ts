@@ -487,50 +487,37 @@ function filterAndScoreComponents(
 
       return isAffordable && isInRange && hasReasonableRange
     })
-    .sort((a, b) => {
-      // ASYMMETRIC PRICE SCORING - Wider spread for better differentiation
-      let aPriceFit = 0
-      let bPriceFit = 0
-
-      if (a.avgPrice <= budget) {
+    .map(comp => {
+      // Calculate price fit for this component
+      let priceFit = 0
+      if (comp.avgPrice <= budget) {
         // Under budget: 25% spread (0.75 to 1.00) for meaningful differentiation
-        aPriceFit = 0.75 + (a.avgPrice / budget) * 0.25
+        priceFit = 0.75 + (comp.avgPrice / budget) * 0.25
       } else {
         // Over budget: heavy penalty
-        aPriceFit = Math.max(0, 1 - (a.avgPrice - budget) / budget * 1.5)
+        priceFit = Math.max(0, 1 - (comp.avgPrice - budget) / budget * 1.5)
       }
 
-      if (b.avgPrice <= budget) {
-        bPriceFit = 0.75 + (b.avgPrice / budget) * 0.25
-      } else {
-        bPriceFit = Math.max(0, 1 - (b.avgPrice - budget) / budget * 1.5)
-      }
-
-      // BONUSES - Quality and value indicators (max 20% total)
-      // Reduced bonus weights to prevent inflation with new scoring system
-      const aValueBonus = (a.value_rating ?? 0) * 0.02 // Max 10% (5 rating × 2%)
-      const bValueBonus = (b.value_rating ?? 0) * 0.02
-
-      const aExpertBonus = (a.expert_grade_numeric && a.expert_grade_numeric >= 3.3) ? 0.05 : 0
-      const bExpertBonus = (b.expert_grade_numeric && b.expert_grade_numeric >= 3.3) ? 0.05 : 0
-
-      const aPowerBonus = a.category === 'amp' ? (a.powerAdequacy || 0.5) * 0.05 : 0 // Reduced from 0.1
-      const bPowerBonus = b.category === 'amp' ? (b.powerAdequacy || 0.5) * 0.05 : 0
-
-      // Cap total bonuses at 0.20 (20%)
-      const aTotalBonus = Math.min(0.20, aValueBonus + aExpertBonus + aPowerBonus)
-      const bTotalBonus = Math.min(0.20, bValueBonus + bExpertBonus + bPowerBonus)
+      // Calculate bonuses - Quality and value indicators (max 20% total)
+      const valueBonus = (comp.value_rating ?? 0) * 0.02 // Max 10% (5 rating × 2%)
+      const expertBonus = (comp.expert_grade_numeric && comp.expert_grade_numeric >= 3.3) ? 0.05 : 0
+      const powerBonus = comp.category === 'amp' ? (comp.powerAdequacy || 0.5) * 0.05 : 0
+      const totalBonus = Math.min(0.20, valueBonus + expertBonus + powerBonus)
 
       // Final scoring breakdown:
-      // - Price fit: 40% weight (was 50%)
-      // - Synergy score: 40% weight (was 50%, but synergy itself is now max 50% not 100%)
+      // - Price fit: 40% weight
+      // - Synergy score: 40% weight (synergy itself is max 50%)
       // - Bonuses: up to 20% (quality/value/power)
       // Total possible: 100%, realistic excellent: 75-85%
-      const aScore = aPriceFit * 0.40 + a.synergyScore * 0.40 + aTotalBonus
-      const bScore = bPriceFit * 0.40 + b.synergyScore * 0.40 + bTotalBonus
+      const matchScore = priceFit * 0.40 + comp.synergyScore * 0.40 + totalBonus
 
-      return bScore - aScore
+      return {
+        ...comp,
+        matchScore: Math.round(matchScore * 100), // Convert to percentage (0-100)
+        priceFitScore: Math.round(priceFit * 100)
+      }
     })
+    .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, maxOptions)
 }
 
