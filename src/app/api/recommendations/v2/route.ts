@@ -104,61 +104,21 @@ function gradeToNumeric(grade: string | null | undefined): number | null {
   return gradeMap[cleanGrade] ?? null
 }
 
-// Use case to sound signature translation
-function translateUseCaseToSignature(useCase: string): string {
-  const translations: Record<string, string> = {
-    'gaming': 'fun',
-    'movies': 'fun',
-    'classical': 'neutral',
-    'jazz': 'neutral',
-    'acoustic': 'neutral',
-    'electronic': 'fun',
-    'edm': 'fun',
-    'hip-hop': 'warm',
-    'rock': 'fun',
-    'metal': 'bright',
-    'podcasts': 'neutral',
-    'vocals': 'neutral',
-    'studio': 'neutral',
-    'mixing': 'neutral',
-    'mastering': 'neutral'
-  }
-
-  return translations[useCase.toLowerCase()] || 'neutral'
-}
-
-// Map sound signatures to beginner-friendly use cases
-function getUseCasesForSignature(signature: string): string[] {
-  const signatureToUseCases: { [key: string]: string[] } = {
-    'neutral': ['critical listening', 'all music genres', 'reference', 'studio work'],
-    'warm': ['relaxed listening', 'long sessions', 'acoustic', 'jazz', 'vocals'],
-    'bright': ['detail retrieval', 'classical', 'acoustic', 'competitive gaming'],
-    'fun': ['EDM', 'hip-hop', 'movies', 'gaming', 'bass-heavy music'],
-    'balanced': ['versatile listening', 'all genres', 'daily use']
-  }
-
-  return signatureToUseCases[signature] || signatureToUseCases['neutral']
-}
-
-// Enhanced dual-layer synergy scoring with detailed Crinacle signatures
+// Sound signature synergy scoring with detailed Crinacle signatures
 function calculateSynergyScore(
   component: unknown,
-  soundSig: string,
-  primaryUsage: string
+  soundSig: string
 ): number {
   const comp = component as {
     sound_signature?: string
     crinacle_sound_signature?: string
-    use_cases?: string | string[]
   }
 
-  // New approach: Start at 0 and build up with clear component weights
-  // Max possible: 100%, but realistic excellent matches: 75-85%
+  // Sound signature matching only - usage matching removed
   let score = 0
 
-  // Translate use case to sound signature preference (for 'any' signature)
-  const usageSignature = translateUseCaseToSignature(primaryUsage)
-  const effectiveSignature = soundSig !== 'any' ? soundSig : usageSignature
+  // If user didn't specify signature preference, assume neutral
+  const effectiveSignature = soundSig !== 'any' ? soundSig : 'neutral'
 
   // Component 1: Sound Signature Match (max 50% weight - INCREASED)
   let soundScore = 0
@@ -185,34 +145,13 @@ function calculateSynergyScore(
     soundScore += detailedMatch * 0.15 // Up to +15% for detailed match (was 0.10)
   }
 
-  score += Math.min(0.50, soundScore) // Cap at 50% (was 30%)
+  score += Math.min(0.50, soundScore) // Cap at 50%
 
-  // Component 2: Usage Match (max 30% weight - INCREASED)
-  let usageScore = 0
-  if (comp.use_cases && primaryUsage) {
-    const useCases = Array.isArray(comp.use_cases)
-      ? comp.use_cases
-      : (typeof comp.use_cases === 'string'
-        ? comp.use_cases.split(',').map(u => u.trim().toLowerCase())
-        : [])
+  // Usage matching removed - not differentiated enough to be useful
+  // "Music" works for almost everything, "gaming" needs soundstage data we don't have,
+  // and sound signature already captures the important tonal preferences
 
-    if (useCases.includes(primaryUsage.toLowerCase())) {
-      usageScore = 0.22 // Direct usage match (was 0.15)
-    } else if (useCases.includes('music') && primaryUsage.toLowerCase() === 'gaming') {
-      usageScore = 0.12 // Music gear for gaming (was 0.08)
-    }
-  }
-
-  // Inferred use case bonus
-  const inferredUseCases = getUseCasesForSignature(comp.sound_signature || 'neutral')
-  if (inferredUseCases.some(uc => uc.toLowerCase().includes(primaryUsage.toLowerCase()))) {
-    usageScore += 0.08 // (was 0.05)
-  }
-
-  score += Math.min(0.30, usageScore) // Cap at 30% (was 20%)
-
-  // Total from synergy: max 80% (50% sound + 30% usage)
-  // Perfect match with all bonuses can now reach 95-100%
+  // Total from synergy: max 50% (sound signature matching only)
   return Math.min(1, score)
 }
 
@@ -409,8 +348,8 @@ function filterAndScoreComponents(
       // Only calculate synergy for headphones/IEMs (sound signature is meaningful)
       // DACs/amps/combos get neutral score since they should be transparent
       const synergyScore = (component.category === 'cans' || component.category === 'iems')
-        ? calculateSynergyScore(component, soundSignature, primaryUsage)
-        : 0.75 // Neutral score for DACs/amps (higher than base to avoid penalty)
+        ? calculateSynergyScore(component, soundSignature)
+        : 0.25 // Neutral score for DACs/amps (25% = middle of 0-50% range)
 
       // Convert letter grades to numeric if not already done
       const toneGradeNumeric = component.expert_grade_numeric ?? gradeToNumeric(component.tone_grade)
@@ -485,11 +424,15 @@ function filterAndScoreComponents(
       const totalBonus = Math.min(0.10, valueBonus + expertBonus + powerBonus)
 
       // Final scoring breakdown:
-      // - Price fit: 40% weight
-      // - Synergy score: 50% weight (sound 50% + usage 30% = max 80% synergy)
-      // - Bonuses: up to 10% (quality/value/power)
-      // Total possible: ~100% for perfect matches
-      const matchScore = priceFit * 0.40 + (comp.synergyScore || 0) * 0.50 + totalBonus
+      // - Price fit: 45% weight (how close to budget)
+      // - Sound signature: 45% weight (synergyScore max 50%, so 45% × 50% = 22.5%)
+      // - Bonuses: up to 10% (expert grade + value rating + power adequacy)
+      // Perfect match: 45% + 22.5% + 10% = 77.5%, scaled to ~90%
+      const rawScore = priceFit * 0.45 + (comp.synergyScore || 0) * 0.45 + totalBonus
+
+      // Scale scores so perfect matches hit ~90%
+      // Raw max is ~0.775, scale to 0.90: multiply by (0.90 / 0.775) ≈ 1.16
+      const matchScore = Math.min(1, rawScore * 1.16)
 
       return {
         ...comp,
