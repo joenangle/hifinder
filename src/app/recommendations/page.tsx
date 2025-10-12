@@ -921,8 +921,23 @@ function RecommendationsContent() {
                         {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
                       </span>
                       {headphone.matchScore && (
-                        <span className="text-base font-bold text-orange-600 dark:text-orange-400">
-                          Match: {headphone.matchScore}% ★
+                        <span
+                          className="text-base font-bold text-orange-600 dark:text-orange-400 cursor-help"
+                          title={`Match Score: ${headphone.matchScore}%\n\n${
+                            headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐ Excellent Match - Perfect for your preferences and budget' :
+                            headphone.matchScore >= 75 ? '⭐⭐⭐⭐ Great Match - Strong fit for your needs' :
+                            headphone.matchScore >= 65 ? '⭐⭐⭐ Good Match - Solid option worth considering' :
+                            headphone.matchScore >= 55 ? '⭐⭐ Fair Match - May work but consider alternatives' :
+                            '⭐ Weak Match - Better options available'
+                          }\n\nBased on: Price fit (45%) + Sound signature (45%) + Quality bonuses (10%)`}
+                        >
+                          Match: {headphone.matchScore}% {
+                            headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐' :
+                            headphone.matchScore >= 75 ? '⭐⭐⭐⭐' :
+                            headphone.matchScore >= 65 ? '⭐⭐⭐' :
+                            headphone.matchScore >= 55 ? '⭐⭐' :
+                            '⭐'
+                          }
                         </span>
                       )}
                     </div>
