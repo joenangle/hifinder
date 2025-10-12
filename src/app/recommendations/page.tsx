@@ -994,18 +994,18 @@ function RecommendationsContent() {
 
                     {/* Compact metadata row */}
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary dark:text-text-secondary mb-2">
-                      {headphone.amplificationAssessment && (
+                      {headphone.amplificationAssessment && headphone.amplificationAssessment.difficulty !== 'unknown' && (
                         <span className="inline-flex items-center gap-1">
                           ⚡ {headphone.amplificationAssessment.difficulty === 'easy' ? 'Easy to Drive' :
                              headphone.amplificationAssessment.difficulty === 'moderate' ? 'Moderate Power' :
                              headphone.amplificationAssessment.difficulty === 'demanding' ? 'Needs Good Amp' :
-                             headphone.amplificationAssessment.difficulty === 'very_demanding' ? 'Needs Powerful Amp' : 'Unknown'}
+                             'Needs Powerful Amp'}
                         </span>
                       )}
-                      {headphone.sound_signature && (
+                      {(headphone.crinacle_sound_signature || (headphone.sound_signature && headphone.sound_signature !== 'neutral')) && (
                         <>
                           <span>|</span>
-                          <span>Sound: {headphone.sound_signature}</span>
+                          <span>Sound: {headphone.crinacle_sound_signature || headphone.sound_signature}</span>
                         </>
                       )}
                       {headphone.impedance && (
