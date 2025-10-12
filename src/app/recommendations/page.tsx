@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -864,15 +864,21 @@ function RecommendationsContent() {
 
         {/* Dynamic grid based on number of component types */}
         {(() => {
-          const activeTypes = [
-            wantRecommendationsFor.headphones && headphones.length > 0,
-            wantRecommendationsFor.dac && dacs.length > 0,
-            wantRecommendationsFor.amp && amps.length > 0,
-            wantRecommendationsFor.combo && dacAmps.length > 0
-          ].filter(Boolean).length
+          const hasHeadphones = wantRecommendationsFor.headphones && headphones.length > 0
+          const hasDacs = wantRecommendationsFor.dac && dacs.length > 0
+          const hasAmps = wantRecommendationsFor.amp && amps.length > 0
+          const hasCombos = wantRecommendationsFor.combo && dacAmps.length > 0
+          const hasSignalGear = hasDacs || hasAmps || hasCombos
+
+          const activeTypes = [hasHeadphones, hasDacs, hasAmps, hasCombos].filter(Boolean).length
+
+          // Special layout: headphones + signal gear → 2 columns (headphones | signal gear stacked)
+          const useStackedLayout = hasHeadphones && hasSignalGear && activeTypes >= 2
 
           const gridClass = activeTypes === 1
             ? 'grid grid-cols-1 gap-8 max-w-2xl mx-auto'
+            : useStackedLayout
+            ? 'grid grid-cols-1 lg:grid-cols-2 gap-8'
             : activeTypes === 2
             ? 'grid grid-cols-1 lg:grid-cols-2 gap-8'
             : 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'
@@ -1042,8 +1048,15 @@ function RecommendationsContent() {
                 )
           })()}
 
-          {/* DACs Section */}
-          {wantRecommendationsFor.dac && dacs.length > 0 && (
+          {/* Signal gear (DACs, Amps, Combos) - Stack when with headphones */}
+          {(() => {
+            const SignalGearWrapper = useStackedLayout ? 'div' : React.Fragment
+            const wrapperProps = useStackedLayout ? { className: "space-y-8" } : {}
+
+            return (
+              <SignalGearWrapper {...wrapperProps}>
+                {/* DACs Section */}
+                {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-red-950/30 dark:to-orange-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
                 <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
@@ -1365,6 +1378,9 @@ function RecommendationsContent() {
               </div>
             </div>
           )}
+              </SignalGearWrapper>
+            )
+          })()}
             </div>
           )
         })()}
