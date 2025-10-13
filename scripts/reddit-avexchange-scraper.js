@@ -802,5 +802,6 @@ module.exports = {
   transformRedditPost,
   saveRedditListings,
   processAllComponents,
-  getGeneralAVExchangeListings
+  getGeneralAVExchangeListings,
+  scrapeRedditListings // For scheduler compatibility
 };

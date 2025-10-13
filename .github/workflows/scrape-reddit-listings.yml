@@ -1,0 +1,84 @@
+name: Scrape Reddit Used Listings
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC (6 PM PST / 9 PM EST)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60 # Max 1 hour for scraping
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Reddit scraper
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          echo "🚀 Starting Reddit r/AVexchange scraper..."
+          node scripts/reddit-avexchange-scraper.js
+          echo "✅ Scraping completed!"
+
+      - name: Check listing count
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "
+            require('dotenv').config();
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL,
+              process.env.SUPABASE_SERVICE_ROLE_KEY
+            );
+
+            async function checkCount() {
+              const { count, error } = await supabase
+                .from('used_listings')
+                .select('*', { count: 'exact', head: true });
+
+              if (error) {
+                console.error('❌ Error:', error);
+                process.exit(1);
+              }
+
+              console.log('📊 Total used listings in database:', count);
+            }
+
+            checkCount();
+          "
+
+      - name: Cleanup old listings
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "🧹 Checking for fake/test listings..."
+          node scripts/find-fake-listings.js --delete || echo "No fake listings found"
+          echo "✅ Cleanup completed!"
+
+      - name: Report status
+        if: always()
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "✅ Reddit scraping workflow completed successfully!"
+          else
+            echo "❌ Reddit scraping workflow failed!"
+            exit 1
+          fi
