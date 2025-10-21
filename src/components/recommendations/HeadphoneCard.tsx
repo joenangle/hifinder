@@ -8,12 +8,12 @@ interface AudioComponent {
   brand: string
   name: string
   category: string
-  price_new?: number
-  price_used_min?: number
-  price_used_max?: number
-  impedance?: number
+  price_new: number | null
+  price_used_min: number | null
+  price_used_max: number | null
+  impedance?: number | null
   matchScore?: number
-  sound_signature?: string
+  sound_signature?: string | null
   crinacle_sound_signature?: string
   expert_grade_numeric?: number
   value_rating?: number

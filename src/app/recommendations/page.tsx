@@ -906,118 +906,15 @@ function RecommendationsContent() {
                   const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
 
                   return (
-                  <div
-                    key={headphone.id}
-                    className={`card-interactive ${
-                      selectedHeadphones.includes(headphone.id)
-                        ? 'selected'
-                        : ''
-                    }`}
-                    onClick={() => toggleHeadphoneSelection(headphone.id)}
-                  >
-                    {/* Header: Category and Match Score */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        headphone.category === 'iems'
-                          ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'
-                          : 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200'
-                      }`}>
-                        {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
-                      </span>
-                      {headphone.matchScore && (
-                        <span
-                          className="text-base font-bold text-orange-600 dark:text-orange-400 cursor-help"
-                          title={`Match Score: ${headphone.matchScore}%\n\n${
-                            headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐ Excellent Match - Perfect for your preferences and budget' :
-                            headphone.matchScore >= 75 ? '⭐⭐⭐⭐ Great Match - Strong fit for your needs' :
-                            headphone.matchScore >= 65 ? '⭐⭐⭐ Good Match - Solid option worth considering' :
-                            headphone.matchScore >= 55 ? '⭐⭐ Fair Match - May work but consider alternatives' :
-                            '⭐ Weak Match - Better options available'
-                          }\n\nBased on: Price fit (45%) + Sound signature (45%) + Quality bonuses (10%)`}
-                        >
-                          Match: {headphone.matchScore}% {
-                            headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐' :
-                            headphone.matchScore >= 75 ? '⭐⭐⭐⭐' :
-                            headphone.matchScore >= 65 ? '⭐⭐⭐' :
-                            headphone.matchScore >= 55 ? '⭐⭐' :
-                            '⭐'
-                          }
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Champion Badges */}
-                    {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {isTechnicalChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-500 text-white text-xs font-semibold rounded-full">
-                            🏆 Top Tech
-                          </span>
-                        )}
-                        {isToneChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 dark:bg-amber-500 text-white text-xs font-semibold rounded-full">
-                            🎵 Best Match
-                          </span>
-                        )}
-                        {isBudgetChamp && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-500 dark:bg-orange-400 text-white text-xs font-semibold rounded-full">
-                            💰 Value
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Name (Brand + Model) and Price on same line */}
-                    <div className="flex items-baseline justify-between mb-1">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-                        {headphone.brand} {headphone.name}
-                      </h3>
-                      <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
-                          {formatBudgetUSD(headphone.price_used_min || 0)}-{formatBudgetUSD(headphone.price_used_max || 0)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* MSRP */}
-                    {headphone.price_new && (
-                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
-                        MSRP: {formatBudgetUSD(headphone.price_new)}
-                      </div>
-                    )}
-
-                    {/* Compact metadata row */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary dark:text-text-secondary mb-2">
-                      {headphone.amplificationAssessment && headphone.amplificationAssessment.difficulty !== 'unknown' && (
-                        <span className="inline-flex items-center gap-1">
-                          ⚡ {headphone.amplificationAssessment.difficulty === 'easy' ? 'Easy to Drive' :
-                             headphone.amplificationAssessment.difficulty === 'moderate' ? 'Moderate Power' :
-                             headphone.amplificationAssessment.difficulty === 'demanding' ? 'Needs Good Amp' :
-                             'Needs Powerful Amp'}
-                        </span>
-                      )}
-                      {(headphone.crinacle_sound_signature || (headphone.sound_signature && headphone.sound_signature !== 'neutral')) && (
-                        <>
-                          <span>|</span>
-                          <span>Sound: {headphone.crinacle_sound_signature || headphone.sound_signature}</span>
-                        </>
-                      )}
-                      {headphone.impedance && (
-                        <>
-                          <span>|</span>
-                          <span>{headphone.impedance}Ω</span>
-                        </>
-                      )}
-                      {headphone.fit && (
-                        <>
-                          <span>|</span>
-                          <span>{headphone.fit}</span>
-                        </>
-                      )}
-                    </div>
-
-                    <ExpertAnalysisPanel component={headphone} />
-                  </div>
+                    <HeadphoneCard
+                      key={headphone.id}
+                      headphone={headphone}
+                      isSelected={selectedHeadphones.includes(headphone.id)}
+                      onToggleSelection={toggleHeadphoneSelection}
+                      isTechnicalChamp={isTechnicalChamp}
+                      isToneChamp={isToneChamp}
+                      isBudgetChamp={isBudgetChamp}
+                    />
                   )
                 })}
               </div>
@@ -1050,83 +947,13 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {dacs.map((dac) => (
-                  <div
+                  <SignalGearCard
                     key={dac.id}
-                    className={`card-interactive ${
-                      selectedDacs.includes(dac.id)
-                        ? 'selected'
-                        : ''
-                    }`}
-                    onClick={() => toggleDacSelection(dac.id)}
-                  >
-                    {/* Header: Category badge */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold px-2 py-1 rounded bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200">
-                        🔄 DAC
-                      </span>
-                    </div>
-
-                    {/* Name (Brand + Model) and Price on same line */}
-                    <div className="flex items-baseline justify-between mb-1">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-                        {dac.brand} {dac.name}
-                      </h3>
-                      <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
-                          {formatBudgetUSD(dac.price_used_min || 0)}-{formatBudgetUSD(dac.price_used_max || 0)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* MSRP */}
-                    {dac.price_new && (
-                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
-                        MSRP: {formatBudgetUSD(dac.price_new)}
-                      </div>
-                    )}
-
-                    {/* Performance Section */}
-                    {(dac.asr_sinad || dac.asr_review_url) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary">
-                          {dac.asr_sinad && (
-                            <div>• SINAD: {dac.asr_sinad} dB {
-                              dac.asr_sinad >= 120 ? '(Excellent)' :
-                              dac.asr_sinad >= 110 ? '(Very Good)' :
-                              dac.asr_sinad >= 100 ? '(Good)' : '(Fair)'
-                            }</div>
-                          )}
-                          {dac.asr_review_url && !dac.asr_sinad && (
-                            <div>• ASR Review Available</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Connectivity Section */}
-                    {(dac.input_types || dac.output_types) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-                          {dac.input_types && (
-                            <div>• Inputs: {Array.isArray(dac.input_types) ? dac.input_types.join(', ') : dac.input_types}</div>
-                          )}
-                          {dac.output_types && (
-                            <div>• Outputs: {Array.isArray(dac.output_types) ? dac.output_types.join(', ') : dac.output_types}</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Why Recommended */}
-                    {dac.why_recommended && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
-                        <p className="text-sm text-text-secondary dark:text-text-secondary">{dac.why_recommended}</p>
-                      </div>
-                    )}
-                  </div>
+                    component={dac}
+                    isSelected={selectedDacs.includes(dac.id)}
+                    onToggleSelection={toggleDacSelection}
+                    type="dac"
+                  />
                 ))}
               </div>
             </div>
@@ -1150,101 +977,13 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {amps.map((amp) => (
-                  <div
+                  <SignalGearCard
                     key={amp.id}
-                    className={`card-interactive ${
-                      selectedAmps.includes(amp.id)
-                        ? 'selected'
-                        : ''
-                    }`}
-                    onClick={() => toggleAmpSelection(amp.id)}
-                  >
-                    {/* Header: Category badge */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold px-2 py-1 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200">
-                        ⚡ Amplifier
-                      </span>
-                    </div>
-
-                    {/* Name (Brand + Model) and Price on same line */}
-                    <div className="flex items-baseline justify-between mb-1">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-                        {amp.brand} {amp.name}
-                      </h3>
-                      <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
-                          {formatBudgetUSD(amp.price_used_min || 0)}-{formatBudgetUSD(amp.price_used_max || 0)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* MSRP */}
-                    {amp.price_new && (
-                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
-                        MSRP: {formatBudgetUSD(amp.price_new)}
-                      </div>
-                    )}
-
-                    {/* Power Output Section */}
-                    {(amp.power_output || (amp.powerAdequacy && amp.powerAdequacy > 0.5)) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Power Output</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-                          {amp.power_output && (
-                            <div>• {amp.power_output}</div>
-                          )}
-                          {amp.powerAdequacy && amp.powerAdequacy > 0.5 && (
-                            <div>• Power Match: {Math.round(amp.powerAdequacy * 100)}% {
-                              amp.powerAdequacy >= 0.9 ? '(Perfect)' :
-                              amp.powerAdequacy >= 0.7 ? '(Good)' : '(Adequate)'
-                            }</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Performance Section */}
-                    {(amp.asr_sinad || amp.asr_review_url) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">📊 Performance</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary">
-                          {amp.asr_sinad && (
-                            <div>• SINAD: {amp.asr_sinad} dB {
-                              amp.asr_sinad >= 110 ? '(Excellent)' :
-                              amp.asr_sinad >= 100 ? '(Very Good)' :
-                              amp.asr_sinad >= 90 ? '(Good)' : '(Fair)'
-                            }</div>
-                          )}
-                          {amp.asr_review_url && !amp.asr_sinad && (
-                            <div>• ASR Review Available</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Connectivity Section */}
-                    {(amp.input_types || amp.output_types) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-                          {amp.input_types && (
-                            <div>• Inputs: {Array.isArray(amp.input_types) ? amp.input_types.join(', ') : amp.input_types}</div>
-                          )}
-                          {amp.output_types && (
-                            <div>• Outputs: {Array.isArray(amp.output_types) ? amp.output_types.join(', ') : amp.output_types}</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Why Recommended */}
-                    {amp.why_recommended && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
-                        <p className="text-sm text-text-secondary dark:text-text-secondary">{amp.why_recommended}</p>
-                      </div>
-                    )}
-                  </div>
+                    component={amp}
+                    isSelected={selectedAmps.includes(amp.id)}
+                    onToggleSelection={toggleAmpSelection}
+                    type="amp"
+                  />
                 ))}
               </div>
             </div>
@@ -1268,89 +1007,13 @@ function RecommendationsContent() {
               </div>
               <div className="p-6 space-y-3">
                 {dacAmps.map((combo) => (
-                  <div
+                  <SignalGearCard
                     key={combo.id}
-                    className={`card-interactive ${
-                      selectedDacAmps.includes(combo.id)
-                        ? 'selected'
-                        : ''
-                    }`}
-                    onClick={() => toggleDacAmpSelection(combo.id)}
-                  >
-                    {/* Header: Category badge */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200">
-                        🎯 DAC/Amp Combo
-                      </span>
-                    </div>
-
-                    {/* Name (Brand + Model) and Price on same line */}
-                    <div className="flex items-baseline justify-between mb-1">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-                        {combo.brand} {combo.name}
-                      </h3>
-                      <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
-                          {formatBudgetUSD(combo.price_used_min || 0)}-{formatBudgetUSD(combo.price_used_max || 0)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* MSRP */}
-                    {combo.price_new && (
-                      <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
-                        MSRP: {formatBudgetUSD(combo.price_new)}
-                      </div>
-                    )}
-
-                    {/* Performance Section (combines DAC + Amp specs) */}
-                    {(combo.asr_sinad || combo.power_output || (combo.powerAdequacy && combo.powerAdequacy > 0.5)) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-                          {combo.asr_sinad && (
-                            <div>• DAC SINAD: {combo.asr_sinad} dB {
-                              combo.asr_sinad >= 120 ? '(Excellent)' :
-                              combo.asr_sinad >= 110 ? '(Very Good)' :
-                              combo.asr_sinad >= 100 ? '(Good)' : '(Fair)'
-                            }</div>
-                          )}
-                          {combo.power_output && (
-                            <div>• Amp Power: {combo.power_output}</div>
-                          )}
-                          {combo.powerAdequacy && combo.powerAdequacy > 0.5 && (
-                            <div>• Power Match: {Math.round(combo.powerAdequacy * 100)}% {
-                              combo.powerAdequacy >= 0.9 ? '(Perfect)' :
-                              combo.powerAdequacy >= 0.7 ? '(Good)' : '(Adequate)'
-                            }</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Connectivity Section */}
-                    {(combo.input_types || combo.output_types) && (
-                      <div className="mb-3">
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
-                        <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-                          {combo.input_types && (
-                            <div>• Inputs: {Array.isArray(combo.input_types) ? combo.input_types.join(', ') : combo.input_types}</div>
-                          )}
-                          {combo.output_types && (
-                            <div>• Outputs: {Array.isArray(combo.output_types) ? combo.output_types.join(', ') : combo.output_types}</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Why Recommended */}
-                    {combo.why_recommended && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
-                        <p className="text-sm text-text-secondary dark:text-text-secondary">{combo.why_recommended}</p>
-                      </div>
-                    )}
-                  </div>
+                    component={combo}
+                    isSelected={selectedDacAmps.includes(combo.id)}
+                    onToggleSelection={toggleDacAmpSelection}
+                    type="combo"
+                  />
                 ))}
               </div>
             </div>

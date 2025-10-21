@@ -7,11 +7,11 @@ interface AudioComponent {
   brand: string
   name: string
   category: string
-  price_new?: number
-  price_used_min?: number
-  price_used_max?: number
-  asr_sinad?: number
-  asr_review_url?: string
+  price_new: number | null
+  price_used_min: number | null
+  price_used_max: number | null
+  asr_sinad?: number | null
+  asr_review_url?: string | null
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string
