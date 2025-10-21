@@ -1,22 +1,28 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
+
+interface TooltipContent {
+  title?: string
+  description?: string
+  details?: string
+}
 
 interface TooltipProps {
-  content: string | React.ReactNode
+  content: string | TooltipContent
   children: React.ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
   delay?: number
   className?: string
 }
 
-export function Tooltip({
+const TooltipComponent = ({
   content,
   children,
   position = 'top',
   delay = 200,
   className = ''
-}: TooltipProps) {
+}: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [shouldRender, setShouldRender] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -79,7 +85,18 @@ export function Tooltip({
         >
           <div className="bg-background-primary dark:bg-surface-elevated border border-border-default rounded-lg shadow-xl px-3 py-2 max-w-xs">
             <div className="text-sm text-text-primary whitespace-normal">
-              {content}
+              {typeof content === 'string' ? (
+                content
+              ) : (
+                <>
+                  {content.description && (
+                    <p className="font-medium mb-1">{content.description}</p>
+                  )}
+                  {content.details && (
+                    <p className="text-xs text-text-secondary">{content.details}</p>
+                  )}
+                </>
+              )}
             </div>
           </div>
           {/* Arrow */}
@@ -94,3 +111,6 @@ export function Tooltip({
     </div>
   )
 }
+
+// Memoize to prevent unnecessary re-renders
+export const Tooltip = memo(TooltipComponent)

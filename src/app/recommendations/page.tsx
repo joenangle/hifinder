@@ -4,18 +4,25 @@ import React, { Suspense } from 'react'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
-import { WelcomeBanner } from '@/components/WelcomeBanner'
-import { GuidedModeToggle } from '@/components/GuidedModeToggle'
 import { Tooltip } from '@/components/Tooltip'
 import { FilterButton } from '@/components/FilterButton'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
+
+// Lazy load guided mode components for better code splitting
+const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
+  ssr: false
+})
+const GuidedModeToggle = dynamic(() => import('@/components/GuidedModeToggle').then(mod => ({ default: mod.GuidedModeToggle })), {
+  ssr: false
+})
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -572,7 +579,7 @@ function RecommendationsContent() {
 
         {/* Enhanced Budget Control */}
         <Tooltip
-          content={guidedModeEnabled ? FILTER_TOOLTIPS.budget.content : ''}
+          content={guidedModeEnabled ? FILTER_TOOLTIPS.budget : ''}
           position="bottom"
           className="w-full"
         >
@@ -601,7 +608,7 @@ function RecommendationsContent() {
        {/* Compact Filters */}
         <div className="filter-card-compact">
           <Tooltip
-            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch.content : ''}
+            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
             position="bottom"
           >
             <h3 className="filter-title-compact">Refine Your Search</h3>
@@ -635,7 +642,7 @@ function RecommendationsContent() {
                 icon="🎧"
                 label="Headphones"
                 activeClass="active-purple"
-                tooltip={FILTER_TOOLTIPS.equipment.headphones.content}
+                tooltip={FILTER_TOOLTIPS.equipment.headphones}
                 showTooltip={guidedModeEnabled}
               />
 

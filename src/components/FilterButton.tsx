@@ -1,6 +1,13 @@
 'use client'
 
+import { memo } from 'react'
 import { Tooltip } from './Tooltip'
+
+interface TooltipContent {
+  title?: string
+  description?: string
+  details?: string
+}
 
 interface FilterButtonProps {
   active: boolean
@@ -8,11 +15,11 @@ interface FilterButtonProps {
   icon: string
   label: string
   activeClass?: string
-  tooltip?: React.ReactNode
+  tooltip?: string | TooltipContent
   showTooltip?: boolean
 }
 
-export function FilterButton({
+const FilterButtonComponent = ({
   active,
   onClick,
   icon,
@@ -20,7 +27,7 @@ export function FilterButton({
   activeClass = '',
   tooltip,
   showTooltip = false
-}: FilterButtonProps) {
+}: FilterButtonProps) => {
   const button = (
     <button
       className={`toggle-compact ${active ? activeClass : ''}`}
@@ -41,3 +48,6 @@ export function FilterButton({
 
   return button
 }
+
+// Memoize to prevent unnecessary re-renders
+export const FilterButton = memo(FilterButtonComponent)
