@@ -564,10 +564,11 @@ export default function OnboardingV2() {
                 <button
                   onClick={handleGetRecommendations}
                   className="
-                    w-full py-5 px-8 bg-accent-primary text-white text-lg font-bold rounded-xl
-                    hover:bg-accent-primary/90 transition-all duration-200
+                    w-full py-5 px-8 bg-orange-500 text-white text-lg font-bold rounded-xl
+                    hover:bg-orange-600 transition-all duration-200
                     flex items-center justify-center gap-2 shadow-lg
                     transform hover:scale-[1.02] active:scale-[0.98]
+                    dark:bg-orange-600 dark:hover:bg-orange-700
                   "
                 >
                   Continue to Recommendations
