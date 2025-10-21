@@ -126,26 +126,26 @@ function OptionCard({
         relative p-4 rounded-lg border-2 transition-all text-left w-full overflow-hidden
         ${disabled ? 'opacity-50 cursor-not-allowed' :
           selected
-            ? 'border-orange-500 bg-orange-500/10 shadow-md dark:border-orange-400 dark:bg-orange-400/20'
+            ? 'border-accent-primary bg-accent-primary/10 shadow-md dark:bg-accent-primary/20'
             : 'border-border-secondary hover:border-border-primary hover:bg-surface-hover'}
       `}
     >
       {icon && (
-        <div className={`mb-2 ${selected ? 'text-orange-600 dark:text-orange-300' : 'text-accent-primary'}`}>
+        <div className={`mb-2 ${selected ? 'text-accent-primary' : 'text-accent-primary'}`}>
           {icon}
         </div>
       )}
-      <div className={`font-medium ${selected ? 'text-gray-900 dark:text-gray-100' : 'text-text-primary'}`}>
+      <div className={`font-medium ${selected ? 'text-text-primary' : 'text-text-primary'}`}>
         {children}
       </div>
       {description && (
-        <div className={`text-sm mt-1 ${selected ? 'text-orange-900 dark:text-orange-100' : 'text-text-secondary'}`}>
+        <div className={`text-sm mt-1 ${selected ? 'text-text-secondary' : 'text-text-secondary'}`}>
           {description}
         </div>
       )}
       {selected && (
         <div className="absolute top-2 right-2 transition-transform duration-200 scale-100">
-          <Check className="w-5 h-5 text-orange-600 dark:text-orange-300" />
+          <Check className="w-5 h-5 text-accent-primary" />
         </div>
       )}
     </button>
@@ -196,7 +196,6 @@ export default function OnboardingV2() {
     experience: state.experience !== null,
     products: Object.values(state.wantRecommendations).some(v => v),
     budget: true, // Always considered complete since it has a default
-    existingGear: state.hasExistingGear !== null,
     // For beginners/intermediates, usage sets sound signature automatically
     // For enthusiasts, they choose sound signature directly
     preferences: state.experience === 'enthusiast'
@@ -208,13 +207,12 @@ export default function OnboardingV2() {
   const getCurrentStep = () => {
     if (!steps.experience) return 1
     if (!steps.products) return 2
-    if (!steps.existingGear) return 3
-    if (!steps.preferences) return 4
-    return 5 // All complete, show budget
+    if (!steps.preferences) return 3
+    return 4 // All complete, show budget
   }
 
   const currentStep = getCurrentStep()
-  const allComplete = steps.experience && steps.products && steps.existingGear && steps.preferences
+  const allComplete = steps.experience && steps.products && steps.preferences
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   // Auto-scroll to budget section when all steps complete
@@ -284,7 +282,7 @@ export default function OnboardingV2() {
 
         {/* Progress indicator */}
         <div className="flex gap-1 mb-8 max-w-md mx-auto">
-          {[1, 2, 3, 4].map(step => (
+          {[1, 2, 3].map(step => (
             <div
               key={step}
               className={`
@@ -407,106 +405,13 @@ export default function OnboardingV2() {
           </div>
         </StepSection>
 
-        {/* Step 3: Existing Gear */}
-        <StepSection
-          stepNumber={3}
-          title="🔧 Your Current Setup"
-          subtitle="Do you have any existing audio gear?"
-          isActive={currentStep === 3}
-          isCompleted={steps.existingGear}
-        >
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <OptionCard
-                selected={state.hasExistingGear === false}
-                onClick={() => setState({
-                  ...state,
-                  hasExistingGear: false,
-                  existingGear: {
-                    headphones: false,
-                    dac: false,
-                    amp: false,
-                    combo: false
-                  }
-                })}
-                description="Building from scratch"
-              >
-                ✨ Starting Fresh
-              </OptionCard>
-              <OptionCard
-                selected={state.hasExistingGear === true}
-                onClick={() => setState({ ...state, hasExistingGear: true })}
-                description="Upgrading my system"
-              >
-                📦 I Have Gear
-              </OptionCard>
-            </div>
-
-            {state.hasExistingGear && (
-              <div className="pl-4 border-l-2 border-accent-primary/20 transition-all duration-300">
-                <p className="text-sm text-text-secondary mb-2">What do you already have?</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <OptionCard
-                    selected={state.existingGear.headphones}
-                    onClick={() => setState({
-                      ...state,
-                      existingGear: {
-                        ...state.existingGear,
-                        headphones: !state.existingGear.headphones
-                      }
-                    })}
-                  >
-                    🎧 Headphones
-                  </OptionCard>
-                  <OptionCard
-                    selected={state.existingGear.dac}
-                    onClick={() => setState({
-                      ...state,
-                      existingGear: {
-                        ...state.existingGear,
-                        dac: !state.existingGear.dac
-                      }
-                    })}
-                  >
-                    📊 DAC
-                  </OptionCard>
-                  <OptionCard
-                    selected={state.existingGear.amp}
-                    onClick={() => setState({
-                      ...state,
-                      existingGear: {
-                        ...state.existingGear,
-                        amp: !state.existingGear.amp
-                      }
-                    })}
-                  >
-                    ⚡ Amplifier
-                  </OptionCard>
-                  <OptionCard
-                    selected={state.existingGear.combo}
-                    onClick={() => setState({
-                      ...state,
-                      existingGear: {
-                        ...state.existingGear,
-                        combo: !state.existingGear.combo
-                      }
-                    })}
-                  >
-                    🎛️ Combo Unit
-                  </OptionCard>
-                </div>
-              </div>
-            )}
-          </div>
-        </StepSection>
-
-        {/* Step 4: Conditional Preferences - Usage for beginners/intermediates, Sound for enthusiasts */}
+        {/* Step 3: Conditional Preferences - Usage for beginners/intermediates, Sound for enthusiasts */}
         {state.experience !== 'enthusiast' ? (
           <StepSection
-            stepNumber={4}
+            stepNumber={3}
             title="🎯 Primary Usage"
             subtitle="How will you mainly use your audio system?"
-            isActive={currentStep === 4}
+            isActive={currentStep === 3}
             isCompleted={steps.preferences}
           >
             <div className="grid grid-cols-2 gap-3">
@@ -580,10 +485,10 @@ export default function OnboardingV2() {
           </StepSection>
         ) : (
           <StepSection
-            stepNumber={4}
+            stepNumber={3}
             title="🔊 Sound Preference"
             subtitle="What kind of sound do you enjoy?"
-            isActive={currentStep === 4}
+            isActive={currentStep === 3}
             isCompleted={steps.preferences}
           >
             <div className="grid grid-cols-2 gap-3">
@@ -635,17 +540,17 @@ export default function OnboardingV2() {
           </StepSection>
         )}
 
-        {/* Step 5: Budget - Using simple slider */}
+        {/* Step 4: Budget - Using simple slider */}
         {allComplete && !isTransitioning && (
           <div id="budget-section">
             <StepSection
-              stepNumber={5}
+              stepNumber={4}
               title="💰 Budget Range"
               subtitle="Set your comfortable spending range"
               isActive={true}
               isCompleted={true}
             >
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <BudgetSliderEnhanced
                   budget={budget}
                   displayBudget={displayBudget}
@@ -659,12 +564,10 @@ export default function OnboardingV2() {
                 <button
                   onClick={handleGetRecommendations}
                   className="
-                    w-full py-5 px-8 bg-orange-500 text-white text-lg font-bold rounded-xl
-                    hover:bg-orange-600 transition-all duration-200
-                    flex items-center justify-center gap-2 shadow-xl
+                    w-full py-5 px-8 bg-accent-primary text-white text-lg font-bold rounded-xl
+                    hover:bg-accent-primary/90 transition-all duration-200
+                    flex items-center justify-center gap-2 shadow-lg
                     transform hover:scale-[1.02] active:scale-[0.98]
-                    ring-2 ring-orange-300 ring-offset-2 dark:ring-orange-700 dark:ring-offset-gray-900
-                    animate-pulse hover:animate-none
                   "
                 >
                   Continue to Recommendations
