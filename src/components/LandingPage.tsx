@@ -67,8 +67,8 @@ export function LandingPage() {
           
           {/* Primary CTA - Very Prominent */}
           <div className="mb-6">
-            <Link 
-              href="/onboarding-v2"
+            <Link
+              href="/recommendations"
               className="button button-primary button-lg inline-flex items-center gap-3 shadow-lg transition-all duration-300 border border-accent/20"
               onClick={() => trackEvent({ name: 'hero_cta_clicked', properties: { location: 'hero_primary' } })}
             >
@@ -190,7 +190,7 @@ export function LandingPage() {
             </Link>
             
             {/* Smart Recommendations */}
-            <Link href="/onboarding-v2" className="card p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 border hover:border-accent/30 group" onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: 'smart_recommendations' } })}>
+            <Link href="/recommendations" className="card p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 border hover:border-accent/30 group" onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: 'smart_recommendations' } })}>
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
                   <span className="text-lg">🎯</span>
@@ -266,8 +266,8 @@ export function LandingPage() {
                 Stop spending weeks reading conflicting reviews and forum debates. 
                 Get personalized recommendations in minutes, not months.
               </p>
-              <Link 
-                href="/onboarding-v2"
+              <Link
+                href="/recommendations"
                 className="button button-primary w-full"
                 onClick={() => trackEvent({ name: 'cta_clicked', properties: { location: 'why_hifinder_section' } })}
               >
@@ -364,8 +364,8 @@ export function LandingPage() {
           <p className="text-secondary text-lg mb-4 max-w-2xl mx-auto">
             Skip weeks of research and conflicting reviews. Get science-based recommendations in minutes.
           </p>
-          <Link 
-            href="/onboarding-v2"
+          <Link
+            href="/recommendations"
             className="button button-primary button-lg"
             onClick={() => trackEvent({ name: 'final_cta_clicked', properties: { location: 'bottom_cta' } })}
           >

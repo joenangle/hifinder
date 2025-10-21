@@ -96,7 +96,7 @@ export function UserDashboard() {
           <h2 className="heading-2 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Link
-              href="/onboarding-v2"
+              href="/recommendations"
               className="card p-6 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'get_recommendations' } })}
             >

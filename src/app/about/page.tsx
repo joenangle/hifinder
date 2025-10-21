@@ -55,7 +55,7 @@ export default function AboutPage() {
         <section className="mb-12">
           <h2 className="heading-2 mb-6 text-center">What We Offer</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Link href="/onboarding-v2" className="card p-6 hover:shadow-lg transition-all duration-300 block">
+            <Link href="/recommendations" className="card p-6 hover:shadow-lg transition-all duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">🎵</span>
@@ -152,10 +152,10 @@ export default function AboutPage() {
                 Quick Recommendations
               </Link>
               <Link
-                href="/onboarding-v2"
+                href="/recommendations"
                 className="button button-secondary"
               >
-                Full Onboarding
+                Browse Recommendations
               </Link>
             </div>
           </div>
