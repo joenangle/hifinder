@@ -18,6 +18,8 @@ import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 import { HeadphoneCard } from '@/components/recommendations/HeadphoneCard'
 import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
+import { FiltersSection } from '@/components/recommendations/FiltersSection'
+import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
 
 // Lazy load guided mode components for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -539,6 +541,53 @@ function RecommendationsContent() {
 
   const amplificationNeeds = getAmplificationNeeds()
 
+  // Filter handlers
+  const handleTypeFilterChange = useCallback((filter: 'cans' | 'iems') => {
+    const newFilters = typeFilters.includes(filter)
+      ? typeFilters.filter(f => f !== filter)
+      : [...typeFilters, filter]
+    setTypeFilters(newFilters)
+    const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
+    const wasWantingHeadphones = typeFilters.length > 0
+    const nowWantingHeadphones = newFilters.length > 0
+    updatePreferences({
+      headphoneType: newType,
+      ...(wasWantingHeadphones !== nowWantingHeadphones ? {
+        wantRecommendationsFor: {
+          ...wantRecommendationsFor,
+          headphones: nowWantingHeadphones
+        }
+      } : {})
+    })
+  }, [typeFilters, wantRecommendationsFor, updatePreferences])
+
+  const handleEquipmentToggle = useCallback((type: 'dac' | 'amp' | 'combo') => {
+    updatePreferences({
+      wantRecommendationsFor: {
+        ...wantRecommendationsFor,
+        [type]: !wantRecommendationsFor[type]
+      }
+    })
+  }, [wantRecommendationsFor, updatePreferences])
+
+  const handleSoundFilterChange = useCallback((filter: 'neutral' | 'warm' | 'bright' | 'fun') => {
+    const newFilters = soundFilters.includes(filter)
+      ? soundFilters.filter(f => f !== filter)
+      : [...soundFilters, filter]
+    setSoundFilters(newFilters)
+    const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
+    updatePreferences({ soundSignature: newSignature })
+  }, [soundFilters, updatePreferences])
+
+  const handleAddAmplification = useCallback(() => {
+    updatePreferences({
+      wantRecommendationsFor: {
+        ...wantRecommendationsFor,
+        amp: true,
+        combo: true
+      }
+    })
+  }, [wantRecommendationsFor, updatePreferences])
 
   if (loading) {
     return (
@@ -609,218 +658,23 @@ function RecommendationsContent() {
         </Tooltip>
 
        {/* Compact Filters */}
-        <div className="filter-card-compact">
-          <Tooltip
-            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
-            position="bottom"
-          >
-            <h3 className="filter-title-compact">Refine Your Search</h3>
-          </Tooltip>
-
-          {/* Equipment Type Row */}
-          <div className="filter-row">
-            <span className="filter-label-compact">Equipment</span>
-            <div className="filter-buttons-compact">
-              <FilterButton
-                active={typeFilters.includes('cans')}
-                onClick={() => {
-                  const newFilters = typeFilters.includes('cans')
-                    ? typeFilters.filter(f => f !== 'cans')
-                    : [...typeFilters, 'cans']
-                  setTypeFilters(newFilters)
-                  const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                  // Only toggle wantRecommendationsFor.headphones if this changes whether we want ANY headphones/IEMs
-                  const wasWantingHeadphones = typeFilters.length > 0
-                  const nowWantingHeadphones = newFilters.length > 0
-                  updatePreferences({
-                    headphoneType: newType,
-                    ...(wasWantingHeadphones !== nowWantingHeadphones ? {
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        headphones: nowWantingHeadphones
-                      }
-                    } : {})
-                  })
-                }}
-                icon="🎧"
-                label="Headphones"
-                activeClass="active-purple"
-                tooltip={FILTER_TOOLTIPS.equipment.headphones}
-                showTooltip={guidedModeEnabled}
-              />
-
-              <button
-                className={`toggle-compact ${typeFilters.includes('iems') ? 'active-indigo' : ''}`}
-                onClick={() => {
-                  const newFilters = typeFilters.includes('iems')
-                    ? typeFilters.filter(f => f !== 'iems')
-                    : [...typeFilters, 'iems']
-                  setTypeFilters(newFilters)
-                  const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
-                  // Only toggle wantRecommendationsFor.headphones if this changes whether we want ANY headphones/IEMs
-                  const wasWantingHeadphones = typeFilters.length > 0
-                  const nowWantingHeadphones = newFilters.length > 0
-                  updatePreferences({
-                    headphoneType: newType,
-                    ...(wasWantingHeadphones !== nowWantingHeadphones ? {
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        headphones: nowWantingHeadphones
-                      }
-                    } : {})
-                  })
-                }}
-              >
-                <span>🎵</span>
-                <span>IEMs</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${wantRecommendationsFor.dac ? 'active-green' : ''}`}
-                onClick={() => {
-                  updatePreferences({
-                    wantRecommendationsFor: {
-                      ...wantRecommendationsFor,
-                      dac: !wantRecommendationsFor.dac
-                    }
-                  })
-                }}
-              >
-                <span>🔄</span>
-                <span>DACs</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${wantRecommendationsFor.amp ? 'active-amber' : ''}`}
-                onClick={() => {
-                  updatePreferences({
-                    wantRecommendationsFor: {
-                      ...wantRecommendationsFor,
-                      amp: !wantRecommendationsFor.amp
-                    }
-                  })
-                }}
-              >
-                <span>⚡</span>
-                <span>Amps</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${wantRecommendationsFor.combo ? 'active-blue' : ''}`}
-                onClick={() => {
-                  updatePreferences({
-                    wantRecommendationsFor: {
-                      ...wantRecommendationsFor,
-                      combo: !wantRecommendationsFor.combo
-                    }
-                  })
-                }}
-              >
-                <span>🔗</span>
-                <span>Combos</span>
-              </button>
-            </div>
-          </div>
-          
-          {/* Sound Signature Row */}
-          <div className="filter-row">
-            <span className="filter-label-compact">Sound</span>
-            <div className="filter-buttons-compact">
-              <button
-                className={`toggle-compact ${soundFilters.includes('neutral') ? 'active-neutral' : ''}`}
-                onClick={() => {
-                  const newFilters = soundFilters.includes('neutral')
-                    ? soundFilters.filter(f => f !== 'neutral')
-                    : [...soundFilters, 'neutral']
-                  setSoundFilters(newFilters)
-                  const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                  updatePreferences({ soundSignature: newSignature })
-                }}
-              >
-                <span>⚖️</span>
-                <span>Neutral</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${soundFilters.includes('warm') ? 'active-warm' : ''}`}
-                onClick={() => {
-                  const newFilters = soundFilters.includes('warm')
-                    ? soundFilters.filter(f => f !== 'warm')
-                    : [...soundFilters, 'warm']
-                  setSoundFilters(newFilters)
-                  const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                  updatePreferences({ soundSignature: newSignature })
-                }}
-              >
-                <span>🔥</span>
-                <span>Warm</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${soundFilters.includes('bright') ? 'active-bright' : ''}`}
-                onClick={() => {
-                  const newFilters = soundFilters.includes('bright')
-                    ? soundFilters.filter(f => f !== 'bright')
-                    : [...soundFilters, 'bright']
-                  setSoundFilters(newFilters)
-                  const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                  updatePreferences({ soundSignature: newSignature })
-                }}
-              >
-                <span>✨</span>
-                <span>Bright</span>
-              </button>
-              
-              <button
-                className={`toggle-compact ${soundFilters.includes('fun') ? 'active-fun' : ''}`}
-                onClick={() => {
-                  const newFilters = soundFilters.includes('fun')
-                    ? soundFilters.filter(f => f !== 'fun')
-                    : [...soundFilters, 'fun']
-                  setSoundFilters(newFilters)
-                  const newSignature = newFilters.length === 4 ? 'any' : newFilters.length === 1 ? newFilters[0] : 'any'
-                  updatePreferences({ soundSignature: newSignature })
-                }}
-              >
-                <span>🎉</span>
-                <span>V-Shaped</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <FiltersSection
+          typeFilters={typeFilters}
+          soundFilters={soundFilters}
+          wantRecommendationsFor={wantRecommendationsFor}
+          guidedModeEnabled={guidedModeEnabled}
+          onTypeFilterChange={handleTypeFilterChange}
+          onEquipmentToggle={handleEquipmentToggle}
+          onSoundFilterChange={handleSoundFilterChange}
+        />
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}
         {amplificationNeeds?.shouldShowWarning && (
-          <div className="card p-6 border-l-4 border-yellow-500 bg-yellow-50" style={{ marginBottom: '32px' }}>
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">⚡</div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-yellow-800 mb-2">
-                  Amplification Recommended
-                </h3>
-                <p className="text-yellow-700 mb-3">
-                  {amplificationNeeds.selectedNeedAmp.length > 0
-                    ? `Your selected headphones (${amplificationNeeds.selectedNeedAmp.map(h => h.name).join(', ')}) benefit from dedicated amplification for optimal performance.`
-                    : `Some recommended headphones require amplification to reach their full potential.`
-                  }
-                </p>
-                <button
-                  onClick={() => {
-                    updatePreferences({
-                      wantRecommendationsFor: {
-                        ...wantRecommendationsFor,
-                        amp: true,
-                        combo: true
-                      }
-                    })
-                  }}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Add Amplifier & Combo Recommendations
-                </button>
-              </div>
-            </div>
-          </div>
+          <AmplificationWarningBanner
+            selectedNeedAmp={amplificationNeeds.selectedNeedAmp}
+            wantRecommendationsFor={wantRecommendationsFor}
+            onAddAmplification={handleAddAmplification}
+          />
         )}
 
         {/* System Overview */}
