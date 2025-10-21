@@ -10,6 +10,12 @@ import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
+import { WelcomeBanner } from '@/components/WelcomeBanner'
+import { GuidedModeToggle } from '@/components/GuidedModeToggle'
+import { Tooltip } from '@/components/Tooltip'
+import { FilterButton } from '@/components/FilterButton'
+import { useGuidedMode } from '@/hooks/useGuidedMode'
+import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -37,6 +43,16 @@ interface AudioComponent extends Component {
 }
 
 function RecommendationsContent() {
+  // Guided mode for first-time users
+  const {
+    showWelcome,
+    guidedModeEnabled,
+    isLoaded: guidedModeLoaded,
+    dismissWelcome,
+    enableGuidedMode,
+    toggleGuidedMode
+  } = useGuidedMode()
+
   // Component state
   const [headphones, setHeadphones] = useState<AudioComponent[]>([])
   const [dacs, setDacs] = useState<AudioComponent[]>([])
@@ -530,47 +546,73 @@ function RecommendationsContent() {
     <div className="page-container">
       <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
         <div className="text-center mb-8">
-          <h1 className="heading-1 mb-4">
-            {getTitle()}
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="heading-1">
+              {getTitle()}
+            </h1>
+            {guidedModeLoaded && (
+              <GuidedModeToggle
+                enabled={guidedModeEnabled}
+                onToggle={toggleGuidedMode}
+              />
+            )}
+          </div>
           <p className="text-lg text-secondary max-w-3xl mx-auto">
             {getDescription()}
           </p>
         </div>
 
+        {/* Welcome Banner for First-Time Users */}
+        {showWelcome && guidedModeLoaded && (
+          <WelcomeBanner
+            onDismiss={dismissWelcome}
+            onEnableGuidedMode={enableGuidedMode}
+          />
+        )}
 
         {/* Enhanced Budget Control */}
-        <div className="card p-6" style={{ marginBottom: '32px', width: '100%' }}>
-          <BudgetSliderEnhanced
-            budget={budgetState.budget}
-            displayBudget={budgetState.displayBudget}
-            onChange={budgetState.handleBudgetChange}
-            onChangeComplete={budgetState.handleBudgetChangeComplete}
-            isUpdating={budgetState.isUpdating}
-            variant="simple"
-            userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
-            showInput={true}
-            showLabels={true}
-            showItemCount={true}
-            itemCount={budgetState.itemCount?.total || 0}
-            minBudget={20}
-            maxBudget={10000}
-            budgetRangeMin={userPrefs.budgetRangeMin}
-            budgetRangeMax={userPrefs.budgetRangeMax}
-            className="w-full" // Ensure this is set
-          />
-        </div>
+        <Tooltip
+          content={guidedModeEnabled ? FILTER_TOOLTIPS.budget.content : ''}
+          position="bottom"
+          className="w-full"
+        >
+          <div className="card p-6" style={{ marginBottom: '32px', width: '100%' }}>
+            <BudgetSliderEnhanced
+              budget={budgetState.budget}
+              displayBudget={budgetState.displayBudget}
+              onChange={budgetState.handleBudgetChange}
+              onChangeComplete={budgetState.handleBudgetChangeComplete}
+              isUpdating={budgetState.isUpdating}
+              variant="simple"
+              userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
+              showInput={true}
+              showLabels={true}
+              showItemCount={true}
+              itemCount={budgetState.itemCount?.total || 0}
+              minBudget={20}
+              maxBudget={10000}
+              budgetRangeMin={userPrefs.budgetRangeMin}
+              budgetRangeMax={userPrefs.budgetRangeMax}
+              className="w-full" // Ensure this is set
+            />
+          </div>
+        </Tooltip>
 
        {/* Compact Filters */}
         <div className="filter-card-compact">
-          <h3 className="filter-title-compact">Refine Your Search</h3>
-          
+          <Tooltip
+            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch.content : ''}
+            position="bottom"
+          >
+            <h3 className="filter-title-compact">Refine Your Search</h3>
+          </Tooltip>
+
           {/* Equipment Type Row */}
           <div className="filter-row">
             <span className="filter-label-compact">Equipment</span>
             <div className="filter-buttons-compact">
-              <button
-                className={`toggle-compact ${typeFilters.includes('cans') ? 'active-purple' : ''}`}
+              <FilterButton
+                active={typeFilters.includes('cans')}
                 onClick={() => {
                   const newFilters = typeFilters.includes('cans')
                     ? typeFilters.filter(f => f !== 'cans')
@@ -590,10 +632,12 @@ function RecommendationsContent() {
                     } : {})
                   })
                 }}
-              >
-                <span>🎧</span>
-                <span>Headphones</span>
-              </button>
+                icon="🎧"
+                label="Headphones"
+                activeClass="active-purple"
+                tooltip={FILTER_TOOLTIPS.equipment.headphones.content}
+                showTooltip={guidedModeEnabled}
+              />
 
               <button
                 className={`toggle-compact ${typeFilters.includes('iems') ? 'active-indigo' : ''}`}
