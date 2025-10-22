@@ -3,16 +3,13 @@
 import React, { Suspense } from 'react'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
-import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { Tooltip } from '@/components/Tooltip'
-import { FilterButton } from '@/components/FilterButton'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 import { HeadphoneCard } from '@/components/recommendations/HeadphoneCard'
@@ -672,7 +669,6 @@ function RecommendationsContent() {
         {amplificationNeeds?.shouldShowWarning && (
           <AmplificationWarningBanner
             selectedNeedAmp={amplificationNeeds.selectedNeedAmp}
-            wantRecommendationsFor={wantRecommendationsFor}
             onAddAmplification={handleAddAmplification}
           />
         )}

@@ -9,18 +9,11 @@ interface AudioComponent {
 
 interface AmplificationWarningBannerProps {
   selectedNeedAmp: AudioComponent[]
-  wantRecommendationsFor: {
-    headphones: boolean
-    dac: boolean
-    amp: boolean
-    combo: boolean
-  }
   onAddAmplification: () => void
 }
 
 const AmplificationWarningBannerComponent = ({
   selectedNeedAmp,
-  wantRecommendationsFor,
   onAddAmplification
 }: AmplificationWarningBannerProps) => {
   return (
