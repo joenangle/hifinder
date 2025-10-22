@@ -18,6 +18,7 @@ jobs:
       - name: Wait for deployment and update alias
         run: |
           echo "🕐 Waiting for Vercel deployment to complete..."
+          echo "Commit SHA: ${{ github.sha }}"
 
           MAX_ATTEMPTS=20
           ATTEMPT=0
@@ -26,11 +27,17 @@ jobs:
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
 
-            # Get latest deployment for staging branch
-            DEPLOYMENT_INFO=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep "Production" | head -1)
+            # Debug: Show all recent deployments
+            if [ $ATTEMPT -eq 1 ]; then
+              echo "Recent deployments:"
+              vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | head -5
+            fi
+
+            # Get latest deployment for staging branch (look for both Production and Preview)
+            DEPLOYMENT_INFO=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} | grep -E "(Production|Preview)" | head -1)
 
             if [ -z "$DEPLOYMENT_INFO" ]; then
-              echo "No production deployment found yet, waiting..."
+              echo "No deployment found yet, waiting 30s..."
               sleep 30
               continue
             fi
