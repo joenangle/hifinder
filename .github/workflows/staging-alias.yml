@@ -19,55 +19,35 @@ jobs:
         run: |
           echo "🕐 Waiting for Vercel deployment to complete..."
           echo "Commit SHA: ${{ github.sha }}"
-          COMMIT_SHA="${{ github.sha }}"
-          SHORT_SHA="${COMMIT_SHA:0:7}"
 
           MAX_ATTEMPTS=20
           ATTEMPT=0
+          GIT_STAGING_ALIAS="https://hifinder-git-staging-joenangles-projects.vercel.app"
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
 
-            # Get all recent deployments (filter for actual deployment URLs, skip headers/footers)
-            DEPLOYMENTS=$(vercel ls --yes --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} 2>&1 | grep -o 'https://hifinder-[^[:space:]]*\.vercel\.app')
+            # Inspect the git-staging alias to find the actual deployment URL
+            INSPECT_OUTPUT=$(vercel inspect "$GIT_STAGING_ALIAS" --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} 2>&1)
 
-            if [ -z "$DEPLOYMENTS" ]; then
-              echo "No deployments found yet, waiting 30s..."
+            # Extract the actual deployment URL
+            DEPLOYMENT_URL=$(echo "$INSPECT_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
+
+            if [ -z "$DEPLOYMENT_URL" ]; then
+              echo "Could not find deployment URL yet, waiting 30s..."
               sleep 30
               continue
             fi
 
-            echo "Found $(echo "$DEPLOYMENTS" | wc -l) deployment(s), checking for matching commit..."
+            echo "Found deployment: $DEPLOYMENT_URL"
 
-            # Check each deployment to find one matching our commit SHA
-            FOUND_DEPLOYMENT=""
-            for URL in $DEPLOYMENTS; do
-              echo "Checking deployment: $URL"
+            # Check if deployment is ready
+            if echo "$INSPECT_OUTPUT" | grep -q "status.*● Ready"; then
+              echo "✅ Deployment is Ready!"
+              echo "Updating staging.hifinder.app to point to: $DEPLOYMENT_URL"
 
-              # Get deployment details using vercel inspect
-              INSPECT_OUTPUT=$(vercel inspect "$URL" --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} 2>&1)
-
-              # Check if this deployment matches our commit SHA (check both full and short SHA)
-              if echo "$INSPECT_OUTPUT" | grep -q "$COMMIT_SHA\|$SHORT_SHA"; then
-                echo "✅ Found matching deployment for commit $SHORT_SHA"
-
-                # Check if deployment is ready
-                if echo "$INSPECT_OUTPUT" | grep -q "Ready"; then
-                  FOUND_DEPLOYMENT="$URL"
-                  echo "✅ Deployment is Ready!"
-                  break
-                else
-                  echo "⏳ Deployment found but not ready yet..."
-                  break
-                fi
-              fi
-            done
-
-            if [ -n "$FOUND_DEPLOYMENT" ]; then
-              echo "Updating staging alias to: $FOUND_DEPLOYMENT"
-
-              vercel alias set "$FOUND_DEPLOYMENT" staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+              vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
 
               if [ $? -eq 0 ]; then
                 echo "✅ Successfully updated staging.hifinder.app!"
@@ -77,7 +57,7 @@ jobs:
                 exit 1
               fi
             else
-              echo "Deployment not ready yet, waiting 30s..."
+              echo "⏳ Deployment not ready yet, waiting 30s..."
               sleep 30
             fi
           done
