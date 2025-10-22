@@ -505,11 +505,17 @@ function RecommendationsContent() {
     if (isBudgetFocused) {
       return `Here are highly-rated headphones and IEMs in your ${formatBudgetUSD(budget)} budget range. Use the filters below to narrow results by type and sound signature.`
     }
-    
+
+    const totalItems = headphones.length + dacs.length + amps.length + dacAmps.length
+
     if (experience === 'beginner') {
-      return "We've selected 3 highly-rated, easy-to-use options in your budget range. These are safe choices that work great out of the box."
+      return totalItems > 0
+        ? `We've selected ${totalItems} highly-rated, easy-to-use options in your budget range. These are safe choices that work great out of the box.`
+        : "We're finding the best highly-rated, easy-to-use options for your budget."
     } else if (experience === 'intermediate') {
-      return "Here are 5 excellent options that balance performance and value. Each offers something different - consider your priorities."
+      return totalItems > 0
+        ? `Here are ${totalItems} excellent options that balance performance and value. Each offers something different - consider your priorities.`
+        : "Finding excellent options that balance performance and value for your setup."
     } else {
       return "A curated selection of high-performance components. Consider synergies between components and your specific sonic preferences."
     }
@@ -602,17 +608,17 @@ function RecommendationsContent() {
     <div className="page-container">
       <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h1 className="heading-1">
-              {getTitle()}
-            </h1>
-            {guidedModeLoaded && (
+          <h1 className="heading-1 mb-4">
+            {getTitle()}
+          </h1>
+          {guidedModeLoaded && (
+            <div className="flex justify-center mb-6">
               <GuidedModeToggle
                 enabled={guidedModeEnabled}
                 onToggle={toggleGuidedMode}
               />
-            )}
-          </div>
+            </div>
+          )}
           <p className="text-lg text-secondary max-w-3xl mx-auto">
             {getDescription()}
           </p>
@@ -632,7 +638,7 @@ function RecommendationsContent() {
           position="bottom"
           className="w-full"
         >
-          <div className="card p-6" style={{ marginBottom: '32px', width: '100%' }}>
+          <div className="card p-4" style={{ marginBottom: '24px', width: '100%' }}>
             <BudgetSliderEnhanced
               budget={budgetState.budget}
               displayBudget={budgetState.displayBudget}
@@ -644,7 +650,7 @@ function RecommendationsContent() {
               showInput={true}
               showLabels={true}
               showItemCount={true}
-              itemCount={budgetState.itemCount?.total || 0}
+              itemCount={headphones.length + dacs.length + amps.length + dacAmps.length}
               minBudget={20}
               maxBudget={10000}
               budgetRangeMin={userPrefs.budgetRangeMin}
@@ -736,12 +742,12 @@ function RecommendationsContent() {
 
                 return (
             <div className="card overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 px-4 py-3 border-b border-orange-200 dark:border-orange-700/40">
+                <h2 className="text-lg font-semibold text-center text-orange-900 dark:text-orange-100">
                   🎧 Headphones & IEMs
                 </h2>
-                <div className="text-center mt-1">
-                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                <div className="text-center mt-0.5">
+                  <span className="text-xs text-orange-700 dark:text-orange-300">
                     {headphones.length} options
                     {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 && (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
@@ -749,7 +755,7 @@ function RecommendationsContent() {
                   </span>
                 </div>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 space-y-2">
                 {headphones.map((headphone) => {
                   const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
                   const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
@@ -782,12 +788,12 @@ function RecommendationsContent() {
                 {/* DACs Section */}
                 {wantRecommendationsFor.dac && dacs.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-red-950/30 dark:to-orange-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 px-4 py-3 border-b border-orange-200 dark:border-orange-700/40">
+                <h2 className="text-lg font-semibold text-center text-orange-900 dark:text-orange-100">
                   🔄 DACs
                 </h2>
-                <div className="text-center mt-1">
-                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                <div className="text-center mt-0.5">
+                  <span className="text-xs text-orange-700 dark:text-orange-300">
                     {dacs.length} options
                     {budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 && (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.dac)}</>
@@ -795,7 +801,7 @@ function RecommendationsContent() {
                   </span>
                 </div>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 space-y-2">
                 {dacs.map((dac) => (
                   <SignalGearCard
                     key={dac.id}
@@ -812,12 +818,12 @@ function RecommendationsContent() {
           {/* Amps Section */}
           {wantRecommendationsFor.amp && amps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/40 dark:to-yellow-950/30 px-6 py-4 border-b border-amber-200 dark:border-amber-800/50">
-                <h2 className="heading-3 text-center text-amber-900 dark:text-amber-100">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 px-4 py-3 border-b border-orange-200 dark:border-orange-700/40">
+                <h2 className="text-lg font-semibold text-center text-orange-900 dark:text-orange-100">
                   ⚡ Amplifiers
                 </h2>
-                <div className="text-center mt-1">
-                  <span className="text-sm text-amber-700 dark:text-amber-300">
+                <div className="text-center mt-0.5">
+                  <span className="text-xs text-orange-700 dark:text-orange-300">
                     {amps.length} options
                     {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 && (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.amp)}</>
@@ -825,7 +831,7 @@ function RecommendationsContent() {
                   </span>
                 </div>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 space-y-2">
                 {amps.map((amp) => (
                   <SignalGearCard
                     key={amp.id}
@@ -842,12 +848,12 @@ function RecommendationsContent() {
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && dacAmps.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950/30 dark:via-amber-950/30 dark:to-yellow-950/30 px-6 py-4 border-b border-orange-200 dark:border-orange-800/50">
-                <h2 className="heading-3 text-center text-orange-900 dark:text-orange-100">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 px-4 py-3 border-b border-orange-200 dark:border-orange-700/40">
+                <h2 className="text-lg font-semibold text-center text-orange-900 dark:text-orange-100">
                   🎯 DAC/Amp Combos
                 </h2>
-                <div className="text-center mt-1">
-                  <span className="text-sm text-orange-700 dark:text-orange-300">
+                <div className="text-center mt-0.5">
+                  <span className="text-xs text-orange-700 dark:text-orange-300">
                     {dacAmps.length} options
                     {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 && (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.combo)}</>
@@ -855,7 +861,7 @@ function RecommendationsContent() {
                   </span>
                 </div>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 space-y-2">
                 {dacAmps.map((combo) => (
                   <SignalGearCard
                     key={combo.id}
@@ -882,30 +888,66 @@ function RecommendationsContent() {
               console.log('Toggling used market:', !showUsedMarket)
               setShowUsedMarket(!showUsedMarket)
             }}
-            className="button button-primary button-lg"
+            className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
           >
             {showUsedMarket ? 'Hide' : 'Show'} Used Market Listings
           </button>
         </div>
 
         {/* Used Listings */}
-        {showUsedMarket && Object.keys(usedListings).length > 0 && (
-          <div className="mt-12 space-y-8">
-            <h2 className="heading-3 text-center mb-4">Used Market Listings</h2>
-            {[...headphones, ...dacs, ...amps, ...dacAmps].map(component => {
-              const componentListings = usedListings[component.id] || []
-              if (componentListings.length === 0) return null
-              
-              return (
-                <UsedListingsSection 
+        {showUsedMarket && (() => {
+          // Filter to only show selected items if any are selected
+          const hasSelections = selectedHeadphones.length > 0 || selectedDacs.length > 0 ||
+                                selectedAmps.length > 0 || selectedDacAmps.length > 0
+
+          const componentsToShow = hasSelections
+            ? [
+                ...headphones.filter(h => selectedHeadphones.includes(h.id)),
+                ...dacs.filter(d => selectedDacs.includes(d.id)),
+                ...amps.filter(a => selectedAmps.includes(a.id)),
+                ...dacAmps.filter(da => selectedDacAmps.includes(da.id))
+              ]
+            : [...headphones, ...dacs, ...amps, ...dacAmps]
+
+          const listingsToDisplay = componentsToShow.map(component => {
+            const componentListings = usedListings[component.id] || []
+            return { component, listings: componentListings }
+          }).filter(item => item.listings.length > 0)
+
+          if (listingsToDisplay.length === 0 && hasSelections) {
+            return (
+              <div className="mt-12 text-center">
+                <div className="card p-8 max-w-2xl mx-auto">
+                  <p className="text-lg text-text-secondary">
+                    No used market listings found for your selected items yet.
+                  </p>
+                  <p className="text-sm text-text-tertiary mt-2">
+                    Check back later or try selecting different equipment.
+                  </p>
+                </div>
+              </div>
+            )
+          }
+
+          if (listingsToDisplay.length === 0) {
+            return null
+          }
+
+          return (
+            <div className="mt-12 space-y-8">
+              <h2 className="heading-3 text-center mb-4">
+                {hasSelections ? 'Used Listings for Selected Items' : 'Used Market Listings'}
+              </h2>
+              {listingsToDisplay.map(({ component, listings }) => (
+                <UsedListingsSection
                   key={component.id}
                   component={component}
-                  listings={componentListings}
+                  listings={listings}
                 />
-              )
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          )
+        })()}
 
 
       </div>

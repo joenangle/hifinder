@@ -77,7 +77,7 @@ const TooltipComponent = ({
       {shouldRender && (
         <div
           className={`
-            absolute z-50 ${positionClasses[position]}
+            absolute z-[9999] ${positionClasses[position]}
             transition-opacity duration-150
             ${isVisible ? 'opacity-100' : 'opacity-0'}
           `}

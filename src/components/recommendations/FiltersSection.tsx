@@ -52,37 +52,45 @@ const FiltersSectionComponent = ({
             showTooltip={guidedModeEnabled}
           />
 
-          <button
-            className={`toggle-compact ${typeFilters.includes('iems') ? 'active-indigo' : ''}`}
+          <FilterButton
+            active={typeFilters.includes('iems')}
             onClick={() => onTypeFilterChange('iems')}
-          >
-            <span>🎵</span>
-            <span>IEMs</span>
-          </button>
+            icon="🎵"
+            label="IEMs"
+            activeClass="active-indigo"
+            tooltip={FILTER_TOOLTIPS.equipment.iems}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${wantRecommendationsFor.dac ? 'active-green' : ''}`}
+          <FilterButton
+            active={wantRecommendationsFor.dac}
             onClick={() => onEquipmentToggle('dac')}
-          >
-            <span>🔄</span>
-            <span>DACs</span>
-          </button>
+            icon="🔄"
+            label="DACs"
+            activeClass="active-green"
+            tooltip={FILTER_TOOLTIPS.equipment.dacs}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${wantRecommendationsFor.amp ? 'active-amber' : ''}`}
+          <FilterButton
+            active={wantRecommendationsFor.amp}
             onClick={() => onEquipmentToggle('amp')}
-          >
-            <span>⚡</span>
-            <span>Amps</span>
-          </button>
+            icon="⚡"
+            label="Amps"
+            activeClass="active-amber"
+            tooltip={FILTER_TOOLTIPS.equipment.amps}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${wantRecommendationsFor.combo ? 'active-blue' : ''}`}
+          <FilterButton
+            active={wantRecommendationsFor.combo}
             onClick={() => onEquipmentToggle('combo')}
-          >
-            <span>🔗</span>
-            <span>Combos</span>
-          </button>
+            icon="🔗"
+            label="Combos"
+            activeClass="active-blue"
+            tooltip={FILTER_TOOLTIPS.equipment.combos}
+            showTooltip={guidedModeEnabled}
+          />
         </div>
       </div>
 
@@ -90,37 +98,45 @@ const FiltersSectionComponent = ({
       <div className="filter-row">
         <span className="filter-label-compact">Sound</span>
         <div className="filter-buttons-compact">
-          <button
-            className={`toggle-compact ${soundFilters.includes('neutral') ? 'active-neutral' : ''}`}
+          <FilterButton
+            active={soundFilters.includes('neutral')}
             onClick={() => onSoundFilterChange('neutral')}
-          >
-            <span>⚖️</span>
-            <span>Neutral</span>
-          </button>
+            icon="⚖️"
+            label="Neutral"
+            activeClass="active-neutral"
+            tooltip={FILTER_TOOLTIPS.sound.neutral}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${soundFilters.includes('warm') ? 'active-warm' : ''}`}
+          <FilterButton
+            active={soundFilters.includes('warm')}
             onClick={() => onSoundFilterChange('warm')}
-          >
-            <span>🔥</span>
-            <span>Warm</span>
-          </button>
+            icon="🔥"
+            label="Warm"
+            activeClass="active-warm"
+            tooltip={FILTER_TOOLTIPS.sound.warm}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${soundFilters.includes('bright') ? 'active-bright' : ''}`}
+          <FilterButton
+            active={soundFilters.includes('bright')}
             onClick={() => onSoundFilterChange('bright')}
-          >
-            <span>✨</span>
-            <span>Bright</span>
-          </button>
+            icon="✨"
+            label="Bright"
+            activeClass="active-bright"
+            tooltip={FILTER_TOOLTIPS.sound.bright}
+            showTooltip={guidedModeEnabled}
+          />
 
-          <button
-            className={`toggle-compact ${soundFilters.includes('fun') ? 'active-fun' : ''}`}
+          <FilterButton
+            active={soundFilters.includes('fun')}
             onClick={() => onSoundFilterChange('fun')}
-          >
-            <span>🎉</span>
-            <span>V-Shaped</span>
-          </button>
+            icon="🎉"
+            label="V-Shaped"
+            activeClass="active-fun"
+            tooltip={FILTER_TOOLTIPS.sound.fun}
+            showTooltip={guidedModeEnabled}
+          />
         </div>
       </div>
     </div>

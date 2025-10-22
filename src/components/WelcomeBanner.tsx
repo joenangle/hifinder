@@ -87,7 +87,7 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
                     onEnableGuidedMode()
                     handleDismiss()
                   }}
-                  className="button button-primary flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-semibold transition-all bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
                 >
                   <Lightbulb className="w-4 h-4" />
                   Enable Guided Mode
