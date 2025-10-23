@@ -17,6 +17,7 @@ import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
+import { BrowseModeSelector, BrowseMode } from '@/components/recommendations/BrowseModeSelector'
 
 // Lazy load guided mode components for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -25,6 +26,30 @@ const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mo
 const GuidedModeToggle = dynamic(() => import('@/components/GuidedModeToggle').then(mod => ({ default: mod.GuidedModeToggle })), {
   ssr: false
 })
+
+// Map browse mode to experience level for API
+function browseModeToExperience(mode: BrowseMode): string {
+  switch (mode) {
+    case 'guided':
+      return 'beginner'
+    case 'explore':
+      return 'intermediate'
+    case 'advanced':
+      return 'enthusiast'
+  }
+}
+
+// Map experience level to browse mode for UI
+function experienceToBrowseMode(experience: string): BrowseMode {
+  switch (experience) {
+    case 'beginner':
+      return 'guided'
+    case 'enthusiast':
+      return 'advanced'
+    default:
+      return 'explore' // intermediate or unknown defaults to explore
+  }
+}
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -87,6 +112,26 @@ function RecommendationsContent() {
 
   // Preferences modal state
   const [showPreferencesModal, setShowPreferencesModal] = useState(false)
+
+  // Filter counts state
+  const [filterCounts, setFilterCounts] = useState<{
+    sound: Record<string, number>
+    equipment: {
+      cans: number
+      iems: number
+      dacs: number
+      amps: number
+      combos: number
+    }
+  } | null>(null)
+
+  // Browse mode state - maps to experience level internally
+  const [browseMode, setBrowseMode] = useState<BrowseMode>(() => {
+    if (typeof window === 'undefined') return 'explore' // SSR default
+    const params = new URLSearchParams(window.location.search)
+    const experience = params.get('experience') || 'explore' // Default to explore instead of intermediate
+    return experienceToBrowseMode(experience)
+  })
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -261,7 +306,7 @@ function RecommendationsContent() {
   const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
     const updatedPrefs = { ...userPrefs, ...newPrefs }
     setUserPrefs(updatedPrefs)
-    
+
     // Update URL params
     const params = new URLSearchParams()
     params.set('experience', updatedPrefs.experience)
@@ -277,9 +322,16 @@ function RecommendationsContent() {
     params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
     params.set('excludedUsages', JSON.stringify(updatedPrefs.excludedUsages))
     params.set('sound', updatedPrefs.soundSignature)
-    
+
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
   }
+
+  // Handle browse mode changes
+  const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
+    setBrowseMode(newMode)
+    const experience = browseModeToExperience(newMode)
+    updatePreferences({ experience })
+  }, [updatePreferences])
 
 
 
@@ -390,14 +442,43 @@ function RecommendationsContent() {
     }
   }, [debouncedExperience, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature])
 
+  // Fetch filter counts
+  const fetchFilterCounts = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({
+        budget: budgetForAPI.toString(),
+        rangeMin: debouncedBudgetRangeMin.toString(),
+        rangeMax: debouncedBudgetRangeMax.toString()
+      })
+
+      const response = await fetch(`/api/filters/counts?${params.toString()}`)
+
+      if (!response.ok) {
+        console.error('Failed to fetch filter counts:', response.status)
+        return
+      }
+
+      const counts = await response.json()
+      setFilterCounts(counts)
+    } catch (error) {
+      console.error('Error fetching filter counts:', error)
+    }
+  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax])
+
   // Initial fetch on mount + when fetchRecommendations changes
   useEffect(() => {
     fetchRecommendations()
   }, [fetchRecommendations])
 
+  // Fetch filter counts when budget changes
+  useEffect(() => {
+    fetchFilterCounts()
+  }, [fetchFilterCounts])
+
   // Also ensure initial fetch happens immediately on mount
   useEffect(() => {
     fetchRecommendations()
+    fetchFilterCounts()
   }, []) // Run once on mount
 
   // Scroll to top on mount
@@ -660,12 +741,20 @@ function RecommendationsContent() {
           </div>
         </Tooltip>
 
+        {/* Browse Mode Selector */}
+        <BrowseModeSelector
+          currentMode={browseMode}
+          onModeChange={handleBrowseModeChange}
+        />
+
        {/* Compact Filters */}
         <FiltersSection
           typeFilters={typeFilters}
           soundFilters={soundFilters}
           wantRecommendationsFor={wantRecommendationsFor}
           guidedModeEnabled={guidedModeEnabled}
+          browseMode={browseMode}
+          filterCounts={filterCounts || undefined}
           onTypeFilterChange={handleTypeFilterChange}
           onEquipmentToggle={handleEquipmentToggle}
           onSoundFilterChange={handleSoundFilterChange}

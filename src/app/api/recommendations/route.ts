@@ -65,6 +65,10 @@ interface RecommendationComponent {
     explanation: string
     estimatedSensitivity?: number
   }
+  // v2.0 Performance-tier fields
+  performanceScore?: number
+  valueRating?: string | null
+  asr_sinad?: number  // ASR measurement for DACs/amps
 }
 
 interface RecommendationRequest {
@@ -238,6 +242,161 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
   return exactMatches[userPref]?.[crinSig] || 0;
 }
 
+// Performance-Tier Filtering System (v2.0)
+// Budget is a ceiling, performance determines ranking
+
+/**
+ * Determine expected performance tier for a given budget
+ * Returns numeric tier: 1 (C+), 2 (B), 3 (B+), 4 (A), 5 (A+)
+ */
+function getExpectedPerformanceTier(budget: number): number {
+  if (budget >= 3000) return 5  // A+ tier (summit-fi)
+  if (budget >= 1000) return 4  // A tier (high-end)
+  if (budget >= 400) return 4   // A tier (excellent quality)
+  if (budget >= 150) return 3   // B+ tier (good quality)
+  return 2                       // C+ tier (acceptable quality)
+}
+
+/**
+ * Calculate component's actual performance tier from expert data
+ */
+function getComponentPerformanceTier(component: RecommendationComponent): number {
+  // For headphones/IEMs with Crinacle data
+  if ((component.category === 'cans' || component.category === 'iems') &&
+      (component.tone_grade || component.technical_grade)) {
+
+    // Convert letter grades to numeric scores
+    const gradeToScore = (grade?: string): number => {
+      if (!grade) return 2.5 // Neutral baseline
+      const normalized = grade.toUpperCase().replace(/\s/g, '')
+      if (normalized.includes('A+')) return 5
+      if (normalized.includes('A-')) return 3.7
+      if (normalized.includes('A')) return 4
+      if (normalized.includes('B+')) return 3.3
+      if (normalized.includes('B-')) return 2.7
+      if (normalized.includes('B')) return 3
+      if (normalized.includes('C+')) return 2.3
+      if (normalized.includes('C')) return 2
+      return 2.5
+    }
+
+    const toneScore = gradeToScore(component.tone_grade)
+    const techScore = gradeToScore(component.technical_grade)
+    const avgGrade = (toneScore + techScore) / 2
+
+    // Crinacle rank bonus (lower rank = better, top 20 get boost)
+    let rankBonus = 0
+    if (component.crinacle_rank) {
+      if (component.crinacle_rank <= 10) rankBonus = 0.5
+      else if (component.crinacle_rank <= 20) rankBonus = 0.3
+      else if (component.crinacle_rank <= 50) rankBonus = 0.1
+    }
+
+    // Value rating bonus (1-3 scale from Crinacle)
+    let valueBonus = 0
+    if (component.value_rating) {
+      if (component.value_rating >= 3) valueBonus = 0.3
+      else if (component.value_rating >= 2) valueBonus = 0.15
+    }
+
+    return Math.min(5, avgGrade + rankBonus + valueBonus)
+  }
+
+  // For DACs/Amps/Combos with ASR data
+  if (component.asr_sinad && ['dac', 'amp', 'dac_amp'].includes(component.category || '')) {
+    const sinad = component.asr_sinad
+    const price = component.avgPrice || 0
+
+    // Budget-aware SINAD evaluation
+    if (price < 200) {
+      if (sinad >= 115) return 5  // Exceptional for budget
+      if (sinad >= 110) return 4
+      if (sinad >= 105) return 3
+      return 2
+    } else if (price < 500) {
+      if (sinad >= 120) return 5
+      if (sinad >= 115) return 4
+      if (sinad >= 110) return 3
+      return 2
+    } else {
+      if (sinad >= 125) return 5
+      if (sinad >= 120) return 4
+      if (sinad >= 115) return 3
+      return 2
+    }
+  }
+
+  // Baseline tiering for components without expert data
+  return getBaselinePerformanceTier(component)
+}
+
+/**
+ * Baseline performance tier assignment for components without expert data
+ */
+function getBaselinePerformanceTier(component: RecommendationComponent): number {
+  const price = component.avgPrice
+
+  if (component.category === 'cans' || component.category === 'iems') {
+    if (price >= 1000) return 4  // Assume A tier
+    if (price >= 400) return 3   // Assume B+ tier
+    if (price >= 150) return 2   // Assume B tier
+    return 1                      // Assume C+ tier
+  }
+
+  // DACs/amps without ASR data - neutral baseline
+  return 3  // B+ tier assumption
+}
+
+/**
+ * Calculate performance quality score (0-1) for ranking
+ * This replaces the old price-fit scoring
+ */
+function calculatePerformanceScore(component: RecommendationComponent): number {
+  const performanceTier = getComponentPerformanceTier(component)
+
+  // Convert tier (1-5) to score (0-1)
+  // Tier 5 (A+) = 1.0
+  // Tier 4 (A) = 0.85
+  // Tier 3 (B+) = 0.70
+  // Tier 2 (B/C+) = 0.55
+  // Tier 1 (C) = 0.40
+  const baseScore = 0.15 + (performanceTier * 0.17)
+
+  // Bonus for having expert data (increases confidence)
+  const hasExpertData = !!(
+    component.crinacle_sound_signature ||
+    component.tone_grade ||
+    component.technical_grade ||
+    component.asr_sinad
+  )
+
+  return Math.min(1, hasExpertData ? baseScore + 0.05 : baseScore)
+}
+
+/**
+ * Calculate value rating for display
+ */
+function calculateValueRating(component: RecommendationComponent): string | null {
+  const actualTier = getComponentPerformanceTier(component)
+  const price = component.avgPrice
+
+  // Expected tier at this price point
+  let expectedTier = 1
+  if (price >= 1000) expectedTier = 4
+  else if (price >= 400) expectedTier = 3
+  else if (price >= 150) expectedTier = 2
+
+  const tierDelta = actualTier - expectedTier
+
+  // Value rating thresholds
+  if (tierDelta >= 2) return 'exceptional'  // Performs 2+ tiers above price
+  if (tierDelta >= 1.5) return 'great'      // Performs 1.5 tiers above
+  if (tierDelta >= 0.7) return 'good'       // Performs 0.7 tiers above
+  if (tierDelta >= -0.3) return 'fair'      // Performs at expected level
+
+  return null  // Below expected performance (poor value)
+}
+
 // Calculate budget allocation across requested components
 function allocateBudgetAcrossComponents(
   totalBudget: number,
@@ -285,7 +444,7 @@ function allocateBudgetAcrossComponents(
   return allocation
 }
 
-// Filter and score components based on budget and preferences
+// Filter and score components based on budget and preferences (v2.0: Performance-Tier Filtering)
 function filterAndScoreComponents(
   components: unknown[],
   budget: number,
@@ -295,11 +454,9 @@ function filterAndScoreComponents(
   primaryUsage: string,
   maxOptions: number
 ): RecommendationComponent[] {
-  // Budget range logic: allow items from very low prices up to budget + max range
-  const minAcceptable = 20 // Always allow cheap options
-  const maxAcceptable = budget * (1 + budgetRangeMax / 100)
-
-  // Removed verbose logging - keeping only essential logs
+  // V2.0: Budget as ceiling (allow 10% stretch), performance determines ranking
+  const maxAcceptable = budget * 1.1  // 10% stretch allowance
+  const expectedTier = getExpectedPerformanceTier(budget)
 
   return components
     .map(c => {
@@ -313,24 +470,34 @@ function filterAndScoreComponents(
         brand?: string
         [key: string]: unknown
       }
-      
+
       const avgPrice = ((component.price_used_min || 0) + (component.price_used_max || 0)) / 2
       const synergyScore = calculateSynergyScore(component, soundSignature, primaryUsage)
-      
-      return {
+
+      const enrichedComponent = {
         ...component,
         avgPrice,
         synergyScore,
         // Add amplification assessment for headphones
         ...(component.category === 'headphones' || component.category === 'iems' ? {
           amplificationAssessment: assessAmplificationFromImpedance(
-            component.impedance ?? null, 
-            component.needs_amp ?? null, 
-            component.name, 
+            component.impedance ?? null,
+            component.needs_amp ?? null,
+            component.name,
             component.brand
           )
         } : {})
       } as RecommendationComponent
+
+      // Calculate performance score and value rating
+      const performanceScore = calculatePerformanceScore(enrichedComponent)
+      const valueRating = calculateValueRating(enrichedComponent)
+
+      return {
+        ...enrichedComponent,
+        performanceScore,
+        valueRating
+      }
     })
     .filter((c, index, arr) => {
       // Remove duplicates
@@ -338,26 +505,32 @@ function filterAndScoreComponents(
       return arr.findIndex(item => `${item.name}|${item.brand}` === key) === index
     })
     .filter(c => {
-      // Budget filtering
-      const isAffordable = (c.price_used_min || 0) <= budget * 1.15
-      const isInRange = c.avgPrice <= maxAcceptable && c.avgPrice >= minAcceptable
+      // V2.0 Performance-Tier Filtering:
+      // 1. Must be under budget (with 10% stretch allowance)
+      // 2. Must meet or exceed expected performance tier for budget
+      // 3. Price range must be reasonable (no $1-$999 ranges)
+
+      const isAffordable = c.avgPrice <= maxAcceptable
+      const meetsPerformanceTier = getComponentPerformanceTier(c) >= expectedTier
       const hasReasonableRange = ((c.price_used_max || 0) - (c.price_used_min || 0)) <= c.avgPrice * 1.5
-      
-      return isAffordable && isInRange && hasReasonableRange
+
+      return isAffordable && meetsPerformanceTier && hasReasonableRange
     })
     .sort((a, b) => {
-      // Multi-factor scoring: price fit + synergy + expert data bonus
-      const aPriceFit = 1 - Math.abs(budget - a.avgPrice) / budget
-      const bPriceFit = 1 - Math.abs(budget - b.avgPrice) / budget
+      // V2.0 Scoring: Performance 78% + Signature 22% (NO price-fit scoring)
+      // Rationale: Within budget, performance quality is all that matters
 
-      // 5% expert data bonus for components with Crinacle data (only if already compatible)
-      const hasExpertDataA = !!(a as RecommendationComponent).crinacle_sound_signature || !!(a as RecommendationComponent).tone_grade || !!(a as RecommendationComponent).technical_grade
-      const hasExpertDataB = !!(b as RecommendationComponent).crinacle_sound_signature || !!(b as RecommendationComponent).tone_grade || !!(b as RecommendationComponent).technical_grade
-      const expertBonusA = (hasExpertDataA && a.synergyScore > 0.6) ? 0.05 : 0
-      const expertBonusB = (hasExpertDataB && b.synergyScore > 0.6) ? 0.05 : 0
+      const aPerformance = a.performanceScore || 0
+      const bPerformance = b.performanceScore || 0
 
-      const aScore = aPriceFit * 0.6 + a.synergyScore * 0.4 + expertBonusA
-      const bScore = bPriceFit * 0.6 + b.synergyScore * 0.4 + expertBonusB
+      // Sound signature match (using existing synergyScore which includes signature matching)
+      const aSignature = a.synergyScore || 0
+      const bSignature = b.synergyScore || 0
+
+      // Final score: 78% performance, 22% signature match
+      const aScore = (aPerformance * 0.78) + (aSignature * 0.22)
+      const bScore = (bPerformance * 0.78) + (bSignature * 0.22)
+
       return bScore - aScore
     })
     .slice(0, maxOptions)

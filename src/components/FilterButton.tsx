@@ -14,6 +14,7 @@ interface FilterButtonProps {
   onClick: () => void
   icon: string
   label: string
+  count?: number
   activeClass?: string
   tooltip?: string | TooltipContent
   showTooltip?: boolean
@@ -24,6 +25,7 @@ const FilterButtonComponent = ({
   onClick,
   icon,
   label,
+  count,
   activeClass = '',
   tooltip,
   showTooltip = false
@@ -34,7 +36,12 @@ const FilterButtonComponent = ({
       onClick={onClick}
     >
       <span>{icon}</span>
-      <span>{label}</span>
+      <span>
+        {label}
+        {count !== undefined && (
+          <span className="ml-1 text-xs opacity-70">({count})</span>
+        )}
+      </span>
     </button>
   )
 
