@@ -19,7 +19,7 @@ interface FilterCounts {
 
 interface FiltersSectionProps {
   typeFilters: string[]
-  soundFilters: string[]
+  soundFilter: string
   wantRecommendationsFor: {
     headphones: boolean
     dac: boolean
@@ -36,7 +36,7 @@ interface FiltersSectionProps {
 
 const FiltersSectionComponent = ({
   typeFilters,
-  soundFilters,
+  soundFilter,
   wantRecommendationsFor,
   guidedModeEnabled,
   browseMode,
@@ -98,7 +98,7 @@ const FiltersSectionComponent = ({
           <FilterButton
             active={typeFilters.includes('iems')}
             onClick={() => onTypeFilterChange('iems')}
-            icon="🎵"
+            icon="👂"
             label="IEMs"
             count={filterCounts?.equipment.iems}
             activeClass="active-indigo"
@@ -148,7 +148,7 @@ const FiltersSectionComponent = ({
           <span className="filter-label-compact">Sound Preference</span>
           <div className="filter-buttons-compact">
             <FilterButton
-              active={soundFilters.includes('neutral')}
+              active={soundFilter === 'neutral'}
               onClick={() => onSoundFilterChange('neutral')}
               icon="⚖️"
               label={getSoundLabel('neutral')}
@@ -159,7 +159,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilters.includes('warm')}
+              active={soundFilter === 'warm'}
               onClick={() => onSoundFilterChange('warm')}
               icon="🔥"
               label={getSoundLabel('warm')}
@@ -170,7 +170,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilters.includes('bright')}
+              active={soundFilter === 'bright'}
               onClick={() => onSoundFilterChange('bright')}
               icon="✨"
               label={getSoundLabel('bright')}
@@ -181,7 +181,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilters.includes('fun')}
+              active={soundFilter === 'fun'}
               onClick={() => onSoundFilterChange('fun')}
               icon="🎉"
               label={getSoundLabel('fun')}

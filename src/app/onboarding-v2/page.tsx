@@ -361,7 +361,7 @@ export default function OnboardingV2() {
               })}
               description="In-ear monitors"
             >
-              🎵 IEMs
+              👂 IEMs
             </OptionCard>
             <OptionCard
               selected={state.wantRecommendations.dac}
@@ -424,7 +424,7 @@ export default function OnboardingV2() {
                 })}
                 description="Critical listening"
               >
-                🎵 Music
+                👂 Music
               </OptionCard>
               <OptionCard
                 selected={state.primaryUsage === 'gaming'}

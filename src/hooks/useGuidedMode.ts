@@ -26,8 +26,8 @@ export function useGuidedMode() {
     // Show welcome banner for first-time visitors or if they haven't dismissed it
     setShowWelcome(firstVisit || (!welcomeDismissed && !hasVisited))
 
-    // Enable guided mode if it's the first visit or if user previously enabled it
-    setGuidedModeEnabled(firstVisit || guidedMode === 'true')
+    // Enable tooltips by default for first-time visitors or when not explicitly disabled
+    setGuidedModeEnabled(guidedMode === null || guidedMode !== 'false')
 
     // Mark as visited
     if (firstVisit) {

@@ -145,7 +145,7 @@ export function StackBuilderModal({
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
       case 'headphones': return '🎧'
-      case 'iems': return '🎵'
+      case 'iems': return '👂'
       case 'dacs': return '🔄'
       case 'amps': return '⚡'
       case 'combo': return '🎯'

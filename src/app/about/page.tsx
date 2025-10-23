@@ -58,7 +58,7 @@ export default function AboutPage() {
             <Link href="/recommendations" className="card p-6 hover:shadow-lg transition-all duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
-                  <span className="text-3xl">🎵</span>
+                  <span className="text-3xl">👂</span>
                 </div>
                 <h3 className="heading-3">Smart Recommendations</h3>
               </div>

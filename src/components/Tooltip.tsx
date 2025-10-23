@@ -62,6 +62,11 @@ const TooltipComponent = ({
   }
 
   const handleMouseEnter = () => {
+    // Don't show tooltip if content is empty
+    if (!content || (typeof content === 'string' && content.trim() === '')) {
+      return
+    }
+
     timeoutRef.current = setTimeout(() => {
       updateTooltipPosition()
       setShouldRender(true)

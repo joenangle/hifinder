@@ -1,0 +1,271 @@
+/* ============================================
+   RECOMMENDATIONS PAGE COLOR OVERRIDES
+   ============================================
+
+   This file lets you customize colors for the recommendations page.
+   Edit hex values here and refresh to see changes instantly.
+
+   Light mode colors: :root {}
+   Dark mode colors: [data-theme="dark"] {}
+
+   Each color is independent per mode - change one without affecting the other.
+   ============================================ */
+
+/* ============================================
+   LIGHT MODE COLORS
+   ============================================ */
+
+:root {
+  /* === RECOMMENDATION CARDS === */
+
+  /* Card backgrounds */
+  --rec-card-bg: #ffffff; /* Default card background */
+  --rec-card-bg-hover: #f8f9fa; /* Hover state */
+  --rec-card-bg-selected: #130c9a; /* Selected state - KNOWN ISSUE: Too light, low contrast */
+
+  /* Card borders */
+  --rec-card-border: #dee2e6; /* Default border */
+  --rec-card-border-hover: #e85a4f; /* Hover border (accent) */
+  --rec-card-border-selected: #e85a4f; /* Selected border */
+
+  /* Card text */
+  --rec-card-text-primary: #212529; /* Headings, important text */
+  --rec-card-text-secondary: #202020; /* KNOWN ISSUE: Can be low contrast */
+  --rec-card-text-tertiary: #555555; /* Least important text */
+
+  /* === CHAMPION BADGES === */
+
+  --rec-badge-technical-bg: #e85a4f; /* "🏆 Top Tech" badge background */
+  --rec-badge-technical-text: #ffffff; /* "🏆 Top Tech" badge text */
+
+  --rec-badge-tone-bg: #f57c00; /* "👂 Best Match" badge background */
+  --rec-badge-tone-text: #ffffff; /* "👂 Best Match" badge text */
+
+  --rec-badge-value-bg: #ff6b35; /* "💰 Value" badge background */
+  --rec-badge-value-text: #ffffff; /* "💰 Value" badge text */
+
+  /* === CATEGORY BADGES === */
+
+  /* IEMs badge */
+  --rec-category-iem-bg: #6366f1; /* Amber background for IEMs */
+  --rec-category-iem-text: #ef6c00; /* Amber text for IEMs */
+
+  /* Headphones badge */
+  --rec-category-cans-bg: #8b5cf6; /* Orange background for headphones */
+  --rec-category-cans-text: #ea580c; /* Orange text for headphones */
+
+  /* DAC badge */
+  --rec-category-dac-bg: #10b981; /* Cyan background for DACs */
+  --rec-category-dac-text: #0891b2; /* Cyan text for DACs */
+
+  /* Amp badge */
+  --rec-category-amp-bg: #f59e0b; /* Green background for amps */
+  --rec-category-amp-text: #059669; /* Green text for amps */
+
+  /* Combo badge */
+  --rec-category-combo-bg: #3b82f6; /* Blue background for combos */
+  --rec-category-combo-text: #2563eb; /* Blue text for combos */
+
+  /* === MATCH SCORE === */
+
+  --rec-match-score-text: #ea580c; /* Match percentage text - KNOWN ISSUE: Can blend with orange theme */
+  --rec-match-score-star: #f59e0b; /* Star emoji color */
+
+  /* === FILTER BUTTONS === */
+
+  /* Equipment filters */
+  --rec-filter-headphones: #8b5cf6; /* Purple for headphones filter */
+  --rec-filter-iems: #6366f1; /* Indigo for IEMs filter */
+  --rec-filter-dacs: #10b981; /* Green for DACs filter */
+  --rec-filter-amps: #f59e0b; /* Amber for Amps filter */
+  --rec-filter-combos: #3b82f6; /* Blue for Combos filter */
+
+  /* Sound signature filters */
+  --rec-filter-neutral: #6b7280; /* Gray for neutral */
+  --rec-filter-warm: #fb923c; /* Orange for warm */
+  --rec-filter-bright: #38bdf8; /* Cyan for bright */
+  --rec-filter-fun: #f472b6; /* Pink for fun/V-shaped */
+
+  /* Filter button states */
+  --rec-filter-bg-inactive: #f8f9fa; /* Inactive filter background */
+  --rec-filter-bg-active-opacity: 0.08; /* Active filter background opacity (applies to filter color) */
+  --rec-filter-border-inactive: #dee2e6; /* Inactive filter border */
+
+  /* === TEXT CONTRAST === */
+
+  --rec-text-muted: #4f4f4f; /* Muted text (specs, details) */
+  --rec-text-link: #e85a4f; /* Links and clickable text */
+  --rec-text-link-hover: #d84315; /* Link hover state */
+
+  /* === AMPLIFICATION WARNINGS === */
+
+  --rec-amp-easy-text: #059669; /* Easy to drive - green */
+  --rec-amp-moderate-text: #f59e0b; /* Moderate - amber */
+  --rec-amp-demanding-text: #f97316; /* Demanding - orange */
+  --rec-amp-very-demanding-text: #ef4444; /* Very demanding - red */
+
+  --rec-amp-warning-bg: #fff3e0; /* Warning banner background */
+  --rec-amp-warning-border: #ffb74d; /* Warning banner border */
+
+  /* === BROWSE MODE SELECTOR === */
+  /* "Show me top picks", "Let me explore", "Full control mode" */
+
+  --browse-mode-border-inactive: #dee2e6; /* Inactive mode border */
+  --browse-mode-border-hover: #fcd8ac; /* Hover border (light orange) */
+  --browse-mode-border-active: #ea580c; /* Active mode border (orange) */
+
+  --browse-mode-bg-inactive: #ffffff; /* Inactive mode background */
+  --browse-mode-bg-active: #fff7ed; /* Active mode background (light orange) */
+
+  --browse-mode-icon-inactive: #6c757d; /* Inactive icon color (gray) */
+  --browse-mode-icon-active: #ea580c; /* Active icon color (orange) */
+
+  --browse-mode-title-inactive: #212529; /* Inactive title text */
+  --browse-mode-title-active: #7c2d12; /* Active title text (dark orange) */
+
+  --browse-mode-description: #6c757d; /* Description text (secondary) */
+  --browse-mode-bestfor: #9ca3af; /* "Best for:" text (tertiary) */
+}
+
+/* ============================================
+   DARK MODE COLORS
+   ============================================ */
+
+[data-theme="dark"] {
+  /* === RECOMMENDATION CARDS === */
+
+  /* Card backgrounds */
+  --rec-card-bg: #13151a; /* Default card background */
+  --rec-card-bg-hover: #1c1f26; /* Hover state */
+  --rec-card-bg-selected: #3d2822; /* Selected state - KNOWN ISSUE: Nearly invisible, needs more saturation */
+
+  /* Card borders */
+  --rec-card-border: #2c3038; /* Default border */
+  --rec-card-border-hover: #e85a4f; /* Hover border (accent) */
+  --rec-card-border-selected: #e85a4f; /* Selected border */
+
+  /* Card text */
+  --rec-card-text-primary: #f8f9fa; /* Headings, important text */
+  --rec-card-text-secondary: #adb5bd; /* KNOWN ISSUE: Often too dim */
+  --rec-card-text-tertiary: #6c757d; /* Least important text */
+
+  /* === CHAMPION BADGES === */
+
+  --rec-badge-technical-bg: #ff7043; /* "🏆 Top Tech" - brighter in dark mode */
+  --rec-badge-technical-text: #ffffff;
+
+  --rec-badge-tone-bg: #ff9800; /* "👂 Best Match" - brighter in dark mode */
+  --rec-badge-tone-text: #ffffff;
+
+  --rec-badge-value-bg: #ffb366; /* "💰 Value" - brighter in dark mode */
+  --rec-badge-value-text: #000000; /* Dark text for better contrast on light badge */
+
+  /* === CATEGORY BADGES === */
+
+  /* IEMs badge */
+  --rec-category-iem-bg: rgba(245, 158, 11, 0.15); /* Amber with opacity */
+  --rec-category-iem-text: #fcd34d; /* Brighter amber for dark mode */
+
+  /* Headphones badge */
+  --rec-category-cans-bg: rgba(249, 115, 22, 0.15); /* Orange with opacity */
+  --rec-category-cans-text: #fdba74; /* Brighter orange for dark mode */
+
+  /* DAC badge */
+  --rec-category-dac-bg: rgba(6, 182, 212, 0.15); /* Cyan with opacity */
+  --rec-category-dac-text: #67e8f9; /* Brighter cyan for dark mode */
+
+  /* Amp badge */
+  --rec-category-amp-bg: rgba(16, 185, 129, 0.15); /* Green with opacity */
+  --rec-category-amp-text: #6ee7b7; /* Brighter green for dark mode */
+
+  /* Combo badge */
+  --rec-category-combo-bg: rgba(59, 130, 246, 0.15); /* Blue with opacity */
+  --rec-category-combo-text: #93c5fd; /* Brighter blue for dark mode */
+
+  /* === MATCH SCORE === */
+
+  --rec-match-score-text: #fdba74; /* Lighter orange for dark mode visibility */
+  --rec-match-score-star: #fcd34d; /* Brighter star in dark mode */
+
+  /* === FILTER BUTTONS === */
+
+  /* Equipment filters - brighter in dark mode */
+  --rec-filter-headphones: #a78bfa; /* Lighter purple */
+  --rec-filter-iems: #818cf8; /* Lighter indigo */
+  --rec-filter-dacs: #34d399; /* Lighter green */
+  --rec-filter-amps: #fcd34d; /* Lighter amber */
+  --rec-filter-combos: #60a5fa; /* Lighter blue */
+
+  /* Sound signature filters - brighter in dark mode */
+  --rec-filter-neutral: #9ca3af; /* Lighter gray */
+  --rec-filter-warm: #fdba74; /* Lighter orange */
+  --rec-filter-bright: #7dd3fc; /* Lighter cyan */
+  --rec-filter-fun: #f9a8d4; /* Lighter pink */
+
+  /* Filter button states */
+  --rec-filter-bg-inactive: #1c1f26; /* Darker inactive background */
+  --rec-filter-bg-active-opacity: 0.15; /* Higher opacity for visibility in dark mode */
+  --rec-filter-border-inactive: #2c3038; /* Darker border */
+
+  /* === TEXT CONTRAST === */
+
+  --rec-text-muted: #9ca3af; /* Lighter muted text for dark mode */
+  --rec-text-link: #e85a4f; /* Keep accent color */
+  --rec-text-link-hover: #ff7043; /* Brighter hover in dark mode */
+
+  /* === AMPLIFICATION WARNINGS === */
+
+  --rec-amp-easy-text: #6ee7b7; /* Brighter green for dark mode */
+  --rec-amp-moderate-text: #fcd34d; /* Brighter amber */
+  --rec-amp-demanding-text: #fdba74; /* Brighter orange */
+  --rec-amp-very-demanding-text: #fca5a5; /* Brighter red */
+
+  --rec-amp-warning-bg: rgba(245, 158, 11, 0.1); /* Subtle amber background */
+  --rec-amp-warning-border: #f59e0b; /* Amber border */
+
+  /* === BROWSE MODE SELECTOR === */
+  /* "Show me top picks", "Let me explore", "Full control mode" - Dark mode */
+
+  --browse-mode-border-inactive: #2c3038; /* Darker inactive border */
+  --browse-mode-border-hover: #d97706; /* Hover border (darker orange for dark mode) */
+  --browse-mode-border-active: #fb923c; /* Active mode border (lighter orange) */
+
+  --browse-mode-bg-inactive: #13151a; /* Darker inactive background */
+  --browse-mode-bg-active: rgba(251, 146, 60, 0.2); /* Active mode background (orange with opacity) */
+
+  --browse-mode-icon-inactive: #9ca3af; /* Lighter inactive icon */
+  --browse-mode-icon-active: #fb923c; /* Lighter active icon */
+
+  --browse-mode-title-inactive: #f8f9fa; /* Lighter inactive title */
+  --browse-mode-title-active: #fed7aa; /* Lighter active title */
+
+  --browse-mode-description: #adb5bd; /* Lighter description text */
+  --browse-mode-bestfor: #6c757d; /* Slightly darker tertiary text */
+}
+
+/* ============================================
+   HOW TO USE THIS FILE
+   ============================================
+
+   1. Find the color you want to change (e.g., --rec-card-bg-selected)
+   2. Edit the hex value (e.g., #FFF3E0 → #FFD4A3)
+   3. Save the file
+   4. Refresh your browser (Next.js hot reload)
+   5. See the change instantly!
+
+   TIPS:
+   - Light and dark mode are independent - change one without affecting the other
+   - Look for "KNOWN ISSUE" comments for problem areas
+   - Use a color picker tool for hex values (https://htmlcolors.com/)
+   - Test both light and dark modes with theme toggle
+   - Higher numbers = more saturated/bright, lower = more subtle
+
+   COMMON FIXES:
+   - Low contrast text: Increase difference from background
+     Example: #495057 → #2D3748 (darker)
+   - Invisible selected state: Increase saturation and contrast
+     Example: #FFF3E0 → #FFE4B5 → #FFDAB9 (more orange)
+   - Badge text disappearing: Use lighter colors in dark mode
+     Example: #EA580C → #FDBA74 (much lighter)
+
+   ============================================ */

@@ -49,7 +49,7 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
             </div>
 
             <p className="text-text-secondary mb-4">
-              We&apos;ve personalized these recommendations based on smart defaults. Use the filters below to refine your search:
+              We\'ve personalized these recommendations based on smart defaults. Use the filters below to refine your search:
             </p>
 
             {/* Quick tips */}
@@ -71,7 +71,7 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
               </div>
 
               <div className="flex items-start gap-2">
-                <div className="text-accent-primary mt-0.5">🎵</div>
+                <div className="text-accent-primary mt-0.5">👂</div>
                 <div>
                   <p className="text-sm font-medium text-text-primary">Pick Sound Style</p>
                   <p className="text-xs text-text-secondary">Find your preferred sound signature</p>

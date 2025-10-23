@@ -20,17 +20,17 @@ export function GuidedModeToggle({ enabled, onToggle, className = '' }: GuidedMo
         }
         ${className}
       `}
-      title={enabled ? 'Disable helpful tooltips' : 'Enable helpful tooltips for beginners'}
+      title={enabled ? 'Hide tooltips' : 'Show helpful tooltips'}
     >
       {enabled ? (
         <>
           <Lightbulb className="w-5 h-5" />
-          <span className="text-base font-medium">Guided Mode On</span>
+          <span className="text-base font-medium">Tooltips On</span>
         </>
       ) : (
         <>
           <LightbulbOff className="w-5 h-5" />
-          <span className="text-base font-medium">Guided Mode Off</span>
+          <span className="text-base font-medium">Tooltips Off</span>
         </>
       )}
     </button>

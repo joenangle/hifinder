@@ -1005,7 +1005,7 @@ const handleNext = useCallback(() => {
                   },
                   {
                     value: 'iems',
-                    label: '🎵 In-Ear Monitors (IEMs)', 
+                    label: '👂 In-Ear Monitors (IEMs)', 
                     description: 'Portable, excellent isolation, detailed sound',
                     pros: 'Perfect for commuting, exercise, or quiet environments'
                   }
@@ -1323,7 +1323,7 @@ const handleNext = useCallback(() => {
 
               {/* Audio Output Section */}
               <div className="mb-8">
-                <h3 className="heading-3 mb-4 text-accent">🎵 Audio Output</h3>
+                <h3 className="heading-3 mb-4 text-accent">👂 Audio Output</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
                     {
@@ -1333,7 +1333,7 @@ const handleNext = useCallback(() => {
                     },
                     {
                       key: 'iems',
-                      label: '🎵 In-Ear Monitors',
+                      label: '👂 In-Ear Monitors',
                       description: 'Earphones that go inside your ears'
                     }
                   ].map(component => (

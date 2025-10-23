@@ -39,7 +39,7 @@ const FilterButtonComponent = ({
       <span>
         {label}
         {count !== undefined && (
-          <span className="ml-1 text-xs opacity-70">({count})</span>
+          <span className="ml-1 text-xs opacity-70"> ({count})</span>
         )}
       </span>
     </button>

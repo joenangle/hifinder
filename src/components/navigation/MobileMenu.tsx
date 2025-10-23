@@ -8,14 +8,14 @@ import { useSession, signIn } from 'next-auth/react'
 
 const publicNavItems = [
   { href: '/', label: 'Home' },
-  { href: '/recommendations', label: 'Recommendations' },
+  { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/about', label: 'About' },
   { href: '/learn', label: 'Learn' },
 ]
 
 const authNavItems = [
   { href: '/', label: 'Home' },
-  { href: '/recommendations', label: 'Recommendations' },
+  { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/gear', label: 'My Gear' },
   { href: '/wishlist', label: 'Wishlists' },
   { href: '/alerts', label: 'Alerts' },

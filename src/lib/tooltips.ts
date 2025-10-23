@@ -2,7 +2,7 @@ export const FILTER_TOOLTIPS = {
   budget: {
     title: 'Budget',
     description: 'Set your spending limit',
-    details: 'We&apos;ll show gear that fits your budget. You can adjust anytime to see more or fewer options.'
+    details: 'We\'ll show gear that fits your budget. You can adjust anytime to see more or fewer options.'
   },
 
   equipment: {

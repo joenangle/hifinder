@@ -355,7 +355,7 @@ export function BudgetSliderEnhanced({
                 Updating...
               </span>
             ) : (
-              <span>{itemCount} items available</span>
+              <span>{itemCount} matching components</span>
             )}
           </div>
         )}
@@ -374,16 +374,8 @@ export function BudgetSliderEnhanced({
             }
           </span>
           {effectiveVariant !== 'dual-range' && (
-            <span className="text-[10px]">({budgetRangeMin}%/+{budgetRangeMax}%)</span>
+            <span className="text-[10px]">(-{budgetRangeMin}% to +{budgetRangeMax}%)</span>
           )}
-          <svg
-            className={`w-3 h-3 transition-transform ${showRangeAdjust ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
         </button>
 
         <div className="flex items-center gap-2">
@@ -474,7 +466,7 @@ export function BudgetSliderEnhanced({
             >
               <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600' : 'bg-gray-400'}`} />
               {tick.visible && (
-                <span className={`absolute top-3 left-1/2 transform -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
+                <span className={`absolute top-3 left-1/2 -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
                   {tick.label}
                 </span>
               )}

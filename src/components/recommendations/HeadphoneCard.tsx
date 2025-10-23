@@ -58,7 +58,7 @@ const HeadphoneCardComponent = ({
             ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'
             : 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200'
         }`}>
-          {headphone.category === 'iems' ? '🎵 IEM' : '🎧 Headphones'}
+          {headphone.category === 'iems' ? '👂 IEM' : '🎧 Headphones'}
         </span>
         {headphone.matchScore && (
           <span
@@ -92,7 +92,7 @@ const HeadphoneCardComponent = ({
           )}
           {isToneChamp && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 dark:bg-amber-500 text-white text-xs font-semibold rounded-full">
-              🎵 Best Match
+              👂 Best Match
             </span>
           )}
           {isBudgetChamp && (

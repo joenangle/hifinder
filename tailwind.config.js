@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -44,6 +46,9 @@ module.exports = {
         '3xl': 'var(--text-3xl)',
       },
       colors: {
+        // Keep all default Tailwind colors
+        ...colors,
+        // Add custom semantic colors
         primary: 'var(--text-primary)',
         secondary: 'var(--text-secondary)',
         tertiary: 'var(--text-tertiary)',

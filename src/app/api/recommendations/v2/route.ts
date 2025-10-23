@@ -198,12 +198,30 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
   return exactMatches[userPref]?.[crinSig] || 0
 }
 
-// Calculate budget allocation with summit-fi caps
-function allocateBudgetAcrossComponents(
+// Helper: Check if components are available in a budget range
+async function checkComponentAvailability(
+  category: string,
+  minPrice: number,
+  maxPrice: number
+): Promise<number> {
+  const { count } = await supabaseServer
+    .from('components')
+    .select('id', { count: 'exact', head: true })
+    .eq('category', category)
+    .gte('price_used_min', minPrice)
+    .lte('price_used_max', maxPrice)
+
+  return count || 0
+}
+
+// Calculate budget allocation with smart redistribution
+async function allocateBudgetAcrossComponents(
   totalBudget: number,
   requestedComponents: string[],
-  existingGear: RecommendationRequest['existingGear']
-): Record<string, number> {
+  existingGear: RecommendationRequest['existingGear'],
+  rangeMin: number = 20,
+  rangeMax: number = 10
+): Promise<Record<string, number>> {
   const allocation: Record<string, number> = {}
 
   // Summit-fi budget caps - significantly higher for high-end gear
@@ -230,17 +248,89 @@ function allocateBudgetAcrossComponents(
     return allocation
   }
 
-  // Calculate proportional allocation
+  // Calculate initial proportional allocation
   const totalRatio = requestedComponents.reduce((sum, comp) => {
     return sum + (priceRatios[comp as keyof typeof priceRatios] || 0.25)
   }, 0)
 
+  const initialAllocation: Record<string, number> = {}
   requestedComponents.forEach(component => {
     const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
     const proportionalBudget = Math.floor(totalBudget * (ratio / totalRatio))
     const cap = componentBudgetCaps[component as keyof typeof componentBudgetCaps] || totalBudget
-    allocation[component] = Math.min(proportionalBudget, cap)
+    initialAllocation[component] = Math.min(proportionalBudget, cap)
   })
+
+  // Check availability for each component and redistribute if needed
+  const componentsWithNoResults: string[] = []
+  const categoryMap: Record<string, string> = {
+    'headphones': 'cans', // Will also check 'iems'
+    'dac': 'dac',
+    'amp': 'amp',
+    'combo': 'dac_amp'
+  }
+
+  for (const component of requestedComponents) {
+    const componentBudget = initialAllocation[component]
+
+    // Entry-level budget handling: For very low budgets, allow ultra-budget options
+    // Examples: Apple dongle ($9), budget IEMs ($10-30), budget headphones ($20-50)
+    let searchMin: number
+    let searchMax: number
+
+    if (totalBudget <= 150 && (component === 'dac' || component === 'amp' || component === 'combo')) {
+      // For entry-level total budgets with signal gear, start from $5 to include dongles
+      searchMin = 5
+      searchMax = Math.round(componentBudget * (1 + rangeMax / 100))
+    } else {
+      // Standard behavior for higher budgets
+      searchMin = Math.max(20, Math.round(componentBudget * (1 - rangeMin / 100)))
+      searchMax = Math.round(componentBudget * (1 + rangeMax / 100))
+    }
+
+    let count = 0
+    if (component === 'headphones') {
+      // Check both cans and iems
+      const cansCount = await checkComponentAvailability('cans', searchMin, searchMax)
+      const iemsCount = await checkComponentAvailability('iems', searchMin, searchMax)
+      count = cansCount + iemsCount
+    } else {
+      const category = categoryMap[component]
+      if (category) {
+        count = await checkComponentAvailability(category, searchMin, searchMax)
+      }
+    }
+
+    if (count === 0) {
+      componentsWithNoResults.push(component)
+    }
+  }
+
+  // Redistribute budget from components with no results
+  if (componentsWithNoResults.length > 0 && componentsWithNoResults.length < requestedComponents.length) {
+    const componentsWithResults = requestedComponents.filter(c => !componentsWithNoResults.includes(c))
+    const budgetToRedistribute = componentsWithNoResults.reduce((sum, comp) => sum + initialAllocation[comp], 0)
+
+    // Distribute the freed budget proportionally among components that have results
+    const redistributionRatio = componentsWithResults.reduce((sum, comp) => {
+      return sum + (priceRatios[comp as keyof typeof priceRatios] || 0.25)
+    }, 0)
+
+    componentsWithResults.forEach(component => {
+      const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
+      const additionalBudget = Math.floor(budgetToRedistribute * (ratio / redistributionRatio))
+      const cap = componentBudgetCaps[component as keyof typeof componentBudgetCaps] || totalBudget
+      allocation[component] = Math.min(initialAllocation[component] + additionalBudget, cap)
+    })
+
+    // Still include the components with no results (allocated $0 or minimal)
+    componentsWithNoResults.forEach(component => {
+      allocation[component] = 0
+    })
+  } else {
+    // No redistribution needed - use initial allocation
+    Object.assign(allocation, initialAllocation)
+  }
 
   return allocation
 }
@@ -316,9 +406,15 @@ function filterAndScoreComponents(
     power_required_mw?: number
     voltage_required_v?: number
     name?: string
-  }
+  },
+  totalBudget?: number // Added to support entry-level handling
 ): RecommendationComponent[] {
-  const minAcceptable = 20 // Always allow cheap options
+  // Entry-level budget handling: For DACs/amps/combos under $150 total, allow dongles from $5
+  const componentCategory = (components[0] as any)?.category
+  const isSignalGear = ['dac', 'amp', 'dac_amp'].includes(componentCategory)
+  const isEntryLevel = totalBudget && totalBudget <= 150
+
+  const minAcceptable = (isEntryLevel && isSignalGear) ? 5 : 20
   const maxAcceptable = budget * (1 + budgetRangeMax / 100)
 
   return components
@@ -467,7 +563,7 @@ export async function GET(request: NextRequest) {
     const budgetRangeMax = parseInt(budgetRangeMaxParam)
 
     // Parse JSON parameters
-    let wantRecommendationsFor, existingGear, usageRanking, excludedUsages, connectivity
+    let wantRecommendationsFor, existingGear, usageRanking, excludedUsages, connectivity, customBudgetAllocation
 
     try {
       wantRecommendationsFor = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true}')
@@ -475,6 +571,7 @@ export async function GET(request: NextRequest) {
       usageRanking = JSON.parse(searchParams.get('usageRanking') || '["Music"]')
       excludedUsages = JSON.parse(searchParams.get('excludedUsages') || '[]')
       connectivity = JSON.parse(searchParams.get('connectivity') || '[]')
+      customBudgetAllocation = searchParams.get('customBudgetAllocation') ? JSON.parse(searchParams.get('customBudgetAllocation')!) : null
     } catch {
       return NextResponse.json({ error: 'Invalid JSON parameters' }, { status: 400 })
     }
@@ -508,12 +605,34 @@ export async function GET(request: NextRequest) {
       .filter(([, wanted]) => wanted)
       .map(([component]) => component)
 
-    // Calculate budget allocation
-    const budgetAllocation = allocateBudgetAcrossComponents(
-      req.budget,
-      requestedComponents,
-      req.existingGear
-    )
+    // Calculate budget allocation with smart redistribution
+    // Use custom allocation if provided, otherwise use smart allocation
+    let budgetAllocation: Record<string, number>
+    let customRanges: Record<string, { min: number, max: number }> = {}
+
+    if (customBudgetAllocation) {
+      // Extract amounts from custom allocation
+      budgetAllocation = {}
+      Object.entries(customBudgetAllocation).forEach(([component, data]: [string, any]) => {
+        budgetAllocation[component] = data.amount
+        // Store custom ranges if provided
+        if (data.rangeMin !== undefined || data.rangeMax !== undefined) {
+          customRanges[component] = {
+            min: data.rangeMin ?? req.budgetRangeMin,
+            max: data.rangeMax ?? req.budgetRangeMax
+          }
+        }
+      })
+    } else {
+      // Use smart allocation
+      budgetAllocation = await allocateBudgetAcrossComponents(
+        req.budget,
+        requestedComponents,
+        req.existingGear,
+        req.budgetRangeMin,
+        req.budgetRangeMax
+      )
+    }
 
     const results: {
       headphones: RecommendationComponent[]
@@ -579,78 +698,131 @@ export async function GET(request: NextRequest) {
 
     if (allComponentsData) {
       const componentsByCategory = {
-        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'),
+        cans: allComponentsData.filter(c => c.category === 'cans'),
+        iems: allComponentsData.filter(c => c.category === 'iems'),
+        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'), // Combined for backward compatibility
         dacs: allComponentsData.filter(c => c.category === 'dac'),
         amps: allComponentsData.filter(c => c.category === 'amp'),
         combos: allComponentsData.filter(c => c.category === 'dac_amp')
       }
 
-      // Process headphones
-      if (req.wantRecommendationsFor.headphones && componentsByCategory.headphones.length > 0) {
+      // Process headphones and IEMs separately if both are active, otherwise combine
+      const bothTypesActive = req.headphoneType === 'both'
+
+      if (req.wantRecommendationsFor.headphones) {
         const headphoneBudget = budgetAllocation.headphones || req.budget
+        const headphoneRanges = customRanges.headphones || { min: req.budgetRangeMin, max: req.budgetRangeMax }
 
-        results.headphones = filterAndScoreComponents(
-          componentsByCategory.headphones,
-          headphoneBudget,
-          req.budgetRangeMin,
-          req.budgetRangeMax,
-          req.soundSignature,
-          req.usageRanking[0] || req.usage,
-          maxOptions,
-          req.driverType
-        )
+        if (bothTypesActive && componentsByCategory.cans.length > 0 && componentsByCategory.iems.length > 0) {
+          // Separate sections for cans and IEMs
+          results.cans = filterAndScoreComponents(
+            componentsByCategory.cans,
+            headphoneBudget,
+            headphoneRanges.min,
+            headphoneRanges.max,
+            req.soundSignature,
+            req.usageRanking[0] || req.usage,
+            maxOptions,
+            'cans',
+            undefined,
+            req.budget
+          )
 
-        results.needsAmplification = results.headphones.some(h => {
-          if (!h.amplificationAssessment) return h.needs_amp === true
-          return h.amplificationAssessment.difficulty === 'demanding' ||
-                 h.amplificationAssessment.difficulty === 'very_demanding'
-        })
+          results.iems = filterAndScoreComponents(
+            componentsByCategory.iems,
+            headphoneBudget,
+            headphoneRanges.min,
+            headphoneRanges.max,
+            req.soundSignature,
+            req.usageRanking[0] || req.usage,
+            maxOptions,
+            'iems',
+            undefined,
+            req.budget
+          )
+
+          results.needsAmplification = results.cans.some(h => {
+            if (!h.amplificationAssessment) return h.needs_amp === true
+            return h.amplificationAssessment.difficulty === 'demanding' ||
+                   h.amplificationAssessment.difficulty === 'very_demanding'
+          })
+        } else if (componentsByCategory.headphones.length > 0) {
+          // Combined section (single type active or only one type has results)
+          results.headphones = filterAndScoreComponents(
+            componentsByCategory.headphones,
+            headphoneBudget,
+            headphoneRanges.min,
+            headphoneRanges.max,
+            req.soundSignature,
+            req.usageRanking[0] || req.usage,
+            maxOptions,
+            req.driverType,
+            undefined,
+            req.budget
+          )
+
+          results.needsAmplification = results.headphones.some(h => {
+            if (!h.amplificationAssessment) return h.needs_amp === true
+            return h.amplificationAssessment.difficulty === 'demanding' ||
+                   h.amplificationAssessment.difficulty === 'very_demanding'
+          })
+        }
       }
 
       // Process DACs
       if (req.wantRecommendationsFor.dac && componentsByCategory.dacs.length > 0) {
         const dacBudget = budgetAllocation.dac || req.budget * 0.25
+        const dacRanges = customRanges.dac || { min: req.budgetRangeMin, max: req.budgetRangeMax }
 
         results.dacs = filterAndScoreComponents(
           componentsByCategory.dacs,
           dacBudget,
-          req.budgetRangeMin,
-          req.budgetRangeMax,
+          dacRanges.min,
+          dacRanges.max,
           req.soundSignature,
           req.usageRanking[0] || req.usage,
-          maxOptions
+          maxOptions,
+          undefined,
+          undefined,
+          req.budget
         )
       }
 
       // Process AMPs with power matching
       if (req.wantRecommendationsFor.amp && componentsByCategory.amps.length > 0) {
         const ampBudget = budgetAllocation.amp || req.budget * 0.25
+        const ampRanges = customRanges.amp || { min: req.budgetRangeMin, max: req.budgetRangeMax }
 
         results.amps = filterAndScoreComponents(
           componentsByCategory.amps,
           ampBudget,
-          req.budgetRangeMin,
-          req.budgetRangeMax,
+          ampRanges.min,
+          ampRanges.max,
           req.soundSignature,
           req.usageRanking[0] || req.usage,
           maxOptions,
           undefined,
-          existingHeadphonesData || undefined
+          existingHeadphonesData || undefined,
+          req.budget
         )
       }
 
       // Process combo units
       if (req.wantRecommendationsFor.combo && componentsByCategory.combos.length > 0) {
         const comboBudget = budgetAllocation.combo || req.budget * 0.4
+        const comboRanges = customRanges.combo || { min: req.budgetRangeMin, max: req.budgetRangeMax }
 
         results.combos = filterAndScoreComponents(
           componentsByCategory.combos,
           comboBudget,
-          req.budgetRangeMin,
-          req.budgetRangeMax,
+          comboRanges.min,
+          comboRanges.max,
           req.soundSignature,
           req.usageRanking[0] || req.usage,
-          maxOptions
+          maxOptions,
+          undefined,
+          undefined,
+          req.budget
         )
       }
     }

@@ -299,7 +299,7 @@ export const stackTemplates: StackTemplate[] = [
     description: 'High-end reference setup for critical listening',
     budgetRange: { min: 1000, max: 5000 },
     categories: ['headphones', 'dacs', 'amps'],
-    icon: '🎵'
+    icon: '👂'
   }
 ]
 
