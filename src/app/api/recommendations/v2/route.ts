@@ -410,8 +410,8 @@ function filterAndScoreComponents(
   totalBudget?: number // Added to support entry-level handling
 ): RecommendationComponent[] {
   // Entry-level budget handling: For DACs/amps/combos under $150 total, allow dongles from $5
-  const componentCategory = (components[0] as any)?.category
-  const isSignalGear = ['dac', 'amp', 'dac_amp'].includes(componentCategory)
+  const componentCategory = (components[0] as { category?: string })?.category
+  const isSignalGear = componentCategory ? ['dac', 'amp', 'dac_amp'].includes(componentCategory) : false
   const isEntryLevel = totalBudget && totalBudget <= 150
 
   const minAcceptable = (isEntryLevel && isSignalGear) ? 5 : 20
@@ -608,18 +608,19 @@ export async function GET(request: NextRequest) {
     // Calculate budget allocation with smart redistribution
     // Use custom allocation if provided, otherwise use smart allocation
     let budgetAllocation: Record<string, number>
-    let customRanges: Record<string, { min: number, max: number }> = {}
+    const customRanges: Record<string, { min: number, max: number }> = {}
 
     if (customBudgetAllocation) {
       // Extract amounts from custom allocation
       budgetAllocation = {}
-      Object.entries(customBudgetAllocation).forEach(([component, data]: [string, any]) => {
-        budgetAllocation[component] = data.amount
+      Object.entries(customBudgetAllocation).forEach(([component, data]) => {
+        const allocationData = data as { amount: number, rangeMin?: number, rangeMax?: number }
+        budgetAllocation[component] = allocationData.amount
         // Store custom ranges if provided
-        if (data.rangeMin !== undefined || data.rangeMax !== undefined) {
+        if (allocationData.rangeMin !== undefined || allocationData.rangeMax !== undefined) {
           customRanges[component] = {
-            min: data.rangeMin ?? req.budgetRangeMin,
-            max: data.rangeMax ?? req.budgetRangeMax
+            min: allocationData.rangeMin ?? req.budgetRangeMin,
+            max: allocationData.rangeMax ?? req.budgetRangeMax
           }
         }
       })
@@ -636,6 +637,8 @@ export async function GET(request: NextRequest) {
 
     const results: {
       headphones: RecommendationComponent[]
+      cans?: RecommendationComponent[]
+      iems?: RecommendationComponent[]
       dacs: RecommendationComponent[]
       amps: RecommendationComponent[]
       combos: RecommendationComponent[]

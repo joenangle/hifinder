@@ -49,7 +49,7 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
             </div>
 
             <p className="text-text-secondary mb-4">
-              We\'ve personalized these recommendations based on smart defaults. Use the filters below to refine your search:
+              We&apos;ve personalized these recommendations based on smart defaults. Use the filters below to refine your search:
             </p>
 
             {/* Quick tips */}
