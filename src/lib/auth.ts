@@ -44,8 +44,10 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code",
-          redirect_uri: `${getBaseUrl()}/api/auth/callback/google`
+          response_type: "code"
+          // Note: Do NOT set redirect_uri explicitly
+          // NextAuth automatically handles the redirect URI
+          // Setting it manually can cause OAuth errors on different environments
         }
       }
     }),
