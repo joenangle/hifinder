@@ -1,0 +1,660 @@
+{
+  "timestamp": "2025-10-23T02:03:38.409Z",
+  "totalComponents": 590,
+  "duplicateGroups": 12,
+  "summary": {
+    "totalDuplicates": 9,
+    "shouldDelete": [
+      "c86be624-61ea-44b5-8ddd-b42e56b45675",
+      "555f7562-e705-4772-bb5c-b5af2f305fa6",
+      "2ef27ceb-c7c5-4f35-8afc-28cafa4b8532",
+      "2c9238eb-16ea-4874-ab5b-194a2089b46b",
+      "fa5e0089-45d4-4470-a81b-11a8215ac575",
+      "44c11996-1011-48b8-85a9-36f213f0fb4f",
+      "a71efea3-95a2-4889-8d32-0930e157b494",
+      "912ffec9-eaa9-455a-9a10-7d61c41374e1",
+      "4dde0bfc-2fe4-45fa-bb4a-cbf5ccd66373"
+    ],
+    "shouldMerge": [],
+    "shouldResearch": [
+      {
+        "key": "beyerdynamic|dt1990pro",
+        "count": 2,
+        "components": [
+          {
+            "id": "f1dd15f4-f94e-4eb7-83aa-31c9c3c98b9f",
+            "name": "DT 1990 Pro",
+            "brand": "Beyerdynamic",
+            "category": "cans",
+            "price_new": 599,
+            "price_used_min": 350,
+            "price_used_max": 480,
+            "budget_tier": "Entry Level",
+            "sound_signature": "bright",
+            "use_cases": [
+              "music",
+              "production"
+            ],
+            "impedance": 250,
+            "needs_amp": true,
+            "amazon_url": "https://www.amazon.com/s?k=Beyerdynamic%20DT%201990%20Pro%20headphones&tag=hifinder-20",
+            "why_recommended": "Crinacle Grade A with ★★ value rating. Excellent performance.",
+            "created_at": "2025-08-29T18:51:32.879099+00:00",
+            "power_required_mw": 6.3,
+            "voltage_required_v": 1.26,
+            "amplification_difficulty": "moderate",
+            "updated_at": "2025-09-15T16:27:13.587+00:00",
+            "image_url": null,
+            "crinacle_rank": null,
+            "source": null,
+            "tone_grade": null,
+            "technical_grade": null,
+            "value_rating": null,
+            "crinacle_comments": null,
+            "driver_type": null,
+            "fit": null,
+            "crinacle_sound_signature": null,
+            "expert_grade_numeric": null,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          },
+          {
+            "id": "12a43960-ace7-49c8-a0ec-7fced53d0ed2",
+            "name": "DT1990 Pro",
+            "brand": "Beyerdynamic",
+            "category": "cans",
+            "price_new": 0,
+            "price_used_min": null,
+            "price_used_max": null,
+            "budget_tier": "Budget",
+            "sound_signature": "neutral",
+            "use_cases": null,
+            "impedance": null,
+            "needs_amp": false,
+            "amazon_url": null,
+            "why_recommended": "Crinacle A-tier ranking. . Excellent all-around performance.",
+            "created_at": "2025-09-16T02:00:21.573+00:00",
+            "power_required_mw": null,
+            "voltage_required_v": null,
+            "amplification_difficulty": null,
+            "updated_at": "2025-09-16T02:01:34.9642+00:00",
+            "image_url": null,
+            "crinacle_rank": null,
+            "source": "crinacle_csv_import",
+            "tone_grade": null,
+            "technical_grade": null,
+            "value_rating": 0,
+            "crinacle_comments": null,
+            "driver_type": null,
+            "fit": null,
+            "crinacle_sound_signature": null,
+            "expert_grade_numeric": null,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          }
+        ]
+      },
+      {
+        "key": "samsung|galaxybuds",
+        "count": 2,
+        "components": [
+          {
+            "id": "44f86ecb-3fad-452e-95b0-8036bd051ce9",
+            "name": "Galaxy Buds",
+            "brand": "Samsung",
+            "category": "iems",
+            "price_new": 130,
+            "price_used_min": 78,
+            "price_used_max": 104,
+            "budget_tier": "Entry Level",
+            "sound_signature": "fun",
+            "use_cases": null,
+            "impedance": null,
+            "needs_amp": false,
+            "amazon_url": null,
+            "why_recommended": "Crinacle B-tier ranking. A surprisingly well-tuned TWS with the technical chops to boot. Decent performance, consider alternatives.",
+            "created_at": "2025-09-16T01:54:52.86+00:00",
+            "power_required_mw": null,
+            "voltage_required_v": null,
+            "amplification_difficulty": null,
+            "updated_at": "2025-09-16T01:56:19.76202+00:00",
+            "image_url": null,
+            "crinacle_rank": "B",
+            "source": "crinacle_csv_import",
+            "tone_grade": "B+",
+            "technical_grade": "B",
+            "value_rating": 0,
+            "crinacle_comments": "Tuned even closer to the Harman IE target compared to the original.",
+            "driver_type": "2DD",
+            "fit": null,
+            "crinacle_sound_signature": "U-shaped",
+            "expert_grade_numeric": 3,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          },
+          {
+            "id": "67ad5f4e-ae56-4e2c-aa10-a5e1434a428c",
+            "name": "Galaxy Buds+",
+            "brand": "Samsung",
+            "category": "iems",
+            "price_new": null,
+            "price_used_min": null,
+            "price_used_max": null,
+            "budget_tier": "Budget",
+            "sound_signature": "fun",
+            "use_cases": null,
+            "impedance": null,
+            "needs_amp": false,
+            "amazon_url": null,
+            "why_recommended": "Crinacle B-tier ranking. Tuned even closer to the Harman IE target compared to the original. Decent performance, consider alternatives.",
+            "created_at": "2025-09-16T01:54:52.861+00:00",
+            "power_required_mw": null,
+            "voltage_required_v": null,
+            "amplification_difficulty": null,
+            "updated_at": "2025-09-16T01:56:22.868709+00:00",
+            "image_url": null,
+            "crinacle_rank": "B",
+            "source": "crinacle_csv_import",
+            "tone_grade": "B+",
+            "technical_grade": "B",
+            "value_rating": 0,
+            "crinacle_comments": "Tuned even closer to the Harman IE target compared to the original.",
+            "driver_type": "2DD",
+            "fit": null,
+            "crinacle_sound_signature": "U-shaped",
+            "expert_grade_numeric": 3,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          }
+        ]
+      },
+      {
+        "key": "sennheiser|hd560s",
+        "count": 2,
+        "components": [
+          {
+            "id": "1bf78f29-13e6-4e2c-80b2-e8b43d59975b",
+            "name": "HD560S",
+            "brand": "Sennheiser",
+            "category": "iems",
+            "price_new": 200,
+            "price_used_min": 120,
+            "price_used_max": 160,
+            "budget_tier": "Entry Level",
+            "sound_signature": "neutral",
+            "use_cases": null,
+            "impedance": null,
+            "needs_amp": false,
+            "amazon_url": null,
+            "why_recommended": "Crinacle B--tier ranking. Well-balanced tonality with good bass extension, just slightly hot in the upper-mids and treble. Solid performer in its category.",
+            "created_at": "2025-09-16T02:00:21.572+00:00",
+            "power_required_mw": null,
+            "voltage_required_v": null,
+            "amplification_difficulty": null,
+            "updated_at": "2025-09-16T02:01:28.468869+00:00",
+            "image_url": null,
+            "crinacle_rank": "B-",
+            "source": "crinacle_csv_import",
+            "tone_grade": null,
+            "technical_grade": null,
+            "value_rating": 1,
+            "crinacle_comments": null,
+            "driver_type": null,
+            "fit": null,
+            "crinacle_sound_signature": "Warm neutral",
+            "expert_grade_numeric": null,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          },
+          {
+            "id": "b9c494ba-68a7-485a-9042-0e8609bca46e",
+            "name": "HD 560S",
+            "brand": "Sennheiser",
+            "category": "cans",
+            "price_new": 229,
+            "price_used_min": 130,
+            "price_used_max": 180,
+            "budget_tier": "Entry Level",
+            "sound_signature": "neutral",
+            "use_cases": [
+              "music",
+              "gaming"
+            ],
+            "impedance": 120,
+            "needs_amp": false,
+            "amazon_url": "https://www.amazon.com/s?k=Sennheiser%20HD%20560S%20headphones&tag=hifinder-20",
+            "why_recommended": "Reference tuning without the HD600 price. Easy to drive.",
+            "created_at": "2025-08-29T18:51:32.879099+00:00",
+            "power_required_mw": null,
+            "voltage_required_v": null,
+            "amplification_difficulty": null,
+            "updated_at": "2025-09-15T16:27:15.867+00:00",
+            "image_url": null,
+            "crinacle_rank": null,
+            "source": null,
+            "tone_grade": null,
+            "technical_grade": null,
+            "value_rating": null,
+            "crinacle_comments": null,
+            "driver_type": null,
+            "fit": null,
+            "crinacle_sound_signature": null,
+            "expert_grade_numeric": null,
+            "power_output": null,
+            "asr_sinad": null,
+            "asr_review_url": null,
+            "sensitivity_db_mw": null,
+            "sensitivity_db_v": null,
+            "technical_specs": {}
+          }
+        ]
+      }
+    ]
+  },
+  "details": [
+    {
+      "name": "Ananda",
+      "brand": "HiFiMAN",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "c1d24ce4-99e2-473c-b403-0a64efceadf0",
+          "name": "Ananda",
+          "brand": "HiFiMAN",
+          "quality": {
+            "score": 9,
+            "max": 18,
+            "percentage": 50
+          }
+        },
+        {
+          "id": "c86be624-61ea-44b5-8ddd-b42e56b45675",
+          "name": "Ananda",
+          "brand": "Hifiman",
+          "quality": {
+            "score": 5,
+            "max": 18,
+            "percentage": 28
+          }
+        }
+      ]
+    },
+    {
+      "name": "ATH-ADX5000",
+      "brand": "Audio Technica",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "e5b0afb6-111c-4dc3-a5d8-3a1ec07cc9fd",
+          "name": "ATH-ADX5000",
+          "brand": "Audio Technica",
+          "quality": {
+            "score": 8,
+            "max": 18,
+            "percentage": 44
+          }
+        },
+        {
+          "id": "555f7562-e705-4772-bb5c-b5af2f305fa6",
+          "name": "ATH-ADX5000",
+          "brand": "Audio-Technica",
+          "quality": {
+            "score": 2,
+            "max": 18,
+            "percentage": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "ATH-M40x",
+      "brand": "Audio Technica",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "cad8f199-37fd-49a4-b136-c9672048cd72",
+          "name": "ATH-M40x",
+          "brand": "Audio Technica",
+          "quality": {
+            "score": 6,
+            "max": 18,
+            "percentage": 33
+          }
+        },
+        {
+          "id": "2ef27ceb-c7c5-4f35-8afc-28cafa4b8532",
+          "name": "ATH-M40x",
+          "brand": "Audio-Technica",
+          "quality": {
+            "score": 2,
+            "max": 18,
+            "percentage": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "ATH-R70x",
+      "brand": "Audio Technica",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "f7512e23-534e-4f82-8bf6-8cb01fed8886",
+          "name": "ATH-R70x",
+          "brand": "Audio Technica",
+          "quality": {
+            "score": 12,
+            "max": 18,
+            "percentage": 67
+          }
+        },
+        {
+          "id": "2c9238eb-16ea-4874-ab5b-194a2089b46b",
+          "name": "ATH-R70x",
+          "brand": "Audio-Technica",
+          "quality": {
+            "score": 2,
+            "max": 18,
+            "percentage": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "Atom Amp+",
+      "brand": "JDS Labs",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "5bbdd531-2cd3-495c-8139-74ae2c4e1fc8",
+          "name": "Atom Amp+",
+          "brand": "JDS Labs",
+          "quality": {
+            "score": 4,
+            "max": 18,
+            "percentage": 22
+          }
+        },
+        {
+          "id": "fa5e0089-45d4-4470-a81b-11a8215ac575",
+          "name": "Atom Amp+",
+          "brand": "JDS Labs",
+          "quality": {
+            "score": 1,
+            "max": 18,
+            "percentage": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "DT 1990 Pro",
+      "brand": "Beyerdynamic",
+      "count": 2,
+      "recommendation": {
+        "action": "RESEARCH",
+        "reason": "Different names with varying data - verify if legitimate variants",
+        "keepAll": true
+      },
+      "entries": [
+        {
+          "id": "f1dd15f4-f94e-4eb7-83aa-31c9c3c98b9f",
+          "name": "DT 1990 Pro",
+          "brand": "Beyerdynamic",
+          "quality": {
+            "score": 3,
+            "max": 18,
+            "percentage": 17
+          }
+        },
+        {
+          "id": "12a43960-ace7-49c8-a0ec-7fced53d0ed2",
+          "name": "DT1990 Pro",
+          "brand": "Beyerdynamic",
+          "quality": {
+            "score": 1,
+            "max": 18,
+            "percentage": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edition XS",
+      "brand": "Hifiman",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "6f4e9530-451b-4728-8904-50d8d3802a5b",
+          "name": "Edition XS",
+          "brand": "Hifiman",
+          "quality": {
+            "score": 3,
+            "max": 18,
+            "percentage": 17
+          }
+        },
+        {
+          "id": "44c11996-1011-48b8-85a9-36f213f0fb4f",
+          "name": "Edition XS",
+          "brand": "HiFiMAN",
+          "quality": {
+            "score": 2,
+            "max": 18,
+            "percentage": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "EJ07",
+      "brand": "LETSHUOER",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "adadc6e7-dd47-4d48-9629-6f12ccc1b5ce",
+          "name": "EJ07",
+          "brand": "LETSHUOER",
+          "quality": {
+            "score": 4,
+            "max": 18,
+            "percentage": 22
+          }
+        },
+        {
+          "id": "a71efea3-95a2-4889-8d32-0930e157b494",
+          "name": "EJ07",
+          "brand": "LETSHUOER",
+          "quality": {
+            "score": 3,
+            "max": 18,
+            "percentage": 17
+          }
+        }
+      ]
+    },
+    {
+      "name": "Galaxy Buds",
+      "brand": "Samsung",
+      "count": 2,
+      "recommendation": {
+        "action": "RESEARCH",
+        "reason": "Different names with varying data - verify if legitimate variants",
+        "keepAll": true
+      },
+      "entries": [
+        {
+          "id": "44f86ecb-3fad-452e-95b0-8036bd051ce9",
+          "name": "Galaxy Buds",
+          "brand": "Samsung",
+          "quality": {
+            "score": 12,
+            "max": 18,
+            "percentage": 67
+          }
+        },
+        {
+          "id": "67ad5f4e-ae56-4e2c-aa10-a5e1434a428c",
+          "name": "Galaxy Buds+",
+          "brand": "Samsung",
+          "quality": {
+            "score": 11,
+            "max": 18,
+            "percentage": 61
+          }
+        }
+      ]
+    },
+    {
+      "name": "HD560S",
+      "brand": "Sennheiser",
+      "count": 2,
+      "recommendation": {
+        "action": "RESEARCH",
+        "reason": "Different names with varying data - verify if legitimate variants",
+        "keepAll": true
+      },
+      "entries": [
+        {
+          "id": "1bf78f29-13e6-4e2c-80b2-e8b43d59975b",
+          "name": "HD560S",
+          "brand": "Sennheiser",
+          "quality": {
+            "score": 6,
+            "max": 18,
+            "percentage": 33
+          }
+        },
+        {
+          "id": "b9c494ba-68a7-485a-9042-0e8609bca46e",
+          "name": "HD 560S",
+          "brand": "Sennheiser",
+          "quality": {
+            "score": 3,
+            "max": 18,
+            "percentage": 17
+          }
+        }
+      ]
+    },
+    {
+      "name": "HE1000se",
+      "brand": "Hifiman",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "0e4b1033-14a6-48f1-92b2-bf1a43e8e3f9",
+          "name": "HE1000se",
+          "brand": "Hifiman",
+          "quality": {
+            "score": 11,
+            "max": 18,
+            "percentage": 61
+          }
+        },
+        {
+          "id": "912ffec9-eaa9-455a-9a10-7d61c41374e1",
+          "name": "HE1000se",
+          "brand": "HiFiMAN",
+          "quality": {
+            "score": 2,
+            "max": 18,
+            "percentage": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sundara",
+      "brand": "Hifiman",
+      "count": 2,
+      "recommendation": {
+        "action": "DELETE",
+        "reason": "Duplicates with no additional data - safe to delete",
+        "keepBest": true
+      },
+      "entries": [
+        {
+          "id": "2c9584bb-8707-43a6-b3cd-db56cf6f6629",
+          "name": "Sundara",
+          "brand": "Hifiman",
+          "quality": {
+            "score": 12,
+            "max": 18,
+            "percentage": 67
+          }
+        },
+        {
+          "id": "4dde0bfc-2fe4-45fa-bb4a-cbf5ccd66373",
+          "name": "Sundara",
+          "brand": "HiFiMAN",
+          "quality": {
+            "score": 3,
+            "max": 18,
+            "percentage": 17
+          }
+        }
+      ]
+    }
+  ]
+}

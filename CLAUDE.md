@@ -14,6 +14,10 @@
 - ✅ Dual-layer sound signature system implementation
 - ✅ 100% sound signature constraint violation fixes
 - ✅ Conditional onboarding questions (usage for beginners/intermediates, sound for enthusiasts)
+- ✅ V2.0 performance-tier algorithm (budget as ceiling, 78% performance + 22% signature)
+- ✅ Progressive filter disclosure (guided/explore/advanced modes)
+- ✅ Tooltip fixes (positioning, opacity, z-index via React Portal)
+- ✅ Database duplicate cleanup (590 → 579 components, 11 duplicates removed)
 
 ## To-Do: Revisit Later
 - 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.
@@ -267,6 +271,77 @@ node scripts/merge-crinacle-cans.js data.csv --execute
 - Price/availability updates from retailers
 
 **Key Insight:** Dual-layer approach preserves backward compatibility while enabling sophisticated matching for users who benefit from expert-level distinctions.
+
+## Duplicate Detection & Cleanup System
+
+**Created:** October 2024
+**Purpose:** Identify and remove duplicate component entries caused by brand name inconsistencies
+
+### Detection Script: `scripts/detect-all-duplicates.js`
+
+**Features:**
+- Normalizes brand names ("HiFiMAN" vs "Hifiman" → same)
+- Normalizes product names (removes spacing, parenthetical info)
+- Calculates data quality scores (0-100%) for each entry
+- Recommends actions: DELETE (safe), MERGE (has data), RESEARCH (variants)
+- Generates automated cleanup scripts
+
+**Data Quality Scoring:**
+- Price data: 1 point
+- Crinacle data: up to 10 points (tone/tech grades, rank, signature, value rating)
+- ASR data: 3 points (SINAD measurements)
+- Technical specs: 3 points (driver type, fit, impedance)
+- Sound signature: 1 point
+
+**Usage:**
+```bash
+# Analyze all components
+node scripts/detect-all-duplicates.js
+
+# Generate detailed report
+node scripts/detect-all-duplicates.js --export
+
+# Generate automated fix script
+node scripts/detect-all-duplicates.js --generate-fix
+
+# Execute generated script
+node scripts/auto-remove-duplicates.js --execute
+```
+
+### October 2024 Cleanup Results
+
+**Duplicates Found:** 12 groups across 590 components
+
+**Brand Name Inconsistencies (9 removed):**
+- HiFiMAN products: Sundara, Ananda, Edition XS, HE1000se ("Hifiman" vs "HiFiMAN")
+- Audio-Technica products: ATH-ADX5000, ATH-M40x, ATH-R70x ("Audio Technica" vs "Audio-Technica")
+- JDS Labs: Atom Amp+ (exact duplicate)
+- LETSHUOER: EJ07 (exact duplicate)
+
+**Spacing Issues (2 fixed):**
+- "HD560S" → "HD 560S" (standardized with space)
+- "DT1990 Pro" → "DT 1990 Pro" (standardized with space)
+
+**Kept Separate:**
+- Galaxy Buds vs Galaxy Buds+ (different products)
+- Sundara (2020) vs Sundara (may be legitimate revision)
+
+**Final Result:** 590 → 579 components (-11 duplicates)
+
+**Quality Improvements:**
+- Kept entries with Crinacle data (A+/B grades, driver specs)
+- Removed entries with no expert data
+- Standardized brand names for consistency
+- Fixed your reported Sundara issue (3 results → 2)
+
+### Future Maintenance
+
+Run detection quarterly or when adding bulk imports:
+```bash
+node scripts/detect-all-duplicates.js --export
+```
+
+Check report for new duplicates before executing cleanup.
 
 ## Advanced Sound Signature Filtering Ideas
 
