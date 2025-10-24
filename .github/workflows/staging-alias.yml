@@ -64,21 +64,46 @@ jobs:
               echo "Alias command output:"
               echo "$ALIAS_OUTPUT"
 
-              # Verify the alias was actually set
+              # Wait briefly for alias to propagate
+              echo "Waiting 5s for alias to propagate..."
+              sleep 5
+
+              # Verify the alias was actually set (with retries)
               echo "Verifying alias was set correctly..."
-              VERIFY_OUTPUT=$(vercel inspect staging.hifinder.app --scope "${{ secrets.VERCEL_ORG_ID }}" 2>&1) || {
-                echo "❌ Failed to verify alias"
-                exit 1
-              }
+              VERIFY_ATTEMPTS=3
+              VERIFY_SLEEP=5
+              SUCCESS=0
 
-              VERIFIED_URL=$(echo "$VERIFY_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
+              for i in $(seq 1 $VERIFY_ATTEMPTS); do
+                echo "Verification attempt $i/$VERIFY_ATTEMPTS..."
+                VERIFY_OUTPUT=$(vercel inspect staging.hifinder.app --scope "${{ secrets.VERCEL_ORG_ID }}" 2>&1) || {
+                  echo "⚠️  Inspect command failed, retrying..."
+                  sleep $VERIFY_SLEEP
+                  continue
+                }
 
-              if [ "$VERIFIED_URL" = "$DEPLOYMENT_URL" ]; then
+                VERIFIED_URL=$(echo "$VERIFY_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
+
+                echo "Expected: $DEPLOYMENT_URL"
+                echo "Got:      $VERIFIED_URL"
+
+                if [ "$VERIFIED_URL" = "$DEPLOYMENT_URL" ]; then
+                  SUCCESS=1
+                  break
+                fi
+
+                if [ $i -lt $VERIFY_ATTEMPTS ]; then
+                  echo "⏳ Alias not updated yet, waiting ${VERIFY_SLEEP}s..."
+                  sleep $VERIFY_SLEEP
+                fi
+              done
+
+              if [ "$SUCCESS" = "1" ]; then
                 echo "✅ Successfully updated and verified staging.hifinder.app!"
                 echo "✅ staging.hifinder.app → $DEPLOYMENT_URL"
                 exit 0
               else
-                echo "❌ Alias verification failed!"
+                echo "❌ Alias verification failed after $VERIFY_ATTEMPTS attempts!"
                 echo "Expected: $DEPLOYMENT_URL"
                 echo "Got: $VERIFIED_URL"
                 exit 1
