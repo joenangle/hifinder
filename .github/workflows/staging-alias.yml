@@ -17,6 +17,8 @@ jobs:
 
       - name: Wait for deployment and update alias
         run: |
+          set -e  # Exit on any error
+
           echo "🕐 Waiting for Vercel deployment to complete..."
           echo "Commit SHA: ${{ github.sha }}"
 
@@ -30,7 +32,11 @@ jobs:
             echo "Attempt $ATTEMPT/$MAX_ATTEMPTS (checking every ${SLEEP_INTERVAL}s)..."
 
             # Inspect the git-staging alias to find the actual deployment URL
-            INSPECT_OUTPUT=$(vercel inspect "$GIT_STAGING_ALIAS" --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} 2>&1)
+            INSPECT_OUTPUT=$(vercel inspect "$GIT_STAGING_ALIAS" --token "${{ secrets.VERCEL_TOKEN }}" --scope "${{ secrets.VERCEL_ORG_ID }}" 2>&1) || {
+              echo "❌ Failed to inspect deployment"
+              echo "Output: $INSPECT_OUTPUT"
+              exit 1
+            }
 
             # Extract the actual deployment URL
             DEPLOYMENT_URL=$(echo "$INSPECT_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
@@ -48,13 +54,33 @@ jobs:
               echo "✅ Deployment is Ready!"
               echo "Updating staging.hifinder.app to point to: $DEPLOYMENT_URL"
 
-              vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }}
+              # Run alias command and capture full output
+              ALIAS_OUTPUT=$(vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app --token "${{ secrets.VERCEL_TOKEN }}" --scope "${{ secrets.VERCEL_ORG_ID }}" 2>&1) || {
+                echo "❌ Alias command failed with exit code $?"
+                echo "Output: $ALIAS_OUTPUT"
+                exit 1
+              }
 
-              if [ $? -eq 0 ]; then
-                echo "✅ Successfully updated staging.hifinder.app!"
+              echo "Alias command output:"
+              echo "$ALIAS_OUTPUT"
+
+              # Verify the alias was actually set
+              echo "Verifying alias was set correctly..."
+              VERIFY_OUTPUT=$(vercel inspect staging.hifinder.app --scope "${{ secrets.VERCEL_ORG_ID }}" 2>&1) || {
+                echo "❌ Failed to verify alias"
+                exit 1
+              }
+
+              VERIFIED_URL=$(echo "$VERIFY_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
+
+              if [ "$VERIFIED_URL" = "$DEPLOYMENT_URL" ]; then
+                echo "✅ Successfully updated and verified staging.hifinder.app!"
+                echo "✅ staging.hifinder.app → $DEPLOYMENT_URL"
                 exit 0
               else
-                echo "❌ Failed to update alias"
+                echo "❌ Alias verification failed!"
+                echo "Expected: $DEPLOYMENT_URL"
+                echo "Got: $VERIFIED_URL"
                 exit 1
               fi
             else
