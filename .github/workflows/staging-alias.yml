@@ -20,13 +20,14 @@ jobs:
           echo "🕐 Waiting for Vercel deployment to complete..."
           echo "Commit SHA: ${{ github.sha }}"
 
-          MAX_ATTEMPTS=20
+          MAX_ATTEMPTS=12
           ATTEMPT=0
+          SLEEP_INTERVAL=10
           GIT_STAGING_ALIAS="https://hifinder-git-staging-joenangles-projects.vercel.app"
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS (checking every ${SLEEP_INTERVAL}s)..."
 
             # Inspect the git-staging alias to find the actual deployment URL
             INSPECT_OUTPUT=$(vercel inspect "$GIT_STAGING_ALIAS" --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} 2>&1)
@@ -35,8 +36,8 @@ jobs:
             DEPLOYMENT_URL=$(echo "$INSPECT_OUTPUT" | grep -o 'https://hifinder-[a-z0-9]*-[^[:space:]]*\.vercel\.app' | head -1)
 
             if [ -z "$DEPLOYMENT_URL" ]; then
-              echo "Could not find deployment URL yet, waiting 30s..."
-              sleep 30
+              echo "Could not find deployment URL yet, waiting ${SLEEP_INTERVAL}s..."
+              sleep $SLEEP_INTERVAL
               continue
             fi
 
@@ -57,8 +58,8 @@ jobs:
                 exit 1
               fi
             else
-              echo "⏳ Deployment not ready yet, waiting 30s..."
-              sleep 30
+              echo "⏳ Deployment not ready yet, waiting ${SLEEP_INTERVAL}s..."
+              sleep $SLEEP_INTERVAL
             fi
           done
 
