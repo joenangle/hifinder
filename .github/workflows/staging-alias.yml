@@ -5,27 +5,43 @@ on:
 
 jobs:
   update-staging-alias:
-    # Only run when:
-    # 1. Deployment is successful
-    # 2. It's from the staging branch
-    # 3. It's a Vercel deployment (environment starts with "Preview")
-    if: |
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment.ref == 'staging' &&
-      startsWith(github.event.deployment.environment, 'Preview')
+    # Only run when deployment is successful
+    if: github.event.deployment_status.state == 'success'
 
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug deployment event
+        run: |
+          echo "State: ${{ github.event.deployment_status.state }}"
+          echo "Ref: ${{ github.event.deployment.ref }}"
+          echo "Environment: ${{ github.event.deployment.environment }}"
+          echo "URL: ${{ github.event.deployment_status.environment_url }}"
+          echo "Full event:"
+          echo '${{ toJSON(github.event) }}'
+
+      - name: Check if this is staging branch
+        id: check_staging
+        run: |
+          REF="${{ github.event.deployment.ref }}"
+          # Check if ref contains 'staging' (could be 'staging', 'refs/heads/staging', etc.)
+          if [[ "$REF" == *"staging"* ]]; then
+            echo "is_staging=true" >> $GITHUB_OUTPUT
+            echo "✅ This is a staging deployment"
+          else
+            echo "is_staging=false" >> $GITHUB_OUTPUT
+            echo "❌ Not a staging deployment (ref: $REF)"
+          fi
+
       - name: Install Vercel CLI
+        if: steps.check_staging.outputs.is_staging == 'true'
         run: npm install --global vercel@latest
 
       - name: Update staging.hifinder.app alias
+        if: steps.check_staging.outputs.is_staging == 'true'
         run: |
           DEPLOYMENT_URL="${{ github.event.deployment_status.environment_url }}"
           echo "Deployment URL: $DEPLOYMENT_URL"
-          echo "Branch: ${{ github.event.deployment.ref }}"
-          echo "Environment: ${{ github.event.deployment.environment }}"
 
           vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app \
             --token "${{ secrets.VERCEL_TOKEN }}" \
