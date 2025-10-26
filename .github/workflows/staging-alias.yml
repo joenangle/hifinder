@@ -1,29 +1,34 @@
 name: Update Staging Alias
 
 on:
-  push:
-    branches: [staging]
+  deployment_status:
 
 jobs:
   update-staging-alias:
+    # Only run when:
+    # 1. Deployment is successful
+    # 2. It's from the staging branch
+    # 3. It's a Vercel deployment (environment starts with "Preview")
+    if: |
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.ref == 'staging' &&
+      startsWith(github.event.deployment.environment, 'Preview')
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wait for Vercel deployment
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
-        id: wait-for-deployment
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 180  # 3 minutes (builds take ~68 seconds)
-          check_interval: 5  # Check every 5 seconds
-
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
       - name: Update staging.hifinder.app alias
         run: |
-          echo "Deployment URL: ${{ steps.wait-for-deployment.outputs.url }}"
-          vercel alias set "${{ steps.wait-for-deployment.outputs.url }}" staging.hifinder.app \
+          DEPLOYMENT_URL="${{ github.event.deployment_status.environment_url }}"
+          echo "Deployment URL: $DEPLOYMENT_URL"
+          echo "Branch: ${{ github.event.deployment.ref }}"
+          echo "Environment: ${{ github.event.deployment.environment }}"
+
+          vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app \
             --token "${{ secrets.VERCEL_TOKEN }}" \
             --scope "${{ secrets.VERCEL_ORG_ID }}"
-          echo "✅ Successfully updated staging.hifinder.app!"
+
+          echo "✅ Successfully updated staging.hifinder.app → $DEPLOYMENT_URL"
