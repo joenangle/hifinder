@@ -13,26 +13,28 @@ jobs:
       - name: Wait for Vercel deployment
         id: wait
         run: |
-          echo "⏳ Waiting for Vercel to create and deploy staging branch..."
+          echo "⏳ Waiting for Vercel to deploy commit ${{ github.sha }}..."
 
+          COMMIT_SHA="${{ github.sha }}"
           MAX_ATTEMPTS=60
           ATTEMPT=0
           DEPLOYMENT_URL=""
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS"
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS - Looking for deployment of commit ${COMMIT_SHA:0:7}"
 
             # Get latest deployments
             RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
               "https://api.vercel.com/v6/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&limit=10&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
 
-            # Find the first READY deployment for staging branch
-            DEPLOYMENT_INFO=$(echo "$RESPONSE" | jq -r '.deployments[] | select(.meta.githubCommitRef == "staging" and .readyState == "READY") | {url: .url, created: .created} | @base64' | head -1)
+            # Find deployment matching THIS commit SHA that is READY
+            DEPLOYMENT_INFO=$(echo "$RESPONSE" | jq -r --arg sha "$COMMIT_SHA" '.deployments[] | select(.meta.githubCommitSha == $sha and .readyState == "READY") | {url: .url, commit: .meta.githubCommitSha[0:7]} | @base64' | head -1)
 
             if [ -n "$DEPLOYMENT_INFO" ]; then
               DEPLOYMENT_URL=$(echo "$DEPLOYMENT_INFO" | base64 --decode | jq -r '.url')
-              echo "✅ Found ready staging deployment: $DEPLOYMENT_URL"
+              COMMIT_SHORT=$(echo "$DEPLOYMENT_INFO" | base64 --decode | jq -r '.commit')
+              echo "✅ Found READY deployment for commit $COMMIT_SHORT: $DEPLOYMENT_URL"
               echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
               break
             fi
@@ -41,7 +43,7 @@ jobs:
           done
 
           if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "❌ No ready staging deployment found after 5 minutes"
+            echo "❌ No deployment found for commit ${COMMIT_SHA:0:7} after 5 minutes"
             exit 1
           fi
 
