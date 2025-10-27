@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { LandingPage } from '@/components/LandingPage'
+import { LandingPageV2 } from '@/components/LandingPageV2'
 import { UserDashboard } from '@/components/UserDashboard'
 
 export default function Home() {
@@ -18,5 +18,5 @@ export default function Home() {
   }
 
   // Show user dashboard for signed-in users, landing page for signed-out users
-  return session ? <UserDashboard /> : <LandingPage />
+  return session ? <UserDashboard /> : <LandingPageV2 />
 }
