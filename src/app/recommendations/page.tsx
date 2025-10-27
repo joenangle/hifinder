@@ -209,13 +209,10 @@ function RecommendationsContent() {
     return () => clearTimeout(timer)
   }, [budgetState.budget])
 
-  // Debounce all other preference changes (500ms delay for filters)
+  // Update debounced prefs immediately for filter changes (no delay)
+  // Budget changes are still debounced separately above
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedPrefs(userPrefs)
-    }, 500)
-
-    return () => clearTimeout(timer)
+    setDebouncedPrefs(userPrefs)
   }, [userPrefs])
   
   // Filter state for UI controls - now supporting multi-select
