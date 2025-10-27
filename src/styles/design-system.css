@@ -2237,39 +2237,39 @@ select.input {
    ============================================ */
 
 :root {
-  /* Muted UI Colors for Toggle Buttons */
-  --ui-purple: #8b5cf6; /* Softer purple for headphones */
-  --ui-indigo: #6366f1; /* Softer indigo for IEMs */
-  --ui-green: #10b981; /* Softer green for DACs */
-  --ui-amber: #f59e0b; /* Softer amber for Amps */
-  --ui-blue: #3b82f6; /* Softer blue for Combos */
+  /* Muted UI Colors for Toggle Buttons - Lighter intensity */
+  --ui-purple: #a78bfa; /* Lighter purple for headphones */
+  --ui-indigo: #818cf8; /* Lighter indigo for IEMs */
+  --ui-green: #34d399; /* Lighter green for DACs */
+  --ui-amber: #fbbf24; /* Lighter amber for Amps */
+  --ui-blue: #60a5fa; /* Lighter blue for Combos */
 
-  /* Muted Sound Signature Colors */
-  --ui-neutral: #6b7280; /* Gray for neutral */
-  --ui-warm: #fb923c; /* Soft orange for warm */
-  --ui-bright: #38bdf8; /* Soft cyan for bright */
-  --ui-fun: #f472b6; /* Soft pink for fun */
+  /* Muted Sound Signature Colors - Lighter intensity */
+  --ui-neutral: #9ca3af; /* Lighter gray for neutral */
+  --ui-warm: #fbbf24; /* Lighter warm orange */
+  --ui-bright: #7dd3fc; /* Lighter cyan for bright */
+  --ui-fun: #f9a8d4; /* Lighter pink for fun */
 
-  /* Refined backgrounds for active states */
-  --ui-active-bg-opacity: 0.15;
-  --ui-hover-bg-opacity: 0.08;
+  /* Refined backgrounds for active states - reduced opacity */
+  --ui-active-bg-opacity: 0.10;
+  --ui-hover-bg-opacity: 0.05;
 }
 
-/* Dark mode adjustments */
+/* Dark mode adjustments - Lighter intensity */
 [data-theme="dark"] {
-  --ui-purple: #a78bfa;
-  --ui-indigo: #818cf8;
-  --ui-green: #34d399;
-  --ui-amber: #fcd34d;
-  --ui-blue: #60a5fa;
+  --ui-purple: #c4b5fd;
+  --ui-indigo: #a5b4fc;
+  --ui-green: #6ee7b7;
+  --ui-amber: #fde68a;
+  --ui-blue: #93c5fd;
 
-  --ui-neutral: #9ca3af;
-  --ui-warm: #fdba74;
-  --ui-bright: #7dd3fc;
-  --ui-fun: #f9a8d4;
+  --ui-neutral: #d1d5db;
+  --ui-warm: #fde68a;
+  --ui-bright: #a5f3fc;
+  --ui-fun: #fbcfe8;
 
-  --ui-active-bg-opacity: 0.25;
-  --ui-hover-bg-opacity: 0.15;
+  --ui-active-bg-opacity: 0.18;
+  --ui-hover-bg-opacity: 0.10;
 }
 
 /* ============================================
@@ -2449,57 +2449,57 @@ select.input {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Active states for each color */
+/* Active states for each color - lighter backgrounds */
 .toggle-compact.active-purple {
-  background: rgba(139, 92, 246, 0.08);
+  background: rgba(167, 139, 250, var(--ui-active-bg-opacity));
   border-color: var(--ui-purple);
   color: var(--ui-purple);
 }
 
 .toggle-compact.active-indigo {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(129, 140, 248, var(--ui-active-bg-opacity));
   border-color: var(--ui-indigo);
   color: var(--ui-indigo);
 }
 
 .toggle-compact.active-green {
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(52, 211, 153, var(--ui-active-bg-opacity));
   border-color: var(--ui-green);
   color: var(--ui-green);
 }
 
 .toggle-compact.active-amber {
-  background: rgba(245, 158, 11, 0.08);
+  background: rgba(251, 191, 36, var(--ui-active-bg-opacity));
   border-color: var(--ui-amber);
   color: var(--ui-amber);
 }
 
 .toggle-compact.active-blue {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(96, 165, 250, var(--ui-active-bg-opacity));
   border-color: var(--ui-blue);
   color: var(--ui-blue);
 }
 
 .toggle-compact.active-neutral {
-  background: rgba(107, 114, 128, 0.08);
+  background: rgba(156, 163, 175, var(--ui-active-bg-opacity));
   border-color: var(--ui-neutral);
   color: var(--ui-neutral);
 }
 
 .toggle-compact.active-warm {
-  background: rgba(251, 146, 60, 0.08);
+  background: rgba(251, 191, 36, var(--ui-active-bg-opacity));
   border-color: var(--ui-warm);
   color: var(--ui-warm);
 }
 
 .toggle-compact.active-bright {
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(125, 211, 252, var(--ui-active-bg-opacity));
   border-color: var(--ui-bright);
   color: var(--ui-bright);
 }
 
 .toggle-compact.active-fun {
-  background: rgba(244, 114, 182, 0.08);
+  background: rgba(249, 168, 212, var(--ui-active-bg-opacity));
   border-color: var(--ui-fun);
   color: var(--ui-fun);
 }

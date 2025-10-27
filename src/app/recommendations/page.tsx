@@ -745,7 +745,16 @@ function RecommendationsContent() {
     setCustomBudgetAllocation(allocation)
   }, [])
 
-  if (loading) {
+  // Show initial loading screen only on first mount
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
+
+  useEffect(() => {
+    if (!loading && !hasLoadedOnce) {
+      setHasLoadedOnce(true)
+    }
+  }, [loading, hasLoadedOnce])
+
+  if (loading && !hasLoadedOnce) {
     return (
       <div className="page-container">
         <div className="text-center mt-20">
@@ -898,7 +907,21 @@ function RecommendationsContent() {
             : 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'
 
           return (
-            <div className={gridClass}>
+            <div className="relative">
+              {/* Loading overlay - appears during updates but doesn't block interaction */}
+              {loading && hasLoadedOnce && (
+                <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none">
+                  <div className="bg-gradient-to-b from-background-primary/95 to-transparent py-3 px-4 rounded-lg shadow-sm flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent-primary border-t-transparent"></div>
+                    <span className="text-sm text-text-secondary font-medium">Updating results...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Results grid with smooth opacity transition */}
+              <div
+                className={`${gridClass} transition-opacity duration-300 ${loading && hasLoadedOnce ? 'opacity-60' : 'opacity-100'}`}
+              >
               {/* Separate Headphones (Cans) Section */}
               {hasSeparateSections && hasCans && (() => {
                 // Identify top performers for cans
@@ -922,7 +945,7 @@ function RecommendationsContent() {
 
                 return (
             <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-purple-700/40 bg-gradient-to-b from-purple-400 to-purple-300 rounded-t-xl">
+              <div className="px-4 py-3 border-b dark:border-purple-700/30 bg-gradient-to-b from-purple-300 to-purple-200 dark:from-purple-400/80 dark:to-purple-300/80 rounded-t-xl">
                 <h2 className="text-lg font-semibold text-center text-white">
                   🎧 Headphones
                 </h2>
@@ -981,7 +1004,7 @@ function RecommendationsContent() {
 
                 return (
             <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-indigo-700/40 bg-gradient-to-b from-indigo-400 to-indigo-300 rounded-t-xl">
+              <div className="px-4 py-3 border-b dark:border-indigo-700/30 bg-gradient-to-b from-indigo-300 to-indigo-200 dark:from-indigo-400/80 dark:to-indigo-300/80 rounded-t-xl">
                 <h2 className="text-lg font-semibold text-center text-white">
                   👂 IEMs
                 </h2>
@@ -1040,7 +1063,7 @@ function RecommendationsContent() {
 
                 return (
             <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-orange-700/40 bg-gradient-to-b from-orange-400 to-orange-300 rounded-t-xl">
+              <div className="px-4 py-3 border-b dark:border-orange-700/30 bg-gradient-to-b from-orange-300 to-orange-200 dark:from-orange-400/80 dark:to-orange-300/80 rounded-t-xl">
                 <h2 className="text-lg font-semibold text-center text-white">
                   🎧 Headphones & IEMs
                 </h2>
@@ -1088,7 +1111,7 @@ function RecommendationsContent() {
                   <div className="card overflow-hidden">
                     {dacs.length > 0 ? (
                       <>
-                        <div className="px-4 py-3 border-b dark:border-green-700/40 bg-gradient-to-b from-emerald-400 to-emerald-300 rounded-t-xl">
+                        <div className="px-4 py-3 border-b dark:border-emerald-700/30 bg-gradient-to-b from-emerald-300 to-emerald-200 dark:from-emerald-400/80 dark:to-emerald-300/80 rounded-t-xl">
                           <h2 className="text-lg font-semibold text-center text-white">
                             🔄 DACs
                           </h2>
@@ -1144,7 +1167,7 @@ function RecommendationsContent() {
             <div className="card overflow-hidden">
               {amps.length > 0 ? (
                 <>
-                  <div className="px-4 py-3 border-b dark:border-amber-700/40 bg-gradient-to-b from-amber-400 to-amber-300 rounded-t-xl">
+                  <div className="px-4 py-3 border-b dark:border-amber-700/30 bg-gradient-to-b from-amber-300 to-amber-200 dark:from-amber-400/80 dark:to-amber-300/80 rounded-t-xl">
                     <h2 className="text-lg font-semibold text-center text-white">
                       ⚡ Amplifiers
                     </h2>
@@ -1200,7 +1223,7 @@ function RecommendationsContent() {
             <div className="card overflow-hidden">
               {dacAmps.length > 0 ? (
                 <>
-                  <div className="px-4 py-3 border-b dark:border-blue-700/40 bg-gradient-to-b from-blue-400 to-blue-300 rounded-t-xl">
+                  <div className="px-4 py-3 border-b dark:border-blue-700/30 bg-gradient-to-b from-blue-300 to-blue-200 dark:from-blue-400/80 dark:to-blue-300/80 rounded-t-xl">
                     <h2 className="text-lg font-semibold text-center text-white">
                       🎯 DAC/Amp Combos
                     </h2>
@@ -1253,6 +1276,7 @@ function RecommendationsContent() {
               </SignalGearWrapper>
             )
           })()}
+              </div>
             </div>
           )
         })()}
@@ -1264,7 +1288,7 @@ function RecommendationsContent() {
               console.log('Toggling used market:', !showUsedMarket)
               setShowUsedMarket(!showUsedMarket)
             }}
-            className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
+            className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
           >
             {showUsedMarket ? 'Hide' : 'Show'} Used Market Listings
           </button>

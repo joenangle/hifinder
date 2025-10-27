@@ -320,7 +320,7 @@ export function StackBuilderModal({
                 window.open(ebayUrl, '_blank')
               }}
               disabled={finalComponents.length === 0}
-              className="px-4 py-2 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-blue-500 dark:text-blue-300 border border-blue-300 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Search All on eBay
             </button>
@@ -333,7 +333,7 @@ export function StackBuilderModal({
                 navigator.clipboard.writeText(shareUrl)
                 // TODO: Show toast notification
               }}
-              className="px-4 py-2 text-orange-600 dark:text-orange-400 border border-orange-300 dark:border-orange-600 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+              className="px-4 py-2 text-orange-500 dark:text-orange-300 border border-orange-300 dark:border-orange-400 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
             >
               Share Stack
             </button>
@@ -341,7 +341,7 @@ export function StackBuilderModal({
             <button
               onClick={handleSave}
               disabled={!stackName.trim() || finalComponents.length === 0 || saving}
-              className="px-6 py-2 bg-orange-600 dark:bg-orange-500 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-orange-400 dark:bg-orange-400 text-white rounded-lg hover:bg-orange-500 dark:hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {saving && (
                 <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
