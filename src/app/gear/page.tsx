@@ -882,18 +882,31 @@ function GearContent() {
                               setShowDetailsModal(true)
                             }}
                           >
+                            {/* Compact category badge */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+                                getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
+                                getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' :
+                                getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' :
+                                getGearCategory(item) === 'amps' ? 'bg-amber-50/50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
+                                'bg-gray-50/50 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400'
+                              }`}>
+                                {getGearCategory(item) === 'headphones' ? '🎧' :
+                                 getGearCategory(item) === 'iems' ? '👂' :
+                                 getGearCategory(item) === 'dacs' ? '🔊' :
+                                 getGearCategory(item) === 'amps' ? '⚡' :
+                                 '📦'}
+                              </span>
+                            </div>
                             <div className="text-center">
-                              <div className="w-10 h-10 mx-auto mb-2 bg-secondary rounded flex items-center justify-center opacity-60">
-                                {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
-                              </div>
-                              <div className="font-medium text-xs truncate" style={{color: 'var(--text-primary)'}}>
+                              <div className="font-semibold text-xs truncate mb-1" style={{color: 'var(--text-primary)'}}>
                                 {item.components?.brand || item.custom_brand}
                               </div>
-                              <div className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
+                              <div className="text-xs truncate mb-2" style={{color: 'var(--text-secondary)'}}>
                                 {item.components?.name || item.custom_name}
                               </div>
                               {item.purchase_price && (
-                                <div className="text-xs font-semibold mt-1" style={{color: 'var(--accent-primary)'}}>
+                                <div className="text-xs font-bold" style={{color: 'var(--accent-primary)'}}>
                                   ${item.purchase_price}
                                 </div>
                               )}
@@ -952,107 +965,116 @@ function GearContent() {
                 }}
               >
                 {viewMode === 'grid' ? (
-                  <div>
-                    {/* Compact Grid View */}
-                    <div className="h-16 bg-secondary rounded-t-lg p-3 flex items-center justify-center">
-                      {item.components?.image_url ? (
-                        <Image
-                          src={item.components.image_url}
-                          alt={item.components.name}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <div className="text-2xl opacity-60">
-                          {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
-                        </div>
+                  <div className="p-3">
+                    {/* Compact header with category badge and condition */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                        getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
+                        getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' :
+                        getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' :
+                        getGearCategory(item) === 'amps' ? 'bg-amber-50/50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
+                        'bg-gray-50/50 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400'
+                      }`}>
+                        {getGearCategory(item) === 'headphones' ? '🎧 Headphones' :
+                         getGearCategory(item) === 'iems' ? '👂 IEMs' :
+                         getGearCategory(item) === 'dacs' ? '🔊 DAC' :
+                         getGearCategory(item) === 'amps' ? '⚡ Amp' :
+                         '📦 ' + getGearCategory(item)}
+                      </span>
+                      {item.condition && (
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          item.condition === 'new' ? 'bg-green-500/20 text-green-500' :
+                          item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
+                          'bg-blue-500/20 text-blue-500'
+                        }`}>
+                          {item.condition}
+                        </span>
                       )}
                     </div>
-                    <div className="p-3">
-                      <div className="mb-2">
-                        <h3 className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
-                          {item.components?.brand || item.custom_brand}
-                        </h3>
-                        <p className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
-                          {item.components?.name || item.custom_name}
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-2">
-                        {item.purchase_price ? (
-                          <span className="text-sm font-semibold" style={{color: 'var(--accent-primary)'}}>
-                            ${item.purchase_price}
-                          </span>
-                        ) : (
-                          <span></span>
-                        )}
-                        {item.condition && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
-                            item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
-                            'bg-blue-500/20 text-blue-500'
-                          }`}>
-                            {item.condition}
-                          </span>
-                        )}
-                      </div>
 
-                      <div className="flex items-center justify-between text-xs" style={{color: 'var(--text-secondary)'}}>
-                        <div className="truncate flex-1">
-                          {item.components?.impedance && (
-                            <span>{item.components.impedance}</span>
-                          )}
-                          {item.components?.impedance && item.purchase_date && <span> • </span>}
-                          {item.purchase_date && (
-                            <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedGear(item)
-                            setShowEditModal(true)
-                          }}
-                          className="p-1 rounded hover:bg-secondary/20 transition-colors ml-2"
-                          title="Edit gear"
-                        >
-                          <MoreVertical className="w-3 h-3" />
-                        </button>
+                    {/* Brand and model name on separate lines */}
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                        {item.components?.brand || item.custom_brand}
+                      </h3>
+                      <p className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
+                        {item.components?.name || item.custom_name}
+                      </p>
+                    </div>
+
+                    {/* Price display */}
+                    {item.purchase_price && (
+                      <div className="mb-2">
+                        <span className="text-sm font-bold" style={{color: 'var(--accent-primary)'}}>
+                          ${item.purchase_price}
+                        </span>
+                        <span className="text-xs ml-1" style={{color: 'var(--text-secondary)'}}>
+                          paid
+                        </span>
                       </div>
+                    )}
+
+                    {/* Compact metadata row with separators */}
+                    <div className="flex items-center justify-between text-xs" style={{color: 'var(--text-secondary)'}}>
+                      <div className="truncate flex-1 flex items-center gap-1.5">
+                        {item.components?.impedance && (
+                          <span>{item.components.impedance}Ω</span>
+                        )}
+                        {item.components?.impedance && item.purchase_date && <span>|</span>}
+                        {item.purchase_date && (
+                          <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedGear(item)
+                          setShowEditModal(true)
+                        }}
+                        className="p-1 rounded hover:bg-secondary/20 transition-colors ml-2"
+                        title="Edit gear"
+                      >
+                        <MoreVertical className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 p-3">
                     {/* Compact List View */}
+                    {/* Small category badge */}
                     <div className="flex-shrink-0">
-                      {item.components?.image_url ? (
-                        <div className="w-12 h-12 rounded bg-secondary overflow-hidden">
-                          <Image
-                            src={item.components.image_url}
-                            alt={item.components.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 bg-secondary rounded flex items-center justify-center opacity-60">
-                          {getCategoryIcon(item.components?.category || item.custom_category || 'other')}
-                        </div>
-                      )}
+                      <span className={`inline-flex items-center justify-center w-10 h-10 rounded text-lg ${
+                        getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 dark:bg-purple-900/20' :
+                        getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 dark:bg-indigo-900/20' :
+                        getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20' :
+                        getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20' :
+                        'bg-gray-50/50 dark:bg-gray-900/20'
+                      }`}>
+                        {getGearCategory(item) === 'headphones' ? '🎧' :
+                         getGearCategory(item) === 'iems' ? '👂' :
+                         getGearCategory(item) === 'dacs' ? '🔊' :
+                         getGearCategory(item) === 'amps' ? '⚡' :
+                         '📦'}
+                      </span>
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                      <h3 className="font-semibold text-sm truncate" style={{color: 'var(--text-primary)'}}>
                         {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
                       </h3>
-                      <div className="flex items-center gap-3 text-xs mt-1" style={{color: 'var(--text-secondary)'}}>
+                      <div className="flex items-center gap-1.5 text-xs mt-1" style={{color: 'var(--text-secondary)'}}>
+                        <span className="uppercase font-medium">{getGearCategory(item)}</span>
                         {item.components?.impedance && (
-                          <span>{item.components.impedance}</span>
+                          <>
+                            <span>|</span>
+                            <span>{item.components.impedance}Ω</span>
+                          </>
                         )}
                         {item.purchase_date && (
-                          <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                          <>
+                            <span>|</span>
+                            <span>{new Date(item.purchase_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                          </>
                         )}
                       </div>
                     </div>
@@ -1060,13 +1082,18 @@ function GearContent() {
                     <div className="flex-shrink-0 text-right">
                       <div className="flex items-center gap-2">
                         {item.purchase_price && (
-                          <span className="text-sm font-semibold" style={{color: 'var(--accent-primary)'}}>
-                            ${item.purchase_price}
-                          </span>
+                          <div className="text-right">
+                            <div className="text-sm font-bold" style={{color: 'var(--accent-primary)'}}>
+                              ${item.purchase_price}
+                            </div>
+                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
+                              paid
+                            </div>
+                          </div>
                         )}
                         {item.condition && (
                           <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' : 
+                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' :
                             item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
                             'bg-blue-500/20 text-blue-500'
                           }`}>
