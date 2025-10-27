@@ -688,6 +688,8 @@ export async function GET(request: NextRequest) {
 
     const results: {
       headphones: RecommendationComponent[]
+      cans: RecommendationComponent[]
+      iems: RecommendationComponent[]
       dacs: RecommendationComponent[]
       amps: RecommendationComponent[]
       combos: RecommendationComponent[]
@@ -695,6 +697,8 @@ export async function GET(request: NextRequest) {
       needsAmplification: boolean
     } = {
       headphones: [],
+      cans: [],
+      iems: [],
       dacs: [],
       amps: [],
       combos: [],
@@ -751,7 +755,7 @@ export async function GET(request: NextRequest) {
       if (req.wantRecommendationsFor.headphones && componentsByCategory.headphones.length > 0) {
         const headphoneBudget = budgetAllocation.headphones || req.budget
 
-        results.headphones = filterAndScoreComponents(
+        const allHeadphones = filterAndScoreComponents(
           componentsByCategory.headphones,
           headphoneBudget,
           req.budgetRangeMin,
@@ -761,8 +765,20 @@ export async function GET(request: NextRequest) {
           maxOptions
         )
 
+        // Separate cans and IEMs when both are requested (headphoneType === 'both')
+        if (req.headphoneType === 'both') {
+          results.cans = allHeadphones.filter(h => h.category === 'cans')
+          results.iems = allHeadphones.filter(h => h.category === 'iems')
+          results.headphones = [] // Keep empty for backwards compatibility
+        } else {
+          // Single type requested - return in headphones array
+          results.headphones = allHeadphones
+          results.cans = []
+          results.iems = []
+        }
+
         // Check if amplification is needed
-        results.needsAmplification = results.headphones.some(h => {
+        results.needsAmplification = allHeadphones.some(h => {
           if (!h.amplificationAssessment) return h.needs_amp === true
           return h.amplificationAssessment.difficulty === 'demanding' ||
                  h.amplificationAssessment.difficulty === 'very_demanding'
