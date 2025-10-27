@@ -308,28 +308,31 @@ function RecommendationsContent() {
   } = debouncedPrefs
 
   // Update URL when preferences change
-  const updatePreferences = (newPrefs: Partial<typeof userPrefs>) => {
-    const updatedPrefs = { ...userPrefs, ...newPrefs }
-    setUserPrefs(updatedPrefs)
+  const updatePreferences = useCallback((newPrefs: Partial<typeof userPrefs>) => {
+    setUserPrefs(prev => {
+      const updatedPrefs = { ...prev, ...newPrefs }
 
-    // Update URL params
-    const params = new URLSearchParams()
-    params.set('experience', updatedPrefs.experience)
-    params.set('budget', updatedPrefs.budget.toString())
-    params.set('budgetRangeMin', updatedPrefs.budgetRangeMin.toString())
-    params.set('budgetRangeMax', updatedPrefs.budgetRangeMax.toString())
-    params.set('headphoneType', updatedPrefs.headphoneType)
-    params.set('headphoneTypes', JSON.stringify(typeFilters))
-    params.set('soundSignatures', JSON.stringify([soundFilter]))
-    params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
-    params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
-    params.set('usage', updatedPrefs.usage)
-    params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
-    params.set('excludedUsages', JSON.stringify(updatedPrefs.excludedUsages))
-    params.set('sound', updatedPrefs.soundSignature)
+      // Update URL params
+      const params = new URLSearchParams()
+      params.set('experience', updatedPrefs.experience)
+      params.set('budget', updatedPrefs.budget.toString())
+      params.set('budgetRangeMin', updatedPrefs.budgetRangeMin.toString())
+      params.set('budgetRangeMax', updatedPrefs.budgetRangeMax.toString())
+      params.set('headphoneType', updatedPrefs.headphoneType)
+      params.set('headphoneTypes', JSON.stringify(typeFilters))
+      params.set('soundSignatures', JSON.stringify([soundFilter]))
+      params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
+      params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
+      params.set('usage', updatedPrefs.usage)
+      params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
+      params.set('excludedUsages', JSON.stringify(updatedPrefs.excludedUsages))
+      params.set('sound', updatedPrefs.soundSignature)
 
-    router.push(`/recommendations?${params.toString()}`, { scroll: false })
-  }
+      router.push(`/recommendations?${params.toString()}`, { scroll: false })
+
+      return updatedPrefs
+    })
+  }, [typeFilters, soundFilter, router])
 
   // Handle browse mode changes
   const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
