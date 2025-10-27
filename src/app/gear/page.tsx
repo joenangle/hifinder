@@ -871,7 +871,7 @@ function GearContent() {
                         {filteredAllGear.map(item => (
                           <div
                             key={item.id}
-                            className={`card p-3 hover:shadow-lg transition-all cursor-pointer ${
+                            className={`card-interactive ${
                               draggedGear?.id === item.id ? 'opacity-50' : ''
                             }`}
                             draggable
@@ -882,14 +882,14 @@ function GearContent() {
                               setShowDetailsModal(true)
                             }}
                           >
-                            {/* Compact category badge */}
-                            <div className="flex items-center justify-between mb-2">
+                            {/* Category badge */}
+                            <div className="flex items-center justify-center mb-2">
                               <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
-                                getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
-                                getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' :
-                                getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' :
-                                getGearCategory(item) === 'amps' ? 'bg-amber-50/50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
-                                'bg-gray-50/50 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400'
+                                getGearCategory(item) === 'headphones' ? 'bg-orange-50/50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' :
+                                getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
+                                getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
+                                getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
+                                'bg-gray-50/50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400'
                               }`}>
                                 {getGearCategory(item) === 'headphones' ? '🎧' :
                                  getGearCategory(item) === 'iems' ? '👂' :
@@ -899,14 +899,14 @@ function GearContent() {
                               </span>
                             </div>
                             <div className="text-center">
-                              <div className="font-semibold text-xs truncate mb-1" style={{color: 'var(--text-primary)'}}>
+                              <div className="font-semibold text-xs text-text-primary dark:text-text-primary truncate mb-1">
                                 {item.components?.brand || item.custom_brand}
                               </div>
-                              <div className="text-xs truncate mb-2" style={{color: 'var(--text-secondary)'}}>
+                              <div className="text-xs text-text-secondary dark:text-text-secondary truncate mb-2">
                                 {item.components?.name || item.custom_name}
                               </div>
                               {item.purchase_price && (
-                                <div className="text-xs font-bold" style={{color: 'var(--accent-primary)'}}>
+                                <div className="text-sm font-bold text-accent-primary dark:text-accent-primary">
                                   ${item.purchase_price}
                                 </div>
                               )}
@@ -953,7 +953,7 @@ function GearContent() {
               {filteredGear.map(item => (
               <div
                 key={item.id}
-                className={`card hover:shadow-lg transition-all cursor-pointer ${
+                className={`card-interactive ${
                   draggedGear?.id === item.id ? 'opacity-50' : ''
                 }`}
                 draggable
@@ -965,15 +965,15 @@ function GearContent() {
                 }}
               >
                 {viewMode === 'grid' ? (
-                  <div className="p-3">
-                    {/* Category badge and condition */}
+                  <>
+                    {/* Header: Category badge and condition */}
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
-                        getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' :
-                        getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' :
-                        getGearCategory(item) === 'amps' ? 'bg-amber-50/50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
-                        'bg-gray-50/50 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400'
+                        getGearCategory(item) === 'headphones' ? 'bg-orange-50/50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' :
+                        getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
+                        getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
+                        getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
+                        'bg-gray-50/50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400'
                       }`}>
                         {getGearCategory(item) === 'headphones' ? '🎧 Headphones' :
                          getGearCategory(item) === 'iems' ? '👂 IEMs' :
@@ -983,40 +983,32 @@ function GearContent() {
                       </span>
                       {item.condition && (
                         <span className={`text-xs px-1.5 py-0.5 rounded ${
-                          item.condition === 'new' ? 'bg-green-500/20 text-green-500' :
-                          item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
-                          'bg-blue-500/20 text-blue-500'
+                          item.condition === 'new' ? 'bg-green-500/20 text-green-600 dark:text-green-400' :
+                          item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' :
+                          'bg-blue-500/20 text-blue-600 dark:text-blue-400'
                         }`}>
                           {item.condition}
                         </span>
                       )}
                     </div>
 
-                    {/* Brand and model name on separate lines */}
-                    <div className="mb-2">
-                      <h3 className="font-semibold text-sm truncate" style={{color: 'var(--text-primary)'}}>
-                        {item.components?.brand || item.custom_brand}
+                    {/* Name and Price on same line */}
+                    <div className="flex items-baseline justify-between mb-1 gap-2">
+                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary truncate">
+                        {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
                       </h3>
-                      <p className="text-xs truncate" style={{color: 'var(--text-secondary)'}}>
-                        {item.components?.name || item.custom_name}
-                      </p>
+                      {item.purchase_price && (
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                            ${item.purchase_price}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Price display */}
-                    {item.purchase_price && (
-                      <div className="mb-2">
-                        <span className="text-sm font-bold" style={{color: 'var(--accent-primary)'}}>
-                          ${item.purchase_price}
-                        </span>
-                        <span className="text-xs ml-1" style={{color: 'var(--text-secondary)'}}>
-                          paid
-                        </span>
-                      </div>
-                    )}
-
                     {/* Compact metadata row with separators */}
-                    <div className="flex items-center justify-between text-xs" style={{color: 'var(--text-secondary)'}}>
-                      <div className="truncate flex-1 flex items-center gap-1.5">
+                    <div className="flex items-center justify-between text-xs text-text-secondary dark:text-text-secondary mb-2">
+                      <div className="truncate flex-1 flex items-center gap-2">
                         {item.components?.impedance && (
                           <span>{item.components.impedance}Ω</span>
                         )}
@@ -1031,21 +1023,20 @@ function GearContent() {
                           setSelectedGear(item)
                           setShowEditModal(true)
                         }}
-                        className="p-1 rounded hover:bg-secondary/20 transition-colors ml-2"
+                        className="p-1 rounded hover:bg-secondary/20 transition-colors ml-2 flex-shrink-0"
                         title="Edit gear"
                       >
                         <MoreVertical className="w-3 h-3" />
                       </button>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="flex items-center gap-3 p-3">
-                    {/* Compact List View */}
-                    {/* Small category badge */}
+                  <div className="flex items-center gap-3">
+                    {/* Category icon badge */}
                     <div className="flex-shrink-0">
                       <span className={`inline-flex items-center justify-center w-10 h-10 rounded text-lg ${
-                        getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 dark:bg-purple-900/20' :
-                        getGearCategory(item) === 'iems' ? 'bg-indigo-50/50 dark:bg-indigo-900/20' :
+                        getGearCategory(item) === 'headphones' ? 'bg-orange-50/50 dark:bg-orange-900/20' :
+                        getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20' :
                         getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20' :
                         getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20' :
                         'bg-gray-50/50 dark:bg-gray-900/20'
@@ -1059,10 +1050,10 @@ function GearContent() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                      <h3 className="font-semibold text-base text-text-primary dark:text-text-primary truncate">
                         {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-xs mt-1" style={{color: 'var(--text-secondary)'}}>
+                      <div className="flex items-center gap-2 text-xs text-text-secondary dark:text-text-secondary mt-1">
                         <span className="uppercase font-medium">{getGearCategory(item)}</span>
                         {item.components?.impedance && (
                           <>
@@ -1083,19 +1074,16 @@ function GearContent() {
                       <div className="flex items-center gap-2">
                         {item.purchase_price && (
                           <div className="text-right">
-                            <div className="text-sm font-bold" style={{color: 'var(--accent-primary)'}}>
+                            <div className="text-base font-bold text-accent-primary dark:text-accent-primary">
                               ${item.purchase_price}
-                            </div>
-                            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
-                              paid
                             </div>
                           </div>
                         )}
                         {item.condition && (
                           <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            item.condition === 'new' ? 'bg-green-500/20 text-green-500' :
-                            item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-500' :
-                            'bg-blue-500/20 text-blue-500'
+                            item.condition === 'new' ? 'bg-green-500/20 text-green-600 dark:text-green-400' :
+                            item.condition === 'used' ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' :
+                            'bg-blue-500/20 text-blue-600 dark:text-blue-400'
                           }`}>
                             {item.condition}
                           </span>
