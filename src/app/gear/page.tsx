@@ -1,4 +1,5 @@
 'use client'
+// Test staging deployment - should create Preview environment only
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
