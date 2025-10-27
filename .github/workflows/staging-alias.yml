@@ -10,61 +10,84 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wait for Vercel deployment
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
-        id: wait_for_vercel
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 60
-          check_interval: 10
-          path: /
-        continue-on-error: true
+      - name: Wait for Vercel deployment to complete
+        id: get_deployment
+        run: |
+          echo "⏳ Waiting for Vercel to deploy staging branch..."
+
+          MAX_ATTEMPTS=60
+          ATTEMPT=0
+          DEPLOYMENT_URL=""
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS"
+
+            # Call Vercel API to get latest deployment for staging branch
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+              "https://api.vercel.com/v13/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&gitBranch=staging&limit=1&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
+
+            # Extract deployment URL and state
+            DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].state // empty')
+
+            if [ -n "$DEPLOYMENT_URL" ]; then
+              echo "📦 Found deployment: https://$DEPLOYMENT_URL"
+              echo "📊 State: $STATE"
+
+              if [ "$STATE" = "READY" ]; then
+                echo "✅ Deployment is ready!"
+                echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+                break
+              else
+                echo "⏳ Deployment not ready yet (state: $STATE), waiting..."
+              fi
+            else
+              echo "❌ No deployment found yet, waiting..."
+            fi
+
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 5
+          done
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "❌ Failed to find deployment after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Update staging.hifinder.app alias
+      - name: Set staging alias
         run: |
-          DEPLOYMENT_URL="${{ steps.wait_for_vercel.outputs.url }}"
-          echo "Setting alias staging.hifinder.app → $DEPLOYMENT_URL"
+          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.url }}"
+          echo "🔗 Setting alias: staging.hifinder.app → $DEPLOYMENT_URL"
 
-          # Set the alias with retry logic
-          MAX_RETRIES=3
-          RETRY=0
+          vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app \
+            --token="${{ secrets.VERCEL_TOKEN }}" \
+            --scope=team_Gic8SL9uR5MbiWqUFz2MehJQ
 
-          while [ $RETRY -lt $MAX_RETRIES ]; do
-            if vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app --token=${{ secrets.VERCEL_TOKEN }} --scope team_Gic8SL9uR5MbiWqUFz2MehJQ; then
-              echo "✅ Successfully updated staging.hifinder.app"
-              break
-            else
-              RETRY=$((RETRY + 1))
-              if [ $RETRY -lt $MAX_RETRIES ]; then
-                echo "⚠️ Alias update failed, retrying ($RETRY/$MAX_RETRIES)..."
-                sleep 3
-              else
-                echo "❌ Failed to update alias after $MAX_RETRIES attempts"
-                exit 1
-              fi
-            fi
-          done
+          echo "✅ Alias updated successfully!"
 
-      - name: Verify alias
+      - name: Verify alias is live
         run: |
-          echo "Verifying alias is set correctly..."
-          sleep 5
+          echo "🔍 Verifying staging.hifinder.app..."
+          sleep 3
 
-          # Check if the alias resolves
-          ALIAS_CHECK=$(curl -s -o /dev/null -w "%{http_code}" https://staging.hifinder.app)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://staging.hifinder.app)
+          echo "HTTP status: $HTTP_CODE"
 
-          if [ "$ALIAS_CHECK" -eq 200 ] || [ "$ALIAS_CHECK" -eq 308 ] || [ "$ALIAS_CHECK" -eq 301 ]; then
-            echo "✅ staging.hifinder.app is responding (HTTP $ALIAS_CHECK)"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+            echo "✅ staging.hifinder.app is live!"
           else
-            echo "⚠️ staging.hifinder.app returned HTTP $ALIAS_CHECK (may need time to propagate)"
+            echo "⚠️  Received HTTP $HTTP_CODE (may need time to propagate)"
           fi
 
-      - name: Post deployment info
+      - name: Summary
         run: |
-          echo "🚀 Deployment complete!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚀 Deployment Complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Staging URL: https://staging.hifinder.app"
-          echo "Direct URL: ${{ steps.wait_for_vercel.outputs.url }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "Direct URL:  ${{ steps.get_deployment.outputs.url }}"
+          echo "Commit:      ${{ github.sha }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
