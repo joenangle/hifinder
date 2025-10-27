@@ -244,7 +244,7 @@ body {
   border: 2px solid var(--border-default);
   border-radius: var(--radius-xl);
   padding: var(--space-3);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   width: 100%;
@@ -255,8 +255,8 @@ body {
 .card-interactive:hover {
   border-color: var(--accent-primary);
   background: var(--surface-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .card-interactive:focus-visible {

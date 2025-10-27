@@ -36,10 +36,12 @@ const FilterButtonComponent = ({
       onClick={onClick}
     >
       <span>{icon}</span>
-      <span>
-        {label}
-        {count !== undefined && (
-          <span className="ml-1 text-xs opacity-70"> ({count})</span>
+      <span className="flex items-center gap-1">
+        <span>{label}</span>
+        {(count !== undefined && count !== null) && (
+          <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-[10px] font-semibold tabular-nums">
+            {count}
+          </span>
         )}
       </span>
     </button>
