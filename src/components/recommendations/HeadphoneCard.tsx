@@ -57,14 +57,14 @@ const HeadphoneCardComponent = ({
       <div className="flex items-center justify-between mb-2">
         <span className={`text-xs font-semibold px-2 py-1 rounded ${
           headphone.category === 'iems'
-            ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-            : 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+            ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+            : 'bg-orange-50/50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
         }`}>
           {headphone.category === 'iems' ? '👂 IEM' : '🎧 Headphones'}
         </span>
         {headphone.matchScore && (
           <span
-            className="text-base font-bold text-orange-500 dark:text-orange-300 cursor-help"
+            className="text-base font-bold text-orange-400 dark:text-orange-400/90 cursor-help"
             title={`Match Score: ${headphone.matchScore}%\n\n${
               headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐ Excellent Match - Perfect for your preferences and budget' :
               headphone.matchScore >= 75 ? '⭐⭐⭐⭐ Great Match - Strong fit for your needs' :
@@ -88,17 +88,17 @@ const HeadphoneCardComponent = ({
       {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
         <div className="flex flex-wrap gap-1 mb-3">
           {isTechnicalChamp && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-400 dark:bg-orange-400/80 text-white text-xs font-semibold rounded-full">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-300 dark:bg-orange-400/60 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
               🏆 Top Tech
             </span>
           )}
           {isToneChamp && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-400 dark:bg-amber-400/80 text-white text-xs font-semibold rounded-full">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-300 dark:bg-amber-400/60 text-amber-900 dark:text-amber-100 text-xs font-semibold rounded-full">
               👂 Best Match
             </span>
           )}
           {isBudgetChamp && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-300 dark:bg-orange-300/80 text-gray-800 dark:text-white text-xs font-semibold rounded-full">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-200 dark:bg-orange-400/50 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
               💰 Value
             </span>
           )}

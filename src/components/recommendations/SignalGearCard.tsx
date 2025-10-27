@@ -35,20 +35,20 @@ const TYPE_CONFIG = {
   dac: {
     icon: '🔄',
     label: 'DAC',
-    bgClass: 'bg-emerald-50 dark:bg-emerald-900/30',
-    textClass: 'text-emerald-700 dark:text-emerald-300'
+    bgClass: 'bg-emerald-50/50 dark:bg-emerald-900/20',
+    textClass: 'text-emerald-600 dark:text-emerald-400'
   },
   amp: {
     icon: '⚡',
     label: 'Amplifier',
-    bgClass: 'bg-amber-50 dark:bg-amber-900/30',
-    textClass: 'text-amber-700 dark:text-amber-300'
+    bgClass: 'bg-amber-50/50 dark:bg-amber-900/20',
+    textClass: 'text-amber-600 dark:text-amber-400'
   },
   combo: {
     icon: '🔗',
     label: 'DAC/Amp Combo',
-    bgClass: 'bg-blue-50 dark:bg-blue-900/30',
-    textClass: 'text-blue-700 dark:text-blue-300'
+    bgClass: 'bg-blue-50/50 dark:bg-blue-900/20',
+    textClass: 'text-blue-600 dark:text-blue-400'
   }
 } as const
 
