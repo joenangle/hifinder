@@ -10,6 +10,7 @@ const publicNavItems = [
   { href: '/', label: 'Home' },
   { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/about', label: 'About' },
+  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 
@@ -20,6 +21,7 @@ const authNavItems = [
   { href: '/wishlist', label: 'Wishlists' },
   { href: '/alerts', label: 'Alerts' },
   { href: '/about', label: 'About' },
+  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 
