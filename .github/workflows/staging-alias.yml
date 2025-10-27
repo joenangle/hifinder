@@ -10,60 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wait for Vercel deployment to complete
-        id: get_deployment
+      - name: Wait for Vercel deployment
+        id: wait
         run: |
-          echo "⏳ Waiting for Vercel to deploy staging branch..."
+          echo "⏳ Waiting for Vercel to create and deploy staging branch..."
 
           MAX_ATTEMPTS=60
           ATTEMPT=0
           DEPLOYMENT_URL=""
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS"
-
-            # Call Vercel API to get latest deployment for this project
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-              "https://api.vercel.com/v6/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&limit=5&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
-
-            # Debug: Show what we got
-            if [ $ATTEMPT -eq 1 ]; then
-              echo "API Response:"
-              echo "$RESPONSE" | jq '.'
-            fi
-
-            # Extract deployment URL and state from the first deployment
-            DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
-            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
-            GIT_BRANCH=$(echo "$RESPONSE" | jq -r '.deployments[0].meta.githubCommitRef // empty')
-
-            if [ -n "$DEPLOYMENT_URL" ]; then
-              echo "📦 Found deployment: https://$DEPLOYMENT_URL"
-              echo "📊 State: $STATE"
-              echo "🌿 Branch: $GIT_BRANCH"
-
-              # Check if this is the staging branch deployment
-              if [ "$GIT_BRANCH" = "staging" ]; then
-                if [ "$STATE" = "READY" ]; then
-                  echo "✅ Staging deployment is ready!"
-                  echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-                  break
-                else
-                  echo "⏳ Staging deployment not ready yet (state: $STATE), waiting..."
-                fi
-              else
-                echo "⏩ Skipping non-staging deployment (branch: $GIT_BRANCH)"
-              fi
-            else
-              echo "❌ No deployment found yet, waiting..."
-            fi
-
             ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS"
+
+            # Get latest deployments
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+              "https://api.vercel.com/v6/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&limit=10&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
+
+            # Find the first READY deployment for staging branch
+            DEPLOYMENT_INFO=$(echo "$RESPONSE" | jq -r '.deployments[] | select(.meta.githubCommitRef == "staging" and .readyState == "READY") | {url: .url, created: .created} | @base64' | head -1)
+
+            if [ -n "$DEPLOYMENT_INFO" ]; then
+              DEPLOYMENT_URL=$(echo "$DEPLOYMENT_INFO" | base64 --decode | jq -r '.url')
+              echo "✅ Found ready staging deployment: $DEPLOYMENT_URL"
+              echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+              break
+            fi
+
             sleep 5
           done
 
           if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "❌ Failed to find deployment after $MAX_ATTEMPTS attempts"
+            echo "❌ No ready staging deployment found after 5 minutes"
             exit 1
           fi
 
@@ -72,35 +50,20 @@ jobs:
 
       - name: Set staging alias
         run: |
-          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.url }}"
+          DEPLOYMENT_URL="${{ steps.wait.outputs.url }}"
           echo "🔗 Setting alias: staging.hifinder.app → $DEPLOYMENT_URL"
 
           vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app \
             --token="${{ secrets.VERCEL_TOKEN }}" \
             --scope=team_Gic8SL9uR5MbiWqUFz2MehJQ
 
-          echo "✅ Alias updated successfully!"
-
-      - name: Verify alias is live
-        run: |
-          echo "🔍 Verifying staging.hifinder.app..."
-          sleep 3
-
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://staging.hifinder.app)
-          echo "HTTP status: $HTTP_CODE"
-
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
-            echo "✅ staging.hifinder.app is live!"
-          else
-            echo "⚠️  Received HTTP $HTTP_CODE (may need time to propagate)"
-          fi
+          echo "✅ Alias set successfully!"
 
       - name: Summary
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🚀 Deployment Complete"
+          echo "🚀 Staging Updated"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Staging URL: https://staging.hifinder.app"
-          echo "Direct URL:  ${{ steps.get_deployment.outputs.url }}"
-          echo "Commit:      ${{ github.sha }}"
+          echo "URL: https://staging.hifinder.app"
+          echo "Direct: ${{ steps.wait.outputs.url }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
