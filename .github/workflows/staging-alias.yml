@@ -1,50 +1,119 @@
 name: Update Staging Alias
 
 on:
-  deployment_status:
+  push:
+    branches:
+      - staging
 
 jobs:
   update-staging-alias:
-    # Only run when deployment is successful
-    if: github.event.deployment_status.state == 'success'
-
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug deployment event
-        run: |
-          echo "State: ${{ github.event.deployment_status.state }}"
-          echo "Ref: ${{ github.event.deployment.ref }}"
-          echo "Environment: ${{ github.event.deployment.environment }}"
-          echo "URL: ${{ github.event.deployment_status.environment_url }}"
-          echo "Full event:"
-          echo '${{ toJSON(github.event) }}'
-
-      - name: Check if this is staging branch
-        id: check_staging
-        run: |
-          REF="${{ github.event.deployment.ref }}"
-          # Check if ref contains 'staging' (could be 'staging', 'refs/heads/staging', etc.)
-          if [[ "$REF" == *"staging"* ]]; then
-            echo "is_staging=true" >> $GITHUB_OUTPUT
-            echo "✅ This is a staging deployment"
-          else
-            echo "is_staging=false" >> $GITHUB_OUTPUT
-            echo "❌ Not a staging deployment (ref: $REF)"
-          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install Vercel CLI
-        if: steps.check_staging.outputs.is_staging == 'true'
         run: npm install --global vercel@latest
 
-      - name: Update staging.hifinder.app alias
-        if: steps.check_staging.outputs.is_staging == 'true'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2
+
+      - name: Wait for Vercel deployment and get URL
+        id: get_deployment
         run: |
-          DEPLOYMENT_URL="${{ github.event.deployment_status.environment_url }}"
-          echo "Deployment URL: $DEPLOYMENT_URL"
+          echo "Waiting for Vercel to deploy commit ${{ github.sha }}..."
 
-          vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app \
-            --token "${{ secrets.VERCEL_TOKEN }}" \
-            --scope "${{ secrets.VERCEL_ORG_ID }}"
+          # Wait up to 5 minutes for deployment
+          MAX_ATTEMPTS=60
+          ATTEMPT=0
+          DEPLOYMENT_URL=""
 
-          echo "✅ Successfully updated staging.hifinder.app → $DEPLOYMENT_URL"
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS: Checking for deployment..."
+
+            # Get deployments for this project
+            DEPLOYMENTS=$(vercel ls --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "")
+
+            # Look for deployment with our commit SHA (first 7 chars)
+            SHORT_SHA="${{ github.sha }}"
+            SHORT_SHA="${SHORT_SHA:0:7}"
+
+            # Find the deployment URL (Vercel list output format varies, so we grep for the URL pattern)
+            DEPLOYMENT_URL=$(echo "$DEPLOYMENTS" | grep -oE 'https://hifinder-[a-z0-9]+-[^.]+\.vercel\.app' | head -1)
+
+            if [ -n "$DEPLOYMENT_URL" ]; then
+              echo "✅ Found deployment: $DEPLOYMENT_URL"
+
+              # Check if deployment is ready
+              STATUS=$(vercel inspect "$DEPLOYMENT_URL" --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "")
+
+              if echo "$STATUS" | grep -q "READY"; then
+                echo "✅ Deployment is ready!"
+                echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+                break
+              else
+                echo "⏳ Deployment found but not ready yet, waiting..."
+              fi
+            fi
+
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 5
+          done
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "❌ No deployment found after 5 minutes"
+            exit 1
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2
+
+      - name: Update staging.hifinder.app alias
+        run: |
+          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.url }}"
+          echo "Setting alias staging.hifinder.app → $DEPLOYMENT_URL"
+
+          # Set the alias with retry logic
+          MAX_RETRIES=3
+          RETRY=0
+
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            if vercel alias set "$DEPLOYMENT_URL" staging.hifinder.app --token=${{ secrets.VERCEL_TOKEN }} --scope team_Gic8SL9uR5MbiWqUFz2MehJQ; then
+              echo "✅ Successfully updated staging.hifinder.app"
+              break
+            else
+              RETRY=$((RETRY + 1))
+              if [ $RETRY -lt $MAX_RETRIES ]; then
+                echo "⚠️ Alias update failed, retrying ($RETRY/$MAX_RETRIES)..."
+                sleep 3
+              else
+                echo "❌ Failed to update alias after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Verify alias
+        run: |
+          echo "Verifying alias is set correctly..."
+          sleep 5
+
+          # Check if the alias resolves
+          ALIAS_CHECK=$(curl -s -o /dev/null -w "%{http_code}" https://staging.hifinder.app)
+
+          if [ "$ALIAS_CHECK" -eq 200 ] || [ "$ALIAS_CHECK" -eq 308 ] || [ "$ALIAS_CHECK" -eq 301 ]; then
+            echo "✅ staging.hifinder.app is responding (HTTP $ALIAS_CHECK)"
+          else
+            echo "⚠️ staging.hifinder.app returned HTTP $ALIAS_CHECK (may need time to propagate)"
+          fi
+
+      - name: Post deployment info
+        run: |
+          echo "🚀 Deployment complete!"
+          echo "Staging URL: https://staging.hifinder.app"
+          echo "Direct URL: ${{ steps.get_deployment.outputs.url }}"
+          echo "Commit: ${{ github.sha }}"
