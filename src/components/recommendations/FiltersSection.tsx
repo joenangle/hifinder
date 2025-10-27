@@ -197,4 +197,12 @@ const FiltersSectionComponent = ({
   )
 }
 
-export const FiltersSection = memo(FiltersSectionComponent)
+// Log filter counts for debugging
+const FiltersSectionWrapper = (props: FiltersSectionProps) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 FiltersSection received filterCounts:', props.filterCounts)
+  }
+  return <FiltersSectionComponent {...props} />
+}
+
+export const FiltersSection = memo(FiltersSectionWrapper)
