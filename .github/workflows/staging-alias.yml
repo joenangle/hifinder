@@ -15,8 +15,10 @@ jobs:
         id: wait_for_vercel
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 300
+          max_timeout: 60
           check_interval: 10
+          path: /
+        continue-on-error: true
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
