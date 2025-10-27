@@ -10,71 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Wait for Vercel deployment
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+        id: wait_for_vercel
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 300
+          check_interval: 10
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2
-
-      - name: Wait for Vercel deployment and get URL
-        id: get_deployment
-        run: |
-          echo "Waiting for Vercel to deploy commit ${{ github.sha }}..."
-
-          # Wait up to 5 minutes for deployment
-          MAX_ATTEMPTS=60
-          ATTEMPT=0
-          DEPLOYMENT_URL=""
-
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS: Checking for deployment..."
-
-            # Get deployments for this project
-            DEPLOYMENTS=$(vercel ls --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "")
-
-            # Look for deployment with our commit SHA (first 7 chars)
-            SHORT_SHA="${{ github.sha }}"
-            SHORT_SHA="${SHORT_SHA:0:7}"
-
-            # Find the deployment URL (Vercel list output format varies, so we grep for the URL pattern)
-            DEPLOYMENT_URL=$(echo "$DEPLOYMENTS" | grep -oE 'https://hifinder-[a-z0-9]+-[^.]+\.vercel\.app' | head -1)
-
-            if [ -n "$DEPLOYMENT_URL" ]; then
-              echo "✅ Found deployment: $DEPLOYMENT_URL"
-
-              # Check if deployment is ready
-              STATUS=$(vercel inspect "$DEPLOYMENT_URL" --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "")
-
-              if echo "$STATUS" | grep -q "READY"; then
-                echo "✅ Deployment is ready!"
-                echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-                break
-              else
-                echo "⏳ Deployment found but not ready yet, waiting..."
-              fi
-            fi
-
-            ATTEMPT=$((ATTEMPT + 1))
-            sleep 5
-          done
-
-          if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "❌ No deployment found after 5 minutes"
-            exit 1
-          fi
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2
-
       - name: Update staging.hifinder.app alias
         run: |
-          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.url }}"
+          DEPLOYMENT_URL="${{ steps.wait_for_vercel.outputs.url }}"
           echo "Setting alias staging.hifinder.app → $DEPLOYMENT_URL"
 
           # Set the alias with retry logic
@@ -115,5 +64,5 @@ jobs:
         run: |
           echo "🚀 Deployment complete!"
           echo "Staging URL: https://staging.hifinder.app"
-          echo "Direct URL: ${{ steps.get_deployment.outputs.url }}"
+          echo "Direct URL: ${{ steps.wait_for_vercel.outputs.url }}"
           echo "Commit: ${{ github.sha }}"
