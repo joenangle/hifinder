@@ -15,8 +15,7 @@ jobs:
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-org-id: team_Gic8SL9uR5MbiWqUFz2MehJQ
           vercel-project-id: prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2
           vercel-args: '--prod'
           alias-domains: staging.hifinder.app
-          scope: team_Gic8SL9uR5MbiWqUFz2MehJQ
