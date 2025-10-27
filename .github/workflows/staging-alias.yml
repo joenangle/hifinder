@@ -22,24 +22,37 @@ jobs:
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS"
 
-            # Call Vercel API to get latest deployment for staging branch
+            # Call Vercel API to get latest deployment for this project
             RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-              "https://api.vercel.com/v13/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&gitBranch=staging&limit=1&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
+              "https://api.vercel.com/v6/deployments?projectId=prj_D9SCi3ptkkrWB44UfdjTFKhP5BN2&limit=5&teamId=team_Gic8SL9uR5MbiWqUFz2MehJQ")
 
-            # Extract deployment URL and state
+            # Debug: Show what we got
+            if [ $ATTEMPT -eq 1 ]; then
+              echo "API Response:"
+              echo "$RESPONSE" | jq '.'
+            fi
+
+            # Extract deployment URL and state from the first deployment
             DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
-            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].state // empty')
+            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+            GIT_BRANCH=$(echo "$RESPONSE" | jq -r '.deployments[0].meta.githubCommitRef // empty')
 
             if [ -n "$DEPLOYMENT_URL" ]; then
               echo "📦 Found deployment: https://$DEPLOYMENT_URL"
               echo "📊 State: $STATE"
+              echo "🌿 Branch: $GIT_BRANCH"
 
-              if [ "$STATE" = "READY" ]; then
-                echo "✅ Deployment is ready!"
-                echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-                break
+              # Check if this is the staging branch deployment
+              if [ "$GIT_BRANCH" = "staging" ]; then
+                if [ "$STATE" = "READY" ]; then
+                  echo "✅ Staging deployment is ready!"
+                  echo "url=https://$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+                  break
+                else
+                  echo "⏳ Staging deployment not ready yet (state: $STATE), waiting..."
+                fi
               else
-                echo "⏳ Deployment not ready yet (state: $STATE), waiting..."
+                echo "⏩ Skipping non-staging deployment (branch: $GIT_BRANCH)"
               fi
             else
               echo "❌ No deployment found yet, waiting..."
