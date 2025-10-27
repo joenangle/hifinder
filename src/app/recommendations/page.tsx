@@ -109,6 +109,7 @@ function RecommendationsContent() {
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
   const [showUsedMarket, setShowUsedMarket] = useState(false)
+  const [focusedComponentId, setFocusedComponentId] = useState<string | null>(null)
 
   // Stack builder state
   const [showStackBuilder, setShowStackBuilder] = useState(false)
@@ -745,6 +746,22 @@ function RecommendationsContent() {
     setCustomBudgetAllocation(allocation)
   }, [])
 
+  // Handle "Find Used" button click
+  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
+    // Open used market section
+    setShowUsedMarket(true)
+    // Set focused component to filter listings
+    setFocusedComponentId(componentId)
+
+    // Scroll to used market section after a short delay to allow section to render
+    setTimeout(() => {
+      const usedMarketSection = document.querySelector('[data-used-market-section]')
+      if (usedMarketSection) {
+        usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }, [])
+
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
 
@@ -973,6 +990,7 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
+                      onFindUsed={handleFindUsed}
                     />
                   )
                 })}
@@ -1032,6 +1050,7 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
+                      onFindUsed={handleFindUsed}
                     />
                   )
                 })}
@@ -1091,6 +1110,7 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
+                      onFindUsed={handleFindUsed}
                     />
                   )
                 })}
@@ -1132,6 +1152,7 @@ function RecommendationsContent() {
                               isSelected={selectedDacs.includes(dac.id)}
                               onToggleSelection={toggleDacSelection}
                               type="dac"
+                              onFindUsed={handleFindUsed}
                             />
                           ))}
                         </div>
@@ -1188,6 +1209,7 @@ function RecommendationsContent() {
                         isSelected={selectedAmps.includes(amp.id)}
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
+                        onFindUsed={handleFindUsed}
                       />
                     ))}
                   </div>
@@ -1244,6 +1266,7 @@ function RecommendationsContent() {
                         isSelected={selectedDacAmps.includes(combo.id)}
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
+                        onFindUsed={handleFindUsed}
                       />
                     ))}
                   </div>
@@ -1333,12 +1356,31 @@ function RecommendationsContent() {
             return null
           }
 
+          // Filter by focused component if set
+          const filteredListings = focusedComponentId
+            ? listingsToDisplay.filter(({ component }) => component.id === focusedComponentId)
+            : listingsToDisplay
+
           return (
-            <div className="mt-12 space-y-8">
-              <h2 className="heading-3 text-center mb-4">
-                {hasSelections ? 'Used Listings for Selected Items' : 'Used Market Listings'}
-              </h2>
-              {listingsToDisplay.map(({ component, listings }) => (
+            <div className="mt-12 space-y-8" data-used-market-section>
+              <div className="text-center mb-6">
+                <h2 className="heading-3 mb-2">
+                  {focusedComponentId
+                    ? 'Used Listings for Selected Item'
+                    : hasSelections
+                    ? 'Used Listings for Selected Items'
+                    : 'Used Market Listings'}
+                </h2>
+                {focusedComponentId && (
+                  <button
+                    onClick={() => setFocusedComponentId(null)}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    ← Show all listings
+                  </button>
+                )}
+              </div>
+              {filteredListings.map(({ component, listings }) => (
                 <UsedListingsSection
                   key={component.id}
                   component={component}

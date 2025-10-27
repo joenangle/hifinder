@@ -24,6 +24,7 @@ interface SignalGearCardProps {
   isSelected: boolean
   onToggleSelection: (id: string) => void
   type: 'dac' | 'amp' | 'combo'
+  onFindUsed?: (componentId: string, componentName: string) => void
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -55,7 +56,8 @@ const SignalGearCardComponent = ({
   component,
   isSelected,
   onToggleSelection,
-  type
+  type,
+  onFindUsed
 }: SignalGearCardProps) => {
   const config = TYPE_CONFIG[type]
 
@@ -136,6 +138,20 @@ const SignalGearCardComponent = ({
           <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
           <p className="text-sm text-text-secondary dark:text-text-secondary">{component.why_recommended}</p>
         </div>
+      )}
+
+      {/* Find Used Button */}
+      {onFindUsed && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation() // Prevent card selection toggle
+            onFindUsed(component.id, `${component.brand} ${component.name}`)
+          }}
+          className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+        >
+          <span>🔍</span>
+          <span>Find Used Listings</span>
+        </button>
       )}
     </div>
   )

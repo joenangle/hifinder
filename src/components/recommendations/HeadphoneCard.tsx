@@ -32,6 +32,7 @@ interface HeadphoneCardProps {
   isTechnicalChamp: boolean
   isToneChamp: boolean
   isBudgetChamp: boolean
+  onFindUsed?: (componentId: string, componentName: string) => void
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -44,7 +45,8 @@ const HeadphoneCardComponent = ({
   onToggleSelection,
   isTechnicalChamp,
   isToneChamp,
-  isBudgetChamp
+  isBudgetChamp,
+  onFindUsed
 }: HeadphoneCardProps) => {
   return (
     <div
@@ -153,6 +155,20 @@ const HeadphoneCardComponent = ({
       </div>
 
       <ExpertAnalysisPanel component={headphone} />
+
+      {/* Find Used Button */}
+      {onFindUsed && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation() // Prevent card selection toggle
+            onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)
+          }}
+          className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+        >
+          <span>🔍</span>
+          <span>Find Used Listings</span>
+        </button>
+      )}
     </div>
   )
 }
