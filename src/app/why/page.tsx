@@ -57,7 +57,7 @@ export default function WhyPage() {
                     listeners and audio enthusiasts.
                   </p>
                   <p className="text-sm border-l-4 border-accent-primary pl-4 italic">
-                    &ldquo;The most sustainable product is the one that already exists.&rdquo;
+                    &ldquo;Buying one used headphone instead of new saves about 14kg of CO₂ — barely a dent in your annual footprint. But if enough of us make it normal, manufacturers will have to build gear <a href="https://medium.com/@joenangle/the-life-deaths-of-a-toothbrush-da5e8b1cd408" target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline font-semibold">that lasts</a>. That&apos;s when real change happens.&rdquo;
                   </p>
                 </div>
               </div>
