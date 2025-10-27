@@ -966,7 +966,7 @@ function GearContent() {
               >
                 {viewMode === 'grid' ? (
                   <div className="p-3">
-                    {/* Compact header with category badge and condition */}
+                    {/* Category badge and condition */}
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
                         getGearCategory(item) === 'headphones' ? 'bg-purple-50/50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
