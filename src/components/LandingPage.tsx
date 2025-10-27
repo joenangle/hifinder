@@ -46,10 +46,10 @@ export function LandingPage() {
           <div className="relative">
           {/* Logo and Brand */}
           <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center shadow-xl border-2 border-accent/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center shadow-xl border-2 border-accent/20 flex-shrink-0">
               <span className="text-2xl">🎧</span>
             </div>
-            <h1 className="heading-1 bg-gradient-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent mb-0">
+            <h1 className="heading-1 bg-gradient-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent m-0 leading-none flex items-center">
               HiFinder
             </h1>
           </div>
