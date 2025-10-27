@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Component } from '@/types'
 import { CompatibilityWarning } from '@/lib/stacks'
+import { generateEbayAffiliateLinkAdvanced, generateTrackingId } from '@/lib/ebay-affiliate'
+import { trackEvent } from '@/lib/analytics'
 
 interface StackBuilderModalProps {
   isOpen: boolean
@@ -290,6 +292,39 @@ export function StackBuilderModal({
           </button>
 
           <div className="flex gap-3">
+            <button
+              onClick={() => {
+                // Generate eBay search for all components
+                const searchTerms = finalComponents
+                  .map(c => `${c.brand} ${c.name}`)
+                  .join(' OR ')
+
+                const ebayUrl = generateEbayAffiliateLinkAdvanced(
+                  searchTerms,
+                  {
+                    condition: 'used',
+                    sortBy: 'best_match',
+                    buyItNowOnly: true,
+                    customId: generateTrackingId('stack_search', 'recommendations')
+                  }
+                )
+
+                trackEvent({
+                  name: 'stack_ebay_search_clicked',
+                  properties: {
+                    component_count: finalComponents.length,
+                    total_cost: totalCost
+                  }
+                })
+
+                window.open(ebayUrl, '_blank')
+              }}
+              disabled={finalComponents.length === 0}
+              className="px-4 py-2 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Search All on eBay
+            </button>
+
             <button
               onClick={() => {
                 const shareUrl = `${window.location.origin}/recommendations?` +
