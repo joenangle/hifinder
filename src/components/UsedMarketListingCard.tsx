@@ -35,7 +35,7 @@ export function UsedMarketListingCard({
       case 'good': return 'text-yellow-600 bg-yellow-50'
       case 'fair': return 'text-orange-600 bg-orange-50'
       case 'parts_only': return 'text-red-600 bg-red-50'
-      default: return 'text-gray-600 bg-gray-50'
+      default: return 'text-secondary bg-surface-secondary'
     }
   }
 
@@ -45,9 +45,9 @@ export function UsedMarketListingCard({
       'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🛒' },
       'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: '🎧' },
       'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800 border-green-200', icon: '👂' },
-      'manual': { name: 'Curated', color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '⭐' }
+      'manual': { name: 'Curated', color: 'bg-surface-secondary text-primary border-border', icon: '⭐' }
     }
-    return sourceMap[source] || { name: source, color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '📦' }
+    return sourceMap[source] || { name: source, color: 'bg-surface-secondary text-primary border-border', icon: '📦' }
   }
 
   const timeAgo = (dateString: string) => {
@@ -138,7 +138,7 @@ export function UsedMarketListingCard({
               <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getConditionColor(listing.condition)}`}>
                 {listing.condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </span>
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-surface-secondary text-primary">
                 {component.category === 'cans' ? 'Headphones' : component.category === 'iems' ? 'IEMs' : component.category}
               </span>
               {amplificationAssessment.difficulty !== 'unknown' && (
@@ -176,7 +176,7 @@ export function UsedMarketListingCard({
                   priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
                   priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
                   priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
-                  'bg-gray-100 text-gray-800 border border-gray-200'
+                  'bg-surface-secondary text-primary border border-border'
                 }`}>
                   {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
                    priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
@@ -210,7 +210,7 @@ export function UsedMarketListingCard({
           {/* Right: Actions */}
           <div className="flex flex-col gap-2">
             {listing.url.includes('/sample') ? (
-              <div className="px-4 py-2 bg-gray-100 text-gray-500 rounded-md text-sm cursor-not-allowed">
+              <div className="px-4 py-2 bg-surface-secondary text-secondary rounded-md text-sm cursor-not-allowed">
                 Demo Listing
               </div>
             ) : (
@@ -292,7 +292,7 @@ export function UsedMarketListingCard({
             priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
             priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
             priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
-            'bg-gray-100 text-gray-800 border border-gray-200'
+            'bg-surface-secondary text-primary border border-border'
           }`}>
             {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
              priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
@@ -340,7 +340,7 @@ export function UsedMarketListingCard({
 
         <div className="flex flex-col gap-2">
           {listing.url.includes('/sample') ? (
-            <div className="w-full px-3 py-2 bg-gray-100 text-gray-500 rounded-md text-sm text-center cursor-not-allowed">
+            <div className="w-full px-3 py-2 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed">
               Demo Listing
             </div>
           ) : (

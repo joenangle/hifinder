@@ -106,7 +106,7 @@ export function GearFilters({
             {onExport && (
               <button
                 onClick={onExport}
-                className="px-3 py-1.5 rounded-md bg-secondary hover:bg-tertiary text-secondary hover:text-primary transition-colors"
+                className="px-3 py-1.5 rounded-md bg-surface-secondary hover:bg-surface-hover text-secondary hover:text-primary transition-colors"
                 title="Export Collection"
               >
                 <Download className="w-4 h-4" />
@@ -115,13 +115,13 @@ export function GearFilters({
             {viewMode && onViewModeChange && (
               <div className="flex items-center gap-2">
                 {/* View Mode Selector with Labels */}
-                <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div className="flex rounded-lg overflow-hidden border border-border">
                   <button
                     onClick={() => onViewModeChange('grid')}
                     className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
                       viewMode === 'grid'
                         ? 'bg-blue-600 text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
                     }`}
                     title="Grid View"
                   >
@@ -130,10 +130,10 @@ export function GearFilters({
                   </button>
                   <button
                     onClick={() => onViewModeChange('list')}
-                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium border-x border-gray-200 dark:border-gray-700 ${
+                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium border-x border-border ${
                       viewMode === 'list'
                         ? 'bg-blue-600 text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
                     }`}
                     title="List View"
                   >
@@ -145,7 +145,7 @@ export function GearFilters({
                     className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
                       viewMode === 'stacks'
                         ? 'bg-orange-600 text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
                     }`}
                     title="Stack Builder - Organize your gear into purposeful setups"
                   >

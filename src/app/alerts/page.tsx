@@ -340,7 +340,7 @@ function AlertsContent() {
                             )}
                           </h3>
                           {!alert.is_active && (
-                            <span className="px-2 py-1 bg-gray-500/20 text-gray-500 text-xs rounded">
+                            <span className="px-2 py-1 bg-surface-secondary text-secondary text-xs rounded">
                               Paused
                             </span>
                           )}

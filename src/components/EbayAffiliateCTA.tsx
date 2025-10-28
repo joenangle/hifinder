@@ -52,7 +52,7 @@ export function EbayAffiliateCTA({
           <span>Check eBay Prices</span>
           <ExternalLink className="w-4 h-4" />
         </button>
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+        <p className="text-xs text-secondary text-center mt-2">
           Affiliate link - HiFinder may earn commission at no cost to you
         </p>
       </div>
@@ -65,7 +65,7 @@ export function EbayAffiliateCTA({
       <div className={`${className}`}>
         <button
           onClick={handleClick}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-border bg-surface-card hover:bg-surface-hover text-primary font-medium rounded-lg transition-colors"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7.5 21c0-1.5-1.5-2.5-3.5-2.5-1 0-2 0-2.5-.5S1 16.5 1 15.5s0-2 .5-2.5S3 12.5 4 12.5c2 0 3.5-1 3.5-2.5V6c0-3 2-5 5-5s5 2 5 5v4c0 1.5 1.5 2.5 3.5 2.5 1 0 2 0 2.5.5s.5 1.5.5 2.5 0 2-.5 2.5-1.5.5-2.5.5c-2 0-3.5 1-3.5 2.5v2c0 .5-.5 1-1 1h-8c-.5 0-1-.5-1-1v-2z"/>
@@ -81,7 +81,7 @@ export function EbayAffiliateCTA({
   return (
     <button
       onClick={handleClick}
-      className={`inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium transition-colors ${className}`}
+      className={`inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors ${className}`}
     >
       <span>Check eBay</span>
       <ExternalLink className="w-3 h-3" />
@@ -124,7 +124,7 @@ export function EbayAffiliateButton({
   return (
     <button
       onClick={handleClick}
-      className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800 transition-colors ${className}`}
+      className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded border border-blue-200 transition-colors ${className}`}
     >
       <span>eBay</span>
       <ExternalLink className="w-3 h-3" />

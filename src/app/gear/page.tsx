@@ -890,7 +890,7 @@ function GearContent() {
                                 getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
                                 getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
                                 getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
-                                'bg-gray-50/50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400'
+                                'bg-surface-secondary/50 text-secondary'
                               }`}>
                                 {getGearCategory(item) === 'headphones' ? '🎧' :
                                  getGearCategory(item) === 'iems' ? '👂' :
@@ -974,7 +974,7 @@ function GearContent() {
                         getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
                         getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
                         getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' :
-                        'bg-gray-50/50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400'
+                        'bg-surface-secondary/50 text-secondary'
                       }`}>
                         {getGearCategory(item) === 'headphones' ? '🎧 Headphones' :
                          getGearCategory(item) === 'iems' ? '👂 IEMs' :
@@ -1040,7 +1040,7 @@ function GearContent() {
                         getGearCategory(item) === 'iems' ? 'bg-amber-50/50 dark:bg-amber-900/20' :
                         getGearCategory(item) === 'dacs' ? 'bg-emerald-50/50 dark:bg-emerald-900/20' :
                         getGearCategory(item) === 'amps' ? 'bg-amber-50/50 dark:bg-amber-900/20' :
-                        'bg-gray-50/50 dark:bg-gray-900/20'
+                        'bg-surface-secondary/50'
                       }`}>
                         {getGearCategory(item) === 'headphones' ? '🎧' :
                          getGearCategory(item) === 'iems' ? '👂' :

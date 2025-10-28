@@ -19,42 +19,10 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn()}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '4px',
-        padding: '6px 10px',
-        backgroundColor: '#E85A4F',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        fontWeight: '500',
-        fontSize: '13px',
-        lineHeight: '1',
-        cursor: 'pointer',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        transition: 'all 0.2s ease',
-        zIndex: '9999',
-        position: 'relative',
-        width: 'auto',
-        height: '32px',
-        whiteSpace: 'nowrap',
-        flexShrink: '0',
-        textDecoration: 'none',
-        overflow: 'hidden'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = '#D84315'
-        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = '#E85A4F'
-        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-      }}
+      className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-accent hover:bg-accent-hover text-white border-none rounded font-medium text-sm cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 relative h-8 whitespace-nowrap flex-shrink-0"
     >
-      <User style={{ width: '16px', height: '16px', color: 'white' }} />
-      <span style={{ color: 'white', fontWeight: '500' }}>Sign In</span>
+      <User className="w-4 h-4" />
+      <span>Sign In</span>
     </button>
   )
 }

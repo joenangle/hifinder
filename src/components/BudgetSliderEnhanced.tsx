@@ -338,20 +338,20 @@ export function BudgetSliderEnhanced({
           )}
           <button
             onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
-            className="p-1 rounded hover:bg-gray-100 transition-colors"
+            className="p-1 rounded hover:bg-surface-hover transition-colors"
             title="Keyboard shortcuts"
           >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </button>
         </div>
 
         {showItemCount && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-secondary">
             {isUpdating ? (
               <span className="flex items-center gap-1">
-                <span className="animate-spin h-3 w-3 border-2 border-gray-400 border-t-transparent rounded-full" />
+                <span className="animate-spin h-3 w-3 border-2 border-secondary border-t-transparent rounded-full" />
                 Updating...
               </span>
             ) : (
@@ -362,10 +362,10 @@ export function BudgetSliderEnhanced({
       </div>
 
       {/* Search range display with dual-range toggle for enthusiasts */}
-      <div className="flex items-center justify-between text-xs text-gray-500">
+      <div className="flex items-center justify-between text-xs text-secondary">
         <button
           onClick={() => setShowRangeAdjust(!showRangeAdjust)}
-          className="flex items-center gap-1 hover:text-gray-700 transition-colors"
+          className="flex items-center gap-1 hover:text-primary transition-colors"
         >
           <span>
             {effectiveVariant === 'dual-range'
@@ -385,7 +385,7 @@ export function BudgetSliderEnhanced({
               className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
                 isDualRange
                   ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-secondary text-secondary hover:bg-surface-hover'
               }`}
               title={isDualRange ? 'Switch to single budget' : 'Set budget range'}
             >
@@ -398,9 +398,9 @@ export function BudgetSliderEnhanced({
 
       {/* Range adjustment panel */}
       {showRangeAdjust && variant !== 'simple' && (
-        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+        <div className="bg-surface-secondary rounded-lg p-3 space-y-2">
           <div>
-            <label className="text-xs font-medium text-gray-600">Below budget: -{budgetRangeMin}%</label>
+            <label className="text-xs font-medium text-secondary">Below budget: -{budgetRangeMin}%</label>
             <input
               type="range"
               min="0"
@@ -419,7 +419,7 @@ export function BudgetSliderEnhanced({
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600">Above budget: +{budgetRangeMax}%</label>
+            <label className="text-xs font-medium text-secondary">Above budget: +{budgetRangeMax}%</label>
             <input
               type="range"
               min="0"
@@ -464,9 +464,9 @@ export function BudgetSliderEnhanced({
                 transition: 'opacity 0.3s'
               }}
             >
-              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-gray-600' : 'bg-gray-400'}`} />
+              <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-primary' : 'bg-secondary'}`} />
               {tick.visible && (
-                <span className={`absolute top-3 left-1/2 -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-gray-700 font-medium' : 'text-gray-500'} whitespace-nowrap text-center`}>
+                <span className={`absolute top-3 left-1/2 -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-primary font-medium' : 'text-secondary'} whitespace-nowrap text-center`}>
                   {tick.label}
                 </span>
               )}
@@ -561,7 +561,7 @@ export function BudgetSliderEnhanced({
       {/* Dual-range input controls only */}
       {showInput && effectiveVariant === 'dual-range' && (
         <div className="flex justify-center items-center gap-2 text-sm">
-          <span className="text-gray-400">$</span>
+          <span className="text-secondary">$</span>
           <input
             type="number"
             value={rangeMin}
@@ -571,11 +571,11 @@ export function BudgetSliderEnhanced({
               setRangeMin(clampedMin)
               if (onRangeChange) onRangeChange(clampedMin, rangeMax)
             }}
-            className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-blue-500"
             min={minBudget}
             max={maxBudget}
           />
-          <span className="text-gray-400">-</span>
+          <span className="text-secondary">-</span>
           <input
             type="number"
             value={rangeMax}
@@ -585,7 +585,7 @@ export function BudgetSliderEnhanced({
               setRangeMax(clampedMax)
               if (onRangeChange) onRangeChange(rangeMin, clampedMax)
             }}
-            className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-blue-500"
             min={minBudget}
             max={maxBudget}
           />
@@ -594,9 +594,9 @@ export function BudgetSliderEnhanced({
 
       {/* Keyboard shortcuts help */}
       {showKeyboardHelp && (
-        <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
-          <div className="font-medium text-gray-700 mb-2">Keyboard Shortcuts:</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-600">
+        <div className="bg-surface-secondary rounded-lg p-3 text-xs space-y-1">
+          <div className="font-medium text-primary mb-2">Keyboard Shortcuts:</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-secondary">
             <div>←/→: ±$10</div>
             <div>Shift+←/→: ±$100</div>
             <div>1-5: Jump to presets</div>

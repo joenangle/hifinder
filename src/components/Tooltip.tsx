@@ -129,10 +129,10 @@ const TooltipComponent = ({
   }
 
   const arrowBorderClasses = {
-    top: 'border-t-gray-900 dark:border-t-gray-800',
-    bottom: 'border-b-gray-900 dark:border-b-gray-800',
-    left: 'border-l-gray-900 dark:border-l-gray-800',
-    right: 'border-r-gray-900 dark:border-r-gray-800'
+    top: 'border-t-[var(--surface-elevated)]',
+    bottom: 'border-b-[var(--surface-elevated)]',
+    left: 'border-l-[var(--surface-elevated)]',
+    right: 'border-r-[var(--surface-elevated)]'
   }
 
   const tooltipContent = shouldRender && typeof document !== 'undefined' ? (
@@ -150,8 +150,8 @@ const TooltipComponent = ({
           pointerEvents: 'none'
         }}
       >
-        <div className="bg-gray-900 dark:bg-gray-800 border border-gray-700 dark:border-gray-600 rounded-lg shadow-2xl px-3 py-2 max-w-xs backdrop-blur-sm">
-          <div className="text-sm text-white whitespace-normal">
+        <div className="bg-surface-elevated border border-border rounded-lg shadow-2xl px-3 py-2 max-w-xs backdrop-blur-sm">
+          <div className="text-sm text-primary whitespace-normal">
             {typeof content === 'string' ? (
               content
             ) : (
@@ -160,7 +160,7 @@ const TooltipComponent = ({
                   <p className="font-medium mb-1">{content.description}</p>
                 )}
                 {content.details && (
-                  <p className="text-xs text-gray-300 dark:text-gray-400">{content.details}</p>
+                  <p className="text-xs text-secondary">{content.details}</p>
                 )}
               </>
             )}

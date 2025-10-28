@@ -1209,7 +1209,7 @@ const handleNext = useCallback(() => {
                           .slice(0, 6)
                           .map((item) => (
                           <div key={item.id} className="flex items-center gap-3 p-3 bg-white rounded-lg">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <div className="w-12 h-12 bg-surface-secondary rounded-lg flex items-center justify-center">
                               {item.components.category.toLowerCase().includes('headphone') || item.components.category.toLowerCase().includes('iem') ? '🎧' :
                                item.components.category.toLowerCase().includes('dac') ? '🔄' :
                                item.components.category.toLowerCase().includes('amp') ? '⚡' : '🎯'}
@@ -1221,7 +1221,7 @@ const handleNext = useCallback(() => {
                           </div>
                         ))}
                         {userGear.filter(item => item.components && item.components.category).length > 6 && (
-                          <div className="flex items-center justify-center p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                          <div className="flex items-center justify-center p-3 bg-surface-secondary rounded-lg text-sm text-secondary">
                             +{userGear.filter(item => item.components && item.components.category).length - 6} more items
                           </div>
                         )}
@@ -1817,7 +1817,7 @@ const handleNext = useCallback(() => {
                         minPercent: parseInt(e.target.value)
                       }
                     })}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-surface-secondary rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-tertiary mt-2">
                     <span>0% (strict)</span>
@@ -1844,7 +1844,7 @@ const handleNext = useCallback(() => {
                         maxPercent: parseInt(e.target.value)
                       }
                     })}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-surface-secondary rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-tertiary mt-2">
                     <span>0% (strict)</span>
