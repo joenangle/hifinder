@@ -145,6 +145,7 @@
   --space-8: 2rem; /* 32px */
   --space-10: 2.5rem; /* 40px */
   --space-12: 3rem; /* 48px */
+  --space-14: 3.5rem; /* 56px - NEW for balanced section spacing */
   --space-16: 4rem; /* 64px */
   --space-20: 5rem; /* 80px */
   --space-24: 6rem; /* 96px */
@@ -221,16 +222,16 @@ body {
 .card {
   background: var(--surface-card);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  border-radius: 14px; /* Slightly rounder than 12px */
   padding: var(--space-5);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother easing */
   box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
   border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px); /* Gentler lift */
+  box-shadow: var(--shadow-xl); /* Stronger shadow on hover */
 }
 
 .card-selected {
@@ -370,6 +371,23 @@ body {
 .button-lg {
   padding: var(--space-4) var(--space-6);
   font-size: var(--text-lg);
+  min-height: 48px; /* Ensure consistent height */
+}
+
+/* Mobile override for large buttons */
+@media (max-width: 640px) {
+  .button-lg {
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-base);
+    min-height: 44px;
+  }
+}
+
+/* Primary button base */
+.button-primary {
+  background: var(--accent-primary);
+  color: white;
+  padding: var(--space-2) var(--space-4);
 }
 
 /* Form Elements */
@@ -1084,6 +1102,10 @@ input[type="number"]::-webkit-inner-spin-button {
   padding-top: var(--space-12);
   padding-bottom: var(--space-12);
 }
+.py-14 {
+  padding-top: var(--space-14);
+  padding-bottom: var(--space-14);
+}
 .py-16 {
   padding-top: var(--space-16);
   padding-bottom: var(--space-16);
@@ -1098,6 +1120,22 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 /* Space Between Utilities */
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--space-6);
+}
+
+.space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--space-8);
+}
+
+.space-y-10 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--space-10);
+}
+
+.space-y-12 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--space-12);
+}
+
 .space-y-16 > :not([hidden]) ~ :not([hidden]) {
   margin-top: var(--space-16);
 }
@@ -1512,22 +1550,31 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .heading-1 {
-  font-size: var(--text-3xl);
+  font-size: 2.25rem; /* 36px base, up from 30px */
   font-weight: var(--font-bold);
   color: var(--text-primary);
   margin-bottom: var(--space-6);
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .heading-1 {
+    font-size: 2.625rem; /* 42px on desktop, balanced middle ground */
+  }
 }
 
 .heading-2 {
-  font-size: var(--text-2xl);
+  font-size: 1.875rem; /* 30px, up from 24px */
   font-weight: var(--font-bold);
   color: var(--text-primary);
+  line-height: 1.3;
 }
 
 .heading-3 {
-  font-size: var(--text-xl);
+  font-size: 1.375rem; /* 22px, up from 20px */
   font-weight: var(--font-semibold);
   color: var(--text-primary);
+  line-height: 1.4;
 }
 
 .heading-4 {
@@ -2594,4 +2641,29 @@ select.input {
   --ui-warm: var(--rec-filter-warm, #fdba74);
   --ui-bright: var(--rec-filter-bright, #7dd3fc);
   --ui-fun: var(--rec-filter-fun, #f9a8d4);
+}
+
+/* ============================================
+   LANDING PAGE UTILITIES (BALANCED DESIGN)
+   ============================================ */
+
+/* Subtle gradient overlay for hero/CTA sections */
+.gradient-overlay-subtle {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right,
+    rgba(255, 107, 53, 0.1) 0%,
+    rgba(255, 107, 53, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Alternating section background */
+.bg-feature {
+  background-color: rgba(248, 249, 250, 0.5); /* Very subtle tint */
+}
+
+[data-theme="dark"] .bg-feature {
+  background-color: rgba(28, 31, 38, 0.5);
 }
