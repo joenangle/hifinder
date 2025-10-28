@@ -421,7 +421,7 @@ export function LandingPage() {
           <h2 className="heading-2 text-center mb-4 bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">
             How HiFinder Works
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="card p-6 text-center shadow-lg transition-all duration-300 hover:-translate-y-1 border hover:border-accent/30 group">
               <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
                 <span className="text-lg">📊</span>
@@ -454,25 +454,34 @@ export function LandingPage() {
                 optimize your gear budget.
               </p>
             </div>
-          </div>
-
-          {/* New to Audio - Compact */}
-          <div className="text-center mt-8">
-            <p className="text-secondary mb-4">
-              New to audio? We have learning resources too.
-            </p>
-            <Link
-              href="/learn"
-              className="button button-secondary"
-              onClick={() =>
-                trackEvent({
-                  name: "education_clicked",
-                  properties: { location: "how_it_works_section" },
-                })
-              }
+            <div
+              className="card p-6 text-center shadow-lg transition-all duration-300 hover:-translate-y-1 border hover:border-accent/30 group"
+              style={{
+                background:
+                  "linear-gradient(to bottom right, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05))",
+              }}
             >
-              📚 Audio Education Center
-            </Link>
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 ring-2 ring-accent/10">
+                <span className="text-lg">📚</span>
+              </div>
+              <h3 className="heading-3 mb-2 font-semibold">New to Audio?</h3>
+              <p className="text-secondary leading-relaxed mb-4">
+                We have learning resources too. Start with the basics and build
+                your knowledge.
+              </p>
+              <Link
+                href="/learn"
+                className="button button-primary button-sm w-full"
+                onClick={() =>
+                  trackEvent({
+                    name: "education_clicked",
+                    properties: { location: "how_it_works_section" },
+                  })
+                }
+              >
+                Audio Education Center
+              </Link>
+            </div>
           </div>
         </section>
 
