@@ -350,18 +350,18 @@ export default function LearnPage() {
 
   const getDifficultyColor = (difficulty: Resource['difficulty']) => {
     switch(difficulty) {
-      case 'beginner': return 'bg-green-600/30 text-green-300 border-green-500/50';
-      case 'intermediate': return 'bg-yellow-600/30 text-yellow-300 border-yellow-500/50';
-      case 'advanced': return 'bg-red-600/30 text-red-300 border-red-500/50';
+      case 'beginner': return 'bg-success/20 text-success border-success/50';
+      case 'intermediate': return 'bg-warning/20 text-warning border-warning/50';
+      case 'advanced': return 'bg-error/20 text-error border-error/50';
     }
   };
 
   const getCategoryColor = (category: Resource['category']) => {
     switch(category) {
-      case 'basics': return 'bg-blue-600/30 text-blue-300';
-      case 'technical': return 'bg-purple-600/30 text-purple-300';
-      case 'guides': return 'bg-orange-600/30 text-orange-300';
-      case 'reviews': return 'bg-pink-600/30 text-pink-300';
+      case 'basics': return 'bg-info/20 text-info';
+      case 'technical': return 'bg-accent/20 text-accent';
+      case 'guides': return 'bg-warning/20 text-warning';
+      case 'reviews': return 'bg-accent/20 text-accent';
     }
   };
 

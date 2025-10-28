@@ -29,9 +29,11 @@
   --text-inverse: #ffffff;
 
   --accent-primary: #e85a4f; /* Toned down orange-red */
+  --accent-primary-rgb: 232, 90, 79; /* RGB for opacity support */
   --accent-hover: #d84315;
   --accent-active: #bf360c;
   --accent-subtle: #fff3e0;
+  --background-secondary-rgb: 248, 249, 250; /* RGB for opacity support */
 
   --success: #2e7d32;
   --warning: #f57c00;
@@ -62,9 +64,11 @@
   --text-inverse: #0a0b0d;
 
   --accent-primary: #e85a4f;
+  --accent-primary-rgb: 232, 90, 79; /* RGB for opacity support */
   --accent-hover: #ff7043;
   --accent-active: #d84315;
   --accent-subtle: #3d2822;
+  --background-secondary-rgb: 19, 21, 26; /* RGB for opacity support */
 
   --success: #4caf50;
   --warning: #ff9800;

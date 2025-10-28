@@ -95,7 +95,7 @@ export default function WhyPage() {
           </section>
 
           {/* The Broader Vision */}
-          <section className="card p-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700">
+          <section className="card p-8 bg-accent/5 border-accent/20">
             <div className="flex items-start gap-4 mb-4">
               <span className="text-4xl">💡</span>
               <div>
@@ -137,14 +137,14 @@ export default function WhyPage() {
                       href="https://github.com/joenangle/hifinder"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors inline-flex items-center gap-2"
+                      className="button button-secondary inline-flex items-center gap-2"
                     >
                       <span>⭐</span>
                       <span>Star on GitHub</span>
                     </a>
                     <a
                       href="mailto:hello@hifinder.app"
-                      className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-text-primary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                      className="button button-secondary inline-flex items-center gap-2"
                     >
                       <span>✉️</span>
                       <span>Get in Touch</span>
@@ -156,7 +156,7 @@ export default function WhyPage() {
           </section>
 
           {/* Credits */}
-          <section className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
+          <section className="text-center py-8 border-t border-border">
             <p className="text-sm text-text-tertiary mb-2">
               Built with Next.js, Supabase, and lots of coffee
             </p>
