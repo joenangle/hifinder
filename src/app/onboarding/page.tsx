@@ -1501,7 +1501,7 @@ const handleNext = useCallback(() => {
                   displayBudget={budgetState.displayBudget}
                   onChange={budgetState.handleBudgetChange}
                   onChangeComplete={budgetState.handleBudgetChangeComplete}
-                  onRangeChange={(min, max) => {
+                  onRangeChange={(min: number, max: number) => {
                     // Update the budget range in preferences when dual-range mode is used
                     const centerBudget = (min + max) / 2
                     const minPercent = Math.round(((centerBudget - min) / centerBudget) * 100)
