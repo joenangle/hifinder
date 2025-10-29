@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
-import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { BudgetSlider } from '@/components/BudgetSlider'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { UserStack } from '@/lib/stacks'
 
@@ -1455,7 +1455,7 @@ const handleNext = useCallback(() => {
               {/* Simple budget slider using enhanced component */}
               <div>
                 <label className="block text-sm font-medium mb-2">Or set a custom budget:</label>
-                <BudgetSliderEnhanced
+                <BudgetSlider
                   budget={budgetState.budget}
                   displayBudget={budgetState.displayBudget}
                   onChange={budgetState.handleBudgetChange}
@@ -1496,7 +1496,7 @@ const handleNext = useCallback(() => {
                   <span className={`text-center ${budgetState.budget > 1000 && budgetState.budget <= 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '60px' }}>High End</span>
                   <span className={`text-center ${budgetState.budget > 3000 ? 'font-bold text-primary' : ''}`} style={{ width: '70px' }}>Summit-Fi</span>
                 </div>
-                <BudgetSliderEnhanced
+                <BudgetSlider
                   budget={budgetState.budget}
                   displayBudget={budgetState.displayBudget}
                   onChange={budgetState.handleBudgetChange}

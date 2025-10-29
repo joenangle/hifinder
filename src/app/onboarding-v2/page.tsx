@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ChevronRight } from 'lucide-react'
-import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { BudgetSlider } from '@/components/BudgetSlider'
 import { useBudgetState } from '@/hooks/useBudgetState'
 
 interface OnboardingState {
@@ -551,7 +551,7 @@ export default function OnboardingV2() {
               isCompleted={true}
             >
               <div className="space-y-8">
-                <BudgetSliderEnhanced
+                <BudgetSlider
                   budget={budget}
                   displayBudget={displayBudget}
                   onChange={handleBudgetChange}
