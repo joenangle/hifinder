@@ -145,7 +145,7 @@ export function BudgetSlider({
   budgetRangeMax = 10,
   onRangeChange,
   className = ''
-}: BudgetSliderEnhancedProps) {
+}: BudgetSliderProps) {
   const [localBudget, setLocalBudget] = useState(displayBudget || budget)
   const [budgetInputValue, setBudgetInputValue] = useState(localBudget.toString())
   const [showTooltip, setShowTooltip] = useState(false)

@@ -592,14 +592,6 @@ function RecommendationsContent() {
   }, [fetchUsedListings])
 
   // Selection toggle functions
-  const toggleHeadphoneSelection = (id: string) => {
-    setSelectedHeadphones(prev =>
-      prev.includes(id)
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
-
   const toggleCansSelection = (id: string) => {
     setSelectedCans(prev =>
       prev.includes(id)
@@ -903,7 +895,6 @@ function RecommendationsContent() {
           budget={budget}
           onBuildStack={() => setShowStackBuilder(true)}
           onClearAll={() => {
-            setSelectedHeadphones([])
             setSelectedCans([])
             setSelectedIems([])
             setSelectedDacs([])
