@@ -240,6 +240,23 @@ async function allocateBudgetAcrossComponents(
     combo: existingGear?.combo ? 0.5 : 0.35
   }
 
+  // Special handling: If combo is requested alongside DAC/amp, give combo the combined budget
+  const hasCombo = requestedComponents.includes('combo')
+  const hasDac = requestedComponents.includes('dac')
+  const hasAmp = requestedComponents.includes('amp')
+
+  if (hasCombo && (hasDac || hasAmp)) {
+    // Remove DAC and amp from requested components - combo replaces them
+    const filteredComponents = requestedComponents.filter(c => c !== 'dac' && c !== 'amp')
+    // Calculate what DAC + amp budgets would have been
+    const dacRatio = priceRatios.dac
+    const ampRatio = priceRatios.amp
+    const combinedSignalGearRatio = dacRatio + ampRatio
+    // Give that combined budget to combo
+    priceRatios.combo = combinedSignalGearRatio
+    requestedComponents = filteredComponents
+  }
+
   // Single component gets full budget (respects caps)
   if (requestedComponents.length === 1) {
     const component = requestedComponents[0]
@@ -636,16 +653,16 @@ export async function GET(request: NextRequest) {
     }
 
     const results: {
-      headphones: RecommendationComponent[]
-      cans?: RecommendationComponent[]
-      iems?: RecommendationComponent[]
+      cans: RecommendationComponent[]
+      iems: RecommendationComponent[]
       dacs: RecommendationComponent[]
       amps: RecommendationComponent[]
       combos: RecommendationComponent[]
       budgetAllocation: Record<string, number>
       needsAmplification: boolean
     } = {
-      headphones: [],
+      cans: [],
+      iems: [],
       dacs: [],
       amps: [],
       combos: [],
@@ -709,15 +726,28 @@ export async function GET(request: NextRequest) {
         combos: allComponentsData.filter(c => c.category === 'dac_amp')
       }
 
-      // Process headphones and IEMs separately if both are active, otherwise combine
-      const bothTypesActive = req.headphoneType === 'both'
+      // Debug: Log what we got from database
+      console.log('🔍 API: Components from database:', {
+        totalComponents: allComponentsData.length,
+        cans: componentsByCategory.cans.length,
+        iems: componentsByCategory.iems.length,
+        budget: req.budget,
+        soundSignature: req.soundSignature,
+        headphoneType: req.headphoneType
+      })
 
+      // Process cans and IEMs: ALWAYS separate, never combine
       if (req.wantRecommendationsFor.headphones) {
         const headphoneBudget = budgetAllocation.headphones || req.budget
         const headphoneRanges = customRanges.headphones || { min: req.budgetRangeMin, max: req.budgetRangeMax }
 
-        if (bothTypesActive && componentsByCategory.cans.length > 0 && componentsByCategory.iems.length > 0) {
-          // Separate sections for cans and IEMs
+        // Check if user wants both types or just one specific type
+        const wantsBoth = req.headphoneType === 'both'
+        const wantsCansOnly = req.headphoneType === 'cans'
+        const wantsIemsOnly = req.headphoneType === 'iems'
+
+        // Get cans results if user wants them
+        if (wantsCansOnly || wantsBoth) {
           results.cans = filterAndScoreComponents(
             componentsByCategory.cans,
             headphoneBudget,
@@ -730,7 +760,10 @@ export async function GET(request: NextRequest) {
             undefined,
             req.budget
           )
+        }
 
+        // Get IEMs results if user wants them
+        if (wantsIemsOnly || wantsBoth) {
           results.iems = filterAndScoreComponents(
             componentsByCategory.iems,
             headphoneBudget,
@@ -743,28 +776,19 @@ export async function GET(request: NextRequest) {
             undefined,
             req.budget
           )
-
-          results.needsAmplification = results.cans.some(h => {
-            if (!h.amplificationAssessment) return h.needs_amp === true
-            return h.amplificationAssessment.difficulty === 'demanding' ||
-                   h.amplificationAssessment.difficulty === 'very_demanding'
+          console.log('🔍 API: IEMs after filtering:', {
+            input: componentsByCategory.iems.length,
+            output: results.iems.length,
+            budget: headphoneBudget,
+            rangeMin: headphoneRanges.min,
+            rangeMax: headphoneRanges.max,
+            soundSignature: req.soundSignature
           })
-        } else if (componentsByCategory.headphones.length > 0) {
-          // Combined section (single type active or only one type has results)
-          results.headphones = filterAndScoreComponents(
-            componentsByCategory.headphones,
-            headphoneBudget,
-            headphoneRanges.min,
-            headphoneRanges.max,
-            req.soundSignature,
-            req.usageRanking[0] || req.usage,
-            maxOptions,
-            req.driverType,
-            undefined,
-            req.budget
-          )
+        }
 
-          results.needsAmplification = results.headphones.some(h => {
+        // Check amplification needs from cans (IEMs rarely need amps)
+        if (results.cans && results.cans.length > 0) {
+          results.needsAmplification = results.cans.some(h => {
             if (!h.amplificationAssessment) return h.needs_amp === true
             return h.amplificationAssessment.difficulty === 'demanding' ||
                    h.amplificationAssessment.difficulty === 'very_demanding'

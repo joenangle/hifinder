@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
-import { BudgetSliderEnhanced } from '@/components/BudgetSliderEnhanced'
+import { BudgetSlider } from '@/components/BudgetSlider'
 import { useBudgetState } from '@/hooks/useBudgetState'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { Tooltip } from '@/components/Tooltip'
@@ -86,9 +86,8 @@ function RecommendationsContent() {
   } = useGuidedMode()
 
   // Component state
-  const [headphones, setHeadphones] = useState<AudioComponent[]>([]) // Combined or single type
-  const [cans, setCans] = useState<AudioComponent[]>([]) // Separate headphones
-  const [iems, setIems] = useState<AudioComponent[]>([]) // Separate IEMs
+  const [cans, setCans] = useState<AudioComponent[]>([]) // Headphones (over-ear/on-ear)
+  const [iems, setIems] = useState<AudioComponent[]>([]) // IEMs (in-ear monitors)
   const [dacs, setDacs] = useState<AudioComponent[]>([])
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
@@ -99,7 +98,6 @@ function RecommendationsContent() {
   const [, setShowAmplification] = useState(false)
 
   // Selection state
-  const [selectedHeadphones, setSelectedHeadphones] = useState<string[]>([])
   const [selectedCans, setSelectedCans] = useState<string[]>([])
   const [selectedIems, setSelectedIems] = useState<string[]>([])
   const [selectedDacs, setSelectedDacs] = useState<string[]>([])
@@ -269,12 +267,26 @@ function RecommendationsContent() {
       wantRecsRaw.headphones = true
     }
 
+    // Compute headphoneType from URL param or derive from typeFilters default
+    const headphoneTypesFromUrl = searchParams.get('headphoneTypes')
+    let computedHeadphoneType: 'cans' | 'iems' | 'both' = 'both' // Default to both
+    if (headphoneTypesFromUrl) {
+      try {
+        const types = JSON.parse(headphoneTypesFromUrl)
+        if (Array.isArray(types)) {
+          computedHeadphoneType = types.length === 2 ? 'both' : types.length === 1 ? types[0] : 'both'
+        }
+      } catch {
+        computedHeadphoneType = 'both'
+      }
+    }
+
     const urlPrefs = {
       experience: searchParams.get('experience') || 'intermediate',
       budget: parseInt(searchParams.get('budget') || '300'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
-      headphoneType: searchParams.get('headphoneType') || 'cans',
+      headphoneType: searchParams.get('headphoneType') || computedHeadphoneType,
       wantRecommendationsFor: wantRecsRaw,
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
       usage: searchParams.get('usage') || 'music',
@@ -306,30 +318,28 @@ function RecommendationsContent() {
 
   // Update URL when preferences change
   const updatePreferences = useCallback((newPrefs: Partial<typeof userPrefs>) => {
-    setUserPrefs(prev => {
-      const updatedPrefs = { ...prev, ...newPrefs }
+    setUserPrefs(prev => ({ ...prev, ...newPrefs }))
+  }, [])
 
-      // Update URL params
-      const params = new URLSearchParams()
-      params.set('experience', updatedPrefs.experience)
-      params.set('budget', updatedPrefs.budget.toString())
-      params.set('budgetRangeMin', updatedPrefs.budgetRangeMin.toString())
-      params.set('budgetRangeMax', updatedPrefs.budgetRangeMax.toString())
-      params.set('headphoneType', updatedPrefs.headphoneType)
-      params.set('headphoneTypes', JSON.stringify(typeFilters))
-      params.set('soundSignatures', JSON.stringify([soundFilter]))
-      params.set('wantRecommendationsFor', JSON.stringify(updatedPrefs.wantRecommendationsFor))
-      params.set('existingGear', JSON.stringify(updatedPrefs.existingGear))
-      params.set('usage', updatedPrefs.usage)
-      params.set('usageRanking', JSON.stringify(updatedPrefs.usageRanking))
-      params.set('excludedUsages', JSON.stringify(updatedPrefs.excludedUsages))
-      params.set('sound', updatedPrefs.soundSignature)
+  // Sync URL with state changes - separate effect to avoid setState-in-render
+  useEffect(() => {
+    const params = new URLSearchParams()
+    params.set('experience', userPrefs.experience)
+    params.set('budget', userPrefs.budget.toString())
+    params.set('budgetRangeMin', userPrefs.budgetRangeMin.toString())
+    params.set('budgetRangeMax', userPrefs.budgetRangeMax.toString())
+    params.set('headphoneType', userPrefs.headphoneType)
+    params.set('headphoneTypes', JSON.stringify(typeFilters))
+    params.set('soundSignatures', JSON.stringify([soundFilter]))
+    params.set('wantRecommendationsFor', JSON.stringify(userPrefs.wantRecommendationsFor))
+    params.set('existingGear', JSON.stringify(userPrefs.existingGear))
+    params.set('usage', userPrefs.usage)
+    params.set('usageRanking', JSON.stringify(userPrefs.usageRanking))
+    params.set('excludedUsages', JSON.stringify(userPrefs.excludedUsages))
+    params.set('sound', userPrefs.soundSignature)
 
-      router.push(`/recommendations?${params.toString()}`, { scroll: false })
-
-      return updatedPrefs
-    })
-  }, [typeFilters, soundFilter, router])
+    router.push(`/recommendations?${params.toString()}`, { scroll: false })
+  }, [userPrefs, typeFilters, soundFilter, router])
 
   // Handle browse mode changes
   const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
@@ -397,7 +407,6 @@ function RecommendationsContent() {
       }
       
       console.log('✅ Recommendations received:', {
-        headphones: recommendations.headphones?.length || 0,
         cans: recommendations.cans?.length || 0,
         iems: recommendations.iems?.length || 0,
         dacs: recommendations.dacs?.length || 0,
@@ -411,15 +420,12 @@ function RecommendationsContent() {
       console.log('🔍 Frontend State Check:', {
         wantRecommendationsFor,
         'wantRecommendationsFor.headphones': wantRecommendationsFor?.headphones,
-        'headphones.length': recommendations.headphones?.length || 0,
         'cans.length': recommendations.cans?.length || 0,
         'iems.length': recommendations.iems?.length || 0,
         'separate sections': !!recommendations.cans && !!recommendations.iems
       })
 
-      // Set recommendations with fallbacks
-      // API returns either separate (cans + iems) or combined (headphones)
-      setHeadphones(recommendations.headphones || [])
+      // Set recommendations - API always returns separate cans and iems arrays
       setCans(recommendations.cans || [])
       setIems(recommendations.iems || [])
       setDacs(recommendations.dacs || [])
@@ -427,6 +433,24 @@ function RecommendationsContent() {
       setAmps(recommendations.amps || [])
       setDacAmps(recommendations.combos || [])
       setShowAmplification(recommendations.needsAmplification || false)
+
+      // Debug logging for IEMs
+      console.log('✅ Recommendations received:', {
+        cans: recommendations.cans?.length || 0,
+        iems: recommendations.iems?.length || 0,
+        dacs: recommendations.dacs?.length || 0,
+        amps: recommendations.amps?.length || 0,
+        combos: recommendations.combos?.length || 0,
+        needsAmplification: recommendations.needsAmplification,
+        budgetAllocation: recommendations.budgetAllocation
+      })
+      console.log('🔍 IEMs detailed check:', {
+        iemsReceived: recommendations.iems,
+        iemsCount: recommendations.iems?.length || 0,
+        currentSoundFilter: soundFilter,
+        currentTypeFilters: typeFilters,
+        wantRecommendationsFor: wantRecommendationsFor
+      })
 
       // Initialize custom budget allocation if not already set (first load)
       if (!customBudgetAllocation && recommendations.budgetAllocation) {
@@ -448,8 +472,7 @@ function RecommendationsContent() {
       }
       
       // Check if we got any results
-      const headphoneResults = (recommendations.headphones?.length || 0) +
-                               (recommendations.cans?.length || 0) +
+      const headphoneResults = (recommendations.cans?.length || 0) +
                                (recommendations.iems?.length || 0)
       const totalResults = headphoneResults +
                           (recommendations.dacs?.length || 0) +
@@ -457,7 +480,6 @@ function RecommendationsContent() {
                           (recommendations.combos?.length || 0)
 
       console.log('🔍 Frontend results check:', {
-        headphones: recommendations.headphones?.length || 0,
         cans: recommendations.cans?.length || 0,
         iems: recommendations.iems?.length || 0,
         dacs: recommendations.dacs?.length || 0,
@@ -473,7 +495,6 @@ function RecommendationsContent() {
       setError(`Unable to load recommendations: ${errorMessage}`)
 
       // Fallback to empty state
-      setHeadphones([])
       setCans([])
       setIems([])
       setDacs([])
@@ -541,7 +562,7 @@ function RecommendationsContent() {
   const fetchUsedListings = useCallback(async () => {
     if (!showUsedMarket) return
 
-    const allComponents = [...headphones, ...cans, ...iems, ...dacs, ...amps, ...dacAmps]
+    const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
     const componentIds = allComponents.map(c => c.id)
     
     console.log('Fetching used listings for components:', componentIds.length)
@@ -562,7 +583,7 @@ function RecommendationsContent() {
       console.error('Error fetching used listings:', error)
       return
     }
-  }, [showUsedMarket, headphones, cans, iems, dacs, amps, dacAmps])
+  }, [showUsedMarket, cans, iems, dacs, amps, dacAmps])
   
   // Used market data is now loaded inline in fetchUsedListings function above
 
@@ -621,7 +642,6 @@ function RecommendationsContent() {
 
   // Calculate total for selected items
   const selectedHeadphoneItems = [
-    ...headphones.filter(h => selectedHeadphones.includes(h.id)),
     ...cans.filter(h => selectedCans.includes(h.id)),
     ...iems.filter(h => selectedIems.includes(h.id))
   ]
@@ -658,7 +678,7 @@ function RecommendationsContent() {
       return `Here are highly-rated headphones and IEMs in your ${formatBudgetUSD(budget)} budget range. Use the filters below to narrow results by type and sound signature.`
     }
 
-    const totalItems = headphones.length + dacs.length + amps.length + dacAmps.length
+    const totalItems = cans.length + iems.length + dacs.length + amps.length + dacAmps.length
 
     if (experience === 'beginner') {
       return totalItems > 0
@@ -684,7 +704,7 @@ function RecommendationsContent() {
     if (experience === 'advanced') return null
 
     const selectedHeadphonesThatNeedAmp = selectedHeadphoneItems.filter(hp => hp.needs_amp)
-    const recommendedHeadphonesThatNeedAmp = headphones.filter(hp => hp.needs_amp)
+    const recommendedHeadphonesThatNeedAmp = [...cans, ...iems].filter(hp => hp.needs_amp)
 
     return {
       selectedNeedAmp: selectedHeadphonesThatNeedAmp,
@@ -818,7 +838,7 @@ function RecommendationsContent() {
           className="w-full"
         >
           <div className="card p-4" style={{ marginBottom: '24px', width: '100%' }} data-budget-slider>
-            <BudgetSliderEnhanced
+            <BudgetSlider
               budget={budgetState.budget}
               displayBudget={budgetState.displayBudget}
               onChange={budgetState.handleBudgetChange}
@@ -829,7 +849,7 @@ function RecommendationsContent() {
               showInput={true}
               showLabels={true}
               showItemCount={true}
-              itemCount={headphones.length + dacs.length + amps.length + dacAmps.length}
+              itemCount={cans.length + iems.length + dacs.length + amps.length + dacAmps.length}
               minBudget={20}
               maxBudget={10000}
               budgetRangeMin={userPrefs.budgetRangeMin}
@@ -895,25 +915,24 @@ function RecommendationsContent() {
         {/* Dynamic grid based on number of component types */}
         {(() => {
           // Check for separate cans/iems or combined headphones
-          const hasSeparateSections = cans.length > 0 && iems.length > 0
+          // Always show separate sections for cans and iems
           const hasCans = wantRecommendationsFor.headphones && cans.length > 0
           const hasIems = wantRecommendationsFor.headphones && iems.length > 0
-          const hasHeadphones = wantRecommendationsFor.headphones && headphones.length > 0
           const hasDacs = wantRecommendationsFor.dac && dacs.length > 0
           const hasAmps = wantRecommendationsFor.amp && amps.length > 0
           const hasCombos = wantRecommendationsFor.combo && dacAmps.length > 0
           const hasSignalGear = hasDacs || hasAmps || hasCombos
 
           const activeTypes = [
-            hasSeparateSections ? hasCans : hasHeadphones,
-            hasSeparateSections ? hasIems : false,
+            hasCans,
+            hasIems,
             hasDacs,
             hasAmps,
             hasCombos
           ].filter(Boolean).length
 
           // Special layout: headphones + signal gear → 2 columns (headphones | signal gear stacked)
-          const useStackedLayout = (hasHeadphones || hasCans || hasIems) && hasSignalGear && activeTypes >= 2
+          const useStackedLayout = (hasCans || hasIems) && hasSignalGear && activeTypes >= 2
 
           const gridClass = activeTypes === 1
             ? 'grid grid-cols-1 gap-8 max-w-2xl mx-auto'
@@ -940,7 +959,7 @@ function RecommendationsContent() {
                 className={`${gridClass} transition-opacity duration-300 ${loading && hasLoadedOnce ? 'opacity-60' : 'opacity-100'}`}
               >
               {/* Separate Headphones (Cans) Section */}
-              {hasSeparateSections && hasCans && (() => {
+              {hasCans && (() => {
                 // Identify top performers for cans
                 const topTechnical = cans.reduce((prev, current) => {
                   const prevGrade = prev.expert_grade_numeric || 0
@@ -1000,7 +1019,7 @@ function RecommendationsContent() {
           })()}
 
               {/* Separate IEMs Section */}
-              {hasSeparateSections && hasIems && (() => {
+              {hasIems && (() => {
                 // Identify top performers for iems
                 const topTechnical = iems.reduce((prev, current) => {
                   const prevGrade = prev.expert_grade_numeric || 0
@@ -1047,66 +1066,6 @@ function RecommendationsContent() {
                       headphone={headphone}
                       isSelected={selectedIems.includes(headphone.id)}
                       onToggleSelection={toggleIemsSelection}
-                      isTechnicalChamp={isTechnicalChamp}
-                      isToneChamp={isToneChamp}
-                      isBudgetChamp={isBudgetChamp}
-                      onFindUsed={handleFindUsed}
-                    />
-                  )
-                })}
-              </div>
-            </div>
-                )
-          })()}
-
-              {/* Combined Headphones & IEMs Section (when only one type is active) */}
-              {!hasSeparateSections && hasHeadphones && (() => {
-                // Identify top performers
-                const topTechnical = headphones.reduce((prev, current) => {
-                  const prevGrade = prev.expert_grade_numeric || 0
-                  const currGrade = current.expert_grade_numeric || 0
-                  return currGrade > prevGrade ? current : prev
-                })
-
-                const topTone = headphones.reduce((prev, current) => {
-                  const prevScore = prev.matchScore || 0
-                  const currScore = current.matchScore || 0
-                  return currScore > prevScore ? current : prev
-                })
-
-                const topBudget = headphones.reduce((prev, current) => {
-                  const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
-                  const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
-                  return currValue > prevValue ? current : prev
-                })
-
-                return (
-            <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-orange-700/30 bg-gradient-to-b from-orange-300 to-orange-200 dark:from-orange-400/80 dark:to-orange-300/80 rounded-t-xl">
-                <h2 className="text-lg font-semibold text-center text-white">
-                  🎧 Headphones & IEMs
-                </h2>
-                <div className="text-center mt-0.5">
-                  <span className="text-xs text-white">
-                    {headphones.length} options
-                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 && (
-                      <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
-                    )}
-                  </span>
-                </div>
-              </div>
-              <div className="p-4 flex flex-col gap-[5px]">
-                {headphones.map((headphone) => {
-                  const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
-                  const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
-
-                  return (
-                    <HeadphoneCard
-                      key={headphone.id}
-                      headphone={headphone}
-                      isSelected={selectedHeadphones.includes(headphone.id)}
-                      onToggleSelection={toggleHeadphoneSelection}
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
@@ -1320,17 +1279,18 @@ function RecommendationsContent() {
         {/* Used Listings */}
         {showUsedMarket && (() => {
           // Filter to only show selected items if any are selected
-          const hasSelections = selectedHeadphones.length > 0 || selectedDacs.length > 0 ||
-                                selectedAmps.length > 0 || selectedDacAmps.length > 0
+          const hasSelections = selectedCans.length > 0 || selectedIems.length > 0 ||
+                                selectedDacs.length > 0 || selectedAmps.length > 0 || selectedDacAmps.length > 0
 
           const componentsToShow = hasSelections
             ? [
-                ...headphones.filter(h => selectedHeadphones.includes(h.id)),
+                ...cans.filter(h => selectedCans.includes(h.id)),
+                ...iems.filter(h => selectedIems.includes(h.id)),
                 ...dacs.filter(d => selectedDacs.includes(d.id)),
                 ...amps.filter(a => selectedAmps.includes(a.id)),
                 ...dacAmps.filter(da => selectedDacAmps.includes(da.id))
               ]
-            : [...headphones, ...dacs, ...amps, ...dacAmps]
+            : [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
 
           const listingsToDisplay = componentsToShow.map(component => {
             const componentListings = usedListings[component.id] || []

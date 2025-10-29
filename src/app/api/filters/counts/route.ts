@@ -169,41 +169,55 @@ export async function GET(request: NextRequest) {
     let ampsCount = 0
     let combosCount = 0
 
+    // Determine which equipment types should be counted
+    // If no equipment filter is active, count all. Otherwise, only count active filters.
+    const shouldCountCans = activeEquipment.length === 0 || activeEquipment.includes('cans')
+    const shouldCountIems = activeEquipment.length === 0 || activeEquipment.includes('iems')
+    const shouldCountDacs = activeEquipment.length === 0 || activeEquipment.includes('dacs')
+    const shouldCountAmps = activeEquipment.length === 0 || activeEquipment.includes('amps')
+    const shouldCountCombos = activeEquipment.length === 0 || activeEquipment.includes('combos')
+
     // Headphones counts
     if (wantRecommendationsFor.headphones && budgetAllocation.headphones) {
       const { min: headphoneMin, max: headphoneMax } = budgetAllocation.headphones
 
-      let cansQuery = supabase
-        .from('components')
-        .select('id', { count: 'exact', head: true })
-        .eq('category', 'cans')
-        .gte('price_used_min', headphoneMin)
-        .lte('price_used_max', headphoneMax)
+      // Only query cans if they should be counted
+      if (shouldCountCans) {
+        let cansQuery = supabase
+          .from('components')
+          .select('id', { count: 'exact', head: true })
+          .eq('category', 'cans')
+          .gte('price_used_min', headphoneMin)
+          .lte('price_used_max', headphoneMax)
 
-      if (activeSoundSignature) {
-        cansQuery = cansQuery.eq('sound_signature', activeSoundSignature)
+        if (activeSoundSignature) {
+          cansQuery = cansQuery.eq('sound_signature', activeSoundSignature)
+        }
+
+        const cansResult = await cansQuery
+        cansCount = cansResult.count || 0
       }
 
-      const cansResult = await cansQuery
-      cansCount = cansResult.count || 0
+      // Only query IEMs if they should be counted
+      if (shouldCountIems) {
+        let iemsQuery = supabase
+          .from('components')
+          .select('id', { count: 'exact', head: true })
+          .eq('category', 'iems')
+          .gte('price_used_min', headphoneMin)
+          .lte('price_used_max', headphoneMax)
 
-      let iemsQuery = supabase
-        .from('components')
-        .select('id', { count: 'exact', head: true })
-        .eq('category', 'iems')
-        .gte('price_used_min', headphoneMin)
-        .lte('price_used_max', headphoneMax)
+        if (activeSoundSignature) {
+          iemsQuery = iemsQuery.eq('sound_signature', activeSoundSignature)
+        }
 
-      if (activeSoundSignature) {
-        iemsQuery = iemsQuery.eq('sound_signature', activeSoundSignature)
+        const iemsResult = await iemsQuery
+        iemsCount = iemsResult.count || 0
       }
-
-      const iemsResult = await iemsQuery
-      iemsCount = iemsResult.count || 0
     }
 
-    // DAC counts
-    if (wantRecommendationsFor.dac && budgetAllocation.dac) {
+    // DAC counts - only query if DACs should be counted
+    if (shouldCountDacs && wantRecommendationsFor.dac && budgetAllocation.dac) {
       const { min: dacMin, max: dacMax } = budgetAllocation.dac
       const dacsResult = await supabase
         .from('components')
@@ -215,8 +229,8 @@ export async function GET(request: NextRequest) {
       dacsCount = dacsResult.count || 0
     }
 
-    // Amp counts
-    if (wantRecommendationsFor.amp && budgetAllocation.amp) {
+    // Amp counts - only query if amps should be counted
+    if (shouldCountAmps && wantRecommendationsFor.amp && budgetAllocation.amp) {
       const { min: ampMin, max: ampMax } = budgetAllocation.amp
       const ampsResult = await supabase
         .from('components')
@@ -228,8 +242,8 @@ export async function GET(request: NextRequest) {
       ampsCount = ampsResult.count || 0
     }
 
-    // Combo counts
-    if (wantRecommendationsFor.combo && budgetAllocation.combo) {
+    // Combo counts - only query if combos should be counted
+    if (shouldCountCombos && wantRecommendationsFor.combo && budgetAllocation.combo) {
       const { min: comboMin, max: comboMax } = budgetAllocation.combo
       const combosResult = await supabase
         .from('components')

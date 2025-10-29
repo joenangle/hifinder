@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import './BudgetSliderEnhanced.css'
+import './BudgetSlider.css'
 
-interface BudgetSliderEnhancedProps {
+interface BudgetSliderProps {
   budget: number
   displayBudget?: number
   onChange: (value: number) => void
@@ -127,7 +127,7 @@ const getDynamicTicks = (min: number, max: number, currentValue: number) => {
     .sort((a, b) => a.value - b.value) // Sort by value for consistent positioning
 }
 
-export function BudgetSliderEnhanced({
+export function BudgetSlider({
   budget,
   displayBudget,
   onChange,

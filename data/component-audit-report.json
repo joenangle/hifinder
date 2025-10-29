@@ -1,0 +1,289 @@
+{
+  "audit_date": "2025-10-29",
+  "total_components_audited": 13,
+  "categorization_fixes": [
+    {
+      "id": "9f91ca11-6771-4515-a689-0c06cc35e3f7",
+      "name": "Audeze LCD-XC",
+      "current_category": "iems",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Audeze LCD-XC is a closed-back planar magnetic over-ear headphone, not an IEM. It features 106mm planar drivers and weighs 677g, which are typical specifications for full-sized headphones."
+    },
+    {
+      "id": "09cd48e5-0406-47d9-a031-0226d2aa5efd",
+      "name": "Audeze Euclid",
+      "current_category": "iems",
+      "correct_category": "iems",
+      "confidence": "high",
+      "reasoning": "Audeze Euclid is correctly categorized as an IEM. It features an 18mm planar magnetic driver designed for in-ear use with MMCX cable and multiple ear tip options. This is Audeze's first closed-back planar IEM."
+    },
+    {
+      "id": "261ef6f1-506a-4323-915b-c33085615255",
+      "name": "A&K T8iE",
+      "current_category": "iems",
+      "correct_category": "iems",
+      "confidence": "high",
+      "reasoning": "A&K T8iE is correctly categorized as an IEM. It's a collaboration between Astell & Kern and Beyerdynamic featuring Tesla technology in a single dynamic driver in-ear design."
+    },
+    {
+      "id": "5f5572c1-f47c-4782-9f77-df38b0847310",
+      "name": "Audiosense DT200",
+      "current_category": "iems",
+      "correct_category": "iems",
+      "confidence": "high",
+      "reasoning": "Audiosense DT200 is correctly categorized as an IEM. Features 2 Knowles balanced armature drivers with detachable MMCX cable, typical IEM design."
+    },
+    {
+      "id": "25ff4026-c864-4cc2-91c2-c2c516ae2e27",
+      "name": "Audiosense DT600",
+      "current_category": "iems",
+      "correct_category": "iems",
+      "confidence": "high",
+      "reasoning": "Audiosense DT600 is correctly categorized as an IEM. Features 6 Knowles balanced armature drivers with MMCX connector, designed for in-ear use."
+    },
+    {
+      "id": "58719c89-611e-4dac-a2ef-c9cfcd4260c6",
+      "name": "Hifiman HE500",
+      "current_category": "iems",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Hifiman HE500 is a planar magnetic over-ear headphone, not an IEM. It weighs 502g and features full-sized over-the-ear design that completely encloses the ears. This is one of HiFiMAN's classic planar magnetic headphones."
+    },
+    {
+      "id": "8a7e4b0b-2e5b-4cda-8fea-e8503404a339",
+      "name": "Meze Rai Penta",
+      "current_category": "iems",
+      "correct_category": "iems",
+      "confidence": "high",
+      "reasoning": "Meze Rai Penta is correctly categorized as an IEM. Features 4 balanced armature + 1 dynamic driver in a hybrid configuration with MMCX connector for in-ear use."
+    },
+    {
+      "id": "04f59f8d-23b1-441f-855d-97c7d61e42fd",
+      "name": "BLON B20",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "BLON B20 is correctly categorized as cans. It's a full-size planar magnetic over-ear headphone with 97x76mm drivers, weighing 460g. Open-back design with wood and metal construction."
+    },
+    {
+      "id": "ef85dd6a-504a-4e7a-9039-e9062913b7d7",
+      "name": "Final D8000 Pro",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Final D8000 Pro is correctly categorized as cans. It's a semi-open back planar magnetic over-ear headphone featuring AFDS planar magnetic driver technology, weighing 523g."
+    },
+    {
+      "id": "3dc6d9cb-7ca3-47cf-9d20-51edeaab931b",
+      "name": "Moondrop Para",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Moondrop Para is correctly categorized as cans. It's a full-size planar magnetic over-ear headphone with ultra-large 100mm diameter diaphragm, weighing 530g."
+    },
+    {
+      "id": "8f1e5613-98c8-4d31-9c06-6e7aff0094a4",
+      "name": "Moondrop Void",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Moondrop Void is correctly categorized as cans. It's a full-sized open-back dynamic headphone with 50mm driver, weighing approximately 250g. This is Moondrop's first full-sized headphone model."
+    },
+    {
+      "id": "7dfd521f-f69d-44ae-a439-fe3ae735695f",
+      "name": "Stax SR-Lambda Pro",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "Stax SR-Lambda Pro is correctly categorized as cans. It's a circumaural electrostatic over-ear headphone featuring push-pull electrostatic drivers with 2-micrometer thick diaphragms."
+    },
+    {
+      "id": "fd8daf38-e882-4ee4-a861-f82a2b6a463b",
+      "name": "Symphonium HarmonicDyne Helios",
+      "current_category": "cans",
+      "correct_category": "cans",
+      "confidence": "high",
+      "reasoning": "This entry appears to be the HarmonicDyne Helios (not Symphonium Helios which is an IEM). HarmonicDyne Helios is correctly categorized as cans - it's an open-back over-ear headphone with 50mm dynamic driver, weighing 360g. NOTE: If this was intended to be the Symphonium Helios IEM, the brand should be corrected to 'Symphonium' (not 'Symphonium HarmonicDyne') and category changed to 'iems'."
+    }
+  ],
+  "data_enrichment": [
+    {
+      "id": "9f91ca11-6771-4515-a689-0c06cc35e3f7",
+      "name": "Audeze LCD-XC",
+      "missing_fields": {
+        "impedance": 20,
+        "driver_type": "Planar",
+        "needs_amp": false,
+        "fit": "Closed Circumaural"
+      },
+      "source": "Audeze official website / B&H Photo / Moon Audio",
+      "notes": "Despite low 20-ohm impedance and high sensitivity (100dB/1mW), benefits from amplification but works with portable devices. Recommended power: >250mW."
+    },
+    {
+      "id": "09cd48e5-0406-47d9-a031-0226d2aa5efd",
+      "name": "Audeze Euclid",
+      "missing_fields": {
+        "impedance": 12,
+        "driver_type": "Planar",
+        "needs_amp": false,
+        "fit": "Universal"
+      },
+      "source": "Audeze official website / Headfonics / Audio46",
+      "notes": "High efficiency at 105-110dB/mW with 12 ohm impedance makes it easy to drive from portable sources. Includes multiple ear tip options."
+    },
+    {
+      "id": "261ef6f1-506a-4323-915b-c33085615255",
+      "name": "A&K T8iE",
+      "missing_fields": {
+        "impedance": 16,
+        "driver_type": "Dynamic",
+        "needs_amp": false,
+        "fit": "Universal"
+      },
+      "source": "Astell & Kern official / Headfonia / The Absolute Sound",
+      "notes": "Dynamic driver with Tesla technology. Sensitivity: 109dB SPL. Easy to drive from portable devices."
+    },
+    {
+      "id": "5f5572c1-f47c-4782-9f77-df38b0847310",
+      "name": "Audiosense DT200",
+      "missing_fields": {
+        "impedance": 14,
+        "driver_type": "BA",
+        "needs_amp": false,
+        "fit": "Universal"
+      },
+      "source": "Headfonics / Linsoul / HiFiGo",
+      "notes": "2 Knowles BA drivers (1 for highs, 1 for mids/lows). Sensitivity: 99±3dB. Fairly easy to drive but scales with better amplification."
+    },
+    {
+      "id": "25ff4026-c864-4cc2-91c2-c2c516ae2e27",
+      "name": "Audiosense DT600",
+      "missing_fields": {
+        "impedance": 16,
+        "driver_type": "BA",
+        "needs_amp": false,
+        "fit": "Universal"
+      },
+      "source": "Headfonia / Linsoul / Audiosense official",
+      "notes": "6 Knowles BA drivers (2 lows, 2 mids, 2 highs). Sensitivity: 106±3dB. Includes 80-ohm impedance adapter for alternate sound signature."
+    },
+    {
+      "id": "58719c89-611e-4dac-a2ef-c9cfcd4260c6",
+      "name": "Hifiman HE500",
+      "missing_fields": {
+        "impedance": 38,
+        "driver_type": "Planar",
+        "needs_amp": true,
+        "fit": "Open Circumaural"
+      },
+      "source": "HomeTheaterHifi / The Absolute Sound / Stereophile",
+      "notes": "Sensitivity: 89dB/mW. Despite relatively low impedance, the low sensitivity requires dedicated amplification for optimal performance. Weight: 502g."
+    },
+    {
+      "id": "8a7e4b0b-2e5b-4cda-8fea-e8503404a339",
+      "name": "Meze Rai Penta",
+      "missing_fields": {
+        "impedance": 20,
+        "driver_type": "Hybrid",
+        "needs_amp": false,
+        "fit": "Universal"
+      },
+      "source": "Meze Audio / Headfonia / Audio46",
+      "notes": "Penta-hybrid: 4 BA + 1 DD. Sensitivity: 110dB/1mW. Very easy to drive with high sensitivity."
+    },
+    {
+      "id": "04f59f8d-23b1-441f-855d-97c7d61e42fd",
+      "name": "BLON B20",
+      "missing_fields": {
+        "impedance": 32,
+        "driver_type": "Planar",
+        "needs_amp": true,
+        "fit": "Open Circumaural"
+      },
+      "source": "Linsoul / Prime Audio Reviews / Audiophile ON",
+      "notes": "Composite planar magnetic 97x76mm drivers. Sensitivity: 96dB. Benefits from dedicated amplification. Weight: 460g."
+    },
+    {
+      "id": "ef85dd6a-504a-4e7a-9039-e9062913b7d7",
+      "name": "Final D8000 Pro",
+      "missing_fields": {
+        "impedance": 60,
+        "driver_type": "Planar",
+        "needs_amp": true,
+        "fit": "Semi-Open Circumaural"
+      },
+      "source": "Final Audio official / Audio46 / Headfonics",
+      "notes": "AFDS planar magnetic. Sensitivity: 98dB/mW. Requires amplification for optimal performance. Weight: 523g. Note: D8000 DC Pro variant has 50Ω impedance and 90dB/mW sensitivity."
+    },
+    {
+      "id": "3dc6d9cb-7ca3-47cf-9d20-51edeaab931b",
+      "name": "Moondrop Para",
+      "missing_fields": {
+        "impedance": 8,
+        "driver_type": "Planar",
+        "needs_amp": true,
+        "fit": "Open Circumaural"
+      },
+      "source": "Moondrop official / Apos Audio / Headfonics",
+      "notes": "Ultra-large 100mm planar driver. Sensitivity: 101dB/Vrms (80dB/mW equivalent). Despite low 8Ω impedance, requires high current (up to 1A for 120dB peaks). CRITICAL: Most dongles and basic amps will struggle. Needs desktop amp or powerful DAP with current drive capability."
+    },
+    {
+      "id": "8f1e5613-98c8-4d31-9c06-6e7aff0094a4",
+      "name": "Moondrop Void",
+      "missing_fields": {
+        "impedance": 64,
+        "driver_type": "Dynamic",
+        "needs_amp": false,
+        "fit": "Open Circumaural"
+      },
+      "source": "Moondrop official / Headphonesty / Audiophonics",
+      "notes": "50mm dynamic driver. Sensitivity: 110dB/Vrms. Relatively efficient despite 64Ω impedance. Can be driven by USB DAC/amp dongles. Weight: ~250g."
+    },
+    {
+      "id": "7dfd521f-f69d-44ae-a439-fe3ae735695f",
+      "name": "Stax SR-Lambda Pro",
+      "missing_fields": {
+        "impedance": null,
+        "driver_type": "Electrostatic",
+        "needs_amp": true,
+        "fit": "Open Circumaural"
+      },
+      "source": "Stereophile / Headphonesty / Ken Rockwell",
+      "notes": "Electrostatic push-pull design with 2μm thick diaphragm. Sensitivity: 108dB/1mW. Bias voltage: 580VDC. REQUIRES dedicated electrostatic amplifier/energizer (not standard headphone amp). Cannot be used with regular headphone outputs. Weight: 15oz."
+    },
+    {
+      "id": "fd8daf38-e882-4ee4-a861-f82a2b6a463b",
+      "name": "Symphonium HarmonicDyne Helios",
+      "missing_fields": {
+        "impedance": 16,
+        "driver_type": "Dynamic",
+        "needs_amp": false,
+        "fit": "Open Circumaural"
+      },
+      "source": "Linsoul / Headphonesty / Soundphile Review",
+      "notes": "50mm German-engineered dynamic driver. Open-back design with walnut wood and stainless steel. Weight: 360g. NOTE: Brand name may be incorrect - should likely be just 'HarmonicDyne' not 'Symphonium HarmonicDyne'. Symphonium Helios is a different product (4BA IEM)."
+    }
+  ],
+  "summary": {
+    "total_audited": 13,
+    "categorization_changes_needed": 2,
+    "correctly_categorized": 11,
+    "components_needing_category_fix": [
+      "Audeze LCD-XC (iems → cans)",
+      "Hifiman HE500 (iems → cans)"
+    ],
+    "technical_specs_added": {
+      "impedance": 13,
+      "driver_type": 13,
+      "needs_amp": 13,
+      "fit": 13
+    },
+    "special_notes": [
+      "Moondrop Para (8Ω) requires high-current amplification despite low impedance",
+      "Stax SR-Lambda Pro requires dedicated electrostatic amplifier, not standard headphone amp",
+      "Symphonium HarmonicDyne Helios brand name may need verification - likely should be 'HarmonicDyne'",
+      "Several planar headphones benefit from dedicated amplification even with moderate impedance"
+    ]
+  }
+}

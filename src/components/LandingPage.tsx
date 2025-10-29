@@ -129,13 +129,18 @@ export function LandingPage() {
             <div className="relative lg:block hidden">
               {/* Glow effect behind image */}
               <div className="absolute inset-0 bg-gradient-to-br from-accent/30 to-accent-hover/20 rounded-3xl blur-3xl opacity-20"></div>
-              {/* Hero Image - Fit by width */}
+              {/* Hero Image - Cropped and properly fitted */}
               <div className="relative rounded-3xl shadow-2xl overflow-hidden">
                 <img
                   src="/hero-headphones.jpg"
-                  alt="Premium headphones"
-                  className="w-full h-auto object-contain"
+                  alt="Premium audio headphones collection"
+                  className="w-full h-auto object-cover"
+                  style={{ aspectRatio: '4/3' }}
                 />
+                {/* Photo attribution */}
+                <div className="absolute bottom-2 right-2 text-xs text-white/60 bg-black/30 px-2 py-1 rounded">
+                  Photo: <a href="https://www.flickr.com/photos/fourfridays/" target="_blank" rel="noopener noreferrer" className="hover:text-white/80">Umair Abassi</a>
+                </div>
               </div>
             </div>
           </div>
