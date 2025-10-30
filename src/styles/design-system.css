@@ -729,16 +729,9 @@ input[type="number"] {
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+  /* Removed -webkit-appearance: none to allow component-level overrides */
   margin: 0;
-  display: block;
-  height: 100%;
-  width: 20px;
-  background: transparent;
-  cursor: pointer;
-  position: absolute;
-  right: 8px;
-  top: 0;
+  display: none; /* Hide by default using display instead of appearance */
 }
 
 /* Custom spinners for budget input */

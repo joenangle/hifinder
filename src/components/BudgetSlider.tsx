@@ -151,7 +151,7 @@ export function BudgetSlider({
   const [showTooltip, setShowTooltip] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
-  const [showRangeAdjust, setShowRangeAdjust] = useState(false)
+  const [showRangeAdjust, setShowRangeAdjust] = useState(true) // Show controls by default
   const [isDualRange, setIsDualRange] = useState(false)
   const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
   const [rangeMax, setRangeMax] = useState(Math.min(maxBudget, Math.round(budget * (1 + budgetRangeMax / 100))))
@@ -312,9 +312,10 @@ export function BudgetSlider({
   )
 
   return (
-    <div className={`space-y-3 ${className}`}>
-      {/* Header with budget display and item count */}
-      <div className="flex items-center justify-between mb-2">
+    <div className={`space-y-2 ${className}`}>
+      {/* Centered budget display */}
+      <div className="flex flex-col items-center gap-2 mb-0">
+        {/* Budget amount */}
         <div className="flex items-center gap-2">
           {effectiveVariant === 'dual-range' ? (
             <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
@@ -328,7 +329,7 @@ export function BudgetSlider({
                 value={budgetInputValue}
                 onChange={(e) => handleInputChange(e.target.value)}
                 onBlur={handleInputBlur}
-                className="text-2xl font-bold bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
+                className="budget-number-input text-2xl font-bold bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
                 style={{ color: currentTier.color }}
                 min={minBudget}
                 max={maxBudget}
@@ -347,54 +348,40 @@ export function BudgetSlider({
           </button>
         </div>
 
-        {showItemCount && (
-          <div className="text-sm text-secondary">
-            {isUpdating ? (
-              <span className="flex items-center gap-1">
-                <span className="animate-spin h-3 w-3 border-2 border-secondary border-t-transparent rounded-full" />
-                Updating...
-              </span>
-            ) : (
-              <span>{itemCount} matching components</span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Search range display with dual-range toggle for enthusiasts */}
-      <div className="flex items-center justify-between text-xs text-secondary">
+        {/* Tier label with search range - combined and centered */}
         <button
           onClick={() => setShowRangeAdjust(!showRangeAdjust)}
-          className="flex items-center gap-1 hover:text-primary transition-colors"
+          className="text-xs text-secondary hover:text-primary transition-colors"
         >
-          <span>
+          <span className="font-medium" style={{ color: currentTier.color }}>{currentTier.name}</span>
+          <span className="text-secondary">
             {effectiveVariant === 'dual-range'
-              ? `Range ${formatBudget(rangeMin)}-${formatBudget(rangeMax)}`
-              : `Searching ${formatBudget(searchMin)}-${formatBudget(searchMax)}`
+              ? `: ${formatBudget(rangeMin)}-${formatBudget(rangeMax)}`
+              : `: searching ${formatBudget(searchMin)}-${formatBudget(searchMax)}`
             }
           </span>
           {effectiveVariant !== 'dual-range' && (
-            <span className="text-[10px]">(-{budgetRangeMin}% to +{budgetRangeMax}%)</span>
+            <span className="text-secondary"> (-{budgetRangeMin}% to +{budgetRangeMax}%)</span>
           )}
         </button>
-
-        <div className="flex items-center gap-2">
-          {shouldShowDualRangeOption && variant !== 'simple' && (
-            <button
-              onClick={() => setIsDualRange(!isDualRange)}
-              className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
-                isDualRange
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                  : 'bg-surface-secondary text-secondary hover:bg-surface-hover'
-              }`}
-              title={isDualRange ? 'Switch to single budget' : 'Set budget range'}
-            >
-              {isDualRange ? 'Range Mode' : 'Single Budget'}
-            </button>
-          )}
-          <span className="font-medium" style={{ color: currentTier.color }}>{currentTier.name}</span>
-        </div>
       </div>
+
+      {/* Dual-range toggle for enthusiasts (right-aligned) */}
+      {shouldShowDualRangeOption && variant !== 'simple' && (
+        <div className="flex justify-end -mt-2 mb-2">
+          <button
+            onClick={() => setIsDualRange(!isDualRange)}
+            className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+              isDualRange
+                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                : 'bg-surface-secondary text-secondary hover:bg-surface-hover'
+            }`}
+            title={isDualRange ? 'Switch to single budget' : 'Set budget range'}
+          >
+            {isDualRange ? 'Range Mode' : 'Single Budget'}
+          </button>
+        </div>
+      )}
 
       {/* Range adjustment panel */}
       {showRangeAdjust && variant !== 'simple' && (
@@ -466,7 +453,14 @@ export function BudgetSlider({
             >
               <div className={`h-2 w-px mx-auto ${tick.emphasized ? 'bg-primary' : 'bg-secondary'}`} />
               {tick.visible && (
-                <span className={`absolute top-3 left-1/2 -translate-x-1/2 text-[10px] ${tick.emphasized ? 'text-primary font-medium' : 'text-secondary'} whitespace-nowrap text-center`}>
+                <span
+                  className={`absolute top-1 text-[10px] ${tick.emphasized ? 'text-primary font-medium' : 'text-secondary'} whitespace-nowrap`}
+                  style={{
+                    left: tick.position <= 5 ? '0' : tick.position >= 95 ? 'auto' : '50%',
+                    right: tick.position >= 95 ? '0' : 'auto',
+                    transform: tick.position <= 5 || tick.position >= 95 ? 'none' : 'translateX(-50%)'
+                  }}
+                >
                   {tick.label}
                 </span>
               )}

@@ -1,10 +1,26 @@
 /* Budget Slider Enhanced Styles */
 
-/* Hide number input spinner arrows */
+/* Hide number input spinner arrows globally */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Show spinner arrows for budget input */
+.budget-number-input::-webkit-inner-spin-button,
+.budget-number-input::-webkit-outer-spin-button {
+  -webkit-appearance: auto !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  margin: 0;
+  height: auto !important;
+  width: auto !important;
+  background: transparent !important;
+}
+
+.budget-number-input {
+  -moz-appearance: number-input !important;
 }
 
 input[type="number"] {
