@@ -765,13 +765,21 @@ export async function GET(request: NextRequest) {
           maxOptions
         )
 
-        // Separate cans and IEMs when both are requested (headphoneType === 'both')
+        // Separate cans and IEMs based on headphoneType
         if (req.headphoneType === 'both') {
           results.cans = allHeadphones.filter(h => h.category === 'cans')
           results.iems = allHeadphones.filter(h => h.category === 'iems')
           results.headphones = [] // Keep empty for backwards compatibility
+        } else if (req.headphoneType === 'cans') {
+          results.cans = allHeadphones.filter(h => h.category === 'cans')
+          results.iems = []
+          results.headphones = [] // Keep empty for backwards compatibility
+        } else if (req.headphoneType === 'iems') {
+          results.iems = allHeadphones.filter(h => h.category === 'iems')
+          results.cans = []
+          results.headphones = [] // Keep empty for backwards compatibility
         } else {
-          // Single type requested - return in headphones array
+          // Fallback for legacy usage
           results.headphones = allHeadphones
           results.cans = []
           results.iems = []
