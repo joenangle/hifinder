@@ -1,35 +1,41 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { trackEvent } from '@/lib/analytics'
-import { Check, Package, Construction, ShoppingCart, Target } from 'lucide-react'
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
+import {
+  Check,
+  Package,
+  Construction,
+  ShoppingCart,
+  Target,
+} from "lucide-react";
 
 interface SiteStats {
-  components: number
-  listings: number
+  components: number;
+  listings: number;
   budgetRange: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
 }
 
 export function LandingPageV2() {
   const [stats, setStats] = useState<SiteStats>({
     components: 579,
     listings: 316,
-    budgetRange: { min: 20, max: 10000 }
-  })
+    budgetRange: { min: 20, max: 10000 },
+  });
 
   useEffect(() => {
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
+    fetch("/api/stats")
+      .then((res) => res.json())
+      .then((data) => setStats(data))
       .catch(() => {
         // Keep fallback values
-      })
-  }, [])
+      });
+  }, []);
 
   return (
     <main className="min-h-screen">
@@ -46,7 +52,10 @@ export function LandingPageV2() {
                 <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center shadow-xl border-2 border-accent/20 flex-shrink-0">
                   <span className="text-2xl leading-none">🎧</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-none" style={{ margin: 0, padding: 0 }}>
+                <h1
+                  className="text-4xl md:text-5xl font-bold text-foreground leading-none"
+                  style={{ margin: 0, padding: 0 }}
+                >
                   HiFinder
                 </h1>
               </div>
@@ -66,25 +75,36 @@ export function LandingPageV2() {
 
               {/* Description */}
               <p className="text-lg text-secondary leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Build, track, and optimize your audio gear collection with personalized recommendations,
-                stack management, and used market integration
+                Build, track, and optimize your audio gear collection with
+                personalized recommendations, stack management, and used market
+                integration
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                 <Link
                   href="/recommendations"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-3 bg-accent hover:bg-accent-hover text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl group w-auto"
-                  onClick={() => trackEvent({ name: 'hero_cta_clicked', properties: { location: 'hero_primary' } })}
+                  className="inline-flex items-center justify-center gap-3 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl group w-auto"
+                  onClick={() =>
+                    trackEvent({
+                      name: "hero_cta_clicked",
+                      properties: { location: "hero_primary" },
+                    })
+                  }
                 >
                   🎯 Find My Perfect Setup
                 </Link>
                 <Link
                   href="/learn"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3 border border-border hover:bg-surface-secondary text-foreground font-semibold rounded-lg transition-colors w-auto"
-                  onClick={() => trackEvent({ name: 'learn_clicked', properties: { location: 'hero_secondary' } })}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-border hover:bg-surface-secondary text-foreground font-semibold rounded-lg transition-colors w-auto"
+                  onClick={() =>
+                    trackEvent({
+                      name: "learn_clicked",
+                      properties: { location: "hero_secondary" },
+                    })
+                  }
                 >
-                  📚 Learn Audio Basics
+                  📚 Learn Audio Essentials
                 </Link>
               </div>
 
@@ -100,7 +120,7 @@ export function LandingPageV2() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="h-5 w-5 text-green-500" />
-                  <span>5-minute setup</span>
+                  <span>Instant recommendations</span>
                 </div>
               </div>
             </div>
@@ -119,7 +139,15 @@ export function LandingPageV2() {
                 />
                 {/* Photo attribution */}
                 <div className="absolute bottom-2 right-2 text-xs text-white/60 bg-black/30 px-2 py-1 rounded">
-                  Photo: <a href="https://www.flickr.com/photos/fourfridays/" target="_blank" rel="noopener noreferrer" className="hover:text-white/80">Umair Abassi</a>
+                  Photo:{" "}
+                  <a
+                    href="https://www.flickr.com/photos/fourfridays/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white/80"
+                  >
+                    Umair Abassi
+                  </a>
                 </div>
               </div>
             </div>
@@ -163,51 +191,65 @@ export function LandingPageV2() {
       <section className="py-12 bg-surface-secondary/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 space-y-4">
-            <h2 className="text-4xl font-bold">Complete Audio Gear Management</h2>
+            <h2 className="text-4xl font-bold">
+              Complete Audio Gear Management
+            </h2>
             <p className="text-secondary text-lg max-w-2xl mx-auto">
-              Everything you need to build, manage, and optimize your perfect audio setup
+              Everything you need to build, manage, and optimize your perfect
+              audio setup
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4">
             {/* Feature Cards */}
             {[
               {
                 icon: <Package className="h-6 w-6" />,
                 title: "Gear Collection",
-                description: "Track your audio gear, monitor values, set up price alerts, and discover upgrade paths. Keep detailed records of your entire setup.",
+                description:
+                  "Track your audio gear, monitor values, set up price alerts, and discover upgrade paths. Keep detailed records of your entire setup.",
                 link: "/gear",
-                linkText: "Track & manage →"
+                linkText: "Track & manage →",
               },
               {
                 icon: <Construction className="h-6 w-6" />,
                 title: "Stack Builder",
-                description: "Build and compare complete audio systems. Test different combinations, calculate total costs, and find the perfect synergy.",
+                description:
+                  "Build and compare complete audio systems. Test different combinations, calculate total costs, and find the perfect synergy.",
                 link: "/gear?tab=stacks",
-                linkText: "Create systems →"
+                linkText: "Create systems →",
               },
               {
                 icon: <ShoppingCart className="h-6 w-6" />,
                 title: "Used Market",
-                description: "Browse used audio gear from multiple sources. Get alerts on price drops, find rare items, and save money on quality equipment.",
+                description:
+                  "Browse used audio gear from multiple sources. Get alerts on price drops, find rare items, and save money on quality equipment.",
                 link: "/used-market",
-                linkText: "Find deals →"
+                linkText: "Find deals →",
               },
               {
                 icon: <Target className="h-6 w-6" />,
                 title: "Smart Recommendations",
-                description: "Algorithm-driven recommendations based on measurements, your preferences, and existing gear. Science-based, not hype-based.",
+                description:
+                  "Algorithm-driven recommendations based on measurements, your preferences, and existing gear. Science-based, not hype-based.",
                 link: "/recommendations",
-                linkText: "Get personalized →"
-              }
+                linkText: "See recommendations →",
+              },
             ].map((feature, index) => (
               <Link
                 key={index}
                 href={feature.link}
                 className="p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group bg-card border border-border rounded-lg"
-                onClick={() => trackEvent({ name: 'feature_clicked', properties: { feature: feature.title.toLowerCase().replace(' ', '_') } })}
+                onClick={() =>
+                  trackEvent({
+                    name: "feature_clicked",
+                    properties: {
+                      feature: feature.title.toLowerCase().replace(" ", "_"),
+                    },
+                  })
+                }
               >
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-lg bg-accent/50 text-accent group-hover:bg-accent group-hover:text-white transition-colors">
                       {feature.icon}
@@ -244,21 +286,25 @@ export function LandingPageV2() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
-                title: "Science-Based",
-                description: "Recommendations based on measurements and objective data, not marketing hype"
+                title: "Reality-Based",
+                description:
+                  "Considers reviews, measurements, and objective data, not marketing hype",
               },
               {
                 title: "Save Money",
-                description: "Find the best deals on used gear and avoid overpaying for new equipment"
+                description:
+                  "Find the best deals on used gear and avoid overpaying for new equipment",
               },
               {
-                title: "Build Better",
-                description: "Create synergistic systems where components complement each other perfectly"
+                title: "Reduce Waste",
+                description:
+                  "Shopping used reduces excess manufacturing and extends the life of quality gear",
               },
               {
                 title: "Track Everything",
-                description: "Monitor your collection's value, set alerts, and never miss a good deal"
-              }
+                description:
+                  "Monitor your collection's value, set alerts, and never miss a good deal",
+              },
             ].map((benefit, index) => (
               <div key={index} className="flex gap-4 group">
                 <div className="flex-shrink-0">
@@ -289,14 +335,20 @@ export function LandingPageV2() {
             </h2>
 
             <p className="text-xl text-secondary">
-              Join thousands of audio enthusiasts who trust HiFinder to build their ideal systems
+              Join <a href="https://www.youtube.com/watch?v=lKie-vgUGdI" target="_blank" rel="noopener noreferrer" className="hover:underline">dozens</a> of audio enthusiasts who trust HiFinder to build their
+              ideal systems
             </p>
 
             <div className="flex justify-center pt-4">
               <Link
                 href="/recommendations"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent hover:bg-accent-hover text-white text-lg font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-                onClick={() => trackEvent({ name: 'final_cta_clicked', properties: { location: 'bottom_cta' } })}
+                onClick={() =>
+                  trackEvent({
+                    name: "final_cta_clicked",
+                    properties: { location: "bottom_cta" },
+                  })
+                }
               >
                 🎯 Get Started Free
               </Link>
@@ -309,5 +361,5 @@ export function LandingPageV2() {
         </div>
       </section>
     </main>
-  )
+  );
 }

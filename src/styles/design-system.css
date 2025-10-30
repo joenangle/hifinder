@@ -916,6 +916,38 @@ input[type="number"]::-webkit-inner-spin-button {
   padding-left: var(--space-3);
   padding-right: var(--space-3);
 }
+.px-4 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+.px-5 {
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
+}
+.px-6 {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+.px-8 {
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+.px-10 {
+  padding-left: var(--space-10);
+  padding-right: var(--space-10);
+}
+.px-12 {
+  padding-left: var(--space-12);
+  padding-right: var(--space-12);
+}
+.px-16 {
+  padding-left: var(--space-16);
+  padding-right: var(--space-16);
+}
+.px-20 {
+  padding-left: var(--space-20);
+  padding-right: var(--space-20);
+}
 
 .pb-1 {
   padding-bottom: var(--space-1);
