@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { calculateBudgetRange } from '@/lib/budget-ranges'
 
 // No caching - always fetch fresh results for best UX
 // Users expect updated results when toggling between parameters
@@ -429,10 +430,11 @@ function filterAndScoreComponents(
   // Entry-level budget handling: For DACs/amps/combos under $150 total, allow dongles from $5
   const componentCategory = (components[0] as { category?: string })?.category
   const isSignalGear = componentCategory ? ['dac', 'amp', 'dac_amp'].includes(componentCategory) : false
-  const isEntryLevel = totalBudget && totalBudget <= 150
 
-  const minAcceptable = (isEntryLevel && isSignalGear) ? 5 : 20
-  const maxAcceptable = budget * (1 + budgetRangeMax / 100)
+  // Use progressive budget ranges that adapt across price tiers
+  const budgetRange = calculateBudgetRange(budget, isSignalGear)
+  const minAcceptable = budgetRange.min
+  const maxAcceptable = budgetRange.max
 
   return components
     .map(c => {

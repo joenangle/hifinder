@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { calculateBudgetRange } from '@/lib/budget-ranges'
 
 // Simple in-memory cache for filter counts
 const cache = new Map<string, { data: unknown, expires: number }>()
@@ -80,18 +81,14 @@ export async function GET(request: NextRequest) {
       combo: 0.35
     }
 
-    // Calculate budget allocation
+    // Calculate budget allocation using progressive ranges
     const budgetAllocation: Record<string, { min: number, max: number }> = {}
 
     if (requestedComponents.length === 1) {
       const component = requestedComponents[0]
-      const minBudget = budget <= 150 && ['dac', 'amp', 'combo'].includes(component)
-        ? 5
-        : Math.max(20, Math.round(budget * (1 - rangeMin / 100)))
-      budgetAllocation[component] = {
-        min: minBudget,
-        max: Math.round(budget * (1 + rangeMax / 100))
-      }
+      const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
+      const range = calculateBudgetRange(budget, isSignalGear)
+      budgetAllocation[component] = range
     } else if (requestedComponents.length > 0) {
       // Proportional allocation for multiple components
       const totalRatio = requestedComponents.reduce((sum, comp) => {
@@ -101,22 +98,14 @@ export async function GET(request: NextRequest) {
       requestedComponents.forEach(component => {
         const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
         const componentBudget = Math.floor(budget * (ratio / totalRatio))
-
-        const minBudget = budget <= 150 && ['dac', 'amp', 'combo'].includes(component)
-          ? 5
-          : Math.max(20, Math.round(componentBudget * (1 - rangeMin / 100)))
-
-        budgetAllocation[component] = {
-          min: minBudget,
-          max: Math.round(componentBudget * (1 + rangeMax / 100))
-        }
+        const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
+        const range = calculateBudgetRange(componentBudget, isSignalGear)
+        budgetAllocation[component] = range
       })
     } else {
       // Default to headphones if no components selected
-      budgetAllocation['headphones'] = {
-        min: Math.max(20, Math.round(budget * (1 - rangeMin / 100))),
-        max: Math.round(budget * (1 + rangeMax / 100))
-      }
+      const range = calculateBudgetRange(budget, false)
+      budgetAllocation['headphones'] = range
     }
 
     // Query for sound signature counts (headphones + IEMs only)
@@ -169,13 +158,13 @@ export async function GET(request: NextRequest) {
     let ampsCount = 0
     let combosCount = 0
 
-    // Determine which equipment types should be counted
-    // If no equipment filter is active, count all. Otherwise, only count active filters.
-    const shouldCountCans = activeEquipment.length === 0 || activeEquipment.includes('cans')
-    const shouldCountIems = activeEquipment.length === 0 || activeEquipment.includes('iems')
-    const shouldCountDacs = activeEquipment.length === 0 || activeEquipment.includes('dacs')
-    const shouldCountAmps = activeEquipment.length === 0 || activeEquipment.includes('amps')
-    const shouldCountCombos = activeEquipment.length === 0 || activeEquipment.includes('combos')
+    // Equipment toggle counts should ALWAYS be calculated (static pills)
+    // They show total available in budget range regardless of active toggles
+    const shouldCountCans = true
+    const shouldCountIems = true
+    const shouldCountDacs = true
+    const shouldCountAmps = true
+    const shouldCountCombos = true
 
     // Headphones counts
     if (wantRecommendationsFor.headphones && budgetAllocation.headphones) {
@@ -183,16 +172,13 @@ export async function GET(request: NextRequest) {
 
       // Only query cans if they should be counted
       if (shouldCountCans) {
-        let cansQuery = supabase
+        const cansQuery = supabase
           .from('components')
           .select('id', { count: 'exact', head: true })
           .eq('category', 'cans')
           .gte('price_used_min', headphoneMin)
           .lte('price_used_max', headphoneMax)
-
-        if (activeSoundSignature) {
-          cansQuery = cansQuery.eq('sound_signature', activeSoundSignature)
-        }
+        // Note: Equipment counts are static - don't filter by sound signature
 
         const cansResult = await cansQuery
         cansCount = cansResult.count || 0
@@ -200,16 +186,13 @@ export async function GET(request: NextRequest) {
 
       // Only query IEMs if they should be counted
       if (shouldCountIems) {
-        let iemsQuery = supabase
+        const iemsQuery = supabase
           .from('components')
           .select('id', { count: 'exact', head: true })
           .eq('category', 'iems')
           .gte('price_used_min', headphoneMin)
           .lte('price_used_max', headphoneMax)
-
-        if (activeSoundSignature) {
-          iemsQuery = iemsQuery.eq('sound_signature', activeSoundSignature)
-        }
+        // Note: Equipment counts are static - don't filter by sound signature
 
         const iemsResult = await iemsQuery
         iemsCount = iemsResult.count || 0
