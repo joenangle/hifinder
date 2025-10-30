@@ -110,10 +110,10 @@ export function LandingPageV2() {
               <div className="absolute inset-0 bg-gradient-to-br from-accent/30 to-accent-hover/20 rounded-3xl blur-3xl opacity-20"></div>
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/images/hero-headphones.jpg"
+                  src="/images/hero-headphones.webp"
                   alt="Premium audio headphones collection"
                   width={1200}
-                  height={900}
+                  height={675}
                   className="w-full h-auto object-contain"
                   priority
                 />

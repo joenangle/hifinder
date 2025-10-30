@@ -9,7 +9,12 @@ const nextConfig: NextConfig = {
 
   // External packages for server components
   serverExternalPackages: [],
-  
+
+  // Optimize package imports to reduce bundle size
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+
   // Allow external images from Google and other providers
   images: {
     remotePatterns: [

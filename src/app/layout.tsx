@@ -10,6 +10,7 @@ import { Analytics } from '@/components/Analytics';
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: 'swap', // Show fallback font immediately, swap when Inter loads
 });
 
 export const metadata: Metadata = {
@@ -67,6 +68,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preload critical resources */}
+        <link rel="preload" href="/images/hero-headphones.webp" as="image" type="image/webp" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${inter.variable} font-sans antialiased`}
         style={{
