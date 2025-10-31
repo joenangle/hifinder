@@ -1,9 +1,17 @@
 @import "tailwindcss";
-@import "../styles/design-system.css";
-@import "../styles/color-overrides.css";
 
-body {
-  background: var(--background-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+@layer base {
+  @import "../styles/design-system-variables.css";
+
+  body {
+    background: var(--background-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 }
+
+@layer components {
+  @import "../styles/design-system-components.css";
+}
+
+@import "../styles/color-overrides.css";

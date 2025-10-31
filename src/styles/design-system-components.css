@@ -1,0 +1,1009 @@
+/* Skip Link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--accent-primary);
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  z-index: var(--z-toast);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slideInFromRight {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+.animate-slideInFromLeft {
+  animation: slideInFromLeft 0.4s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.25s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   THIRD-PARTY COMPONENT FIXES
+   ============================================ */
+
+/* NextAuth sign-in modal z-index fix */
+[data-nextauth-modal] {
+  z-index: var(--z-toast) !important;
+}
+
+/* Generic NextAuth provider modal fix */
+.nextauth-modal,
+[id*="nextauth"],
+[class*="nextauth"] {
+  z-index: var(--z-toast) !important;
+}
+
+/* ============================================
+   MODAL SYSTEM
+   ============================================ */
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Dark mode backdrop */
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Modal Container */
+.modal-container {
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background: var(--background-secondary);
+}
+
+/* Modal Body */
+.modal-body {
+  margin-bottom: var(--space-6);
+}
+
+/* Modal Form */
+.modal-form {
+  width: 100%;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: var(--space-5);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+
+.form-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Required fields helper */
+.form-helper {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+}
+
+/* Enhanced textarea */
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+}
+
+/* Select styling */
+select.input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+[data-theme="dark"] select.input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Tab buttons in modals */
+.modal-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1);
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.modal-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-tab:hover {
+  color: var(--text-primary);
+}
+
+.modal-tab.active {
+  background: var(--background-primary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .modal-backdrop {
+    padding: var(--space-2);
+  }
+
+  .modal-container {
+    padding: var(--space-4);
+    max-width: 95%;
+    max-height: 95vh;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .button {
+    width: 100%;
+  }
+
+  .modal-tabs {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .modal-tab {
+    text-align: center;
+  }
+}
+
+/* ============================================
+   HIFINDER DESIGN SYSTEM EXTENSIONS
+   Added to support existing React components
+   ============================================ */
+
+/* Component Class Mappings - Maps Tailwind classes to CSS variables */
+.bg-surface-elevated {
+  background-color: var(--surface-card);
+}
+.bg-surface-secondary {
+  background-color: var(--background-secondary);
+}
+.text-foreground {
+  color: var(--text-primary);
+}
+.text-muted {
+  color: var(--text-secondary);
+}
+.text-accent-foreground {
+  color: var(--text-inverse);
+}
+.bg-accent {
+  background-color: var(--accent-primary);
+}
+.bg-accent-hover {
+  background-color: var(--accent-hover);
+}
+.border-border {
+  border-color: var(--border-default);
+}
+.border-accent {
+  border-color: var(--accent-primary);
+}
+
+/* Audio-Specific Colors */
+:root {
+  --sound-neutral: #6c757d;
+  --sound-warm: #f57c00;
+  --sound-bright: #ffb74d;
+  --sound-fun: #e85a4f;
+  --category-cans: var(--accent-primary);
+  --category-iems: #7c4dff;
+  --category-dac: #00acc1;
+  --category-amp: #43a047;
+  --price-great-deal: #2e7d32;
+  --price-good-deal: #0288d1;
+  --source-reddit: #ff4500;
+  --source-ebay: #0064d2;
+  --source-headfi: #6a4c93;
+  --source-reverb: #00b37d;
+  --amp-easy: #43a047;
+  --amp-moderate: #ffb74d;
+  --amp-demanding: #ff9800;
+  --amp-very-demanding: #ef5350;
+}
+
+/* Condition Colors for UsedMarketListingCard */
+.text-green-600 {
+  color: #16a34a;
+}
+.text-green-700 {
+  color: #15803d;
+}
+.bg-green-50 {
+  background-color: #f0fdf4;
+}
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+.border-green-200 {
+  border-color: #bbf7d0;
+}
+.text-blue-600 {
+  color: #2563eb;
+}
+.text-blue-700 {
+  color: #1d4ed8;
+}
+.text-blue-800 {
+  color: #1e40af;
+}
+.bg-blue-50 {
+  background-color: #eff6ff;
+}
+.bg-blue-100 {
+  background-color: #dbeafe;
+}
+.border-blue-200 {
+  border-color: #bfdbfe;
+}
+.text-yellow-600 {
+  color: #ca8a04;
+}
+.text-yellow-700 {
+  color: #a16207;
+}
+.text-yellow-800 {
+  color: #854d0e;
+}
+.bg-yellow-50 {
+  background-color: #fefce8;
+}
+.border-yellow-200 {
+  border-color: #fef08a;
+}
+.text-orange-500 {
+  color: #f97316;
+}
+.text-orange-600 {
+  color: #ea580c;
+}
+.text-orange-700 {
+  color: #c2410c;
+}
+.text-orange-800 {
+  color: #9a3412;
+}
+.bg-orange-50 {
+  background-color: #fff7ed;
+}
+.bg-orange-100 {
+  background-color: #fed7aa;
+}
+.border-orange-200 {
+  border-color: #fdba74;
+}
+.text-red-600 {
+  color: #dc2626;
+}
+.text-red-800 {
+  color: #991b1b;
+}
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+.border-red-200 {
+  border-color: #fecaca;
+}
+.text-purple-800 {
+  color: #6b21a8;
+}
+.bg-purple-100 {
+  background-color: #f3e8ff;
+}
+.border-purple-200 {
+  border-color: #e9d5ff;
+}
+.text-gray-500 {
+  color: #6b7280;
+}
+.text-gray-600 {
+  color: #4b5563;
+}
+.text-gray-700 {
+  color: #374151;
+}
+.text-gray-800 {
+  color: #1f2937;
+}
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+[data-theme="dark"] .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+[data-theme="dark"] .bg-yellow-50 {
+  background-color: rgba(250, 204, 21, 0.1);
+}
+[data-theme="dark"] .bg-orange-50 {
+  background-color: rgba(249, 115, 22, 0.1);
+}
+[data-theme="dark"] .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+[data-theme="dark"] .bg-gray-100 {
+  background-color: var(--background-secondary);
+}
+
+/* Missing utility classes */
+.z-\[9999\] {
+  z-index: 9999;
+}
+.bg-opacity-50 {
+  opacity: 0.5;
+}
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+.max-w-2xl {
+  max-width: 42rem;
+}
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+.fixed {
+  position: fixed;
+}
+.inset-0 {
+  inset: 0;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover utilities */
+.hover\:text-foreground:hover {
+  color: var(--text-primary);
+}
+.hover\:bg-accent-hover:hover {
+  background-color: var(--accent-hover);
+}
+.hover\:bg-surface-secondary:hover {
+  background-color: var(--background-secondary);
+}
+.hover\:border-accent:hover {
+  border-color: var(--accent-primary);
+}
+
+/* Transition utilities */
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Responsive grid */
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   REFINED AUDIO UI COLORS
+   Add this section to your design-system.css
+   ============================================ */
+
+:root {
+  /* Muted UI Colors for Toggle Buttons - Lighter intensity */
+  --ui-purple: #a78bfa; /* Lighter purple for headphones */
+  --ui-indigo: #818cf8; /* Lighter indigo for IEMs */
+  --ui-green: #34d399; /* Lighter green for DACs */
+  --ui-amber: #fbbf24; /* Lighter amber for Amps */
+  --ui-blue: #60a5fa; /* Lighter blue for Combos */
+
+  /* Muted Sound Signature Colors - Lighter intensity */
+  --ui-neutral: #9ca3af; /* Lighter gray for neutral */
+  --ui-warm: #fbbf24; /* Lighter warm orange */
+  --ui-bright: #7dd3fc; /* Lighter cyan for bright */
+  --ui-fun: #f9a8d4; /* Lighter pink for fun */
+
+  /* Refined backgrounds for active states - reduced opacity */
+  --ui-active-bg-opacity: 0.10;
+  --ui-hover-bg-opacity: 0.05;
+}
+
+/* Dark mode adjustments - Lighter intensity */
+[data-theme="dark"] {
+  --ui-purple: #c4b5fd;
+  --ui-indigo: #a5b4fc;
+  --ui-green: #6ee7b7;
+  --ui-amber: #fde68a;
+  --ui-blue: #93c5fd;
+
+  --ui-neutral: #d1d5db;
+  --ui-warm: #fde68a;
+  --ui-bright: #a5f3fc;
+  --ui-fun: #fbcfe8;
+
+  --ui-active-bg-opacity: 0.18;
+  --ui-hover-bg-opacity: 0.10;
+}
+
+/* ============================================
+   FILTER TOGGLE BUTTONS
+   ============================================ */
+
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  background-color: var(--background-secondary);
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+}
+
+.filter-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filter-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.filter-toggle-badge {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .filter-toggle-btn:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Filter button color variants */
+.filter-btn-purple.active {
+  background-color: rgba(139, 92, 246, 0.15);
+  border-color: var(--ui-purple);
+  color: var(--ui-purple);
+}
+
+.filter-btn-indigo.active {
+  background-color: rgba(99, 102, 241, 0.15);
+  border-color: var(--ui-indigo);
+  color: var(--ui-indigo);
+}
+
+.filter-btn-green.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: var(--ui-green);
+  color: var(--ui-green);
+}
+
+.filter-btn-amber.active {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: var(--ui-amber);
+  color: var(--ui-amber);
+}
+
+.filter-btn-blue.active {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: var(--ui-blue);
+  color: var(--ui-blue);
+}
+
+.filter-btn-neutral.active {
+  background-color: rgba(107, 114, 128, 0.15);
+  border-color: var(--ui-neutral);
+  color: var(--ui-neutral);
+}
+
+.filter-btn-warm.active {
+  background-color: rgba(251, 146, 60, 0.15);
+  border-color: var(--ui-warm);
+  color: var(--ui-warm);
+}
+
+.filter-btn-bright.active {
+  background-color: rgba(56, 189, 248, 0.15);
+  border-color: var(--ui-bright);
+  color: var(--ui-bright);
+}
+
+.filter-btn-fun.active {
+  background-color: rgba(244, 114, 182, 0.15);
+  border-color: var(--ui-fun);
+  color: var(--ui-fun);
+}
+
+.filter-toggle-btn.active .filter-toggle-badge {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .filter-toggle-btn.active .filter-toggle-badge {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   COMPACT FILTER BUTTONS
+   ============================================ */
+
+/* Compact Filter Container */
+.filter-card-compact {
+  background: var(--background-secondary);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.filter-title-compact {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label-compact {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.filter-buttons-compact {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+/* Compact Toggle Button */
+.toggle-compact {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-default);
+  background: var(--background-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.toggle-compact:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .toggle-compact:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Active states for each color - lighter backgrounds */
+.toggle-compact.active-purple {
+  background: rgba(167, 139, 250, var(--ui-active-bg-opacity));
+  border-color: var(--ui-purple);
+  color: var(--ui-purple);
+}
+
+.toggle-compact.active-indigo {
+  background: rgba(129, 140, 248, var(--ui-active-bg-opacity));
+  border-color: var(--ui-indigo);
+  color: var(--ui-indigo);
+}
+
+.toggle-compact.active-green {
+  background: rgba(52, 211, 153, var(--ui-active-bg-opacity));
+  border-color: var(--ui-green);
+  color: var(--ui-green);
+}
+
+.toggle-compact.active-amber {
+  background: rgba(251, 191, 36, var(--ui-active-bg-opacity));
+  border-color: var(--ui-amber);
+  color: var(--ui-amber);
+}
+
+.toggle-compact.active-blue {
+  background: rgba(96, 165, 250, var(--ui-active-bg-opacity));
+  border-color: var(--ui-blue);
+  color: var(--ui-blue);
+}
+
+.toggle-compact.active-neutral {
+  background: rgba(156, 163, 175, var(--ui-active-bg-opacity));
+  border-color: var(--ui-neutral);
+  color: var(--ui-neutral);
+}
+
+.toggle-compact.active-warm {
+  background: rgba(251, 191, 36, var(--ui-active-bg-opacity));
+  border-color: var(--ui-warm);
+  color: var(--ui-warm);
+}
+
+.toggle-compact.active-bright {
+  background: rgba(125, 211, 252, var(--ui-active-bg-opacity));
+  border-color: var(--ui-bright);
+  color: var(--ui-bright);
+}
+
+.toggle-compact.active-fun {
+  background: rgba(249, 168, 212, var(--ui-active-bg-opacity));
+  border-color: var(--ui-fun);
+  color: var(--ui-fun);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-label-compact {
+    min-width: auto;
+    margin-bottom: 8px;
+  }
+
+  .filter-buttons-compact {
+    width: 100%;
+  }
+
+  .toggle-compact {
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Opacity utilities for accent color */
+.text-accent\/70 {
+  color: rgba(232, 90, 79, 0.7);
+}
+.text-accent\/60 {
+  color: rgba(232, 90, 79, 0.6);
+}
+.bg-accent\/10 {
+  background: rgba(232, 90, 79, 0.1);
+}
+.bg-accent\/5 {
+  background: rgba(232, 90, 79, 0.05);
+}
+.border-accent\/20 {
+  border-color: rgba(232, 90, 79, 0.2);
+}
+.text-accent-muted {
+  color: var(--accent-primary);
+  opacity: 0.7;
+}
+
+/* Better contrast for dark mode */
+[data-theme="dark"] {
+  --text-secondary: #9ca3af; /* Lighter gray for better readability */
+  --text-tertiary: #6b7280; /* Adjust tertiary too */
+}
+[data-theme="dark"] .card {
+  border-color: var(--border-subtle); /* More visible border in dark */
+}
+
+/* Fix the checkmark visibility */
+[data-theme="dark"] .text-green-500 {
+  color: #34d399; /* Brighter green for dark mode */
+}
+
+/* ============================================
+   RECOMMENDATIONS PAGE COLOR MAPPING
+   Maps user-editable override variables to component classes
+   Edit values in color-overrides.css
+   ============================================ */
+
+/* Map override variables to existing UI system */
+:root {
+  /* Update filter button colors from overrides */
+  --ui-purple: var(--rec-filter-headphones, #8b5cf6);
+  --ui-indigo: var(--rec-filter-iems, #6366f1);
+  --ui-green: var(--rec-filter-dacs, #10b981);
+  --ui-amber: var(--rec-filter-amps, #f59e0b);
+  --ui-blue: var(--rec-filter-combos, #3b82f6);
+
+  --ui-neutral: var(--rec-filter-neutral, #6b7280);
+  --ui-warm: var(--rec-filter-warm, #fb923c);
+  --ui-bright: var(--rec-filter-bright, #38bdf8);
+  --ui-fun: var(--rec-filter-fun, #f472b6);
+}
+
+[data-theme="dark"] {
+  /* Override with dark mode values from color-overrides.css */
+  --ui-purple: var(--rec-filter-headphones, #a78bfa);
+  --ui-indigo: var(--rec-filter-iems, #818cf8);
+  --ui-green: var(--rec-filter-dacs, #34d399);
+  --ui-amber: var(--rec-filter-amps, #fcd34d);
+  --ui-blue: var(--rec-filter-combos, #60a5fa);
+
+  --ui-neutral: var(--rec-filter-neutral, #9ca3af);
+  --ui-warm: var(--rec-filter-warm, #fdba74);
+  --ui-bright: var(--rec-filter-bright, #7dd3fc);
+  --ui-fun: var(--rec-filter-fun, #f9a8d4);
+}
+
+/* ============================================
+   LANDING PAGE UTILITIES (BALANCED DESIGN)
+   ============================================ */
+
+/* Subtle gradient overlay for hero/CTA sections */
+.gradient-overlay-subtle {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right,
+    rgba(255, 107, 53, 0.1) 0%,
+    rgba(255, 107, 53, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Alternating section background */
+.bg-feature {
+  background-color: rgba(248, 249, 250, 0.5); /* Very subtle tint */
+}
+
+[data-theme="dark"] .bg-feature {
+  background-color: rgba(28, 31, 38, 0.5);
+}
