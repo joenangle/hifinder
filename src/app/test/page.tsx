@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface ScraperStats {
   summary: {
@@ -20,14 +22,27 @@ interface ScraperStats {
     source: string
     seller_username: string
     avexchange_bot_confirmed: boolean
+    url: string
   }>
 }
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [stats, setStats] = useState<ScraperStats | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+
+  // Protect the page - redirect if not authenticated or not authorized
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/test')
+    } else if (status === 'authenticated' && session?.user?.email !== 'joenangle@gmail.com') {
+      // Not authorized - redirect to home with error
+      router.push('/?error=unauthorized')
+    }
+  }, [status, session, router])
 
   const fetchStats = async () => {
     setLoading(true)
@@ -46,10 +61,29 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    fetchStats()
-    const interval = setInterval(fetchStats, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    if (status === 'authenticated') {
+      fetchStats()
+      const interval = setInterval(fetchStats, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [status])
+
+  // Show loading while checking auth
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+          <div className="text-gray-400">Checking authentication...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render anything if not authenticated or not authorized (will redirect)
+  if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.email !== 'joenangle@gmail.com')) {
+    return null
+  }
 
   if (loading && !stats) {
     return (
@@ -140,7 +174,16 @@ export default function AdminDashboard() {
               <tbody className="text-sm">
                 {recentActivity.map((listing) => (
                   <tr key={listing.id} className="border-b border-gray-700/50 hover:bg-gray-700/30">
-                    <td className="py-3 pr-4"><div className="max-w-md truncate">{listing.title}</div></td>
+                    <td className="py-3 pr-4">
+                      <a
+                        href={listing.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="max-w-md truncate block text-blue-400 hover:text-blue-300 hover:underline"
+                      >
+                        {listing.title}
+                      </a>
+                    </td>
                     <td className="py-3">${listing.price}</td>
                     <td className="py-3"><StatusBadge status={listing.status} /></td>
                     <td className="py-3 capitalize text-gray-400">{listing.source.replace('_', ' ')}</td>

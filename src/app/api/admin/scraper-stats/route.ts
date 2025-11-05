@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 
 export async function GET() {
   try {
+    // Protect endpoint - only allow joenangle@gmail.com
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user?.email !== 'joenangle@gmail.com') {
+      return NextResponse.json(
+        { error: 'Unauthorized - Admin access only' },
+        { status: 401 }
+      )
+    }
+
     // Total listings count
     const { count: totalListings, error: totalError } = await supabaseServer
       .from('used_listings')
@@ -58,7 +70,7 @@ export async function GET() {
     // Recent activity (last 20 listings)
     const { data: recentActivity, error: activityError } = await supabaseServer
       .from('used_listings')
-      .select('id, title, price, status, date_posted, source, seller_username, avexchange_bot_confirmed')
+      .select('id, title, price, status, date_posted, source, seller_username, avexchange_bot_confirmed, url')
       .order('date_posted', { ascending: false })
       .limit(20)
 
