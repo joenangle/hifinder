@@ -414,7 +414,7 @@ function UsedMarketContent() {
                 </div>
               )}
               {!hasMore && listings.length > 0 && (
-                <p className="text-muted">You've reached the end of the listings</p>
+                <p className="text-muted">You&apos;ve reached the end of the listings</p>
               )}
             </div>
           </>
