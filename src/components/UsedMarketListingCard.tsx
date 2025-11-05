@@ -104,10 +104,26 @@ export function UsedMarketListingCard({
 
   if (viewMode === 'list') {
     return (
-      <div className="bg-surface-elevated border border-border rounded-lg p-4 hover:border-accent transition-colors">
-        <div className="flex items-start justify-between gap-4">
+      <div className="bg-surface-elevated border border-border rounded-lg overflow-hidden hover:border-accent transition-colors">
+        <div className="flex items-start gap-4">
+          {/* Listing Image */}
+          {listing.images && listing.images.length > 0 && (
+            <div className="w-32 h-32 bg-surface-secondary flex-shrink-0">
+              <img
+                src={listing.images[0]}
+                alt={listing.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Hide image container on error
+                  const parent = e.currentTarget.parentElement
+                  if (parent) parent.style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+
           {/* Left: Component & Listing Info */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-foreground text-lg mb-1">
@@ -117,14 +133,15 @@ export function UsedMarketListingCard({
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-foreground">{formatPrice(listing.price)}</div>
-                {listing.price_variance_percentage && Math.abs(listing.price_variance_percentage) > 10 && (
-                  <div className={`text-sm font-medium ${
-                    listing.price_variance_percentage < -10 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {listing.price_variance_percentage < 0 
-                      ? `${Math.abs(listing.price_variance_percentage)}% below typical`
-                      : `${listing.price_variance_percentage}% above typical`
-                    }
+                {/* Reverb-specific: Show shipping cost */}
+                {listing.source === 'reverb' && listing.shipping_cost !== undefined && listing.shipping_cost > 0 && (
+                  <div className="text-xs text-muted">
+                    + ${listing.shipping_cost} shipping
+                  </div>
+                )}
+                {listing.source === 'reverb' && listing.shipping_cost === 0 && (
+                  <div className="text-xs text-green-600 font-medium">
+                    Free shipping
                   </div>
                 )}
               </div>
@@ -141,7 +158,13 @@ export function UsedMarketListingCard({
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-surface-secondary text-primary">
                 {component.category === 'cans' ? 'Headphones' : component.category === 'iems' ? 'IEMs' : component.category}
               </span>
-              {amplificationAssessment.difficulty !== 'unknown' && (
+              {/* Reverb-specific: Accepts Offers badge */}
+              {listing.source === 'reverb' && listing.accepts_offers && (
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                  💬 Accepts Offers
+                </span>
+              )}
+              {amplificationAssessment.difficulty !== 'unknown' && component.impedance && component.impedance > 0 && (
                 <AmplificationBadge difficulty={amplificationAssessment.difficulty} />
               )}
             </div>
@@ -208,7 +231,7 @@ export function UsedMarketListingCard({
           </div>
 
           {/* Right: Actions */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-4 pl-0">
             {listing.url.includes('/sample') ? (
               <div className="px-4 py-2 bg-surface-secondary text-secondary rounded-md text-sm cursor-not-allowed">
                 Demo Listing
@@ -240,14 +263,33 @@ export function UsedMarketListingCard({
 
   // Grid view
   return (
-    <div className="bg-surface-elevated border border-border rounded-lg p-4 hover:border-accent transition-colors h-full flex flex-col">
+    <div className="bg-surface-elevated border border-border rounded-lg overflow-hidden hover:border-accent transition-colors h-full flex flex-col">
+      {/* Listing Image */}
+      {listing.images && listing.images.length > 0 && (
+        <div className="w-full h-48 bg-surface-secondary relative">
+          <img
+            src={listing.images[0]}
+            alt={listing.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Hide image on error
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+        </div>
+      )}
+
       {/* Header */}
-      <div className="mb-3">
-        <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
-          {component.brand} {component.name}
-        </h3>
-        <p className="text-muted text-sm line-clamp-2 mb-2">{listing.title}</p>
+      <div className="p-4 pb-0">
+        <div className="mb-3">
+          <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
+            {component.brand} {component.name}
+          </h3>
+          <p className="text-muted text-sm line-clamp-2 mb-2">{listing.title}</p>
+        </div>
       </div>
+
+      <div className="px-4 pb-4 flex flex-col flex-1">
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1 mb-3">
@@ -257,7 +299,13 @@ export function UsedMarketListingCard({
         <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getConditionColor(listing.condition)}`}>
           {listing.condition.replace('_', ' ')}
         </span>
-        {amplificationAssessment.difficulty !== 'unknown' && (
+        {/* Reverb-specific: Accepts Offers badge */}
+        {listing.source === 'reverb' && listing.accepts_offers && (
+          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+            💬 Offers
+          </span>
+        )}
+        {amplificationAssessment.difficulty !== 'unknown' && component.impedance && component.impedance > 0 && (
           <AmplificationBadge difficulty={amplificationAssessment.difficulty} className="text-xs" />
         )}
       </div>
@@ -326,14 +374,15 @@ export function UsedMarketListingCard({
       <div className="mt-auto">
         <div className="text-center mb-3">
           <div className="text-xl font-bold text-foreground">{formatPrice(listing.price)}</div>
-          {listing.price_variance_percentage && Math.abs(listing.price_variance_percentage) > 10 && (
-            <div className={`text-sm font-medium ${
-              listing.price_variance_percentage < -10 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {listing.price_variance_percentage < 0 
-                ? `${Math.abs(listing.price_variance_percentage)}% below`
-                : `${listing.price_variance_percentage}% above`
-              }
+          {/* Reverb-specific: Show shipping cost */}
+          {listing.source === 'reverb' && listing.shipping_cost !== undefined && listing.shipping_cost > 0 && (
+            <div className="text-xs text-muted">
+              + ${listing.shipping_cost} shipping
+            </div>
+          )}
+          {listing.source === 'reverb' && listing.shipping_cost === 0 && (
+            <div className="text-xs text-green-600 font-medium">
+              Free shipping
             </div>
           )}
         </div>
@@ -363,6 +412,7 @@ export function UsedMarketListingCard({
             </button>
           )}
         </div>
+      </div>
       </div>
     </div>
   )

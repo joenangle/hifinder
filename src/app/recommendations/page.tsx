@@ -579,7 +579,7 @@ function RecommendationsContent() {
     if (componentIds.length === 0) return
     
     try {
-      const response = await fetch(`/api/used-listings?component_ids=${componentIds.join(',')}&limit=100`)
+      const response = await fetch(`/api/used-listings?component_ids=${componentIds.join(',')}&limit=200`)
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`)
       }

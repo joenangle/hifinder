@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
 // import { useSession } from 'next-auth/react' // Unused
 import { supabase } from '@/lib/supabase'
 import { Component, UsedListing } from '@/types'
@@ -15,13 +15,16 @@ interface ListingWithComponent extends UsedListing {
 }
 
 type ViewMode = 'grid' | 'list'
-type SortBy = 'newest' | 'price_low' | 'price_high' | 'relevance'
+type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function UsedMarketContent() {
   const [listings, setListings] = useState<ListingWithComponent[]>([])
-  const [filteredListings, setFilteredListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [totalCount, setTotalCount] = useState(0)
   
   // UI state
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
@@ -29,144 +32,154 @@ function UsedMarketContent() {
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedSources, setSelectedSources] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [selectedSource, setSelectedSource] = useState<string>('all')
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
-  const [sortBy, setSortBy] = useState<SortBy>('newest')
-  
+  const [sortBy, setSortBy] = useState<SortBy>('date_desc')
+
   // Modal state
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null)
 
-  // Fetch all used listings with component info
-  useEffect(() => {
-    async function fetchUsedListings() {
-      try {
+  // Infinite scroll ref
+  const observerTarget = useRef<HTMLDivElement>(null)
+
+  // Fetch used listings with server-side filtering & pagination
+  const fetchUsedListings = useCallback(async (pageNum: number, resetListings = false) => {
+    try {
+      if (pageNum === 1) {
         setLoading(true)
-        
-        const { data: listingsData, error: listingsError } = await supabase
-          .from('used_listings')
-          .select(`
-            *,
-            components (
-              id,
-              name,
-              brand,
-              category,
-              price_new,
-              price_used_min,
-              price_used_max,
-              impedance,
-              needs_amp,
-              amazon_url
-            )
-          `)
-          .eq('is_active', true)
-          .order('date_posted', { ascending: false })
+      } else {
+        setLoadingMore(true)
+      }
 
-        if (listingsError) {
-          throw listingsError
-        }
+      // Build query params
+      const params = new URLSearchParams({
+        page: pageNum.toString(),
+        limit: '50', // Load 50 at a time
+        sort: sortBy
+      })
 
-        if (!listingsData) {
-          setListings([])
-          setFilteredListings([])
-          return
-        }
+      if (selectedSource && selectedSource !== 'all') {
+        params.append('source', selectedSource)
+      }
 
-        // Transform the data to match our interface
-        const transformedListings: ListingWithComponent[] = listingsData
-          .filter(listing => listing.components) // Only include listings with valid components
-          .map(listing => ({
+      if (priceRange.min) {
+        params.append('min_price', priceRange.min)
+      }
+
+      if (priceRange.max) {
+        params.append('max_price', priceRange.max)
+      }
+
+      if (selectedConditions.length > 0) {
+        params.append('conditions', selectedConditions.join(','))
+      }
+
+      const response = await fetch(`/api/used-listings?${params.toString()}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      // Fetch component info for each listing
+      const listingsWithComponents = await Promise.all(
+        data.listings.map(async (listing: UsedListing) => {
+          const { data: component } = await supabase
+            .from('components')
+            .select('*')
+            .eq('id', listing.component_id)
+            .single()
+
+          return {
             ...listing,
-            component: Array.isArray(listing.components) ? listing.components[0] : listing.components
-          }))
+            component
+          } as ListingWithComponent
+        })
+      )
 
-        setListings(transformedListings)
-        setFilteredListings(transformedListings)
-
-      } catch (err) {
-        console.error('Error fetching used listings:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load used market listings')
-      } finally {
-        setLoading(false)
+      // Filter by search query (client-side since it involves component data)
+      let filteredData = listingsWithComponents
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        filteredData = filteredData.filter(listing =>
+          listing.component?.name.toLowerCase().includes(query) ||
+          listing.component?.brand.toLowerCase().includes(query) ||
+          listing.title.toLowerCase().includes(query) ||
+          (listing.description && listing.description.toLowerCase().includes(query))
+        )
       }
+
+      setTotalCount(data.total)
+      setHasMore(pageNum < data.total_pages)
+
+      if (resetListings || pageNum === 1) {
+        setListings(filteredData)
+      } else {
+        setListings(prev => [...prev, ...filteredData])
+      }
+
+    } catch (err) {
+      console.error('Error fetching used listings:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load used market listings')
+    } finally {
+      setLoading(false)
+      setLoadingMore(false)
     }
+  }, [sortBy, selectedSource, priceRange, selectedConditions, searchQuery])
 
-    fetchUsedListings()
-  }, [])
-
-  // Apply filters and sorting
+  // Initial load
   useEffect(() => {
-    let filtered = [...listings]
+    setPage(1)
+    fetchUsedListings(1, true)
+  }, [sortBy, selectedSource, priceRange, selectedConditions])
 
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(listing => 
-        listing.component.name.toLowerCase().includes(query) ||
-        listing.component.brand.toLowerCase().includes(query) ||
-        listing.title.toLowerCase().includes(query) ||
-        (listing.description && listing.description.toLowerCase().includes(query))
-      )
+  // Search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1)
+      fetchUsedListings(1, true)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+          const nextPage = page + 1
+          setPage(nextPage)
+          fetchUsedListings(nextPage, false)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentTarget = observerTarget.current
+    if (currentTarget) {
+      observer.observe(currentTarget)
     }
 
-    // Source filter
-    if (selectedSources.length > 0) {
-      filtered = filtered.filter(listing => selectedSources.includes(listing.source))
-    }
-
-    // Category filter
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter(listing => selectedCategories.includes(listing.component.category))
-    }
-
-    // Brand filter
-    if (selectedBrands.length > 0) {
-      filtered = filtered.filter(listing => selectedBrands.includes(listing.component.brand))
-    }
-
-    // Condition filter
-    if (selectedConditions.length > 0) {
-      filtered = filtered.filter(listing => selectedConditions.includes(listing.condition))
-    }
-
-    // Price range filter
-    if (priceRange.min || priceRange.max) {
-      const minPrice = priceRange.min ? parseFloat(priceRange.min) : 0
-      const maxPrice = priceRange.max ? parseFloat(priceRange.max) : Infinity
-      filtered = filtered.filter(listing => 
-        listing.price >= minPrice && listing.price <= maxPrice
-      )
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return new Date(b.date_posted).getTime() - new Date(a.date_posted).getTime()
-        case 'price_low':
-          return a.price - b.price
-        case 'price_high':
-          return b.price - a.price
-        case 'relevance':
-        default:
-          return 0 // Keep current order for relevance
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget)
       }
-    })
+    }
+  }, [hasMore, loading, loadingMore, page, fetchUsedListings])
 
-    setFilteredListings(filtered)
-  }, [listings, searchQuery, selectedSources, selectedCategories, selectedBrands, selectedConditions, priceRange, sortBy])
-
-  // Get unique filter options from data
-  const filterOptions = {
-    sources: [...new Set(listings.map(l => l.source))].sort(),
-    categories: [...new Set(listings.map(l => l.component.category))].sort(),
-    brands: [...new Set(listings.map(l => l.component.brand))].sort(),
-    conditions: [...new Set(listings.map(l => l.condition))].sort()
-  }
+  // Get unique filter options (simplified - we'll fetch these from API in future)
+  const conditionOptions = ['excellent', 'very_good', 'good', 'fair', 'parts_only']
+  const sourceOptions = [
+    { value: 'all', label: 'All Sources' },
+    { value: 'reddit_avexchange', label: 'r/AVexchange' },
+    { value: 'reverb', label: 'Reverb' },
+    { value: 'head_fi', label: 'Head-Fi' },
+    { value: 'ebay', label: 'eBay' }
+  ]
 
   if (loading) {
     return (
@@ -213,7 +226,7 @@ function UsedMarketContent() {
               <h1 className="heading-1">Used Market</h1>
             </div>
             <p className="text-muted">
-              Browse {listings.length} used listings across {filterOptions.brands.length} brands
+              Showing {listings.length} of {totalCount} used listings
             </p>
           </div>
           
@@ -266,10 +279,9 @@ function UsedMarketContent() {
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
                 className="w-full px-3 py-2 bg-surface border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
               >
-                <option value="newest">Newest First</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
-                <option value="relevance">Most Relevant</option>
+                <option value="date_desc">Newest First</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
               </select>
             </div>
             
@@ -290,88 +302,26 @@ function UsedMarketContent() {
           {/* Expanded Filters */}
           {showFilters && (
             <div className="mt-4 pt-4 border-t border-border">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Source Filter */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Source</label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {filterOptions.sources.map(source => (
-                      <label key={source} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedSources.includes(source)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedSources([...selectedSources, source])
-                            } else {
-                              setSelectedSources(selectedSources.filter(s => s !== source))
-                            }
-                          }}
-                          className="mr-2 rounded border-border text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm text-foreground capitalize">
-                          {source.replace('_', ' ')}
-                        </span>
-                      </label>
+                  <select
+                    value={selectedSource}
+                    onChange={(e) => setSelectedSource(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    {sourceOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
-                  </div>
-                </div>
-
-                {/* Category Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Category</label>
-                  <div className="space-y-2">
-                    {filterOptions.categories.map(category => (
-                      <label key={category} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(category)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCategories([...selectedCategories, category])
-                            } else {
-                              setSelectedCategories(selectedCategories.filter(c => c !== category))
-                            }
-                          }}
-                          className="mr-2 rounded border-border text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm text-foreground capitalize">
-                          {category === 'cans' ? 'Headphones' : category === 'iems' ? 'IEMs' : category}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Brand Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Brand</label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {filterOptions.brands.slice(0, 10).map(brand => (
-                      <label key={brand} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedBrands.includes(brand)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedBrands([...selectedBrands, brand])
-                            } else {
-                              setSelectedBrands(selectedBrands.filter(b => b !== brand))
-                            }
-                          }}
-                          className="mr-2 rounded border-border text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm text-foreground">{brand}</span>
-                      </label>
-                    ))}
-                  </div>
+                  </select>
                 </div>
 
                 {/* Condition Filter */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Condition</label>
-                  <div className="space-y-2">
-                    {filterOptions.conditions.map(condition => (
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {conditionOptions.map(condition => (
                       <label key={condition} className="flex items-center">
                         <input
                           type="checkbox"
@@ -418,24 +368,15 @@ function UsedMarketContent() {
           )}
         </div>
 
-        {/* Results Count */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-muted">
-            Showing {filteredListings.length} of {listings.length} listings
-          </p>
-        </div>
-
         {/* Listings Grid/List */}
-        {filteredListings.length === 0 ? (
+        {listings.length === 0 && !loading ? (
           <div className="text-center py-12">
             <h2 className="text-xl font-semibold text-foreground mb-2">No listings found</h2>
             <p className="text-muted mb-6">Try adjusting your filters or search terms</p>
             <button
               onClick={() => {
                 setSearchQuery('')
-                setSelectedSources([])
-                setSelectedCategories([])
-                setSelectedBrands([])
+                setSelectedSource('all')
                 setSelectedConditions([])
                 setPriceRange({ min: '', max: '' })
               }}
@@ -445,23 +386,38 @@ function UsedMarketContent() {
             </button>
           </div>
         ) : (
-          <div className={viewMode === 'grid' 
-            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
-            : 'space-y-4'
-          }>
-            {filteredListings.map(listing => (
-              <UsedMarketListingCard
-                key={listing.id}
-                listing={listing}
-                component={listing.component}
-                viewMode={viewMode}
-                onViewDetails={() => {
-                  setSelectedComponent(listing.component)
-                  setModalOpen(true)
-                }}
-              />
-            ))}
-          </div>
+          <>
+            <div className={viewMode === 'grid'
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8'
+              : 'space-y-4 mb-8'
+            }>
+              {listings.map(listing => (
+                <UsedMarketListingCard
+                  key={listing.id}
+                  listing={listing}
+                  component={listing.component}
+                  viewMode={viewMode}
+                  onViewDetails={() => {
+                    setSelectedComponent(listing.component)
+                    setModalOpen(true)
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Infinite Scroll Sentinel & Loading Indicator */}
+            <div ref={observerTarget} className="flex justify-center py-8">
+              {loadingMore && (
+                <div className="flex items-center gap-2 text-muted">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent"></div>
+                  <span>Loading more listings...</span>
+                </div>
+              )}
+              {!hasMore && listings.length > 0 && (
+                <p className="text-muted">You've reached the end of the listings</p>
+              )}
+            </div>
+          </>
         )}
       </div>
       

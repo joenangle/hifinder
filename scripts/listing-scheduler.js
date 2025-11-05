@@ -7,7 +7,8 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const { scrapeRedditListings } = require('./reddit-avexchange-scraper');
-const { scrapeEbayListings } = require('./ebay-integration');
+// NOTE: eBay integration removed - using affiliate-only strategy (see docs/EBAY_AFFILIATE_STRATEGY.md)
+// const { scrapeEbayListings } = require('./ebay-integration');
 const { findComponentMatch } = require('./component-matcher');
 
 const supabase = createClient(
@@ -24,7 +25,7 @@ async function runListingAggregation() {
 
   const stats = {
     reddit: { total: 0, new: 0, errors: 0 },
-    ebay: { total: 0, new: 0, errors: 0 },
+    // ebay: { total: 0, new: 0, errors: 0 }, // Removed - affiliate-only
     duplicates: 0,
     archived: 0,
     startTime: new Date().toISOString()
@@ -41,7 +42,10 @@ async function runListingAggregation() {
       stats.reddit.errors++;
     }
 
-    // Phase 2: Scrape eBay
+    // Phase 2: eBay (DEPRECATED - affiliate-only strategy)
+    // NOTE: eBay listing scraping is prohibited by their TOS
+    // We use affiliate links instead (see docs/EBAY_AFFILIATE_STRATEGY.md)
+    /*
     console.log('\n🛒 Phase 2: eBay marketplace scraping...');
     try {
       await scrapeEbayListings();
@@ -50,6 +54,7 @@ async function runListingAggregation() {
       console.error('❌ eBay scraping failed:', error);
       stats.ebay.errors++;
     }
+    */
 
     // Phase 3: Data validation and cleanup
     console.log('\n🧹 Phase 3: Data validation and cleanup...');
