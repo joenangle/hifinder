@@ -394,25 +394,20 @@ async function scrapeRedditListings() {
 
       for (const listing of listings) {
         try {
-          // Check if listing already exists (by URL)
-          const { data: existing } = await supabase
+          // Upsert listing - will insert if new or update if URL exists
+          const { data: upsertResult, error: upsertError } = await supabase
             .from('used_listings')
-            .select('id')
-            .eq('url', listing.url)
-            .single();
+            .upsert(listing, {
+              onConflict: 'url',
+              ignoreDuplicates: false
+            })
+            .select('id, url');
 
-          if (!existing) {
-            // Insert new listing
-            const { error: insertError } = await supabase
-              .from('used_listings')
-              .insert(listing);
-
-            if (insertError) {
-              console.error(`❌ Error inserting listing:`, insertError);
-            } else {
-              newListings++;
-              console.log(`✅ Added: ${listing.title}`);
-            }
+          if (upsertError) {
+            console.error(`❌ Error upserting listing:`, upsertError);
+          } else {
+            newListings++;
+            console.log(`✅ Saved/Updated: ${listing.title}`);
           }
 
           totalListings++;
@@ -824,30 +819,21 @@ async function saveRedditListings(listings) {
   
   for (const listing of listings) {
     try {
-      // Check if this exact listing already exists (by URL)
-      const { data: existing } = await supabase
-        .from('used_listings')
-        .select('id')
-        .eq('url', listing.url)
-        .single();
-      
-      if (existing) {
-        console.log(`⏭️ Skipping duplicate listing: ${listing.title.substring(0, 50)}...`);
-        continue;
-      }
-      
-      // Insert new listing
+      // Upsert listing - will insert if new or update if URL exists
       const { error } = await supabase
         .from('used_listings')
-        .insert([listing]);
-      
+        .upsert([listing], {
+          onConflict: 'url',
+          ignoreDuplicates: false
+        });
+
       if (error) {
-        console.error(`❌ Error saving listing "${listing.title}":`, error.message);
+        console.error(`❌ Error saving/updating listing "${listing.title}":`, error.message);
       } else {
         const price = listing.price > 0 ? `$${listing.price}` : 'No price';
-        console.log(`✅ Saved: ${listing.title.substring(0, 60)}... - ${price}`);
+        console.log(`✅ Saved/Updated: ${listing.title.substring(0, 60)}... - ${price}`);
       }
-      
+
     } catch (err) {
       console.error(`❌ Exception saving listing:`, err.message);
     }
