@@ -18,6 +18,11 @@
 - ✅ Progressive filter disclosure (guided/explore/advanced modes)
 - ✅ Tooltip fixes (positioning, opacity, z-index via React Portal)
 - ✅ Database duplicate cleanup (590 → 579 components, 11 duplicates removed)
+- ✅ CSS-to-Tailwind optimization (Nov 2025): Removed duplicate utility classes, optimized hybrid design system
+  - **CSS size reduction**: 487.66 kB → 136.95 kB (-72% / -351 kB)
+  - **Removed**: 100+ duplicate utility classes, 5 unused classes, redundant color definitions
+  - **Added**: CSS size monitoring script (`npm run build:analyze`), unused class auditor
+  - **Fixed**: Restored missing `.page-container`, `.heading-*`, and warning/info utility classes to design-system-components.css after comprehensive import audit
 
 ## To-Do: Revisit Later
 - 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.

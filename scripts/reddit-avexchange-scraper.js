@@ -546,16 +546,60 @@ function transformRedditPost(postData, component) {
       seller_feedback_score: 0, // Reddit doesn't have traditional feedback scores
       seller_feedback_percentage: 0,
       description: description,
-      is_active: !postData.archived && !postData.locked,
+      is_active: !postData.archived && !postData.locked && !isSoldPost(postData),
+      status: detectListingStatus(postData),
+      date_sold: isSoldPost(postData) ? new Date().toISOString() : null,
       price_is_reasonable: isPriceReasonable,
       price_variance_percentage: Math.round(priceVariance * 10) / 10,
       price_warning: priceWarning
     };
-    
+
   } catch (error) {
     console.warn('⚠️ Error transforming Reddit post:', error.message);
     return null;
   }
+}
+
+/**
+ * Detect if a Reddit post has been marked as sold
+ */
+function isSoldPost(postData) {
+  const title = (postData.title || '').toLowerCase();
+  const selftext = (postData.selftext || '').toLowerCase();
+  const flair = (postData.link_flair_text || '').toLowerCase();
+
+  // Check for sold indicators in flair
+  const soldFlairPatterns = ['closed', 'sold', 'complete', 'pending'];
+  if (soldFlairPatterns.some(pattern => flair.includes(pattern))) {
+    return true;
+  }
+
+  // Check for sold markers in title
+  const soldTitlePatterns = [
+    '[sold]', '(sold)', 'sold:', 'sold to',
+    'sold!', 'spf', 'sale pending'
+  ];
+  if (soldTitlePatterns.some(pattern => title.includes(pattern))) {
+    return true;
+  }
+
+  // Check if post body indicates sale
+  if (selftext.includes('sold to') || selftext.includes('sale pending')) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Determine listing status based on post state
+ */
+function detectListingStatus(postData) {
+  if (isSoldPost(postData)) return 'sold';
+  if (postData.archived) return 'expired';
+  if (postData.locked) return 'expired';
+  if (postData.removed || postData.spam) return 'removed';
+  return 'available';
 }
 
 /**

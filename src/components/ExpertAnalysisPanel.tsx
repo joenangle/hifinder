@@ -4,14 +4,14 @@ import { useState } from 'react'
 
 interface ExpertAnalysisProps {
   component: {
-    crinacle_sound_signature?: string
-    tone_grade?: string
-    technical_grade?: string
-    crinacle_comments?: string
+    crin_signature?: string
+    crin_tone?: string
+    crin_tech?: string
+    crin_comments?: string
     driver_type?: string
     fit?: string
-    crinacle_rank?: number
-    value_rating?: number
+    crin_rank?: number
+    crin_value?: number
   }
 }
 
@@ -19,28 +19,28 @@ function generateExpertBlurb(component: ExpertAnalysisProps['component']): strin
   const parts: string[] = []
 
   // Start with sound signature (most important for users)
-  if (component.crinacle_sound_signature) {
-    parts.push(`${component.crinacle_sound_signature} signature`)
+  if (component.crin_signature) {
+    parts.push(`${component.crin_signature} signature`)
   }
 
   // Add grades when available
   const grades: string[] = []
-  if (component.tone_grade) grades.push(`${component.tone_grade} tone`)
-  if (component.technical_grade) grades.push(`${component.technical_grade} technical`)
+  if (component.crin_tone) grades.push(`${component.crin_tone} tone`)
+  if (component.crin_tech) grades.push(`${component.crin_tech} technical`)
   if (grades.length > 0) {
     parts.push(`[${grades.join(', ')} grades]`)
   }
 
   // Add ranking context
-  if (component.crinacle_rank) {
-    parts.push(`Ranked #${component.crinacle_rank} by Crinacle`)
+  if (component.crin_rank) {
+    parts.push(`Ranked #${component.crin_rank} by Crinacle`)
   }
 
   // Add value assessment
-  if (component.value_rating) {
-    const valueText = component.value_rating >= 4 ? 'excellent value' :
-                     component.value_rating >= 3 ? 'good value' : 'fair value'
-    parts.push(`${valueText} (${component.value_rating}/5)`)
+  if (component.crin_value) {
+    const valueText = component.crin_value >= 4 ? 'excellent value' :
+                     component.crin_value >= 3 ? 'good value' : 'fair value'
+    parts.push(`${valueText} (${component.crin_value}/5)`)
   }
 
   // Add technical details
@@ -59,12 +59,12 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
 
   // Check if component has any expert data
   const hasExpertData = !!(
-    component.crinacle_sound_signature ||
-    component.tone_grade ||
-    component.technical_grade ||
-    component.crinacle_comments ||
-    component.crinacle_rank ||
-    component.value_rating
+    component.crin_signature ||
+    component.crin_tone ||
+    component.crin_tech ||
+    component.crin_comments ||
+    component.crin_rank ||
+    component.crin_value
   )
 
   if (!hasExpertData) {
@@ -99,9 +99,9 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
           <p className="mb-2">{blurb}</p>
 
           {/* Show original comments if available */}
-          {component.crinacle_comments && (
+          {component.crin_comments && (
             <div className="bg-surface-hover dark:bg-surface-hover p-2 rounded text-xs italic border-l-2 border-accent-primary dark:border-accent-primary">
-              <strong>Crinacle:</strong> &ldquo;{component.crinacle_comments}&rdquo;
+              <strong>Crinacle:</strong> &ldquo;{component.crin_comments}&rdquo;
             </div>
           )}
         </div>

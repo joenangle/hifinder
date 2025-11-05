@@ -40,13 +40,13 @@ export function LandingPageV2() {
   return (
     <main className="min-h-screen">
       {/* Hero Section - Lovable Style */}
-      <section className="relative pt-12 pb-12 sm:pt-16 sm:pb-16 lg:pt-20 lg:pb-20 overflow-hidden bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10">
+      <section className="relative pt-8 pb-8 sm:pt-12 sm:pb-12 lg:pt-16 lg:pb-16 overflow-hidden bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10">
         <div className="absolute inset-0"></div>
 
-        <div className="container mx-auto px-4 relative py-8 sm:py-12 lg:py-16">
+        <div className="container mx-auto px-4 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
-            <div className="space-y-8 sm:space-y-10 lg:space-y-12 text-center lg:text-left">
+            <div className="space-y-4 sm:space-y-5 lg:space-y-6 text-center lg:text-left">
               {/* Logo and Brand */}
               <div className="flex items-center justify-center lg:justify-start gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center shadow-xl border-2 border-accent/20 flex-shrink-0">
@@ -77,7 +77,7 @@ export function LandingPageV2() {
               <p className="text-lg text-secondary leading-relaxed max-w-xl mx-auto lg:mx-0">
                 Build, track, and optimize your audio gear collection with
                 personalized recommendations, stack management, and used market
-                integration
+                integration.
               </p>
 
               {/* CTA Buttons */}
@@ -335,8 +335,8 @@ export function LandingPageV2() {
             </h2>
 
             <p className="text-xl text-secondary">
-              Join <a href="https://www.youtube.com/watch?v=lKie-vgUGdI" target="_blank" rel="noopener noreferrer" className="hover:underline">dozens</a> of audio enthusiasts who trust HiFinder to build their
-              ideal systems
+              Join dozens of audio enthusiasts who trust HiFinder to explore
+              their ideal systems
             </p>
 
             <div className="flex justify-center pt-4">
@@ -350,12 +350,12 @@ export function LandingPageV2() {
                   })
                 }
               >
-                🎯 Get Started Free
+                🎯 Get Started Now
               </Link>
             </div>
 
             <p className="text-sm text-secondary">
-              No credit card required • Free forever • Setup in 5 minutes
+              No credit card required • Free forever • Instant recommendations
             </p>
           </div>
         </div>

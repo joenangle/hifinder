@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useState, useEffect } from 'react'
 
 interface AudioComponent {
   id: string
@@ -12,6 +12,8 @@ interface AudioComponent {
   price_used_max: number | null
   asr_sinad?: number | null
   asr_review_url?: string | null
+  manufacturer_url?: string | null
+  usedListingsCount?: number
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string
@@ -75,13 +77,31 @@ const SignalGearCardComponent = ({
 
       {/* Name (Brand + Model) and Price on same line */}
       <div className="flex items-baseline justify-between mb-1">
-        <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-          {component.brand} {component.name}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+            {component.brand} {component.name}
+          </h3>
+          {component.manufacturer_url && (
+            <a
+              href={component.manufacturer_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
+              title="View on manufacturer website"
+              aria-label={`View ${component.brand} ${component.name} on manufacturer website`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
+        </div>
         <div className="text-right ml-4">
           <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
             {formatBudgetUSD(component.price_used_min || 0)}-{formatBudgetUSD(component.price_used_max || 0)}
           </div>
+          <PriceHistoryBadge componentId={component.id} />
         </div>
       </div>
 
@@ -140,8 +160,8 @@ const SignalGearCardComponent = ({
         </div>
       )}
 
-      {/* Find Used Button */}
-      {onFindUsed && (
+      {/* Find Used Button - Only show if listings exist */}
+      {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
         <button
           onClick={(e) => {
             e.stopPropagation() // Prevent card selection toggle
@@ -150,9 +170,41 @@ const SignalGearCardComponent = ({
           className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
         >
           <span>🔍</span>
-          <span>Find Used Listings</span>
+          <span>
+            View {component.usedListingsCount} Used Listing{component.usedListingsCount !== 1 ? 's' : ''}
+          </span>
         </button>
       )}
+    </div>
+  )
+}
+
+// Price History Badge - shows recent sales data if available
+const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
+  const [priceStats, setPriceStats] = useState<{ count: number; median: number } | null>(null)
+
+  useEffect(() => {
+    // Fetch price history stats
+    fetch(`/api/components/${componentId}/price-history?days=90`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.statistics && data.statistics.count >= 3) {
+          setPriceStats({
+            count: data.statistics.count,
+            median: data.statistics.median
+          })
+        }
+      })
+      .catch(() => {
+        // Silently fail - not critical
+      })
+  }, [componentId])
+
+  if (!priceStats) return null
+
+  return (
+    <div className="text-xs text-text-tertiary dark:text-text-tertiary mt-1">
+      {priceStats.count} recent sales · median ${Math.round(priceStats.median)}
     </div>
   )
 }

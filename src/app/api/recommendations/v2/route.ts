@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import { calculateBudgetRange } from '@/lib/budget-ranges'
+import { calculateExpertScore, gradeToNumeric as gradeToNumeric10Scale, type ScoringComponent } from '@/lib/crinacle-scoring'
 
 // No caching - always fetch fresh results for best UX
 // Users expect updated results when toggling between parameters
@@ -26,19 +27,21 @@ interface RecommendationComponent {
   amazon_url?: string
   why_recommended?: string
   image_url?: string
-  // Expert analysis fields
-  crinacle_sound_signature?: string
-  tone_grade?: string
-  technical_grade?: string
+  // Expert analysis fields (Crinacle data)
+  crin_signature?: string
+  crin_tone?: string
+  crin_tech?: string
   expert_grade_numeric?: number
-  crinacle_comments?: string
+  crin_comments?: string
   driver_type?: string
   fit?: string
-  crinacle_rank?: number
-  value_rating?: number
+  crin_rank?: string  // Letter grade: S+, S, S-, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F
+  crin_value?: number
   asr_sinad?: number
   // Amp specific
   power_output?: string
+  // Used listings
+  usedListingsCount?: number  // Number of active used listings
   // Computed fields
   avgPrice: number
   synergyScore: number
@@ -78,7 +81,7 @@ interface RecommendationRequest {
   usage: string
   usageRanking: string[]
   excludedUsages: string[]
-  soundSignature: string
+  soundSignatures: string[] // Array for multi-select support
   powerNeeds?: string
   connectivity?: string[]
   usageContext?: string
@@ -108,45 +111,54 @@ function gradeToNumeric(grade: string | null | undefined): number | null {
 // Sound signature synergy scoring with detailed Crinacle signatures
 function calculateSynergyScore(
   component: unknown,
-  soundSig: string
+  soundSignatures: string[]
 ): number {
   const comp = component as {
     sound_signature?: string
-    crinacle_sound_signature?: string
+    crin_signature?: string
   }
 
   // Sound signature matching only - usage matching removed
   let score = 0
 
-  // If user didn't specify signature preference, assume neutral
-  const effectiveSignature = soundSig !== 'any' ? soundSig : 'neutral'
+  // If multiple signatures selected, check if component matches ANY (OR logic)
+  // Use best match among selected signatures
+  let bestSoundScore = 0
 
-  // Component 1: Sound Signature Match (max 50% weight - INCREASED)
-  let soundScore = 0
-  if (comp.sound_signature && effectiveSignature !== 'any') {
-    if (comp.sound_signature === effectiveSignature) {
-      soundScore = 0.35 // Perfect basic match (was 0.20)
-    } else if (effectiveSignature === 'neutral' && comp.sound_signature === 'balanced') {
-      soundScore = 0.28 // Close match (was 0.16)
-    } else if (
-      (effectiveSignature === 'warm' && comp.sound_signature === 'neutral') ||
-      (effectiveSignature === 'bright' && comp.sound_signature === 'neutral')
-    ) {
-      soundScore = 0.20 // Compatible match (was 0.12)
+  for (const soundSig of soundSignatures) {
+    // If user didn't specify signature preference, assume neutral
+    const effectiveSignature = soundSig !== 'any' ? soundSig : 'neutral'
+
+    // Component 1: Sound Signature Match (max 50% weight - INCREASED)
+    let soundScore = 0
+    if (comp.sound_signature && effectiveSignature !== 'any') {
+      if (comp.sound_signature === effectiveSignature) {
+        soundScore = 0.35 // Perfect basic match (was 0.20)
+      } else if (effectiveSignature === 'neutral' && comp.sound_signature === 'balanced') {
+        soundScore = 0.28 // Close match (was 0.16)
+      } else if (
+        (effectiveSignature === 'warm' && comp.sound_signature === 'neutral') ||
+        (effectiveSignature === 'bright' && comp.sound_signature === 'neutral')
+      ) {
+        soundScore = 0.20 // Compatible match (was 0.12)
+      } else {
+        soundScore = 0.08 // Has signature but doesn't match (was 0.05)
+      }
     } else {
-      soundScore = 0.08 // Has signature but doesn't match (was 0.05)
+      soundScore = 0.15 // No signature = neutral baseline (was 0.10)
     }
-  } else {
-    soundScore = 0.15 // No signature = neutral baseline (was 0.10)
+
+    // Detailed Crinacle signature adds to sound score
+    if (comp.crin_signature && effectiveSignature !== 'any') {
+      const detailedMatch = getDetailedSignatureMatch(comp.crin_signature, effectiveSignature)
+      soundScore += detailedMatch * 0.15 // Up to +15% for detailed match (was 0.10)
+    }
+
+    // Keep the best score from any matched signature (OR logic)
+    bestSoundScore = Math.max(bestSoundScore, soundScore)
   }
 
-  // Detailed Crinacle signature adds to sound score
-  if (comp.crinacle_sound_signature && effectiveSignature !== 'any') {
-    const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, effectiveSignature)
-    soundScore += detailedMatch * 0.15 // Up to +15% for detailed match (was 0.10)
-  }
-
-  score += Math.min(0.50, soundScore) // Cap at 50%
+  score += Math.min(0.50, bestSoundScore) // Cap at 50%
 
   // Usage matching removed - not differentiated enough to be useful
   // "Music" works for almost everything, "gaming" needs soundstage data we don't have,
@@ -414,7 +426,7 @@ function filterAndScoreComponents(
   budget: number,
   budgetRangeMin: number,
   budgetRangeMax: number,
-  soundSignature: string,
+  soundSignatures: string[], // Now accepts array for multi-select
   primaryUsage: string,
   maxOptions: number,
   driverType?: string,
@@ -449,10 +461,11 @@ function filterAndScoreComponents(
         needs_amp?: boolean
         name?: string
         brand?: string
-        tone_grade?: string
-        technical_grade?: string
+        crin_rank?: string
+        crin_tone?: string
+        crin_tech?: string
         expert_grade_numeric?: number
-        value_rating?: number
+        crin_value?: number
         driver_type?: string
         power_output?: string
         [key: string]: unknown
@@ -463,12 +476,20 @@ function filterAndScoreComponents(
       // Only calculate synergy for headphones/IEMs (sound signature is meaningful)
       // DACs/amps/combos get neutral score since they should be transparent
       const synergyScore = (component.category === 'cans' || component.category === 'iems')
-        ? calculateSynergyScore(component, soundSignature)
+        ? calculateSynergyScore(component, soundSignatures)
         : 0.25 // Neutral score for DACs/amps (25% = middle of 0-50% range)
 
-      // Convert letter grades to numeric if not already done
-      const toneGradeNumeric = component.expert_grade_numeric ?? gradeToNumeric(component.tone_grade)
-      const technicalGradeNumeric = gradeToNumeric(component.technical_grade)
+      // Convert letter grades to numeric if not already done (keep for backwards compatibility)
+      const toneGradeNumeric = component.expert_grade_numeric ?? gradeToNumeric(component.crin_tone)
+      const technicalGradeNumeric = gradeToNumeric(component.crin_tech)
+
+      // Calculate comprehensive expert score using new scoring system (0-10)
+      const expertScore = calculateExpertScore({
+        crin_rank: component.crin_rank,
+        crin_tone: component.crin_tone,
+        crin_tech: component.crin_tech,
+        crin_value: component.crin_value
+      })
 
       // Calculate power compatibility for amps
       let powerAdequacy = 0.5
@@ -485,6 +506,7 @@ function filterAndScoreComponents(
         synergyScore,
         powerAdequacy,
         expert_grade_numeric: toneGradeNumeric,
+        expertScore, // Add comprehensive expert score (0-10)
         // Add amplification assessment for headphones
         ...(component.category === 'cans' || component.category === 'iems' ? {
           amplificationAssessment: assessAmplificationFromImpedance(
@@ -494,7 +516,7 @@ function filterAndScoreComponents(
             component.brand
           )
         } : {})
-      } as RecommendationComponent
+      } as RecommendationComponent & { expertScore: number }
     })
     .filter((c, index, arr) => {
       // Remove duplicates
@@ -532,16 +554,18 @@ function filterAndScoreComponents(
         priceFit = Math.max(0, 1 - overageRatio * 2)
       }
 
-      // Calculate bonuses - Quality and value indicators (max 10% total to reduce impact)
-      const valueBonus = (comp.value_rating ?? 0) * 0.012 // Max 6% (5 rating × 1.2%)
-      const expertBonus = (comp.expert_grade_numeric && comp.expert_grade_numeric >= 3.3) ? 0.03 : 0
+      // Calculate bonuses using new expert scoring system (max 10% total)
+      // Expert score is 0-10, convert to 0-10% bonus
+      const expertScoreValue = (comp as unknown as { expertScore?: number }).expertScore ?? 5.0
+      const expertBonus = (expertScoreValue / 10) * 0.10 // 0-10 score → 0-10% bonus
       const powerBonus = comp.category === 'amp' ? (comp.powerAdequacy || 0.5) * 0.02 : 0
-      const totalBonus = Math.min(0.10, valueBonus + expertBonus + powerBonus)
+      const totalBonus = Math.min(0.10, expertBonus + powerBonus)
 
       // Final scoring breakdown:
       // - Price fit: 45% weight (how close to budget)
       // - Sound signature: 45% weight (synergyScore max 50%, so 45% × 50% = 22.5%)
-      // - Bonuses: up to 10% (expert grade + value rating + power adequacy)
+      // - Expert bonus: 0-10% (calculated from 30% rank + 30% tone + 20% tech + 20% value)
+      // - Power adequacy: 0-2% (for amps only)
       // Perfect match: 45% + 22.5% + 10% = 77.5%, scaled to ~90%
       const rawScore = priceFit * 0.45 + (comp.synergyScore || 0) * 0.45 + totalBonus
 
@@ -569,7 +593,27 @@ export async function GET(request: NextRequest) {
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
     const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
-    const soundSignatureParam = searchParams.get('sound') || 'neutral'
+
+    // Parse sound signatures - support both array (soundSignatures) and legacy single (sound)
+    const soundSignaturesParam = searchParams.get('soundSignatures')
+    let soundSignatures: string[] = ['neutral'] // Default
+    if (soundSignaturesParam) {
+      try {
+        const parsed = JSON.parse(soundSignaturesParam)
+        soundSignatures = Array.isArray(parsed) && parsed.length > 0 ? parsed : ['neutral']
+      } catch {
+        // Not JSON, treat as comma-separated
+        soundSignatures = soundSignaturesParam.split(',').filter(Boolean)
+        if (soundSignatures.length === 0) soundSignatures = ['neutral']
+      }
+    } else {
+      // Fall back to legacy 'sound' param
+      const legacySound = searchParams.get('sound')
+      if (legacySound && legacySound !== 'any') {
+        soundSignatures = [legacySound]
+      }
+    }
+
     const driverTypeParam = searchParams.get('driverType') || 'any'
 
     // Validate parameters
@@ -606,7 +650,7 @@ export async function GET(request: NextRequest) {
       usage: searchParams.get('usage') || 'music',
       usageRanking,
       excludedUsages,
-      soundSignature: soundSignatureParam,
+      soundSignatures, // Use the parsed array
       powerNeeds: searchParams.get('powerNeeds') || '',
       connectivity,
       usageContext: searchParams.get('usageContext') || '',
@@ -615,9 +659,9 @@ export async function GET(request: NextRequest) {
       driverType: driverTypeParam
     }
 
-    // Determine max options - NO LIMITS for enthusiasts
-    const maxOptions = req.experience === 'beginner' ? 5 :
-                      req.experience === 'intermediate' ? 8 : 15
+    // Return more items to enable frontend "Show More" functionality
+    // Frontend will handle progressive disclosure based on experience level
+    const maxOptions = 50 // Reasonable limit to prevent performance issues
 
     // Get requested components
     const requestedComponents = Object.entries(req.wantRecommendationsFor)
@@ -697,14 +741,32 @@ export async function GET(request: NextRequest) {
       requestedCategories.push('dac_amp')
     }
 
-    // Single database query
+    // Single database query with used listings count
     const { data: allComponentsData, error } = await supabaseServer
       .from('components')
-      .select('*')
+      .select(`
+        *,
+        used_listings_count:used_listings(count)
+      `)
+      .eq('used_listings.is_active', true)
       .in('category', requestedCategories)
       .order('price_used_min')
 
     if (error) throw error
+
+    // Transform data to extract used listings count
+    const transformedComponents = allComponentsData?.map(comp => {
+      // Extract count from the nested array structure
+      const count = Array.isArray(comp.used_listings_count) && comp.used_listings_count.length > 0
+        ? comp.used_listings_count[0].count
+        : 0
+
+      return {
+        ...comp,
+        usedListingsCount: count,
+        used_listings_count: undefined // Remove the nested structure
+      }
+    })
 
     // Get existing headphones data for amp matching
     let existingHeadphonesData = null
@@ -718,30 +780,31 @@ export async function GET(request: NextRequest) {
       existingHeadphonesData = data?.[0] || null
     }
 
-    if (allComponentsData) {
+    if (transformedComponents) {
       const componentsByCategory = {
-        cans: allComponentsData.filter(c => c.category === 'cans'),
-        iems: allComponentsData.filter(c => c.category === 'iems'),
-        headphones: allComponentsData.filter(c => c.category === 'cans' || c.category === 'iems'), // Combined for backward compatibility
-        dacs: allComponentsData.filter(c => c.category === 'dac'),
-        amps: allComponentsData.filter(c => c.category === 'amp'),
-        combos: allComponentsData.filter(c => c.category === 'dac_amp')
+        cans: transformedComponents.filter(c => c.category === 'cans'),
+        iems: transformedComponents.filter(c => c.category === 'iems'),
+        headphones: transformedComponents.filter(c => c.category === 'cans' || c.category === 'iems'), // Combined for backward compatibility
+        dacs: transformedComponents.filter(c => c.category === 'dac'),
+        amps: transformedComponents.filter(c => c.category === 'amp'),
+        combos: transformedComponents.filter(c => c.category === 'dac_amp')
       }
 
       // Debug: Log what we got from database
       console.log('🔍 API: Components from database:', {
-        totalComponents: allComponentsData.length,
+        totalComponents: transformedComponents.length,
         cans: componentsByCategory.cans.length,
         iems: componentsByCategory.iems.length,
         budget: req.budget,
-        soundSignature: req.soundSignature,
+        soundSignatures: req.soundSignatures,
         headphoneType: req.headphoneType
       })
 
       // Process cans and IEMs: ALWAYS separate, never combine
       if (req.wantRecommendationsFor.headphones) {
         const headphoneBudget = budgetAllocation.headphones || req.budget
-        const headphoneRanges = customRanges.headphones || { min: req.budgetRangeMin, max: req.budgetRangeMax }
+        // Use custom ranges if provided, otherwise calculate progressive ranges
+        const headphoneRanges = customRanges.headphones || calculateBudgetRange(headphoneBudget, false)
 
         // Check if user wants both types or just one specific type
         const wantsBoth = req.headphoneType === 'both'
@@ -755,10 +818,10 @@ export async function GET(request: NextRequest) {
             headphoneBudget,
             headphoneRanges.min,
             headphoneRanges.max,
-            req.soundSignature,
+            req.soundSignatures,
             req.usageRanking[0] || req.usage,
             maxOptions,
-            'cans',
+            req.driverType, // Pass actual driver type preference (dynamic/planar/etc)
             undefined,
             req.budget
           )
@@ -771,10 +834,10 @@ export async function GET(request: NextRequest) {
             headphoneBudget,
             headphoneRanges.min,
             headphoneRanges.max,
-            req.soundSignature,
+            req.soundSignatures,
             req.usageRanking[0] || req.usage,
             maxOptions,
-            'iems',
+            undefined, // Don't filter by driver type for IEMs
             undefined,
             req.budget
           )
@@ -784,7 +847,7 @@ export async function GET(request: NextRequest) {
             budget: headphoneBudget,
             rangeMin: headphoneRanges.min,
             rangeMax: headphoneRanges.max,
-            soundSignature: req.soundSignature
+            soundSignatures: req.soundSignatures
           })
         }
 
@@ -801,14 +864,15 @@ export async function GET(request: NextRequest) {
       // Process DACs
       if (req.wantRecommendationsFor.dac && componentsByCategory.dacs.length > 0) {
         const dacBudget = budgetAllocation.dac || req.budget * 0.25
-        const dacRanges = customRanges.dac || { min: req.budgetRangeMin, max: req.budgetRangeMax }
+        // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
+        const dacRanges = customRanges.dac || calculateBudgetRange(dacBudget, true)
 
         results.dacs = filterAndScoreComponents(
           componentsByCategory.dacs,
           dacBudget,
           dacRanges.min,
           dacRanges.max,
-          req.soundSignature,
+          req.soundSignatures,
           req.usageRanking[0] || req.usage,
           maxOptions,
           undefined,
@@ -820,14 +884,15 @@ export async function GET(request: NextRequest) {
       // Process AMPs with power matching
       if (req.wantRecommendationsFor.amp && componentsByCategory.amps.length > 0) {
         const ampBudget = budgetAllocation.amp || req.budget * 0.25
-        const ampRanges = customRanges.amp || { min: req.budgetRangeMin, max: req.budgetRangeMax }
+        // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
+        const ampRanges = customRanges.amp || calculateBudgetRange(ampBudget, true)
 
         results.amps = filterAndScoreComponents(
           componentsByCategory.amps,
           ampBudget,
           ampRanges.min,
           ampRanges.max,
-          req.soundSignature,
+          req.soundSignatures,
           req.usageRanking[0] || req.usage,
           maxOptions,
           undefined,
@@ -839,14 +904,15 @@ export async function GET(request: NextRequest) {
       // Process combo units
       if (req.wantRecommendationsFor.combo && componentsByCategory.combos.length > 0) {
         const comboBudget = budgetAllocation.combo || req.budget * 0.4
-        const comboRanges = customRanges.combo || { min: req.budgetRangeMin, max: req.budgetRangeMax }
+        // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
+        const comboRanges = customRanges.combo || calculateBudgetRange(comboBudget, true)
 
         results.combos = filterAndScoreComponents(
           componentsByCategory.combos,
           comboBudget,
           comboRanges.min,
           comboRanges.max,
-          req.soundSignature,
+          req.soundSignatures,
           req.usageRanking[0] || req.usage,
           maxOptions,
           undefined,

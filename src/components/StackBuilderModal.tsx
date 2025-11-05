@@ -159,10 +159,17 @@ export function StackBuilderModal({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[10000] p-4"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+      className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-[10000] p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.92)' }}
     >
-      <div className="bg-surface-card rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10001]">
+      <div
+        className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10001]"
+        style={{
+          backgroundColor: 'var(--background-tertiary)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(8px)'
+        }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-2xl font-bold text-primary">Build Your Audio Stack</h2>

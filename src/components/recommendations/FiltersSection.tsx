@@ -19,7 +19,7 @@ interface FilterCounts {
 
 interface FiltersSectionProps {
   typeFilters: string[]
-  soundFilter: string
+  soundFilters: string[]
   wantRecommendationsFor: {
     headphones: boolean
     dac: boolean
@@ -29,6 +29,13 @@ interface FiltersSectionProps {
   guidedModeEnabled: boolean
   browseMode: BrowseMode
   filterCounts?: FilterCounts
+  resultCounts?: {
+    cans: number
+    iems: number
+    dacs: number
+    amps: number
+    combos: number
+  }
   onTypeFilterChange: (filter: 'cans' | 'iems') => void
   onEquipmentToggle: (type: 'dac' | 'amp' | 'combo') => void
   onSoundFilterChange: (filter: 'neutral' | 'warm' | 'bright' | 'fun') => void
@@ -36,11 +43,12 @@ interface FiltersSectionProps {
 
 const FiltersSectionComponent = ({
   typeFilters,
-  soundFilter,
+  soundFilters,
   wantRecommendationsFor,
   guidedModeEnabled,
   browseMode,
   filterCounts,
+  resultCounts,
   onTypeFilterChange,
   onEquipmentToggle,
   onSoundFilterChange
@@ -48,6 +56,13 @@ const FiltersSectionComponent = ({
   // Progressive disclosure: hide filters in guided mode
   const showEquipmentFilters = browseMode !== 'guided'
   const showSoundFilters = true // Always show sound filters (but with simplified labels in guided mode)
+
+  // Calculate total results
+  const totalResults = (resultCounts?.cans || 0) +
+                       (resultCounts?.iems || 0) +
+                       (resultCounts?.dacs || 0) +
+                       (resultCounts?.amps || 0) +
+                       (resultCounts?.combos || 0)
 
   // Simplified labels for guided mode
   const getSoundLabel = (signature: string) => {
@@ -70,14 +85,37 @@ const FiltersSectionComponent = ({
     return standardLabels[signature as keyof typeof standardLabels] || signature
   }
 
+  // Build results breakdown text
+  const getResultsBreakdown = () => {
+    const parts: string[] = []
+    if (resultCounts?.cans) parts.push(`${resultCounts.cans} headphones`)
+    if (resultCounts?.iems) parts.push(`${resultCounts.iems} IEMs`)
+    if (resultCounts?.dacs) parts.push(`${resultCounts.dacs} DACs`)
+    if (resultCounts?.amps) parts.push(`${resultCounts.amps} amps`)
+    if (resultCounts?.combos) parts.push(`${resultCounts.combos} combos`)
+    return parts.join(', ')
+  }
+
   return (
     <div className="filter-card-compact">
-      <Tooltip
-        content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
-        position="bottom"
-      >
-        <h3 className="filter-title-compact">Refine Your Search</h3>
-      </Tooltip>
+      <div className="flex items-center justify-between mb-4">
+        <Tooltip
+          content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
+          position="bottom"
+        >
+          <h3 className="filter-title-compact mb-0">Refine Your Search</h3>
+        </Tooltip>
+
+        {/* Results Summary - Top Right */}
+        {totalResults > 0 && (
+          <div className="text-sm text-text-secondary">
+            <span className="font-semibold text-text-primary">{totalResults} results</span>
+            {getResultsBreakdown() && (
+              <span className="text-text-tertiary"> ({getResultsBreakdown()})</span>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Equipment Type Row - Hidden in guided mode */}
       {showEquipmentFilters && (
@@ -148,7 +186,7 @@ const FiltersSectionComponent = ({
           <span className="filter-label-compact">Sound Preference</span>
           <div className="filter-buttons-compact">
             <FilterButton
-              active={soundFilter === 'neutral'}
+              active={soundFilters.includes('neutral')}
               onClick={() => onSoundFilterChange('neutral')}
               icon="⚖️"
               label={getSoundLabel('neutral')}
@@ -159,7 +197,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilter === 'warm'}
+              active={soundFilters.includes('warm')}
               onClick={() => onSoundFilterChange('warm')}
               icon="🔥"
               label={getSoundLabel('warm')}
@@ -170,7 +208,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilter === 'bright'}
+              active={soundFilters.includes('bright')}
               onClick={() => onSoundFilterChange('bright')}
               icon="✨"
               label={getSoundLabel('bright')}
@@ -181,7 +219,7 @@ const FiltersSectionComponent = ({
             />
 
             <FilterButton
-              active={soundFilter === 'fun'}
+              active={soundFilters.includes('fun')}
               onClick={() => onSoundFilterChange('fun')}
               icon="🎉"
               label={getSoundLabel('fun')}

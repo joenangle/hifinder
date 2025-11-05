@@ -1,0 +1,457 @@
+name,category,crin_rank,crin_value,crin_tone,crin_tech,crin_signature,crin_comments,driver_type,fit
+Aurorus Borealis,cans,A,2,A+,A,Neutral,"Sounds like an odd mashup of the HD600 and the Clear, in a good way.",Dynamic,Open Circumaural
+HEDDphone,cans,A,1,A,A+,Warm neutral,"An interesting in-between of DD and estat timbre, though tuning around the lower midrange may be off.",AMT,Open Circumaural
+Nectar Hive,cans,A,1,A,A,Bright neutral,"Some spiciness in the treble that is HD800-esque, but with a better midrange presentation.",Electrostatic,Open Circumaural
+Hifiman Jade II,cans,A,0,A,S-,Bass-rolled neutral,"Suffers from typical estat timbre and bass extension issues, but otherwise a very resolving and well-tuned headphone.",Electrostatic,Open Circumaural
+Stax SR-007 (Mk2.5),cans,A,0,A-,S+,Warm neutral,"Arguably the least wonky-sounding of the mainstream Staxes, with resolution just shy of the flagship 009.",Electrostatic,Open Circumaural
+Sennheiser HD600,cans,A-,2,S-,B+,Neutral,The legendary neutral reference. Slightly better clarity and imaging than the HD650.,Dynamic,Open Circumaural
+Audio Technica ATH-R70x,cans,A-,2,A+,B+,Warm neutral,Excellent imaging. Mostly neutral/flat tuning with an ever-so-slight tilt towards warmth.,Dynamic,Open Circumaural
+Hifiman Edition X V2,cans,A-,0,S,B+,Neutral,Excellent tonal balance though limited by blunted notes and resolution.,Planar,Open Circumaural
+Stax SR-Lambda Pro,cans,A-,0,B+,S-,Neutral,"One of the original Lambda models, and arguably the best tuned of the Lambda-styled Staxes.",Electrostatic,Open Circumaural
+Hifiman Arya,cans,A+,1,A+,S-,Bright neutral,High resolution planar that may be a little peaky in the treble for some.,Planar,Open Circumaural
+Focal Clear,cans,A+,0,S-,A+,Warm neutral, ,Dynamic,Open Circumaural
+Hifiman HE1000se,cans,A+,0,A+,S-,Bright neutral,Basically a brighter and slightly shoutier version of the OG; may be a little too intense for some.,Planar,Open Circumaural
+Hifiman Shangri-La Jr,cans,A+,0,A,S,Bright neutral,"A tad too shouty for my tastes, but far less offensive tonal characteristics than the average estat.",Electrostatic,Open Circumaural
+Shure SRH440,cans,B,3,S-,C+,Harman,Closest thing to Harman thus far. Comes with a small upper treble spike and lacking raw resolution.,Dynamic,Closed Circumaural
+AKG K371,cans,B,2,A,B-,Harman,"Expectedly Harman tuning but lacks a bit of bite in the upper midrange for ""true Harman"".",Dynamic,Closed Circumaural
+Hifiman HE400i (2020),cans,B,2,B,B,Neutral,Well-executed reference-ish tuning with a slight treble emphasis.,Planar,Open Circumaural
+AKG K701,cans,B,1,A-,B,Bright neutral,"The brightest and arguably harshest of the K7-- lineup, but still very competent overall.",Dynamic,Open Circumaural
+Sennheiser HD560S,cans,B,1,A,B-,Neutral,"Well-balanced tonality with good bass extension, just slightly hot in the upper-mids and treble.",Dynamic,Open Circumaural
+Hifiman Deva,cans,B,1,S-,C+,Neutral,"Probably the most ""mellow"" of the Hifiman planars with the least resolving ability.",Planar,Open Circumaural
+Sennheiser HD660S,cans,B,1,B,B+,Warm neutral,An even darker HD6X0. A comparatively muffled mess just barely propped up by its decent resolving ability.,Dynamic,Open Circumaural
+Beyerdynamic DT880 Pro (32Ω),cans,B,1,B+,B,Warm V-shape,"Certainly a ""mini-HD800"" in terms of tonality only, however still far inferior in technical ability.",Dynamic,Open Circumaural
+HarmonicDyne Zeus,cans,B,1,B+,B,Warm,A rare combination of a warm-focused tonality with decent technicalities.,Dynamic,Open Circumaural
+Sennheiser Momentum 3 Wireless,cans,B,1,A-,B-,U-shaped,A massive improvement over its predecessor. Limited resolution and potentially intense tonality.,Dynamic,Closed Circumaural
+Beyerdynamic DT990 Pro (250Ω),cans,B,1,B,B,V-shaped,Pretty bog-standard V-shaped response with forward upper-midrange and decently high resolution.,Dynamic,Open Circumaural
+Beyerdynamic TYGR 300 R,cans,B,1,B,B,V-shaped,Very reminiscent of the DT990.,Dynamic,Open Circumaural
+Stax SR-L300,cans,B,0,B,A-,Neutral,"Generally pleasing tuning, though a little honky and fatiguing in the treble.",Electrostatic,Open Circumaural
+ZMF Aeolus,cans,B,0,B,A-,Bright neutral,"Tonally, a vast improvement over the Aeolus with stock pads, bringing in extra clarity and bite.",Dynamic,Open Circumaural
+Hifiman HE6se,cans,B,0,B-,A,Neutral,Comes with an odd midrange dip. It's no HE6 replacement for sure.,Planar,Open Circumaural
+Hifiman HE560 (V1),cans,B,0,B-,A,Neutral,"Slight wonkiness around the lower midrange, but otherwise a capable planar headphone.",Planar,Open Circumaural
+Final D8000 Pro,cans,B,0,B-,A,Bright,"Highly resolving headphone with solid imaging capabilities, limited by its somewhat wonky tonality.",Planar,Open Circumaural
+Final Audio D8000,cans,B,0,B-,A,Bright,High treble-to-midrange contrast makes things sound shrill and borderline-sibilant.,Planar,Open Circumaural
+RAAL-requisite SR1a,cans,B,0,B-,A,Neutral,"Weak, limp bass is the killing blow for what is an otherwise highly resolving and decently-tuned earspeaker.",Ribbon,Earspeaker
+Focal Stellia,cans,B,0,C+,S-,Neutral with bass boost,"""Harman-inspired"" tuning works decently well, though a myriad of small quirks ultimately screws its tonal balance.",Dynamic,Closed Circumaural
+Stax SR-L700,cans,B,0,C+,S-,Neutral,"Probably the most balanced tuning of the L-series, with the usual e-stat technicalities.",Electrostatic,Open Circumaural
+ZMF Verite Closed,cans,B,0,C+,S-,Neutral with bass boost,"Far more tonally balanced than its open counterpart, whilst retaining its reverberant staging.",Dynamic,Closed Circumaural
+Audio Technica ATH-ADX5000,cans,B,0,C+,S-,Bright neutral,"Clean, open sound reminsicent of the HD800, with a bit of midbass bloat and upper midrange shoutiness.",Dynamic,Open Circumaural
+Stax SR-L300 Limited,cans,B,0,C+,S-,Neutral,Honkier version of the standard L300.,Electrostatic,Open Circumaural
+Sony MDR-SA5000,cans,B,0,B,B+,Bass-rolled neutral,Surprisingly competent for a decades-old set. Midrange is a little uneven but beats out many other modern TOTLs.,Dynamic,Open Circumaural
+Hifiman HE5,cans,B,0,B+,B,Neutral,The original Hifiman. Midrange is a little too scooped out but remains competitive even today.,Planar,Open Circumaural
+Denon AH-D5000,cans,B,0,B,B+,V-shaped,"The usual ""Foster biodyna dynamics"" are at play here, with a somewhat fatiguing treble spike.",Dynamic,Semi-open Circumaural
+Kennerton Odin,cans,B,0,B+,B,Warm neutral,"Generally ""okay"" tonality with some odd dips here and there. Lacking serious extension for a planar.",Planar,Open Circumaural
+Kennerton Thror,cans,B,0,B+,B,Warm neutral,"Kind of a ""nothing headphone""; not bad, not great, just good enough to be okay.",Planar,Open Circumaural
+Focal Radiance,cans,B,0,B+,B,Harman neutral,"Probably the best of the closed-back Focals. Some tuning refinements over the Stellia, though technically limited.",Dynamic,Closed Circumaural
+Focal Clear Mg,cans,B,0,B-,A-,Warm neutral,Lacks upper mids and resolution compared to its predecessor.,Dynamic,Open Circumaural
+Audeze LCD-XC,cans,B,0,B-,A-,"""Balanced""","Definitely the least Audeze-sounding Audeze. A little quirky tonally, but nothing too offensive.",Planar,Closed Circumaural
+Focal Elear,cans,B,0,B-,A-,Warm neutral,Subdued upper midrange with the odd treble spike makes this a weird headphone to listen to.,Dynamic,Open Circumaural
+Meze Empyrean,cans,B,0,B,B,Warm,Bland and unexciting tuning with compressed staging and generally underperforming technicalities.,Planar,Open Circumaural
+Koss KSC75,cans,B-,3,A,C,Bass-rolled neutral,Non-existent sub-bass and poor resolution. But it's so well-tuned you may not even care.,Dynamic,Open Clip-on
+Sivga Phoenix,cans,B-,1,B+,B-,Warm neutral,A fairly competent warm-neutral monitor slightly held back by limited detail retrieval.,Dynamic,Open Circumaural
+Audio Technica ATH-M70x,cans,B-,1,B,B-,Neutral,The most neutral of the M-series. Good tonality but still suffers from narrow imaging.,Dynamic,Closed Circumaural
+Sennheiser HD25 Plus,cans,B-,1,B,B-,U-shaped,"Punchy, energetic sound with decently balanced tonality. A pretty good beat-tracking monitor.",Dynamic,Closed Supra-aural
+BLON B20,cans,B-,1,A,C,Warm neutral,"Basically a darker planar HD6X0, with equally closed-in staging and lacking the final resolving edge.",Planar,Open Circumaural
+Massdrop x Koss ESP/95X,cans,B-,1,C,A,Mid-centric,"Good resolving ability and imaging, marred by its odd and honky midrange.",Electrostatic,Open Circumaural
+ASTRO A40 TR,cans,B-,1,B+,C+,Warm V-shape,"Middling technicalities, but for a gaming headphone its tonality is surprisingly balanced.",Dynamic,Closed Circumaural
+Audio Technica ATH-M40x,cans,B-,1,A-,C,Neutral with bass boost,Well-balanced tonality with disappointing detailing and claustrophobic imaging.,Dynamic,Closed Circumaural
+Moondrop Void,cans,B-,1,A-,C,Warm neutral,"Slightly midbass/lower-mid emphasised with good tonal balance, if rather ""cheap""-sounding.",Dynamic,Open Circumaural
+E-MU Walnut,cans,B-,1,B-,B-,"""Balanced""","Tonality is somewhat off with peaks and dips here and there, but overall not a bad sounding headphone.",Dynamic,Closed Circumaural
+Hifiman HE500,cans,B-,0,B+,B-,Warm neutral,Perhaps the warmest of the Hifiman lineup. Not the most resolving.,Planar,Open Circumaural
+Audeze LCD-24,cans,B-,0,C,S-,Warm neutral,"A slight tonal improvement over the LCD-4, but also comes with a slight hit in resolution.",Planar,Open Circumaural
+"Abyss Diana Phi
+Abyss Diana V2",cans,B-,0,C,A+,Warm,Needs a little more upper midrange to balance out the honkiness. Good dynamic performance especially in the bass.,Planar,Open Circumaural
+Audeze LCD-X (2021),cans,B-,0,C,A+,Warm neutral,"Tonally, a massive improvement over the previous version(s) though with the usual pitfalls of the Audeze house sound.",Planar,Open Circumaural
+Denon AH-D5200,cans,B-,0,B-,B,Warm neutral,Probably the least wonky of the new Denons. Suffers from some mid-bass bloat.,Dynamic,Closed Circumaural
+Beyerdynamic DT1990 Pro,cans,B-,0,B-,B,Warm V-shape,"An intense sound given its significant treble boost, but countered by a smooth lower-midrange bump.",Dynamic,Open Circumaural
+Audeze LCD-GX,cans,B-,0,C,A,Warm neutral,"As a gaming headphone, possibly the best technically though with the usual pitfalls of the Audeze house sound.",Planar,Open Circumaural
+Audeze LCD-2 Closed-back,cans,B-,0,C,A,Warm V-shape,"Not the worst Audeze in terms of tonality, but its tuning still doesn't live up to its technical capabilities.",Planar,Closed Circumaural
+Audeze LCD-2 Classic,cans,B-,0,C,A,Warm,Classic Audeze combo of solid resolution with a confusing lack of upper midrange.,Planar,Open Circumaural
+Apple AirPods Max,cans,B-,0,B+,C+,U-shaped,"Great tonality, sub-focused bass emphasis, bassy without being muddy. Average imaging and resolution.",Dynamic,Closed Circumaural
+ZMF Verite,cans,B-,0,C-,S-,Warm,Excellent resolution unfortunately marred by suppressed harmonics and a harsh upper-midrange.,Dynamic,Open Circumaural
+ES Lab ES-1a,cans,B-,0,C-,S-,Bright neutral,"Seems inspired by the tuning of the SR-009 with some minor improvements, though not enough to call it ""good"".",Electrostatic,Open Circumaural
+Fostex TR80,cans,B-,0,A+,C-,Neutral with bass boost,"A very well-tuned monitor-style headphone, if heavily bottlenecked by narrow imaging and blunt hits.",Dynamic,Open Circumaural
+AKG K612 Pro,cans,B+,3,S-,B,Neutral,"Basically dead-neutral tuning, emphasis on ""dead"". Strong all-rounder whose only fault is not having that ""wow-factor"".",Dynamic,Open Circumaural
+Sennheiser HD650/HD6XX,cans,B+,3,A+,B,Warm neutral,"The legendary neutral reference. ""Veiled"" with a warm tilt (in comparison to HD600), and pretty terrible at imaging.",Dynamic,Open Circumaural
+Shure SRH840,cans,B+,3,A+,B-,V-shaped,Extremely well-executed V-shaped tuning with no erronous peaks or dips. More mid-bassy than sub-bassy.,Dynamic,Closed Circumaural
+Hifiman Sundara,cans,B+,2,A+,B,Neutral,Solid tuning with a little treble spiciness for the daring. One of the better midrange planars out there.,Planar,Open Circumaural
+Moondrop Para,cans,B+,2,A+,B,Neutral,,Planar,Open Circumaural
+AKG K702,cans,B+,2,A,B,Mid-centric,Slightly more upper-mid-forward (read: shoutier) version of the K612.,Dynamic,Open Circumaural
+Hifiman Ananda,cans,B+,1,S-,B,Neutral,"One of the best tuned headphones available, only limited by its raw resolving ability.",Planar,Open Circumaural
+Fostex TH610,cans,B+,1,B+,A-,Mild V-shape,The most neutral of the Foster biodyna models. If you want a little more balance than the Teaks.,Dynamic,Closed Circumaural
+E-MU Teak,cans,B+,1,B+,A-,V-shaped,"Excellent dynamics with one of the best bass I've heard in a headphone, though the midrange can be a little harsh.",Dynamic,Semi-open Circumaural
+Shure SRH1540,cans,B+,1,A,B,Neutral with bass boost,"Almost ""Harman"" tuning with some undesirable mid-bass bloat.",Dynamic,Closed Circumaural
+Stax SR-404,cans,B+,0,B,S-,Neutral,Similar tuning to that of the Lambda Pro. Sonically identical between 404 and 404LE.,Electrostatic,Open Circumaural
+Stax SR-507,cans,B+,0,B,S-,Neutral,Similar tuning to that of the Lambda Pro.,Electrostatic,Open Circumaural
+Hifiman HE6,cans,B+,0,B,S-,Bright neutral,"Clean, resolving yet intense sound scratches the detail itch but is a little too edgy for long listens.",Planar,Open Circumaural
+Stax SR-4070,cans,B+,0,B,S-,Mid-centric,Surprisingly wide and spacious soundstage for a closed-back. Good low-end extension but rather shouty.,Electrostatic,Closed Circumaural
+ZMF Auteur,cans,B+,0,A,B+,Bright neutral,Very pleasant tonality but lacking that last bit of definition for true top-tier status.,Dynamic,Open Circumaural
+Sennheiser HD800/HD800S,cans,B+,0,B-,S,Bright neutral,"Arguably the king of soundstage and raw detail, though at the cost of its infamous treble spike.",Dynamic,Open Circumaural
+Beyerdynamic T70,cans,B+,0,A,B,Bright neutral,"Treble peak may offend some, but otherwise very well balanced and natural tonality with decent technicalities.",Dynamic,Closed Circumaural
+MrSpeakers Ether C,cans,B+,0,A,B,DF-neutral,"Forward, in-your-face sound that's shouty and thin at the same time. A good reference for ""true DF neutral"".",Planar,Closed Circumaural
+Stax SR-L500,cans,B+,0,B-,S-,Neutral,Generally pleasing tuning with a little honkiness in the centre-midrange.,Electrostatic,Open Circumaural
+Sennheiser HD599,cans,C+,1,B,C+,V-shaped,"A little too sharp, a little too midbassy, but overall not the most offensive headphone out there.",Dynamic,Open Circumaural
+Massdrop x AKG K7XX,cans,C+,1,C+,B,Warm,A more bloated-sounding K712.,Dynamic,Open Circumaural
+HarmonicDyne Helios,cans,C+,1,B,C+,V-shaped,Lack of bass extension is its biggest dealbreaker of what would be an otherwise solid headphone.,Dynamic,Open Circumaural
+1MORE MK801,cans,C+,1,A-,C-,Neutral with bass boost,"Smooth, generally pleasing tonality throughout with no offensive characteristics.",Dynamic,Closed Circumaural
+Sennheiser HD579,cans,C+,1,B,C,Warm neutral,More or less a HD599 with slightly worse resolution.,Dynamic,Open Circumaural
+Acoustic Research AR-H1,cans,C+,0,C+,B,Neutral,"A tempered, almost bright-leaning planar (but not quite). Decent tonality and technical ability.",Dynamic,Open Circumaural
+Beyerdynamic T5p (1st Gen),cans,C+,0,C+,B,V-shaped,"Choppy midrange response is its biggest turnoff, but otherwise a decent V-shaped headphone.",Dynamic,Closed Circumaural
+Timsok TS-1024,cans,C+,0,C+,B,Warm V-shape,Somewhat warm midrange plagued with sharp and offensive treble.,Planar,Open Circumaural
+Sendy Aiva,cans,C+,0,B,C+,Warm neutral,"A slightly worse-tuned B20, kinda.",Planar,Open Circumaural
+AKG K712 Pro,cans,C+,0,C+,B,Warm,Sizeable mid-bass bloat that's barely reigned in by an equally sizeable upper-midrange emphasis.,Dynamic,Open Circumaural
+Fostex TH7,cans,C+,0,B+,C,Neutral,Fairly neutral monitor-style headphone with poor imaging and detail retrieval.,Dynamic,Closed Circumaural
+Sony MDR-Z1R,cans,C+,0,C,B+,V-shaped,Holes in the midrange. Big spike in the treble. Strangely disjointed soundstage. Decently resolving.,Dynamic,Closed Circumaural
+Fostex TH900,cans,C+,0,C-,A,V-shaped,Spicy sibilance and bloated bass are disappointments in what is otherwise an extremely dynamic headphone.,Dynamic,Closed Circumaural
+DCA Aeon 2 Closed,cans,C+,0,B+,C,U-shaped,Passable tonality with dulled and blunted transients make for lacklustre detailing.,Planar,Closed Circumaural
+Stax SR-009/SR-009S,cans,C+,0,D+,S+,Bright neutral,"Detail and resolution worthy of being called ""the best"", marred by the tonally-off midrange.",Electrostatic,Open Circumaural
+Audeze LCD-4,cans,C+,0,D+,S,Warm,A classic example of a highly resolving yet wonky sounding headphone. Needs more upper midrange.,Planar,Open Circumaural
+Sony MDR-MA900,cans,C+,0,C+,B-,Bass-rolled neutral,Imaging as expected of an earspeaker configuration; surprisingly good tonality and expected bad extension.,Dynamic,Earspeaker
+Fostex TH909,cans,C+,0,C-,A-,V-shaped,A slightly more balanced TH900 with similar sibilance issues.,Dynamic,Open Circumaural
+Neumann NDH 20,cans,C+,0,C+,B-,Neutral with bass boost,Feels like an attempt at Harman but ultimately missing the mark in the midrange tuning.,Dynamic,Closed Circumaural
+Rosson RAD-0,cans,C+,0,C,B,Warm neutral,Middling technicalities with suppressed upper midrange.,Planar,Open Circumaural
+Sony MDR-1AM2,cans,C+,0,B,C,Warm U-shape,Harman-ish tuning with a strong mid-bass presence and piercing upper treble response.,Dynamic,Closed Circumaural
+Abyss AB-1266 Phi,cans,C+,0,D+,A+,"""Balanced""","Sinfully addictive bass and treble reponse, but the midrange tonality needs a lot of work.",Planar,Open Circumaural
+Audeze LCD-MX4,cans,C+,0,D+,A+,Warm,Classic Audeze combo of solid resolution with a confusing lack of upper midrange.,Planar,Open Circumaural
+Hifiman HE5SE,cans,C+,0,D+,A,V-shaped,"Strong contender for an excellent headphone, if not for the inexplicable hole in the mids.",Planar,Open Circumaural
+Sony MDR-CD380,cans,C+,0,C+,C+,DF-neutral,"Shouty and thin-sounding, though surprisingly competent imaging ability.",Dynamic,Closed Circumaural
+Hifiman Susvara,cans,S,1,S,S,Neutral,Subtle refinements to the already-great HE1000 makes this arguably the best planar in the world.,Planar,Open Circumaural
+Sennheiser HE-1,cans,S,0,S+,S,Harman neutral,"Mostly neutral, slight bass lift, highly resolving and natural both in tone and timbre. The world's best headphone.",Electrostatic,Open Circumaural
+Focal Utopia,cans,S-,1,S,S-,Neutral,Solid tuning with close to top-tier resolution. An inoffensive all-rounder that lives up to its reputation.,Dynamic,Open Circumaural
+Hifiman HE1000 (V2),cans,S-,0,S,S-,Neutral,"A planar that comes unnervingly close estat speed, but not quite. Solid technicalities with excellent tone.",Planar,Open Circumaural
+7Hz Timeless,iems,A,3,A,A,Neutral with bass boost,"Easily the best-tuned planar IEM by a country mile, the Timeless is also no slouch on the technical front.",Planar,In-Ear
+ThieAudio Oracle,iems,A,2,S,A-,Neutral with bass boost,Functionally similar to the Clairvoyance with slight cutbacks in overall clarity and resolution.,2EST 2BA 1DD,In-Ear
+Softears RSV,iems,A,1,S,A-,Neutral with bass boost,"Very well-balanced tonality with surprisingly good timbre, though slightly lacking definition.",5BA,In-Ear
+Symphonium Helios,iems,A,1,A,A,Neutral with bass boost,,4BA,In-Ear
+ThieAudio Monarch,iems,A,0,S-,A,Neutral with bass boost,Neutral with bass boost,2EST 6BA 1DD,In-Ear
+Moondrop S8,iems,A,0,S-,A,U-shaped,"More faithful to the Harman target compared to the A8, with a smoother bass response.",8BA,In-Ear
+StereoPravda SB7,iems,A,0,A-,S,Bright neutral,Technically proficient but marred by a sharp timbre. Interesting concept.,7BA,In-Ear
+64 Audio A/U12t,iems,A,0,A,A+,Neutral with bass boost,"Amazing bass (for a BA), top-tier resolution and detail-oriented signature.",12BA,In-Ear
+Hidition Violet,iems,A,0,A,A+,Neutral with bass boost,"Strong sub-bass presence, slightly cut-back upper mids. A fun IEM through and through.",11BA,In-Ear
+Empire Ears Odin,iems,A,0,A,A+,Mild V-shape,A Legend X with the bass properly controlled and the resolution one step higher.,4EST 5BA 2DD,In-Ear
+Vision Ears Erlkonig,iems,A,0,A,A+,Variable,"Good tonality, high resolution and an overall decent all-rounder.",13BA,In-Ear
+Moondrop Blessing 2,iems,A,0,A+,A,Mild V-shape,"Very well tuned from bass to treble, perhaps lacking in the last octaves of extension.",4BA 1DD,In-Ear
+Elysian X,iems,A,0,A-,S-,V-shaped,,4EST 4BA 1DD,In-Ear
+DUNU Talos,iems,A,0,A,A,Bright neutral,,1Planar 2BA,In-Ear
+Elysian Diva,iems,A,0,A,A,U-shaped,,6BA,In-Ear
+Moondrop A8,iems,A,0,A,A,V-shaped,"An odd but surprisingly decent take on the Harman signature, with added midbass compared to the S8.",8BA,In-Ear
+qdc Anole V14,iems,A,0,A,A,Variable,"Rather bassy even in stock form; fun and engaging, though at the expense of sheer technical performance.",4EST 10BA,In-Ear
+Tangzu Zetian Wu,iems,A-,3,A-,A-,Neutral with bass boost,,Planar,In-Ear
+Kumitate KL-Sirius,iems,A-,1,A,A-,Neutral,"Excellent technical ability, well tuned with a dash of Japanese flavour.",4BA,In-Ear
+DUNU Vulkan,iems,A-,1,A+,B+,U-shaped,,4BA 2DD,In-Ear
+Etymotic ER4XR,iems,A-,1,A-,A-,Neutral,A more mainstream tuning of the ER4S/SR with slightly boosted bass.,BA,In-Ear
+Sony IER-M7,iems,A-,1,A-,A-,Warm neutral,"Balanced across the board, though doesn't seem to excel in any particular area.",4BA,In-Ear
+Vision Ears Elysium,iems,A-,0,A-,A+,Mild V-shape,First decent implementation of Sonion's EST tweeters.,2EST 1BA 1DD,In-Ear
+Kiwi Ears Orchestra,iems,A-,0,A+,A-,Mild V-shape,Very well-tuned reference-y signature with a mild bass and treble emphasis for added energy.,8BA,In-Ear
+Ultimate Ears Reference Monitor (UERM),iems,A-,0,A+,A-,Neutral,"The benchmark of an era, dead-flat with an upper treble boost",3BA,In-Ear
+ThieAudio Clairvoyance,iems,A-,0,S,B+,Neutral with bass boost,"Inoffensive, pleasant tuning specialising in extremely balanced tonality and bass control.",2EST 5BA 1DD,In-Ear
+JVC HA-FW10000,iems,A-,0,B+,S-,Bright neutral,Intense and shouty DF-style signature with solid resolution.,DD,In-Ear
+Softears Twilight,iems,A-,0,A-,A,V-shaped,,DD,In-Ear
+Sony IER-M9,iems,A-,0,A-,A,Warm neutral,"Neutral tonality, highly coherent and decent detail pickup. The all-rounder of the IER lineup.",5BA,In-Ear
+qdc 8SS,iems,A-,0,A-,A,Neutral,"The neutral ""studio monitor"" of qdc's 8-series of IEMs, lacking a bit in overall extension.",8BA,In-Ear
+Hidition NT8,iems,A-,0,A-,A,Neutral,Coloured neutral kind of sound that works better with Asian genres.,8BA,In-Ear
+Drop + JVC HA-FDX1,iems,A-,0,A,A-,Neutral,"Highly technical sound with a clean, well-tuned neutral signature.",DD,In-Ear
+Moondrop Blessing,iems,A-,0,A,A-,Bright neutral,All rounder that comes the closest to the Harman Target.,4BA 1DD,In-Ear
+PEARS SH3,iems,A-,0,A,A-,Neutral,"Great detail pickup and solid all-rounder, perhaps a little strident.",3BA,In-Ear
+Empire Ears ESR Mk2,iems,A-,0,A,A-,Warm neutral,Possibly the most pleasant-sounding of the Empire Ears lineup with decent detailing to boot.,2EST 3BA,In-Ear
+Kumitate KL-Focus,iems,A-,0,A,A-,U-shaped,"Selectable bass response with the rest of the FR following a more ""Japanese reference"" tuning.",5BA,In-Ear
+64 Audio Tia Trio,iems,A-,0,A,A-,Neutral with bass boost,A more correct sounding version of the Fourte with slight cutbacks in staging and sheer resolution.,2BA 1DD,In-Ear
+Softears Turii,iems,A-,0,B+,A+,Mild V-shape,Resolving and fairly well-tuned dynamic-driver IEM.,DD,In-Ear
+64 Audio A/U18 Tzar,iems,A-,0,B+,A+,Warm neutral,"A rather simple and ""mainstream"" tuning refined to a high level.",18BA,In-Ear
+64 Audio Nio,iems,A-,0,A+,B+,Variable,"A decent bassy set with the m15/m20 modules, but really shines with the mX modules.",8BA 1DD,In-Ear
+Hidition Waltz,iems,A-,0,A+,B+,Mild V-shape,Neutral-fun signature that works both as a reference monitor and a rock-out IEM.,3BA,In-Ear
+Shure KSE1200,iems,A-,0,B,S+,Bright U-shape,"Easily at the top in terms of resolution and definition, but comes with a big treble spike and slightly odd mids.",Electrostatic,In-Ear
+ThieAudio Excalibur,iems,A-,0,A-,A-,V-shaped,"Probably the weakest of the ThieAudio tribrids, but still great on its own.",2EST 2BA 1DD,In-Ear
+Lime Ears Model X,iems,A-,0,A-,A-,Variable,Technically capable IEM that goes from decently neutral to warm and smooth in a pinch.,4BA,In-Ear
+See Audio Neo,iems,A-,0,A-,A-,Neutral with bass boost,Well-balanced tonality with good resolution; emphasised bass with good control.,10BA,In-Ear
+InEar SD5,iems,A-,0,A-,A-,Warm V-shape,Excels in timbre reproduction and has an overall pleasant signature.,5BA,In-Ear
+Noble K10 Encore,iems,A-,0,A-,A-,Neutral,Reference oriented sound focused on technicalities.,10BA,In-Ear
+Noble Katana,iems,A-,0,A-,A-,Neutral with laid-back treble,"Like the K10, except with less bass.",9BA,In-Ear
+Elysian Poseidon,iems,A-,0,A-,A-,Neutral with bass boost,"Good, inoffensive midrange tone and bass tuning, marred by the lack of low-level detailing.",6BA 1DD,In-Ear
+Empire Ears Legend X,iems,A-,0,A-,A-,V-shaped,High resolution hybrid flawed only by lack of control in the bass regions.,5BA 2DD,In-Ear
+Vision Ears VE8,iems,A-,0,A-,A-,Warm neutral,Extremely coherent signature with a pleasing tuning and high technicalities.,8BA,In-Ear
+Vision Ears EXT,iems,A-,0,A-,A-,U-shaped,,2EST 2DD,In-Ear
+Empire Ears Legend X SE,iems,A-,0,A-,A-,V-shaped,"A more upper-mid-forward variation of the original Legend X, which could come off as slightly more mid-recessed.",5BA 2DD,In-Ear
+Massdrop x Noble K10,iems,A-,0,A-,A-,Neutral with bass boost,"Very safe tuning, almost to the point of boredom. Does nothing wrong but nothing right either.",10BA,In-Ear
+Etymotic ER4B,iems,A-,0,A-,A-,Bright neutral,,BA,In-Ear
+Moondrop Variations,iems,A+,3,S,A,U-shaped,Sub-bass-focused signature with Moondrop's clean tuning makes this one of the best $500 tribrids.,2EST 2BA 1DD,In-Ear
+Sennheiser IE600,iems,A+,2,A+,A+,U-shaped,"Well-tuned mids, powerful yet controlled sub-bass, with highly extended (and somewhat spicy) treble.",DD,In-Ear
+Softears RS10,iems,A+,1,A+,S,U-shaped,A little shouty and intense but very resolving and well-defined. A somewhat refined Moondrop S8.,10BA,In-Ear
+Sony IER-Z1R,iems,A+,1,A+,S-,Mild V-shape,"Extended yet natural treble, realistic sub-bass focus and spacious imaging capabilities.",1BA 2DD,In-Ear
+ThieAudio V16 Divinity,iems,A+,1,S-,A+,Neutral with bass boost,,16BA,In-Ear
+Hidition NT6,iems,A+,1,S-,A+,Neutral,"If Etymotic made a multi-BA IEM, this would be the closest to that dream",6BA,In-Ear
+qdc 8SL/Gemini/Anole VX,iems,A+,1,A,S,Mild V-shape,Reference tuning with good tonality and top-level resolution. Similar tunings across top tier models.,8/10BA,In-Ear
+Oriolus Traillii,iems,A+,0,A+,A+,Neutral with bass boost,,4EST 8BA,In-Ear
+DUNU Titan S,iems,B,3,A-,B,Mild V-shape,,DD,In-Ear
+Moondrop Chu,iems,B,3,A+,C+,Neutral,An extremely well-tuned neutral IEM with a slightly bright and metallic tilt.,DD,In-Ear
+"Lypertek PurePlay Z3 2.0
+(PurePlay Z3)
+(Tevi)",iems,B,3,A,C+,Neutral with bass boost,Probably the closest thing to an ER2XR in TWS form.,DD,In-Ear
+Samsung Galaxy Buds,iems,B,2,A-,B,Neutral,A surprisingly well-tuned TWS with the technical chops to boot.,DD,In-Ear
+Tanchjim New Hana (2021),iems,B,2,B+,B,Mild V-shape,,DD,In-Ear
+JVC HA-FD01,iems,B,1,B,A-,Bright V-shape,"Upper-mid forward signature can get a little shouty, but a decently technical DD still.",DD,In-Ear
+JVC HA-FD02,iems,B,1,B,A-,Bright V-shape,"Upper-mid forward signature can get a little shouty, but a decently technical DD still.",DD,In-Ear
+FAudio Minor,iems,B,1,A-,B,Mild V-shape,"Well-balanced tonality and tuning, held back by middling technicalities.",DD,In-Ear
+Tanchjim Darling,iems,B,1,B,B+,Bright V-shape,A tad shouty but with excellent imaging performance.,2BA 1DD,In-Ear
+Audiosense DT600,iems,B,1,B+,B,Neutral with bass boost,,6BA,In-Ear
+Libratone Track Air Plus,iems,B,1,A+,C+,Neutral with bass boost,Deep and focused sub-bass response with a surprisingly balanced midrange tonality.,2DD,In-Ear
+FiiO FH5,iems,B,1,B,B,Neutral with bass boost,"Stellar bass response and decent technical ability, not much to fault.",3BA 1DD,In-Ear
+Sennheiser IE300,iems,B,1,B,B,V-shaped,Fairly mainstream tuning with a treble response that's well done given its emphasis.,DD,In-Ear
+DUNU SA6,iems,B,0,B,A-,Neutral with bass boost,"Tonality reminiscent of the Anole VX, though not up to the same level of technicalities.",6BA,In-Ear
+"Tansio Mirai TSMR-12 ""Zodiac""",iems,B,0,B,A-,Neutral,"Very clean, monitor/reference-style sound.",12BA,In-Ear
+Acoustune HS1650,iems,B,0,B,A-,V-shaped,Well textured and energetic with a sub-bass focus.,DD,In-Ear
+Acoustune HS1670,iems,B,0,B,A-,V-shaped,Metallic and shrill timbre makes this hard to enjoy.,DD,In-Ear
+ThieAudio Voyager 14 (V14),iems,B,0,B,A-,Neutral,"Evokes a qdc-ish house sound, though stumbles in both tuning refinement and technicalities.",14BA,In-Ear
+Fearless Lancelot,iems,B,0,B,A-,Warm,Rather generic tuning with no redeeming qualities for its price and status.,2EST 6BA,In-Ear
+Acoustune HS1695Ti,iems,B,0,B,A-,U-shaped,Sub-bass focused emphasis balanced out by midtreble peaks.,DD,In-Ear
+Moondrop Aria,iems,B,0,A-,B,Mild V-shape,A cheaper Starfield.,DD,In-Ear
+Moondrop Starfield,iems,B,0,A-,B,Mild V-shape,A cheaper KXXS.,DD,In-Ear
+Moondrop KXXS,iems,B,0,A-,B,Mild V-shape,Well-tuned single DD with proper timbre and decent technicalities.,DD,In-Ear
+Aya Siren,iems,B,0,A-,B,Neutral,"Very neutral, very well-tuned, though not very snappy in the treble.",2EST 4BA,In-Ear
+Shuoer x HBB EJ07M Kinda Lava Edition,iems,B,0,A-,B,Mild V-shape,,4EST 2BA 1DD,In-Ear
+Unique Melody Martian,iems,B,0,A-,B,Neutral with bass boost,Well-tuned hybrid with excellent bass response and smooth midrange.,2BA 2DD,In-Ear
+Fatfreq Sakura,iems,B,0,A-,B,Neutral,,6BA,In-Ear
+HYLA TE-5T,iems,B,0,B-,A,Bright U-shape,"Very Japanese-sounding with a massive upper harmonic focus, too much for many genres.",1Piezo 2BA 1DD,In-Ear
+Unique Melody Maestro V2,iems,B,0,B-,A,"""Balanced""",It's... there. An IEM that exists. Hard to find words for this one.,12BA,In-Ear
+Final Audio A8000,iems,B,0,B-,A,Bright V-shape,Technically strong but going too far with the treble emphasis.,DD,In-Ear
+Oriolus Percivali,iems,B,0,B-,A,Neutral with bass boost,Lacking body and very thin in the notes. Not recommended for sub-tenor instruments.,2EST 2BA 1DD,In-Ear
+Oriolus Mellianus,iems,B,0,B-,A,Mild V-shape,"Thin and sterile signature that isn't the most natural, but still technically proficient.",10BA,In-Ear
+Jomo Trinity Brass,iems,B,0,B-,A,Warm,"The warmer of the Trinity models, sacrificing technical ability for a more pleasing and smoother tone.",2EST 4BA 1DD,In-Ear
+Jomo Samba,iems,B,0,B-,A,V-shaped,"Lively and engaging with big clarity and detail, perhaps too much for some",8BA,In-Ear
+Moondrop Solis,iems,B,0,A,B-,Warm neutral,A good implementation of the EST drivers with Moondrop's signature tuning specialties.,4BA 2EST,In-Ear
+Prisma Azul,iems,B,0,A,B-,Neutral,A well-balanced neutral monitor bottlenecked by sheer resolution and narrow imaging performance.,2BA,In-Ear
+SeeAudio Miu,iems,B,0,A,B-,U-shaped,,2EST 2BA 1DD,In-Ear
+DUNU Luna,iems,B,0,C+,S-,Mid-centric,Needs more work on the tuning front.,DD,In-Ear
+Dita Dream,iems,B,0,C+,S-,V-shaped,Excellent resolution and detail let down by its metallic tonality and thin midrange,DD,In-Ear
+See Audio Yume,iems,B,0,S-,C+,Neutral with bass boost,"Excellent tuning with impeccable bass control, though with mushy transients and lacking detail.",2BA 1DD,In-Ear
+Fearless S8F/S8Pro,iems,B,0,B,B+,V-shaped,Tonally pleasing V-shaped signature on a solid technical foundation.,8BA,In-Ear
+Acoustune HS1750,iems,B,0,B,B+,V-shaped,,DD,In-Ear
+AAW ASH,iems,B,0,B,B+,Warm neutral,Smooth tonal balance with decent technicalities.,6BA 1DD,In-Ear
+qdc Anole V6,iems,B,0,B,B+,Variable,The more mid-centric of the Anole brothers. Better technicalities but worse timbre.,6BA,In-Ear
+Campfire Andromeda (2020),iems,B,0,B,B+,Warm neutral,Basically an Andromeda without the treble spike and slightly boosted midrange.,5BA,In-Ear
+Campfire Andromeda (S),iems,B,0,B,B+,Warm U-shape,"Highly coherent, easy-to-love tuning and spacious headstage",5BA,In-Ear
+See Audio Kaguya,iems,B,0,B,B+,U-shaped,"Somewhat mid-scooped, decent bass and treble extension though with underwhelming resolving ability.",4EST 4BA,In-Ear
+Softears Cerberus,iems,B,0,B,B+,Dark neutral,"Lacking definition in the treble, otherwise a decently balanced tribrid IEM.",2EST 4BA 1DD,In-Ear
+Ultimate Ears UE4 Pro,iems,B,0,B,B+,Neutral,Pretty much a mini-UE7.,2BA,In-Ear
+A&K T8iE,iems,B,0,B,B+,Neutral with bass boost,Hard-to-dislike tuning with excellent clarity and resolution.,DD,In-Ear
+Samsung Galaxy Buds+,iems,B,0,B+,B,U-shaped,Tuned even closer to the Harman IE target compared to the original.,2DD,In-Ear
+Etymotic ER4PT,iems,B,0,B+,B,Warm neutral,"Slightly rolled off treble with good detail and resolution, though imaging is too two-dimensional.",BA,In-Ear
+DUNU EST 112,iems,B,0,B+,B,Neutral,"Good tonality, though the treble extension is its big Achille's Heel.",2EST 1BA 1DD,In-Ear
+XENNS UP,iems,B,0,B+,B,Neutral with bass boost,,2EST 4BA 1DD,In-Ear
+Shuoer EJ07,iems,B,0,B+,B,Dark neutral,Tuned almost Etymotic-like but with underwhelming treble extension bottlenecking it all.,4EST 2BA 1DD,In-Ear
+Oriolus Isabellae,iems,B,0,B+,B,Mild V-shape,,DD,In-Ear
+Fatfreq Tsuru,iems,B,0,B+,B,Bright neutral,,3BA,In-Ear
+DUNU Zen Pro,iems,B,0,B+,B,V-shaped,,DD,In-Ear
+Fatfreq Hayabusa,iems,B,0,B+,B,Mild V-shape,,8BA,In-Ear
+Empire Ears Hero,iems,B,0,B-,A-,U-shaped,Well-controlled bass emphasis with a less-well-controlled treble emphasis makes this hard to appreciate.,3BA 1DD,In-Ear
+ThieAudio Legacy 4 (L4),iems,B,0,A-,B-,Neutral with bass boost,Well-tuned if technically lacking in comparison. Could use some more power in the bass.,3BA 1DD,In-Ear
+Moondrop Kanas Pro,iems,B,0,A-,B-,Warm V-shape,"Somewhat Harman-esque in tuning, not the best in terms of resolution.",DD,In-Ear
+Unique Melody Merlin V2,iems,B,0,A-,B-,Warm neutral,"Very tasteful and coherent tuning, if lacking in sheer resolution.",4BA 1DD,In-Ear
+64 Audio A6t,iems,B,0,A-,B-,Warm,"Very warm and intimate presentation, though overall tonal balance is somewhat preserved.",6BA,In-Ear
+Audiosense DT200,iems,B,0,A+,C+,Neutral,Excellent tonality. Just excellent tuning overall.,2BA,In-Ear
+Truthear Hola,iems,B,0,A+,C+,Warm neutral,,DD,In-Ear
+64 Audio tia Fourte,iems,B,0,C+,A,W-shaped,"Unique sound; high clarity and bass response with immensely wide staging, held back by a wonky tonality.",3BA 1DD,In-Ear
+64 Audio tia Fourte Noir,iems,B,0,C+,A,W-shaped,A bassier and warmer Fourte though also strangely sharper and less technical.,3BA 1DD,In-Ear
+Sony MDR-EX1000,iems,B,0,C+,A,Bright neutral,Outstanding imaging and detail retrieval though can be intense to listen to.,DD,In-Ear
+Dita Sakura 71,iems,B,0,C+,A,V-shaped,Very upper-mid forward. Would appreciate the shout being dialed way down.,DD,In-Ear
+Sony XBA-N3,iems,B,0,A,C+,Neutral with bass boost,Exceptional tonal balance only limited by its slightly smoothed over definition,1BA 1DD,In-Ear
+Kumitate KL-Corona,iems,B,0,A,C+,Neutral,Well-tuned with somewhat disappointing technical performance.,3BA,In-Ear
+Moondrop Crescent,iems,B,0,A,C+,Neutral with bass boost,Well-executed V-ish signature that's neither harsh nor bloated.,DD,In-Ear
+Tanchjim Prism,iems,B,0,B,B,V-shaped,,2BA 1DD,In-Ear
+FiiO FH9,iems,B,0,B,B,Mild V-shape,,6BA 1DD,In-Ear
+Yanyin Moonlight,iems,B,0,B,B,Neutral with bass boost,,2EST 4BA 1DD,In-Ear
+Aya Trident,iems,B,0,B,B,U-shaped,"Somewhat strange tuning that seems to try to do everything, but results in a slightly wonky tonality.",4EST 4BA,In-Ear
+Moondrop Illumination,iems,B,0,B,B,Warm neutral,"Well-tuned with natural timbre, ultimately marred by subpar detail retrieval and definition.",DD,In-Ear
+FiiO FD7,iems,B,0,B,B,V-shaped,,DD,In-Ear
+Fearless La Hire,iems,B,0,B,B,Neutral,Well-tuned neutral-style monitor with subpar treble extension.,2EST 2BA,In-Ear
+Yanyin x HBB Mahina,iems,B,0,B,B,Neutral with bass boost,,2EST 4BA 1DD,In-Ear
+iBasso IT07,iems,B,0,B,B,U-shaped,"More similar to its predecessor the IT04, with more bass and less treble.",6BA 1DD,In-Ear
+qdc 5SH,iems,B,0,B,B,V-shaped,"Fun, lively signature that retains high levels of performance.",5BA,In-Ear
+Kinera Nanna 2.0,iems,B,0,B,B,V-shaped,Bass is a tad uncontrolled and the mids could use more refinement. The original is arguably superior.,2EST 1BA 1DD,In-Ear
+Symphonium Triton,iems,B,0,B,B,Neutral,,2BA 1DD,In-Ear
+AKG N5005,iems,B,0,B,B,Neutral with bass boost,Amazing bass control only let down by plastic timbre.,4BA 1DD,In-Ear
+Unique Melody Mirage,iems,B,0,B,B,Mild V-shape,"Tonally-balanced, technically acceptable, nothing much to criticise though no big praises either.",3BA,In-Ear
+Empire Ears Vantage,iems,B,0,B,B,V-shaped,"A Legend-X-mini, essentially. Nice alternative on a ""budget"".",1BA 2DD,In-Ear
+"Sony Justear XJE-MH2 ""Club""",iems,B,0,B,B,Warm V-shape,"Nice, pleasant signature that is reminiscent of a more textured HS1551.",1BA 1DD,In-Ear
+Ultimate Ears UE18+ Pro Gen 2,iems,B,0,B,B,Warm neutral,Somewhat reference tuning with emphasis on tonal accuracy and naturalness,6BA,In-Ear
+Kumitate KL-REF Type S,iems,B,0,B,B,Variable,Triggers uncanny valley hard. Presentation is always slighty off in some area that I can't pinpoint.,3BA 2DD,In-Ear
+HZSound Heart Mirror Pro,iems,B-,3,B+,B-,Mild V-shape,,DD,In-Ear
+Intime Sora,iems,B-,3,A-,C+,U-shaped,Well controlled bass boost with slightly skewed tonality. Potential is there.,DD,In-Ear
+Tanchjim Cora,iems,B-,3,B+,C+,V-shaped,"Well-controlled bass boost, though coupled with a slightly odd midrange tonality.",DD,In-Ear
+Moondrop Sparks,iems,B-,2,A-,C+,Neutral,"A tad too shouty and lacking low-level detail, but nothing too egregious as a whole.",DD,In-Ear
+Tin HiFi T4,iems,B-,2,B,B-,Bright neutral,A worthy successor to the legendary GR07.,DD,In-Ear
+Tin HiFi T3 Plus,iems,B-,2,B+,C+,V-shaped,,DD,In-Ear
+TRI Starsea,iems,B-,2,B-,B-,U-shaped,,2BA 1DD,In-Ear
+Acoustune HS1300,iems,B-,1,B-,B+,V-shaped,"A less warm, slightly brighter version of the coveted HS1551.",DD,In-Ear
+Sony WF-1000XM3,iems,B-,1,B+,B-,Neutral with bass boost,"Proper tonality, solid technicalities yet with a consumer-friendly signature.",DD,In-Ear
+Sony MDR-EX800ST/MDR7550,iems,B-,1,C+,A-,Bright neutral,"A more forgiving, warmer version of the EX1000.",DD,In-Ear
+Fatfreq Musician Plus V2,iems,B-,1,A-,C+,Neutral with bass boost,,2BA,In-Ear
+Audio Lokahi,iems,B-,1,A-,C+,Neutral with bass boost,,7BA,In-Ear
+JVC HA-FW03,iems,B-,1,A-,C+,Bright V-shape,Slightly shouty but balanced out by a warm mid-bass hump. Lacking overall definition.,DD,In-Ear
+FiiO FD5,iems,B-,1,B-,B,V-shaped,Pretty standard V-shaped tuning though surprisingly proficient in technicalities.,DD,In-Ear
+qdc Neptune,iems,B-,1,B,B-,Warm neutral,Tuning and configuration is simple but goes a long way when implemented well.,BA,In-Ear
+Apple AirPods Pro,iems,B-,1,B,B-,Neutral,Somewhat Diffuse-Field tuning with a smooth and natural midrange tonality.,DD,In-Ear
+Veedix Diamond String,iems,B-,1,B,B-,V-shaped,,4BA 1DD,In-Ear
+JBL LIVE 300TWS,iems,B-,1,B+,C+,V-shaped,"Kind of Harman-ish, but not. Heavy on the bass and sharp in the treble.",DD,In-Ear
+Bose SoundSport Free,iems,B-,1,B+,C+,Neutral,"Solid tonal balance with wide soundstage, though not the best in detailing.",DD,In-Ear
+Audiosense AQ3,iems,B-,1,B+,C+,Bassy,"Well-controlled bass despite the emphasis, limited by overall resolving ability.",2BA 1DD,In-Ear
+Nothing Ear (2),iems,B-,1,A-,C,Neutral with bass boost,,DD,In-Ear
+ikko OH1,iems,B-,1,B-,B-,V-shaped,"Well controlled sub-bass focus, high clarity and has an inherent ""Asian"" signature.",1BA 1DD,In-Ear
+Shanling ME200,iems,B-,1,B-,B-,V-shaped,"Slight mid-scoop going on. A little shouty, a little bassy, but not bad overall.",1BA 1DD,In-Ear
+Fearless S4,iems,B-,1,B-,B-,V-shaped,Tonally accurate though can be a little heavy with its upper midrange.,4BA,In-Ear
+Oriveti OH300,iems,B-,1,B-,B-,V-shaped,More similar than different to the OH500. Non-offensive tuning with decent technicalities.,2BA 1DD,In-Ear
+Aune Jasper,iems,B-,1,B-,B-,Mild V-shape,A little shouty but overall a well-balanced tonality that's more pleasing than divisive.,DD,In-Ear
+BGVP DM7,iems,B-,1,B-,B-,Warm neutral,Much more tonally-balanced take on the popular DM6.,6BA,In-Ear
+Itsfit R3,iems,B-,1,B-,B-,Neutral,"Similar to the lauded UERM, but without its resolution nor sparkle.",3BA,In-Ear
+DUNU DK-4001,iems,B-,0,B-,B+,U-shaped,A little shrill with slight cutbacks in tone compared to the DK-3001 Pro.,4BA 1DD,In-Ear
+AAW AXH (2019),iems,B-,0,B-,B+,Bright neutral,Sharp treble though not to the point of being piercing. Decent rendition of the bright-neutral signature.,4BA 1DD,In-Ear
+Unique Melody MacBeth,iems,B-,0,B-,B+,U-shaped,Extremely clear but may be too thin for some.,1BA 1DD,In-Ear
+Elysian Artemis V2,iems,B-,0,B-,B+,Neutral,"A detailed, somewhat neutral-sounding IEM that should fit most people's tastes.",3BA,In-Ear
+Acoustune HS1655Cu,iems,B-,0,B-,B+,V-shaped,Deep V-shape signature with some odd treble spikes; very Acoustune.,DD,In-Ear
+Acoustune HS1657,iems,B-,0,B-,B+,V-shaped,Deep V-shape signature with some odd treble spikes; very Acoustune.,DD,In-Ear
+Acoustune HS1677,iems,B-,0,B-,B+,V-shaped,Deep V-shape signature with some odd treble spikes; very Acoustune.,DD,In-Ear
+Beyerdynamic Xelento,iems,B-,0,B-,B+,V-shaped,"Like the T8iE, with a little more treble and upper mids.",DD,In-Ear
+Chikyu-Sekai 16/Cosmos,iems,B-,0,B-,B+,Warm neutral,,16BA,In-Ear
+FAudio Mezzo,iems,B-,0,B-,B+,Variable,,1Piezo 2BA 1DD,In-Ear
+Shanling ME700 Lite,iems,B-,0,B+,B-,Neutral,Rather radical change from the original ME700; far less warm with more upper-mid emphasis.,4BA 1DD,In-Ear
+Kinera Nanna,iems,B-,0,B+,B-,Mild V-shape,Surprisingly well-extended for an EST implementation; somewhat blunted notes overall.,2EST 1BA 1DD,In-Ear
+Lime Ears Aether,iems,B-,0,B+,B-,Neutral with bass boost,Excellent clarity and tone but marred slightly by slightly lackluster resolution,5BA,In-Ear
+Craft Ears Aurum,iems,B-,0,B+,B-,Neutral with bass boost,,2EST 4BA 1DD,In-Ear
+Sony MH755,iems,B-,0,B+,B-,U-shaped,"Clean notes, proper sub-bass extension and a tonal balance beyond expectations.",DD,In-Ear
+Sony MDR-AS800AP,iems,B-,0,S-,C,Neutral with bass boost,Extremely well-balanced tuning but with unfortunately middling technicalities.,DD,In-Ear
+Dita Fidelity,iems,B-,0,C+,A-,V-shaped,The more technical and less natural sounding of the Dita twins.,DD,In-Ear
+Vision Ears EVE 20,iems,B-,0,C+,A-,V-shaped,Solid technicalities in tandem with an uninspired tuning.,6BA,In-Ear
+Empire Ears Valkyrie,iems,B-,0,C+,A-,V-shaped,Lots of sub-bass with extremely thin mids. Adequate technicalities.,1EST 1BA 1DD,In-Ear
+Empire Ears Valkyrie Mk2,iems,B-,0,C+,A-,V-shaped,Not too dissimilar to its predecessor.,1EST 1BA 1DD,In-Ear
+Tripowin Lea,iems,B-,0,A-,C+,Mild V-shape,,DD,In-Ear
+Nostalgia Benbulbin,iems,B-,0,A-,C+,Neutral with bass boost,,4BA 1DD,In-Ear
+DUNU Titan 3,iems,B-,0,B-,B,Bright neutral,"A more reined-in variant of the Titan 3's sound, more peaky but also slightly more resolving.",DD,In-Ear
+Shozy & Neo BG,iems,B-,0,B-,B,Bright neutral,"Well balanced tuning with decent resolution, though suffers from slight timbral issues.",5BA,In-Ear
+DUNU DK-2001,iems,B-,0,B-,B,V-shaped,Slightly warm-tilted with a bit of treble spiciness.,3BA 1DD,In-Ear
+TRI Starshine,iems,B-,0,B-,B,Bright V-shape,"A good example of ""too much of a good thing"": treble extension. Sibilance issues abound, but otherwise fine.",2EST 2BA,In-Ear
+Gaudio Clariden,iems,B-,0,B-,B,V-shaped,"Somewhat reminiscent of a more mid-y Andromeda, though with extra wonkiness.",3BA,In-Ear
+Fearless S6Rui,iems,B-,0,B-,B,V-shaped,Similar to the S4/S5H though with smoother upper mids and treble response.,6BA,In-Ear
+Sony XBA-A3,iems,B-,0,B-,B,Warm neutral,Coherent hybrid with a warm-ish tilt to its tone.,2BA 1DD,In-Ear
+ThieAudio Legacy 9 (L9),iems,B-,0,B-,B,Bassy,Bass a little too slow and sluggish with minor quirks in the midrange-treble transition.,8BA 1DD,In-Ear
+NocturnaL Atlantis,iems,B-,0,B-,B,Neutral,Reference signature with immense clarity and energy.,4BA,In-Ear
+Sony XBA-Z5,iems,B-,0,B-,B,"""Balanced""",All-rounder. Somewhat neutral both in FR and tonality.,2BA 1DD,In-Ear
+PEARS SH2,iems,B-,0,B-,B,Neutral,An odd take on neutrality but not the worst.,2BA,In-Ear
+"Fidue A91 ""Sirius""",iems,B-,0,B-,B,Warm V-shape,Uniquely tuned hybrid. Not very powerful DD bass with Diffuse-Field midrange.,4BA 1DD,In-Ear
+Unique Melody Miracle V2,iems,B-,0,B-,B,Mild V-shape,Slight downsloping signature with a treble spike for sparkle.,6BA,In-Ear
+Soranik Ion,iems,B-,0,B-,B,Warm,"Clearly inspired by the 334, follows the same strengths in female vocals",5BA,In-Ear
+Noble Tux 5,iems,B-,0,B-,B,U-shaped,"Deep, sub-bass focus with potentially sibilant treble. Scooped midrange.",4BA 1DD,In-Ear
+Sony XBA-H3,iems,B-,0,B-,B,Warm neutral,Coherent hybrid with a warm-ish tilt to its tone. Similar to the XBA-A3.,2BA 1DD,In-Ear
+ThieAudio Legacy 5 (L5),iems,B-,0,B,B-,Warm neutral,A little lacking in the upper-mids but otherwise a competent set.,4BA 1DD,In-Ear
+Fatfreq Reference Pro,iems,B-,0,B,B-,Neutral,,3BA,In-Ear
+Anthem Five E4,iems,B-,0,B,B-,Neutral with bass boost,"The all-rounder; nothing stands out but nothing sounds terrible either. Safe, but perhaps too safe.",4BA,In-Ear
+ARC Mira,iems,B-,0,B,B-,Neutral,A well-tuned basic setup with strengths in versatility.,2BA,In-Ear
+Final Audio B3,iems,B-,0,B,B-,Warm neutral,Probably the best tuned of Final's B-series. Reminiscent of the E-series with BA characteristics.,2BA,In-Ear
+Craft Ears Argentum,iems,B-,0,B,B-,V-shaped,,2BA 1DD,In-Ear
+Vision Ears VE3.2,iems,B-,0,B,B-,Warm neutral,"Almost VE8-like in tonality, but lacks its technical abilities.",3BA,In-Ear
+HUM Reference,iems,B-,0,B,B-,Neutral,Basically sounds like a shallow-fit ER4S.,BA,In-Ear
+Westone ES60,iems,B-,0,B,B-,Neutral with laid-back treble,"Great timbre and well-tuned, held back by its resolution",6BA,In-Ear
+Custom Art FIBAE 7,iems,B-,0,B,B-,Neutral,Neutral tuning with a more relaxed top end. Probably the best-tuned Custom Art.,7BA,In-Ear
+qdc Dmagic,iems,B-,0,B,B-,Neutral,Probably the best triple-DD IEM out there by virtue of not being a hot mess tonally.,3DD,In-Ear
+Aure Flame,iems,B-,0,B,B-,Mild V-shape,A little better managed than the Elixir but not a massive improvement. Reminds me of a budget FH5.,?,In-Ear
+Acoustune HS1551,iems,B-,0,C+,B+,Warm V-shape,Warm and smooth tonality with a pleasing tuning not many would hate.,DD,In-Ear
+Empire Ears EVR,iems,B-,0,C+,B+,Neutral,A nicely tuned flat-ish signature with good technical ability all around.,3BA,In-Ear
+Sennheiser IE800,iems,B-,0,C+,B+,Warm,Good bass with shimmery treble. Downsloping response with slightly wonky tonality.,DD,In-Ear
+Aroma Witch Girl S,iems,B-,0,C+,B+,Warm,Pretty good technicalities but with a rather generic tuning.,5BA,In-Ear
+FiR VxV,iems,B-,0,C+,B+,Mild V-shape,Interested coloured take on a neutral reference signature. A little uneven in the mids.,4BA 1DD,In-Ear
+Sennheiser IE800S,iems,B-,0,C+,B+,Warm,Very subtle refinement to the original IE800.,DD,In-Ear
+Campfire Solaris (SE),iems,B-,0,C+,B+,"""Balanced""",Coherent and well balanced hybrid though with slight midrange hollowness.,3BA 1DD,In-Ear
+FitEar Private 333,iems,B-,0,C+,B+,Bright,Very exciting and sharp signature. Fatiguing and not for everyone.,3BA,In-Ear
+Dita Dream XLS,iems,B-,0,C+,B+,Neutral,"Standard Dita house sound with a non-standard bass roll-off. Decent, not amazing.",DD,In-Ear
+Unique Melody Maven,iems,B-,0,C+,B+,V-shaped,"Decently resolving, decent tonality; not bad, not amazing.",11BA,In-Ear
+Aroma Witch Girl W12,iems,B-,0,C+,B+,Warm V-shape,"Warm response balanced out by a sparkly treble emphasis; good technicalities, if a little narrow-sounding.",12BA,In-Ear
+Tripowin x HBB Olina SE,iems,B-,0,B+,C+,Mild V-shape,,DD,In-Ear
+Unique Melody Macbeth Ti,iems,B-,0,B+,C+,U-shaped,,1BA 1DD,In-Ear
+64 Audio A4t,iems,B-,0,B+,C+,Neutral with bass boost,Good tonal balance but lacking in definition and low-level detailing,4BA,In-Ear
+Acoustune HS1697,iems,B-,0,C,A-,V-shaped,A little wonkier than your average Acoustune but still retains the signature V-shape.,DD,In-Ear
+Campfire Ara,iems,B-,0,C,A-,Bright neutral,"Very resolving set of IEMs, triggers the ""uncanny valley"" effect with its tuning.",7BA,In-Ear
+Jomo Tango,iems,B-,0,C,A-,V-shaped,Deep V-shape signature with a warm tilt; good technicalities.,6BA,In-Ear
+Dita Perpetua,iems,B-,0,C,A-,"""Balanced""",,DD,In-Ear
+Aroma Ace,iems,B-,0,C,A-,Neutral,Really odd take on neutrality. Not the worst... but it's not natural by any means.,12BA,In-Ear
+DUNU Titan 1,iems,B-,0,B-,B-,Bright,"Bright, almost DF-ish in tonality. Shouty but with open imaging and decent detail.",DD,In-Ear
+Audio Technica ATH-LS200,iems,B-,0,B-,B-,Neutral,Somewhat Diffuse-Field neutral with its own quirks. Good technical ability.,2BA,In-Ear
+Fearless S5H,iems,B-,0,B-,B-,V-shaped,"Similar if not identical to the S4, though with a little less upper mids.",5BA,In-Ear
+Sennheiser IE400 Pro,iems,B-,0,B-,B-,V-shaped,Heavy bass boost balanced out by good treble energy along with decent midrange tonality.,DD,In-Ear
+XENNS Mangird Tea 2,iems,B-,0,B-,B-,Neutral with bass boost,,6BA 1DD,In-Ear
+InEar StageDiver SD-2,iems,B-,0,B-,B-,Neutral,"As with most GQ setups: well-balanced, excellent tuning and decent technical ability.",2BA,In-Ear
+FiiO FA9,iems,B-,0,B-,B-,Neutral,More of a downslope-neutral kind of tonality. A bit above average as far as technical performance goes.,6BA,In-Ear
+Oriveti OH500,iems,B-,0,B-,B-,V-shaped,More similar than different to the OH300. Non-offensive tuning with decent technicalities.,4BA 1DD,In-Ear
+Kinera Skuld,iems,B-,0,B-,B-,Neutral,,5BA,In-Ear
+ARC Oculus,iems,B-,0,B-,B-,Warm,"Relaxing, warm signature with sub-par resolving ability.",3BA,In-Ear
+Ultimate Ears UE6 Pro,iems,B-,0,B-,B-,"""Balanced""",A capable hybrid with little weaknesses.,1BA 2DD,In-Ear
+TRI Starlight,iems,B-,0,B-,B-,U-shaped,Painful sibilance due to uncontrolled upper treble.,4EST 2BA 1DD,In-Ear
+Colorfly Quintet,iems,B-,0,B-,B-,Mild V-shape,,4BA 1DD,In-Ear
+Clear Tune Monitors CT-6E,iems,B-,0,B-,B-,Neutral,"Good, well-balanced tonality though falls apart from the treble upwards.",6BA,In-Ear
+Stealthsonics U9 JDM,iems,B-,0,B-,B-,Neutral with bass boost,Does away with the timbre issues of the standard U9.,8BA 1DD,In-Ear
+Meze Rai Penta,iems,B-,0,B-,B-,Warm V-shape,Pleasing tonality with subpar technical ability.,4BA 1DD,In-Ear
+Elysian Cora (2019),iems,B-,0,B-,B-,Neutral with bass boost,A decent hybrid weird slightly odd midrange tonality.,4BA 1DD,In-Ear
+FitEar TG334,iems,B-,0,B-,B-,Dark,Like the MH334 with quite a bit less treble,4BA,In-Ear
+Rhapsodio Solar,iems,B-,0,B-,B-,Mild V-shape,An all-rounder to a fault. Truly a master of none.,10BA,In-Ear
+FitEar MH334,iems,B-,0,B-,B-,Warm,"Perfect for female vocals, but otherwise quite coloured",4BA,In-Ear
+Aure Elixir,iems,B-,0,B-,B-,Mild V-shape,Sort of wonky-but-not tonality that reminds me of some of Audiosense's weird IEMs.,3BA 1DD,In-Ear
+Soranik Bastille Signature,iems,B-,0,B-,B-,V-shaped,"Upper-mid and sub-bass forward, mids are scooped and can get hollow.",4BA 1DD,In-Ear
+Etymotic ER2SE/ER2XR,iems,B+,3,A,B+,Neutral,"Slightly less detailed than the ER4, but without the usual BA timbre.",DD,In-Ear
+Truthear Hexa,iems,B+,3,A+,B,Neutral,,3BA 1DD,In-Ear
+Moondrop Kato,iems,B+,2,A,B+,Mild V-shape,,DD,In-Ear
+Samsung Galaxy Buds2 Pro,iems,B+,2,S-,B,U-shaped,A less shouty interpretation of Harman with the same controlled yet impactful bass response.,2DD,In-Ear
+AKG N400,iems,B+,2,A+,B,U-shaped,Does away with the timbral issues of the Buds+ and sets itself as a superior.,DD,In-Ear
+Samsung Galaxy Buds Pro,iems,B+,2,A+,B,Warm V-shape,"More lower mids than your average Harman-tuned IEM, but works in its favour by being more pleasant.",2DD,In-Ear
+Apple AirPods Pro 2,iems,B+,2,A+,B,Mild V-shape,"A more exciting sound signature in comparison to its predecessor, with little in terms of drawbacks.",DD,In-Ear
+Softears Volume,iems,B+,2,A+,B,Mild V-shape,,2BA 1DD,In-Ear
+Etymotic ER3SE/ER3XR,iems,B+,2,A-,B+,Warm neutral,An ER4 with a bit less treble and upper extension.,BA,In-Ear
+Unique Melody 2HT âTerminatorâ,iems,B+,2,B+,B+,U-shaped,Tonality almost reminds me of a HYLA hybrid. Well tuned with strong technical performance.,1BA 1DD,In-Ear
+qdc 4SS,iems,B+,1,B+,A,Neutral,"High clarity, high resolution reference-type monitor with spot-on tone.",4BA,In-Ear
+Fearless S8Z,iems,B+,1,A,B+,Warm neutral,"Solid all-rounder with a safe, pleasing tuning.",8BA,In-Ear
+Clariar i430,iems,B+,1,A,B+,Mild V-shape,,4BA,In-Ear
+Fatfreq Maestro Mini,iems,B+,1,A+,B,Neutral with bass boost,,2BA 1DD,In-Ear
+MiM Dark Magician,iems,B+,1,A-,B+,Neutral,,DD,In-Ear
+iBasso AM05,iems,B+,1,B+,B+,Neutral,"Well-balanced tonality, slightly tilted towards brightness. Probably the best iBasso IEM yet.",5BA,In-Ear
+Fearless S6Pro,iems,B+,1,B+,B+,Neutral,Technical tuning with very forward detailing.,6BA,In-Ear
+HYLA CE-5,iems,B+,0,B+,A,U-shaped,Probably the best bass response I've ever heard. Thin-ish midrange that sounds unnatural on certain instruments.,1Piezo 2BA 1DD,In-Ear
+HYLA Sarda,iems,B+,0,B+,A,U-shaped,"Standard ""HYLA"" house sound, doesn't do much different from the CE-5 and TE-5B.",1Piezo 2BA 1DD,In-Ear
+HYLA TE-5B,iems,B+,0,B+,A,U-shaped,Similar to the CE-5 though ever-so-slightly thinner in the midrange.,1Piezo 2BA 1DD,In-Ear
+qdc 8SH,iems,B+,0,B+,A,Mild V-shape,"Tonally, a slightly wonkier variation of the top-tier qdc IEMs.",8BA,In-Ear
+qdc Tiger,iems,B+,0,B+,A,Mild V-shape,,2EST 6BA,In-Ear
+Jomo Trinity SS,iems,B+,0,B+,A,V-shaped,"Highly detailed, well separated imaging though severely lacking in treble extension.",2EST 4BA 1DD,In-Ear
+Unique Melody Mason V3+,iems,B+,0,B+,A,Bright neutral,"Decent resolution, nothing really special otherwise.",16BA,In-Ear
+Tanchjim Oxygen,iems,B+,0,A,B+,Mild V-shape,One of the best-tuned DDs tuned somewhat to Harman. Defined and detailed.,DD,In-Ear
+Clariar i640,iems,B+,0,A,B+,V-shaped,,6BA,In-Ear
+Fatfreq Maestro SE,iems,B+,0,A,B+,Neutral with bass boost,,,In-Ear
+Sennheiser IE900,iems,B+,0,B,A+,U-shaped,"Well-resolving DD IEM with excellent treble control, though with somewhat weak mid-high harmonics.",DD,In-Ear
+Noble Khan,iems,B+,0,B,A+,U-shaped,"Clean yet lean, solid low-end rumble but treble get splashy. Technical but lacking naturalness.",1Piezo 4BA 1DD,In-Ear
+Noble Kublai Khan,iems,B+,0,B,A+,U-shaped,,1Piezo 1BC 4BA 1DD,In-Ear
+Gaudio Nair,iems,B+,0,A+,B,Neutral,Well-tuned neutral monitor bottlenecked by timbre and resolution.,3BA,In-Ear
+Unique Melody MEXT,iems,B+,0,B+,A-,U-shaped,,1BC 4BA 1DD,In-Ear
+Ultimate Ears Reference Remastered (UERR),iems,B+,0,B+,A-,Neutral with laid-back treble,Warm with good tonality. Good all-rounder albeit definitely not a reference signature.,3BA,In-Ear
+Vision Ears VE7,iems,B+,0,B+,A-,Warm neutral,Fairly inoffensive tuning with solid technicalities.,7BA,In-Ear
+Unique Melody MEST,iems,B+,0,B+,A-,Neutral with bass boost,"A smooth, relaxing listen (in custom form) backed up with good technicalities.",1BC 2EST 4BA 1DD,In-Ear
+Unique Melody MEST Mk2,iems,B+,0,B+,A-,Neutral with bass boost,"Pretty much the same as the Mk1, though with extra sub-bass presence.",1BC 2EST 4BA 1DD,In-Ear
+Elysian Hades V2,iems,B+,0,B+,A-,Variable,Upper-mid forward signature with intense upper treble response.,6BA,In-Ear
+Elysian Terminator V2,iems,B+,0,B+,A-,V-shaped,"A more intense, upper-mid forward Terminator V1 with the same level of technical ability.",8BA,In-Ear
+Elysian Terminator,iems,B+,0,B+,A-,Warm V-shape,Well rounded smooth signature that doesn't offend.,8BA,In-Ear
+DUNU DK-3001 Pro,iems,B+,0,A-,B+,Warm neutral,Well-tuned and coherent. Does little wrong and very easy to like.,3BA 1DD,In-Ear
+FAudio Dark Sky,iems,B+,0,A-,B+,V-shaped,,DD,In-Ear
+DUNU x Z Reviews SA6 Ultra,iems,B+,0,B,A,U-shaped,,6BA,In-Ear
+Hidition NT6 Pro,iems,B+,0,B,A,Neutral with bass boost,A V-shaped version of the NT6. The change in tuning kills the technical ability slightly,6BA,In-Ear
+64 Audio A18S,iems,B+,0,B,A,Warm neutral,Warning: the demo unit does not sound like the custom. Demos are sub-bass focused while customs are warm.,18BA,In-Ear
+InEar Prophile-8,iems,B+,0,A,B,Neutral,"Very ""studio"" like sound, heavy priority on technicalities if a little dead-sounding.",8BA,In-Ear
+Fatfreq Maestro,iems,B+,0,A,B,U-shaped,,,In-Ear
+Audeze Euclid,iems,B+,0,B-,S-,Mild V-shape,Certainly far better tuned than its predecessors with the same excellent technicalities.,Planar,In-Ear
+Jomo Flamenco,iems,B+,0,B-,A+,Warm neutral,Tuned to be more pleasing and tonally accurate compared to the old Flamenco at the cost of sheer detail.,11BA,In-Ear
+iBasso IT04,iems,B+,0,B+,B+,U-shaped,A nice improvement over the IT03 though midrange hollowness still exists.,3BA 1DD,In-Ear
+JQ Hua Jiang,iems,B+,0,B+,B+,Neutral with bass boost,"Somewhat subdued and ""safe"" tuning with decent resolving ability.",2EST 6BA 1DD,In-Ear
+Oriolus MK2,iems,B+,0,B+,B+,V-shaped,Lively yet non-fatiguing hybrid experience.,3BA 1DD,In-Ear
+FiR M3,iems,B+,0,B+,B+,Warm neutral,"Interesting tubeless technology, though the imaging improvements are minimal.",2BA 1DD,In-Ear
+64 Audio N8,iems,B+,0,B+,B+,Bassy,"Sub-bass focus, rich and smooth yet relatively neutral in tone.",8BA 1DD,In-Ear
+FiR M4,iems,B+,0,B+,B+,Warm neutral,Too similar to the M3 to be worth the price markup.,3BA 1DD,In-Ear
+FitEar MH334SR,iems,B+,0,B+,B+,Warm neutral,A MH334 with more treble extension and more opened imaging.,4BA,In-Ear
+FiR M5,iems,B+,0,B+,B+,Warm V-shape,Warmer than the M3 and M4 with lower resolution.,1EST 3BA 1DD,In-Ear
+Empire Ears Legend EVO,iems,B+,0,B+,B+,Bassy,,5BA 2DD 1BC,In-Ear
+Mofasest M14,iems,B+,0,B+,B+,Neutral with bass boost,"Essentially a more tonally ""correct"" version of the ThieAudio V14.",14BA,In-Ear
+ThieAudio Monarch Mk2,iems,S-,2,S+,A+,Neutral with bass boost,,2EST 6BA 1DD,In-Ear
+"Hidition Viento
+(B-mode, custom)",iems,S-,2,S+,A+,Variable,Best-in-class tuning and tonal balance with near-perfect coherency. Recommended as a custom-fit.,4BA,In-Ear
+Elysian Annihilator (2021),iems,S-,1,S-,S,U-shaped,,2EST 4BA 1DD,In-Ear

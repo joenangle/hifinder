@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { calculateExpertScore, gradeToNumeric, type ScoringComponent } from '@/lib/crinacle-scoring'
 
 // Intelligent caching system for recommendations
 const cache = new Map<string, { data: unknown, expires: number }>()
@@ -46,15 +47,15 @@ interface RecommendationComponent {
   amazon_url?: string
   why_recommended?: string
   image_url?: string
-  // Expert analysis fields
-  crinacle_sound_signature?: string
-  tone_grade?: string
-  technical_grade?: string
-  crinacle_comments?: string
+  // Expert analysis fields (Crinacle data)
+  crin_signature?: string
+  crin_tone?: string
+  crin_tech?: string
+  crin_comments?: string
   driver_type?: string
   fit?: string
-  crinacle_rank?: number
-  value_rating?: number
+  crin_rank?: string  // Letter grade: S+, S, S-, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F
+  crin_value?: number
   // Computed fields
   avgPrice: number
   synergyScore: number
@@ -110,7 +111,7 @@ interface RecommendationRequest {
 function calculateSynergyScore(component: unknown, soundSig: string, primaryUsage: string): number {
   const comp = component as {
     sound_signature?: string
-    crinacle_sound_signature?: string
+    crin_signature?: string
     use_cases?: string | string[]
     asr_sinad?: number
     price_new?: number
@@ -133,8 +134,8 @@ function calculateSynergyScore(component: unknown, soundSig: string, primaryUsag
   }
 
   // Layer 2: Detailed Crinacle signature matching (enhanced system)
-  if (comp.crinacle_sound_signature && soundSig !== 'any') {
-    const detailedMatch = getDetailedSignatureMatch(comp.crinacle_sound_signature, soundSig);
+  if (comp.crin_signature && soundSig !== 'any') {
+    const detailedMatch = getDetailedSignatureMatch(comp.crin_signature, soundSig);
     score += detailedMatch * 0.2; // Up to 20% bonus for detailed matching
   }
 
@@ -259,47 +260,24 @@ function getExpectedPerformanceTier(budget: number): number {
 
 /**
  * Calculate component's actual performance tier from expert data
+ * Uses new unified scoring system: 30% Rank + 30% Tone + 20% Tech + 20% Value
  */
 function getComponentPerformanceTier(component: RecommendationComponent): number {
   // For headphones/IEMs with Crinacle data
   if ((component.category === 'cans' || component.category === 'iems') &&
-      (component.tone_grade || component.technical_grade)) {
+      (component.crin_rank || component.crin_tone || component.crin_tech)) {
 
-    // Convert letter grades to numeric scores
-    const gradeToScore = (grade?: string): number => {
-      if (!grade) return 2.5 // Neutral baseline
-      const normalized = grade.toUpperCase().replace(/\s/g, '')
-      if (normalized.includes('A+')) return 5
-      if (normalized.includes('A-')) return 3.7
-      if (normalized.includes('A')) return 4
-      if (normalized.includes('B+')) return 3.3
-      if (normalized.includes('B-')) return 2.7
-      if (normalized.includes('B')) return 3
-      if (normalized.includes('C+')) return 2.3
-      if (normalized.includes('C')) return 2
-      return 2.5
-    }
+    // Use new unified scoring system (returns 0-10 score)
+    const expertScore = calculateExpertScore({
+      crin_rank: component.crin_rank,
+      crin_tone: component.crin_tone,
+      crin_tech: component.crin_tech,
+      crin_value: component.crin_value
+    });
 
-    const toneScore = gradeToScore(component.tone_grade)
-    const techScore = gradeToScore(component.technical_grade)
-    const avgGrade = (toneScore + techScore) / 2
-
-    // Crinacle rank bonus (lower rank = better, top 20 get boost)
-    let rankBonus = 0
-    if (component.crinacle_rank) {
-      if (component.crinacle_rank <= 10) rankBonus = 0.5
-      else if (component.crinacle_rank <= 20) rankBonus = 0.3
-      else if (component.crinacle_rank <= 50) rankBonus = 0.1
-    }
-
-    // Value rating bonus (1-3 scale from Crinacle)
-    let valueBonus = 0
-    if (component.value_rating) {
-      if (component.value_rating >= 3) valueBonus = 0.3
-      else if (component.value_rating >= 2) valueBonus = 0.15
-    }
-
-    return Math.min(5, avgGrade + rankBonus + valueBonus)
+    // Convert expert score (0-10) to performance tier (1-5)
+    // 0-10 scale → 1-5 scale: divide by 2
+    return Math.min(5, expertScore / 2);
   }
 
   // For DACs/Amps/Combos with ASR data
@@ -364,9 +342,9 @@ function calculatePerformanceScore(component: RecommendationComponent): number {
 
   // Bonus for having expert data (increases confidence)
   const hasExpertData = !!(
-    component.crinacle_sound_signature ||
-    component.tone_grade ||
-    component.technical_grade ||
+    component.crin_signature ||
+    component.crin_tone ||
+    component.crin_tech ||
     component.asr_sinad
   )
 

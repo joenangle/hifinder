@@ -48,11 +48,15 @@ module.exports = {
       colors: {
         // Keep all default Tailwind colors
         ...colors,
-        // Add custom semantic colors
+        // Add custom semantic colors (these apply to text, bg, border automatically)
         primary: 'var(--text-primary)',
         secondary: 'var(--text-secondary)',
         tertiary: 'var(--text-tertiary)',
-        accent: 'var(--accent-primary)',
+        accent: {
+          DEFAULT: 'var(--accent-primary)',
+          hover: 'var(--accent-hover)',
+          subtle: 'var(--accent-subtle)',
+        },
         success: 'var(--success)',
         warning: 'var(--warning)',
         error: 'var(--error)',
@@ -62,19 +66,11 @@ module.exports = {
         secondary: 'var(--background-secondary)',
         tertiary: 'var(--background-tertiary)',
         'surface-secondary': 'var(--background-secondary)',
-        'accent': 'rgb(var(--accent-primary-rgb) / <alpha-value>)',
-        'accent-hover': 'var(--accent-hover)',
-        'accent-subtle': 'var(--accent-subtle)',
         'surface-card': 'var(--surface-card)',
+        // accent is defined in colors object above, don't duplicate
       },
       textColor: {
-        primary: 'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        tertiary: 'var(--text-tertiary)',
-        accent: 'var(--accent-primary)',
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        error: 'var(--error)',
+        // accent is defined in colors object above, don't duplicate
         inverse: 'var(--text-inverse)',
       },
       borderColor: {

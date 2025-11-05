@@ -372,7 +372,7 @@ export default function LearnPage() {
   };
 
   return (
-    <main className="page-container">
+    <main className="min-h-screen w-full bg-primary flex justify-center items-start px-4 sm:px-6 md:px-8 lg:px-12 py-8 overflow-x-hidden">
       <div className="max-w-6xl w-full">
         {/* Hero Section */}
         <section className="text-center mb-12">

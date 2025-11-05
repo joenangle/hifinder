@@ -128,12 +128,7 @@ function RecommendationsContent() {
   } | null>(null)
 
   // Browse mode state - maps to experience level internally
-  const [browseMode, setBrowseMode] = useState<BrowseMode>(() => {
-    if (typeof window === 'undefined') return 'explore' // SSR default
-    const params = new URLSearchParams(window.location.search)
-    const experience = params.get('experience') || 'explore' // Default to explore instead of intermediate
-    return experienceToBrowseMode(experience)
-  })
+  const [browseMode, setBrowseMode] = useState<BrowseMode>('explore') // Default to explore mode
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -166,7 +161,7 @@ function RecommendationsContent() {
     }
 
     return {
-      experience: searchParams.get('experience') || 'intermediate',
+      experience: 'intermediate', // Default, will be overridden by browseMode
       budget: parseInt(searchParams.get('budget') || '250'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
@@ -230,20 +225,27 @@ function RecommendationsContent() {
     return ['cans', 'iems'] // Default to both
   })
 
-  const [soundFilter, setSoundFilter] = useState<string>(() => {
+  // Show more state for progressive disclosure
+  const [showAllCans, setShowAllCans] = useState(false)
+  const [showAllIems, setShowAllIems] = useState(false)
+  const [showAllDacs, setShowAllDacs] = useState(false)
+  const [showAllAmps, setShowAllAmps] = useState(false)
+  const [showAllCombos, setShowAllCombos] = useState(false)
+
+  const [soundFilters, setSoundFilters] = useState<string[]>(() => {
     const param = searchParams.get('soundSignatures')
     if (param) {
       try {
         const parsed = JSON.parse(param)
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : 'neutral'
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : ['neutral']
       } catch {
-        return 'neutral' // Default to neutral if parsing fails
+        return ['neutral'] // Default to neutral if parsing fails
       }
     }
     // Legacy support for single sound param
     const legacySound = searchParams.get('sound') // Keep for legacy support
-    if (legacySound && legacySound !== 'any') return legacySound
-    return 'neutral' // Default to neutral
+    if (legacySound && legacySound !== 'any') return [legacySound]
+    return ['neutral'] // Default to neutral
   })
   
   // Sync state with URL parameters when they change
@@ -324,13 +326,13 @@ function RecommendationsContent() {
   // Sync URL with state changes - separate effect to avoid setState-in-render
   useEffect(() => {
     const params = new URLSearchParams()
-    params.set('experience', userPrefs.experience)
+    // Note: experience is derived from browseMode, not stored in URL
     params.set('budget', userPrefs.budget.toString())
     params.set('budgetRangeMin', userPrefs.budgetRangeMin.toString())
     params.set('budgetRangeMax', userPrefs.budgetRangeMax.toString())
     params.set('headphoneType', userPrefs.headphoneType)
     params.set('headphoneTypes', JSON.stringify(typeFilters))
-    params.set('soundSignatures', JSON.stringify([soundFilter]))
+    params.set('soundSignatures', JSON.stringify(soundFilters))
     params.set('wantRecommendationsFor', JSON.stringify(userPrefs.wantRecommendationsFor))
     params.set('existingGear', JSON.stringify(userPrefs.existingGear))
     params.set('usage', userPrefs.usage)
@@ -339,7 +341,7 @@ function RecommendationsContent() {
     params.set('sound', userPrefs.soundSignature)
 
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
-  }, [userPrefs, typeFilters, soundFilter, router])
+  }, [userPrefs, typeFilters, soundFilters, router])
 
   // Handle browse mode changes
   const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
@@ -384,7 +386,8 @@ function RecommendationsContent() {
         usage: debouncedUsage,
         usageRanking: JSON.stringify(debouncedUsageRanking),
         excludedUsages: JSON.stringify(debouncedExcludedUsages),
-        soundSignature: debouncedSoundSignature
+        soundSignatures: JSON.stringify(soundFilters), // Send selected filters array
+        sound: debouncedSoundSignature // Keep legacy param for backward compatibility
       })
 
       // Add custom budget allocation if in Full Control mode
@@ -447,7 +450,7 @@ function RecommendationsContent() {
       console.log('🔍 IEMs detailed check:', {
         iemsReceived: recommendations.iems,
         iemsCount: recommendations.iems?.length || 0,
-        currentSoundFilter: soundFilter,
+        currentSoundFilters: soundFilters,
         currentTypeFilters: typeFilters,
         wantRecommendationsFor: wantRecommendationsFor
       })
@@ -504,7 +507,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedExperience, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature, browseMode, customBudgetAllocation])
+  }, [debouncedExperience, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, browseMode, customBudgetAllocation])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
@@ -518,7 +521,7 @@ function RecommendationsContent() {
         rangeMax: debouncedBudgetRangeMax.toString(),
         // Send current filters so counts reflect intersections
         equipment: activeEquipment.join(','),
-        soundSignatures: soundFilter,
+        soundSignatures: soundFilters.join(','),
         // Send wantRecommendationsFor for budget allocation
         wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor)
       })
@@ -535,7 +538,7 @@ function RecommendationsContent() {
     } catch (error) {
       console.error('Error fetching filter counts:', error)
     }
-  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, typeFilters, soundFilter, debouncedWantRecommendationsFor])
+  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, typeFilters, soundFilters, debouncedWantRecommendationsFor])
 
   // Initial fetch on mount + when fetchRecommendations changes
   useEffect(() => {
@@ -651,11 +654,43 @@ function RecommendationsContent() {
   // Get budget range label
   const getBudgetRangeLabel = (budget: number) => {
     if (budget <= 100) return 'Budget'
-    if (budget <= 400) return 'Entry Level'  
+    if (budget <= 400) return 'Entry Level'
     if (budget <= 1000) return 'Mid Range'
     if (budget <= 3000) return 'High End'
     return 'Summit-Fi'
   }
+
+  // Determine initial display limit based on experience level
+  const getInitialLimit = () => {
+    if (experience === 'beginner') return 5
+    if (experience === 'intermediate') return 8
+    return 15 // enthusiast
+  }
+
+  const initialLimit = getInitialLimit()
+
+  // Get display arrays with show more logic
+  const getDisplayItems = <T,>(items: T[], showAll: boolean): T[] => {
+    if (showAll || items.length <= initialLimit) return items
+    return items.slice(0, initialLimit)
+  }
+
+  const displayCans = getDisplayItems(cans, showAllCans)
+  const displayIems = getDisplayItems(iems, showAllIems)
+  const displayDacs = getDisplayItems(dacs, showAllDacs)
+  const displayAmps = getDisplayItems(amps, showAllAmps)
+  const displayDacAmps = getDisplayItems(dacAmps, showAllCombos)
+
+  // Debug: Log show more button visibility
+  console.log('Show More Debug:', {
+    initialLimit,
+    experience,
+    cans: { total: cans.length, display: displayCans.length, showButton: !showAllCans && cans.length > initialLimit },
+    iems: { total: iems.length, display: displayIems.length, showButton: !showAllIems && iems.length > initialLimit },
+    dacs: { total: dacs.length, display: displayDacs.length, showButton: !showAllDacs && dacs.length > initialLimit },
+    amps: { total: amps.length, display: displayAmps.length, showButton: !showAllAmps && amps.length > initialLimit },
+    combos: { total: dacAmps.length, display: displayDacAmps.length, showButton: !showAllCombos && dacAmps.length > initialLimit }
+  })
 
   // Dynamic title and description 
   const getTitle = () => {
@@ -738,8 +773,16 @@ function RecommendationsContent() {
   }, [wantRecommendationsFor, updatePreferences])
 
   const handleSoundFilterChange = useCallback((filter: 'neutral' | 'warm' | 'bright' | 'fun') => {
-    // Single-select behavior: always set to the clicked filter
-    setSoundFilter(filter)
+    // Multi-select behavior with toggle (checkbox-style)
+    setSoundFilters(prev => {
+      const newFilters = prev.includes(filter)
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+
+      // Ensure at least one filter is always selected
+      return newFilters.length === 0 ? [filter] : newFilters
+    })
+    // Update preferences with first selected filter for backward compatibility
     updatePreferences({ soundSignature: filter })
   }, [updatePreferences])
 
@@ -868,11 +911,18 @@ function RecommendationsContent() {
        {/* Compact Filters */}
         <FiltersSection
           typeFilters={typeFilters}
-          soundFilter={soundFilter}
+          soundFilters={soundFilters}
           wantRecommendationsFor={wantRecommendationsFor}
           guidedModeEnabled={guidedModeEnabled}
           browseMode={browseMode}
           filterCounts={filterCounts || undefined}
+          resultCounts={{
+            cans: cans.length,
+            iems: iems.length,
+            dacs: dacs.length,
+            amps: amps.length,
+            combos: dacAmps.length
+          }}
           onTypeFilterChange={handleTypeFilterChange}
           onEquipmentToggle={handleEquipmentToggle}
           onSoundFilterChange={handleSoundFilterChange}
@@ -986,7 +1036,7 @@ function RecommendationsContent() {
                 </div>
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
-                {cans.map((headphone) => {
+                {displayCans.map((headphone) => {
                   const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
                   const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
                   const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
@@ -1004,6 +1054,16 @@ function RecommendationsContent() {
                     />
                   )
                 })}
+
+                {/* Show More Button */}
+                {!showAllCans && cans.length > initialLimit && (
+                  <button
+                    onClick={() => setShowAllCans(true)}
+                    className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                  >
+                    Show {cans.length - initialLimit} more headphones
+                  </button>
+                )}
               </div>
             </div>
                 )
@@ -1046,7 +1106,7 @@ function RecommendationsContent() {
                 </div>
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
-                {iems.map((headphone) => {
+                {displayIems.map((headphone) => {
                   const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
                   const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
                   const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
@@ -1064,6 +1124,16 @@ function RecommendationsContent() {
                     />
                   )
                 })}
+
+                {/* Show More Button */}
+                {!showAllIems && iems.length > initialLimit && (
+                  <button
+                    onClick={() => setShowAllIems(true)}
+                    className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                  >
+                    Show {iems.length - initialLimit} more IEMs
+                  </button>
+                )}
               </div>
             </div>
                 )
@@ -1095,7 +1165,7 @@ function RecommendationsContent() {
                           </div>
                         </div>
                         <div className="p-4 flex flex-col gap-[5px]">
-                          {dacs.map((dac) => (
+                          {displayDacs.map((dac) => (
                             <SignalGearCard
                               key={dac.id}
                               component={dac}
@@ -1105,6 +1175,16 @@ function RecommendationsContent() {
                               onFindUsed={handleFindUsed}
                             />
                           ))}
+
+                          {/* Show More Button */}
+                          {!showAllDacs && dacs.length > initialLimit && (
+                            <button
+                              onClick={() => setShowAllDacs(true)}
+                              className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                            >
+                              Show {dacs.length - initialLimit} more DACs
+                            </button>
+                          )}
                         </div>
                       </>
                     ) : (
@@ -1152,7 +1232,7 @@ function RecommendationsContent() {
                     </div>
                   </div>
                   <div className="p-4 flex flex-col gap-[5px]">
-                    {amps.map((amp) => (
+                    {displayAmps.map((amp) => (
                       <SignalGearCard
                         key={amp.id}
                         component={amp}
@@ -1162,6 +1242,16 @@ function RecommendationsContent() {
                         onFindUsed={handleFindUsed}
                       />
                     ))}
+
+                    {/* Show More Button */}
+                    {!showAllAmps && amps.length > initialLimit && (
+                      <button
+                        onClick={() => setShowAllAmps(true)}
+                        className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                      >
+                        Show {amps.length - initialLimit} more amps
+                      </button>
+                    )}
                   </div>
                 </>
               ) : (
@@ -1209,7 +1299,7 @@ function RecommendationsContent() {
                     </div>
                   </div>
                   <div className="p-4 flex flex-col gap-[5px]">
-                    {dacAmps.map((combo) => (
+                    {displayDacAmps.map((combo) => (
                       <SignalGearCard
                         key={combo.id}
                         component={combo}
@@ -1219,6 +1309,16 @@ function RecommendationsContent() {
                         onFindUsed={handleFindUsed}
                       />
                     ))}
+
+                    {/* Show More Button */}
+                    {!showAllCombos && dacAmps.length > initialLimit && (
+                      <button
+                        onClick={() => setShowAllCombos(true)}
+                        className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                      >
+                        Show {dacAmps.length - initialLimit} more combos
+                      </button>
+                    )}
                   </div>
                 </>
               ) : (

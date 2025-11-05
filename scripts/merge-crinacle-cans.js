@@ -164,10 +164,12 @@ async function mergeCrinacleData(csvFilePath) {
 
   // Process each CSV row
   for (const csvRow of csvData) {
-    const { brand: csvBrand, name: csvName } = splitBrandAndModel(csvRow.Model);
+    // CSV has 'name' column containing full product name (e.g., "Sennheiser HD600")
+    const fullName = csvRow.name || csvRow.Model; // Support both old and new CSV formats
+    const { brand: csvBrand, name: csvName } = splitBrandAndModel(fullName);
 
     if (!csvBrand || !csvName) {
-      console.log('⚠️  Skipping invalid model:', csvRow.Model);
+      console.log('⚠️  Skipping invalid name:', fullName);
       skipped++;
       continue;
     }
@@ -188,35 +190,74 @@ async function mergeCrinacleData(csvFilePath) {
     matched++;
 
     // Prepare update data (only update if values exist in CSV)
-    const updateData = {
-      category: 'cans', // All items in this CSV are headphones
-    };
+    const updateData = {};
 
-    // Map CSV columns to database fields with sound signature mapping
-    if (csvRow.CrinSignature) {
-      // Map Crinacle's sound signatures to allowed database values
+    // Use CSV's category as source of truth (cans or iems)
+    if (csvRow.category) {
+      updateData.category = csvRow.category;
+    }
+
+    // Map CSV columns to database fields
+    // Store detailed Crinacle signature in crin_signature
+    if (csvRow.crin_signature) {
+      updateData.crin_signature = csvRow.crin_signature;
+
+      // Also map to basic sound_signature for backward compatibility
+      // Comprehensive mapping covering all 25 Crinacle signatures
       const signatureMap = {
+        // === NEUTRAL FAMILY ===
         'Neutral': 'neutral',
-        'Bright neutral': 'bright',
         'Bass-rolled neutral': 'neutral',
-        'Warm neutral': 'warm',
+        'Dark neutral': 'neutral',
+        'DF-neutral': 'neutral',
+        'Harman': 'neutral',
+        'Harman neutral': 'neutral',
+        'Balanced': 'neutral',
+        '"Balanced"': 'neutral',
+        'Mid-centric': 'neutral',
+        'Neutral with laid-back treble': 'warm', // NEW: Reduced treble = warmer perception
+
+        // === WARM FAMILY ===
         'Warm': 'warm',
+        'Warm neutral': 'warm',
+        'Bassy': 'warm',
+        'Neutral with bass boost': 'warm',
+        'Dark': 'warm',
+
+        // === BRIGHT FAMILY ===
         'Bright': 'bright',
+        'Bright neutral': 'bright',
+
+        // === FUN FAMILY (V-shapes, U-shapes, enhanced) ===
         'Fun': 'fun',
-        'V-shaped': 'fun'
+        'V-shaped': 'fun',
+        'Mild V-shape': 'fun',
+        'Warm V-shape': 'fun',
+        'U-shaped': 'fun',
+        'Bright V-shape': 'fun',  // NEW: V-shape with bright emphasis
+        'Bright U-shape': 'fun',  // NEW: U-shape with bright tilt
+        'Warm U-shape': 'fun',    // NEW: U-shape with warm tilt
+        'W-shaped': 'fun',        // NEW: Multiple peaks = energetic/fun
+
+        // === VARIABLE / LEGACY ===
+        'Variable': 'neutral',
+        'Bass boost': 'warm',
+        'Treble boost': 'bright',
+        'Analytical': 'bright'
       };
 
-      updateData.sound_signature = signatureMap[csvRow.CrinSignature] || csvRow.CrinSignature.toLowerCase();
+      // Default to 'neutral' if no mapping found (safeguard against constraint violations)
+      updateData.sound_signature = signatureMap[csvRow.crin_signature] || 'neutral';
     }
-    if (csvRow.CrinValue) updateData.value_rating = parseFloat(csvRow.CrinValue);
-    if (csvRow.CrinRank) updateData.crinacle_rank = parseInt(csvRow.CrinRank);
-    if (csvRow.CrinTone) updateData.tone_grade = csvRow.CrinTone;
-    if (csvRow.CrinTech) updateData.technical_grade = csvRow.CrinTech;
+    if (csvRow.crin_value) updateData.crin_value = parseFloat(csvRow.crin_value);
+    if (csvRow.crin_rank) updateData.crin_rank = csvRow.crin_rank; // Keep as string (A, S-, etc.)
+    if (csvRow.crin_tone) updateData.crin_tone = csvRow.crin_tone;
+    if (csvRow.crin_tech) updateData.crin_tech = csvRow.crin_tech;
 
-    // New fields
-    if (csvRow.CrinComments) updateData.crinacle_comments = csvRow.CrinComments;
-    if (csvRow.CrinDriver) updateData.driver_type = csvRow.CrinDriver;
-    if (csvRow.CrinFit) updateData.fit = csvRow.CrinFit;
+    // Additional Crinacle fields
+    if (csvRow.crin_comments) updateData.crin_comments = csvRow.crin_comments;
+    if (csvRow.driver_type) updateData.driver_type = csvRow.driver_type;
+    if (csvRow.fit) updateData.fit = csvRow.fit;
 
     updates.push({
       id: match.id,
