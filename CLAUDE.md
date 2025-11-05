@@ -127,12 +127,16 @@
 - **Cost/benefit:** Low ROI given Reddit's volume and Head-Fi's declining activity
 - **Decision:** Deprioritize until Reddit volume plateaus
 
-**3. Reverb (Audio Gear)** ⚠️ READY
+**3. Reverb (Audio Gear)** ✅ ACTIVE
 - ✅ Integration complete with official API
 - ✅ API token registered and configured
+- ✅ Improved filtering (Nov 5, 2025):
+  - Added subcategory parameter to API calls (headphones only)
+  - Expanded exclusion list: guitars, bass, drums, keyboards, pedals, etc.
+  - Audio keyword filtering strengthened
 - Script: `scripts/reverb-integration.js`
-- Status: Ready to test
-- **Next step:** Run test scrape to verify integration
+- Cleanup: `scripts/cleanup-reverb-instruments.js` (removed 18 instrument listings)
+- Status: Active, ~490 listings
 
 **4. eBay → Affiliate Model Only** ⚠️
 - **NO API scraping** (violates TOS)

@@ -1,16 +1,16 @@
 /**
  * Reverb API Integration for HiFinder Used Listings
- * 
+ *
  * Uses Reverb API to search for headphone listings and populate our database
  * Reverb is primarily for musical instruments but has a growing pro audio section
  */
 
-const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Shared utilities
+const { mapCondition } = require('./shared/condition-mapper');
+const { parseReverbPrice, validatePriceReasonable } = require('./shared/price-extractor');
+const { saveListing, supabase } = require('./shared/database');
 
 // Reverb API configuration
 const REVERB_CONFIG = {
@@ -43,6 +43,24 @@ const REVERB_CONFIG = {
 };
 
 /**
+ * Build better Reverb search query
+ * Strategy: Brand + first significant word of model (balances precision/recall)
+ */
+function buildSearchQuery(component) {
+  const brand = component.brand;
+  const modelWords = component.name.split(/[\s\-\/]+/).filter(word => {
+    // Filter out parentheticals, years, and short words
+    return word.length > 2 && !/^\(.*\)$/.test(word) && !/^\d{4}$/.test(word);
+  });
+
+  // Use brand + first significant model word for best balance
+  const firstModelWord = modelWords[0] || '';
+  const query = `${brand} ${firstModelWord}`.trim();
+
+  return query;
+}
+
+/**
  * Search Reverb for a specific headphone component
  */
 async function searchReverbForComponent(component) {
@@ -50,19 +68,19 @@ async function searchReverbForComponent(component) {
     console.log('⚠️ REVERB_API_TOKEN not set - skipping Reverb integration');
     return [];
   }
-  
-  console.log(`🔍 Searching Reverb for: ${component.brand} ${component.name}`);
-  
+
+  const searchQuery = buildSearchQuery(component);
+  console.log(`🔍 Searching Reverb for: ${component.brand} ${component.name} (query: "${searchQuery}")`);
+
   try {
-    const query = `${component.brand} ${component.name}`.replace(/[^\w\s]/g, '');
-    
     const params = new URLSearchParams({
-      query: query,
+      query: searchQuery,
       per_page: REVERB_CONFIG.searchParams.per_page,
       page: REVERB_CONFIG.searchParams.page,
       item_region: REVERB_CONFIG.searchParams.item_region,
       'condition[]': REVERB_CONFIG.searchParams.condition.join(','),
       category: REVERB_CONFIG.searchParams.category,
+      subcategory: REVERB_CONFIG.searchParams.subcategory, // ADDED: Filter to headphones only
       price_min: REVERB_CONFIG.searchParams.price_min,
       price_max: REVERB_CONFIG.searchParams.price_max,
       sort: REVERB_CONFIG.searchParams.sort
@@ -110,63 +128,124 @@ async function searchReverbForComponent(component) {
 }
 
 /**
+ * Simple Levenshtein distance for fuzzy matching
+ */
+function levenshteinDistance(str1, str2) {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix = [];
+
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,      // deletion
+        matrix[i][j - 1] + 1,      // insertion
+        matrix[i - 1][j - 1] + cost // substitution
+      );
+    }
+  }
+
+  return matrix[len1][len2];
+}
+
+/**
+ * Calculate similarity between two strings (0-1 scale)
+ */
+function stringSimilarity(str1, str2) {
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+
+  if (longer.length === 0) return 1.0;
+
+  const distance = levenshteinDistance(longer.toLowerCase(), shorter.toLowerCase());
+  return (longer.length - distance) / longer.length;
+}
+
+/**
  * Check if Reverb listing is relevant to our component
+ * Uses fuzzy matching for better recall
  */
 function isRelevantListing(listing, component) {
   const title = listing.title?.toLowerCase() || '';
   const description = listing.description?.toLowerCase() || '';
   const brand = component.brand.toLowerCase();
   const name = component.name.toLowerCase();
-  
-  // Must contain brand name
-  if (!title.includes(brand) && !description.includes(brand)) {
+
+  // Must contain brand name (with fuzzy matching for typos)
+  const brandInTitle = title.includes(brand);
+  const brandInDesc = description.includes(brand);
+
+  if (!brandInTitle && !brandInDesc) {
     return false;
   }
-  
-  // For specific model names, be more strict
-  const modelWords = name.split(' ').filter(word => word.length > 2);
-  const hasModelMatch = modelWords.some(word => 
-    title.includes(word.toLowerCase()) || description.includes(word.toLowerCase())
-  );
-  
-  if (modelWords.length > 0 && !hasModelMatch) {
-    return false;
-  }
-  
-  // Filter out obvious non-headphone items
-  const audioKeywords = ['headphone', 'headset', 'earphone', 'iem', 'monitor', 'driver'];
-  const hasAudioKeyword = audioKeywords.some(keyword => 
+
+  // Filter out obvious non-headphone/IEM items first
+  const audioKeywords = ['headphone', 'headset', 'earphone', 'iem', 'in-ear', 'monitor', 'earbud', 'amplifier', 'amp', 'dac', 'preamp'];
+  const hasAudioKeyword = audioKeywords.some(keyword =>
     title.includes(keyword) || description.includes(keyword)
   );
-  
-  if (!hasAudioKeyword) {
+
+  // Exclude instruments, accessories, and non-audio gear (keep amps, DACs, combos)
+  const excludeKeywords = [
+    // Musical instruments
+    'guitar', 'bass', 'drum', 'keyboard', 'piano', 'synth', 'violin', 'trumpet', 'saxophone',
+    'ukulele', 'banjo', 'mandolin', 'cello', 'flute', 'clarinet', 'trombone', 'pedal',
+    // Accessories and non-audio gear
+    'microphone', 'mic', 'speaker', 'cable', 'adapter', 'stand', 'case', 'mixer', 'tuner',
+    'strap', 'pick', 'string', 'reed', 'bow', 'valve', 'mouthpiece'
+  ];
+  const hasExcludeKeyword = excludeKeywords.some(keyword => title.includes(keyword));
+
+  if (!hasAudioKeyword || hasExcludeKeyword) {
     return false;
   }
-  
-  return true;
+
+  // For model matching, use fuzzy matching with lower threshold
+  const modelWords = name.split(/[\s\-\/]+/).filter(word => word.length > 2 && !/^\d{4}$/.test(word));
+
+  if (modelWords.length === 0) {
+    // Brand match only - accept it
+    return true;
+  }
+
+  // Check if at least one significant model word matches (fuzzy or exact)
+  const hasModelMatch = modelWords.some(word => {
+    // Exact substring match
+    if (title.includes(word.toLowerCase())) return true;
+
+    // Fuzzy match against title words
+    const titleWords = title.split(/\s+/);
+    return titleWords.some(titleWord => stringSimilarity(word.toLowerCase(), titleWord) > 0.75);
+  });
+
+  return hasModelMatch;
 }
 
 /**
  * Transform Reverb listing data to our UsedListing format
  */
 function transformReverbListing(listing, component) {
-  const price = parseFloat(listing.price?.amount || 0);
-  const condition = mapReverbCondition(listing.condition?.slug || 'good');
-  
-  // Calculate price metrics
-  const expectedPrice = component.price_used_min && component.price_used_max 
-    ? (component.price_used_min + component.price_used_max) / 2
-    : component.price_used_min || component.price_used_max || 0;
-  
-  const priceVariance = expectedPrice > 0 ? ((price - expectedPrice) / expectedPrice) * 100 : 0;
-  const isPriceReasonable = Math.abs(priceVariance) <= 40; // Reverb tends to have higher prices
-  
-  let priceWarning = null;
-  if (priceVariance > 40) {
-    priceWarning = `Price ${Math.round(priceVariance)}% above expected range`;
-  } else if (priceVariance < -40) {
-    priceWarning = `Price ${Math.round(Math.abs(priceVariance))}% below expected - verify authenticity`;
-  }
+  // Use shared price parser
+  const price = parseReverbPrice(listing.price);
+
+  // Use shared condition mapper
+  const condition = mapCondition(listing.condition?.slug || listing.condition || 'good', 'reverb');
+
+  // Use shared price validator
+  const priceValidation = validatePriceReasonable(
+    price,
+    component.price_used_min,
+    component.price_used_max
+  );
   
   // Extract location from seller info
   let location = 'Unknown';
@@ -189,14 +268,15 @@ function transformReverbListing(listing, component) {
     seller_feedback_percentage: parseFloat(listing.seller?.feedback_positive_percentage || 0),
     images: listing.photos ? listing.photos.slice(0, 5).map(photo => photo._links?.large?.href).filter(Boolean) : [],
     description: listing.description || null,
-    is_active: listing.state === 'live',
-    price_is_reasonable: isPriceReasonable,
-    price_variance_percentage: Math.round(priceVariance * 10) / 10,
-    price_warning: priceWarning,
-    expires_at: null, // Reverb listings don't have explicit expiration
-    listing_type: 'buy_it_now', // Reverb is primarily fixed-price
+    is_active: listing.state?.slug === 'live',
+    status: listing.state?.slug === 'live' ? 'available' : 'removed',
+    price_is_reasonable: priceValidation.isReasonable,
+    price_variance_percentage: priceValidation.variance,
+    price_warning: priceValidation.warning,
+    // Reverb-specific fields (useful for users)
     shipping_cost: parseFloat(listing.shipping?.initial || 0),
-    accepts_offers: listing.offers_enabled === true
+    accepts_offers: listing.offers_enabled === true,
+    listing_type: 'buy_it_now' // Reverb is primarily fixed-price
   };
 }
 
@@ -219,82 +299,112 @@ function mapReverbCondition(reverbCondition) {
 
 /**
  * Save Reverb listings to database
+ * @param {Array} listings - Listings to save
+ * @param {Set} processedUrls - Set of already processed URLs (for tracking in memory)
+ * @returns {number} - Number of new listings saved
  */
-async function saveReverbListings(listings) {
-  if (listings.length === 0) return;
-  
-  console.log(`💾 Saving ${listings.length} Reverb listings to database...`);
-  
+async function saveReverbListings(listings, processedUrls) {
+  if (listings.length === 0) return 0;
+
+  let newListingsSaved = 0;
+  let skippedInMemory = 0;
+  let skippedInDatabase = 0;
+
   for (const listing of listings) {
     try {
-      // Check if this exact listing already exists (by URL)
+      // First check in-memory cache (fast)
+      if (processedUrls.has(listing.url)) {
+        skippedInMemory++;
+        continue;
+      }
+
+      // Check if this exact listing already exists in database (by URL)
       const { data: existing } = await supabase
         .from('used_listings')
         .select('id')
         .eq('url', listing.url)
         .single();
-      
+
       if (existing) {
-        console.log(`⏭️ Skipping duplicate listing: ${listing.title.substring(0, 50)}...`);
+        // Mark as processed to avoid future database checks
+        processedUrls.add(listing.url);
+        skippedInDatabase++;
         continue;
       }
-      
+
       // Insert new listing
       const { error } = await supabase
         .from('used_listings')
         .insert([listing]);
-      
+
       if (error) {
         console.error(`❌ Error saving listing "${listing.title}":`, error.message);
       } else {
         console.log(`✅ Saved: ${listing.title.substring(0, 60)}... - $${listing.price}`);
+        processedUrls.add(listing.url);
+        newListingsSaved++;
       }
-      
+
     } catch (err) {
       console.error(`❌ Exception saving listing:`, err.message);
     }
   }
+
+  // Log summary if we skipped any
+  if (skippedInMemory > 0 || skippedInDatabase > 0) {
+    console.log(`⏭️  Skipped ${skippedInMemory + skippedInDatabase} duplicates (${skippedInMemory} cached, ${skippedInDatabase} in DB)`);
+  }
+
+  return newListingsSaved;
 }
 
 /**
- * Process all headphone components for Reverb listings  
+ * Process all components for Reverb listings (headphones, IEMs, DACs, amps, combos)
  */
 async function processAllComponents() {
-  console.log('🚀 Starting Reverb integration for all headphone components...\n');
-  
+  console.log('🚀 Starting Reverb integration for all audio components...\n');
+
   try {
-    // Get all headphone components
+    // Get all audio components (headphones, IEMs, DACs, amps, combos)
     const { data: components, error } = await supabase
       .from('components')
       .select('id, name, brand, category, price_used_min, price_used_max')
-      .in('category', ['cans', 'iems'])
+      .in('category', ['cans', 'iems', 'dac', 'amp', 'combo'])
       .order('brand, name');
-    
+
     if (error) {
       console.error('❌ Error fetching components:', error);
       return;
     }
-    
-    console.log(`📋 Processing ${components.length} headphone components...\n`);
-    
-    let totalListings = 0;
-    
+
+    console.log(`📋 Processing ${components.length} audio components (headphones, IEMs, DACs, amps, combos)...\n`);
+
+    // Track processed URLs in memory to avoid redundant database checks
+    const processedUrls = new Set();
+    let totalListingsFound = 0;
+    let totalListingsSaved = 0;
+
     for (const [index, component] of components.entries()) {
       console.log(`\n--- Processing ${index + 1}/${components.length}: ${component.brand} ${component.name} ---`);
-      
+
       const reverbListings = await searchReverbForComponent(component);
-      
+      totalListingsFound += reverbListings.length;
+
       if (reverbListings.length > 0) {
-        await saveReverbListings(reverbListings);
-        totalListings += reverbListings.length;
+        const savedCount = await saveReverbListings(reverbListings, processedUrls);
+        totalListingsSaved += savedCount;
       }
-      
+
       // Rate limiting: respect Reverb API limits
       await new Promise(resolve => setTimeout(resolve, REVERB_CONFIG.rateLimit));
     }
-    
-    console.log(`\n🎉 Reverb integration complete! Processed ${totalListings} listings total.`);
-    
+
+    console.log(`\n🎉 Reverb integration complete!`);
+    console.log(`   📊 Found ${totalListingsFound} total listings`);
+    console.log(`   ✅ Saved ${totalListingsSaved} new listings`);
+    console.log(`   ⏭️  Skipped ${totalListingsFound - totalListingsSaved} duplicates`);
+    console.log(`   🗂️  Cached ${processedUrls.size} unique URLs in memory`);
+
   } catch (error) {
     console.error('❌ Error in processAllComponents:', error);
   }
