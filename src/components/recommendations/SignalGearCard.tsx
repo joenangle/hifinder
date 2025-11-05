@@ -1,6 +1,7 @@
 'use client'
 
 import { memo, useState, useEffect } from 'react'
+import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 
 interface AudioComponent {
   id: string
@@ -19,6 +20,9 @@ interface AudioComponent {
   why_recommended?: string
   power_output_mw?: number
   thd_n?: number
+  // ASR expert data (for ExpertAnalysisPanel compatibility)
+  crin_comments?: string  // Will use for ASR review summary
+  driver_type?: string    // Not used for signal gear but keeps interface compatible
 }
 
 interface SignalGearCardProps {
@@ -27,6 +31,7 @@ interface SignalGearCardProps {
   onToggleSelection: (id: string) => void
   type: 'dac' | 'amp' | 'combo'
   onFindUsed?: (componentId: string, componentName: string) => void
+  browseMode?: 'guided' | 'explore' | 'advanced'
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -59,7 +64,8 @@ const SignalGearCardComponent = ({
   isSelected,
   onToggleSelection,
   type,
-  onFindUsed
+  onFindUsed,
+  browseMode
 }: SignalGearCardProps) => {
   const config = TYPE_CONFIG[type]
 
@@ -77,25 +83,27 @@ const SignalGearCardComponent = ({
 
       {/* Name (Brand + Model) and Price on same line */}
       <div className="flex items-baseline justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-            {component.brand} {component.name}
-          </h3>
-          {component.manufacturer_url && (
-            <a
-              href={component.manufacturer_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
-              title="View on manufacturer website"
-              aria-label={`View ${component.brand} ${component.name} on manufacturer website`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          )}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+              {component.brand} {component.name}
+            </h3>
+            {component.manufacturer_url && (
+              <a
+                href={component.manufacturer_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
+                title="View on manufacturer website"
+                aria-label={`View ${component.brand} ${component.name} on manufacturer website`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            )}
+          </div>
         </div>
         <div className="text-right ml-4">
           <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
@@ -154,11 +162,14 @@ const SignalGearCardComponent = ({
 
       {/* Why Recommended */}
       {component.why_recommended && (
-        <div>
+        <div className="mb-2">
           <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
           <p className="text-sm text-text-secondary dark:text-text-secondary">{component.why_recommended}</p>
         </div>
       )}
+
+      {/* Expert Analysis Panel - Shows ASR measurements and technical details */}
+      <ExpertAnalysisPanel component={component} browseMode={browseMode} />
 
       {/* Find Used Button - Only show if listings exist */}
       {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (

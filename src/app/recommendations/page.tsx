@@ -19,6 +19,8 @@ import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
 import { BrowseModeSelector, BrowseMode } from '@/components/recommendations/BrowseModeSelector'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
+import { ComparisonBar } from '@/components/ComparisonBar'
+import { ComparisonModal } from '@/components/ComparisonModal'
 
 // Lazy load guided mode components for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -129,6 +131,10 @@ function RecommendationsContent() {
 
   // Browse mode state - maps to experience level internally
   const [browseMode, setBrowseMode] = useState<BrowseMode>('explore') // Default to explore mode
+
+  // Comparison view state
+  const [showComparisonView, setShowComparisonView] = useState(false)
+  const [isComparisonBarExpanded, setIsComparisonBarExpanded] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -651,6 +657,28 @@ function RecommendationsContent() {
     ...selectedDacAmpItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)
   ].reduce((sum, price) => sum + price, 0)
 
+  // Combine all selected items for comparison view
+  const comparisonItems = [
+    ...selectedHeadphoneItems,
+    ...selectedDacItems,
+    ...selectedAmpItems,
+    ...selectedDacAmpItems
+  ]
+
+  // Handlers for comparison view
+  const handleClearAllComparisons = useCallback(() => {
+    setSelectedCans([])
+    setSelectedIems([])
+    setSelectedDacs([])
+    setSelectedAmps([])
+    setSelectedDacAmps([])
+    setIsComparisonBarExpanded(false)
+  }, [])
+
+  const handleOpenComparisonModal = useCallback(() => {
+    setShowComparisonView(true)
+  }, [])
+
   // Get budget range label
   const getBudgetRangeLabel = (budget: number) => {
     if (budget <= 100) return 'Budget'
@@ -807,15 +835,20 @@ function RecommendationsContent() {
     setShowUsedMarket(true)
     // Set focused component to filter listings
     setFocusedComponentId(componentId)
-
-    // Scroll to used market section after a short delay to allow section to render
-    setTimeout(() => {
-      const usedMarketSection = document.querySelector('[data-used-market-section]')
-      if (usedMarketSection) {
-        usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
   }, [])
+
+  // Scroll to used market section after it renders
+  useEffect(() => {
+    if (showUsedMarket && focusedComponentId) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        const usedMarketSection = document.querySelector('[data-used-market-section]')
+        if (usedMarketSection) {
+          usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
+    }
+  }, [showUsedMarket, focusedComponentId])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
@@ -1051,6 +1084,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
+                      browseMode={browseMode}
                     />
                   )
                 })}
@@ -1121,6 +1155,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
+                      browseMode={browseMode}
                     />
                   )
                 })}
@@ -1173,6 +1208,7 @@ function RecommendationsContent() {
                               onToggleSelection={toggleDacSelection}
                               type="dac"
                               onFindUsed={handleFindUsed}
+                              browseMode={browseMode}
                             />
                           ))}
 
@@ -1240,6 +1276,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
                         onFindUsed={handleFindUsed}
+                        browseMode={browseMode}
                       />
                     ))}
 
@@ -1307,6 +1344,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
                         onFindUsed={handleFindUsed}
+                        browseMode={browseMode}
                       />
                     ))}
 
@@ -1605,6 +1643,25 @@ function RecommendationsContent() {
           setShowStackBuilder(false)
         }}
       />
+
+      {/* Comparison Bar - Shows when items are selected */}
+      {comparisonItems.length > 0 && (
+        <ComparisonBar
+          items={comparisonItems}
+          isExpanded={isComparisonBarExpanded}
+          onToggleExpand={() => setIsComparisonBarExpanded(!isComparisonBarExpanded)}
+          onViewFullComparison={handleOpenComparisonModal}
+          onClearAll={handleClearAllComparisons}
+        />
+      )}
+
+      {/* Comparison Modal - Full side-by-side comparison */}
+      {showComparisonView && (
+        <ComparisonModal
+          items={comparisonItems}
+          onClose={() => setShowComparisonView(false)}
+        />
+      )}
       </div>
   )
 }

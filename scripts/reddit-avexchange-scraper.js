@@ -9,6 +9,7 @@
  * - Better price extraction patterns
  * - Enhanced error handling and logging
  * - Configurable search time window
+ * - AVExchangeBot confirmation integration for verified sales
  */
 
 require('dotenv').config({ path: '.env.local' });
@@ -138,17 +139,17 @@ async function searchRedditForComponent(component) {
     
     const posts = data.data?.children || [];
     const listings = [];
-    
+
     for (const post of posts) {
       const postData = post.data;
-      
+
       // Filter for selling posts only
       if (!isSellPost(postData.title)) continue;
-      
+
       // Check if post is relevant to our component
       if (!isRelevantPost(postData, component)) continue;
-      
-      const listing = transformRedditPost(postData, component);
+
+      const listing = await transformRedditPost(postData, component);
       if (listing) {
         listings.push(listing);
       }
@@ -221,53 +222,6 @@ function isRelevantPost(postData, component) {
   }
 
   return true;
-}
-
-/**
- * Transform Reddit post data into our listing format
- */
-function transformRedditPost(postData, component) {
-  try {
-    const listing = {
-      component_id: component.id,
-      title: postData.title.trim(),
-      url: `https://www.reddit.com${postData.permalink}`,
-      source: 'reddit_avexchange',
-      date_posted: new Date(postData.created_utc * 1000).toISOString(),
-      seller_username: postData.author,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    // Extract price from title
-    const priceMatch = extractPrice(postData.title);
-    if (priceMatch) {
-      listing.price = priceMatch.price;
-    } else {
-      console.log(`⚠️ Could not extract price from: ${postData.title}`);
-      return null;
-    }
-
-    // Extract condition
-    listing.condition = extractCondition(postData.title, postData.selftext || '');
-
-    // Extract location
-    listing.location = extractLocation(postData.title) || 'Unknown';
-
-    // Basic price validation
-    const priceValidation = validatePrice(listing.price, component);
-    listing.price_is_reasonable = priceValidation.valid;
-    listing.price_variance_percentage = priceValidation.variance || 0;
-    if (priceValidation.warning) {
-      listing.price_warning = priceValidation.warning;
-    }
-
-    return listing;
-  } catch (error) {
-    console.error(`❌ Error transforming Reddit post:`, error);
-    return null;
-  }
 }
 
 /**
@@ -499,39 +453,89 @@ module.exports = {
 
 /**
  * Transform Reddit post data to our UsedListing format
+ * Now checks for AVExchangeBot confirmations to verify sold status
  */
-function transformRedditPost(postData, component) {
+async function transformRedditPost(postData, component, options = {}) {
   try {
     const title = postData.title;
     const description = postData.selftext || null;
     const url = `https://www.reddit.com${postData.permalink}`;
-    
+    const postId = postData.id;
+
     // Extract listing info from title
     const listingInfo = extractListingInfoFromTitle(title, description);
-    
+
     if (!listingInfo.price || listingInfo.price <= 0) {
       // Skip listings without clear pricing
       return null;
     }
-    
+
     // Calculate price metrics
-    const expectedPrice = component.price_used_min && component.price_used_max 
+    const expectedPrice = component.price_used_min && component.price_used_max
       ? (component.price_used_min + component.price_used_max) / 2
       : component.price_used_min || component.price_used_max || 0;
-    
+
     const priceVariance = expectedPrice > 0 ? ((listingInfo.price - expectedPrice) / expectedPrice) * 100 : 0;
     const isPriceReasonable = Math.abs(priceVariance) <= 35; // Reddit tends to have fair prices
-    
+
     let priceWarning = null;
     if (priceVariance > 35) {
       priceWarning = `Price ${Math.round(priceVariance)}% above expected range`;
     } else if (priceVariance < -35) {
       priceWarning = `Price ${Math.round(Math.abs(priceVariance))}% below expected - verify condition`;
     }
-    
+
     // Get seller confirmed trades from flair
     const confirmedTrades = extractTradeCountFromFlair(postData.author_flair_text);
-    
+
+    // Check for AVExchangeBot confirmation (only if not disabled and post appears sold)
+    const checkBotConfirmation = options.checkBotConfirmations !== false;
+    let botConfirmation = null;
+
+    // Only check for bot confirmation if there are other signs of being sold
+    // (per requirement: "Only if there are no other signs of the item being sold")
+    const hasSoldIndicators = isSoldPost(postData);
+
+    if (checkBotConfirmation && hasSoldIndicators) {
+      console.log(`  🔍 Post appears sold, checking for bot confirmation...`);
+      botConfirmation = await checkForAVExchangeBotConfirmation(postId);
+      if (botConfirmation) {
+        console.log(`  ✅ Bot confirmation found: ${botConfirmation.sellerUsername} → ${botConfirmation.buyerUsername}`);
+      }
+    }
+
+    // Determine final status and dates
+    let finalStatus, dateSold, buyerUsername, botConfirmed, botCommentId, sellerFeedback, buyerFeedback;
+
+    if (botConfirmation) {
+      // Bot confirmation takes precedence - most reliable
+      finalStatus = 'sold';
+      dateSold = botConfirmation.dateSold;
+      buyerUsername = botConfirmation.buyerUsername;
+      botConfirmed = true;
+      botCommentId = botConfirmation.commentId;
+      sellerFeedback = botConfirmation.sellerFeedbackGiven;
+      buyerFeedback = botConfirmation.buyerFeedbackGiven;
+    } else if (hasSoldIndicators) {
+      // Has sold indicators but no bot confirmation
+      finalStatus = 'sold';
+      dateSold = new Date().toISOString();
+      buyerUsername = null;
+      botConfirmed = false;
+      botCommentId = null;
+      sellerFeedback = false;
+      buyerFeedback = false;
+    } else {
+      // Not sold
+      finalStatus = detectListingStatus(postData);
+      dateSold = null;
+      buyerUsername = null;
+      botConfirmed = false;
+      botCommentId = null;
+      sellerFeedback = false;
+      buyerFeedback = false;
+    }
+
     return {
       component_id: component.id,
       title: title,
@@ -546,9 +550,14 @@ function transformRedditPost(postData, component) {
       seller_feedback_score: 0, // Reddit doesn't have traditional feedback scores
       seller_feedback_percentage: 0,
       description: description,
-      is_active: !postData.archived && !postData.locked && !isSoldPost(postData),
-      status: detectListingStatus(postData),
-      date_sold: isSoldPost(postData) ? new Date().toISOString() : null,
+      is_active: finalStatus === 'available',
+      status: finalStatus,
+      date_sold: dateSold,
+      buyer_username: buyerUsername,
+      avexchange_bot_confirmed: botConfirmed,
+      avexchange_bot_comment_id: botCommentId,
+      seller_feedback_given: sellerFeedback,
+      buyer_feedback_given: buyerFeedback,
       price_is_reasonable: isPriceReasonable,
       price_variance_percentage: Math.round(priceVariance * 10) / 10,
       price_warning: priceWarning
@@ -600,6 +609,122 @@ function detectListingStatus(postData) {
   if (postData.locked) return 'expired';
   if (postData.removed || postData.spam) return 'removed';
   return 'available';
+}
+
+/**
+ * Check for AVExchangeBot confirmation in post comments
+ * Returns null if no confirmation, or confirmation object if found
+ */
+async function checkForAVExchangeBotConfirmation(postId) {
+  try {
+    const token = await getRedditAccessToken();
+
+    const response = await fetch(
+      `${REDDIT_CONFIG.apiUrl}/comments/${postId}?limit=500&depth=10`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'User-Agent': REDDIT_CONFIG.userAgent
+        }
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (!data || !Array.isArray(data) || data.length < 2) {
+      return null;
+    }
+
+    const commentsData = data[1];
+    if (!commentsData?.data?.children) {
+      return null;
+    }
+
+    // Search for AVExchangeBot comment
+    const confirmation = findBotConfirmationInComments(commentsData.data.children);
+    return confirmation;
+
+  } catch (error) {
+    console.warn(`⚠️ Error checking for bot confirmation on post ${postId}:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Recursively search comments for AVExchangeBot confirmation
+ */
+function findBotConfirmationInComments(comments) {
+  for (const node of comments) {
+    if (node.kind !== 't1') continue;
+
+    const comment = node.data;
+
+    // Check if this is an AVExchangeBot comment
+    if (comment.author === 'AVexchangeBot') {
+      const parsed = parseAVExchangeBotComment(comment);
+      if (parsed && parsed.isFullyConfirmed) {
+        return parsed;
+      }
+    }
+
+    // Recurse into replies
+    if (comment.replies && comment.replies.data && comment.replies.data.children) {
+      const found = findBotConfirmationInComments(comment.replies.data.children);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Parse AVExchangeBot comment to extract transaction details
+ */
+function parseAVExchangeBotComment(comment) {
+  try {
+    const body = comment.body || '';
+    const created = comment.created_utc;
+
+    // Extract usernames from bot comment
+    // Look for pattern: u/username -> X Trades
+    const tradePattern = /u\/([a-zA-Z0-9_-]+)\s*->\s*(\d+)\s*Trades?/gi;
+    const matches = [...body.matchAll(tradePattern)];
+
+    if (matches.length < 2) {
+      return null;
+    }
+
+    const [seller, buyer] = matches.map(m => m[1]);
+
+    // Check if both parties have replied
+    const replies = comment.replies?.data?.children || [];
+    const replyAuthors = new Set(
+      replies
+        .filter(r => r.kind === 't1')
+        .map(r => r.data.author?.toLowerCase())
+    );
+
+    const sellerFeedbackGiven = replyAuthors.has(seller.toLowerCase());
+    const buyerFeedbackGiven = replyAuthors.has(buyer.toLowerCase());
+    const isFullyConfirmed = sellerFeedbackGiven && buyerFeedbackGiven;
+
+    return {
+      commentId: comment.id,
+      dateSold: new Date(created * 1000).toISOString(),
+      sellerUsername: seller,
+      buyerUsername: buyer,
+      sellerFeedbackGiven,
+      buyerFeedbackGiven,
+      isFullyConfirmed
+    };
+
+  } catch (error) {
+    return null;
+  }
 }
 
 /**

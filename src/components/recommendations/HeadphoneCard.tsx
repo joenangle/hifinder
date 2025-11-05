@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useState, useEffect } from 'react'
-import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
+import { ExpertAnalysisPanel, CompactExpertBadge } from '@/components/ExpertAnalysisPanel'
 
 interface AudioComponent {
   id: string
@@ -35,6 +35,7 @@ interface HeadphoneCardProps {
   isToneChamp: boolean
   isBudgetChamp: boolean
   onFindUsed?: (componentId: string, componentName: string) => void
+  browseMode?: 'guided' | 'explore' | 'advanced'
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -48,7 +49,8 @@ const HeadphoneCardComponent = ({
   isTechnicalChamp,
   isToneChamp,
   isBudgetChamp,
-  onFindUsed
+  onFindUsed,
+  browseMode
 }: HeadphoneCardProps) => {
   return (
     <div
@@ -57,25 +59,29 @@ const HeadphoneCardComponent = ({
     >
       {/* Name (Brand + Model) and Price on same line */}
       <div className="flex items-baseline justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-            {headphone.brand} {headphone.name}
-          </h3>
-          {headphone.manufacturer_url && (
-            <a
-              href={headphone.manufacturer_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
-              title="View on manufacturer website"
-              aria-label={`View ${headphone.brand} ${headphone.name} on manufacturer website`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          )}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+              {headphone.brand} {headphone.name}
+            </h3>
+            {headphone.manufacturer_url && (
+              <a
+                href={headphone.manufacturer_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
+                title="View on manufacturer website"
+                aria-label={`View ${headphone.brand} ${headphone.name} on manufacturer website`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            )}
+          </div>
+          {/* Compact Expert Badge */}
+          <CompactExpertBadge component={headphone} />
         </div>
         <div className="text-right ml-4">
           <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-0.5">
@@ -170,7 +176,7 @@ const HeadphoneCardComponent = ({
         )}
       </div>
 
-      <ExpertAnalysisPanel component={headphone} />
+      <ExpertAnalysisPanel component={headphone} browseMode={browseMode} />
 
       {/* Find Used Button - Only show if listings exist */}
       {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (

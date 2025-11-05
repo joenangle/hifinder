@@ -13,6 +13,8 @@ interface ExpertAnalysisProps {
     crin_rank?: number
     crin_value?: number
   }
+  browseMode?: 'guided' | 'explore' | 'advanced'
+  totalRankedComponents?: number
 }
 
 function generateExpertBlurb(component: ExpertAnalysisProps['component']): string {
@@ -54,8 +56,55 @@ function generateExpertBlurb(component: ExpertAnalysisProps['component']): strin
   return parts.join('. ') + '.'
 }
 
-export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+// Helper function to get grade color
+function getGradeColor(grade: string): string {
+  const firstChar = grade.charAt(0).toUpperCase()
+  if (firstChar === 'S') return 'text-yellow-600 dark:text-yellow-400' // Gold for S+/S
+  if (firstChar === 'A') return 'text-green-600 dark:text-green-400'
+  if (firstChar === 'B') return 'text-blue-600 dark:text-blue-400'
+  if (firstChar === 'C') return 'text-orange-600 dark:text-orange-400'
+  return 'text-red-600 dark:text-red-400' // D/F
+}
+
+// Helper function to calculate percentile
+function calculatePercentile(rank: number, total: number): number {
+  return Math.round((1 - (rank - 1) / total) * 100)
+}
+
+// Compact expert badge for card headers (when panel is collapsed)
+export function CompactExpertBadge({ component }: { component: ExpertAnalysisProps['component'] }) {
+  const hasGrades = component.crin_tone || component.crin_tech || component.crin_rank
+
+  if (!hasGrades) return null
+
+  return (
+    <div className="flex items-center gap-2 text-[10px] text-text-tertiary dark:text-text-tertiary">
+      {component.crin_tone && (
+        <span className={`font-medium ${getGradeColor(component.crin_tone)}`}>
+          {component.crin_tone} Tone
+        </span>
+      )}
+      {component.crin_tech && (
+        <span className="text-text-tertiary dark:text-text-tertiary">|</span>
+      )}
+      {component.crin_tech && (
+        <span className={`font-medium ${getGradeColor(component.crin_tech)}`}>
+          {component.crin_tech} Tech
+        </span>
+      )}
+      {component.crin_rank && (
+        <>
+          <span className="text-text-tertiary dark:text-text-tertiary">|</span>
+          <span className="font-medium">Rank #{component.crin_rank}</span>
+        </>
+      )}
+    </div>
+  )
+}
+
+export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponents = 400 }: ExpertAnalysisProps) {
+  // Open by default in advanced mode
+  const [isExpanded, setIsExpanded] = useState(browseMode === 'advanced')
 
   // Check if component has any expert data
   const hasExpertData = !!(
@@ -95,8 +144,61 @@ export function ExpertAnalysisPanel({ component }: ExpertAnalysisProps) {
       </button>
 
       {isExpanded && (
-        <div className="mt-2 text-xs text-text-primary dark:text-text-primary leading-relaxed">
-          <p className="mb-2">{blurb}</p>
+        <div className="mt-2 text-xs text-text-primary dark:text-text-primary leading-relaxed space-y-3">
+          {/* Visual Grade Summary Bar */}
+          {(component.crin_tone || component.crin_tech || component.crin_rank) && (
+            <div className="flex items-center gap-3 p-2 bg-surface-hover dark:bg-surface-hover rounded">
+              {component.crin_tone && (
+                <div className="flex items-center gap-1">
+                  <span className="text-text-tertiary dark:text-text-tertiary">Tone:</span>
+                  <span className={`font-bold ${getGradeColor(component.crin_tone)}`}>
+                    {component.crin_tone}
+                  </span>
+                </div>
+              )}
+              {component.crin_tech && (
+                <div className="flex items-center gap-1">
+                  <span className="text-text-tertiary dark:text-text-tertiary">Tech:</span>
+                  <span className={`font-bold ${getGradeColor(component.crin_tech)}`}>
+                    {component.crin_tech}
+                  </span>
+                </div>
+              )}
+              {component.crin_rank && (
+                <div className="flex items-center gap-1">
+                  <span className="text-text-tertiary dark:text-text-tertiary">Rank:</span>
+                  <span className="font-bold text-accent-primary dark:text-accent-primary">
+                    #{component.crin_rank}
+                  </span>
+                  <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+                    (Top {calculatePercentile(component.crin_rank, totalRankedComponents)}%)
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Value Rating with Visual Stars */}
+          {component.crin_value && (
+            <div className="flex items-center gap-2">
+              <span className="text-text-tertiary dark:text-text-tertiary">Value:</span>
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+                ({component.crin_value}/5)
+              </span>
+            </div>
+          )}
+
+          <p className="text-text-secondary dark:text-text-secondary">{blurb}</p>
 
           {/* Show original comments if available */}
           {component.crin_comments && (
