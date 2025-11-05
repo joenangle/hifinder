@@ -7,10 +7,19 @@ export async function GET(request: NextRequest) {
     const component_id = searchParams.get('component_id')
     const component_ids = searchParams.get('component_ids') // Comma-separated list
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50
+    const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1
+    const source = searchParams.get('source') // Filter by source
+    const sort = searchParams.get('sort') || 'date_desc' // date_desc, date_asc, price_asc, price_desc
+    const minPrice = searchParams.get('min_price') ? parseFloat(searchParams.get('min_price')!) : null
+    const maxPrice = searchParams.get('max_price') ? parseFloat(searchParams.get('max_price')!) : null
+    const conditions = searchParams.get('conditions') // Comma-separated conditions
+
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit
 
     let query = supabaseServer
       .from('used_listings')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('is_active', true)
 
     // Filter out sample/demo listings in production
@@ -26,11 +35,46 @@ export async function GET(request: NextRequest) {
       query = query.in('component_id', idsArray)
     }
 
-    query = query
-      .order('date_posted', { ascending: false })
-      .limit(limit)
+    // Filter by source
+    if (source && source !== 'all') {
+      query = query.eq('source', source)
+    }
 
-    const { data: listings, error } = await query
+    // Filter by price range
+    if (minPrice !== null) {
+      query = query.gte('price', minPrice)
+    }
+    if (maxPrice !== null) {
+      query = query.lte('price', maxPrice)
+    }
+
+    // Filter by conditions
+    if (conditions) {
+      const conditionsArray = conditions.split(',').map(c => c.trim())
+      query = query.in('condition', conditionsArray)
+    }
+
+    // Apply sorting
+    switch (sort) {
+      case 'date_asc':
+        query = query.order('date_posted', { ascending: true })
+        break
+      case 'price_asc':
+        query = query.order('price', { ascending: true })
+        break
+      case 'price_desc':
+        query = query.order('price', { ascending: false })
+        break
+      case 'date_desc':
+      default:
+        query = query.order('date_posted', { ascending: false })
+        break
+    }
+
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1)
+
+    const { data: listings, error, count } = await query
 
     if (error) {
       console.error('Database error:', error)
@@ -48,11 +92,47 @@ export async function GET(request: NextRequest) {
         acc[componentId].push(listing)
         return acc
       }, {} as Record<string, ListingType[]>)
-      
-      return NextResponse.json(grouped)
+
+      // Apply smart prioritization: Reddit first (time-sensitive), then Reverb (persistent)
+      // Limit to ~3 per source per component for variety
+      const prioritized = Object.keys(grouped).reduce((acc, componentId) => {
+        const componentListings = grouped[componentId]
+
+        // Separate by source
+        const redditListings = componentListings
+          .filter((l: ListingType) => l.source === 'reddit_avexchange')
+          .slice(0, 3) // Max 3 Reddit listings
+
+        const reverbListings = componentListings
+          .filter((l: ListingType) => l.source === 'reverb')
+          .slice(0, 3) // Max 3 Reverb listings
+
+        const otherListings = componentListings
+          .filter((l: ListingType) => l.source !== 'reddit_avexchange' && l.source !== 'reverb')
+          .slice(0, 3) // Max 3 from other sources
+
+        // Combine: Reddit first (urgent), then Reverb, then others
+        acc[componentId] = [...redditListings, ...reverbListings, ...otherListings]
+
+        return acc
+      }, {} as Record<string, ListingType[]>)
+
+      return NextResponse.json({
+        listings: prioritized,
+        total: count || 0,
+        page,
+        per_page: limit,
+        total_pages: count ? Math.ceil(count / limit) : 0
+      })
     }
 
-    return NextResponse.json(listings || [])
+    return NextResponse.json({
+      listings: listings || [],
+      total: count || 0,
+      page,
+      per_page: limit,
+      total_pages: count ? Math.ceil(count / limit) : 0
+    })
   } catch (error) {
     console.error('Error fetching used listings:', error)
     return NextResponse.json(

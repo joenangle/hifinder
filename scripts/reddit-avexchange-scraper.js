@@ -14,11 +14,16 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Lock file to prevent concurrent scraper runs
+const LOCK_FILE = path.join(__dirname, '.reddit-scraper.lock');
 
 // Reddit API configuration
 const REDDIT_CONFIG = {
@@ -39,12 +44,55 @@ const REDDIT_CONFIG = {
     restrict_sr: true // Restrict to AVExchange subreddit only
   },
   
-  rateLimit: 2000, // 2 seconds between requests per Reddit API guidelines
-  maxPages: 3
+  rateLimit: 5000, // 5 seconds between requests to avoid rate limiting (increased from 2s)
+  maxPages: 3,
+  maxRetries: 3, // Max retry attempts for 429 errors
+  retryBaseDelay: 10000 // Start with 10s delay, then exponential backoff
 };
 
 let accessToken = null;
 let tokenExpiry = null;
+
+/**
+ * Acquire lock to prevent concurrent scraper runs
+ */
+function acquireLock() {
+  if (fs.existsSync(LOCK_FILE)) {
+    const lockData = fs.readFileSync(LOCK_FILE, 'utf8');
+    const lockInfo = JSON.parse(lockData);
+    const lockAge = Date.now() - lockInfo.timestamp;
+
+    // If lock is older than 2 hours, consider it stale and override
+    if (lockAge < 2 * 60 * 60 * 1000) {
+      console.error(`❌ Another scraper instance is already running (PID: ${lockInfo.pid})`);
+      console.error(`   Lock file: ${LOCK_FILE}`);
+      console.error(`   Started: ${new Date(lockInfo.timestamp).toLocaleString()}`);
+      return false;
+    } else {
+      console.log(`⚠️  Stale lock file found (${Math.round(lockAge / 60000)} minutes old), removing...`);
+      fs.unlinkSync(LOCK_FILE);
+    }
+  }
+
+  fs.writeFileSync(LOCK_FILE, JSON.stringify({
+    pid: process.pid,
+    timestamp: Date.now(),
+    startedAt: new Date().toISOString()
+  }));
+
+  console.log(`🔒 Lock acquired (PID: ${process.pid})`);
+  return true;
+}
+
+/**
+ * Release lock
+ */
+function releaseLock() {
+  if (fs.existsSync(LOCK_FILE)) {
+    fs.unlinkSync(LOCK_FILE);
+    console.log(`🔓 Lock released`);
+  }
+}
 
 /**
  * Get Reddit OAuth access token
@@ -92,17 +140,44 @@ async function getRedditAccessToken() {
 }
 
 /**
+ * Fetch with retry logic and exponential backoff for rate limiting
+ */
+async function fetchWithRetry(url, options = {}, retryCount = 0) {
+  try {
+    const response = await fetch(url, options);
+
+    // Handle rate limiting with exponential backoff
+    if (response.status === 429 && retryCount < REDDIT_CONFIG.maxRetries) {
+      const retryDelay = REDDIT_CONFIG.retryBaseDelay * Math.pow(2, retryCount);
+      console.log(`⏳ Rate limited (429). Waiting ${retryDelay/1000}s before retry ${retryCount + 1}/${REDDIT_CONFIG.maxRetries}...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      return fetchWithRetry(url, options, retryCount + 1);
+    }
+
+    return response;
+  } catch (error) {
+    if (retryCount < REDDIT_CONFIG.maxRetries) {
+      const retryDelay = REDDIT_CONFIG.retryBaseDelay * Math.pow(2, retryCount);
+      console.log(`⏳ Fetch error: ${error.message}. Retrying in ${retryDelay/1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      return fetchWithRetry(url, options, retryCount + 1);
+    }
+    throw error;
+  }
+}
+
+/**
  * Search r/AVExchange for headphone listings
  */
 async function searchRedditForComponent(component) {
   console.log(`🔍 Searching r/AVExchange for: ${component.brand} ${component.name}`);
-  
+
   try {
     const token = await getRedditAccessToken();
     const query = `${component.brand} ${component.name}`.replace(/[^\w\s]/g, '');
-    
+
     let url, headers;
-    
+
     if (token) {
       // Use OAuth API
       url = `${REDDIT_CONFIG.apiUrl}/r/${REDDIT_CONFIG.subreddit}/search`;
@@ -117,7 +192,7 @@ async function searchRedditForComponent(component) {
         'User-Agent': REDDIT_CONFIG.userAgent
       };
     }
-    
+
     const params = new URLSearchParams({
       q: query,
       limit: REDDIT_CONFIG.searchParams.limit,
@@ -126,15 +201,15 @@ async function searchRedditForComponent(component) {
       restrict_sr: REDDIT_CONFIG.searchParams.restrict_sr,
       type: 'link'
     });
-    
+
     console.log(`📡 Fetching: ${url}?${params}`);
-    
-    const response = await fetch(`${url}?${params}`, { headers });
-    
+
+    const response = await fetchWithRetry(`${url}?${params}`, { headers });
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     
     const posts = data.data?.children || [];
@@ -242,6 +317,12 @@ function extractPrice(title) {
     /\$?(\d{1,5})\s*obo/gi,               // 500 obo
   ];
 
+  // Patterns that indicate a price is NOT the actual asking price
+  const discountPatterns = [
+    /\$?(\d{1,5})\s*(?:off|discount|savings|reduced|sale)/gi,  // $50 off, $100 discount
+    /(?:off|discount|savings|reduced|sale)\s*\$?(\d{1,5})/gi,  // off $50, discount $100
+  ];
+
   let foundPrices = [];
 
   for (const pattern of patterns) {
@@ -252,7 +333,21 @@ function extractPrice(title) {
 
       // Sanity check: reasonable audio equipment price range
       if (price >= 20 && price <= 10000) {
-        foundPrices.push({ price, raw: match[0], confidence: 1 });
+        // Check if this price is part of a discount phrase
+        const matchIndex = title.indexOf(match[0]);
+        const surroundingText = title.substring(Math.max(0, matchIndex - 20), Math.min(title.length, matchIndex + match[0].length + 20));
+
+        let isDiscount = false;
+        for (const discountPattern of discountPatterns) {
+          if (discountPattern.test(surroundingText)) {
+            isDiscount = true;
+            break;
+          }
+        }
+
+        if (!isDiscount) {
+          foundPrices.push({ price, raw: match[0], confidence: 1 });
+        }
       }
     }
   }
@@ -483,36 +578,19 @@ async function transformRedditPost(postData, component, options = {}) {
     // Get seller confirmed trades from flair
     const confirmedTrades = extractTradeCountFromFlair(postData.author_flair_text);
 
-    // Check for AVExchangeBot confirmation (only if not disabled and post appears sold)
+    // IMPROVED SOLD STATUS DETECTION:
+    // 1. First check flair, title, and body for sold indicators (no API call needed)
+    // 2. Only try bot confirmation if we can't determine status otherwise
+
+    const hasSoldIndicators = isSoldPost(postData);
     const checkBotConfirmation = options.checkBotConfirmations !== false;
     let botConfirmation = null;
 
-    // Only check for bot confirmation if there are other signs of being sold
-    // (per requirement: "Only if there are no other signs of the item being sold")
-    const hasSoldIndicators = isSoldPost(postData);
-
-    if (checkBotConfirmation && hasSoldIndicators) {
-      console.log(`  🔍 Post appears sold, checking for bot confirmation...`);
-      botConfirmation = await checkForAVExchangeBotConfirmation(postId);
-      if (botConfirmation) {
-        console.log(`  ✅ Bot confirmation found: ${botConfirmation.sellerUsername} → ${botConfirmation.buyerUsername}`);
-      }
-    }
-
-    // Determine final status and dates
+    // Determine final status using a prioritized approach
     let finalStatus, dateSold, buyerUsername, botConfirmed, botCommentId, sellerFeedback, buyerFeedback;
 
-    if (botConfirmation) {
-      // Bot confirmation takes precedence - most reliable
-      finalStatus = 'sold';
-      dateSold = botConfirmation.dateSold;
-      buyerUsername = botConfirmation.buyerUsername;
-      botConfirmed = true;
-      botCommentId = botConfirmation.commentId;
-      sellerFeedback = botConfirmation.sellerFeedbackGiven;
-      buyerFeedback = botConfirmation.buyerFeedbackGiven;
-    } else if (hasSoldIndicators) {
-      // Has sold indicators but no bot confirmation
+    if (hasSoldIndicators) {
+      // Clear sold indicators found - mark as sold immediately
       finalStatus = 'sold';
       dateSold = new Date().toISOString();
       buyerUsername = null;
@@ -520,8 +598,13 @@ async function transformRedditPost(postData, component, options = {}) {
       botCommentId = null;
       sellerFeedback = false;
       buyerFeedback = false;
+
+      console.log(`  ✅ Marked as SOLD (flair/title indicator found)`);
+
+      // Optionally check for bot confirmation to get buyer info (but don't block on it)
+      // Skip bot check to avoid rate limiting - we already know it's sold
     } else {
-      // Not sold
+      // No clear sold indicators - listing appears available
       finalStatus = detectListingStatus(postData);
       dateSold = null;
       buyerUsername = null;
@@ -844,8 +927,27 @@ async function saveRedditListings(listings) {
  * Process all headphone components for Reddit listings
  */
 async function processAllComponents() {
+  // Acquire lock to prevent concurrent runs
+  if (!acquireLock()) {
+    console.error('❌ Cannot start scraper - another instance is already running');
+    process.exit(1);
+  }
+
+  // Ensure lock is released on exit
+  process.on('exit', releaseLock);
+  process.on('SIGINT', () => {
+    console.log('\n⚠️  Scraper interrupted by user');
+    releaseLock();
+    process.exit(130);
+  });
+  process.on('SIGTERM', () => {
+    console.log('\n⚠️  Scraper terminated');
+    releaseLock();
+    process.exit(143);
+  });
+
   console.log('🚀 Starting Reddit r/AVExchange scraper for all headphone components...\n');
-  
+
   try {
     // Get all headphone components
     const { data: components, error } = await supabase
@@ -853,34 +955,43 @@ async function processAllComponents() {
       .select('id, name, brand, category, price_used_min, price_used_max')
       .in('category', ['cans', 'iems'])
       .order('brand, name');
-    
+
     if (error) {
       console.error('❌ Error fetching components:', error);
+      releaseLock();
       return;
     }
-    
+
     console.log(`📋 Processing ${components.length} headphone components...\n`);
-    
+
     let totalListings = 0;
-    
+    let soldListings = 0;
+
     for (const [index, component] of components.entries()) {
       console.log(`\n--- Processing ${index + 1}/${components.length}: ${component.brand} ${component.name} ---`);
-      
+
       const redditListings = await searchRedditForComponent(component);
-      
+
       if (redditListings.length > 0) {
         await saveRedditListings(redditListings);
         totalListings += redditListings.length;
+        soldListings += redditListings.filter(l => l.status === 'sold').length;
       }
-      
+
       // Rate limiting: respect Reddit API guidelines
       await new Promise(resolve => setTimeout(resolve, REDDIT_CONFIG.rateLimit));
     }
-    
-    console.log(`\n🎉 Reddit scraping complete! Processed ${totalListings} listings total.`);
-    
+
+    console.log(`\n🎉 Reddit scraping complete!`);
+    console.log(`📊 Processed ${totalListings} listings total`);
+    console.log(`   ✅ ${totalListings - soldListings} available`);
+    console.log(`   🔴 ${soldListings} marked as sold`);
+
+    releaseLock();
+
   } catch (error) {
     console.error('❌ Error in processAllComponents:', error);
+    releaseLock();
   }
 }
 

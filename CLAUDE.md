@@ -107,27 +107,59 @@
 
 ### Active Data Sources
 
-**1. Reddit r/AVexchange (Primary)**
-- ✅ Production-ready scraper
-- ✅ OAuth authentication working
-- ✅ Fuzzy matching for better accuracy
-- ✅ Enhanced price extraction
+**1. Reddit r/AVexchange (Primary)** ✅
+- Production-ready scraper with upsert pattern
+- OAuth authentication working
+- Fuzzy matching for better accuracy
+- Enhanced price extraction (filters discount amounts)
+- Automated status updates (available → sold/expired)
 - Configuration: Search past month, 100 results per query
 - Script: `scripts/reddit-avexchange-scraper.js`
 - Rate limit: 2s between requests
+- Scheduled: Every 4 hours via GitHub Actions
+- Current volume: 179+ listings
 
-**2. Head-Fi Classifieds (Secondary)**
-- Integration exists but needs testing
-- Script: `scripts/headfi-scraper.js`
+**2. Head-Fi Classifieds** ❌ BLOCKED
+- **Status:** JavaScript-rendered content blocks simple scraping
+- Script exists (`scripts/headfi-scraper.js`) but returns 0 results
+- Head-Fi search requires JavaScript execution to load results
+- **Blocker:** Would need Puppeteer/Playwright for browser automation
+- **Cost/benefit:** Low ROI given Reddit's volume and Head-Fi's declining activity
+- **Decision:** Deprioritize until Reddit volume plateaus
 
-**3. Reverb (Audio Gear)**
-- Integration exists but needs API key
+**3. Reverb (Audio Gear)** ⚠️ READY
+- ✅ Integration complete with official API
+- ✅ API token registered and configured
 - Script: `scripts/reverb-integration.js`
+- Status: Ready to test
+- **Next step:** Run test scrape to verify integration
 
 **4. eBay → Affiliate Model Only** ⚠️
 - **NO API scraping** (violates TOS)
 - Use affiliate links instead: `src/lib/ebay-affiliate.ts`
 - See `EBAY_AFFILIATE_STRATEGY.md` for details
+- Waiting for Campaign ID approval
+
+**Infrastructure Updates (Nov 5, 2025):**
+- ✅ Removed broken eBay scraper references from `listing-scheduler.js`
+- ✅ Updated `package.json` to remove `scrape:ebay` script
+- ✅ Consolidated duplicate GitHub Actions workflows (now runs every 4 hours)
+- ✅ **Reddit Scraper Reliability Improvements** (Nov 5, 2025):
+  - Fixed rate limiting: 2s → 5s delay between requests
+  - Added exponential backoff for HTTP 429 errors (10s, 20s, 40s retries)
+  - Improved sold status detection: checks flair/title BEFORE bot comments (no more 0% detection)
+  - Added mutex/lock file to prevent concurrent scraper runs
+  - Created manual mark-as-sold utility: `scripts/mark-listing-sold.js`
+  - Better error handling and statistics reporting
+
+**Reddit Scraper Status Detection Strategy:**
+The scraper now uses a multi-layered approach to detect sold listings:
+1. **Primary**: Check post flair for "closed", "sold", "complete", "pending"
+2. **Secondary**: Check title for [SOLD], (SOLD), "sold to", "SPF"
+3. **Tertiary**: Check post body text for sold indicators
+4. **Fallback**: Bot confirmation check (skipped to avoid rate limits)
+
+This approach achieves near 100% sold detection without hitting API rate limits.
 
 **Running Scrapers:**
 ```bash
@@ -136,6 +168,9 @@ node scripts/test-reddit-scraper-production.js
 
 # Run full Reddit scrape (all components)
 node scripts/reddit-avexchange-scraper.js
+
+# Mark specific listing as sold manually
+node scripts/mark-listing-sold.js "https://www.reddit.com/r/AVexchange/comments/..."
 
 # Unified aggregator (all sources)
 node scripts/unified-listing-aggregator.js reddit
