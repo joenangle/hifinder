@@ -123,7 +123,7 @@ export default async function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Items */}
-          <div className="card-base p-6">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-accent-primary/10 rounded-lg">
                 <Package className="w-5 h-5 text-accent-primary" />
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Collection Value */}
-          <div className="card-base p-6">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-2">
               <div className={`p-2 rounded-lg ${
                 stats.depreciation > 0
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Stacks */}
-          <Link href="/gear?tab=stacks" className="card-base p-6 hover:border-border-focus transition-colors">
+          <Link href="/gear?tab=stacks" className="card p-6 hover:border-border-focus transition-colors">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-purple-500/10 rounded-lg">
                 <Layers className="w-5 h-5 text-purple-500" />
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
           </Link>
 
           {/* Wishlist */}
-          <Link href="/wishlist" className="card-base p-6 hover:border-border-focus transition-colors">
+          <Link href="/wishlist" className="card p-6 hover:border-border-focus transition-colors">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-pink-500/10 rounded-lg">
                 <Heart className="w-5 h-5 text-pink-500" />
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="card-base p-6 mb-8">
+        <div className="card p-6 mb-8">
           <h2 className="heading-3 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Link
@@ -249,7 +249,7 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Gear */}
-          <div className="card-base p-6">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="heading-3">Recent Gear</h2>
               <Link
@@ -271,10 +271,13 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-text-primary truncate">
-                        {item.components?.brand} {item.components?.name || item.custom_name}
+                        {item.components ?
+                          `${item.components.brand} ${item.components.name}` :
+                          item.custom_name || 'Custom Item'
+                        }
                       </p>
                       <p className="text-sm text-text-tertiary">
-                        {item.purchase_price ? formatPrice(item.purchase_price) : 'No price'}
+                        {item.purchase_price ? formatPrice(item.purchase_price) : 'Not specified'}
                       </p>
                     </div>
                   </div>
@@ -295,7 +298,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Wishlist Preview */}
-          <div className="card-base p-6">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="heading-3">Wishlist</h2>
               <Link
@@ -348,7 +351,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Active Alerts */}
-          <div className="card-base p-6 lg:col-span-2">
+          <div className="card p-6 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h2 className="heading-3">Active Price Alerts</h2>
               <Link
