@@ -20,7 +20,7 @@ import {
   TrendingDown
 } from 'lucide-react'
 import { GearPageHeader } from '@/components/gear/GearPageHeader'
-import { GearFilters } from '@/components/gear/GearFilters'
+import { FilterButton } from '@/components/FilterButton'
 import { BrandCombobox } from '@/components/gear/BrandCombobox'
 import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon } from '@/lib/gear-utils'
 
@@ -568,22 +568,145 @@ export default function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Filters */}
-        <div className="mb-6">
-          <GearFilters
-            selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
-            onCategoryChange={(category) => {
-              if (category === 'all') {
-                setActiveFilters(new Set())
-              } else {
-                setActiveFilters(new Set([category]))
-              }
-            }}
-            categoryCounts={categoryCounts}
-            onAddGear={() => setShowAddModal(true)}
-            onExport={exportCollection}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-          />
+        <div className="filter-card-compact mb-6">
+          {/* Category Filters */}
+          <div className="filter-row">
+            <span className="filter-label-compact">Category</span>
+            <div className="filter-buttons-compact">
+              <FilterButton
+                active={activeFilters.size === 0}
+                onClick={() => setActiveFilters(new Set())}
+                icon="📦"
+                label="All Gear"
+                count={categoryCounts.all}
+                activeClass="active-blue"
+              />
+              <FilterButton
+                active={activeFilters.has('headphones')}
+                onClick={() => {
+                  const newFilters = new Set(activeFilters)
+                  if (newFilters.has('headphones')) {
+                    newFilters.delete('headphones')
+                  } else {
+                    newFilters.add('headphones')
+                  }
+                  setActiveFilters(newFilters)
+                }}
+                icon="🎧"
+                label="Headphones"
+                count={categoryCounts.headphones}
+                activeClass="active-purple"
+              />
+              <FilterButton
+                active={activeFilters.has('iems')}
+                onClick={() => {
+                  const newFilters = new Set(activeFilters)
+                  if (newFilters.has('iems')) {
+                    newFilters.delete('iems')
+                  } else {
+                    newFilters.add('iems')
+                  }
+                  setActiveFilters(newFilters)
+                }}
+                icon="👂"
+                label="IEMs"
+                count={categoryCounts.iems}
+                activeClass="active-indigo"
+              />
+              <FilterButton
+                active={activeFilters.has('dacs')}
+                onClick={() => {
+                  const newFilters = new Set(activeFilters)
+                  if (newFilters.has('dacs')) {
+                    newFilters.delete('dacs')
+                  } else {
+                    newFilters.add('dacs')
+                  }
+                  setActiveFilters(newFilters)
+                }}
+                icon="🔄"
+                label="DACs"
+                count={categoryCounts.dacs}
+                activeClass="active-green"
+              />
+              <FilterButton
+                active={activeFilters.has('amps')}
+                onClick={() => {
+                  const newFilters = new Set(activeFilters)
+                  if (newFilters.has('amps')) {
+                    newFilters.delete('amps')
+                  } else {
+                    newFilters.add('amps')
+                  }
+                  setActiveFilters(newFilters)
+                }}
+                icon="⚡"
+                label="Amplifiers"
+                count={categoryCounts.amps}
+                activeClass="active-amber"
+              />
+              <FilterButton
+                active={activeFilters.has('combo')}
+                onClick={() => {
+                  const newFilters = new Set(activeFilters)
+                  if (newFilters.has('combo')) {
+                    newFilters.delete('combo')
+                  } else {
+                    newFilters.add('combo')
+                  }
+                  setActiveFilters(newFilters)
+                }}
+                icon="🔗"
+                label="Combos"
+                count={categoryCounts.combo}
+                activeClass="active-blue"
+              />
+            </div>
+          </div>
+
+          {/* View Mode & Actions */}
+          <div className="filter-row">
+            <span className="filter-label-compact">View</span>
+            <div className="filter-buttons-compact">
+              <FilterButton
+                active={viewMode === 'grid'}
+                onClick={() => setViewMode('grid')}
+                icon="⊞"
+                label="Grid"
+                activeClass="active-blue"
+              />
+              <FilterButton
+                active={viewMode === 'list'}
+                onClick={() => setViewMode('list')}
+                icon="☰"
+                label="List"
+                activeClass="active-blue"
+              />
+              <FilterButton
+                active={viewMode === 'stacks'}
+                onClick={() => setViewMode('stacks')}
+                icon="📚"
+                label="Stacks"
+                activeClass="active-blue"
+              />
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+                <FilterButton
+                  active={false}
+                  onClick={() => setShowAddModal(true)}
+                  icon="+"
+                  label="Add Gear"
+                  activeClass="active-green"
+                />
+                <FilterButton
+                  active={false}
+                  onClick={exportCollection}
+                  icon="↓"
+                  label="Export"
+                  activeClass="active-blue"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Empty state */}
