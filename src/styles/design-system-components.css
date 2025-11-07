@@ -112,6 +112,25 @@
 }
 
 /* ============================================
+   CARD COMPONENT
+   ============================================ */
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  padding: var(--space-5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ============================================
    THIRD-PARTY COMPONENT FIXES
    ============================================ */
 
