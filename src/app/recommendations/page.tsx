@@ -39,8 +39,8 @@ function browseModeToExperience(mode: BrowseMode): string {
   }
 }
 
-// Map experience level to browse mode for UI
-function experienceToBrowseMode(experience: string): BrowseMode {
+// Map experience level to browse mode for UI (reserved for future use)
+function _experienceToBrowseMode(experience: string): BrowseMode {
   switch (experience) {
     case 'beginner':
       return 'guided'
@@ -306,7 +306,7 @@ function RecommendationsContent() {
   }, [searchParams])
 
   // Extract values for convenience (using budget from enhanced state)
-  const { experience, wantRecommendationsFor, soundSignature } = userPrefs
+  const { experience, wantRecommendationsFor, soundSignature: _soundSignature } = userPrefs
   const budget = budgetState.budget // For UI display (immediate updates)
   const budgetForAPI = debouncedBudget // For API calls (debounced)
 
@@ -650,7 +650,7 @@ function RecommendationsContent() {
   const selectedAmpItems = amps.filter(a => selectedAmps.includes(a.id))
   const selectedDacAmpItems = dacAmps.filter(da => selectedDacAmps.includes(da.id))
 
-  const totalSelectedPrice = [
+  const _totalSelectedPrice = [ // Reserved for future budget tracking
     ...selectedHeadphoneItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
     ...selectedDacItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
     ...selectedAmpItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
@@ -748,8 +748,8 @@ function RecommendationsContent() {
     }
   }
 
-  // Show technical specs for intermediate/enthusiast users
-  const shouldShowTechnicalSpecs = () => {
+  // Show technical specs for intermediate/enthusiast users (reserved for future use)
+  const _shouldShowTechnicalSpecs = () => {
     return experience === 'intermediate' || experience === 'enthusiast'
   }
 
@@ -830,7 +830,7 @@ function RecommendationsContent() {
   }, [])
 
   // Handle "Find Used" button click
-  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
+  const handleFindUsed = useCallback((componentId: string, _componentName: string) => {
     // Open used market section
     setShowUsedMarket(true)
     // Set focused component to filter listings

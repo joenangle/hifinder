@@ -78,8 +78,8 @@ export function calculateBudgetRange(
  */
 export function legacyBudgetRange(
   budget: number,
-  rangeMinPercent: number = 20,
-  rangeMaxPercent: number = 10,
+  _rangeMinPercent: number = 20, // Deprecated parameter
+  _rangeMaxPercent: number = 10, // Deprecated parameter
   isSignalGear: boolean = false
 ): BudgetRange {
   // Ignore old percentages, use new progressive logic

@@ -87,12 +87,12 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
   const winners = calculateWinners(items)
 
-  // Group items by category
-  const headphones = items.filter(i => i.category === 'cans')
-  const iems = items.filter(i => i.category === 'iems')
-  const signalGear = items.filter(i => ['dac', 'amp', 'dac_amp'].includes(i.category))
+  // Group items by category (reserved for future filtering)
+  const _headphones = items.filter(i => i.category === 'cans')
+  const _iems = items.filter(i => i.category === 'iems')
+  const _signalGear = items.filter(i => ['dac', 'amp', 'dac_amp'].includes(i.category))
 
-  const renderRow = (label: string, getValue: (item: ComparisonItem) => React.ReactNode, highlightBest?: boolean) => (
+  const renderRow = (label: string, getValue: (item: ComparisonItem) => React.ReactNode, _highlightBest?: boolean) => (
     <tr className="border-b border-border-default dark:border-border-default">
       <td className="sticky left-0 bg-surface-secondary dark:bg-surface-secondary px-4 py-3 font-medium text-sm text-text-primary dark:text-text-primary whitespace-nowrap z-10">
         {label}

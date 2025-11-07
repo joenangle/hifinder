@@ -132,13 +132,13 @@ export function BudgetSlider({
   displayBudget,
   onChange,
   onChangeComplete,
-  isUpdating = false,
+  isUpdating: _isUpdating = false, // Unused but part of API
   variant = 'advanced',
   userExperience = 'intermediate',
   showInput = true,
-  showLabels = true,
-  showItemCount = false,
-  itemCount = 0,
+  showLabels: _showLabels = true, // Unused but part of API
+  showItemCount: _showItemCount = false, // Unused but part of API
+  itemCount: _itemCount = 0, // Unused but part of API
   minBudget = 20,
   maxBudget = 10000,
   budgetRangeMin = 20,
@@ -178,7 +178,7 @@ export function BudgetSlider({
   const currentTier = getBudgetTier(localBudget)
 
   // Get dynamic tick marks with viewport responsiveness
-  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
+  const [_viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
