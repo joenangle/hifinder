@@ -111,7 +111,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-surface-base">
       <div className="page-container py-8">
         {/* Welcome Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="heading-1 mb-2">
             Welcome back, {firstName}!
           </h1>
@@ -190,12 +190,12 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="card p-6 mb-8">
+        <div className="card p-6 mb-10">
           <h2 className="heading-3 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <Link
               href="/gear"
-              className="flex items-center gap-3 p-4 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
+              className="flex items-center gap-3 p-5 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
             >
               <div className="p-2 bg-accent-primary/10 rounded-lg">
                 <Plus className="w-5 h-5 text-accent-primary" />
@@ -208,7 +208,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/gear?tab=stacks"
-              className="flex items-center gap-3 p-4 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
+              className="flex items-center gap-3 p-5 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
             >
               <div className="p-2 bg-purple-500/10 rounded-lg">
                 <Layers className="w-5 h-5 text-purple-500" />
@@ -221,7 +221,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/used-market"
-              className="flex items-center gap-3 p-4 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
+              className="flex items-center gap-3 p-5 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
             >
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <Search className="w-5 h-5 text-blue-500" />
@@ -234,7 +234,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/alerts"
-              className="flex items-center gap-3 p-4 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
+              className="flex items-center gap-3 p-5 bg-surface-hover hover:bg-surface-elevated rounded-lg border border-border-subtle hover:border-border-default transition-all"
             >
               <div className="p-2 bg-orange-500/10 rounded-lg">
                 <Bell className="w-5 h-5 text-orange-500" />
@@ -247,7 +247,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-6">
           {/* Recent Gear */}
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
@@ -351,7 +351,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Active Alerts */}
-          <div className="card p-6 lg:col-span-2">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="heading-3">Active Price Alerts</h2>
               <Link
@@ -362,7 +362,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
             {alerts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {alerts.map((alert) => {
                   const component = Array.isArray(alert.components) ? alert.components[0] : alert.components
                   return (
