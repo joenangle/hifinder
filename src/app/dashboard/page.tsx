@@ -116,7 +116,7 @@ export default async function DashboardPage() {
             Welcome back, {firstName}!
           </h1>
           <p className="text-text-secondary">
-            Here's your audio collection overview
+            Here&apos;s your audio collection overview
           </p>
         </div>
 
