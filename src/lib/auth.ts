@@ -2,21 +2,21 @@ import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { createClient } from '@supabase/supabase-js'
 
-// Dynamic URL detection for deployments
-function getBaseUrl() {
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL
-  }
+// Dynamic URL detection for deployments (reserved for future use)
+// function getBaseUrl() {
+//   if (process.env.NEXTAUTH_URL) {
+//     return process.env.NEXTAUTH_URL
+//   }
 
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
+//   if (process.env.VERCEL_URL) {
+//     return `https://${process.env.VERCEL_URL}`
+//   }
 
-  // Fallback for local development
-  return process.env.NODE_ENV === 'production'
-    ? 'https://hifinder.app'
-    : 'http://localhost:3002'
-}
+//   // Fallback for local development
+//   return process.env.NODE_ENV === 'production'
+//     ? 'https://hifinder.app'
+//     : 'http://localhost:3002'
+// }
 
 // Initialize Supabase client for data operations (not for adapter)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
