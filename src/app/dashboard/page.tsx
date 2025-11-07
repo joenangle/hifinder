@@ -133,16 +133,11 @@ export default function DashboardPage() {
         depreciation
       })
 
-      // Set smart default view mode after data loads
-      if (stackItems.length >= 2 && viewMode === 'grid') {
-        setViewMode('stacks')
-      }
-
     } catch (error) {
       console.error('Error loading data:', error)
     }
     setLoading(false)
-  }, [session?.user?.id, viewMode])
+  }, [session?.user?.id])
 
   useEffect(() => {
     if (session?.user?.id) {
