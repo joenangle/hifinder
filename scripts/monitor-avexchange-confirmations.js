@@ -262,11 +262,10 @@ async function processListing(listing) {
       return { skipped: true, reason: 'already_confirmed' };
     }
 
-    // Skip if already marked sold by other means (unless we want to verify)
-    // According to requirements: "Only if there are no other signs of the item being sold"
-    // So if status is already 'sold', skip it
-    if (listing.status === 'sold') {
-      return { skipped: true, reason: 'already_sold' };
+    // Only check listings that are already marked as sold
+    // This avoids false positives from multi-item posts where we can't tell which item sold
+    if (listing.status !== 'sold') {
+      return { skipped: true, reason: 'not_sold_yet' };
     }
 
     // Extract post ID from URL
@@ -322,8 +321,8 @@ async function processListing(listing) {
  */
 async function monitorRecentListings(options = {}) {
   const {
-    daysBack = 30, // Check listings from past 30 days
-    limit = 100,
+    daysBack = 7, // Check listings from past 7 days (default)
+    limit = 200,  // Check more listings per run
     source = 'reddit_avexchange'
   } = options;
 
@@ -407,19 +406,19 @@ if (require.main === module) {
   const args = process.argv.slice(2);
 
   const options = {
-    daysBack: 30,
-    limit: 100
+    daysBack: 7,
+    limit: 200
   };
 
   // Parse command line arguments
   if (args.includes('--days')) {
     const idx = args.indexOf('--days');
-    options.daysBack = parseInt(args[idx + 1]) || 30;
+    options.daysBack = parseInt(args[idx + 1]) || 7;
   }
 
   if (args.includes('--limit')) {
     const idx = args.indexOf('--limit');
-    options.limit = parseInt(args[idx + 1]) || 100;
+    options.limit = parseInt(args[idx + 1]) || 200;
   }
 
   if (args.includes('--help')) {
@@ -429,13 +428,13 @@ AVExchangeBot Confirmation Monitor
 Usage: node monitor-avexchange-confirmations.js [options]
 
 Options:
-  --days N    Check listings from past N days (default: 30)
-  --limit N   Maximum listings to process (default: 100)
+  --days N    Check listings from past N days (default: 7)
+  --limit N   Maximum listings to process (default: 200)
   --help      Show this help message
 
 Examples:
   node monitor-avexchange-confirmations.js
-  node monitor-avexchange-confirmations.js --days 7 --limit 50
+  node monitor-avexchange-confirmations.js --days 30 --limit 100
     `);
     process.exit(0);
   }

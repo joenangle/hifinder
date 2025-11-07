@@ -1,15 +1,15 @@
-name: Scrape Used Market Listings
+name: Monitor AVExchangeBot Confirmations
 
 on:
   schedule:
-    # Run every 4 hours (6 times daily: 12am, 4am, 8am, 12pm, 4pm, 8pm EST/EDT)
-    - cron: '0 5,9,13,17,21,1 * * *'  # UTC times for EST/EDT
+    # Run twice daily at 10am and 10pm EST/EDT (3pm and 3am UTC)
+    - cron: '0 15,3 * * *'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  scrape-reddit:
+  monitor-bot-confirmations:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Scrape Reddit r/AVexchange
-        run: npm run scrape:reddit
+      - name: Monitor AVExchangeBot confirmations (sold listings only)
+        run: npm run scrape:bot-confirmations
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -34,6 +34,7 @@ jobs:
 
       - name: Log completion
         run: |
-          echo "✅ Reddit scraping completed at $(date)"
-          echo "🔍 Check Supabase used_listings table for new entries"
+          echo "✅ Bot confirmation monitoring completed at $(date)"
+          echo "🔍 Check Supabase used_listings table for bot-verified sales"
+          echo "📝 Only listings already marked 'sold' were checked for bot confirmations"
           echo "🚀 Workflow triggered successfully"

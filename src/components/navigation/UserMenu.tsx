@@ -3,14 +3,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useSession, signOut } from 'next-auth/react'
-import { User, ChevronDown } from 'lucide-react'
+import { User, ChevronDown, LayoutDashboard, Package, Heart, Bell, LogOut } from 'lucide-react'
 import Image from 'next/image'
-
-// User menu now only contains account-related actions
-// Page navigation moved to hamburger menu
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function UserMenu() {
   const { data: session } = useSession()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -103,6 +103,61 @@ export function UserMenu() {
               </p>
             </div>
 
+            {/* Navigation Links */}
+            <div className="py-2">
+              <Link
+                href="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                  pathname === '/dashboard'
+                    ? 'text-text-primary bg-surface-hover'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
+              </Link>
+              <Link
+                href="/gear"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                  pathname === '/gear'
+                    ? 'text-text-primary bg-surface-hover'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                My Gear
+              </Link>
+              <Link
+                href="/wishlist"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                  pathname === '/wishlist'
+                    ? 'text-text-primary bg-surface-hover'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                }`}
+              >
+                <Heart className="w-4 h-4" />
+                Wishlist
+              </Link>
+              <Link
+                href="/alerts"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                  pathname === '/alerts'
+                    ? 'text-text-primary bg-surface-hover'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                }`}
+              >
+                <Bell className="w-4 h-4" />
+                Price Alerts
+              </Link>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-border-subtle my-2" />
+
             {/* Account Actions */}
             <div className="py-2">
               <button
@@ -110,8 +165,9 @@ export function UserMenu() {
                   setIsOpen(false)
                   signOut()
                 }}
-                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded transition-colors"
+                className="flex items-center gap-3 w-full text-left px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded transition-colors"
               >
+                <LogOut className="w-4 h-4" />
                 Sign Out
               </button>
             </div>
