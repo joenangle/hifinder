@@ -25,6 +25,7 @@ jobs:
         run: npm ci
 
       - name: Scrape Reddit r/AVexchange
+        timeout-minutes: 30
         run: npm run scrape:reddit
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

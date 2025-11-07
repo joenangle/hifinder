@@ -44,8 +44,8 @@ const REDDIT_CONFIG = {
     restrict_sr: true // Restrict to AVExchange subreddit only
   },
   
-  rateLimit: 5000, // 5 seconds between requests to avoid rate limiting (increased from 2s)
-  maxPages: 3,
+  rateLimit: 2000, // 2 seconds between requests (with exponential backoff on 429)
+  maxPages: 2, // Reduced from 3 to speed up scraping
   maxRetries: 3, // Max retry attempts for 429 errors
   retryBaseDelay: 10000 // Start with 10s delay, then exponential backoff
 };
