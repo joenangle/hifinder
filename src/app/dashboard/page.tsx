@@ -153,7 +153,7 @@ export default async function DashboardPage() {
             <p className="text-2xl font-bold text-text-primary mb-1">
               {formatPrice(stats.totalValue)}
             </p>
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-text-secondary truncate">
               Current Value {stats.depreciation !== 0 && (
                 <span className={stats.depreciation > 0 ? 'text-red-500' : 'text-green-500'}>
                   ({stats.depreciation > 0 ? '-' : '+'}{Math.abs(stats.depreciation).toFixed(1)}%)
@@ -200,7 +200,7 @@ export default async function DashboardPage() {
               <div className="p-2 bg-accent-primary/10 rounded-lg">
                 <Plus className="w-5 h-5 text-accent-primary" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-text-primary">Add Gear</p>
                 <p className="text-xs text-text-tertiary">Expand collection</p>
               </div>
@@ -213,7 +213,7 @@ export default async function DashboardPage() {
               <div className="p-2 bg-purple-500/10 rounded-lg">
                 <Layers className="w-5 h-5 text-purple-500" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-text-primary">Build Stack</p>
                 <p className="text-xs text-text-tertiary">Organize gear</p>
               </div>
@@ -226,7 +226,7 @@ export default async function DashboardPage() {
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <Search className="w-5 h-5 text-blue-500" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-text-primary">Browse Market</p>
                 <p className="text-xs text-text-tertiary">Find deals</p>
               </div>
@@ -239,7 +239,7 @@ export default async function DashboardPage() {
               <div className="p-2 bg-orange-500/10 rounded-lg">
                 <Bell className="w-5 h-5 text-orange-500" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-text-primary">Set Alert</p>
                 <p className="text-xs text-text-tertiary">Track prices</p>
               </div>
