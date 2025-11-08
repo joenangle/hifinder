@@ -40,12 +40,12 @@ const REDDIT_CONFIG = {
   searchParams: {
     limit: 100, // Max posts per request
     sort: 'new', // Get newest posts
-    time: 'month', // Posts from past month (changed from week for more results)
+    time: 'week', // Posts from past week (more focused, faster scraping)
     restrict_sr: true // Restrict to AVExchange subreddit only
   },
-  
-  rateLimit: 2000, // 2 seconds between requests (with exponential backoff on 429)
-  maxPages: 2, // Reduced from 3 to speed up scraping
+
+  rateLimit: 1000, // 1 second between requests (with exponential backoff on 429)
+  maxPages: 1, // Single page to avoid timeout (100 most recent posts)
   maxRetries: 3, // Max retry attempts for 429 errors
   retryBaseDelay: 10000 // Start with 10s delay, then exponential backoff
 };
