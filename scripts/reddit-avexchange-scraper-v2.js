@@ -44,7 +44,7 @@ const REDDIT_CONFIG = {
   },
 
   rateLimit: 2000, // 2 seconds between page fetches
-  maxPages: 2, // Fetch 2 pages = 200 posts total
+  maxPages: 5, // Fetch 5 pages = 500 posts total (better price data coverage)
   maxRetries: 3,
   retryBaseDelay: 10000
 };
@@ -175,7 +175,7 @@ async function fetchAllRecentPosts() {
     const token = await getRedditAccessToken();
 
     for (let page = 0; page < REDDIT_CONFIG.maxPages; page++) {
-      console.log(`📄 Fetching page ${page + 1}/${REDDIT_CONFIG.maxPages}...`);
+      console.log(`📄 Fetching page ${page + 1}/${REDDIT_CONFIG.maxPages} (gathering comprehensive price data)...`);
 
       let url, headers;
 
