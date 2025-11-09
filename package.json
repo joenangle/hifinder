@@ -13,7 +13,7 @@
     "validate": "npm run lint && npm run type-check",
     "// Listing aggregation scripts": "",
     "scrape:setup": "node scripts/setup-aggregation-infrastructure.js",
-    "scrape:reddit": "node scripts/reddit-avexchange-scraper.js",
+    "scrape:reddit": "node scripts/reddit-avexchange-scraper-v2.js",
     "scrape:bot-confirmations": "node scripts/monitor-avexchange-confirmations.js",
     "// NOTE: eBay uses affiliate-only strategy (no scraping) - see docs/EBAY_AFFILIATE_STRATEGY.md": "",
     "scrape:all": "node scripts/listing-scheduler.js",
