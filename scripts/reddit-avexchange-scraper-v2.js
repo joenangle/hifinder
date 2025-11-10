@@ -571,6 +571,29 @@ async function scrapeReddit() {
     console.log(`   Available: ${totalListings - soldListings}`);
     console.log(`   Sold: ${soldListings}`);
 
+    // Invalidate recommendation cache since used listings data changed
+    if (totalListings > 0) {
+      console.log(`\n🔄 Invalidating recommendation cache...`);
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/cache/invalidate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tag: 'recommendations' })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log(`   ✅ Cache invalidated successfully`);
+        } else {
+          console.log(`   ⚠️  Cache invalidation failed (status ${response.status})`);
+        }
+      } catch (error) {
+        console.log(`   ⚠️  Cache invalidation error: ${error.message}`);
+        console.log(`   (This is non-critical - cache will auto-expire in 10 minutes)`);
+      }
+    }
+
     releaseLock();
 
   } catch (error) {
