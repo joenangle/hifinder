@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
+import { Modal } from '@/components/Modal'
+import { ImageCarousel } from '@/components/ImageCarousel'
 
 // Extended listing with component info for display
 interface ListingWithComponent extends UsedListing {
@@ -25,11 +27,11 @@ function MarketplaceContent() {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
-  
+
   // UI state
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSource, setSelectedSource] = useState<string>('all')
@@ -37,9 +39,13 @@ function MarketplaceContent() {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('date_desc')
 
-  // Modal state
+  // Modal state - Component details
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null)
+
+  // Modal state - Image viewer
+  const [imageModalOpen, setImageModalOpen] = useState(false)
+  const [selectedListing, setSelectedListing] = useState<ListingWithComponent | null>(null)
 
   // Infinite scroll ref
   const observerTarget = useRef<HTMLDivElement>(null)
@@ -461,8 +467,15 @@ function MarketplaceContent() {
                   component={listing.component}
                   viewMode={viewMode}
                   onViewDetails={() => {
-                    setSelectedComponent(listing.component)
-                    setModalOpen(true)
+                    // In list view with images, show image modal
+                    // In all other cases, show component details modal
+                    if (viewMode === 'list' && listing.images && listing.images.length > 0) {
+                      setSelectedListing(listing)
+                      setImageModalOpen(true)
+                    } else {
+                      setSelectedComponent(listing.component)
+                      setModalOpen(true)
+                    }
                   }}
                 />
               ))}
@@ -494,6 +507,73 @@ function MarketplaceContent() {
             setSelectedComponent(null)
           }}
         />
+      )}
+
+      {/* Image Viewer Modal */}
+      {selectedListing && (
+        <Modal
+          isOpen={imageModalOpen}
+          onClose={() => {
+            setImageModalOpen(false)
+            setSelectedListing(null)
+          }}
+          maxWidth="4xl"
+        >
+          <div className="p-6">
+            {/* Component Info Header */}
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-1">
+                {selectedListing.component.brand} {selectedListing.component.name}
+              </h2>
+              <p className="text-sm text-muted">
+                ${selectedListing.price} • {selectedListing.location}
+              </p>
+            </div>
+
+            {/* Image Carousel */}
+            <div className="w-full aspect-video bg-surface-secondary rounded-lg overflow-hidden">
+              {selectedListing.images && selectedListing.images.length > 0 ? (
+                <ImageCarousel
+                  images={selectedListing.images}
+                  alt={`${selectedListing.component.brand} ${selectedListing.component.name}`}
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted">
+                  <div className="text-center">
+                    <svg className="w-16 h-16 mx-auto mb-2 opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">No images available</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-4 flex gap-3">
+              <a
+                href={selectedListing.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors"
+              >
+                View Listing
+              </a>
+              <button
+                onClick={() => {
+                  // Close image modal and open component details modal
+                  setImageModalOpen(false)
+                  setSelectedComponent(selectedListing.component)
+                  setModalOpen(true)
+                }}
+                className="flex-1 px-4 py-2 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors"
+              >
+                Component Details
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   )
