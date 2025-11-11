@@ -114,14 +114,22 @@ export function MarketplaceListingCard({
       <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
         <div className="flex items-center gap-3 px-4 py-2">
           {/* Image - 64px fixed */}
-          <div className="w-16 flex-shrink-0">
-            {listing.images && listing.images.length > 0 && (
-              <div className="w-16 h-16 bg-surface-secondary overflow-hidden rounded">
-                <ImageCarousel
-                  images={listing.images}
-                  alt={listing.title}
-                  className="w-full h-full"
-                />
+          <div className="w-16 h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded">
+            {listing.images && listing.images.length > 0 ? (
+              <img
+                src={listing.images[0]}
+                alt={listing.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect fill="%23e5e7eb" width="64" height="64"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10"%3ENo Image%3C/text%3E%3C/svg%3E'
+                  e.currentTarget.onerror = null
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <svg className="w-8 h-8 opacity-30 text-muted" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
               </div>
             )}
           </div>
