@@ -482,27 +482,15 @@ function extractTradeCountFromFlair(flairText) {
 /**
  * Extract images from Reddit post
  * Returns array of image URLs (max 5)
+ *
+ * TEMPORARILY DISABLED: Regex-based Imgur extraction pulls random/inappropriate images
+ * Only using Reddit's official preview API for now
  */
 function extractImagesFromPost(postData) {
   const images = [];
 
-  // 1. Check if post URL is a direct image link
-  if (postData.url) {
-    // Reddit image CDN (i.redd.it)
-    if (postData.url.includes('i.redd.it') || postData.url.includes('i.imgur.com')) {
-      images.push(postData.url);
-    }
-    // Imgur gallery/album links
-    else if (postData.url.includes('imgur.com') && !postData.url.includes('/a/')) {
-      // Single image: https://imgur.com/abc123 → https://i.imgur.com/abc123.jpg
-      const imgurId = postData.url.split('/').pop().split('.')[0];
-      if (imgurId && imgurId.length > 0) {
-        images.push(`https://i.imgur.com/${imgurId}.jpg`);
-      }
-    }
-  }
-
-  // 2. Check preview images from Reddit API
+  // ONLY use Reddit's official preview images (most reliable)
+  // Disabled: Direct URL checking and regex text parsing - too many false positives
   if (postData.preview && postData.preview.images && postData.preview.images.length > 0) {
     for (const imageData of postData.preview.images) {
       if (imageData.source && imageData.source.url) {
@@ -511,25 +499,6 @@ function extractImagesFromPost(postData) {
         if (!images.includes(decodedUrl)) {
           images.push(decodedUrl);
         }
-      }
-    }
-  }
-
-  // 3. Parse Imgur URLs from post body text
-  const text = postData.selftext || '';
-  const imgurPatterns = [
-    /https?:\/\/(?:i\.)?imgur\.com\/([a-zA-Z0-9]+)\.?(?:jpg|png|gif)?/gi,
-    /https?:\/\/imgur\.com\/gallery\/([a-zA-Z0-9]+)/gi,
-    /https?:\/\/imgur\.com\/a\/([a-zA-Z0-9]+)/gi
-  ];
-
-  for (const pattern of imgurPatterns) {
-    const matches = text.matchAll(pattern);
-    for (const match of matches) {
-      const imgurId = match[1];
-      const imageUrl = `https://i.imgur.com/${imgurId}.jpg`;
-      if (!images.includes(imageUrl)) {
-        images.push(imageUrl);
       }
     }
   }
