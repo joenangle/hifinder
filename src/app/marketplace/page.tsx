@@ -84,6 +84,17 @@ function MarketplaceContent() {
 
       const data = await response.json()
 
+      // DEBUG: Check image data in API response
+      console.log('📸 Image Debug - First 3 listings:')
+      data.listings.slice(0, 3).forEach((listing: UsedListing, idx: number) => {
+        console.log(`Listing ${idx + 1}:`, {
+          title: listing.title,
+          hasImages: !!listing.images,
+          imageCount: listing.images?.length || 0,
+          imageUrls: listing.images?.slice(0, 2) || 'none'
+        })
+      })
+
       // Fetch component info for each listing
       const listingsWithComponents = await Promise.all(
         data.listings.map(async (listing: UsedListing) => {

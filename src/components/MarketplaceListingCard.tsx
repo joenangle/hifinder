@@ -209,15 +209,22 @@ export function MarketplaceListingCard({
   return (
     <div className="bg-surface-elevated border border-border rounded-lg overflow-hidden hover:border-accent transition-colors h-full flex flex-col">
       {/* Listing Image with Carousel */}
-      {listing.images && listing.images.length > 0 && (
-        <div className="w-full h-48 bg-surface-secondary relative overflow-hidden">
+      <div className="w-full h-48 bg-surface-secondary relative overflow-hidden flex items-center justify-center">
+        {listing.images && listing.images.length > 0 ? (
           <ImageCarousel
             images={listing.images}
             alt={listing.title}
             className="w-full h-full"
           />
-        </div>
-      )}
+        ) : (
+          <div className="text-center text-muted">
+            <svg className="w-16 h-16 mx-auto mb-2 opacity-30" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+            </svg>
+            <span className="text-xs">No image available</span>
+          </div>
+        )}
+      </div>
 
       {/* Header */}
       <div className="p-4 pb-0">
@@ -254,26 +261,35 @@ export function MarketplaceListingCard({
       {/* Details - Two Column Layout */}
       <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted mb-4">
         {/* Left Column */}
-        <div className="flex items-center gap-1">
-          <MapPin className="w-4 h-4" />
-          <span className="truncate">{listing.location}</span>
+        <div className="flex items-center gap-1 min-w-0">
+          <MapPin className="w-4 h-4 flex-shrink-0" />
+          <Tooltip content={listing.location}>
+            <span className="truncate">{listing.location}</span>
+          </Tooltip>
         </div>
         {/* Right Column */}
-        <div className="flex items-center gap-1">
-          <User className="w-4 h-4" />
-          <span className="truncate">{listing.seller_username}</span>
+        <div className="flex items-center gap-1 min-w-0">
+          <User className="w-4 h-4 flex-shrink-0" />
+          <Tooltip content={listing.seller_username}>
+            <span className="truncate">{listing.seller_username}</span>
+          </Tooltip>
         </div>
         {/* Left Column */}
         <div className="flex items-center gap-1">
-          <Clock className={`w-4 h-4 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
+          <Clock className={`w-4 h-4 flex-shrink-0 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
           <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
           {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
         </div>
         {/* Right Column */}
-        {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
+        {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 ? (
           <div className="flex items-center gap-1 text-green-600">
-            <Star className="w-4 h-4" />
+            <Star className="w-4 h-4 flex-shrink-0" />
             <span>{listing.seller_confirmed_trades} trades</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 invisible">
+            <Star className="w-4 h-4 flex-shrink-0" />
+            <span>0 trades</span>
           </div>
         )}
       </div>
