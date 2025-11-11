@@ -184,7 +184,7 @@ export function UsedMarketListingCard({
                 <User className="w-4 h-4" />
                 <span>{listing.seller_username}</span>
               </div>
-              {listing.seller_confirmed_trades && listing.seller_confirmed_trades > 0 && (
+              {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
                 <div className="flex items-center gap-1 text-green-600">
                   <Star className="w-4 h-4" />
                   <span>{listing.seller_confirmed_trades} trades</span>
@@ -192,31 +192,22 @@ export function UsedMarketListingCard({
               )}
             </div>
 
-            {/* Price Analysis Badge */}
+            {/* Price Analysis Badge - Consolidated */}
             {priceAnalysis.type !== 'fair' && (
-              <div className="flex items-center gap-2 mb-3">
-                <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
-                  priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
-                  priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                  priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
-                  'bg-surface-secondary text-primary border border-border'
-                }`}>
-                  {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
-                   priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
-                   priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3 h-3" /> : null}
-                  <span>{priceAnalysis.message}</span>
-                  {priceAnalysis.percentage !== 0 && (
-                    <span className="font-bold">({priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%)</span>
-                  )}
-                </div>
+              <div className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium mb-3 ${
+                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
+                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
+                'bg-surface-secondary text-primary border border-border'
+              }`}>
+                {priceAnalysis.type === 'great-deal' || priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3.5 h-3.5" /> :
+                 priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3.5 h-3.5" /> : null}
+                <span className="font-semibold">{priceAnalysis.message}</span>
+                {priceAnalysis.percentage !== 0 && (
+                  <span>• {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%</span>
+                )}
                 {priceAnalysis.trend !== 'stable' && (
-                  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
-                    priceAnalysis.trend === 'dropping' ? 'bg-green-50 text-green-700 border border-green-200' :
-                    'bg-orange-50 text-orange-700 border border-orange-200'
-                  }`}>
-                    <Award className="w-3 h-3" />
-                    <span>{priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
-                  </div>
+                  <span>• {priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
                 )}
               </div>
             )}
@@ -325,7 +316,7 @@ export function UsedMarketListingCard({
           <User className="w-4 h-4" />
           <span className="truncate">{listing.seller_username}</span>
         </div>
-        {listing.seller_confirmed_trades && listing.seller_confirmed_trades > 0 && (
+        {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
           <div className="flex items-center gap-1 text-green-600">
             <Star className="w-4 h-4" />
             <span>{listing.seller_confirmed_trades} trades</span>
@@ -333,31 +324,22 @@ export function UsedMarketListingCard({
         )}
       </div>
 
-      {/* Price Analysis Badge */}
+      {/* Price Analysis Badge - Consolidated */}
       {priceAnalysis.type !== 'fair' && (
-        <div className="flex flex-col gap-1 mb-3">
-          <div className={`flex items-center gap-1 p-2 rounded text-xs font-medium ${
-            priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
-            priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-            priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
-            'bg-surface-secondary text-primary border border-border'
-          }`}>
-            {priceAnalysis.type === 'great-deal' ? <TrendingDown className="w-3 h-3" /> :
-             priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3 h-3" /> :
-             priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3 h-3" /> : null}
-            <span>{priceAnalysis.message}</span>
-            {priceAnalysis.percentage !== 0 && (
-              <span className="font-bold">({priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%)</span>
-            )}
-          </div>
+        <div className={`flex flex-wrap items-center gap-1 p-2 rounded text-xs font-medium mb-3 ${
+          priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
+          priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+          priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
+          'bg-surface-secondary text-primary border border-border'
+        }`}>
+          {priceAnalysis.type === 'great-deal' || priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3.5 h-3.5" /> :
+           priceAnalysis.type === 'overpriced' ? <TrendingUp className="w-3.5 h-3.5" /> : null}
+          <span className="font-semibold">{priceAnalysis.message}</span>
+          {priceAnalysis.percentage !== 0 && (
+            <span>• {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%</span>
+          )}
           {priceAnalysis.trend !== 'stable' && (
-            <div className={`flex items-center gap-1 p-1 rounded text-xs ${
-              priceAnalysis.trend === 'dropping' ? 'bg-green-50 text-green-700 border border-green-200' :
-              'bg-orange-50 text-orange-700 border border-orange-200'
-            }`}>
-              <Award className="w-3 h-3" />
-              <span>{priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
-            </div>
+            <span>• {priceAnalysis.trend === 'dropping' ? 'Market Low' : 'Market High'}</span>
           )}
         </div>
       )}

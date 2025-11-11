@@ -18,6 +18,7 @@ require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { analyzeBundlePrice } = require('./parse-bundle-listings');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -255,8 +256,48 @@ function isSellPost(title) {
 }
 
 /**
+ * Calculate Levenshtein distance between two strings
+ * Used for fuzzy model name matching
+ */
+function levenshteinDistance(str1, str2) {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix = Array(len2 + 1).fill(null).map(() => Array(len1 + 1).fill(null));
+
+  for (let i = 0; i <= len1; i++) matrix[0][i] = i;
+  for (let j = 0; j <= len2; j++) matrix[j][0] = j;
+
+  for (let j = 1; j <= len2; j++) {
+    for (let i = 1; i <= len1; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1,
+        matrix[j - 1][i] + 1,
+        matrix[j - 1][i - 1] + indicator
+      );
+    }
+  }
+
+  return matrix[len2][len1];
+}
+
+/**
+ * Calculate similarity percentage between two strings
+ * Returns 0-100 where 100 is exact match
+ */
+function calculateSimilarity(str1, str2) {
+  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+  const maxLen = Math.max(str1.length, str2.length);
+  if (maxLen === 0) return 100;
+  return ((maxLen - distance) / maxLen) * 100;
+}
+
+/**
  * Check if post mentions a specific component
  * Uses fuzzy matching to handle variations in naming
+ *
+ * CRITICAL: Requires 80%+ model name similarity to prevent false matches
+ * (e.g., "HD 650" should NOT match "Momentum" even though both are Sennheiser)
  */
 function postMatchesComponent(postData, component) {
   const title = postData.title.toLowerCase();
@@ -276,18 +317,61 @@ function postMatchesComponent(postData, component) {
   const hasBrand = brandVariations.some(variation => fullText.includes(variation));
   if (!hasBrand) return false;
 
-  // Model name matching with word boundaries
-  const modelWords = name.split(/[\s\-]+/).filter(word => word.length > 2);
-  if (modelWords.length === 0) return hasBrand;
+  // CRITICAL: Never allow brand-only matches
+  // Must have model-specific validation
 
-  const hasModelMatch = modelWords.some(word => {
+  // Extract model name variations (normalized)
+  const modelVariations = [
+    name,
+    name.replace(/\s+/g, ''),
+    name.replace(/-/g, ' '),
+    name.replace(/\s+/g, '-'),
+  ];
+
+  // Check for exact model name match (best case)
+  const hasExactModelMatch = modelVariations.some(variation =>
+    fullText.includes(variation.toLowerCase())
+  );
+
+  if (hasExactModelMatch) return true;
+
+  // Fuzzy model matching: Extract potential model names from post
+  // Look for alphanumeric patterns that might be model numbers/names
+  const modelPattern = /\b([a-z0-9]+(?:[\s\-][a-z0-9]+){0,3})\b/gi;
+  const potentialModels = fullText.match(modelPattern) || [];
+
+  // Check each potential model against component name
+  // Require 80%+ similarity to prevent false matches
+  const MIN_SIMILARITY = 80;
+
+  for (const potentialModel of potentialModels) {
+    for (const modelVariation of modelVariations) {
+      const similarity = calculateSimilarity(potentialModel, modelVariation);
+
+      if (similarity >= MIN_SIMILARITY) {
+        return true;
+      }
+    }
+  }
+
+  // Model name word matching (require majority of words to match)
+  const modelWords = name.split(/[\s\-]+/).filter(word => word.length > 2);
+
+  // If no significant model words, reject (prevents brand-only matches)
+  if (modelWords.length === 0) return false;
+
+  const matchedWords = modelWords.filter(word => {
     // Escape special regex characters to avoid syntax errors
     const escapedWord = word.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`\\b${escapedWord}\\b`, 'i');
     return regex.test(fullText);
   });
 
-  return hasModelMatch;
+  // Require at least 50% of model words to match for multi-word models
+  // Or all words for single/two-word models
+  const requiredMatches = modelWords.length <= 2 ? modelWords.length : Math.ceil(modelWords.length * 0.5);
+
+  return matchedWords.length >= requiredMatches;
 }
 
 /**
@@ -410,15 +494,26 @@ function transformPostToListing(postData, component) {
       return null;
     }
 
+    // Analyze if this is a bundle listing
+    const bundleAnalysis = analyzeBundlePrice(title, description, listingInfo.price);
+
+    // Use adjusted price for bundle analysis if available
+    const effectivePrice = bundleAnalysis.isBundle && bundleAnalysis.adjustedPrice
+      ? bundleAnalysis.adjustedPrice
+      : listingInfo.price;
+
     const expectedPrice = component.price_used_min && component.price_used_max
       ? (component.price_used_min + component.price_used_max) / 2
       : component.price_used_min || component.price_used_max || 0;
 
-    const priceVariance = expectedPrice > 0 ? ((listingInfo.price - expectedPrice) / expectedPrice) * 100 : 0;
+    const priceVariance = expectedPrice > 0 ? ((effectivePrice - expectedPrice) / expectedPrice) * 100 : 0;
     const isPriceReasonable = Math.abs(priceVariance) <= 35;
 
     let priceWarning = null;
-    if (priceVariance > 35) {
+    if (bundleAnalysis.isBundle && bundleAnalysis.bundleNote) {
+      // Add bundle note to price warning
+      priceWarning = bundleAnalysis.bundleNote;
+    } else if (priceVariance > 35) {
       priceWarning = `Price ${Math.round(priceVariance)}% above expected range`;
     } else if (priceVariance < -35) {
       priceWarning = `Price ${Math.round(Math.abs(priceVariance))}% below expected - verify condition`;
