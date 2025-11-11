@@ -114,7 +114,11 @@ export function MarketplaceListingCard({
       <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
         <div className="flex items-center gap-3 px-4 py-2">
           {/* Image - 64px fixed */}
-          <div className="w-16 h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded">
+          <button
+            onClick={onViewDetails}
+            className="w-16 h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded hover:ring-2 hover:ring-accent transition-all cursor-pointer"
+            aria-label="View images"
+          >
             {listing.images && listing.images.length > 0 ? (
               <img
                 src={listing.images[0]}
@@ -132,14 +136,13 @@ export function MarketplaceListingCard({
                 </svg>
               </div>
             )}
-          </div>
+          </button>
 
           {/* Item - flex-1 */}
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-foreground truncate">
               {component.brand} {component.name}
             </div>
-            <div className="text-xs text-muted truncate">{listing.title}</div>
           </div>
 
           {/* Condition - 96px fixed */}
@@ -237,10 +240,9 @@ export function MarketplaceListingCard({
       {/* Header */}
       <div className="p-4 pb-0">
         <div className="mb-3">
-          <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
+          <h3 className="font-semibold text-foreground line-clamp-1">
             {component.brand} {component.name}
           </h3>
-          <p className="text-muted text-sm line-clamp-2 mb-2">{listing.title}</p>
         </div>
       </div>
 
@@ -347,9 +349,9 @@ export function MarketplaceListingCard({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2">
           {listing.url.includes('/sample') ? (
-            <div className="w-full px-3 py-2 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed">
+            <div className="flex-1 px-3 py-2 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed">
               Demo Listing
             </div>
           ) : (
@@ -357,16 +359,16 @@ export function MarketplaceListingCard({
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
             >
               <span>View Listing</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           )}
           {onViewDetails && (
-            <button 
+            <button
               onClick={onViewDetails}
-              className="w-full px-3 py-2 bg-surface-secondary hover:bg-surface-secondary text-foreground rounded-md font-medium transition-colors text-sm"
+              className="flex-1 px-3 py-2 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors text-sm"
             >
               Details
             </button>
