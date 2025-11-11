@@ -34,13 +34,7 @@ export type AnalyticsEvent =
   | { name: 'dashboard_action_clicked', properties?: { action?: string } }
   | { name: 'dashboard_link_clicked', properties?: { link?: string } }
   | { name: 'dashboard_budget_clicked', properties?: { budget?: number } }
-  
-  // Onboarding
-  | { name: 'onboarding_started' }
-  | { name: 'onboarding_step_completed', parameters: { step_number: number } }
-  | { name: 'onboarding_abandoned', parameters: { step_number: number } }
-  | { name: 'onboarding_completed', parameters: { budget_tier: BudgetTier, experience_level: string } }
-  
+
   // Recommendations
   | { name: 'recommendations_generated', parameters: { budget_tier: BudgetTier, category: string, items_count: number } }
   | { name: 'recommendation_clicked', parameters: { component_id: string, category: string, price: number, budget_tier: BudgetTier } }

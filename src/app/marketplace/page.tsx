@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
 import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
-import { UsedMarketListingCard } from '@/components/UsedMarketListingCard'
+import { MarketplaceListingCard } from '@/components/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
 
 // Extended listing with component info for display
@@ -17,7 +17,7 @@ interface ListingWithComponent extends UsedListing {
 type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
-function UsedMarketContent() {
+function MarketplaceContent() {
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -128,15 +128,15 @@ function UsedMarketContent() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [sortBy, selectedSource, priceRange, selectedConditions, searchQuery])
+  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange])
 
-  // Initial load
+  // Initial load - non-debounced filters (dropdowns, checkboxes)
   useEffect(() => {
     setPage(1)
     fetchUsedListings(1, true)
-  }, [sortBy, selectedSource, priceRange, selectedConditions])
+  }, [sortBy, selectedSource, selectedConditions, fetchUsedListings])
 
-  // Search with debounce
+  // Search with debounce (text input)
   useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1)
@@ -144,7 +144,17 @@ function UsedMarketContent() {
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  }, [searchQuery, fetchUsedListings])
+
+  // Price filter with debounce (number inputs - wait for user to finish typing)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1)
+      fetchUsedListings(1, true)
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [priceRange.min, priceRange.max, fetchUsedListings])
 
   // Infinite scroll observer
   useEffect(() => {
@@ -176,9 +186,7 @@ function UsedMarketContent() {
   const sourceOptions = [
     { value: 'all', label: 'All Sources' },
     { value: 'reddit_avexchange', label: 'r/AVexchange' },
-    { value: 'reverb', label: 'Reverb' },
-    { value: 'head_fi', label: 'Head-Fi' },
-    { value: 'ebay', label: 'eBay' }
+    { value: 'reverb', label: 'Reverb' }
   ]
 
   if (loading) {
@@ -217,44 +225,16 @@ function UsedMarketContent() {
     <div className="min-h-screen bg-surface">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-4 mb-2">
-              <Link href="/" className="text-muted hover:text-foreground transition-colors">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <h1 className="heading-1">Used Market</h1>
-            </div>
-            <p className="text-muted">
-              Showing {listings.length} of {totalCount} used listings
-            </p>
+        <div className="mb-6">
+          <div className="flex items-center gap-4 mb-2">
+            <Link href="/" className="text-muted hover:text-foreground transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="heading-1">Used Market</h1>
           </div>
-          
-          {/* View Mode Toggle */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' 
-                  ? 'bg-accent text-accent-foreground' 
-                  : 'bg-surface-elevated hover:bg-surface-secondary text-muted hover:text-foreground'
-              }`}
-              aria-label="Grid view"
-            >
-              <Grid3X3 className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' 
-                  ? 'bg-accent text-accent-foreground' 
-                  : 'bg-surface-elevated hover:bg-surface-secondary text-muted hover:text-foreground'
-              }`}
-              aria-label="List view"
-            >
-              <List className="w-5 h-5" />
-            </button>
-          </div>
+          <p className="text-muted">
+            Showing {listings.length} of {totalCount} used listings
+          </p>
         </div>
 
         {/* Search and Filters Bar */}
@@ -284,13 +264,39 @@ function UsedMarketContent() {
                 <option value="price_desc">Price: High to Low</option>
               </select>
             </div>
-            
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-surface border border-border hover:bg-surface-secondary text-muted hover:text-foreground'
+                }`}
+                aria-label="Grid view"
+              >
+                <Grid3X3 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-surface border border-border hover:bg-surface-secondary text-muted hover:text-foreground'
+                }`}
+                aria-label="List view"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                showFilters 
-                  ? 'bg-accent text-accent-foreground' 
+                showFilters
+                  ? 'bg-accent text-accent-foreground'
                   : 'bg-surface border border-border hover:bg-surface-secondary text-foreground'
               }`}
             >
@@ -387,12 +393,58 @@ function UsedMarketContent() {
           </div>
         ) : (
           <>
+            {viewMode === 'list' && (
+              <div className="bg-surface-elevated border-b-2 border-border mb-0">
+                <div className="flex items-center gap-3 px-4 py-2">
+                  {/* Image column */}
+                  <div className="w-16 flex-shrink-0">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Image</span>
+                  </div>
+
+                  {/* Component Info */}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Item</span>
+                  </div>
+
+                  {/* Condition */}
+                  <div className="w-24">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Condition</span>
+                  </div>
+
+                  {/* Price Analysis */}
+                  <div className="w-16">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
+                  </div>
+
+                  {/* Location & Seller */}
+                  <div className="w-48">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Location / Seller</span>
+                  </div>
+
+                  {/* Time */}
+                  <div className="w-20">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Posted</span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="w-24 text-right">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Price</span>
+                  </div>
+
+                  {/* Action */}
+                  <div className="w-20">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Action</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className={viewMode === 'grid'
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8'
-              : 'space-y-4 mb-8'
+              : 'mb-8'
             }>
               {listings.map(listing => (
-                <UsedMarketListingCard
+                <MarketplaceListingCard
                   key={listing.id}
                   listing={listing}
                   component={listing.component}
@@ -436,14 +488,14 @@ function UsedMarketContent() {
   )
 }
 
-export default function UsedMarketPage() {
+export default function MarketplacePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
       </div>
     }>
-      <UsedMarketContent />
+      <MarketplaceContent />
     </Suspense>
   )
 }

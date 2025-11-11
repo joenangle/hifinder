@@ -10,20 +10,17 @@ export async function GET(request: NextRequest) {
     const use_cases = searchParams.get('use_cases')
     const headphone_type = searchParams.get('headphone_type')
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined
-    
-    // New parameters for onboarding
+
     const brand = searchParams.get('brand')
     const brands_only = searchParams.get('brands_only') === 'true'
     const models_only = searchParams.get('models_only') === 'true'
 
-    // Handle special queries for onboarding
     if (brands_only) {
       let brandsQuery = supabaseServer
         .from('components')
         .select('brand')
         
       if (category) {
-        // Convert category filters for onboarding (cans/iems)
         if (category === 'headphones_and_iems') {
           brandsQuery = brandsQuery.in('category', ['headphones', 'iems'])
         } else {

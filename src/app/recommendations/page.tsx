@@ -108,7 +108,7 @@ function RecommendationsContent() {
 
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
-  const [showUsedMarket, setShowUsedMarket] = useState(false)
+  const [showMarketplace, setShowMarketplace] = useState(false)
   const [focusedComponentId, setFocusedComponentId] = useState<string | null>(null)
 
   // Stack builder state
@@ -569,7 +569,7 @@ function RecommendationsContent() {
 
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
-    if (!showUsedMarket) return
+    if (!showMarketplace) return
 
     const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
     const componentIds = allComponents.map(c => c.id)
@@ -592,7 +592,7 @@ function RecommendationsContent() {
       console.error('Error fetching used listings:', error)
       return
     }
-  }, [showUsedMarket, cans, iems, dacs, amps, dacAmps])
+  }, [showMarketplace, cans, iems, dacs, amps, dacAmps])
   
   // Used market data is now loaded inline in fetchUsedListings function above
 
@@ -832,23 +832,23 @@ function RecommendationsContent() {
   // Handle "Find Used" button click
   const handleFindUsed = useCallback((componentId: string, componentName: string) => {
     // Open used market section
-    setShowUsedMarket(true)
+    setShowMarketplace(true)
     // Set focused component to filter listings
     setFocusedComponentId(componentId)
   }, [])
 
   // Scroll to used market section after it renders
   useEffect(() => {
-    if (showUsedMarket && focusedComponentId) {
+    if (showMarketplace && focusedComponentId) {
       // Use requestAnimationFrame to ensure DOM has updated
       requestAnimationFrame(() => {
-        const usedMarketSection = document.querySelector('[data-used-market-section]')
+        const usedMarketSection = document.querySelector('[data-marketplace-section]')
         if (usedMarketSection) {
           usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       })
     }
-  }, [showUsedMarket, focusedComponentId])
+  }, [showMarketplace, focusedComponentId])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
@@ -1396,17 +1396,17 @@ function RecommendationsContent() {
         <div className="mt-12 mb-8 text-center">
           <button
             onClick={() => {
-              console.log('Toggling used market:', !showUsedMarket)
-              setShowUsedMarket(!showUsedMarket)
+              console.log('Toggling used market:', !showMarketplace)
+              setShowMarketplace(!showMarketplace)
             }}
             className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
           >
-            {showUsedMarket ? 'Hide' : 'Show'} Used Market Listings
+            {showMarketplace ? 'Hide' : 'Show'} Marketplace Listings
           </button>
         </div>
 
         {/* Used Listings */}
-        {showUsedMarket && (() => {
+        {showMarketplace && (() => {
           // Filter to only show selected items if any are selected
           const hasSelections = selectedCans.length > 0 || selectedIems.length > 0 ||
                                 selectedDacs.length > 0 || selectedAmps.length > 0 || selectedDacAmps.length > 0
@@ -1451,14 +1451,14 @@ function RecommendationsContent() {
             : listingsToDisplay
 
           return (
-            <div className="mt-12 space-y-8" data-used-market-section>
+            <div className="mt-12 space-y-8" data-marketplace-section>
               <div className="text-center mb-6">
                 <h2 className="heading-3 mb-2">
                   {focusedComponentId
                     ? 'Used Listings for Selected Item'
                     : hasSelections
                     ? 'Used Listings for Selected Items'
-                    : 'Used Market Listings'}
+                    : 'Marketplace Listings'}
                 </h2>
                 {focusedComponentId && (
                   <button

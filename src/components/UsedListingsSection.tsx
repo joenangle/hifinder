@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Component, UsedListing } from '@/types'
-import { UsedMarketListingCard } from './UsedMarketListingCard'
+import { MarketplaceListingCard } from './MarketplaceListingCard'
 import { EbayAffiliateCTA } from './EbayAffiliateCTA'
 import { Grid, List } from 'lucide-react'
 
@@ -177,7 +177,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       {/* Listings */}
       <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
         {filteredListings.map(listing => (
-          <UsedMarketListingCard
+          <MarketplaceListingCard
             key={listing.id}
             listing={listing}
             component={component}

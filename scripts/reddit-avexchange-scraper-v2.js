@@ -480,6 +480,65 @@ function extractTradeCountFromFlair(flairText) {
 }
 
 /**
+ * Extract images from Reddit post
+ * Returns array of image URLs (max 5)
+ */
+function extractImagesFromPost(postData) {
+  const images = [];
+
+  // 1. Check if post URL is a direct image link
+  if (postData.url) {
+    // Reddit image CDN (i.redd.it)
+    if (postData.url.includes('i.redd.it') || postData.url.includes('i.imgur.com')) {
+      images.push(postData.url);
+    }
+    // Imgur gallery/album links
+    else if (postData.url.includes('imgur.com') && !postData.url.includes('/a/')) {
+      // Single image: https://imgur.com/abc123 → https://i.imgur.com/abc123.jpg
+      const imgurId = postData.url.split('/').pop().split('.')[0];
+      if (imgurId && imgurId.length > 0) {
+        images.push(`https://i.imgur.com/${imgurId}.jpg`);
+      }
+    }
+  }
+
+  // 2. Check preview images from Reddit API
+  if (postData.preview && postData.preview.images && postData.preview.images.length > 0) {
+    for (const imageData of postData.preview.images) {
+      if (imageData.source && imageData.source.url) {
+        // Decode HTML entities in URL
+        const decodedUrl = imageData.source.url.replace(/&amp;/g, '&');
+        if (!images.includes(decodedUrl)) {
+          images.push(decodedUrl);
+        }
+      }
+    }
+  }
+
+  // 3. Parse Imgur URLs from post body text
+  const text = postData.selftext || '';
+  const imgurPatterns = [
+    /https?:\/\/(?:i\.)?imgur\.com\/([a-zA-Z0-9]+)\.?(?:jpg|png|gif)?/gi,
+    /https?:\/\/imgur\.com\/gallery\/([a-zA-Z0-9]+)/gi,
+    /https?:\/\/imgur\.com\/a\/([a-zA-Z0-9]+)/gi
+  ];
+
+  for (const pattern of imgurPatterns) {
+    const matches = text.matchAll(pattern);
+    for (const match of matches) {
+      const imgurId = match[1];
+      const imageUrl = `https://i.imgur.com/${imgurId}.jpg`;
+      if (!images.includes(imageUrl)) {
+        images.push(imageUrl);
+      }
+    }
+  }
+
+  // Return max 5 images
+  return images.slice(0, 5);
+}
+
+/**
  * Transform Reddit post to listing format
  */
 function transformPostToListing(postData, component) {
@@ -525,6 +584,9 @@ function transformPostToListing(postData, component) {
     const finalStatus = hasSoldIndicators ? 'sold' : 'available';
     const dateSold = hasSoldIndicators ? new Date().toISOString() : null;
 
+    // Extract images from post
+    const images = extractImagesFromPost(postData);
+
     return {
       component_id: component.id,
       title: title,
@@ -549,7 +611,8 @@ function transformPostToListing(postData, component) {
       buyer_feedback_given: false,
       price_is_reasonable: isPriceReasonable,
       price_variance_percentage: Math.round(priceVariance * 10) / 10,
-      price_warning: priceWarning
+      price_warning: priceWarning,
+      images: images // Add images array
     };
 
   } catch (error) {
