@@ -66,7 +66,7 @@ interface RecommendationComponent {
 }
 
 interface RecommendationRequest {
-  experience: string;
+  browseMode: string;
   budget: number;
   budgetRangeMin: number;
   budgetRangeMax: number;
@@ -669,7 +669,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Parse parameters
-    const experienceParam = searchParams.get("experience") || "intermediate";
+    const browseModeParam = searchParams.get("browseMode") || searchParams.get("experience") || "explore";
+
+    // Map old experience values to new browse modes for backward compatibility
+    let browseMode = browseModeParam;
+    if (browseMode === 'beginner') browseMode = 'guided';
+    if (browseMode === 'intermediate') browseMode = 'explore';
+    if (browseMode === 'enthusiast') browseMode = 'advanced';
     const budgetParam = searchParams.get("budget") || "300";
     const budgetRangeMinParam = searchParams.get("budgetRangeMin") || "20";
     const budgetRangeMaxParam = searchParams.get("budgetRangeMax") || "10";
@@ -736,7 +742,7 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      experience: experienceParam,
+      browseMode,
       budget,
       budgetRangeMin,
       budgetRangeMax,

@@ -15,7 +15,7 @@ const { createClient } = require('@supabase/supabase-js');
 // const ebayIntegration = require('./ebay-integration');
 const headFiScraper = require('./headfi-scraper');
 const reverbIntegration = require('./reverb-integration');
-const redditScraper = require('./reddit-avexchange-scraper');
+const redditScraper = require('./reddit-avexchange-scraper-v3');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

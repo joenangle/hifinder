@@ -6,10 +6,10 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
-const { scrapeRedditListings } = require('./reddit-avexchange-scraper');
+const { scrapeReddit } = require('./reddit-avexchange-scraper-v3');
 // NOTE: eBay integration removed - using affiliate-only strategy (see docs/EBAY_AFFILIATE_STRATEGY.md)
 // const { scrapeEbayListings } = require('./ebay-integration');
-const { findComponentMatch } = require('./component-matcher');
+const { findComponentMatch } = require('./component-matcher-enhanced');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -35,7 +35,7 @@ async function runListingAggregation() {
     // Phase 1: Scrape Reddit r/AVexchange
     console.log('\n📱 Phase 1: Reddit r/AVexchange scraping...');
     try {
-      await scrapeRedditListings();
+      await scrapeReddit();
       console.log('✅ Reddit scraping completed');
     } catch (error) {
       console.error('❌ Reddit scraping failed:', error);

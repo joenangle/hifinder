@@ -69,7 +69,7 @@
 **Proposed Separate Used Listings Page (`/used-listings`):**
 
 **Phase 1: Basic Browse & Filter**
-- **URL Structure**: `/used-listings` (separate from `/used-market` redirect page)
+- **URL Structure**: `/used-listings` (separate from `/marketplace` main page)
 - **Core Features**:
   - Grid/list view of all available used listings
   - Filter by: category (cans/iems/dacs/amps), price range, condition, source
@@ -108,14 +108,21 @@
 ### Active Data Sources
 
 **1. Reddit r/AVexchange (Primary)** ✅
-- Production-ready scraper with upsert pattern
+- **Production V3 Scraper** (deployed Nov 12, 2025)
+- Complete rewrite with enhanced fuzzy matching
 - OAuth authentication working
-- Fuzzy matching for better accuracy
-- Enhanced price extraction (filters discount amounts)
-- Automated status updates (available → sold/expired)
-- Configuration: Search past month, 100 results per query
-- Script: `scripts/reddit-avexchange-scraper.js`
-- Rate limit: 2s between requests
+- **New Architecture**: Fetch-all posts → parse → match (vs old component-by-component search)
+- **Enhanced Matching**: Requires ALL model words + exact number matches (HD600 ≠ HE-1)
+- **Smart Accessory Filtering**: Filters eartips-only, cable-only posts
+- **Higher Confidence Threshold**: 0.7 (was 0.3) for better accuracy
+- **Test Results**: 80% accuracy on known bad matches
+- Configuration: Fetch past month, 100 posts per run
+- Scripts:
+  - `scripts/reddit-avexchange-scraper-v3.js` (production)
+  - `scripts/component-matcher-enhanced.js` (new matcher)
+  - `scripts/test-matcher-v3.js` (test suite)
+  - Old scripts archived in `scripts/archive/`
+- Rate limit: 3s between requests with exponential backoff
 - Scheduled: Every 4 hours via GitHub Actions
 - Current volume: 179+ listings
 
@@ -167,11 +174,12 @@ This approach achieves near 100% sold detection without hitting API rate limits.
 
 **Running Scrapers:**
 ```bash
-# Test Reddit scraper
-node scripts/test-reddit-scraper-production.js
+# Run V3 Reddit scraper (production)
+npm run scrape:reddit
+# or directly: node scripts/reddit-avexchange-scraper-v3.js
 
-# Run full Reddit scrape (all components)
-node scripts/reddit-avexchange-scraper.js
+# Test V3 matcher against known cases
+node scripts/test-matcher-v3.js
 
 # Mark specific listing as sold manually
 node scripts/mark-listing-sold.js "https://www.reddit.com/r/AVexchange/comments/..."

@@ -103,7 +103,7 @@ function WishlistContent() {
                 Browse Recommendations
               </Link>
               <Link
-                href="/used-market"
+                href="/marketplace"
                 className="px-4 py-2 border border-border hover:border-accent rounded-lg transition-colors"
               >
                 Browse Used Market

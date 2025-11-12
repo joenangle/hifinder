@@ -1647,7 +1647,7 @@ function GearContent() {
                 Remove from Collection
               </button>
               <Link
-                href={`/used-market?search=${encodeURIComponent((selectedGear.components?.brand || selectedGear.custom_brand || '') + ' ' + (selectedGear.components?.name || selectedGear.custom_name || ''))}`}
+                href={`/marketplace?search=${encodeURIComponent((selectedGear.components?.brand || selectedGear.custom_brand || '') + ' ' + (selectedGear.components?.name || selectedGear.custom_name || ''))}`}
                 className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-center"
                 style={{
                   backgroundColor: 'var(--accent-primary)',

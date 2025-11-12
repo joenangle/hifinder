@@ -209,25 +209,57 @@ function isRelevantListing(listing, component) {
     return false;
   }
 
-  // For model matching, use fuzzy matching with lower threshold
-  const modelWords = name.split(/[\s\-\/]+/).filter(word => word.length > 2 && !/^\d{4}$/.test(word));
+  // CRITICAL: Require model-specific validation, never allow brand-only matches
+  // This prevents "Sennheiser HD 650" from matching "Sennheiser Momentum"
 
-  if (modelWords.length === 0) {
-    // Brand match only - accept it
-    return true;
+  // Check for exact model name match first (most reliable)
+  const modelVariations = [
+    name,
+    name.replace(/\s+/g, ''),
+    name.replace(/-/g, ' '),
+    name.replace(/\s+/g, '-'),
+  ];
+
+  const hasExactModelMatch = modelVariations.some(variation =>
+    title.includes(variation.toLowerCase()) || description.includes(variation.toLowerCase())
+  );
+
+  if (hasExactModelMatch) return true;
+
+  // Fuzzy matching: Calculate similarity between full model name and title
+  const MIN_SIMILARITY = 0.80; // Require 80%+ similarity to prevent false matches
+
+  // Extract potential model names from title (alphanumeric patterns)
+  const titleWords = title.split(/\s+/);
+  for (const titleWord of titleWords) {
+    for (const modelVariation of modelVariations) {
+      const similarity = stringSimilarity(titleWord, modelVariation);
+      if (similarity >= MIN_SIMILARITY) {
+        return true;
+      }
+    }
   }
 
-  // Check if at least one significant model word matches (fuzzy or exact)
-  const hasModelMatch = modelWords.some(word => {
+  // Word-based matching: Require majority of model words to match
+  const modelWords = name.split(/[\s\-\/]+/).filter(word => word.length > 2 && !/^\d{4}$/.test(word));
+
+  // If no significant model words, reject to prevent brand-only matches
+  if (modelWords.length === 0) return false;
+
+  const matchedWords = modelWords.filter(word => {
     // Exact substring match
     if (title.includes(word.toLowerCase())) return true;
 
     // Fuzzy match against title words
     const titleWords = title.split(/\s+/);
-    return titleWords.some(titleWord => stringSimilarity(word.toLowerCase(), titleWord) > 0.75);
+    return titleWords.some(titleWord => stringSimilarity(word.toLowerCase(), titleWord) > 0.80);
   });
 
-  return hasModelMatch;
+  // Require at least 50% of model words to match for multi-word models
+  // Or all words for single/two-word models
+  const requiredMatches = modelWords.length <= 2 ? modelWords.length : Math.ceil(modelWords.length * 0.5);
+
+  return matchedWords.length >= requiredMatches;
 }
 
 /**

@@ -261,7 +261,7 @@ export function LandingPage() {
 
             {/* Used Market */}
             <Link
-              href="/used-market"
+              href="/marketplace"
               className="card p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 border hover:border-accent/30 group"
               onClick={() =>
                 trackEvent({

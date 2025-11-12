@@ -91,7 +91,7 @@ export default function AboutPage() {
               </p>
             </Link>
             
-            <Link href="/used-market" className="card p-6 hover:shadow-lg transition-all duration-300 block">
+            <Link href="/marketplace" className="card p-6 hover:shadow-lg transition-all duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">🛒</span>

@@ -224,7 +224,7 @@ export function LandingPageV2() {
                 title: "Used Market",
                 description:
                   "Browse used audio gear from multiple sources. Get alerts on price drops, find rare items, and save money on quality equipment.",
-                link: "/used-market",
+                link: "/marketplace",
                 linkText: "Find deals →",
               },
               {

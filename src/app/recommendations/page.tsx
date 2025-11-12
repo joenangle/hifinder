@@ -27,29 +27,7 @@ const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mo
   ssr: false
 })
 
-// Map browse mode to experience level for API
-function browseModeToExperience(mode: BrowseMode): string {
-  switch (mode) {
-    case 'guided':
-      return 'beginner'
-    case 'explore':
-      return 'intermediate'
-    case 'advanced':
-      return 'enthusiast'
-  }
-}
-
-// Map experience level to browse mode for UI (reserved for future use)
-function _experienceToBrowseMode(experience: string): BrowseMode {
-  switch (experience) {
-    case 'beginner':
-      return 'guided'
-    case 'enthusiast':
-      return 'advanced'
-    default:
-      return 'explore' // intermediate or unknown defaults to explore
-  }
-}
+// No longer need mapping functions - browseMode is used directly in API
 
 // Extended Component interface for audio specifications
 interface AudioComponent extends Component {
@@ -108,7 +86,7 @@ function RecommendationsContent() {
 
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
-  const [showUsedMarket, setShowUsedMarket] = useState(false)
+  const [showMarketplace, setShowMarketplace] = useState(false)
   const [focusedComponentId, setFocusedComponentId] = useState<string | null>(null)
 
   // Stack builder state
@@ -166,8 +144,14 @@ function RecommendationsContent() {
       wantRecsRaw.headphones = true
     }
 
+    // Map old experience param to browseMode for backward compatibility
+    let browseModeFromUrl = searchParams.get('browseMode') || searchParams.get('experience') || 'explore'
+    if (browseModeFromUrl === 'beginner') browseModeFromUrl = 'guided'
+    if (browseModeFromUrl === 'intermediate') browseModeFromUrl = 'explore'
+    if (browseModeFromUrl === 'enthusiast') browseModeFromUrl = 'advanced'
+
     return {
-      experience: 'intermediate', // Default, will be overridden by browseMode
+      browseMode: browseModeFromUrl as BrowseMode,
       budget: parseInt(searchParams.get('budget') || '250'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
@@ -289,8 +273,14 @@ function RecommendationsContent() {
       }
     }
 
+    // Map old experience param to browseMode for backward compatibility
+    let browseModeFromUrl = searchParams.get('browseMode') || searchParams.get('experience') || 'explore'
+    if (browseModeFromUrl === 'beginner') browseModeFromUrl = 'guided'
+    if (browseModeFromUrl === 'intermediate') browseModeFromUrl = 'explore'
+    if (browseModeFromUrl === 'enthusiast') browseModeFromUrl = 'advanced'
+
     const urlPrefs = {
-      experience: searchParams.get('experience') || 'intermediate',
+      browseMode: browseModeFromUrl as BrowseMode,
       budget: parseInt(searchParams.get('budget') || '300'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
@@ -306,13 +296,14 @@ function RecommendationsContent() {
   }, [searchParams])
 
   // Extract values for convenience (using budget from enhanced state)
-  const { experience, wantRecommendationsFor, soundSignature: _soundSignature } = userPrefs
+  const { wantRecommendationsFor, soundSignature } = userPrefs
+  // browseMode is managed separately in state (line 111)
   const budget = budgetState.budget // For UI display (immediate updates)
   const budgetForAPI = debouncedBudget // For API calls (debounced)
 
   // Extract debounced values for API calls
   const {
-    experience: debouncedExperience,
+    browseMode: debouncedBrowseMode,
     budgetRangeMin: debouncedBudgetRangeMin,
     budgetRangeMax: debouncedBudgetRangeMax,
     headphoneType: debouncedHeadphoneType,
@@ -352,8 +343,7 @@ function RecommendationsContent() {
   // Handle browse mode changes
   const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
     setBrowseMode(newMode)
-    const experience = browseModeToExperience(newMode)
-    updatePreferences({ experience })
+    updatePreferences({ browseMode: newMode })
   }, [updatePreferences])
 
 
@@ -382,7 +372,7 @@ function RecommendationsContent() {
     try {
       // Build URL parameters for recommendations API using debounced values
       const params = new URLSearchParams({
-        experience: debouncedExperience,
+        browseMode: debouncedBrowseMode,
         budget: budgetForAPI.toString(),
         budgetRangeMin: debouncedBudgetRangeMin.toString(),
         budgetRangeMax: debouncedBudgetRangeMax.toString(),
@@ -513,7 +503,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedExperience, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, browseMode, customBudgetAllocation])
+  }, [debouncedBrowseMode, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, browseMode, customBudgetAllocation])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
@@ -569,7 +559,7 @@ function RecommendationsContent() {
 
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
-    if (!showUsedMarket) return
+    if (!showMarketplace) return
 
     const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
     const componentIds = allComponents.map(c => c.id)
@@ -592,7 +582,7 @@ function RecommendationsContent() {
       console.error('Error fetching used listings:', error)
       return
     }
-  }, [showUsedMarket, cans, iems, dacs, amps, dacAmps])
+  }, [showMarketplace, cans, iems, dacs, amps, dacAmps])
   
   // Used market data is now loaded inline in fetchUsedListings function above
 
@@ -688,11 +678,11 @@ function RecommendationsContent() {
     return 'Summit-Fi'
   }
 
-  // Determine initial display limit based on experience level
+  // Determine initial display limit based on browse mode
   const getInitialLimit = () => {
-    if (experience === 'beginner') return 5
-    if (experience === 'intermediate') return 8
-    return 15 // enthusiast
+    if (browseMode === 'guided') return 5
+    if (browseMode === 'explore') return 8
+    return 15 // advanced
   }
 
   const initialLimit = getInitialLimit()
@@ -712,7 +702,7 @@ function RecommendationsContent() {
   // Debug: Log show more button visibility
   console.log('Show More Debug:', {
     initialLimit,
-    experience,
+    browseMode,
     cans: { total: cans.length, display: displayCans.length, showButton: !showAllCans && cans.length > initialLimit },
     iems: { total: iems.length, display: displayIems.length, showButton: !showAllIems && iems.length > initialLimit },
     dacs: { total: dacs.length, display: displayDacs.length, showButton: !showAllDacs && dacs.length > initialLimit },
@@ -735,11 +725,11 @@ function RecommendationsContent() {
 
     const totalItems = cans.length + iems.length + dacs.length + amps.length + dacAmps.length
 
-    if (experience === 'beginner') {
+    if (browseMode === 'guided') {
       return totalItems > 0
         ? `We've selected ${totalItems} highly-rated, easy-to-use options in your budget range. These are safe choices that work great out of the box.`
         : "We're finding the best highly-rated, easy-to-use options for your budget."
-    } else if (experience === 'intermediate') {
+    } else if (browseMode === 'explore') {
       return totalItems > 0
         ? `Here are ${totalItems} excellent options that balance performance and value. Each offers something different - consider your priorities.`
         : "Finding excellent options that balance performance and value for your setup."
@@ -748,15 +738,15 @@ function RecommendationsContent() {
     }
   }
 
-  // Show technical specs for intermediate/enthusiast users (reserved for future use)
-  const _shouldShowTechnicalSpecs = () => {
-    return experience === 'intermediate' || experience === 'enthusiast'
+  // Show technical specs for explore/advanced users
+  const shouldShowTechnicalSpecs = () => {
+    return browseMode === 'explore' || browseMode === 'advanced'
   }
 
-  // Amplification detection for beginner/intermediate users
+  // Amplification detection for guided/explore users
   const getAmplificationNeeds = () => {
-    // Only show for beginners and intermediates
-    if (experience === 'advanced') return null
+    // Only show for guided and explore modes
+    if (browseMode === 'advanced') return null
 
     const selectedHeadphonesThatNeedAmp = selectedHeadphoneItems.filter(hp => hp.needs_amp)
     const recommendedHeadphonesThatNeedAmp = [...cans, ...iems].filter(hp => hp.needs_amp)
@@ -832,23 +822,23 @@ function RecommendationsContent() {
   // Handle "Find Used" button click
   const handleFindUsed = useCallback((componentId: string, _componentName: string) => {
     // Open used market section
-    setShowUsedMarket(true)
+    setShowMarketplace(true)
     // Set focused component to filter listings
     setFocusedComponentId(componentId)
   }, [])
 
   // Scroll to used market section after it renders
   useEffect(() => {
-    if (showUsedMarket && focusedComponentId) {
+    if (showMarketplace && focusedComponentId) {
       // Use requestAnimationFrame to ensure DOM has updated
       requestAnimationFrame(() => {
-        const usedMarketSection = document.querySelector('[data-used-market-section]')
+        const usedMarketSection = document.querySelector('[data-marketplace-section]')
         if (usedMarketSection) {
           usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       })
     }
-  }, [showUsedMarket, focusedComponentId])
+  }, [showMarketplace, focusedComponentId])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
@@ -913,7 +903,7 @@ function RecommendationsContent() {
               onChangeComplete={budgetState.handleBudgetChangeComplete}
               isUpdating={budgetState.isUpdating}
               variant="simple"
-              userExperience={userPrefs.experience as 'beginner' | 'intermediate' | 'enthusiast'}
+              userExperience={browseMode === 'guided' ? 'beginner' : browseMode === 'explore' ? 'intermediate' : 'enthusiast'}
               showInput={true}
               showLabels={true}
               showItemCount={true}
@@ -1396,17 +1386,17 @@ function RecommendationsContent() {
         <div className="mt-12 mb-8 text-center">
           <button
             onClick={() => {
-              console.log('Toggling used market:', !showUsedMarket)
-              setShowUsedMarket(!showUsedMarket)
+              console.log('Toggling used market:', !showMarketplace)
+              setShowMarketplace(!showMarketplace)
             }}
             className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
           >
-            {showUsedMarket ? 'Hide' : 'Show'} Used Market Listings
+            {showMarketplace ? 'Hide' : 'Show'} Marketplace Listings
           </button>
         </div>
 
         {/* Used Listings */}
-        {showUsedMarket && (() => {
+        {showMarketplace && (() => {
           // Filter to only show selected items if any are selected
           const hasSelections = selectedCans.length > 0 || selectedIems.length > 0 ||
                                 selectedDacs.length > 0 || selectedAmps.length > 0 || selectedDacAmps.length > 0
@@ -1451,14 +1441,14 @@ function RecommendationsContent() {
             : listingsToDisplay
 
           return (
-            <div className="mt-12 space-y-8" data-used-market-section>
+            <div className="mt-12 space-y-8" data-marketplace-section>
               <div className="text-center mb-6">
                 <h2 className="heading-3 mb-2">
                   {focusedComponentId
                     ? 'Used Listings for Selected Item'
                     : hasSelections
                     ? 'Used Listings for Selected Items'
-                    : 'Used Market Listings'}
+                    : 'Marketplace Listings'}
                 </h2>
                 {focusedComponentId && (
                   <button
