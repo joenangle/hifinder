@@ -68,6 +68,10 @@ function getGradeColor(grade: string): string {
 
 // Helper function to calculate percentile
 function calculatePercentile(rank: number, total: number): number {
+  // Validate inputs to prevent NaN
+  if (!rank || !total || rank <= 0 || total <= 0) {
+    return 0
+  }
   return Math.round((1 - (rank - 1) / total) * 100)
 }
 
@@ -170,9 +174,14 @@ export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponen
                   <span className="font-bold text-accent-primary dark:text-accent-primary">
                     #{component.crin_rank}
                   </span>
-                  <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
-                    (Top {calculatePercentile(component.crin_rank, totalRankedComponents)}%)
-                  </span>
+                  {(() => {
+                    const percentile = calculatePercentile(component.crin_rank, totalRankedComponents)
+                    return percentile > 0 ? (
+                      <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+                        (Top {percentile}%)
+                      </span>
+                    ) : null
+                  })()}
                 </div>
               )}
             </div>
