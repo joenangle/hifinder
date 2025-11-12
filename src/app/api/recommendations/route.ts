@@ -8,7 +8,6 @@ const cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes for recommendations (longer than count API)
 
 function generateCacheKey(params: {
-  browseMode: string
   budget: number
   budgetRangeMin: number
   budgetRangeMax: number
@@ -19,7 +18,6 @@ function generateCacheKey(params: {
 }): string {
   // Create a deterministic cache key from critical parameters
   const keyComponents = [
-    `mode_${params.browseMode}`,
     `budget_${params.budget}`,
     `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
     `type_${params.headphoneType}`,
@@ -73,7 +71,6 @@ interface RecommendationComponent {
 }
 
 interface RecommendationRequest {
-  browseMode: string
   budget: number
   budgetRangeMin: number // Percentage below budget
   budgetRangeMax: number // Percentage above budget
@@ -517,29 +514,13 @@ function filterAndScoreComponents(
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     // Parse and validate request parameters
-    const browseModeParam = searchParams.get('browseMode') || searchParams.get('experience') || 'explore'
     const budgetParam = searchParams.get('budget') || '300'
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
     const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
     const soundSignatureParam = searchParams.get('soundSignature') || 'neutral'
-
-    // Validate browse mode (accept old experience values for backward compatibility)
-    const validBrowseModes = ['guided', 'explore', 'advanced', 'beginner', 'intermediate', 'enthusiast']
-    if (!validBrowseModes.includes(browseModeParam)) {
-      return NextResponse.json(
-        { error: `Invalid browse mode. Must be one of: guided, explore, advanced` },
-        { status: 400 }
-      )
-    }
-
-    // Map old experience values to new browse modes for backward compatibility
-    let browseMode = browseModeParam
-    if (browseMode === 'beginner') browseMode = 'guided'
-    if (browseMode === 'intermediate') browseMode = 'explore'
-    if (browseMode === 'enthusiast') browseMode = 'advanced'
 
     // Validate budget
     const budget = parseInt(budgetParam)
@@ -617,7 +598,6 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      browseMode,
       budget,
       budgetRangeMin,
       budgetRangeMax,
@@ -637,7 +617,6 @@ export async function GET(request: NextRequest) {
 
     // Generate cache key for this specific request
     const cacheKey = generateCacheKey({
-      browseMode: req.browseMode,
       budget: req.budget,
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
@@ -654,9 +633,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached.data)
     }
 
-    // Determine max options based on browse mode
-    const maxOptions = req.browseMode === 'guided' ? 3 :
-                      req.browseMode === 'explore' ? 5 : 10
+    // Fixed max options (intermediate level)
+    const maxOptions = 8
 
     // Get requested components
     const requestedComponents = Object.entries(req.wantRecommendationsFor)
@@ -891,7 +869,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Extract parameters from request body (same logic as GET)
-    const browseModeParam = body.browseMode || body.experience || 'explore'
     const budgetParam = body.budget?.toString() || '300'
     const budgetRangeMinParam = body.budgetRangeMin?.toString() || '20'
     const budgetRangeMaxParam = body.budgetRangeMax?.toString() || '10'
@@ -904,12 +881,6 @@ export async function POST(request: NextRequest) {
     const usageParam = body.usage || 'music'
     const usageRankingParam = body.usageRanking || [usageParam]
     const excludedUsagesParam = body.excludedUsages || []
-
-    // Map old experience values to new browse modes for backward compatibility
-    let browseMode = browseModeParam
-    if (browseMode === 'beginner') browseMode = 'guided'
-    if (browseMode === 'intermediate') browseMode = 'explore'
-    if (browseMode === 'enthusiast') browseMode = 'advanced'
 
     // Convert to the format expected by the existing logic
     const budget = parseInt(budgetParam, 10)
@@ -925,7 +896,6 @@ export async function POST(request: NextRequest) {
 
     // Generate cache key
     const cacheKey = generateCacheKey({
-      browseMode,
       budget,
       budgetRangeMin,
       budgetRangeMax,
@@ -946,7 +916,6 @@ export async function POST(request: NextRequest) {
     // For brevity, I'll delegate to a shared function
     // Create a mock request object for the existing GET logic
     const mockUrl = new URL('http://localhost:3000/api/recommendations')
-    mockUrl.searchParams.set('browseMode', browseMode)
     mockUrl.searchParams.set('budget', budget.toString())
     mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
     mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())

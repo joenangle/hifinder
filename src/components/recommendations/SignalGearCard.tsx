@@ -31,7 +31,7 @@ interface SignalGearCardProps {
   onToggleSelection: (id: string) => void
   type: 'dac' | 'amp' | 'combo'
   onFindUsed?: (componentId: string, componentName: string) => void
-  browseMode?: 'guided' | 'explore' | 'advanced'
+  expandAllExperts?: boolean
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -65,7 +65,7 @@ const SignalGearCardComponent = ({
   onToggleSelection,
   type,
   onFindUsed,
-  browseMode
+  expandAllExperts = false
 }: SignalGearCardProps) => {
   const config = TYPE_CONFIG[type]
 
@@ -169,7 +169,7 @@ const SignalGearCardComponent = ({
       )}
 
       {/* Expert Analysis Panel - Shows ASR measurements and technical details */}
-      <ExpertAnalysisPanel component={component} browseMode={browseMode} />
+      <ExpertAnalysisPanel component={component} forceExpanded={expandAllExperts} />
 
       {/* Find Used Button - Only show if listings exist */}
       {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (

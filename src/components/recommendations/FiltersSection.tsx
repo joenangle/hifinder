@@ -4,7 +4,6 @@ import { memo } from 'react'
 import { Tooltip } from '@/components/Tooltip'
 import { FilterButton } from '@/components/FilterButton'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
-import type { BrowseMode } from './BrowseModeSelector'
 
 interface FilterCounts {
   sound: Record<string, number>
@@ -27,7 +26,6 @@ interface FiltersSectionProps {
     combo: boolean
   }
   guidedModeEnabled: boolean
-  browseMode: BrowseMode
   filterCounts?: FilterCounts
   resultCounts?: {
     cans: number
@@ -46,16 +44,15 @@ const FiltersSectionComponent = ({
   soundFilters,
   wantRecommendationsFor,
   guidedModeEnabled,
-  browseMode,
   filterCounts,
   resultCounts,
   onTypeFilterChange,
   onEquipmentToggle,
   onSoundFilterChange
 }: FiltersSectionProps) => {
-  // Progressive disclosure: hide filters in guided mode
-  const showEquipmentFilters = browseMode !== 'guided'
-  const showSoundFilters = true // Always show sound filters (but with simplified labels in guided mode)
+  // Always show all filters (simplified experience)
+  const showEquipmentFilters = true
+  const showSoundFilters = true
 
   // Calculate total results
   const totalResults = (resultCounts?.cans || 0) +
@@ -64,18 +61,8 @@ const FiltersSectionComponent = ({
                        (resultCounts?.amps || 0) +
                        (resultCounts?.combos || 0)
 
-  // Simplified labels for guided mode
+  // Standard labels for all modes
   const getSoundLabel = (signature: string) => {
-    if (browseMode === 'guided') {
-      const simplifiedLabels = {
-        neutral: 'Balanced',
-        warm: 'Bass-focused',
-        bright: 'Treble-focused',
-        fun: 'Exciting'
-      }
-      return simplifiedLabels[signature as keyof typeof simplifiedLabels] || signature
-    }
-    // Standard labels for explore/advanced modes
     const standardLabels = {
       neutral: 'Neutral',
       warm: 'Warm',

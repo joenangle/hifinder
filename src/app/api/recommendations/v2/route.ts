@@ -66,7 +66,6 @@ interface RecommendationComponent {
 }
 
 interface RecommendationRequest {
-  browseMode: string;
   budget: number;
   budgetRangeMin: number;
   budgetRangeMax: number;
@@ -98,7 +97,7 @@ interface RecommendationRequest {
   usageContext?: string;
   existingHeadphones?: string;
   optimizeAroundHeadphones?: string;
-  driverType?: string; // New: for enthusiasts
+  driverType?: string;
 }
 
 // Convert letter grades to numeric for quality gating
@@ -669,13 +668,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Parse parameters
-    const browseModeParam = searchParams.get("browseMode") || searchParams.get("experience") || "explore";
-
-    // Map old experience values to new browse modes for backward compatibility
-    let browseMode = browseModeParam;
-    if (browseMode === 'beginner') browseMode = 'guided';
-    if (browseMode === 'intermediate') browseMode = 'explore';
-    if (browseMode === 'enthusiast') browseMode = 'advanced';
     const budgetParam = searchParams.get("budget") || "300";
     const budgetRangeMinParam = searchParams.get("budgetRangeMin") || "20";
     const budgetRangeMaxParam = searchParams.get("budgetRangeMax") || "10";
@@ -742,7 +734,6 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      browseMode,
       budget,
       budgetRangeMin,
       budgetRangeMax,
@@ -773,7 +764,6 @@ export async function GET(request: NextRequest) {
     // Wrap recommendation generation in cache
     const results = await getCached(cacheKey, async () => {
       // Return more items to enable frontend "Show More" functionality
-      // Frontend will handle progressive disclosure based on experience level
       const maxOptions = 50; // Reasonable limit to prevent performance issues
 
       // Get requested components

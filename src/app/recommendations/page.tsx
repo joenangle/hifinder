@@ -17,7 +17,6 @@ import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
-import { BrowseModeSelector, BrowseMode } from '@/components/recommendations/BrowseModeSelector'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { ComparisonBar } from '@/components/ComparisonBar'
 import { ComparisonModal } from '@/components/ComparisonModal'
@@ -84,6 +83,9 @@ function RecommendationsContent() {
   const [selectedAmps, setSelectedAmps] = useState<string[]>([])
   const [selectedDacAmps, setSelectedDacAmps] = useState<string[]>([])
 
+  // Expert Analysis expansion state
+  const [expandAllExperts, setExpandAllExperts] = useState(false)
+
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
   const [showMarketplace, setShowMarketplace] = useState(false)
@@ -107,8 +109,7 @@ function RecommendationsContent() {
     }
   } | null>(null)
 
-  // Browse mode state - maps to experience level internally
-  const [browseMode, setBrowseMode] = useState<BrowseMode>('explore') // Default to explore mode
+  // Browse mode removed - always use intermediate experience level
 
   // Comparison view state
   const [showComparisonView, setShowComparisonView] = useState(false)
@@ -144,14 +145,7 @@ function RecommendationsContent() {
       wantRecsRaw.headphones = true
     }
 
-    // Map old experience param to browseMode for backward compatibility
-    let browseModeFromUrl = searchParams.get('browseMode') || searchParams.get('experience') || 'explore'
-    if (browseModeFromUrl === 'beginner') browseModeFromUrl = 'guided'
-    if (browseModeFromUrl === 'intermediate') browseModeFromUrl = 'explore'
-    if (browseModeFromUrl === 'enthusiast') browseModeFromUrl = 'advanced'
-
     return {
-      browseMode: browseModeFromUrl as BrowseMode,
       budget: parseInt(searchParams.get('budget') || '250'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
@@ -273,14 +267,7 @@ function RecommendationsContent() {
       }
     }
 
-    // Map old experience param to browseMode for backward compatibility
-    let browseModeFromUrl = searchParams.get('browseMode') || searchParams.get('experience') || 'explore'
-    if (browseModeFromUrl === 'beginner') browseModeFromUrl = 'guided'
-    if (browseModeFromUrl === 'intermediate') browseModeFromUrl = 'explore'
-    if (browseModeFromUrl === 'enthusiast') browseModeFromUrl = 'advanced'
-
     const urlPrefs = {
-      browseMode: browseModeFromUrl as BrowseMode,
       budget: parseInt(searchParams.get('budget') || '300'),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
@@ -297,13 +284,11 @@ function RecommendationsContent() {
 
   // Extract values for convenience (using budget from enhanced state)
   const { wantRecommendationsFor, soundSignature } = userPrefs
-  // browseMode is managed separately in state (line 111)
   const budget = budgetState.budget // For UI display (immediate updates)
   const budgetForAPI = debouncedBudget // For API calls (debounced)
 
   // Extract debounced values for API calls
   const {
-    browseMode: debouncedBrowseMode,
     budgetRangeMin: debouncedBudgetRangeMin,
     budgetRangeMax: debouncedBudgetRangeMax,
     headphoneType: debouncedHeadphoneType,
@@ -340,11 +325,7 @@ function RecommendationsContent() {
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
   }, [userPrefs, typeFilters, soundFilters, router])
 
-  // Handle browse mode changes
-  const handleBrowseModeChange = useCallback((newMode: BrowseMode) => {
-    setBrowseMode(newMode)
-    updatePreferences({ browseMode: newMode })
-  }, [updatePreferences])
+  // Browse mode removed - no handler needed
 
 
 
@@ -372,7 +353,6 @@ function RecommendationsContent() {
     try {
       // Build URL parameters for recommendations API using debounced values
       const params = new URLSearchParams({
-        browseMode: debouncedBrowseMode,
         budget: budgetForAPI.toString(),
         budgetRangeMin: debouncedBudgetRangeMin.toString(),
         budgetRangeMax: debouncedBudgetRangeMax.toString(),
@@ -386,8 +366,8 @@ function RecommendationsContent() {
         sound: debouncedSoundSignature // Keep legacy param for backward compatibility
       })
 
-      // Add custom budget allocation if in Full Control mode
-      if (browseMode === 'advanced' && customBudgetAllocation) {
+      // Add custom budget allocation if provided
+      if (customBudgetAllocation) {
         params.set('customBudgetAllocation', JSON.stringify(customBudgetAllocation))
       }
 
@@ -503,7 +483,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedBrowseMode, budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, browseMode, customBudgetAllocation])
+  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, debouncedSoundSignature, customBudgetAllocation, typeFilters, wantRecommendationsFor])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
@@ -678,14 +658,8 @@ function RecommendationsContent() {
     return 'Summit-Fi'
   }
 
-  // Determine initial display limit based on browse mode
-  const getInitialLimit = () => {
-    if (browseMode === 'guided') return 5
-    if (browseMode === 'explore') return 8
-    return 15 // advanced
-  }
-
-  const initialLimit = getInitialLimit()
+  // Fixed display limit (always use intermediate level)
+  const initialLimit = 5
 
   // Get display arrays with show more logic
   const getDisplayItems = <T,>(items: T[], showAll: boolean): T[] => {
@@ -702,7 +676,6 @@ function RecommendationsContent() {
   // Debug: Log show more button visibility
   console.log('Show More Debug:', {
     initialLimit,
-    browseMode,
     cans: { total: cans.length, display: displayCans.length, showButton: !showAllCans && cans.length > initialLimit },
     iems: { total: iems.length, display: displayIems.length, showButton: !showAllIems && iems.length > initialLimit },
     dacs: { total: dacs.length, display: displayDacs.length, showButton: !showAllDacs && dacs.length > initialLimit },
@@ -725,29 +698,13 @@ function RecommendationsContent() {
 
     const totalItems = cans.length + iems.length + dacs.length + amps.length + dacAmps.length
 
-    if (browseMode === 'guided') {
-      return totalItems > 0
-        ? `We've selected ${totalItems} highly-rated, easy-to-use options in your budget range. These are safe choices that work great out of the box.`
-        : "We're finding the best highly-rated, easy-to-use options for your budget."
-    } else if (browseMode === 'explore') {
-      return totalItems > 0
-        ? `Here are ${totalItems} excellent options that balance performance and value. Each offers something different - consider your priorities.`
-        : "Finding excellent options that balance performance and value for your setup."
-    } else {
-      return "A curated selection of high-performance components. Consider synergies between components and your specific sonic preferences."
-    }
+    return totalItems > 0
+      ? `Here are ${totalItems} excellent options that balance performance and value. Each offers something different - consider your priorities.`
+      : "Finding excellent options that balance performance and value for your setup."
   }
 
-  // Show technical specs for explore/advanced users
-  const shouldShowTechnicalSpecs = () => {
-    return browseMode === 'explore' || browseMode === 'advanced'
-  }
-
-  // Amplification detection for guided/explore users
+  // Amplification detection
   const getAmplificationNeeds = () => {
-    // Only show for guided and explore modes
-    if (browseMode === 'advanced') return null
-
     const selectedHeadphonesThatNeedAmp = selectedHeadphoneItems.filter(hp => hp.needs_amp)
     const recommendedHeadphonesThatNeedAmp = [...cans, ...iems].filter(hp => hp.needs_amp)
 
@@ -881,13 +838,7 @@ function RecommendationsContent() {
           />
         )}
 
-        {/* Browse Mode Selector with Tooltip Toggle */}
-        <BrowseModeSelector
-          currentMode={browseMode}
-          onModeChange={handleBrowseModeChange}
-          tooltipsEnabled={guidedModeEnabled}
-          onTooltipToggle={toggleGuidedMode}
-        />
+        {/* Browse mode removed - simplified experience */}
 
         {/* Enhanced Budget Control */}
         <Tooltip
@@ -903,7 +854,7 @@ function RecommendationsContent() {
               onChangeComplete={budgetState.handleBudgetChangeComplete}
               isUpdating={budgetState.isUpdating}
               variant="simple"
-              userExperience={browseMode === 'guided' ? 'beginner' : browseMode === 'explore' ? 'intermediate' : 'enthusiast'}
+              userExperience="intermediate"
               showInput={true}
               showLabels={true}
               showItemCount={true}
@@ -917,19 +868,7 @@ function RecommendationsContent() {
           </div>
         </Tooltip>
 
-        {/* Budget Allocation Controls - only in Full Control mode */}
-        {browseMode === 'advanced' && customBudgetAllocation && (
-          <div data-budget-allocation>
-            <BudgetAllocationControls
-              totalBudget={budgetState.budget}
-              allocation={customBudgetAllocation}
-              onChange={handleBudgetAllocationChange}
-              globalRangeMin={userPrefs.budgetRangeMin}
-              globalRangeMax={userPrefs.budgetRangeMax}
-              wantRecommendationsFor={wantRecommendationsFor}
-            />
-          </div>
-        )}
+        {/* Budget Allocation Controls removed - always use automatic allocation */}
 
        {/* Compact Filters */}
         <FiltersSection
@@ -937,7 +876,6 @@ function RecommendationsContent() {
           soundFilters={soundFilters}
           wantRecommendationsFor={wantRecommendationsFor}
           guidedModeEnabled={guidedModeEnabled}
-          browseMode={browseMode}
           filterCounts={filterCounts || undefined}
           resultCounts={{
             cans: cans.length,
@@ -950,6 +888,24 @@ function RecommendationsContent() {
           onEquipmentToggle={handleEquipmentToggle}
           onSoundFilterChange={handleSoundFilterChange}
         />
+
+        {/* Display Controls */}
+        <div className="flex items-center justify-end gap-4 mb-4">
+          <button
+            onClick={toggleGuidedMode}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+          >
+            <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
+            <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
+          </button>
+          <button
+            onClick={() => setExpandAllExperts(!expandAllExperts)}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+          >
+            <span>{expandAllExperts ? '📖' : '📕'}</span>
+            <span>{expandAllExperts ? 'Collapse All Expert Analysis' : 'Expand All Expert Analysis'}</span>
+          </button>
+        </div>
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}
         {amplificationNeeds?.shouldShowWarning && (
@@ -1074,7 +1030,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
-                      browseMode={browseMode}
+                      expandAllExperts={expandAllExperts}
                     />
                   )
                 })}
@@ -1145,7 +1101,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
-                      browseMode={browseMode}
+                      expandAllExperts={expandAllExperts}
                     />
                   )
                 })}
@@ -1198,7 +1154,7 @@ function RecommendationsContent() {
                               onToggleSelection={toggleDacSelection}
                               type="dac"
                               onFindUsed={handleFindUsed}
-                              browseMode={browseMode}
+                              expandAllExperts={expandAllExperts}
                             />
                           ))}
 
@@ -1266,7 +1222,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
                         onFindUsed={handleFindUsed}
-                        browseMode={browseMode}
+                        expandAllExperts={expandAllExperts}
                       />
                     ))}
 
@@ -1334,7 +1290,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
                         onFindUsed={handleFindUsed}
-                        browseMode={browseMode}
+                        expandAllExperts={expandAllExperts}
                       />
                     ))}
 
