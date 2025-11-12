@@ -69,7 +69,7 @@
 **Proposed Separate Used Listings Page (`/used-listings`):**
 
 **Phase 1: Basic Browse & Filter**
-- **URL Structure**: `/used-listings` (separate from `/used-market` redirect page)
+- **URL Structure**: `/used-listings` (separate from `/marketplace` main page)
 - **Core Features**:
   - Grid/list view of all available used listings
   - Filter by: category (cans/iems/dacs/amps), price range, condition, source
