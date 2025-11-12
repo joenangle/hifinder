@@ -54,7 +54,7 @@ const HeadphoneCardComponent = ({
 }: HeadphoneCardProps) => {
   return (
     <div
-      className={`card-interactive ${isSelected ? 'selected' : ''}`}
+      className={`card-interactive ${isSelected ? 'card-interactive-selected' : ''}`}
       onClick={() => onToggleSelection(headphone.id)}
     >
       {/* Name (Brand + Model) and Price on same line */}

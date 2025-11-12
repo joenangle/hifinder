@@ -71,7 +71,7 @@ const SignalGearCardComponent = ({
 
   return (
     <div
-      className={`card-interactive ${isSelected ? 'selected' : ''}`}
+      className={`card-interactive ${isSelected ? 'card-interactive-selected' : ''}`}
       onClick={() => onToggleSelection(component.id)}
     >
       {/* Header: Category badge */}
