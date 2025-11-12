@@ -268,40 +268,37 @@ export function MarketplaceListingCard({
         )}
       </div>
 
-      {/* Details - Two Column Layout */}
-      <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted mb-4">
-        {/* Left Column */}
-        <div className="flex items-center gap-1 min-w-0">
-          <MapPin className="w-4 h-4 flex-shrink-0" />
-          <Tooltip content={listing.location}>
-            <span className="truncate">{listing.location}</span>
-          </Tooltip>
-        </div>
-        {/* Right Column */}
-        <div className="flex items-center gap-1 min-w-0">
-          <User className="w-4 h-4 flex-shrink-0" />
-          <Tooltip content={listing.seller_username}>
-            <span className="truncate">{listing.seller_username}</span>
-          </Tooltip>
-        </div>
-        {/* Left Column */}
-        <div className="flex items-center gap-1">
-          <Clock className={`w-4 h-4 flex-shrink-0 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
-          <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
-          {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
-        </div>
-        {/* Right Column */}
-        {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 ? (
-          <div className="flex items-center gap-1 text-green-600">
-            <Star className="w-4 h-4 flex-shrink-0" />
-            <span>{listing.seller_confirmed_trades} trades</span>
+      {/* Details - Flex Layout for Consistent Spacing */}
+      <div className="flex-1 flex flex-col gap-2 text-sm text-muted mb-4">
+        {/* Row 1: Location + Username */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1 min-w-0 flex-1">
+            <MapPin className="w-4 h-4 flex-shrink-0" />
+            <Tooltip content={listing.location}>
+              <span className="truncate">{listing.location}</span>
+            </Tooltip>
           </div>
-        ) : (
-          <div className="flex items-center gap-1 invisible">
-            <Star className="w-4 h-4 flex-shrink-0" />
-            <span>0 trades</span>
+          <div className="flex items-center gap-1 min-w-0 flex-1">
+            <User className="w-4 h-4 flex-shrink-0" />
+            <Tooltip content={listing.seller_username}>
+              <span className="truncate">{listing.seller_username}</span>
+            </Tooltip>
           </div>
-        )}
+        </div>
+        {/* Row 2: Age + Trades (only if trades > 0) */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1 flex-1">
+            <Clock className={`w-4 h-4 flex-shrink-0 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
+            <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
+            {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
+          </div>
+          {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
+            <div className="flex items-center gap-1 text-green-600 flex-1">
+              <Star className="w-4 h-4 flex-shrink-0" />
+              <span>{listing.seller_confirmed_trades} trades</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Price Analysis Badge - Consolidated */}
