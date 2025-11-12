@@ -112,11 +112,11 @@ export function MarketplaceListingCard({
   if (viewMode === 'list') {
     return (
       <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
-        <div className="flex items-center gap-3 px-4 py-2">
-          {/* Image - 64px fixed */}
+        <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
+          {/* Image - responsive size */}
           <button
             onClick={onViewDetails}
-            className="w-16 h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded hover:ring-2 hover:ring-accent transition-all cursor-pointer"
+            className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded hover:ring-2 hover:ring-accent transition-all cursor-pointer"
             aria-label="View images"
           >
             {listing.images && listing.images.length > 0 ? (
@@ -138,15 +138,15 @@ export function MarketplaceListingCard({
             )}
           </button>
 
-          {/* Item - flex-1 */}
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-foreground truncate">
+          {/* Item - flex-1 with responsive min-width */}
+          <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
+            <div className="font-semibold text-foreground truncate text-sm sm:text-base">
               {component.brand} {component.name}
             </div>
           </div>
 
-          {/* Condition - 96px fixed */}
-          <div className="w-24 flex-shrink-0">
+          {/* Condition - hide on mobile */}
+          <div className="hidden sm:block w-24 flex-shrink-0">
             {showCondition && (
               <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
                 <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getConditionColor(listing.condition)}`}>
@@ -156,8 +156,8 @@ export function MarketplaceListingCard({
             )}
           </div>
 
-          {/* Deal - 64px fixed */}
-          <div className="w-16 flex-shrink-0">
+          {/* Deal - hide on small screens */}
+          <div className="hidden md:block w-16 flex-shrink-0">
             {priceAnalysis.type !== 'fair' && (
               <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
                 priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800' :
@@ -169,8 +169,8 @@ export function MarketplaceListingCard({
             )}
           </div>
 
-          {/* Location / Seller - 192px fixed */}
-          <div className="w-48 flex-shrink-0">
+          {/* Location / Seller - hide on mobile */}
+          <div className="hidden lg:block w-48 flex-shrink-0">
             <div className="flex flex-col gap-0.5 text-xs text-muted">
               <div className="flex items-center gap-1 truncate">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -183,20 +183,20 @@ export function MarketplaceListingCard({
             </div>
           </div>
 
-          {/* Posted - 80px fixed */}
-          <div className={`w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
+          {/* Posted - always visible, responsive sizing */}
+          <div className={`w-16 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
             {timeInfo.text}
           </div>
 
-          {/* Price - 96px fixed, right-aligned */}
-          <div className="w-24 flex-shrink-0 text-right text-lg font-bold text-foreground">
+          {/* Price - always visible, responsive sizing */}
+          <div className="w-20 sm:w-24 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
             {formatPrice(listing.price)}
           </div>
 
-          {/* Action - 80px fixed */}
-          <div className="w-20 flex-shrink-0">
+          {/* Action - always visible, responsive sizing */}
+          <div className="w-16 sm:w-20 flex-shrink-0">
             {listing.url.includes('/sample') ? (
-              <div className="px-3 py-1 bg-surface-secondary text-secondary rounded text-xs text-center cursor-not-allowed">
+              <div className="px-2 sm:px-3 py-1 bg-surface-secondary text-secondary rounded text-xs text-center cursor-not-allowed">
                 Demo
               </div>
             ) : (
@@ -204,10 +204,11 @@ export function MarketplaceListingCard({
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 px-3 py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full"
+                className="inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
+                aria-label="View listing"
               >
-                View
-                <ExternalLink className="w-3 h-3" />
+                <span className="hidden sm:inline">View</span>
+                <ExternalLink className="w-4 h-4 sm:w-3 sm:h-3" />
               </a>
             )}
           </div>
@@ -348,7 +349,7 @@ export function MarketplaceListingCard({
 
         <div className="flex flex-row gap-2">
           {listing.url.includes('/sample') ? (
-            <div className="flex-1 px-3 py-2 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed">
+            <div className="flex-1 px-3 py-2.5 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed min-h-[44px] flex items-center justify-center">
               Demo Listing
             </div>
           ) : (
@@ -356,7 +357,7 @@ export function MarketplaceListingCard({
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2.5 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm min-h-[44px]"
             >
               <span>View Listing</span>
               <ExternalLink className="w-4 h-4" />
@@ -365,7 +366,7 @@ export function MarketplaceListingCard({
           {onViewDetails && (
             <button
               onClick={onViewDetails}
-              className="flex-1 px-3 py-2 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors text-sm"
+              className="flex-1 px-3 py-2.5 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors text-sm min-h-[44px]"
             >
               Details
             </button>

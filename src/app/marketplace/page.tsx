@@ -432,7 +432,7 @@ function MarketplaceContent() {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-border space-y-4">
+            <div className="mt-4 pt-4 border-t border-border space-y-4 md:space-y-6">
               {/* Category Filters */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Category</label>
@@ -764,45 +764,45 @@ function MarketplaceContent() {
         ) : (
           <>
             {viewMode === 'list' && (
-              <div className="bg-surface-elevated border-b-2 border-border mb-0">
-                <div className="flex items-center gap-3 px-4 py-2">
+              <div className="bg-surface-elevated border-b-2 border-border mb-0 overflow-x-auto">
+                <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
                   {/* Image column */}
-                  <div className="w-16 flex-shrink-0">
+                  <div className="w-12 sm:w-16 flex-shrink-0">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Image</span>
                   </div>
 
                   {/* Component Info */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Item</span>
                   </div>
 
-                  {/* Condition */}
-                  <div className="w-24">
+                  {/* Condition - hide on mobile */}
+                  <div className="hidden sm:block w-24">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Condition</span>
                   </div>
 
-                  {/* Price Analysis */}
-                  <div className="w-16">
+                  {/* Price Analysis - hide on small screens */}
+                  <div className="hidden md:block w-16">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
                   </div>
 
-                  {/* Location & Seller */}
-                  <div className="w-48">
+                  {/* Location & Seller - hide on mobile */}
+                  <div className="hidden lg:block w-48">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Location / Seller</span>
                   </div>
 
-                  {/* Time */}
-                  <div className="w-20">
+                  {/* Time - always visible */}
+                  <div className="w-16 sm:w-20">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Posted</span>
                   </div>
 
-                  {/* Price */}
-                  <div className="w-24 text-right">
+                  {/* Price - always visible */}
+                  <div className="w-20 sm:w-24 text-right">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Price</span>
                   </div>
 
-                  {/* Action */}
-                  <div className="w-20">
+                  {/* Action - always visible */}
+                  <div className="w-16 sm:w-20">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Action</span>
                   </div>
                 </div>
@@ -810,7 +810,7 @@ function MarketplaceContent() {
             )}
 
             <div className={viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8'
               : 'mb-8'
             }>
               {listings.map(listing => (
