@@ -188,8 +188,9 @@ export function AlertsTab() {
   }
 
   return (
-    <div>
-      {/* Header */}
+    <>
+      <div>
+        {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-4 mb-2">
@@ -458,6 +459,7 @@ export function AlertsTab() {
             )}
           </>
         )}
+      </div>
       </div>
 
       {/* Create Alert Modal */}
@@ -763,6 +765,6 @@ export function AlertsTab() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
