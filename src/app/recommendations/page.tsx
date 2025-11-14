@@ -483,7 +483,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, soundFilters, debouncedSoundSignature, customBudgetAllocation, typeFilters, wantRecommendationsFor])
+  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature, customBudgetAllocation])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
