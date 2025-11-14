@@ -47,8 +47,124 @@ const BRAND_ALIASES = {
   'trn': ['trn']
 };
 
+// Product variation mappings - handles legitimate model variants
+// Maps canonical name → array of acceptable variants
+const MODEL_VARIATIONS = {
+  // AKG variants
+  'k240 studio': ['k240', 'k240 mkii', 'k240mkii', 'k 240', 'k-240'],
+  'k371': ['k371-bt', 'k371 bt', 'k-371'],
+  'k702': ['k 702', 'k-702'],
+
+  // 64 Audio color variants
+  'tia fourte': ['fourte', 'fourte blanc', 'fourte noir', 'fourte black'],
+  'tia fourte noir': ['fourte noir', 'fourte black'],
+
+  // XENNS/Mangird marketing names
+  'up': ['top pro', 'mangird top pro', 'xenns top pro'],
+  'tea pro': ['mangird tea pro', 'xenns tea pro'],
+
+  // HiFiMan revisions
+  'sundara': ['sundara 2020', 'sundara closed', 'sundara stealth'],
+  'arya': ['arya stealth', 'arya v2', 'arya v3', 'arya organic'],
+  'he6se': ['he6se v1', 'he6se v2', 'he-6se'],
+  'edition xs': ['edition x', 'edition xx'],
+
+  // Sennheiser variants
+  'hd600': ['hd 600', 'hd-600'],
+  'hd650': ['hd 650', 'hd-650'],
+  'hd660s': ['hd 660s', 'hd-660s', 'hd660s2'],
+  'hd800': ['hd 800', 'hd-800'],
+  'hd800s': ['hd 800s', 'hd-800s', 'hd800 s'],
+
+  // Audeze revisions
+  'lcd-x': ['lcd-x 2021', 'lcdx', 'lcd x'],
+  'lcd-2': ['lcd-2 classic', 'lcd2', 'lcd 2'],
+  'lcd-xc': ['lcdxc', 'lcd xc'],
+
+  // Focal variants
+  'clear': ['clear mg', 'clear og', 'clear original'],
+  'utopia': ['utopia 2022', 'utopia 2020'],
+
+  // ZMF variants
+  'verite': ['verite open', 'verite closed'],
+  'aeolus': ['aeolus stabilized'],
+
+  // Moondrop variants
+  'blessing 2': ['blessing 2 dusk', 'blessing2', 'b2'],
+  'aria': ['aria snow', 'aria se'],
+
+  // Beyerdynamic variants
+  'dt 770 pro': ['dt770', 'dt770 pro', 'dt-770', 'dt 770'],
+  'dt 990 pro': ['dt990', 'dt990 pro', 'dt-990', 'dt 990'],
+  'dt 1990 pro': ['dt1990', 'dt1990 pro', 'dt-1990', 'dt 1990'],
+
+  // Audio-Technica variants
+  'ath-m50x': ['ath m50x', 'athm50x', 'm50x'],
+  'ath-m40x': ['ath m40x', 'athm40x', 'm40x'],
+  'ath-r70x': ['ath r70x', 'athr70x', 'r70x']
+};
+
+// Color suffixes to normalize (remove before matching)
+const COLOR_SUFFIXES = [
+  'black', 'white', 'silver', 'gold', 'blue', 'red', 'green', 'purple',
+  'grey', 'gray', 'brown', 'pink', 'orange', 'yellow',
+  'noir', 'blanc', 'blanco', 'negro', // French/Spanish colors
+  'matte', 'glossy', 'metallic', // Finishes
+  'limited', 'ltd', 'special edition', 'se' // Editions
+];
+
 // Model number pattern
 const MODEL_NUMBER_PATTERN = /\b([a-z]{1,4})?(\d{2,4})([a-z]{0,3})?\b/gi;
+
+/**
+ * Normalize text by removing color suffixes and special characters
+ */
+function normalizeModelName(text) {
+  let normalized = text.toLowerCase().trim();
+
+  // Remove color suffixes
+  for (const color of COLOR_SUFFIXES) {
+    const colorPattern = new RegExp(`\\s+${color}$`, 'i');
+    normalized = normalized.replace(colorPattern, '');
+  }
+
+  // Normalize spacing and punctuation
+  normalized = normalized.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  return normalized;
+}
+
+/**
+ * Check if listing text matches a known product variant
+ */
+function checkProductVariant(listingText, componentName) {
+  const normalizedComponentName = normalizeModelName(componentName);
+  const normalizedListingText = normalizeModelName(listingText);
+
+  // Check if component name has known variations
+  const variations = MODEL_VARIATIONS[normalizedComponentName];
+  if (variations) {
+    for (const variant of variations) {
+      const normalizedVariant = normalizeModelName(variant);
+      if (normalizedListingText.includes(normalizedVariant)) {
+        return true; // Found a known variant
+      }
+    }
+  }
+
+  // Also check if listing text might be the canonical form and component is a variant
+  for (const [canonical, variantList] of Object.entries(MODEL_VARIATIONS)) {
+    if (normalizedListingText.includes(canonical)) {
+      for (const variant of variantList) {
+        if (normalizeModelName(variant) === normalizedComponentName) {
+          return true; // Component is a variant of what's in listing
+        }
+      }
+    }
+  }
+
+  return false;
+}
 
 /**
  * Extract model numbers from text (e.g., "HD600", "T3", "DT770")
@@ -219,7 +335,7 @@ function calculateBrandScore(text, brand) {
 }
 
 /**
- * Calculate model name matching score (STRICTER)
+ * Calculate model name matching score (STRICTER + VARIANT AWARE)
  */
 function calculateNameScore(text, name, brand) {
   const nameLower = name.toLowerCase();
@@ -229,7 +345,19 @@ function calculateNameScore(text, name, brand) {
     return 1.0;
   }
 
-  // 2. Extract model numbers from component name
+  // 2. Check for known product variants (NEW!)
+  if (checkProductVariant(text, name)) {
+    return 0.95; // High confidence for known variants
+  }
+
+  // 3. Normalized name match (removes colors, normalizes spacing)
+  const normalizedText = normalizeModelName(text);
+  const normalizedName = normalizeModelName(name);
+  if (normalizedText.includes(normalizedName)) {
+    return 0.9; // Slightly lower than exact, but still high confidence
+  }
+
+  // 4. Extract model numbers from component name
   const componentNumbers = extractModelNumbers(nameLower);
   const textNumbers = extractModelNumbers(text);
 
@@ -244,7 +372,7 @@ function calculateNameScore(text, name, brand) {
     }
   }
 
-  // 3. Word-by-word matching - require ALL significant words
+  // 5. Word-by-word matching - require ALL significant words
   const nameWords = nameLower
     .split(/[\s-]+/)
     .filter(word => word.length > 2 && !/^\d+$/.test(word)); // Exclude pure numbers
@@ -255,9 +383,18 @@ function calculateNameScore(text, name, brand) {
 
   let matches = 0;
   for (const word of nameWords) {
-    const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
-    if (wordRegex.test(text)) {
-      matches++;
+    // Escape special regex characters
+    const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    try {
+      const wordRegex = new RegExp(`\\b${escapedWord}\\b`, 'i');
+      if (wordRegex.test(text)) {
+        matches++;
+      }
+    } catch (e) {
+      // If regex fails, fall back to simple includes
+      if (text.includes(word)) {
+        matches++;
+      }
     }
   }
 

@@ -13,6 +13,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { findComponentMatch, isAccessoryOnly } = require('./component-matcher-enhanced');
+const { extractComponentCandidate } = require('./component-candidate-extractor');
 const fs = require('fs');
 const path = require('path');
 
@@ -57,7 +58,9 @@ const stats = {
   componentsMatched: 0,
   noMatchFound: 0,
   newListings: 0,
-  updatedListings: 0
+  updatedListings: 0,
+  candidatesCreated: 0,
+  candidatesUpdated: 0
 };
 
 /**
@@ -357,6 +360,24 @@ async function scrapeReddit() {
 
       if (!matchResult) {
         stats.noMatchFound++;
+
+        // Extract as component candidate for review
+        console.log(`  ⚠️  No match found, extracting as candidate...`);
+        const candidate = await extractComponentCandidate({
+          title: post.title,
+          price: extractPrice(post.title),
+          id: null, // Will be created as candidate, not listing
+          url: `https://www.reddit.com${post.permalink}`
+        });
+
+        if (candidate) {
+          if (candidate.listing_count === 1) {
+            stats.candidatesCreated++;
+          } else {
+            stats.candidatesUpdated++;
+          }
+        }
+
         continue;
       }
 
@@ -395,6 +416,9 @@ async function scrapeReddit() {
     console.log(`Components matched:     ${stats.componentsMatched}`);
     console.log(`No match found:         ${stats.noMatchFound}`);
     console.log(`Listings saved/updated: ${stats.newListings}`);
+    console.log(`\n🆕 Component Candidates:`);
+    console.log(`  New candidates:       ${stats.candidatesCreated}`);
+    console.log(`  Updated candidates:   ${stats.candidatesUpdated}`);
     console.log('='.repeat(60));
 
     console.log('\n✅ Scraping complete!');

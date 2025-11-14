@@ -93,7 +93,7 @@ function DashboardContent() {
 
         {/* Tab Content */}
         <div className="pb-12">
-          {activeTab === 'overview' && <OverviewTab />}
+          {activeTab === 'overview' && <OverviewTab setActiveTab={setActiveTab} />}
           {activeTab === 'gear' && <GearTab />}
           {activeTab === 'wishlist' && <WishlistTab />}
           {activeTab === 'alerts' && <AlertsTab />}
@@ -155,7 +155,7 @@ interface DashboardStats {
 }
 
 // Overview Tab - Summary of everything
-function OverviewTab() {
+function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => void }) {
   const { data: session } = useSession()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -206,7 +206,14 @@ function OverviewTab() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-6">
+        <Link
+          href="/dashboard-new?tab=gear"
+          className="card p-6 cursor-pointer hover:border-accent transition-colors"
+          onClick={(e) => {
+            e.preventDefault()
+            setActiveTab('gear')
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted mb-1">Collection Items</p>
@@ -214,9 +221,16 @@ function OverviewTab() {
             </div>
             <Package className="w-8 h-8 text-accent" />
           </div>
-        </div>
+        </Link>
 
-        <div className="card p-6">
+        <Link
+          href="/dashboard-new?tab=wishlist"
+          className="card p-6 cursor-pointer hover:border-accent transition-colors"
+          onClick={(e) => {
+            e.preventDefault()
+            setActiveTab('wishlist')
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted mb-1">Wishlist Items</p>
@@ -224,9 +238,16 @@ function OverviewTab() {
             </div>
             <Heart className="w-8 h-8 text-accent" />
           </div>
-        </div>
+        </Link>
 
-        <div className="card p-6">
+        <Link
+          href="/dashboard-new?tab=alerts"
+          className="card p-6 cursor-pointer hover:border-accent transition-colors"
+          onClick={(e) => {
+            e.preventDefault()
+            setActiveTab('alerts')
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted mb-1">Active Alerts</p>
@@ -237,7 +258,7 @@ function OverviewTab() {
             </div>
             <Bell className="w-8 h-8 text-accent" />
           </div>
-        </div>
+        </Link>
 
         <div className="card p-6">
           <div className="flex items-center justify-between">
@@ -275,8 +296,12 @@ function OverviewTab() {
           </Link>
 
           <Link
-            href="/dashboard?tab=alerts"
-            className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center"
+            href="/dashboard-new?tab=alerts"
+            onClick={(e) => {
+              e.preventDefault()
+              setActiveTab('alerts')
+            }}
+            className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center cursor-pointer"
           >
             <Bell className="w-6 h-6 mx-auto mb-2 text-accent" />
             <p className="font-medium text-foreground">Create Price Alert</p>
