@@ -3,6 +3,7 @@
 import { memo, useState, useEffect } from 'react'
 import { ExpertAnalysisPanel, CompactExpertBadge } from '@/components/ExpertAnalysisPanel'
 import { Tooltip } from '@/components/Tooltip'
+import { WishlistButton } from '@/components/WishlistButton'
 
 interface AudioComponent {
   id: string
@@ -223,21 +224,33 @@ const HeadphoneCardComponent = ({
 
       <ExpertAnalysisPanel component={headphone} forceExpanded={expandAllExperts} />
 
-      {/* Find Used Button - Only show if listings exist */}
-      {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation() // Prevent card selection toggle
-            onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)
-          }}
-          className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
-        >
-          <span>🔍</span>
-          <span>
-            View {headphone.usedListingsCount} Used Listing{headphone.usedListingsCount !== 1 ? 's' : ''}
-          </span>
-        </button>
-      )}
+      {/* Action Buttons */}
+      <div className="mt-3 flex gap-2">
+        {/* Find Used Button - Only show if listings exist */}
+        {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation() // Prevent card selection toggle
+              onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)
+            }}
+            className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>🔍</span>
+            <span>
+              View {headphone.usedListingsCount} Used Listing{headphone.usedListingsCount !== 1 ? 's' : ''}
+            </span>
+          </button>
+        )}
+
+        {/* Wishlist Button */}
+        <div onClick={(e) => e.stopPropagation()}>
+          <WishlistButton
+            componentId={headphone.id}
+            className="px-3 py-2"
+            showText
+          />
+        </div>
+      </div>
     </div>
   )
 }
