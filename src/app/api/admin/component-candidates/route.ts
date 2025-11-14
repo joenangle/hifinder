@@ -82,7 +82,7 @@ export async function GET(request: Request) {
         }
         return acc
       }, {} as Record<string, number>) || {},
-      avgQualityScore: stats?.reduce((sum, s) => sum + (s.quality_score || 0), 0) / (stats?.length || 1) || 0
+      avgQualityScore: (stats && stats.length > 0) ? stats.reduce((sum, s) => sum + (s.quality_score || 0), 0) / stats.length : 0
     }
 
     return NextResponse.json({
