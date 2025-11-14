@@ -231,7 +231,7 @@ function OverviewTab() {
             <div>
               <p className="text-sm text-muted mb-1">Active Alerts</p>
               <p className="text-3xl font-bold text-foreground">{stats?.alerts?.activeCount || 0}</p>
-              {stats?.alerts?.unreadMatches > 0 && (
+              {stats?.alerts && stats.alerts.unreadMatches > 0 && (
                 <p className="text-xs text-accent mt-1">{stats.alerts.unreadMatches} new matches</p>
               )}
             </div>
