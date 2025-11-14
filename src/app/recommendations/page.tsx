@@ -483,7 +483,7 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature, customBudgetAllocation])
+  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature, customBudgetAllocation, JSON.stringify(soundFilters)])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
@@ -887,25 +887,10 @@ function RecommendationsContent() {
           onTypeFilterChange={handleTypeFilterChange}
           onEquipmentToggle={handleEquipmentToggle}
           onSoundFilterChange={handleSoundFilterChange}
+          expandAllExperts={expandAllExperts}
+          onToggleExpandExperts={() => setExpandAllExperts(!expandAllExperts)}
+          onToggleGuidedMode={toggleGuidedMode}
         />
-
-        {/* Display Controls */}
-        <div className="flex items-center justify-end gap-4 mb-4">
-          <button
-            onClick={toggleGuidedMode}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-          >
-            <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
-            <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
-          </button>
-          <button
-            onClick={() => setExpandAllExperts(!expandAllExperts)}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-          >
-            <span>{expandAllExperts ? '📖' : '📕'}</span>
-            <span>{expandAllExperts ? 'Collapse All Expert Analysis' : 'Expand All Expert Analysis'}</span>
-          </button>
-        </div>
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}
         {amplificationNeeds?.shouldShowWarning && (

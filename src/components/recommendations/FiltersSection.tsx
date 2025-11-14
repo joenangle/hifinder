@@ -37,6 +37,9 @@ interface FiltersSectionProps {
   onTypeFilterChange: (filter: 'cans' | 'iems') => void
   onEquipmentToggle: (type: 'dac' | 'amp' | 'combo') => void
   onSoundFilterChange: (filter: 'neutral' | 'warm' | 'bright' | 'fun') => void
+  expandAllExperts?: boolean
+  onToggleExpandExperts?: () => void
+  onToggleGuidedMode?: () => void
 }
 
 const FiltersSectionComponent = ({
@@ -48,7 +51,10 @@ const FiltersSectionComponent = ({
   resultCounts,
   onTypeFilterChange,
   onEquipmentToggle,
-  onSoundFilterChange
+  onSoundFilterChange,
+  expandAllExperts,
+  onToggleExpandExperts,
+  onToggleGuidedMode
 }: FiltersSectionProps) => {
   // Always show all filters (simplified experience)
   const showEquipmentFilters = true
@@ -216,6 +222,31 @@ const FiltersSectionComponent = ({
               showTooltip={guidedModeEnabled}
             />
           </div>
+        </div>
+      )}
+
+      {/* Display Controls - Bottom Right */}
+      {(onToggleGuidedMode || onToggleExpandExperts) && (
+        <div className="mt-4 pt-4 border-t border-border-default flex items-center justify-end gap-3">
+          {onToggleGuidedMode && (
+            <button
+              onClick={onToggleGuidedMode}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+            >
+              <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
+              <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
+            </button>
+          )}
+
+          {onToggleExpandExperts && (
+            <button
+              onClick={onToggleExpandExperts}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+            >
+              <span>{expandAllExperts ? '📖' : '📕'}</span>
+              <span>{expandAllExperts ? 'Collapse Expert Analysis' : 'Expand Expert Analysis'}</span>
+            </button>
+          )}
         </div>
       )}
     </div>
