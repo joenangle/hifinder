@@ -42,7 +42,15 @@ export async function GET(
     }
 
     // Get triggering listings
-    let triggeringListings = []
+    type TriggeringListing = {
+      id: string
+      title: string
+      price: number
+      url: string
+      date_posted: string
+      source: string
+    }
+    let triggeringListings: TriggeringListing[] = []
     if (candidate.trigger_listing_ids && candidate.trigger_listing_ids.length > 0) {
       const { data: listings } = await supabaseServer
         .from('used_listings')
