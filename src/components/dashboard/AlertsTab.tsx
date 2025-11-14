@@ -460,7 +460,6 @@ export function AlertsTab() {
           </>
         )}
       </div>
-      </div>
 
       {/* Create Alert Modal */}
       {showCreateModal && (
