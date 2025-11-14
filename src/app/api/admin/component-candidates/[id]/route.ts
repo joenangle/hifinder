@@ -111,7 +111,7 @@ export async function PATCH(
       .reduce((obj, key) => {
         obj[key] = updates[key]
         return obj
-      }, {} as Record<string, any>)
+      }, {} as Record<string, string | number | boolean | null>)
 
     // Add updated timestamp
     filteredUpdates.updated_at = new Date().toISOString()

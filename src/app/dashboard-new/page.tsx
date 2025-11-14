@@ -137,10 +137,27 @@ function TabButton({
   )
 }
 
+// Types for dashboard stats
+interface DashboardStats {
+  collection: {
+    count: number
+    totalInvested: number
+    totalValue: number
+    depreciation: number
+  }
+  wishlist: {
+    count: number
+  }
+  alerts: {
+    activeCount: number
+    unreadMatches: number
+  }
+}
+
 // Overview Tab - Summary of everything
 function OverviewTab() {
   const { data: session } = useSession()
-  const [stats, setStats] = useState<any>(null)
+  const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -184,7 +201,7 @@ function OverviewTab() {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-4">Welcome back, {session?.user?.name || 'User'}!</h2>
-        <p className="text-muted">Here's an overview of your audio gear ecosystem</p>
+        <p className="text-muted">Here&apos;s an overview of your audio gear ecosystem</p>
       </div>
 
       {/* Quick Stats */}

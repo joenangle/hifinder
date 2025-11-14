@@ -6,6 +6,15 @@ import { useState, useEffect } from 'react'
 
 type Tab = 'scraper-stats' | 'candidates'
 
+interface ScraperStats {
+  summary: {
+    totalListings: number
+    availableListings: number
+    soldListings: number
+  }
+  bySource: Record<string, number>
+}
+
 interface ComponentCandidate {
   id: string
   brand: string
@@ -36,15 +45,27 @@ interface CandidatesResponse {
   }
 }
 
+interface CandidateDetailsResponse {
+  candidate: ComponentCandidate
+  triggeringListings: Array<{
+    id: string
+    title: string
+    price: number
+    url: string
+    date_posted: string
+    source: string
+  }>
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('scraper-stats')
-  const [scraperStats, setScraperStats] = useState<any>(null)
+  const [scraperStats, setScraperStats] = useState<ScraperStats | null>(null)
   const [candidates, setCandidates] = useState<CandidatesResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
-  const [candidateDetails, setCandidateDetails] = useState<any>(null)
+  const [candidateDetails, setCandidateDetails] = useState<CandidateDetailsResponse | null>(null)
 
   // Auth check
   useEffect(() => {
@@ -226,7 +247,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-lg font-semibold mb-4 text-text-primary dark:text-text-primary">Listings by Source</h3>
               <div className="space-y-2">
-                {Object.entries(scraperStats.bySource || {}).map(([source, count]: [string, any]) => (
+                {Object.entries(scraperStats.bySource || {}).map(([source, count]) => (
                   <div key={source} className="flex justify-between">
                     <span className="text-text-secondary dark:text-text-secondary">{source}</span>
                     <span className="font-semibold text-text-primary dark:text-text-primary">{count}</span>
@@ -330,7 +351,7 @@ export default function AdminPage() {
                     <div>
                       <span className="text-sm text-text-tertiary dark:text-text-tertiary">Triggering Listings:</span>
                       <ul className="mt-2 space-y-2">
-                        {candidateDetails.triggeringListings.map((listing: any) => (
+                        {candidateDetails.triggeringListings.map((listing) => (
                           <li key={listing.id} className="text-sm">
                             <a
                               href={listing.url}
