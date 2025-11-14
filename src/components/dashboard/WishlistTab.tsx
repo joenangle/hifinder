@@ -128,7 +128,6 @@ export function WishlistTab() {
             <WishlistButton
               componentId={item.component_id}
               className="px-3"
-              onToggle={loadWishlist}
             />
           </div>
 
