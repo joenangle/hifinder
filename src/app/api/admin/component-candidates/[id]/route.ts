@@ -9,7 +9,7 @@ import { supabaseServer } from '@/lib/supabase-server'
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Protect endpoint
@@ -22,7 +22,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get candidate details
     const { data: candidate, error } = await supabaseServer
@@ -74,7 +74,7 @@ export async function GET(
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Protect endpoint
@@ -87,7 +87,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const updates = await request.json()
 
     // Whitelist of fields that can be updated
@@ -142,7 +142,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Protect endpoint
@@ -155,7 +155,7 @@ export async function DELETE(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Update status to rejected instead of deleting
     const { error } = await supabaseServer

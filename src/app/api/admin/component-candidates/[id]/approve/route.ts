@@ -9,7 +9,7 @@ import { supabaseServer } from '@/lib/supabase-server'
  */
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Protect endpoint
@@ -22,7 +22,7 @@ export async function POST(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get candidate
     const { data: candidate, error: fetchError } = await supabaseServer
