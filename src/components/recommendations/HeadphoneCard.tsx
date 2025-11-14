@@ -145,17 +145,17 @@ const HeadphoneCardComponent = ({
             </span>
             <div className="flex items-center gap-1">
               <Tooltip content="Price fits your budget range">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs font-medium rounded-full">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-600 dark:bg-green-900/30 text-white dark:text-green-300 text-xs font-medium rounded-full">
                   💰 Price Fit
                 </span>
               </Tooltip>
               <Tooltip content="Matches your sound preference">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium rounded-full">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 dark:bg-blue-900/30 text-white dark:text-blue-300 text-xs font-medium rounded-full">
                   🎵 Sound Match
                 </span>
               </Tooltip>
               <Tooltip content="Expert ratings and quality bonuses">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs font-medium rounded-full">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-600 dark:bg-purple-900/30 text-white dark:text-purple-300 text-xs font-medium rounded-full">
                   ⭐ Quality
                 </span>
               </Tooltip>
@@ -174,17 +174,17 @@ const HeadphoneCardComponent = ({
         {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
           <div className="flex flex-wrap gap-1 justify-end">
             {isTechnicalChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-300 dark:bg-orange-400/60 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/60 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
                 🏆 Top Tech
               </span>
             )}
             {isToneChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-300 dark:bg-amber-400/60 text-amber-900 dark:text-amber-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 dark:bg-amber-400/60 text-white dark:text-amber-100 text-xs font-semibold rounded-full">
                 👂 Best Match
               </span>
             )}
             {isBudgetChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-200 dark:bg-orange-400/50 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/50 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
                 💰 Value
               </span>
             )}
