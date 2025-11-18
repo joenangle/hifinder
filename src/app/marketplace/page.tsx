@@ -197,7 +197,8 @@ function MarketplaceContent() {
   useEffect(() => {
     setPage(1)
     fetchUsedListings(1, true)
-  }, [sortBy, selectedSource, selectedConditions, fetchUsedListings])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy, selectedSource, selectedConditions])
 
   // Search with debounce (text input)
   useEffect(() => {
@@ -207,7 +208,8 @@ function MarketplaceContent() {
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [searchQuery, fetchUsedListings])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery])
 
   // Price filter with debounce (number inputs - wait for user to finish typing)
   useEffect(() => {
@@ -217,7 +219,8 @@ function MarketplaceContent() {
     }, 800)
 
     return () => clearTimeout(timer)
-  }, [priceRange.min, priceRange.max, fetchUsedListings])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceRange.min, priceRange.max])
 
   // Infinite scroll observer
   useEffect(() => {
