@@ -29,7 +29,7 @@ function MarketplaceContent() {
   const [totalCount, setTotalCount] = useState(0)
 
   // UI state
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [showFilters, setShowFilters] = useState(false)
 
   // Filter state
