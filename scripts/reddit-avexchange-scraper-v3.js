@@ -245,25 +245,44 @@ function isSoldPost(postData) {
 }
 
 /**
- * Extract price from post title
+ * Extract price from post title and body
+ * Searches both title and selftext for price information
+ * Consolidated regex pattern fixes $1,200 -> $200 bug from pattern overlap
  */
-function extractPrice(title) {
-  const patterns = [
-    /\$(\d{1,5}(?:,\d{3})*)/g,
-    /asking\s*\$?(\d{1,5})/gi,
-    /price:?\s*\$?(\d{1,5})/gi,
-    /(\d{1,5})\s*(?:usd|dollars?)/gi
-  ];
+function extractPrice(title, selftext = '') {
+  // Combine title and selftext for comprehensive search
+  const combinedText = title + ' ' + (selftext || '');
 
-  for (const pattern of patterns) {
-    const matches = [...title.matchAll(pattern)];
-    if (matches.length > 0) {
-      const prices = matches.map(m => parseInt(m[1].replace(/,/g, '')));
-      return Math.min(...prices); // Return lowest price (most conservative)
+  // Consolidated pattern that checks dollar sign FIRST to prevent "shipped" pattern from matching partial numbers
+  // Priority order: $X,XXX > asking/price/selling $X > X shipped > X USD
+  const pricePattern = /\$(\d{1,5}(?:,\d{3})*)|(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)|(\d{3,5})\s*shipped|(\d{1,5})\s*(?:usd|dollars?)/gi;
+
+  const allPrices = [];
+  let match;
+
+  while ((match = pricePattern.exec(combinedText)) !== null) {
+    // Extract from whichever capture group matched
+    const priceStr = (match[1] || match[2] || match[3] || match[4]).replace(/,/g, '');
+    const price = parseInt(priceStr, 10);
+
+    if (!isNaN(price) && price > 0) {
+      allPrices.push(price);
     }
   }
 
-  return null;
+  if (allPrices.length === 0) {
+    // console.warn(`Price extraction failed for: ${title.substring(0, 50)}...`);
+    return null;
+  }
+
+  // Filter out unrealistic prices (model numbers, typos, etc.)
+  // Audio gear typically ranges from $10 to $10,000
+  const validPrices = allPrices.filter(p => p >= 10 && p <= 10000);
+
+  if (validPrices.length === 0) return null;
+
+  // Return lowest valid price (most conservative estimate)
+  return Math.min(...validPrices);
 }
 
 /**
@@ -271,7 +290,7 @@ function extractPrice(title) {
  */
 function transformRedditPost(postData, matchResult) {
   const component = matchResult.component;
-  const price = extractPrice(postData.title);
+  const price = extractPrice(postData.title, postData.selftext || '');
 
   // Extract location from title (common pattern: [WTS][US-CA] or [US-TX])
   const locationMatch = postData.title.match(/\[([A-Z]{2}(?:-[A-Z]{2})?)\]/);

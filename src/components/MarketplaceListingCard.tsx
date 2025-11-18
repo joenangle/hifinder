@@ -143,6 +143,22 @@ export function MarketplaceListingCard({
             )}
           </div>
 
+          {/* Bundle badge - hide on mobile */}
+          <div className="hidden md:block w-20 flex-shrink-0">
+            {listing.is_bundle && (
+              <Tooltip content={`Bundle: ${listing.component_count || 2}+ items`}>
+                <span
+                  className="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+                  role="note"
+                  aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
+                  tabIndex={0}
+                >
+                  📦 {listing.component_count || 2}+
+                </span>
+              </Tooltip>
+            )}
+          </div>
+
           {/* Location / Seller - hide on mobile */}
           <div className="hidden lg:block w-48 flex-shrink-0">
             <div className="flex flex-col gap-0.5 text-xs text-muted">
@@ -226,7 +242,12 @@ export function MarketplaceListingCard({
         {/* Bundle badge */}
         {listing.is_bundle && (
           <Tooltip content={`This listing contains ${listing.component_count || 2}+ items. Price shown is for the bundle.`}>
-            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+            <span
+              className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+              role="note"
+              aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
+              tabIndex={0}
+            >
               📦 Bundle ({listing.component_count || 2}+ items)
             </span>
           </Tooltip>
