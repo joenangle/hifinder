@@ -4,7 +4,6 @@ import { Component, UsedListing } from '@/types'
 import { Clock, MapPin, User, Star, AlertTriangle, TrendingDown, TrendingUp, ExternalLink, Award } from 'lucide-react'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
-import { ImageCarousel } from './ImageCarousel'
 import { Tooltip } from './Tooltip'
 
 interface MarketplaceListingCardProps {
@@ -113,31 +112,6 @@ export function MarketplaceListingCard({
     return (
       <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
         <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
-          {/* Image - responsive size */}
-          <button
-            onClick={onViewDetails}
-            className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 bg-surface-secondary overflow-hidden rounded hover:ring-2 hover:ring-accent transition-all cursor-pointer"
-            aria-label="View images"
-          >
-            {listing.images && listing.images.length > 0 ? (
-              <img
-                src={listing.images[0]}
-                alt={listing.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect fill="%23e5e7eb" width="64" height="64"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="10"%3ENo Image%3C/text%3E%3C/svg%3E'
-                  e.currentTarget.onerror = null
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <svg className="w-8 h-8 opacity-30 text-muted" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                </svg>
-              </div>
-            )}
-          </button>
-
           {/* Item - flex-1 with responsive min-width */}
           <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
             <div className="font-semibold text-foreground truncate text-sm sm:text-base">
@@ -220,24 +194,6 @@ export function MarketplaceListingCard({
   // Grid view
   return (
     <div className="bg-surface-elevated border border-border rounded-lg overflow-hidden hover:border-accent transition-colors h-full flex flex-col">
-      {/* Listing Image with Carousel */}
-      <div className="w-full h-48 bg-surface-secondary relative overflow-hidden flex items-center justify-center">
-        {listing.images && listing.images.length > 0 ? (
-          <ImageCarousel
-            images={listing.images}
-            alt={listing.title}
-            className="w-full h-full"
-          />
-        ) : (
-          <div className="text-center text-muted">
-            <svg className="w-16 h-16 mx-auto mb-2 opacity-30" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-            <span className="text-xs">No image available</span>
-          </div>
-        )}
-      </div>
-
       {/* Header */}
       <div className="p-4 pb-0">
         <div className="mb-3">

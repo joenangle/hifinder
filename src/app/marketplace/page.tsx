@@ -8,8 +8,6 @@ import Link from 'next/link'
 import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
-import { Modal } from '@/components/Modal'
-import { ImageCarousel } from '@/components/ImageCarousel'
 import { FilterButton } from '@/components/FilterButton'
 import { X } from 'lucide-react'
 
@@ -47,10 +45,6 @@ function MarketplaceContent() {
   // Modal state - Component details
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null)
-
-  // Modal state - Image viewer
-  const [imageModalOpen, setImageModalOpen] = useState(false)
-  const [selectedListing, setSelectedListing] = useState<ListingWithComponent | null>(null)
 
   // Infinite scroll ref
   const observerTarget = useRef<HTMLDivElement>(null)
@@ -766,11 +760,6 @@ function MarketplaceContent() {
             {viewMode === 'list' && (
               <div className="bg-surface-elevated border-b-2 border-border mb-0 overflow-x-auto">
                 <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
-                  {/* Image column */}
-                  <div className="w-12 sm:w-16 flex-shrink-0">
-                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Image</span>
-                  </div>
-
                   {/* Component Info */}
                   <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Item</span>
@@ -820,15 +809,8 @@ function MarketplaceContent() {
                   component={listing.component}
                   viewMode={viewMode}
                   onViewDetails={() => {
-                    // In list view with images, show image modal
-                    // In all other cases, show component details modal
-                    if (viewMode === 'list' && listing.images && listing.images.length > 0) {
-                      setSelectedListing(listing)
-                      setImageModalOpen(true)
-                    } else {
-                      setSelectedComponent(listing.component)
-                      setModalOpen(true)
-                    }
+                    setSelectedComponent(listing.component)
+                    setModalOpen(true)
                   }}
                 />
               ))}
@@ -849,7 +831,7 @@ function MarketplaceContent() {
           </>
         )}
       </div>
-      
+
       {/* Component Detail Modal */}
       {selectedComponent && (
         <ComponentDetailModal
@@ -860,73 +842,6 @@ function MarketplaceContent() {
             setSelectedComponent(null)
           }}
         />
-      )}
-
-      {/* Image Viewer Modal */}
-      {selectedListing && (
-        <Modal
-          isOpen={imageModalOpen}
-          onClose={() => {
-            setImageModalOpen(false)
-            setSelectedListing(null)
-          }}
-          maxWidth="4xl"
-        >
-          <div className="p-6">
-            {/* Component Info Header */}
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-foreground mb-1">
-                {selectedListing.component.brand} {selectedListing.component.name}
-              </h2>
-              <p className="text-sm text-muted">
-                ${selectedListing.price} • {selectedListing.location}
-              </p>
-            </div>
-
-            {/* Image Carousel */}
-            <div className="w-full aspect-video bg-surface-secondary rounded-lg overflow-hidden">
-              {selectedListing.images && selectedListing.images.length > 0 ? (
-                <ImageCarousel
-                  images={selectedListing.images}
-                  alt={`${selectedListing.component.brand} ${selectedListing.component.name}`}
-                  className="w-full h-full"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted">
-                  <div className="text-center">
-                    <svg className="w-16 h-16 mx-auto mb-2 opacity-30" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm">No images available</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-4 flex gap-3">
-              <a
-                href={selectedListing.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors"
-              >
-                View Listing
-              </a>
-              <button
-                onClick={() => {
-                  // Close image modal and open component details modal
-                  setImageModalOpen(false)
-                  setSelectedComponent(selectedListing.component)
-                  setModalOpen(true)
-                }}
-                className="flex-1 px-4 py-2 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors"
-              >
-                Component Details
-              </button>
-            </div>
-          </div>
-        </Modal>
       )}
     </div>
   )
