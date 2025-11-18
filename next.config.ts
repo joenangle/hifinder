@@ -49,13 +49,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: '/dashboard',
+        destination: '/dashboard-new',
+        permanent: true,
+      },
+      {
         source: '/alerts',
-        destination: '/dashboard?tab=alerts',
+        destination: '/dashboard-new?tab=alerts',
         permanent: true,
       },
       {
         source: '/wishlist',
-        destination: '/dashboard?tab=wishlist',
+        destination: '/dashboard-new?tab=wishlist',
         permanent: true,
       },
       {
