@@ -1,30 +1,39 @@
 # HiFinder Recommendation Algorithm Documentation
 
-**Last Updated:** October 2024
-**Version:** 2.0 (Performance-Tier Filtering)
+**Last Updated:** January 2025
+**Version:** 3.1 (Enhanced Sound Signature Weight + Bonus Multiplier)
 
 ---
 
 ## Overview
 
-HiFinder's recommendation algorithm prioritizes **performance quality at your budget** rather than simply matching your exact price target. This approach mirrors how expert audio reviewers make recommendations: they identify the best-performing gear within your budget constraints, with special emphasis on "super-value" items that punch above their weight class.
+HiFinder's V3 recommendation algorithm prioritizes **expert-validated performance quality** as the primary ranking factor, with sound signature matching and value-for-money as secondary considerations. This approach matches how experienced audiophiles make purchasing decisions: start with proven quality, then refine by preference and budget optimization.
 
 ---
 
 ## Core Philosophy
 
-### The Problem with Traditional Price-Matching
+### V3.1 Improvements (January 2025)
 
-**Traditional e-commerce approach:**
-- Score items by how close they are to your budget
-- Penalize under-budget items equally with over-budget items
-- Result: A $220 legendary headphone scores lower than a $240 mediocre one
+**What Changed from V3.0:**
+- **Sound signature weight increased:** 20% → 25% (more responsive to signature selection)
+- **Performance weight adjusted:** 70% → 65% (still dominant, but allows more signature influence)
+- **Signature bonus multiplier added:** 1.2x when signature match is strong (>0.35 score)
+- **Impact:** Changing sound signature now produces more noticeable result changes while maintaining performance quality as primary factor
 
-**HiFinder's approach:**
-- Budget is a **ceiling**, not a target
-- Performance quality determines ranking
-- Under-budget items with exceptional performance are **rewarded**, not penalized
-- Result: The best-performing gear wins, regardless of whether it's $220 or $240
+**What Changed from V2:**
+- **Scoring priorities fixed:** 65-70% performance quality (was ~6%) → 20-25% sound signature (was 22.5%) → 10% value (was 45% price-proximity)
+- **Budget control restored:** User-specified ranges now respected (were completely ignored)
+- **Double-buffering eliminated:** Items no longer appear 20% over user's specified budget
+- **Smooth tier transitions:** Removed hard boundaries at $150/$400/$1K that caused result discontinuities
+- **High-end budget fixes:** Removed $2K DAC/amp caps that stranded money at $10K+ budgets
+
+**HiFinder's V3.1 Approach:**
+- **Performance quality determines ranking** (Crinacle grades, rank, value ratings, ASR measurements) - 65% weight
+- **Sound signature matching** ensures recommendations fit user preferences (neutral/warm/bright/fun) - 25% weight + 1.2x bonus
+- **Value scoring** provides slight preference to items at 70-100% of budget (same quality tier) - 10% weight
+- **Budget is a ceiling**, not a target - but we don't recommend $220 items for $1000 budgets
+- Result: S-tier item at $105 beats D-tier item at $145 for a $150 budget, but signature match now has more influence
 
 ---
 
@@ -74,17 +83,35 @@ A component is eligible for recommendation if:
 
 **Key insight:** There is **no minimum price**. If a $220 item meets the A-tier performance bar at a $1000 budget, it's eligible.
 
-### Step 4: Performance Scoring
+### Step 4: V3.1 Performance Scoring
 
-Eligible components are scored based on:
+Components are scored based on three factors with a signature bonus multiplier:
 
 | Factor | Weight | Description |
 |--------|--------|-------------|
-| **Performance Quality** | 70% | Crinacle grades, rank, ASR measurements, value rating |
-| **Sound Signature Match** | 20% | Neutral/warm/bright/fun preference alignment |
-| **Use Case Match** | 10% | Music/gaming/studio/movies alignment |
+| **Expert Performance Score** | 65% | Crinacle rank (30%), tone grade (30%), technical grade (20%), value rating (20%), or ASR measurements for signal gear |
+| **Sound Signature Match** | 25% | User preference alignment (neutral/warm/bright/fun) with partial matching for close signatures |
+| **Value-for-Money** | 10% | Linear scoring from 50-100% of budget (rewards using the budget tier without over-emphasizing price) |
+| **Power Adequacy Bonus** | +5% | For amps only: rewards adequate power output for user's headphones |
+| **Signature Bonus Multiplier** | 1.2x | Applied to total score when signature match is strong (>0.35) |
 
-**No price-fit scoring.** Within the budget range, performance is all that matters.
+**Formula:**
+```javascript
+baseScore =
+  (expertScore / 10) * 0.65 +        // Expert quality (0-10 scale → 65%)
+  synergyScore * 0.25 +              // Signature match (0-0.5 range → 25%)
+  valueScore * 0.10 +                // Value (0.5-1.0 range → 10%)
+  powerBonus                         // Amps only (0-5%)
+
+matchScore = baseScore * signatureBonus  // 1.0x or 1.2x multiplier
+```
+
+**Budget Range Calculation:**
+- **User-controlled (priority):** If user provides custom percentages (e.g., ±20/10%), use exactly those ranges
+- **Smooth progressive defaults:** If no user input, use exponential decay curves:
+  - Max stretch: 20% at $0 → 5% at $2500+ (smooth, no hard boundaries)
+  - Min search: 35% below at $0 → 10% below at $2500+
+  - Eliminates tier discontinuities at $150/$400/$1K boundaries
 
 ### Step 5: Value Rating Annotation
 

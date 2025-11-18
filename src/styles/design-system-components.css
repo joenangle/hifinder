@@ -449,16 +449,16 @@ select.input {
    ============================================ */
 
 .heading-1 {
-  font-size: 2.25rem; /* 36px */
+  font-size: 1.875rem; /* 30px - reduced for vertical density */
   font-weight: var(--font-bold);
   color: var(--text-primary);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4); /* Reduced from space-6 (24px) to space-4 (16px) */
   line-height: 1.2;
 }
 
 @media (min-width: 768px) {
   .heading-1 {
-    font-size: 2.625rem; /* 42px */
+    font-size: 2.25rem; /* 36px - reduced from 42px for vertical density */
   }
 }
 
@@ -730,8 +730,8 @@ select.input {
 .filter-card-compact {
   background: var(--background-secondary);
   border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
 }
 
 .filter-title-compact {
@@ -746,7 +746,7 @@ select.input {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .filter-row:last-child {
@@ -762,14 +762,14 @@ select.input {
 
 .filter-buttons-compact {
   display: flex;
-  gap: 8px;
+  gap: 6px; /* Reduced from 8px for vertical density */
   flex: 1;
   flex-wrap: wrap;
 }
 
 /* Compact Toggle Button */
 .toggle-compact {
-  padding: 6px 12px;
+  padding: 5px 10px; /* Reduced from 6px 12px for vertical density */
   border-radius: 8px;
   border: 1.5px solid var(--border-default);
   background: var(--background-primary);

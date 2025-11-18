@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 
 interface AudioComponent {
@@ -220,4 +220,4 @@ const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
   )
 }
 
-export const SignalGearCard = memo(SignalGearCardComponent)
+export const SignalGearCard = SignalGearCardComponent

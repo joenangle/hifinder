@@ -11,63 +11,62 @@ export interface BudgetRange {
 }
 
 /**
- * Calculate adaptive budget range based on total budget.
- * Ranges adjust to be useful at low, mid, and high budgets.
+ * V3: Calculate budget range with user parameter support and smooth transitions.
+ *
+ * Priority:
+ * 1. If user provides custom percentages, use those (respects user control)
+ * 2. Otherwise, use smooth progressive defaults (no hard tier boundaries)
  *
  * @param budget - The target budget amount
+ * @param rangeMinPercent - User's desired percentage below budget (optional)
+ * @param rangeMaxPercent - User's desired percentage above budget (optional)
  * @param isSignalGear - Whether this is for DACs/amps/combos (allows lower minimums)
  * @returns Object with min and max budget values
  *
  * @example
- * calculateBudgetRange(250, false)  // { min: 175, max: 288 }
- * calculateBudgetRange(5000, false) // { min: 3250, max: 5250 }
+ * // User-controlled ranges
+ * calculateBudgetRange(150, 20, 10)  // { min: 120, max: 165 }
+ *
+ * // Smooth progressive defaults (no user input)
+ * calculateBudgetRange(150)  // { min: 105, max: 173 }
+ * calculateBudgetRange(151)  // { min: 106, max: 174 } (continuous)
  */
 export function calculateBudgetRange(
   budget: number,
+  rangeMinPercent?: number,
+  rangeMaxPercent?: number,
   isSignalGear: boolean = false
 ): BudgetRange {
 
-  // Entry-level ($0-$150): Need wide bottom, moderate top
-  if (budget <= 150) {
-    // Signal gear can go very low ($5 dongles exist)
-    // Headphones/IEMs rarely under $20
-    const absoluteMin = isSignalGear ? 5 : 20
+  // PRIORITY 1: User-specified ranges (override all defaults)
+  if (rangeMinPercent !== undefined && rangeMaxPercent !== undefined) {
+    const absoluteMin = isSignalGear ? 5 : 20;
+    const calculatedMin = Math.round(budget * (1 - rangeMinPercent / 100));
 
     return {
-      min: absoluteMin,
-      max: Math.round(budget * 1.20)  // 20% stretch for entry tier
-    }
+      min: Math.max(absoluteMin, calculatedMin),
+      max: Math.round(budget * (1 + rangeMaxPercent / 100))
+    };
   }
 
-  // Budget tier ($150-$400): Balanced percentage ranges
-  if (budget <= 400) {
-    return {
-      min: Math.round(budget * 0.70),  // 30% down
-      max: Math.round(budget * 1.15)   // 15% up
-    }
-  }
+  // PRIORITY 2: Smooth progressive defaults (no hard boundaries)
+  // Uses exponential decay curves for seamless transitions
 
-  // Mid-range ($400-$1000): Standard ranges
-  if (budget <= 1000) {
-    return {
-      min: Math.round(budget * 0.75),  // 25% down
-      max: Math.round(budget * 1.10)   // 10% up
-    }
-  }
+  // Calculate adaptive percentages based on budget
+  // maxPercent: 20% at $0 → 5% at $2500+ (smooth decay)
+  const maxPercent = 5 + 15 * Math.exp(-budget / 800);
 
-  // High-end ($1000-$2500): Tighter top
-  if (budget <= 2500) {
-    return {
-      min: Math.round(budget * 0.70),  // 30% down (catch deals)
-      max: Math.round(budget * 1.05)   // Only 5% up
-    }
-  }
+  // minPercent: 35% at $0 → 10% at $2500+ (smooth decay)
+  const minPercent = 10 + 25 * Math.exp(-budget / 1000);
 
-  // Summit-fi ($2500+): Wide bottom for deals, small stretch on top
+  // Apply absolute minimums for very low budgets
+  const absoluteMin = isSignalGear ? 5 : 20;
+  const calculatedMin = Math.round(budget * (1 - minPercent / 100));
+
   return {
-    min: Math.round(budget * 0.65),    // 35% down (used market deals)
-    max: Math.round(budget * 1.05)     // 5% stretch
-  }
+    min: Math.max(absoluteMin, calculatedMin),
+    max: Math.round(budget * (1 + maxPercent / 100))
+  };
 }
 
 /**
@@ -82,6 +81,6 @@ export function legacyBudgetRange(
   _rangeMaxPercent: number = 10, // Deprecated parameter
   isSignalGear: boolean = false
 ): BudgetRange {
-  // Ignore old percentages, use new progressive logic
-  return calculateBudgetRange(budget, isSignalGear)
+  // Ignore old percentages, use new progressive logic with smooth defaults
+  return calculateBudgetRange(budget, undefined, undefined, isSignalGear)
 }

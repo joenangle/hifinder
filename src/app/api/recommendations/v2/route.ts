@@ -263,12 +263,13 @@ async function allocateBudgetAcrossComponents(
 ): Promise<Record<string, number>> {
   const allocation: Record<string, number> = {};
 
-  // Summit-fi budget caps - significantly higher for high-end gear
+  // V3: Dynamic budget caps that scale with total budget
+  // Removed hard $2K/$3K caps that stranded money at high-end budgets
   const componentBudgetCaps = {
     headphones: totalBudget * 0.9, // Headphones can take most budget
-    dac: Math.min(2000, totalBudget * 0.4), // DACs up to $2000
-    amp: Math.min(2000, totalBudget * 0.4), // Amps up to $2000
-    combo: Math.min(3000, totalBudget * 0.6), // Combos up to $3000
+    dac: totalBudget * 0.4,         // DACs up to 40% (was capped at $2K)
+    amp: totalBudget * 0.4,         // Amps up to 40% (was capped at $2K)
+    combo: totalBudget * 0.6,       // Combos up to 60% (was capped at $3K)
   };
 
   // Price ratios adjusted for existing gear
@@ -486,13 +487,11 @@ function calculatePowerCompatibility(
   return difficultyScores[assessment.difficulty];
 }
 
-// Filter and score with asymmetric price scoring
+// V3: Filter and score with performance-first prioritization
 function filterAndScoreComponents(
   components: unknown[],
   budget: number,
-  budgetRangeMin: number,
-  budgetRangeMax: number,
-  soundSignatures: string[], // Now accepts array for multi-select
+  soundSignatures: string[], // Array for multi-select with OR logic
   primaryUsage: string,
   maxOptions: number,
   driverType?: string,
@@ -503,7 +502,9 @@ function filterAndScoreComponents(
     voltage_required_v?: number;
     name?: string;
   },
-  totalBudget?: number // Added to support entry-level handling
+  totalBudget?: number, // Added to support entry-level handling
+  rangeMinPercent?: number, // V3: User's desired range below budget
+  rangeMaxPercent?: number  // V3: User's desired range above budget
 ): RecommendationComponent[] {
   // Entry-level budget handling: For DACs/amps/combos under $150 total, allow dongles from $5
   const componentCategory = (components[0] as { category?: string })?.category;
@@ -511,8 +512,13 @@ function filterAndScoreComponents(
     ? ["dac", "amp", "dac_amp"].includes(componentCategory)
     : false;
 
-  // Use progressive budget ranges that adapt across price tiers
-  const budgetRange = calculateBudgetRange(budget, isSignalGear);
+  // V3: Budget ranges with user parameter support and smooth transitions
+  const budgetRange = calculateBudgetRange(
+    budget,
+    rangeMinPercent,
+    rangeMaxPercent,
+    isSignalGear
+  );
   const minAcceptable = budgetRange.min;
   const maxAcceptable = budgetRange.max;
 
@@ -606,57 +612,74 @@ function filterAndScoreComponents(
         }
       }
 
-      // Budget filtering with 2.5x price spread ratio
-      const isAffordable = (c.price_used_min || 0) <= budget * 1.15;
+      // V3 BUDGET FILTERING (Fixed double-buffering issue)
+      // Only use the budget range calculated from user parameters
+      // Removed isAffordable check that added extra 15% buffer
       const isInRange =
         c.avgPrice <= maxAcceptable && c.avgPrice >= minAcceptable;
+
+      // Ensure price range is reasonable (not $100-$500 spread on $150 item)
       const hasReasonableRange =
         (c.price_used_max || 0) - (c.price_used_min || 0) <= c.avgPrice * 2.5;
 
-      return isAffordable && isInRange && hasReasonableRange;
+      return isInRange && hasReasonableRange;
     })
     .map((comp) => {
-      // Calculate price fit for this component
-      // Goal: Strongly reward using the full budget, but allow good cheaper options
-      let priceFit = 0;
+      // V3.1 SCORING ALGORITHM
+      // Priority order: Performance (65%) > Sound Signature (25%) > Value (10%)
+      // Signature bonus multiplier: 1.2x when signature matches
+
+      // 1. EXPERT PERFORMANCE SCORE (65% weight)
+      // Uses Crinacle rank/tone/tech/value or ASR measurements
+      const expertScoreValue =
+        (comp as unknown as { expertScore?: number }).expertScore ?? 5.0; // 0-10 scale
+      const expertScore = expertScoreValue / 10; // Normalize to 0-1
+
+      // 2. SOUND SIGNATURE MATCH (25% weight + 1.2x bonus multiplier)
+      // User's preference alignment (neutral/warm/bright/fun)
+      const signatureScore = comp.synergyScore || 0.25; // 0-0.5 range, default neutral
+
+      // Apply 1.2x bonus multiplier when signature score is high (>0.35 = good match)
+      const signatureBonus = signatureScore > 0.35 ? 1.2 : 1.0;
+
+      // 3. VALUE-FOR-MONEY SCORE (10% weight)
+      // Reward under-budget items at same performance tier
+      // Linear scoring: items at 50-100% of budget get proportional value score
+      let valueScore = 0;
       const priceRatio = comp.avgPrice / budget;
 
       if (comp.avgPrice <= budget) {
-        // Under budget: Exponential curve to heavily favor items near budget
-        // 50% of budget = 0.25 score, 75% = 0.56, 90% = 0.81, 100% = 1.0
-        priceFit = Math.pow(priceRatio, 0.5);
+        // Under budget: Linear scale from 0.5 to 1.0
+        // 50% of budget = 0.5 score, 75% = 0.75, 100% = 1.0
+        valueScore = Math.max(0.5, priceRatio);
       } else {
-        // Over budget: Steep penalty
+        // Over budget: Steep penalty (should already be filtered out)
         const overageRatio = (comp.avgPrice - budget) / budget;
-        priceFit = Math.max(0, 1 - overageRatio * 2);
+        valueScore = Math.max(0, 1 - overageRatio * 2);
       }
 
-      // Calculate bonuses using new expert scoring system (max 10% total)
-      // Expert score is 0-10, convert to 0-10% bonus
-      const expertScoreValue =
-        (comp as unknown as { expertScore?: number }).expertScore ?? 5.0;
-      const expertBonus = (expertScoreValue / 10) * 0.1; // 0-10 score → 0-10% bonus
+      // 4. POWER ADEQUACY BONUS (for amps only, max +5%)
       const powerBonus =
-        comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.02 : 0;
-      const totalBonus = Math.min(0.1, expertBonus + powerBonus);
+        comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
-      // Final scoring breakdown:
-      // - Price fit: 45% weight (how close to budget)
-      // - Sound signature: 45% weight (synergyScore max 50%, so 45% × 50% = 22.5%)
-      // - Expert bonus: 0-10% (calculated from 30% rank + 30% tone + 20% tech + 20% value)
-      // - Power adequacy: 0-2% (for amps only)
-      // Perfect match: 45% + 22.5% + 10% = 77.5%, scaled to ~90%
+      // FINAL SCORE CALCULATION
+      // Expert: 65% + Signature: 25% + Value: 10% + Power bonus: 0-5%
+      // Then apply signature bonus multiplier (1.0x or 1.2x)
       const rawScore =
-        priceFit * 0.45 + (comp.synergyScore || 0) * 0.45 + totalBonus;
+        (expertScore * 0.65 +
+        signatureScore * 0.25 +
+        valueScore * 0.10 +
+        powerBonus) * signatureBonus;
 
-      // Scale scores so perfect matches hit ~90%
-      // Raw max is ~0.775, scale to 0.90: multiply by (0.90 / 0.775) ≈ 1.16
-      const matchScore = Math.min(1, rawScore * 1.16);
+      // Convert to 0-100 percentage (cap at 1.0 after bonus)
+      const matchScore = Math.min(1, rawScore);
 
       return {
         ...comp,
         matchScore: Math.round(matchScore * 100), // Convert to percentage (0-100)
-        priceFitScore: Math.round(priceFit * 100),
+        valueScore: Math.round(valueScore * 100), // Value-for-money score (0-100)
+        expertScoreDisplay: Math.round(expertScore * 100), // Expert quality score (0-100)
+        signatureScoreDisplay: Math.round(signatureScore * 100), // Signature match score (0-100)
       };
     })
     .sort((a, b) => b.matchScore - a.matchScore)
@@ -921,10 +944,6 @@ export async function GET(request: NextRequest) {
         // Process cans and IEMs: ALWAYS separate, never combine
         if (req.wantRecommendationsFor.headphones) {
           const headphoneBudget = budgetAllocation.headphones || req.budget;
-          // Use custom ranges if provided, otherwise calculate progressive ranges
-          const headphoneRanges =
-            customRanges.headphones ||
-            calculateBudgetRange(headphoneBudget, false);
 
           // Check if user wants both types or just one specific type
           const wantsBoth = req.headphoneType === "both";
@@ -936,14 +955,14 @@ export async function GET(request: NextRequest) {
             results.cans = filterAndScoreComponents(
               componentsByCategory.cans,
               headphoneBudget,
-              headphoneRanges.min,
-              headphoneRanges.max,
               req.soundSignatures,
               req.usageRanking[0] || req.usage,
               maxOptions,
               req.driverType, // Pass actual driver type preference (dynamic/planar/etc)
               undefined,
-              req.budget
+              req.budget,
+              req.budgetRangeMin, // V3: Pass user range parameters
+              req.budgetRangeMax
             );
           }
 
@@ -952,23 +971,15 @@ export async function GET(request: NextRequest) {
             results.iems = filterAndScoreComponents(
               componentsByCategory.iems,
               headphoneBudget,
-              headphoneRanges.min,
-              headphoneRanges.max,
               req.soundSignatures,
               req.usageRanking[0] || req.usage,
               maxOptions,
               undefined, // Don't filter by driver type for IEMs
               undefined,
-              req.budget
+              req.budget,
+              req.budgetRangeMin, // V3: Pass user range parameters
+              req.budgetRangeMax
             );
-            console.log("🔍 API: IEMs after filtering:", {
-              input: componentsByCategory.iems.length,
-              output: results.iems.length,
-              budget: headphoneBudget,
-              rangeMin: headphoneRanges.min,
-              rangeMax: headphoneRanges.max,
-              soundSignatures: req.soundSignatures,
-            });
           }
 
           // Check amplification needs from cans (IEMs rarely need amps)
@@ -989,21 +1000,18 @@ export async function GET(request: NextRequest) {
           componentsByCategory.dacs.length > 0
         ) {
           const dacBudget = budgetAllocation.dac || req.budget * 0.25;
-          // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
-          const dacRanges =
-            customRanges.dac || calculateBudgetRange(dacBudget, true);
 
           results.dacs = filterAndScoreComponents(
             componentsByCategory.dacs,
             dacBudget,
-            dacRanges.min,
-            dacRanges.max,
             req.soundSignatures,
             req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             undefined,
-            req.budget
+            req.budget,
+            req.budgetRangeMin, // V3: Pass user range parameters
+            req.budgetRangeMax
           );
         }
 
@@ -1013,21 +1021,18 @@ export async function GET(request: NextRequest) {
           componentsByCategory.amps.length > 0
         ) {
           const ampBudget = budgetAllocation.amp || req.budget * 0.25;
-          // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
-          const ampRanges =
-            customRanges.amp || calculateBudgetRange(ampBudget, true);
 
           results.amps = filterAndScoreComponents(
             componentsByCategory.amps,
             ampBudget,
-            ampRanges.min,
-            ampRanges.max,
             req.soundSignatures,
             req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             existingHeadphonesData || undefined,
-            req.budget
+            req.budget,
+            req.budgetRangeMin, // V3: Pass user range parameters
+            req.budgetRangeMax
           );
         }
 
@@ -1037,21 +1042,18 @@ export async function GET(request: NextRequest) {
           componentsByCategory.combos.length > 0
         ) {
           const comboBudget = budgetAllocation.combo || req.budget * 0.4;
-          // Use custom ranges if provided, otherwise calculate progressive ranges for signal gear
-          const comboRanges =
-            customRanges.combo || calculateBudgetRange(comboBudget, true);
 
           results.combos = filterAndScoreComponents(
             componentsByCategory.combos,
             comboBudget,
-            comboRanges.min,
-            comboRanges.max,
             req.soundSignatures,
             req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             undefined,
-            req.budget
+            req.budget,
+            req.budgetRangeMin, // V3: Pass user range parameters
+            req.budgetRangeMax
           );
         }
       }
@@ -1059,7 +1061,11 @@ export async function GET(request: NextRequest) {
       return results;
     }); // End of getCached wrapper
 
-    return NextResponse.json(results);
+    return NextResponse.json(results, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      }
+    });
   } catch (error) {
     console.error("Error in v2 recommendations:", error);
     return NextResponse.json(

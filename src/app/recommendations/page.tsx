@@ -1,13 +1,13 @@
 'use client'
 
 import React, { Suspense } from 'react'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSlider } from '@/components/BudgetSlider'
-import { useBudgetState } from '@/hooks/useBudgetState'
+import { useDebounce } from '@/hooks/useDebounce'
 import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { Tooltip } from '@/components/Tooltip'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
@@ -73,8 +73,8 @@ function RecommendationsContent() {
   const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
   const [customBudgetAllocation, setCustomBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const [loading, setLoading] = useState(true)
-  const [, setError] = useState<string | null>(null)
-  const [, setShowAmplification] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [showAmplification, setShowAmplification] = useState(false)
 
   // Selection state
   const [selectedCans, setSelectedCans] = useState<string[]>([])
@@ -125,73 +125,32 @@ function RecommendationsContent() {
     !searchParams.get('headphoneType')
   )
 
-  // User preferences state - make them editable
-  const [userPrefs, setUserPrefs] = useState(() => {
+  // SIMPLIFIED STATE MANAGEMENT - Single source of truth pattern
+
+  // Parse URL parameters - recompute when URL changes
+  const initialPrefs = useMemo(() => {
     const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
-
-    // Fix inconsistent state on initial load
-    const headphoneTypesParam = searchParams.get('headphoneTypes')
-    let hasHeadphoneTypes = false
-    if (headphoneTypesParam) {
-      try {
-        const types = JSON.parse(headphoneTypesParam)
-        hasHeadphoneTypes = Array.isArray(types) && types.length > 0
-      } catch {
-        hasHeadphoneTypes = false
-      }
-    }
-
-    if (hasHeadphoneTypes && !wantRecsRaw.headphones) {
-      wantRecsRaw.headphones = true
-    }
 
     return {
       budget: parseInt(searchParams.get('budget') || '250'),
-      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
-      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
-      headphoneType: searchParams.get('headphoneType') || 'both', // Show both for quick-start
+      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),
+      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),
+      headphoneType: searchParams.get('headphoneType') || 'both',
       wantRecommendationsFor: wantRecsRaw,
       existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
       usage: searchParams.get('usage') || 'music',
       usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
       excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-      soundSignature: searchParams.get('soundSignature') || 'any' // Show all for quick-start
+      soundSignature: searchParams.get('soundSignature') || 'any'
     }
-  })
+  }, [searchParams]) // Re-parse when URL changes
 
-  // Debounced values for API calls (prevents excessive fetching)
-  const [debouncedBudget, setDebouncedBudget] = useState(userPrefs.budget)
-  const [debouncedPrefs, setDebouncedPrefs] = useState(userPrefs)
+  // URL is the single source of truth - use initialPrefs directly
+  const userPrefs = initialPrefs
 
-  // Enhanced budget state management with debouncing and analytics
-  const budgetState = useBudgetState({
-    initialBudget: userPrefs.budget,
-    minBudget: 20,
-    maxBudget: 10000,
-    budgetRangeMin: userPrefs.budgetRangeMin,
-    budgetRangeMax: userPrefs.budgetRangeMax,
-    onBudgetChange: (newBudget) => {
-      setUserPrefs(prev => ({ ...prev, budget: newBudget }))
-    },
-    enableAnalytics: true,
-    enablePersistence: true
-  })
+  // Simple debouncing for API calls - debounce budget only
+  const debouncedBudget = useDebounce(userPrefs.budget, 300)
 
-  // Debounce budget changes (1 second delay for budget slider)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedBudget(budgetState.budget)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [budgetState.budget])
-
-  // Update debounced prefs immediately for filter changes (no delay)
-  // Budget changes are still debounced separately above
-  useEffect(() => {
-    setDebouncedPrefs(userPrefs)
-  }, [userPrefs])
-  
   // Filter state for UI controls - now supporting multi-select
   const [typeFilters, setTypeFilters] = useState<string[]>(() => {
     const param = searchParams.get('headphoneTypes')
@@ -231,99 +190,32 @@ function RecommendationsContent() {
     if (legacySound && legacySound !== 'any') return [legacySound]
     return ['neutral'] // Default to neutral
   })
-  
-  // Sync state with URL parameters when they change
-  useEffect(() => {
-    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
 
-    // Fix inconsistent state: if headphoneTypes has values but wantRecommendationsFor.headphones is false, correct it
-    const headphoneTypesParam = searchParams.get('headphoneTypes')
-    let hasHeadphoneTypes = false
-    if (headphoneTypesParam) {
-      try {
-        const types = JSON.parse(headphoneTypesParam)
-        hasHeadphoneTypes = Array.isArray(types) && types.length > 0
-      } catch {
-        hasHeadphoneTypes = false
-      }
-    }
+  // Multi-select mode for sound signatures (defaults to single-select)
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false)
 
-    // Reconcile inconsistent state
-    if (hasHeadphoneTypes && !wantRecsRaw.headphones) {
-      wantRecsRaw.headphones = true
-    }
-
-    // Compute headphoneType from URL param or derive from typeFilters default
-    const headphoneTypesFromUrl = searchParams.get('headphoneTypes')
-    let computedHeadphoneType: 'cans' | 'iems' | 'both' = 'both' // Default to both
-    if (headphoneTypesFromUrl) {
-      try {
-        const types = JSON.parse(headphoneTypesFromUrl)
-        if (Array.isArray(types)) {
-          computedHeadphoneType = types.length === 2 ? 'both' : types.length === 1 ? types[0] : 'both'
-        }
-      } catch {
-        computedHeadphoneType = 'both'
-      }
-    }
-
-    const urlPrefs = {
-      budget: parseInt(searchParams.get('budget') || '300'),
-      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),  // Default -20%
-      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),  // Default +10%
-      headphoneType: searchParams.get('headphoneType') || computedHeadphoneType,
-      wantRecommendationsFor: wantRecsRaw,
-      existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
-      usage: searchParams.get('usage') || 'music',
-      usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
-      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-      soundSignature: searchParams.get('soundSignature') || searchParams.get('sound') || 'neutral' // Support both new and legacy params
-    }
-    setUserPrefs(urlPrefs)
-  }, [searchParams])
-
-  // Extract values for convenience (using budget from enhanced state)
+  // Extract values for convenience
   const { wantRecommendationsFor, soundSignature } = userPrefs
-  const budget = budgetState.budget // For UI display (immediate updates)
-  const budgetForAPI = debouncedBudget // For API calls (debounced)
+  const budget = userPrefs.budget // For UI display (immediate)
+  // debouncedBudget used for API calls (300ms delay)
 
-  // Extract debounced values for API calls
-  const {
-    budgetRangeMin: debouncedBudgetRangeMin,
-    budgetRangeMax: debouncedBudgetRangeMax,
-    headphoneType: debouncedHeadphoneType,
-    wantRecommendationsFor: debouncedWantRecommendationsFor,
-    existingGear: debouncedExistingGear,
-    usage: debouncedUsage,
-    usageRanking: debouncedUsageRanking,
-    excludedUsages: debouncedExcludedUsages,
-    soundSignature: debouncedSoundSignature
-  } = debouncedPrefs
+  // Update URL directly - URL is single source of truth
+  const updateURL = useCallback((updates: Partial<typeof userPrefs>) => {
+    const params = new URLSearchParams(searchParams.toString())
 
-  // Update URL when preferences change
-  const updatePreferences = useCallback((newPrefs: Partial<typeof userPrefs>) => {
-    setUserPrefs(prev => ({ ...prev, ...newPrefs }))
-  }, [])
-
-  // Sync URL with state changes - separate effect to avoid setState-in-render
-  useEffect(() => {
-    const params = new URLSearchParams()
-    // Note: experience is derived from browseMode, not stored in URL
-    params.set('budget', userPrefs.budget.toString())
-    params.set('budgetRangeMin', userPrefs.budgetRangeMin.toString())
-    params.set('budgetRangeMax', userPrefs.budgetRangeMax.toString())
-    params.set('headphoneType', userPrefs.headphoneType)
-    params.set('headphoneTypes', JSON.stringify(typeFilters))
-    params.set('soundSignatures', JSON.stringify(soundFilters))
-    params.set('wantRecommendationsFor', JSON.stringify(userPrefs.wantRecommendationsFor))
-    params.set('existingGear', JSON.stringify(userPrefs.existingGear))
-    params.set('usage', userPrefs.usage)
-    params.set('usageRanking', JSON.stringify(userPrefs.usageRanking))
-    params.set('excludedUsages', JSON.stringify(userPrefs.excludedUsages))
-    params.set('sound', userPrefs.soundSignature)
+    // Update changed fields
+    if (updates.budget !== undefined) params.set('budget', updates.budget.toString())
+    if (updates.budgetRangeMin !== undefined) params.set('budgetRangeMin', updates.budgetRangeMin.toString())
+    if (updates.budgetRangeMax !== undefined) params.set('budgetRangeMax', updates.budgetRangeMax.toString())
+    if (updates.headphoneType !== undefined) params.set('headphoneType', updates.headphoneType)
+    if (updates.wantRecommendationsFor !== undefined) params.set('wantRecommendationsFor', JSON.stringify(updates.wantRecommendationsFor))
+    if (updates.existingGear !== undefined) params.set('existingGear', JSON.stringify(updates.existingGear))
+    if (updates.usage !== undefined) params.set('usage', updates.usage)
+    if (updates.usageRanking !== undefined) params.set('usageRanking', JSON.stringify(updates.usageRanking))
+    if (updates.excludedUsages !== undefined) params.set('excludedUsages', JSON.stringify(updates.excludedUsages))
 
     router.push(`/recommendations?${params.toString()}`, { scroll: false })
-  }, [userPrefs, typeFilters, soundFilters, router])
+  }, [router, searchParams])
 
   // Browse mode removed - no handler needed
 
@@ -341,35 +233,48 @@ function RecommendationsContent() {
 
   // Get budget tier name and range
 
+  // Create stable key for soundFilters to avoid infinite re-renders
+  const soundFiltersKey = useMemo(() => [...soundFilters].sort().join(','), [soundFilters])
+
+  // Create stable key for typeFilters to avoid infinite re-renders
+  const typeFiltersKey = useMemo(() => [...typeFilters].sort().join(','), [typeFilters])
+
   // ===== MOVED TO API - RECOMMENDATIONS LOGIC NOW SERVER-SIDE =====
 
   // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async () => {
-    console.log('🎯 Fetching recommendations via API for:', debouncedWantRecommendationsFor)
+    console.log('🎯 FETCH TRIGGERED - Budget:', debouncedBudget, 'Timestamp:', Date.now())
 
     setLoading(true)
     setError(null)
 
     try {
-      // Build URL parameters for recommendations API using debounced values
+      // Build URL parameters for recommendations API
       const params = new URLSearchParams({
-        budget: budgetForAPI.toString(),
-        budgetRangeMin: debouncedBudgetRangeMin.toString(),
-        budgetRangeMax: debouncedBudgetRangeMax.toString(),
-        headphoneType: debouncedHeadphoneType,
-        wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor),
-        existingGear: JSON.stringify(debouncedExistingGear),
-        usage: debouncedUsage,
-        usageRanking: JSON.stringify(debouncedUsageRanking),
-        excludedUsages: JSON.stringify(debouncedExcludedUsages),
-        soundSignatures: JSON.stringify(soundFilters), // Send selected filters array
-        sound: debouncedSoundSignature // Keep legacy param for backward compatibility
+        budget: debouncedBudget.toString(), // Debounced for API performance
+        budgetRangeMin: userPrefs.budgetRangeMin.toString(),
+        budgetRangeMax: userPrefs.budgetRangeMax.toString(),
+        headphoneType: userPrefs.headphoneType,
+        wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
+        existingGear: JSON.stringify(userPrefs.existingGear),
+        usage: userPrefs.usage,
+        usageRanking: JSON.stringify(userPrefs.usageRanking),
+        excludedUsages: JSON.stringify(userPrefs.excludedUsages),
+        soundSignatures: JSON.stringify(soundFilters)
       })
 
       // Add custom budget allocation if provided
       if (customBudgetAllocation) {
         params.set('customBudgetAllocation', JSON.stringify(customBudgetAllocation))
       }
+
+      // Debug logging for race condition investigation
+      console.log('🔍 Fetch params:', {
+        debouncedBudget,
+        userPrefsBudget: userPrefs.budget,
+        urlBudget: params.get('budget'),
+        timestamp: Date.now()
+      })
 
       const response = await fetch(`/api/recommendations/v2?${params.toString()}`)
       
@@ -406,23 +311,20 @@ function RecommendationsContent() {
 
       // Set recommendations - API always returns separate cans and iems arrays
       setCans(recommendations.cans || [])
+      console.log('✅ SET CANS:', recommendations.cans?.length, 'items -', recommendations.cans?.map((c: Component) => c.name))
+
       setIems(recommendations.iems || [])
+      console.log('✅ SET IEMS:', recommendations.iems?.length, 'items -', recommendations.iems?.map((c: Component) => c.name))
+
       setDacs(recommendations.dacs || [])
+      console.log('✅ SET DACS:', recommendations.dacs?.length, 'items')
+
       setBudgetAllocation(recommendations.budgetAllocation || {})
       setAmps(recommendations.amps || [])
       setDacAmps(recommendations.combos || [])
       setShowAmplification(recommendations.needsAmplification || false)
 
       // Debug logging for IEMs
-      console.log('✅ Recommendations received:', {
-        cans: recommendations.cans?.length || 0,
-        iems: recommendations.iems?.length || 0,
-        dacs: recommendations.dacs?.length || 0,
-        amps: recommendations.amps?.length || 0,
-        combos: recommendations.combos?.length || 0,
-        needsAmplification: recommendations.needsAmplification,
-        budgetAllocation: recommendations.budgetAllocation
-      })
       console.log('🔍 IEMs detailed check:', {
         iemsReceived: recommendations.iems,
         iemsCount: recommendations.iems?.length || 0,
@@ -434,15 +336,15 @@ function RecommendationsContent() {
       // Initialize custom budget allocation if not already set (first load)
       if (!customBudgetAllocation && recommendations.budgetAllocation) {
         const allocation: BudgetAllocation = {}
-        const totalBudget = budgetForAPI
+        const totalBudget = debouncedBudget
 
         Object.entries(recommendations.budgetAllocation).forEach(([component, amount]) => {
           if (typeof amount === 'number') {
             allocation[component as keyof BudgetAllocation] = {
               amount,
               percentage: (amount / totalBudget) * 100,
-              rangeMin: debouncedBudgetRangeMin,
-              rangeMax: debouncedBudgetRangeMax
+              rangeMin: userPrefs.budgetRangeMin,
+              rangeMax: userPrefs.budgetRangeMax
             }
           }
         })
@@ -483,7 +385,17 @@ function RecommendationsContent() {
     } finally {
       setLoading(false)
     }
-  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, debouncedHeadphoneType, debouncedWantRecommendationsFor, debouncedExistingGear, debouncedUsage, debouncedUsageRanking, debouncedExcludedUsages, debouncedSoundSignature, customBudgetAllocation, JSON.stringify(soundFilters)])
+  }, [
+    debouncedBudget,
+    userPrefs.budgetRangeMin,
+    userPrefs.budgetRangeMax,
+    userPrefs.headphoneType,
+    userPrefs.usage,
+    soundFiltersKey,
+    typeFiltersKey
+    // Removed JSON.stringify dependencies - they create new references every render
+    // The API stringifies these internally, so changes are reflected in the request
+  ])
 
   // Fetch filter counts - use stable strings instead of array references
   const fetchFilterCounts = useCallback(async () => {
@@ -492,14 +404,17 @@ function RecommendationsContent() {
       const activeEquipment = typeFilters.filter(Boolean)
 
       const params = new URLSearchParams({
-        budget: budgetForAPI.toString(),
-        rangeMin: debouncedBudgetRangeMin.toString(),
-        rangeMax: debouncedBudgetRangeMax.toString(),
-        // Send current filters so counts reflect intersections
+        budget: debouncedBudget.toString(),
+        rangeMin: userPrefs.budgetRangeMin.toString(),
+        rangeMax: userPrefs.budgetRangeMax.toString(),
+        headphoneType: userPrefs.headphoneType,
         equipment: activeEquipment.join(','),
-        soundSignatures: soundFilters.join(','),
-        // Send wantRecommendationsFor for budget allocation
-        wantRecommendationsFor: JSON.stringify(debouncedWantRecommendationsFor)
+        soundSignatures: soundFiltersKey,
+        wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
+        existingGear: JSON.stringify(userPrefs.existingGear),
+        usage: userPrefs.usage,
+        usageRanking: JSON.stringify(userPrefs.usageRanking),
+        excludedUsages: JSON.stringify(userPrefs.excludedUsages)
       })
 
       const response = await fetch(`/api/filters/counts?${params.toString()}`)
@@ -514,7 +429,21 @@ function RecommendationsContent() {
     } catch (error) {
       console.error('Error fetching filter counts:', error)
     }
-  }, [budgetForAPI, debouncedBudgetRangeMin, debouncedBudgetRangeMax, typeFilters, soundFilters, debouncedWantRecommendationsFor])
+  }, [
+    debouncedBudget,
+    userPrefs.budgetRangeMin,
+    userPrefs.budgetRangeMax,
+    userPrefs.headphoneType,
+    userPrefs.usage,
+    typeFiltersKey,
+    soundFiltersKey
+    // Removed JSON.stringify dependencies - they create new references every render
+  ])
+
+  // Clear custom budget allocation when budget changes (prevents stale allocation being sent to API)
+  useEffect(() => {
+    setCustomBudgetAllocation(null)
+  }, [userPrefs.budget])
 
   // Initial fetch on mount + when fetchRecommendations changes
   useEffect(() => {
@@ -525,12 +454,6 @@ function RecommendationsContent() {
   useEffect(() => {
     fetchFilterCounts()
   }, [fetchFilterCounts])
-
-  // Also ensure initial fetch happens immediately on mount
-  useEffect(() => {
-    fetchRecommendations()
-    fetchFilterCounts()
-  }, []) // Run once on mount
 
   // Scroll to top on mount
   useEffect(() => {
@@ -727,7 +650,7 @@ function RecommendationsContent() {
     const newType = newFilters.length === 2 ? 'both' : newFilters.length === 1 ? newFilters[0] : 'both'
     const wasWantingHeadphones = typeFilters.length > 0
     const nowWantingHeadphones = newFilters.length > 0
-    updatePreferences({
+    updateURL({
       headphoneType: newType,
       ...(wasWantingHeadphones !== nowWantingHeadphones ? {
         wantRecommendationsFor: {
@@ -736,40 +659,51 @@ function RecommendationsContent() {
         }
       } : {})
     })
-  }, [typeFilters, wantRecommendationsFor, updatePreferences])
+  }, [typeFilters, wantRecommendationsFor, updateURL])
 
   const handleEquipmentToggle = useCallback((type: 'dac' | 'amp' | 'combo') => {
-    updatePreferences({
+    updateURL({
       wantRecommendationsFor: {
         ...wantRecommendationsFor,
         [type]: !wantRecommendationsFor[type]
       }
     })
-  }, [wantRecommendationsFor, updatePreferences])
+  }, [wantRecommendationsFor, updateURL])
 
   const handleSoundFilterChange = useCallback((filter: 'neutral' | 'warm' | 'bright' | 'fun') => {
-    // Multi-select behavior with toggle (checkbox-style)
-    setSoundFilters(prev => {
-      const newFilters = prev.includes(filter)
-        ? prev.filter(f => f !== filter)
-        : [...prev, filter]
+    if (isMultiSelectMode) {
+      // Multi-select behavior: toggle (checkbox-style)
+      setSoundFilters(prev => {
+        const newFilters = prev.includes(filter)
+          ? prev.filter(f => f !== filter)
+          : [...prev, filter]
 
-      // Ensure at least one filter is always selected
-      return newFilters.length === 0 ? [filter] : newFilters
-    })
-    // Update preferences with first selected filter for backward compatibility
-    updatePreferences({ soundSignature: filter })
-  }, [updatePreferences])
+        // Ensure at least one filter is always selected
+        return newFilters.length === 0 ? [filter] : newFilters
+      })
+    } else {
+      // Single-select behavior: replace previous selection
+      setSoundFilters([filter])
+    }
+    // Update preferences with selected filter for backward compatibility
+    updateURL({ soundSignature: filter })
+  }, [isMultiSelectMode, updateURL])
+
+  const handleToggleMultiSelect = useCallback(() => {
+    setIsMultiSelectMode(prev => !prev)
+  }, [])
 
   const handleAddAmplification = useCallback(() => {
-    updatePreferences({
+    // Toggle amplification on/off
+    const isCurrentlyEnabled = wantRecommendationsFor.amp || wantRecommendationsFor.combo
+    updateURL({
       wantRecommendationsFor: {
         ...wantRecommendationsFor,
-        amp: true,
-        combo: true
+        amp: !isCurrentlyEnabled,
+        combo: !isCurrentlyEnabled
       }
     })
-  }, [wantRecommendationsFor, updatePreferences])
+  }, [wantRecommendationsFor, updateURL])
 
   // Handle custom budget allocation changes
   const handleBudgetAllocationChange = useCallback((allocation: BudgetAllocation) => {
@@ -821,13 +755,15 @@ function RecommendationsContent() {
   return (
     <div className="page-container">
       <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
-        <div className="text-center mb-8">
-          <h1 className="heading-1 mb-4">
+        <div className="text-center mb-6">
+          <h1 className="heading-1 mb-2">
             {getTitle()}
           </h1>
-          <p className="text-lg text-secondary max-w-3xl mx-auto">
-            {getDescription()}
-          </p>
+          {!isBudgetFocused && (
+            <p className="text-base text-secondary max-w-3xl mx-auto">
+              {getDescription()}
+            </p>
+          )}
         </div>
 
         {/* Welcome Banner for First-Time Users */}
@@ -846,13 +782,10 @@ function RecommendationsContent() {
           position="bottom"
           className="w-full"
         >
-          <div className="card p-4" style={{ marginBottom: '24px', width: '100%' }} data-budget-slider>
+          <div className="card p-4" style={{ marginBottom: '16px', width: '100%' }} data-budget-slider>
             <BudgetSlider
-              budget={budgetState.budget}
-              displayBudget={budgetState.displayBudget}
-              onChange={budgetState.handleBudgetChange}
-              onChangeComplete={budgetState.handleBudgetChangeComplete}
-              isUpdating={budgetState.isUpdating}
+              budget={budget}
+              onChange={(newBudget) => updateURL({ budget: newBudget })}
               variant="simple"
               userExperience="intermediate"
               showInput={true}
@@ -863,7 +796,7 @@ function RecommendationsContent() {
               maxBudget={10000}
               budgetRangeMin={userPrefs.budgetRangeMin}
               budgetRangeMax={userPrefs.budgetRangeMax}
-              className="w-full" // Ensure this is set
+              className="w-full"
             />
           </div>
         </Tooltip>
@@ -890,6 +823,8 @@ function RecommendationsContent() {
           expandAllExperts={expandAllExperts}
           onToggleExpandExperts={() => setExpandAllExperts(!expandAllExperts)}
           onToggleGuidedMode={toggleGuidedMode}
+          isMultiSelectMode={isMultiSelectMode}
+          onToggleMultiSelect={handleToggleMultiSelect}
         />
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}
@@ -897,6 +832,7 @@ function RecommendationsContent() {
           <AmplificationWarningBanner
             selectedNeedAmp={amplificationNeeds.selectedNeedAmp}
             onAddAmplification={handleAddAmplification}
+            amplificationEnabled={wantRecommendationsFor.amp || wantRecommendationsFor.combo}
           />
         )}
 
@@ -916,6 +852,13 @@ function RecommendationsContent() {
             setSelectedDacAmps([])
           }}
         />
+
+        {/* Error Display */}
+        {error && (
+          <div className="card p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 mb-6">
+            <p className="text-red-800 dark:text-red-200 font-medium">⚠️ {error}</p>
+          </div>
+        )}
 
         {/* Dynamic grid based on number of component types */}
         {(() => {
@@ -961,7 +904,7 @@ function RecommendationsContent() {
 
               {/* Results grid with smooth opacity transition */}
               <div
-                className={`${gridClass} transition-opacity duration-300 ${loading && hasLoadedOnce ? 'opacity-60' : 'opacity-100'}`}
+                className={`${gridClass} transition-opacity duration-300 ${loading && hasLoadedOnce ? 'opacity-90' : 'opacity-100'}`}
               >
               {/* Separate Headphones (Cans) Section */}
               {hasCans && (() => {
@@ -1442,7 +1385,7 @@ function RecommendationsContent() {
                   max="10000"
                   step="10"
                   value={userPrefs.budget}
-                  onChange={(e) => setUserPrefs({...userPrefs, budget: parseInt(e.target.value)})}
+                  onChange={(e) => updateURL({ budget: parseInt(e.target.value) })}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -1464,8 +1407,7 @@ function RecommendationsContent() {
                   ].map((option) => (
                     <button
                       key={option.label}
-                      onClick={() => setUserPrefs({
-                        ...userPrefs,
+                      onClick={() => updateURL({
                         budgetRangeMin: option.min,
                         budgetRangeMax: option.max
                       })}
@@ -1491,7 +1433,7 @@ function RecommendationsContent() {
                   {['any', 'warm', 'neutral', 'bright'].map((sig) => (
                     <button
                       key={sig}
-                      onClick={() => setUserPrefs({...userPrefs, soundSignature: sig})}
+                      onClick={() => updateURL({ soundSignature: sig })}
                       className={`card-interactive text-center py-2 ${
                         userPrefs.soundSignature === sig ? 'card-interactive-selected' : ''
                       }`}
@@ -1519,7 +1461,7 @@ function RecommendationsContent() {
                       onClick={() => {
                         const updated = {...userPrefs.wantRecommendationsFor}
                         updated[component.key as keyof typeof updated] = !updated[component.key as keyof typeof updated]
-                        setUserPrefs({...userPrefs, wantRecommendationsFor: updated})
+                        updateURL({ wantRecommendationsFor: updated })
                       }}
                       className={`card-interactive text-left py-3 px-4 ${
                         userPrefs.wantRecommendationsFor[component.key as keyof typeof userPrefs.wantRecommendationsFor]

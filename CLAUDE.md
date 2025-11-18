@@ -27,6 +27,22 @@
 ## To-Do: Revisit Later
 - 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.
 - ⏰ **eBay Partner Network Campaign ID** (Monday reminder): Waiting for eBay Campaign ID approval. Once received, add `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` to Vercel environment variables (all environments). Without this, eBay affiliate links will work but won't track commissions.
+- 📦 **State Management: nuqs Library Evaluation** (Jan 2025)
+  - **Status:** Evaluated, deferred - current implementation working well after `customBudgetAllocation` fix
+  - **What it is:** Type-safe URL query parameter state manager for Next.js - "like useState, but stored in the URL"
+  - **Benefits:**
+    - Type-safe parsers (integers, arrays, booleans, dates)
+    - Batched updates (change 3 filters → 1 URL push, not 3)
+    - Built-in debouncing support
+    - 6KB gzipped, actively maintained
+  - **Migration effort:** ~2 hours (incremental migration recommended)
+  - **Reconsider if:**
+    - Adding 5+ more URL parameters to recommendations page
+    - Seeing runtime type errors from manual URL parsing
+    - Refactoring recommendations page for other reasons
+    - Want better type safety across URL state management
+  - **Library:** https://nuqs.dev/ (Next.js 14.2+ compatible)
+  - **See also:** Industry research on React state patterns in session notes
 
 ## High Priority: Summit-Fi Component Data Gaps
 

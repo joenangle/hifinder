@@ -12,9 +12,9 @@ export function generateCacheKey(params: {
 }): string {
   // Normalize parameters for consistent cache keys
   const normalized = {
-    // Round budget to $50 buckets for better cache hit rate
-    // $475 and $499 will use same cache entry as $500
-    budget: Math.floor(params.budget / 50) * 50,
+    // Use exact budget - bucketing caused budget crossover bug where $200-$249
+    // budgets shared cache entries, returning $249-budget results for $225 searches
+    budget: params.budget,
 
     // Sort signatures for deterministic ordering
     signatures: params.soundSignatures.sort().join(','),
@@ -33,32 +33,18 @@ export function generateCacheKey(params: {
 }
 
 /**
- * Cache wrapper for recommendation queries
- * Uses Vercel Data Cache (unstable_cache) for free, edge-optimized caching
+ * V3: DISABLE CACHING TEMPORARILY for debugging
  *
- * TTL: 10 minutes (600 seconds)
- * Tag: 'recommendations' - allows manual invalidation via revalidateTag()
- */
-export const getCachedRecommendations = unstable_cache(
-  async <T>(cacheKey: string, computeFn: () => Promise<T>): Promise<T> => {
-    console.log('🔄 Cache MISS, computing:', cacheKey)
-    const result = await computeFn()
-    console.log('✅ Computed and cached:', cacheKey)
-    return result
-  },
-  ['recommendations'], // Cache key prefix
-  {
-    revalidate: 600, // 10 minutes TTL (balance freshness vs performance)
-    tags: ['recommendations'], // For manual invalidation
-  }
-)
-
-/**
- * Type-safe wrapper that preserves return type
+ * The unstable_cache API is not working as expected.
+ * Disabling cache entirely to verify algorithm fixes work correctly.
+ * Will re-enable with proper implementation once verified.
  */
 export async function getCached<T>(
   cacheKey: string,
   computeFn: () => Promise<T>
 ): Promise<T> {
-  return getCachedRecommendations(cacheKey, computeFn)
+  console.log('⚠️  Cache DISABLED (debugging) - computing:', cacheKey)
+  const result = await computeFn()
+  console.log('✅ Computed (no cache):', cacheKey)
+  return result
 }

@@ -151,7 +151,7 @@ export function BudgetSlider({
   const [showTooltip, setShowTooltip] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
-  const [showRangeAdjust, setShowRangeAdjust] = useState(true) // Show controls by default
+  const [showRangeAdjust, setShowRangeAdjust] = useState(false) // Collapsed by default to save vertical space
   const [isDualRange, setIsDualRange] = useState(false)
   const [rangeMin, setRangeMin] = useState(Math.max(minBudget, Math.round(budget * (1 - budgetRangeMin / 100))))
   const [rangeMax, setRangeMax] = useState(Math.min(maxBudget, Math.round(budget * (1 + budgetRangeMax / 100))))
@@ -313,56 +313,52 @@ export function BudgetSlider({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {/* Centered budget display */}
-      <div className="flex flex-col items-center gap-2 mb-0">
+      {/* Consolidated budget display - single line */}
+      <div className="flex items-center justify-center gap-2 mb-0">
         {/* Budget amount */}
-        <div className="flex items-center gap-2">
-          {effectiveVariant === 'dual-range' ? (
-            <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
-              {`${formatBudget(rangeMin)} - ${formatBudget(rangeMax)}`}
-            </h3>
-          ) : (
-            <div className="flex items-center gap-1">
-              <span className="text-2xl font-bold" style={{ color: currentTier.color }}>$</span>
-              <input
-                type="number"
-                value={budgetInputValue}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onBlur={handleInputBlur}
-                className="budget-number-input text-2xl font-bold bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
-                style={{ color: currentTier.color }}
-                min={minBudget}
-                max={maxBudget}
-                aria-label="Budget amount"
-              />
-            </div>
-          )}
-          <button
-            onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
-            className="p-1 rounded hover:bg-surface-hover transition-colors"
-            title="Keyboard shortcuts"
-          >
-            <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-        </div>
+        {effectiveVariant === 'dual-range' ? (
+          <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
+            {`${formatBudget(rangeMin)} - ${formatBudget(rangeMax)}`}
+          </h3>
+        ) : (
+          <div className="flex items-center gap-1">
+            <span className="text-2xl font-bold" style={{ color: currentTier.color }}>$</span>
+            <input
+              type="number"
+              value={budgetInputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onBlur={handleInputBlur}
+              className="budget-number-input text-2xl font-bold bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
+              style={{ color: currentTier.color }}
+              min={minBudget}
+              max={maxBudget}
+              aria-label="Budget amount"
+            />
+          </div>
+        )}
 
-        {/* Tier label with search range - combined and centered */}
+        {/* Tier label with search range - inline */}
         <button
           onClick={() => setShowRangeAdjust(!showRangeAdjust)}
-          className="text-xs text-secondary hover:text-primary transition-colors"
+          className="text-xs text-secondary hover:text-primary transition-colors whitespace-nowrap"
         >
           <span className="font-medium" style={{ color: currentTier.color }}>{currentTier.name}</span>
           <span className="text-secondary">
             {effectiveVariant === 'dual-range'
               ? `: ${formatBudget(rangeMin)}-${formatBudget(rangeMax)}`
-              : `: searching ${formatBudget(searchMin)}-${formatBudget(searchMax)}`
+              : `: ${formatBudget(searchMin)}-${formatBudget(searchMax)}`
             }
           </span>
-          {effectiveVariant !== 'dual-range' && (
-            <span className="text-secondary"> (-{budgetRangeMin}% to +{budgetRangeMax}%)</span>
-          )}
+        </button>
+
+        <button
+          onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+          className="p-1 rounded hover:bg-surface-hover transition-colors"
+          title="Keyboard shortcuts"
+        >
+          <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </button>
       </div>
 

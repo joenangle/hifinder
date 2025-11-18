@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ExpertAnalysisPanel, CompactExpertBadge } from '@/components/ExpertAnalysisPanel'
 import { Tooltip } from '@/components/Tooltip'
 import { WishlistButton } from '@/components/WishlistButton'
@@ -285,4 +285,4 @@ const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
   )
 }
 
-export const HeadphoneCard = memo(HeadphoneCardComponent)
+export const HeadphoneCard = HeadphoneCardComponent

@@ -10,11 +10,13 @@ interface AudioComponent {
 interface AmplificationWarningBannerProps {
   selectedNeedAmp: AudioComponent[]
   onAddAmplification: () => void
+  amplificationEnabled?: boolean
 }
 
 const AmplificationWarningBannerComponent = ({
   selectedNeedAmp,
-  onAddAmplification
+  onAddAmplification,
+  amplificationEnabled = false
 }: AmplificationWarningBannerProps) => {
   const [isDismissed, setIsDismissed] = useState(false)
 
@@ -23,46 +25,41 @@ const AmplificationWarningBannerComponent = ({
   }
 
   return (
-    <div className="card p-6 border-l-4 border-yellow-500 bg-yellow-50" style={{ marginBottom: '32px' }}>
-      <div className="flex items-start space-x-3">
-        <div className="text-2xl">⚡</div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            Amplification Recommended
-          </h3>
-          <p className="text-yellow-700 mb-3">
-            {selectedNeedAmp.length > 0
-              ? `Your selected headphones (${selectedNeedAmp.map(h => h.name).join(', ')}) benefit from dedicated amplification for optimal performance.`
-              : `Some recommended headphones require amplification to reach their full potential.`
-            }
-          </p>
-          <button
-            onClick={onAddAmplification}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            Add Amplifier & Combo Recommendations
-          </button>
-        </div>
-        <button
-          onClick={() => setIsDismissed(true)}
-          className="text-yellow-700 hover:text-yellow-900 transition-colors ml-2 flex-shrink-0"
-          aria-label="Dismiss warning"
+    <div className="flex items-center gap-2 py-2 px-4 border-l-4 border-yellow-500 bg-yellow-50 rounded-r" style={{ marginBottom: '12px' }}>
+      <span className="text-lg flex-shrink-0">⚡</span>
+      <span className="text-sm text-yellow-800 flex-1">
+        Some recommendations benefit from external amplification
+      </span>
+      <button
+        onClick={onAddAmplification}
+        className={`px-3 py-1 rounded text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+          amplificationEnabled
+            ? 'bg-green-600 hover:bg-green-700 text-white'
+            : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+        }`}
+        title={amplificationEnabled ? 'Hide amplification suggestions' : 'Show amplification suggestions'}
+      >
+        {amplificationEnabled ? '✓ Amps On' : 'Show Amps'}
+      </button>
+      <button
+        onClick={() => setIsDismissed(true)}
+        className="text-yellow-700 hover:text-yellow-900 transition-colors flex-shrink-0"
+        aria-label="Dismiss warning"
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
     </div>
   )
 }

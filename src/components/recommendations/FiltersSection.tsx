@@ -40,6 +40,8 @@ interface FiltersSectionProps {
   expandAllExperts?: boolean
   onToggleExpandExperts?: () => void
   onToggleGuidedMode?: () => void
+  isMultiSelectMode?: boolean
+  onToggleMultiSelect?: () => void
 }
 
 const FiltersSectionComponent = ({
@@ -54,7 +56,9 @@ const FiltersSectionComponent = ({
   onSoundFilterChange,
   expandAllExperts,
   onToggleExpandExperts,
-  onToggleGuidedMode
+  onToggleGuidedMode,
+  isMultiSelectMode = false,
+  onToggleMultiSelect
 }: FiltersSectionProps) => {
   // Always show all filters (simplified experience)
   const showEquipmentFilters = true
@@ -91,20 +95,47 @@ const FiltersSectionComponent = ({
 
   return (
     <div className="filter-card-compact">
-      <div className="flex items-center justify-between mb-4">
-        <Tooltip
-          content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
-          position="bottom"
-        >
-          <h3 className="filter-title-compact mb-0">Refine Your Search</h3>
-        </Tooltip>
+      <div className="mb-4">
+        {/* Row 1: Title + Results (always on same line) */}
+        <div className="flex items-center justify-between mb-2">
+          <Tooltip
+            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
+            position="bottom"
+          >
+            <h3 className="filter-title-compact mb-0">Refine Your Search</h3>
+          </Tooltip>
 
-        {/* Results Summary - Top Right */}
-        {totalResults > 0 && (
-          <div className="text-sm text-text-secondary">
-            <span className="font-semibold text-text-primary">{totalResults} results</span>
-            {getResultsBreakdown() && (
-              <span className="text-text-tertiary"> ({getResultsBreakdown()})</span>
+          {totalResults > 0 && (
+            <div className="text-sm text-text-secondary">
+              <span className="font-semibold text-text-primary">{totalResults} results</span>
+              {getResultsBreakdown() && (
+                <span className="text-text-tertiary hidden md:inline"> ({getResultsBreakdown()})</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Row 2: Display Controls (stack on mobile, inline on desktop) */}
+        {(onToggleGuidedMode || onToggleExpandExperts) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {onToggleGuidedMode && (
+              <button
+                onClick={onToggleGuidedMode}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              >
+                <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
+                <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
+              </button>
+            )}
+
+            {onToggleExpandExperts && (
+              <button
+                onClick={onToggleExpandExperts}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              >
+                <span>{expandAllExperts ? '📖' : '📕'}</span>
+                <span>{expandAllExperts ? 'Collapse Expert Analysis' : 'Expand Expert Analysis'}</span>
+              </button>
             )}
           </div>
         )}
@@ -176,7 +207,27 @@ const FiltersSectionComponent = ({
       {/* Sound Signature Row */}
       {showSoundFilters && (
         <div className="filter-row">
-          <span className="filter-label-compact">Sound Preference</span>
+          <div className="flex items-center gap-2">
+            <span className="filter-label-compact">Sound Preference</span>
+            {onToggleMultiSelect && (
+              <Tooltip
+                content={isMultiSelectMode
+                  ? "Multi-select mode: Select multiple sound signatures to compare (OR logic)"
+                  : "Single-select mode: Click to replace selection"}
+                position="top"
+              >
+                <label className="flex items-center gap-1.5 cursor-pointer text-xs text-text-secondary hover:text-text-primary transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={isMultiSelectMode}
+                    onChange={onToggleMultiSelect}
+                    className="w-3.5 h-3.5 rounded border-border-default text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0"
+                  />
+                  <span>Multi-select</span>
+                </label>
+              </Tooltip>
+            )}
+          </div>
           <div className="filter-buttons-compact">
             <FilterButton
               active={soundFilters.includes('neutral')}
@@ -222,31 +273,6 @@ const FiltersSectionComponent = ({
               showTooltip={guidedModeEnabled}
             />
           </div>
-        </div>
-      )}
-
-      {/* Display Controls - Bottom Right */}
-      {(onToggleGuidedMode || onToggleExpandExperts) && (
-        <div className="mt-4 pt-4 border-t border-border-default flex items-center justify-end gap-3">
-          {onToggleGuidedMode && (
-            <button
-              onClick={onToggleGuidedMode}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-            >
-              <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
-              <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
-            </button>
-          )}
-
-          {onToggleExpandExperts && (
-            <button
-              onClick={onToggleExpandExperts}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-            >
-              <span>{expandAllExperts ? '📖' : '📕'}</span>
-              <span>{expandAllExperts ? 'Collapse Expert Analysis' : 'Expand Expert Analysis'}</span>
-            </button>
-          )}
         </div>
       )}
     </div>

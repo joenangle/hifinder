@@ -44,6 +44,27 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  // Redirects for consolidated dashboard
+  async redirects() {
+    return [
+      {
+        source: '/alerts',
+        destination: '/dashboard?tab=alerts',
+        permanent: true,
+      },
+      {
+        source: '/wishlist',
+        destination: '/dashboard?tab=wishlist',
+        permanent: true,
+      },
+      {
+        source: '/why',
+        destination: '/about',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

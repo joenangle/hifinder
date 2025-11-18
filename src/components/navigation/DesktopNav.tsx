@@ -9,7 +9,6 @@ const publicNavItems = [
   { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
-  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 
@@ -19,10 +18,7 @@ const authNavItems = [
   { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/gear', label: 'My Gear' },
-  { href: '/wishlist', label: 'Wishlists' },
-  { href: '/alerts', label: 'Alerts' },
   { href: '/about', label: 'About' },
-  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 
