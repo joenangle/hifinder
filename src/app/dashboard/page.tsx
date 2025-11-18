@@ -208,7 +208,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link
-          href="/dashboard-new?tab=gear"
+          href="/dashboard?tab=gear"
           className="card p-6 cursor-pointer hover:border-accent transition-colors"
           onClick={(e) => {
             e.preventDefault()
@@ -225,7 +225,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         </Link>
 
         <Link
-          href="/dashboard-new?tab=wishlist"
+          href="/dashboard?tab=wishlist"
           className="card p-6 cursor-pointer hover:border-accent transition-colors"
           onClick={(e) => {
             e.preventDefault()
@@ -242,7 +242,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         </Link>
 
         <Link
-          href="/dashboard-new?tab=alerts"
+          href="/dashboard?tab=alerts"
           className="card p-6 cursor-pointer hover:border-accent transition-colors"
           onClick={(e) => {
             e.preventDefault()
@@ -297,7 +297,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
           </Link>
 
           <Link
-            href="/dashboard-new?tab=alerts"
+            href="/dashboard?tab=alerts"
             onClick={(e) => {
               e.preventDefault()
               setActiveTab('alerts')
