@@ -450,8 +450,67 @@ function getMatchDetails(text, component) {
   };
 }
 
+/**
+ * Detect if listing contains multiple components (bundle)
+ * Returns { isBundle: boolean, componentCount: number }
+ */
+function detectMultipleComponents(text) {
+  const textLower = text.toLowerCase();
+
+  // Bundle indicators
+  const separators = [' + ', ' and ', ' & ', ' with '];
+  const hasSeparator = separators.some(sep => textLower.includes(sep));
+
+  // Count distinct brand mentions
+  const brandMentions = new Set();
+  for (const [brand, aliases] of Object.entries(BRAND_ALIASES)) {
+    if (textLower.includes(brand)) {
+      brandMentions.add(brand);
+    }
+    for (const alias of aliases) {
+      if (textLower.includes(alias.toLowerCase())) {
+        brandMentions.add(brand);
+      }
+    }
+  }
+
+  // Count model numbers - strong indicator of multiple items
+  const modelNumbers = extractModelNumbers(textLower);
+
+  // Heuristics for bundle detection:
+  // 1. Multiple brands = likely bundle
+  // 2. Has separator + multiple model numbers = likely bundle
+  // 3. Single brand but 3+ model numbers = possibly bundle
+
+  let isBundle = false;
+  let componentCount = 1;
+
+  if (brandMentions.size >= 2) {
+    // Multiple distinct brands found
+    isBundle = true;
+    componentCount = brandMentions.size;
+  } else if (hasSeparator && modelNumbers.length >= 2) {
+    // Has separator and multiple model numbers
+    isBundle = true;
+    componentCount = modelNumbers.length;
+  } else if (modelNumbers.length >= 3) {
+    // Single brand but many model numbers (e.g., "HD600 HD650 HD660S")
+    isBundle = true;
+    componentCount = modelNumbers.length;
+  }
+
+  // Cap at reasonable number
+  componentCount = Math.min(componentCount, 5);
+
+  return {
+    isBundle,
+    componentCount: isBundle ? componentCount : 1
+  };
+}
+
 module.exports = {
   findComponentMatch,
   isAccessoryOnly,
-  extractModelNumbers
+  extractModelNumbers,
+  detectMultipleComponents
 };

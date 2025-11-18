@@ -12,7 +12,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
-const { findComponentMatch, isAccessoryOnly } = require('./component-matcher-enhanced');
+const { findComponentMatch, isAccessoryOnly, detectMultipleComponents } = require('./component-matcher-enhanced');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
 const fs = require('fs');
 const path = require('path');
@@ -277,6 +277,9 @@ function transformRedditPost(postData, matchResult) {
   const locationMatch = postData.title.match(/\[([A-Z]{2}(?:-[A-Z]{2})?)\]/);
   const location = locationMatch ? locationMatch[1] : 'Unknown';
 
+  // Detect if this is a bundle listing
+  const bundleInfo = detectMultipleComponents(postData.title);
+
   return {
     component_id: component.id,
     title: postData.title,
@@ -290,7 +293,9 @@ function transformRedditPost(postData, matchResult) {
     status: isSoldPost(postData) ? 'sold' : 'available',
     images: extractImages(postData),
     seller_confirmed_trades: null, // Will be populated by separate bot check if needed
-    price_warning: price ? null : 'Price not found in title'
+    price_warning: price ? null : 'Price not found in title',
+    is_bundle: bundleInfo.isBundle,
+    component_count: bundleInfo.componentCount
   };
 }
 

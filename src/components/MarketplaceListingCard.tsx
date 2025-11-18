@@ -223,6 +223,14 @@ export function MarketplaceListingCard({
             💬 Offers
           </span>
         )}
+        {/* Bundle badge */}
+        {listing.is_bundle && (
+          <Tooltip content={`This listing contains ${listing.component_count || 2}+ items. Price shown is for the bundle.`}>
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+              📦 Bundle ({listing.component_count || 2}+ items)
+            </span>
+          </Tooltip>
+        )}
       </div>
 
       {/* Details - Flex Layout for Consistent Spacing */}

@@ -68,6 +68,9 @@ export interface UsedListing {
   listing_type?: 'buy_it_now' | 'auction' | 'trade' | 'bundle';
   shipping_cost?: number;
   accepts_offers?: boolean;
+  // Bundle detection fields
+  is_bundle?: boolean;
+  component_count?: number;
 }
 
 export interface PriceValidation {
