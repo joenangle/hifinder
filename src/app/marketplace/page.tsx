@@ -426,11 +426,11 @@ function MarketplaceContent() {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-border space-y-4 md:space-y-6">
+            <div className="mt-4 pt-4 border-t border-border space-y-3">
               {/* Category Filters */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Category</label>
-                <div className="flex flex-wrap gap-2">
+                <label className="block text-sm font-medium text-foreground mb-1.5">Category</label>
+                <div className="flex flex-wrap gap-1.5">
                   <FilterButton
                     active={selectedCategories.includes('cans')}
                     onClick={() => {
@@ -501,8 +501,8 @@ function MarketplaceContent() {
 
               {/* Deal Quality Filters */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Deal Quality</label>
-                <div className="flex flex-wrap gap-2">
+                <label className="block text-sm font-medium text-foreground mb-1.5">Deal Quality</label>
+                <div className="flex flex-wrap gap-1.5">
                   <FilterButton
                     active={dealQuality.includes('great')}
                     onClick={() => {
@@ -545,10 +545,10 @@ function MarketplaceContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Source Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Source</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Source</label>
                   <select
                     value={selectedSource}
                     onChange={(e) => setSelectedSource(e.target.value)}
@@ -562,7 +562,7 @@ function MarketplaceContent() {
 
                 {/* Region Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Region</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Region</label>
                   <select
                     value={selectedRegion}
                     onChange={(e) => setSelectedRegion(e.target.value)}
@@ -578,8 +578,8 @@ function MarketplaceContent() {
 
                 {/* Condition Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Condition</label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Condition</label>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
                     {conditionOptions.map(condition => (
                       <label key={condition} className="flex items-center">
                         <input
@@ -605,7 +605,7 @@ function MarketplaceContent() {
 
               {/* Price Range */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Price Range</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Price Range</label>
                 <div className="flex gap-2">
                   <input
                     type="number"

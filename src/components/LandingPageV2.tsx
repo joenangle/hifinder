@@ -216,7 +216,7 @@ export function LandingPageV2() {
                 title: "Stack Builder",
                 description:
                   "Build and compare complete audio systems. Test different combinations, calculate total costs, and find the perfect synergy.",
-                link: "/gear?tab=stacks",
+                link: "/dashboard?tab=stacks",
                 linkText: "Create systems →",
               },
               {
