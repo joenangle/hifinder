@@ -16,10 +16,9 @@ const publicNavItems = [
 
 const authNavItems = [
   { href: '/', label: 'Home' },
-  { href: '/dashboard-new', label: 'Dashboard' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/recommendations?budget=250', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
-  { href: '/gear', label: 'My Gear' },
   { href: '/about', label: 'About' },
   { href: '/learn', label: 'Learn' },
 ]
