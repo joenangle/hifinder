@@ -289,7 +289,7 @@ function MarketplaceContent() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-2">
@@ -833,7 +833,7 @@ function MarketplaceContent() {
             </div>
           </>
         )}
-      </div>
+      </main>
 
       {/* Component Detail Modal */}
       {selectedComponent && (

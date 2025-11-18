@@ -31,11 +31,11 @@ export function MarketplaceListingCard({
   
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'excellent': return 'text-green-600 bg-green-50'
-      case 'very_good': return 'text-blue-600 bg-blue-50'
-      case 'good': return 'text-yellow-600 bg-yellow-50'
-      case 'fair': return 'text-orange-600 bg-orange-50'
-      case 'parts_only': return 'text-red-600 bg-red-50'
+      case 'excellent': return 'text-green-800 bg-green-100'
+      case 'very_good': return 'text-blue-800 bg-blue-100'
+      case 'good': return 'text-yellow-900 bg-yellow-100'
+      case 'fair': return 'text-orange-800 bg-orange-100'
+      case 'parts_only': return 'text-red-800 bg-red-100'
       default: return 'text-secondary bg-surface-secondary'
     }
   }
