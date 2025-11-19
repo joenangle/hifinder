@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
+import { WishlistButton } from '@/components/WishlistButton'
 
 interface AudioComponent {
   id: string
@@ -171,21 +172,33 @@ const SignalGearCardComponent = ({
       {/* Expert Analysis Panel - Shows ASR measurements and technical details */}
       <ExpertAnalysisPanel component={component} forceExpanded={expandAllExperts} />
 
-      {/* Find Used Button - Only show if listings exist */}
-      {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation() // Prevent card selection toggle
-            onFindUsed(component.id, `${component.brand} ${component.name}`)
-          }}
-          className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
-        >
-          <span>🔍</span>
-          <span>
-            View {component.usedListingsCount} Used Listing{component.usedListingsCount !== 1 ? 's' : ''}
-          </span>
-        </button>
-      )}
+      {/* Action Buttons */}
+      <div className="mt-3 flex gap-2">
+        {/* Find Used Button - Only show if listings exist */}
+        {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation() // Prevent card selection toggle
+              onFindUsed(component.id, `${component.brand} ${component.name}`)
+            }}
+            className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>🔍</span>
+            <span>
+              View {component.usedListingsCount} Used Listing{component.usedListingsCount !== 1 ? 's' : ''}
+            </span>
+          </button>
+        )}
+
+        {/* Wishlist Button */}
+        <div onClick={(e) => e.stopPropagation()} className={(component.usedListingsCount ?? 0) > 0 ? '' : 'w-full'}>
+          <WishlistButton
+            componentId={component.id}
+            className="px-3 py-2"
+            showText
+          />
+        </div>
+      </div>
     </div>
   )
 }
