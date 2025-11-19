@@ -13,7 +13,7 @@ export function GearTab() {
   const [gear, setGear] = useState<UserGearItem[]>([])
   const [stacks, setStacks] = useState<StackWithGear[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'headphones' | 'dacs' | 'amps'>('all')
+  const [filter, setFilter] = useState<'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
 
   // Drag and drop state
@@ -178,6 +178,12 @@ export function GearTab() {
   const filteredGear = gear.filter(item => {
     if (filter === 'all') return true
     const category = getCategoryFromItem(item)
+    // Handle category mappings
+    if (filter === 'headphones') return category === 'cans' || category === 'headphones'
+    if (filter === 'iems') return category === 'iems'
+    if (filter === 'dacs') return category === 'dac' || category === 'dacs'
+    if (filter === 'amps') return category === 'amp' || category === 'amps'
+    if (filter === 'combo') return category === 'dac_amp' || category === 'combo'
     return category === filter
   })
 
@@ -323,7 +329,20 @@ export function GearTab() {
               : 'bg-surface-secondary text-muted hover:text-foreground'
           }`}
         >
-          Headphones ({gear.filter(g => getCategoryFromItem(g) === 'headphones').length})
+          🎧 Headphones ({gear.filter(g => {
+            const cat = getCategoryFromItem(g)
+            return cat === 'cans' || cat === 'headphones'
+          }).length})
+        </button>
+        <button
+          onClick={() => setFilter('iems')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'iems'
+              ? 'bg-accent text-accent-foreground'
+              : 'bg-surface-secondary text-muted hover:text-foreground'
+          }`}
+        >
+          👂 IEMs ({gear.filter(g => getCategoryFromItem(g) === 'iems').length})
         </button>
         <button
           onClick={() => setFilter('dacs')}
@@ -333,7 +352,10 @@ export function GearTab() {
               : 'bg-surface-secondary text-muted hover:text-foreground'
           }`}
         >
-          DACs ({gear.filter(g => getCategoryFromItem(g) === 'dacs').length})
+          🔄 DACs ({gear.filter(g => {
+            const cat = getCategoryFromItem(g)
+            return cat === 'dac' || cat === 'dacs'
+          }).length})
         </button>
         <button
           onClick={() => setFilter('amps')}
@@ -343,7 +365,23 @@ export function GearTab() {
               : 'bg-surface-secondary text-muted hover:text-foreground'
           }`}
         >
-          Amps ({gear.filter(g => getCategoryFromItem(g) === 'amps').length})
+          ⚡ Amps ({gear.filter(g => {
+            const cat = getCategoryFromItem(g)
+            return cat === 'amp' || cat === 'amps'
+          }).length})
+        </button>
+        <button
+          onClick={() => setFilter('combo')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'combo'
+              ? 'bg-accent text-accent-foreground'
+              : 'bg-surface-secondary text-muted hover:text-foreground'
+          }`}
+        >
+          🔗 Combos ({gear.filter(g => {
+            const cat = getCategoryFromItem(g)
+            return cat === 'dac_amp' || cat === 'combo'
+          }).length})
         </button>
       </div>
 
