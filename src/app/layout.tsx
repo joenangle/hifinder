@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics } from '@/components/Analytics';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -97,8 +98,9 @@ export default function RootLayout({
             }}
           />
           <Analytics />
-          <a 
-            href="#main-content" 
+          <SpeedInsights />
+          <a
+            href="#main-content"
             className="skip-link"
             aria-label="Skip to main content"
           >
