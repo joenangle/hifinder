@@ -198,8 +198,8 @@ export function UserDashboard() {
               </div>
             </div>
             <div className="text-center mt-4">
-              <Link 
-                href="/gear"
+              <Link
+                href="/dashboard?tab=gear"
                 className="button button-primary"
                 onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'view_gear' : 'add_gear' } })}
               >

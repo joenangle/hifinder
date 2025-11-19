@@ -44,7 +44,16 @@ const BRAND_ALIASES = {
   'softears': ['soft ears'],
   'xenns': ['xenns mangird', 'mangird xenns', 'mangird'],
   'juzear': ['juzear'],
-  'trn': ['trn']
+  'trn': ['trn'],
+  // Added missing brands
+  'fir': ['fir audio'],
+  'symphonium': ['symphonium audio'],
+  'aful': ['aful audio'],
+  'thieaudio': ['thie audio', 'thieaudio'],
+  'letshuoer': ['let shuoer', 'letshuoer'],
+  'truthear': ['truth ear', 'truthear'],
+  'kiwi ears': ['kiwi', 'kiwiears'],
+  'dunu': ['dunu-topsound', 'dunu topsound']
 };
 
 // Product variation mappings - handles legitimate model variants
@@ -92,6 +101,11 @@ const MODEL_VARIATIONS = {
   // Moondrop variants
   'blessing 2': ['blessing 2 dusk', 'blessing2', 'b2'],
   'aria': ['aria snow', 'aria se'],
+
+  // Thieaudio Monarch variants (MK II, MK III, MK IV)
+  'monarch mk ii': ['monarch mk2', 'monarch mkii', 'monarch mk 2', 'monarch 2'],
+  'monarch mk iii': ['monarch mk3', 'monarch mkiii', 'monarch mk 3', 'monarch 3'],
+  'monarch mk iv': ['monarch mk4', 'monarch mkiv', 'monarch mk 4', 'monarch 4'],
 
   // Beyerdynamic variants
   'dt 770 pro': ['dt770', 'dt770 pro', 'dt-770', 'dt 770'],
@@ -304,26 +318,56 @@ function calculateMatchScore(text, component, source = '') {
  * Calculate brand matching score
  */
 function calculateBrandScore(text, brand) {
-  // Direct brand match
-  if (text.includes(brand)) {
-    return 1.0;
+  // Direct brand match with word boundaries
+  try {
+    const brandRegex = new RegExp(`\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (brandRegex.test(text)) {
+      return 1.0;
+    }
+  } catch (e) {
+    // Fallback to includes if regex fails
+    if (text.includes(brand)) {
+      return 1.0;
+    }
   }
 
-  // Check brand aliases
+  // Check brand aliases with word boundaries
   const aliases = BRAND_ALIASES[brand] || [];
   for (const alias of aliases) {
-    if (text.includes(alias.toLowerCase())) {
-      return 0.9;
+    try {
+      const aliasRegex = new RegExp(`\\b${alias.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (aliasRegex.test(text)) {
+        return 0.9;
+      }
+    } catch (e) {
+      // Fallback to includes if regex fails
+      if (text.includes(alias.toLowerCase())) {
+        return 0.9;
+      }
     }
   }
 
   // Fuzzy brand matching for multi-word brands
   const brandWords = brand.split(/[\s-]+/).filter(w => w.length > 2);
+
+  // Don't allow fuzzy matching for very short single-word brands (prevents "FiR" from matching)
+  if (brandWords.length === 1 && brandWords[0].length < 4) {
+    return 0; // Require exact match for short brands
+  }
+
   let matches = 0;
 
   for (const word of brandWords) {
-    if (text.includes(word)) {
-      matches++;
+    try {
+      const wordRegex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (wordRegex.test(text)) {
+        matches++;
+      }
+    } catch (e) {
+      // Fallback to includes if regex fails
+      if (text.includes(word)) {
+        matches++;
+      }
     }
   }
 
@@ -339,10 +383,31 @@ function calculateBrandScore(text, brand) {
  */
 function calculateNameScore(text, name, brand) {
   const nameLower = name.toLowerCase();
+  const isShortName = nameLower.length <= 3; // M5, M3, UP, etc.
 
-  // 1. Exact name match
-  if (text.includes(nameLower)) {
-    return 1.0;
+  // For very short names, be MUCH stricter - only allow exact word boundary matches
+  if (isShortName) {
+    try {
+      const nameRegex = new RegExp(`\\b${nameLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return nameRegex.test(text) ? 1.0 : 0;
+    } catch (e) {
+      // Fallback: exact match only
+      const words = text.split(/\s+/);
+      return words.includes(nameLower) ? 1.0 : 0;
+    }
+  }
+
+  // 1. Exact name match with word boundaries
+  try {
+    const nameRegex = new RegExp(`\\b${nameLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (nameRegex.test(text)) {
+      return 1.0;
+    }
+  } catch (e) {
+    // Fallback to includes if regex fails
+    if (text.includes(nameLower)) {
+      return 1.0;
+    }
   }
 
   // 2. Check for known product variants (NEW!)

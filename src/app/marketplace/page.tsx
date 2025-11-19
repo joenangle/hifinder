@@ -49,6 +49,9 @@ function MarketplaceContent() {
   // Infinite scroll ref
   const observerTarget = useRef<HTMLDivElement>(null)
 
+  // Search input ref - maintains focus across re-renders
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
   // Fetch used listings with server-side filtering & pagination
   const fetchUsedListings = useCallback(async (pageNum: number, resetListings = false) => {
     try {
@@ -366,6 +369,7 @@ function MarketplaceContent() {
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search headphones, brands, or descriptions..."
                 value={searchQuery}
@@ -776,6 +780,11 @@ function MarketplaceContent() {
                   {/* Price Analysis - hide on small screens */}
                   <div className="hidden md:block w-16">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
+                  </div>
+
+                  {/* Bundle - hide on small screens */}
+                  <div className="hidden md:block w-20">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Bundle</span>
                   </div>
 
                   {/* Location & Seller - hide on mobile */}
