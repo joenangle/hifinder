@@ -874,36 +874,37 @@ export async function GET(request: NextRequest) {
         requestedCategories.push("dac_amp");
       }
 
-      // Single database query with used listings count
+      // Fetch components
       const { data: allComponentsData, error } = await supabaseServer
         .from("components")
-        .select(
-          `
-        *,
-        used_listings_count:used_listings(count)
-      `
-        )
-        .eq("used_listings.is_active", true)
+        .select("*")
         .in("category", requestedCategories)
         .order("price_used_min");
 
       if (error) throw error;
 
-      // Transform data to extract used listings count
-      const transformedComponents = allComponentsData?.map((comp) => {
-        // Extract count from the nested array structure
-        const count =
-          Array.isArray(comp.used_listings_count) &&
-          comp.used_listings_count.length > 0
-            ? comp.used_listings_count[0].count
-            : 0;
+      // Fetch active used listings counts separately
+      const componentIds = allComponentsData?.map((c) => c.id) || [];
+      const { data: listingCounts } = await supabaseServer
+        .from("used_listings")
+        .select("component_id")
+        .eq("is_active", true)
+        .in("component_id", componentIds);
 
-        return {
-          ...comp,
-          usedListingsCount: count,
-          used_listings_count: undefined, // Remove the nested structure
-        };
+      // Build count map
+      const countMap = new Map<string, number>();
+      listingCounts?.forEach((listing) => {
+        countMap.set(
+          listing.component_id,
+          (countMap.get(listing.component_id) || 0) + 1
+        );
       });
+
+      // Transform data to add used listings count
+      const transformedComponents = allComponentsData?.map((comp) => ({
+        ...comp,
+        usedListingsCount: countMap.get(comp.id) || 0,
+      }));
 
       // Get existing headphones data for amp matching
       let existingHeadphonesData = null;
