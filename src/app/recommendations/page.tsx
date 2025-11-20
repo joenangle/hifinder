@@ -711,19 +711,28 @@ function RecommendationsContent() {
   }, [])
 
   // Handle "Find Used" button click
-  const handleFindUsed = useCallback((componentId: string, _componentName: string) => {
+  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
+    console.log('🔍 Find Used clicked:', { componentId, componentName })
+    console.log('📦 Available listings:', usedListings[componentId]?.length ?? 0)
+
     // Open used market section
     setShowMarketplace(true)
     // Set focused component to filter listings
     setFocusedComponentId(componentId)
-  }, [])
+
+    console.log('✅ State updated - showMarketplace: true, focusedComponentId:', componentId)
+  }, [usedListings])
 
   // Scroll to used market section after it renders
   useEffect(() => {
     if (showMarketplace && focusedComponentId) {
+      console.log('📜 Scrolling to marketplace section for:', focusedComponentId)
+
       // Use requestAnimationFrame to ensure DOM has updated
       requestAnimationFrame(() => {
         const usedMarketSection = document.querySelector('[data-marketplace-section]')
+        console.log('🎯 Found marketplace section:', !!usedMarketSection)
+
         if (usedMarketSection) {
           usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
