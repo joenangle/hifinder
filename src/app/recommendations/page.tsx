@@ -727,7 +727,7 @@ function RecommendationsContent() {
 
   // Scroll to used market section after it renders
   useEffect(() => {
-    if (showMarketplace && focusedComponentId) {
+    if (showMarketplace && focusedComponentId && usedListings[focusedComponentId]) {
       console.log('📜 Scrolling to marketplace section for:', focusedComponentId)
 
       // Use requestAnimationFrame to ensure DOM has updated
@@ -740,7 +740,7 @@ function RecommendationsContent() {
         }
       })
     }
-  }, [showMarketplace, focusedComponentId])
+  }, [showMarketplace, focusedComponentId, usedListings])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
