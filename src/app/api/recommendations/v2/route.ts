@@ -885,11 +885,16 @@ export async function GET(request: NextRequest) {
 
       // Fetch active used listings counts separately
       const componentIds = allComponentsData?.map((c) => c.id) || [];
+      console.log('🔍 DEBUG: Fetching listings for', componentIds.length, 'components');
+
       const { data: listingCounts } = await supabaseServer
         .from("used_listings")
         .select("component_id")
         .eq("is_active", true)
         .in("component_id", componentIds);
+
+      console.log('📦 DEBUG: Raw listing counts from DB:', listingCounts?.length, 'listings');
+      console.log('📊 DEBUG: First 10 listings:', listingCounts?.slice(0, 10));
 
       // Build count map
       const countMap = new Map<string, number>();
@@ -899,6 +904,20 @@ export async function GET(request: NextRequest) {
           (countMap.get(listing.component_id) || 0) + 1
         );
       });
+
+      console.log('🗺️ DEBUG: Count map size:', countMap.size, 'unique components with listings');
+
+      // Log components with high counts (>5 listings)
+      const highCountComponents = Array.from(countMap.entries())
+        .filter(([_, count]) => count > 5)
+        .map(([id, count]) => {
+          const comp = allComponentsData?.find(c => c.id === id);
+          return { id, count, name: comp ? `${comp.brand} ${comp.name}` : 'unknown' };
+        });
+
+      if (highCountComponents.length > 0) {
+        console.log('⚠️ DEBUG: Components with >5 listings:', highCountComponents);
+      }
 
       // Transform data to add used listings count
       const transformedComponents = allComponentsData?.map((comp) => ({
