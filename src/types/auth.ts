@@ -21,7 +21,6 @@ export interface WishlistItem {
     name: string
     brand: string
     category: string
-    type: string
     price_new?: number
     price_used_min?: number
     price_used_max?: number
@@ -43,7 +42,6 @@ export interface UserGear {
     name: string
     brand: string
     category: string
-    type: string
   }
 }
 

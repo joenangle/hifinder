@@ -38,16 +38,16 @@ export function WishlistTab() {
     }).format(amount)
   }
 
-  const getCategoryDisplay = (category: string, type: string) => {
-    if (category === 'headphones') {
-      switch (type) {
-        case 'over_ear': return 'Over-Ear Headphones'
-        case 'on_ear': return 'On-Ear Headphones'
-        case 'iem': return 'In-Ear Monitors'
-        default: return 'Headphones'
-      }
+  const getCategoryDisplay = (category: string) => {
+    switch (category) {
+      case 'cans': return 'Headphones'
+      case 'iems': return 'In-Ear Monitors'
+      case 'dac': return 'DAC'
+      case 'amp': return 'Amplifier'
+      case 'dac_amp': return 'DAC/Amp Combo'
+      case 'cable': return 'Cable'
+      default: return category
     }
-    return category
   }
 
   if (loading) {
@@ -97,7 +97,7 @@ export function WishlistTab() {
               {item.component?.brand} {item.component?.name}
             </h3>
             <p className="text-sm text-muted">
-              {getCategoryDisplay(item.component?.category || '', item.component?.type || '')}
+              {getCategoryDisplay(item.component?.category || '')}
             </p>
           </div>
 
