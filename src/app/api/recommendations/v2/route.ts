@@ -890,26 +890,36 @@ export async function GET(request: NextRequest) {
       // Build query with same filters as /api/used-listings
       console.log('🌍 DEBUG: NODE_ENV =', process.env.NODE_ENV);
 
-      const { data: listingCounts } = await supabaseServer
+      const { data: listingCounts, error: listingsError } = await supabaseServer
         .from("used_listings")
-        .select("component_id")
+        .select("component_id, url, title")
         .eq("is_active", true)
-        .in("component_id", componentIds)
-        // Filter out sample/demo listings (check both URL and title)
-        .not('url', 'ilike', '%sample%')
-        .not('url', 'ilike', '%demo%')
-        .not('title', 'ilike', '%sample%')
-        .not('title', 'ilike', '%demo%')
-        // Ensure required fields are present
-        .not('url', 'is', null)
-        .not('title', 'is', null);
+        .in("component_id", componentIds);
 
-      console.log('📦 DEBUG: Raw listing counts from DB:', listingCounts?.length, 'listings');
-      console.log('📊 DEBUG: First 10 listings:', listingCounts?.slice(0, 10));
+      if (listingsError) {
+        console.error('❌ DEBUG: Error fetching listings:', listingsError);
+      }
 
-      // Build count map
+      console.log('📦 DEBUG: Raw listing counts from DB (before filter):', listingCounts?.length, 'listings');
+
+      // Filter out sample/demo listings in application code (more reliable than SQL)
+      const filteredListings = listingCounts?.filter(listing => {
+        const urlLower = (listing.url || '').toLowerCase();
+        const titleLower = (listing.title || '').toLowerCase();
+        const isSampleOrDemo =
+          urlLower.includes('sample') ||
+          urlLower.includes('demo') ||
+          titleLower.includes('sample') ||
+          titleLower.includes('demo');
+        return !isSampleOrDemo;
+      }) || [];
+
+      console.log('🧹 DEBUG: Filtered listing counts (after sample/demo filter):', filteredListings.length, 'listings');
+      console.log('📊 DEBUG: First 5 filtered listings:', filteredListings.slice(0, 5));
+
+      // Build count map from filtered listings
       const countMap = new Map<string, number>();
-      listingCounts?.forEach((listing) => {
+      filteredListings.forEach((listing) => {
         countMap.set(
           listing.component_id,
           (countMap.get(listing.component_id) || 0) + 1
