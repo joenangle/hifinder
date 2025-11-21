@@ -476,10 +476,12 @@ function RecommendationsContent() {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`)
       }
-      
-      const groupedListings: {[componentId: string]: UsedListing[]} = await response.json()
+
+      const data = await response.json()
+      // API returns { listings: {...}, total, page, ... } so extract listings
+      const groupedListings: {[componentId: string]: UsedListing[]} = data.listings || {}
       console.log('Fetched listings for', Object.keys(groupedListings).length, 'components')
-      
+
       setUsedListings(groupedListings)
     } catch (error) {
       console.error('Error fetching used listings:', error)
