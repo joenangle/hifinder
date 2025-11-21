@@ -887,11 +887,21 @@ export async function GET(request: NextRequest) {
       const componentIds = allComponentsData?.map((c) => c.id) || [];
       console.log('🔍 DEBUG: Fetching listings for', componentIds.length, 'components');
 
-      const { data: listingCounts } = await supabaseServer
+      // Build query with same filters as /api/used-listings
+      let listingsQuery = supabaseServer
         .from("used_listings")
         .select("component_id")
         .eq("is_active", true)
         .in("component_id", componentIds);
+
+      // Filter out sample/demo listings in production (same as /api/used-listings)
+      if (process.env.NODE_ENV === 'production') {
+        listingsQuery = listingsQuery
+          .not('url', 'ilike', '%sample%')
+          .not('url', 'ilike', '%demo%');
+      }
+
+      const { data: listingCounts } = await listingsQuery;
 
       console.log('📦 DEBUG: Raw listing counts from DB:', listingCounts?.length, 'listings');
       console.log('📊 DEBUG: First 10 listings:', listingCounts?.slice(0, 10));
