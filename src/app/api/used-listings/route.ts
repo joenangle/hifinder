@@ -101,22 +101,19 @@ export async function GET(request: NextRequest) {
       }, {} as Record<string, ListingType[]>)
 
       // Apply smart prioritization: Reddit first (time-sensitive), then Reverb (persistent)
-      // Limit to ~3 per source per component for variety
+      // Show ALL listings, just prioritize by source order
       const prioritized = Object.keys(grouped).reduce((acc, componentId) => {
         const componentListings = grouped[componentId]
 
         // Separate by source
         const redditListings = componentListings
           .filter((l: ListingType) => l.source === 'reddit_avexchange')
-          .slice(0, 3) // Max 3 Reddit listings
 
         const reverbListings = componentListings
           .filter((l: ListingType) => l.source === 'reverb')
-          .slice(0, 3) // Max 3 Reverb listings
 
         const otherListings = componentListings
           .filter((l: ListingType) => l.source !== 'reddit_avexchange' && l.source !== 'reverb')
-          .slice(0, 3) // Max 3 from other sources
 
         // Combine: Reddit first (urgent), then Reverb, then others
         acc[componentId] = [...redditListings, ...reverbListings, ...otherListings]
