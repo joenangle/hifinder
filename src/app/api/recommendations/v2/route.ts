@@ -888,20 +888,21 @@ export async function GET(request: NextRequest) {
       console.log('🔍 DEBUG: Fetching listings for', componentIds.length, 'components');
 
       // Build query with same filters as /api/used-listings
-      let listingsQuery = supabaseServer
+      console.log('🌍 DEBUG: NODE_ENV =', process.env.NODE_ENV);
+
+      const { data: listingCounts } = await supabaseServer
         .from("used_listings")
         .select("component_id")
         .eq("is_active", true)
-        .in("component_id", componentIds);
-
-      // Filter out sample/demo listings in production (same as /api/used-listings)
-      if (process.env.NODE_ENV === 'production') {
-        listingsQuery = listingsQuery
-          .not('url', 'ilike', '%sample%')
-          .not('url', 'ilike', '%demo%');
-      }
-
-      const { data: listingCounts } = await listingsQuery;
+        .in("component_id", componentIds)
+        // Filter out sample/demo listings (check both URL and title)
+        .not('url', 'ilike', '%sample%')
+        .not('url', 'ilike', '%demo%')
+        .not('title', 'ilike', '%sample%')
+        .not('title', 'ilike', '%demo%')
+        // Ensure required fields are present
+        .not('url', 'is', null)
+        .not('title', 'is', null);
 
       console.log('📦 DEBUG: Raw listing counts from DB:', listingCounts?.length, 'listings');
       console.log('📊 DEBUG: First 10 listings:', listingCounts?.slice(0, 10));

@@ -21,11 +21,14 @@ export async function GET(request: NextRequest) {
       .from('used_listings')
       .select('*', { count: 'exact' })
       .eq('is_active', true)
-
-    // Filter out sample/demo listings in production
-    if (process.env.NODE_ENV === 'production') {
-      query = query.not('url', 'ilike', '%sample%').not('url', 'ilike', '%demo%')
-    }
+      // Filter out sample/demo listings (check both URL and title)
+      .not('url', 'ilike', '%sample%')
+      .not('url', 'ilike', '%demo%')
+      .not('title', 'ilike', '%sample%')
+      .not('title', 'ilike', '%demo%')
+      // Ensure required fields are present
+      .not('url', 'is', null)
+      .not('title', 'is', null)
 
     // Filter by component ID(s)
     if (component_id) {
