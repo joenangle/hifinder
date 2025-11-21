@@ -19,14 +19,29 @@ export function WishlistTab() {
 
     setLoading(true)
     const items = await getUserWishlist(session.user.id)
+    console.log('Wishlist loaded:', items.length, 'items')
     setWishlistItems(items)
     setLoading(false)
   }, [session?.user?.id])
 
+  // Load wishlist on mount and when session is available
   useEffect(() => {
     if (session?.user?.id) {
       loadWishlist()
     }
+  }, [session?.user?.id, loadWishlist])
+
+  // Refetch wishlist when window regains focus (user returns to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('Window focused, refetching wishlist...')
+      if (session?.user?.id) {
+        loadWishlist()
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [session?.user?.id, loadWishlist])
 
   const formatPrice = (amount: number) => {

@@ -7,8 +7,11 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
+      console.log('GET wishlist: No session')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    console.log('GET wishlist for user:', session.user.id)
 
     const { data, error } = await supabaseServer
       .from('wishlists')
@@ -33,6 +36,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
 
+    console.log('GET wishlist: Returning', data?.length || 0, 'items')
     return NextResponse.json(data || [])
   } catch (error) {
     console.error('Error fetching wishlist:', error)
