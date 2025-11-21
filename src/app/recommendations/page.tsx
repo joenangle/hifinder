@@ -249,12 +249,15 @@ function RecommendationsContent() {
     setError(null)
 
     try {
+      // Convert typeFilters to headphoneType format (use local state for immediate filtering)
+      const headphoneType = typeFilters.length === 2 ? 'both' : typeFilters.length === 1 ? typeFilters[0] : 'both'
+
       // Build URL parameters for recommendations API
       const params = new URLSearchParams({
         budget: debouncedBudget.toString(), // Debounced for API performance
         budgetRangeMin: userPrefs.budgetRangeMin.toString(),
         budgetRangeMax: userPrefs.budgetRangeMax.toString(),
-        headphoneType: userPrefs.headphoneType,
+        headphoneType: headphoneType, // Use local state instead of URL state to avoid race condition
         wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
         existingGear: JSON.stringify(userPrefs.existingGear),
         usage: userPrefs.usage,
@@ -389,10 +392,10 @@ function RecommendationsContent() {
     debouncedBudget,
     userPrefs.budgetRangeMin,
     userPrefs.budgetRangeMax,
-    userPrefs.headphoneType,
     userPrefs.usage,
     soundFiltersKey,
-    typeFiltersKey
+    typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
+    typeFilters // Need actual array for headphoneType conversion
     // Removed JSON.stringify dependencies - they create new references every render
     // The API stringifies these internally, so changes are reflected in the request
   ])
