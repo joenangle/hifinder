@@ -9,9 +9,9 @@ import {
 } from "@/lib/crinacle-scoring";
 import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
 
-// Caching enabled via Vercel Data Cache (unstable_cache)
-// 10-minute TTL balances freshness with performance
-// Cache persists across deployments and serverless instances
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Enhanced component interface for recommendations
 interface RecommendationComponent {
