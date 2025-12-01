@@ -80,7 +80,7 @@ export function UserDashboard() {
   }, [session?.user?.id, session?.user?.email])
 
   return (
-    <main className="page-container">
+    <main className="page-container bg-gradient-to-b from-white via-white to-orange-100/50 min-h-screen">
       <div className="max-w-4xl w-full">
         
         {/* Welcome Section */}
