@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 interface ComparisonItem {
   id: string
   brand: string
@@ -54,7 +52,7 @@ export function ComparisonBar({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-border-default dark:border-border-default bg-surface-primary dark:bg-surface-primary shadow-lg transition-all duration-300"
+      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-border-default dark:border-border-default bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300"
       style={{
         maxHeight: isExpanded ? '50vh' : '80px',
         transform: 'translateY(0)'

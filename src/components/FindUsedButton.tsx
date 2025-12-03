@@ -25,7 +25,7 @@ export function FindUsedButton({
     searchParams.set('search', `${brand} ${componentName}`)
   }
   
-  const href = `/used-market?${searchParams.toString()}`
+  const href = `/marketplace?${searchParams.toString()}`
 
   return (
     <Link

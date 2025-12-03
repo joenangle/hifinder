@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ChevronDown, ChevronUp, Settings, RotateCcw } from 'lucide-react'
 
 export interface ComponentBudget {
@@ -98,8 +98,8 @@ export function BudgetAllocationControls({
     onChange(updatedAllocation)
   }
 
-  // Handle amount change
-  const handleAmountChange = (component: string, newAmount: number) => {
+  // Handle amount change (reserved for future use)
+  const _handleAmountChange = (component: string, newAmount: number) => {
     const newPercentage = (newAmount / totalBudget) * 100
 
     const updatedAllocation = {

@@ -1,7 +1,9 @@
 'use client'
 
-import { memo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ExpertAnalysisPanel, CompactExpertBadge } from '@/components/ExpertAnalysisPanel'
+import { Tooltip } from '@/components/Tooltip'
+import { WishlistButton } from '@/components/WishlistButton'
 
 interface AudioComponent {
   id: string
@@ -20,6 +22,9 @@ interface AudioComponent {
   fit?: string
   manufacturer_url?: string | null
   usedListingsCount?: number
+  crin_tone?: string
+  crin_tech?: string
+  crin_rank?: number
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
     explanation: string
@@ -35,7 +40,7 @@ interface HeadphoneCardProps {
   isToneChamp: boolean
   isBudgetChamp: boolean
   onFindUsed?: (componentId: string, componentName: string) => void
-  browseMode?: 'guided' | 'explore' | 'advanced'
+  expandAllExperts?: boolean
 }
 
 const formatBudgetUSD = (amount: number) => {
@@ -50,11 +55,11 @@ const HeadphoneCardComponent = ({
   isToneChamp,
   isBudgetChamp,
   onFindUsed,
-  browseMode
+  expandAllExperts = false
 }: HeadphoneCardProps) => {
   return (
     <div
-      className={`card-interactive ${isSelected ? 'selected' : ''}`}
+      className={`card-interactive ${isSelected ? 'card-interactive-selected' : ''}`}
       onClick={() => onToggleSelection(headphone.id)}
     >
       {/* Name (Brand + Model) and Price on same line */}
@@ -80,8 +85,6 @@ const HeadphoneCardComponent = ({
               </a>
             )}
           </div>
-          {/* Compact Expert Badge */}
-          <CompactExpertBadge component={headphone} />
         </div>
         <div className="text-right ml-4">
           <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-0.5">
@@ -94,27 +97,70 @@ const HeadphoneCardComponent = ({
         </div>
       </div>
 
-      {/* Match Score */}
+      {/* Expert Grades - Prominent Display */}
+      {(headphone.crin_tone || headphone.crin_tech || headphone.crin_rank) && (
+        <div className="flex items-center gap-2 mb-2 text-sm">
+          {headphone.crin_tone && (
+            <span className={`font-semibold ${
+              headphone.crin_tone.charAt(0) === 'S' ? 'text-yellow-600 dark:text-yellow-400' :
+              headphone.crin_tone.charAt(0) === 'A' ? 'text-green-600 dark:text-green-400' :
+              headphone.crin_tone.charAt(0) === 'B' ? 'text-blue-600 dark:text-blue-400' :
+              headphone.crin_tone.charAt(0) === 'C' ? 'text-orange-600 dark:text-orange-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {headphone.crin_tone} Tone
+            </span>
+          )}
+          {headphone.crin_tech && (
+            <>
+              {headphone.crin_tone && <span className="text-text-tertiary dark:text-text-tertiary">|</span>}
+              <span className={`font-semibold ${
+                headphone.crin_tech.charAt(0) === 'S' ? 'text-yellow-600 dark:text-yellow-400' :
+                headphone.crin_tech.charAt(0) === 'A' ? 'text-green-600 dark:text-green-400' :
+                headphone.crin_tech.charAt(0) === 'B' ? 'text-blue-600 dark:text-blue-400' :
+                headphone.crin_tech.charAt(0) === 'C' ? 'text-orange-600 dark:text-orange-400' :
+                'text-red-600 dark:text-red-400'
+              }`}>
+                {headphone.crin_tech} Tech
+              </span>
+            </>
+          )}
+          {headphone.crin_rank && (
+            <>
+              {(headphone.crin_tone || headphone.crin_tech) && <span className="text-text-tertiary dark:text-text-tertiary">|</span>}
+              <span className="font-semibold text-accent-primary dark:text-accent-primary">
+                Rank #{headphone.crin_rank}
+              </span>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Match Score - Option B: Breakdown Badges */}
       {headphone.matchScore && (
         <div className="mb-2">
-          <span
-            className="text-base font-bold text-orange-400 dark:text-orange-400/90 cursor-help"
-            title={`Match Score: ${headphone.matchScore}%\n\n${
-              headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐ Excellent Match - Perfect for your preferences and budget' :
-              headphone.matchScore >= 75 ? '⭐⭐⭐⭐ Great Match - Strong fit for your needs' :
-              headphone.matchScore >= 65 ? '⭐⭐⭐ Good Match - Solid option worth considering' :
-              headphone.matchScore >= 55 ? '⭐⭐ Fair Match - May work but consider alternatives' :
-              '⭐ Weak Match - Better options available'
-            }\n\nBased on: Price fit (45%) + Sound signature (45%) + Quality bonuses (10%)`}
-          >
-            Match: {headphone.matchScore}% {
-              headphone.matchScore >= 85 ? '⭐⭐⭐⭐⭐' :
-              headphone.matchScore >= 75 ? '⭐⭐⭐⭐' :
-              headphone.matchScore >= 65 ? '⭐⭐⭐' :
-              headphone.matchScore >= 55 ? '⭐⭐' :
-              '⭐'
-            }
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-lg font-bold text-foreground dark:text-foreground">
+              {headphone.matchScore}% Match
+            </span>
+            <div className="flex items-center gap-1">
+              <Tooltip content="Price fits your budget range">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-600 dark:bg-green-900/30 text-white dark:text-green-300 text-xs font-medium rounded-full">
+                  💰 Price Fit
+                </span>
+              </Tooltip>
+              <Tooltip content="Matches your sound preference">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 dark:bg-blue-900/30 text-white dark:text-blue-300 text-xs font-medium rounded-full">
+                  🎵 Sound Match
+                </span>
+              </Tooltip>
+              <Tooltip content="Expert ratings and quality bonuses">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-600 dark:bg-purple-900/30 text-white dark:text-purple-300 text-xs font-medium rounded-full">
+                  ⭐ Quality
+                </span>
+              </Tooltip>
+            </div>
+          </div>
         </div>
       )}
 
@@ -128,17 +174,17 @@ const HeadphoneCardComponent = ({
         {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
           <div className="flex flex-wrap gap-1 justify-end">
             {isTechnicalChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-300 dark:bg-orange-400/60 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/60 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
                 🏆 Top Tech
               </span>
             )}
             {isToneChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-300 dark:bg-amber-400/60 text-amber-900 dark:text-amber-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 dark:bg-amber-400/60 text-white dark:text-amber-100 text-xs font-semibold rounded-full">
                 👂 Best Match
               </span>
             )}
             {isBudgetChamp && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-200 dark:bg-orange-400/50 text-orange-900 dark:text-orange-100 text-xs font-semibold rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/50 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
                 💰 Value
               </span>
             )}
@@ -176,23 +222,35 @@ const HeadphoneCardComponent = ({
         )}
       </div>
 
-      <ExpertAnalysisPanel component={headphone} browseMode={browseMode} />
+      <ExpertAnalysisPanel component={headphone} forceExpanded={expandAllExperts} />
 
-      {/* Find Used Button - Only show if listings exist */}
-      {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation() // Prevent card selection toggle
-            onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)
-          }}
-          className="mt-3 w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
-        >
-          <span>🔍</span>
-          <span>
-            View {headphone.usedListingsCount} Used Listing{headphone.usedListingsCount !== 1 ? 's' : ''}
-          </span>
-        </button>
-      )}
+      {/* Action Buttons */}
+      <div className="mt-3 flex gap-2">
+        {/* Find Used Button - Only show if listings exist */}
+        {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation() // Prevent card selection toggle
+              onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)
+            }}
+            className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>🔍</span>
+            <span>
+              View {headphone.usedListingsCount} Used Listing{headphone.usedListingsCount !== 1 ? 's' : ''}
+            </span>
+          </button>
+        )}
+
+        {/* Wishlist Button */}
+        <div onClick={(e) => e.stopPropagation()}>
+          <WishlistButton
+            componentId={headphone.id}
+            className="px-3 py-2"
+            showText
+          />
+        </div>
+      </div>
     </div>
   )
 }
@@ -227,4 +285,4 @@ const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
   )
 }
 
-export const HeadphoneCard = memo(HeadphoneCardComponent)
+export const HeadphoneCard = HeadphoneCardComponent

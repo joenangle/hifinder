@@ -13,8 +13,8 @@ interface ExpertAnalysisProps {
     crin_rank?: number
     crin_value?: number
   }
-  browseMode?: 'guided' | 'explore' | 'advanced'
   totalRankedComponents?: number
+  forceExpanded?: boolean
 }
 
 function generateExpertBlurb(component: ExpertAnalysisProps['component']): string {
@@ -68,6 +68,10 @@ function getGradeColor(grade: string): string {
 
 // Helper function to calculate percentile
 function calculatePercentile(rank: number, total: number): number {
+  // Validate inputs to prevent NaN
+  if (!rank || !total || rank <= 0 || total <= 0) {
+    return 0
+  }
   return Math.round((1 - (rank - 1) / total) * 100)
 }
 
@@ -102,9 +106,12 @@ export function CompactExpertBadge({ component }: { component: ExpertAnalysisPro
   )
 }
 
-export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponents = 400 }: ExpertAnalysisProps) {
-  // Open by default in advanced mode
-  const [isExpanded, setIsExpanded] = useState(browseMode === 'advanced')
+export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, forceExpanded = false }: ExpertAnalysisProps) {
+  // Start collapsed by default, but can be overridden by forceExpanded
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  // Use forceExpanded if provided, otherwise use local state
+  const expanded = forceExpanded || isExpanded
 
   // Check if component has any expert data
   const hasExpertData = !!(
@@ -132,7 +139,7 @@ export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponen
         className="flex items-center justify-between w-full text-left text-xs text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary transition-colors"
       >
         <span className="font-medium">Expert Analysis</span>
-        {isExpanded ? (
+        {expanded ? (
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
           </svg>
@@ -143,7 +150,7 @@ export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponen
         )}
       </button>
 
-      {isExpanded && (
+      {expanded && (
         <div className="mt-2 text-xs text-text-primary dark:text-text-primary leading-relaxed space-y-3">
           {/* Visual Grade Summary Bar */}
           {(component.crin_tone || component.crin_tech || component.crin_rank) && (
@@ -170,9 +177,14 @@ export function ExpertAnalysisPanel({ component, browseMode, totalRankedComponen
                   <span className="font-bold text-accent-primary dark:text-accent-primary">
                     #{component.crin_rank}
                   </span>
-                  <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
-                    (Top {calculatePercentile(component.crin_rank, totalRankedComponents)}%)
-                  </span>
+                  {(() => {
+                    const percentile = calculatePercentile(component.crin_rank, totalRankedComponents)
+                    return percentile > 0 ? (
+                      <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+                        (Top {percentile}%)
+                      </span>
+                    ) : null
+                  })()}
                 </div>
               )}
             </div>

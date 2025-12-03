@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     if (requestedComponents.length === 1) {
       const component = requestedComponents[0]
       const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-      const range = calculateBudgetRange(budget, isSignalGear)
+      const range = calculateBudgetRange(budget, undefined, undefined, isSignalGear)
       budgetAllocation[component] = range
     } else if (requestedComponents.length > 0) {
       // Proportional allocation for multiple components
@@ -99,12 +99,12 @@ export async function GET(request: NextRequest) {
         const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
         const componentBudget = Math.floor(budget * (ratio / totalRatio))
         const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-        const range = calculateBudgetRange(componentBudget, isSignalGear)
+        const range = calculateBudgetRange(componentBudget, undefined, undefined, isSignalGear)
         budgetAllocation[component] = range
       })
     } else {
       // Default to headphones if no components selected
-      const range = calculateBudgetRange(budget, false)
+      const range = calculateBudgetRange(budget, undefined, undefined, false)
       budgetAllocation['headphones'] = range
     }
 

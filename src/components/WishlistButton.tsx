@@ -74,12 +74,12 @@ export function WishlistButton({ componentId, className = '', showText = false }
       disabled={loading}
       className={`flex items-center gap-2 px-3 py-2 border rounded-md transition-colors ${
         isWishlisted
-          ? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100'
+          ? 'border-accent bg-accent-subtle text-accent hover:bg-orange-100'
           : 'border-border hover:border-accent'
       } ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
     >
-      <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+      <Heart className={`w-4 h-4 transition-all duration-200 ${isWishlisted ? 'fill-current scale-110' : ''}`} />
       {showText && (
         <span>{isWishlisted ? 'Saved' : 'Save'}</span>
       )}

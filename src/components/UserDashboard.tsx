@@ -136,7 +136,7 @@ export function UserDashboard() {
             </Link>
             
             <Link
-              href="/used-market"
+              href="/marketplace"
               className="card p-6 flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-surface-card to-surface-card/50 border-2 hover:border-accent/30 group"
               onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: 'browse_market' } })}
             >
@@ -198,8 +198,8 @@ export function UserDashboard() {
               </div>
             </div>
             <div className="text-center mt-4">
-              <Link 
-                href="/gear"
+              <Link
+                href="/dashboard?tab=gear"
                 className="button button-primary"
                 onClick={() => trackEvent({ name: 'dashboard_action_clicked', properties: { action: gear.length > 0 ? 'view_gear' : 'add_gear' } })}
               >

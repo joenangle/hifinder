@@ -1,0 +1,40 @@
+name: Monitor AVExchangeBot Confirmations
+
+on:
+  schedule:
+    # Run twice daily at 10am and 10pm EST/EDT (3pm and 3am UTC)
+    - cron: '0 15,3 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  monitor-bot-confirmations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Monitor AVExchangeBot confirmations (sold listings only)
+        run: npm run scrape:bot-confirmations
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+      - name: Log completion
+        run: |
+          echo "✅ Bot confirmation monitoring completed at $(date)"
+          echo "🔍 Check Supabase used_listings table for bot-verified sales"
+          echo "📝 Only listings already marked 'sold' were checked for bot confirmations"
+          echo "🚀 Workflow triggered successfully"

@@ -27,6 +27,22 @@
 ## To-Do: Revisit Later
 - 🔄 **Usage-to-sound-signature mappings**: Current auto-mappings (music→neutral, gaming→fun, movies→fun, work→neutral, studio→neutral, travel→warm) are simplified. Consider adding follow-up questions or more nuanced mappings based on user feedback.
 - ⏰ **eBay Partner Network Campaign ID** (Monday reminder): Waiting for eBay Campaign ID approval. Once received, add `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` to Vercel environment variables (all environments). Without this, eBay affiliate links will work but won't track commissions.
+- 📦 **State Management: nuqs Library Evaluation** (Jan 2025)
+  - **Status:** Evaluated, deferred - current implementation working well after `customBudgetAllocation` fix
+  - **What it is:** Type-safe URL query parameter state manager for Next.js - "like useState, but stored in the URL"
+  - **Benefits:**
+    - Type-safe parsers (integers, arrays, booleans, dates)
+    - Batched updates (change 3 filters → 1 URL push, not 3)
+    - Built-in debouncing support
+    - 6KB gzipped, actively maintained
+  - **Migration effort:** ~2 hours (incremental migration recommended)
+  - **Reconsider if:**
+    - Adding 5+ more URL parameters to recommendations page
+    - Seeing runtime type errors from manual URL parsing
+    - Refactoring recommendations page for other reasons
+    - Want better type safety across URL state management
+  - **Library:** https://nuqs.dev/ (Next.js 14.2+ compatible)
+  - **See also:** Industry research on React state patterns in session notes
 
 ## High Priority: Summit-Fi Component Data Gaps
 
@@ -69,7 +85,7 @@
 **Proposed Separate Used Listings Page (`/used-listings`):**
 
 **Phase 1: Basic Browse & Filter**
-- **URL Structure**: `/used-listings` (separate from `/used-market` redirect page)
+- **URL Structure**: `/used-listings` (separate from `/marketplace` main page)
 - **Core Features**:
   - Grid/list view of all available used listings
   - Filter by: category (cans/iems/dacs/amps), price range, condition, source
@@ -108,14 +124,21 @@
 ### Active Data Sources
 
 **1. Reddit r/AVexchange (Primary)** ✅
-- Production-ready scraper with upsert pattern
+- **Production V3 Scraper** (deployed Nov 12, 2025)
+- Complete rewrite with enhanced fuzzy matching
 - OAuth authentication working
-- Fuzzy matching for better accuracy
-- Enhanced price extraction (filters discount amounts)
-- Automated status updates (available → sold/expired)
-- Configuration: Search past month, 100 results per query
-- Script: `scripts/reddit-avexchange-scraper.js`
-- Rate limit: 2s between requests
+- **New Architecture**: Fetch-all posts → parse → match (vs old component-by-component search)
+- **Enhanced Matching**: Requires ALL model words + exact number matches (HD600 ≠ HE-1)
+- **Smart Accessory Filtering**: Filters eartips-only, cable-only posts
+- **Higher Confidence Threshold**: 0.7 (was 0.3) for better accuracy
+- **Test Results**: 80% accuracy on known bad matches
+- Configuration: Fetch past month, 100 posts per run
+- Scripts:
+  - `scripts/reddit-avexchange-scraper-v3.js` (production)
+  - `scripts/component-matcher-enhanced.js` (new matcher)
+  - `scripts/test-matcher-v3.js` (test suite)
+  - Old scripts archived in `scripts/archive/`
+- Rate limit: 3s between requests with exponential backoff
 - Scheduled: Every 4 hours via GitHub Actions
 - Current volume: 179+ listings
 
@@ -167,11 +190,12 @@ This approach achieves near 100% sold detection without hitting API rate limits.
 
 **Running Scrapers:**
 ```bash
-# Test Reddit scraper
-node scripts/test-reddit-scraper-production.js
+# Run V3 Reddit scraper (production)
+npm run scrape:reddit
+# or directly: node scripts/reddit-avexchange-scraper-v3.js
 
-# Run full Reddit scrape (all components)
-node scripts/reddit-avexchange-scraper.js
+# Test V3 matcher against known cases
+node scripts/test-matcher-v3.js
 
 # Mark specific listing as sold manually
 node scripts/mark-listing-sold.js "https://www.reddit.com/r/AVexchange/comments/..."

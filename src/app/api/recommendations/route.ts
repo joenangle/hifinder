@@ -8,7 +8,6 @@ const cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes for recommendations (longer than count API)
 
 function generateCacheKey(params: {
-  experience: string
   budget: number
   budgetRangeMin: number
   budgetRangeMax: number
@@ -19,7 +18,6 @@ function generateCacheKey(params: {
 }): string {
   // Create a deterministic cache key from critical parameters
   const keyComponents = [
-    `exp_${params.experience}`,
     `budget_${params.budget}`,
     `range_${params.budgetRangeMin}_${params.budgetRangeMax}`,
     `type_${params.headphoneType}`,
@@ -73,7 +71,6 @@ interface RecommendationComponent {
 }
 
 interface RecommendationRequest {
-  experience: string
   budget: number
   budgetRangeMin: number // Percentage below budget
   budgetRangeMax: number // Percentage above budget
@@ -517,23 +514,13 @@ function filterAndScoreComponents(
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     // Parse and validate request parameters
-    const experienceParam = searchParams.get('experience') || 'intermediate'
     const budgetParam = searchParams.get('budget') || '300'
     const budgetRangeMinParam = searchParams.get('budgetRangeMin') || '20'
     const budgetRangeMaxParam = searchParams.get('budgetRangeMax') || '10'
     const headphoneTypeParam = searchParams.get('headphoneType') || 'cans'
     const soundSignatureParam = searchParams.get('soundSignature') || 'neutral'
-
-    // Validate experience level
-    const validExperience = ['beginner', 'intermediate', 'enthusiast']
-    if (!validExperience.includes(experienceParam)) {
-      return NextResponse.json(
-        { error: `Invalid experience level. Must be one of: ${validExperience.join(', ')}` },
-        { status: 400 }
-      )
-    }
 
     // Validate budget
     const budget = parseInt(budgetParam)
@@ -611,7 +598,6 @@ export async function GET(request: NextRequest) {
     }
 
     const req: RecommendationRequest = {
-      experience: experienceParam,
       budget,
       budgetRangeMin,
       budgetRangeMax,
@@ -631,7 +617,6 @@ export async function GET(request: NextRequest) {
 
     // Generate cache key for this specific request
     const cacheKey = generateCacheKey({
-      experience: req.experience,
       budget: req.budget,
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
@@ -648,9 +633,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached.data)
     }
 
-    // Determine max options based on experience
-    const maxOptions = req.experience === 'beginner' ? 3 : 
-                      req.experience === 'intermediate' ? 5 : 10
+    // Fixed max options (intermediate level)
+    const maxOptions = 8
 
     // Get requested components
     const requestedComponents = Object.entries(req.wantRecommendationsFor)
@@ -885,7 +869,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Extract parameters from request body (same logic as GET)
-    const experienceParam = body.experience || 'intermediate'
     const budgetParam = body.budget?.toString() || '300'
     const budgetRangeMinParam = body.budgetRangeMin?.toString() || '20'
     const budgetRangeMaxParam = body.budgetRangeMax?.toString() || '10'
@@ -900,7 +883,6 @@ export async function POST(request: NextRequest) {
     const excludedUsagesParam = body.excludedUsages || []
 
     // Convert to the format expected by the existing logic
-    const experience = experienceParam
     const budget = parseInt(budgetParam, 10)
     const budgetRangeMin = parseInt(budgetRangeMinParam, 10)
     const budgetRangeMax = parseInt(budgetRangeMaxParam, 10)
@@ -914,7 +896,6 @@ export async function POST(request: NextRequest) {
 
     // Generate cache key
     const cacheKey = generateCacheKey({
-      experience,
       budget,
       budgetRangeMin,
       budgetRangeMax,
@@ -935,7 +916,6 @@ export async function POST(request: NextRequest) {
     // For brevity, I'll delegate to a shared function
     // Create a mock request object for the existing GET logic
     const mockUrl = new URL('http://localhost:3000/api/recommendations')
-    mockUrl.searchParams.set('experience', experience)
     mockUrl.searchParams.set('budget', budget.toString())
     mockUrl.searchParams.set('budgetRangeMin', budgetRangeMin.toString())
     mockUrl.searchParams.set('budgetRangeMax', budgetRangeMax.toString())

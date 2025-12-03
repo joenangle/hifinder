@@ -9,21 +9,17 @@ import { useSession, signIn } from 'next-auth/react'
 const publicNavItems = [
   { href: '/', label: 'Home' },
   { href: '/recommendations?budget=250', label: 'Recommendations' },
-  { href: '/used-market', label: 'Marketplace' },
+  { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
-  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 
 const authNavItems = [
   { href: '/', label: 'Home' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/recommendations?budget=250', label: 'Recommendations' },
-  { href: '/used-market', label: 'Marketplace' },
-  { href: '/gear', label: 'My Gear' },
-  { href: '/wishlist', label: 'Wishlists' },
-  { href: '/alerts', label: 'Alerts' },
+  { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
-  { href: '/why', label: 'Why?' },
   { href: '/learn', label: 'Learn' },
 ]
 

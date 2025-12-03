@@ -44,3 +44,8 @@ client_secret_*.json
 
 # build analytics
 .build-stats/
+
+# scraper state files
+scripts/.reddit-scraper.lock
+scripts/.reddit-scraper-batch-state.json
+scripts/.avexchange-bot-last-check.json

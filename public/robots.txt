@@ -12,7 +12,7 @@ Allow: /
 Allow: /onboarding
 Allow: /recommendations
 Allow: /gear
-Allow: /used-market
+Allow: /marketplace
 Allow: /alerts
 Allow: /wishlist
 Allow: /learn
