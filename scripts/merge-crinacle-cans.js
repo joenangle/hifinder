@@ -2,6 +2,19 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
+// SECURITY NOTE: xlsx@0.18.5 has known vulnerabilities:
+// - GHSA-4r6h-8v6p-xvw6: Prototype Pollution (CVSS 7.8)
+// - GHSA-5pgg-2g8v-p4x9: Regular Expression DoS (CVSS 7.5)
+//
+// RISK MITIGATION:
+// - This script is admin-only and runs locally (not in production)
+// - Only processes files from trusted sources (Crinacle data exports)
+// - Requires manual execution with controlled input files
+// - No user-uploaded files are processed
+//
+// FUTURE TODO: Migrate to ExcelJS for ODS support when refactoring component imports
+// See: Security audit plan (Phase 1 - xlsx vulnerability accepted)
+
 // Try to require xlsx for ODS support, fall back gracefully
 let XLSX;
 try {

@@ -126,7 +126,13 @@ export const authOptions: NextAuthOptions = {
   // Use NextAuth's default pages for now
   
   // Security
-  secret: process.env.NEXTAUTH_SECRET || 'development-secret-change-in-production',
+  secret: (() => {
+    const secret = process.env.NEXTAUTH_SECRET
+    if (process.env.NODE_ENV === 'production' && (!secret || secret.length < 32)) {
+      throw new Error('NEXTAUTH_SECRET must be set and at least 32 characters in production')
+    }
+    return secret || 'development-secret-only-for-local-dev'
+  })(),
   
   // Debug mode in development
   debug: process.env.NODE_ENV === 'development',

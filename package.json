@@ -41,7 +41,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.542.0",
     "next": "^15.5.7",
-    "next-auth": "^4.24.11",
+    "next-auth": "^4.24.13",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "recharts": "^3.1.2",
