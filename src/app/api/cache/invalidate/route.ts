@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
     const { tag } = await request.json()
 
     // Invalidate all recommendation caches
-    revalidateTag(tag || 'recommendations')
+    // Next.js 16: revalidateTag now requires cacheLife profile as 2nd argument
+    // 'max' enables stale-while-revalidate (serve stale, fetch fresh in background)
+    revalidateTag(tag || 'recommendations', 'max')
 
     console.log(`✅ Cache invalidated for tag: ${tag || 'recommendations'}`)
 

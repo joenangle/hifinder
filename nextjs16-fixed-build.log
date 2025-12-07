@@ -1,0 +1,71 @@
+
+> hifinder@0.1.0 build
+> next build
+
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 8.5s
+   Running TypeScript ...
+   Collecting page data using 7 workers ...
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages using 7 workers (0/35) ...
+   Generating static pages using 7 workers (8/35) 
+   Generating static pages using 7 workers (17/35) 
+   Generating static pages using 7 workers (26/35) 
+ ✓ Generating static pages using 7 workers (35/35) in 541.7ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ○ /admin
+├ ○ /admin/dashboard
+├ ○ /admin/login
+├ ƒ /api/admin/affiliate-stats
+├ ƒ /api/admin/component-candidates
+├ ƒ /api/admin/component-candidates/[id]
+├ ƒ /api/admin/component-candidates/[id]/approve
+├ ƒ /api/admin/scraper-stats
+├ ƒ /api/analytics/affiliate-click
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/brands
+├ ƒ /api/cache/invalidate
+├ ƒ /api/components
+├ ƒ /api/components/[id]/price-history
+├ ƒ /api/components/count
+├ ƒ /api/filters/counts
+├ ƒ /api/gear
+├ ƒ /api/gear/[id]
+├ ƒ /api/hello
+├ ƒ /api/recommendations
+├ ƒ /api/recommendations/v2
+├ ƒ /api/stacks
+├ ƒ /api/stacks/components
+├ ƒ /api/stats
+├ ƒ /api/test-env
+├ ƒ /api/used-listings
+├ ƒ /api/user/dashboard
+├ ƒ /api/user/dashboard/stats
+├ ƒ /api/wishlist
+├ ƒ /apple-icon
+├ ○ /dashboard
+├ ○ /gear
+├ ƒ /icon
+├ ○ /icon.svg
+├ ○ /learn
+├ ○ /marketplace
+├ ○ /recommendations
+├ ○ /test
+└ ○ /test-modals
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
