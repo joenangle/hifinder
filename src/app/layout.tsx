@@ -5,7 +5,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { Analytics } from '@/components/Analytics';
+import { Analytics as CustomAnalytics } from '@/components/Analytics';
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
@@ -97,6 +98,7 @@ export default function RootLayout({
               `
             }}
           />
+          <CustomAnalytics />
           <Analytics />
           <SpeedInsights />
           <a
