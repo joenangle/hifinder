@@ -299,6 +299,8 @@ function transformRedditPost(postData, matchResult) {
   // Detect if this is a bundle listing
   const bundleInfo = detectMultipleComponents(postData.title);
 
+  const soldStatus = isSoldPost(postData);
+
   return {
     component_id: component.id,
     title: postData.title,
@@ -309,7 +311,8 @@ function transformRedditPost(postData, matchResult) {
     date_posted: new Date(postData.created_utc * 1000).toISOString(),
     seller_username: postData.author,
     condition: 'good', // Default, Reddit doesn't standardize this
-    status: isSoldPost(postData) ? 'sold' : 'available',
+    status: soldStatus ? 'sold' : 'available',
+    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null, // Set sold date when detected
     images: extractImages(postData),
     seller_confirmed_trades: null, // Will be populated by separate bot check if needed
     price_warning: price ? null : 'Price not found in title',
