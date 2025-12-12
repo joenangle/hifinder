@@ -1,0 +1,173 @@
+
+> hifinder@0.1.0 build
+> next build --turbopack
+
+   ▲ Next.js 15.5.7 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ✓ Finished writing to disk in 345ms
+ ✓ Compiled successfully in 3.1s
+   Linting and checking validity of types ...
+
+./src/app/api/recommendations/route.ts
+4:32  Warning: 'gradeToNumeric' is defined but never used.  @typescript-eslint/no-unused-vars
+4:53  Warning: 'ScoringComponent' is defined but never used.  @typescript-eslint/no-unused-vars
+166:9  Warning: 'isBudget' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+577:14  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/recommendations/v2/route.ts
+7:21  Warning: 'gradeToNumeric10Scale' is defined but never used.  @typescript-eslint/no-unused-vars
+8:8  Warning: 'ScoringComponent' is defined but never used.  @typescript-eslint/no-unused-vars
+561:13  Warning: 'technicalGradeNumeric' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+933:19  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/used-listings/route.ts
+72:36  Warning: 'count' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/wishlist/route.ts
+6:27  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/recommendations/page.tsx
+20:10  Warning: 'BudgetAllocationControls' is defined but never used.  @typescript-eslint/no-unused-vars
+77:10  Warning: 'showAmplification' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+198:35  Warning: 'soundSignature' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+391:6  Warning: React Hook useCallback has missing dependencies: 'customBudgetAllocation', 'soundFilters', 'userPrefs.budget', 'userPrefs.excludedUsages', 'userPrefs.existingGear', 'userPrefs.usageRanking', 'userPrefs.wantRecommendationsFor', and 'wantRecommendationsFor'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+435:6  Warning: React Hook useCallback has missing dependencies: 'typeFilters', 'userPrefs.excludedUsages', 'userPrefs.existingGear', 'userPrefs.usageRanking', and 'userPrefs.wantRecommendationsFor'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+551:9  Warning: '_totalSelectedPrice' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+714:9  Warning: 'handleBudgetAllocationChange' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/BudgetAllocationControls.tsx
+102:9  Warning: '_handleAmountChange' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/BudgetSlider.tsx
+135:15  Warning: '_isUpdating' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+139:15  Warning: '_showLabels' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+140:18  Warning: '_showItemCount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+141:14  Warning: '_itemCount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+181:10  Warning: '_viewportWidth' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ComparisonTable.tsx
+91:9  Warning: '_headphones' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+92:9  Warning: '_iems' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+93:9  Warning: '_signalGear' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:90  Warning: '_highlightBest' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/FindUsedButton.tsx
+15:16  Warning: '_componentId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ImageCarousel.tsx
+70:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+94:7  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/MarketplaceListingCard.tsx
+4:92  Warning: 'Award' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'AmplificationBadge' is defined but never used.  @typescript-eslint/no-unused-vars
+95:9  Warning: 'amplificationAssessment' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/MissingHeadphoneHandler.tsx
+17:21  Warning: '_onHeadphoneAdded' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/Tooltip.tsx
+107:6  Warning: React Hook useEffect has a missing dependency: 'updateTooltipPosition'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/archive/LandingPage.tsx
+134:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/recommendations/AmplificationWarningBanner.tsx
+17:3  Warning: 'selectedNeedAmp' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/recommendations/HeadphoneCard.tsx
+4:31  Warning: 'CompactExpertBadge' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/hooks/useBudgetState.ts
+96:6  Warning: React Hook useEffect has a missing dependency: 'initialBudget'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+279:6  Warning: React Hook useEffect has missing dependencies: 'budget' and 'fetchItemCount'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+296:40  Warning: The ref value 'analyticsRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'analyticsRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/lib/auth.ts
+58:44  Warning: '_profile' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/budget-ranges.ts
+80:3  Warning: '_rangeMinPercent' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+81:3  Warning: '_rangeMaxPercent' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/cache-recommendations.ts
+1:10  Warning: 'unstable_cache' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/gear.ts
+213:3  Warning: '_budget' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/wishlist.ts
+43:39  Warning: 'userId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/36) ...
+   Generating static pages (9/36) 
+   Generating static pages (18/36) 
+   Generating static pages (27/36) 
+ ✓ Generating static pages (36/36)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                          Size  First Load JS
+┌ ○ /                                              5.4 kB         145 kB
+├ ○ /_not-found                                       0 B         140 kB
+├ ○ /about                                         3.3 kB         143 kB
+├ ○ /admin                                        2.48 kB         142 kB
+├ ○ /admin/dashboard                              7.11 kB         186 kB
+├ ○ /admin/login                                   6.1 kB         185 kB
+├ ƒ /api/admin/affiliate-stats                        0 B            0 B
+├ ƒ /api/admin/component-candidates                   0 B            0 B
+├ ƒ /api/admin/component-candidates/[id]              0 B            0 B
+├ ƒ /api/admin/component-candidates/[id]/approve      0 B            0 B
+├ ƒ /api/admin/scraper-stats                          0 B            0 B
+├ ƒ /api/analytics/affiliate-click                    0 B            0 B
+├ ƒ /api/auth/[...nextauth]                           0 B            0 B
+├ ƒ /api/brands                                       0 B            0 B
+├ ƒ /api/cache/invalidate                             0 B            0 B
+├ ƒ /api/components                                   0 B            0 B
+├ ƒ /api/components/[id]/price-history                0 B            0 B
+├ ƒ /api/components/count                             0 B            0 B
+├ ƒ /api/filters/counts                               0 B            0 B
+├ ƒ /api/gear                                         0 B            0 B
+├ ƒ /api/gear/[id]                                    0 B            0 B
+├ ƒ /api/hello                                        0 B            0 B
+├ ƒ /api/recommendations                              0 B            0 B
+├ ƒ /api/recommendations/v2                           0 B            0 B
+├ ƒ /api/stacks                                       0 B            0 B
+├ ƒ /api/stacks/components                            0 B            0 B
+├ ƒ /api/stats                                        0 B            0 B
+├ ƒ /api/test-env                                     0 B            0 B
+├ ƒ /api/used-listings                                0 B            0 B
+├ ƒ /api/user/dashboard                               0 B            0 B
+├ ƒ /api/user/dashboard/stats                         0 B            0 B
+├ ƒ /api/wishlist                                     0 B            0 B
+├ ƒ /apple-icon                                       0 B            0 B
+├ ○ /dashboard                                      12 kB         191 kB
+├ ○ /gear                                           15 kB         194 kB
+├ ƒ /icon                                             0 B            0 B
+├ ○ /icon.svg                                         0 B            0 B
+├ ○ /learn                                        4.46 kB         144 kB
+├ ○ /marketplace                                  11.9 kB         191 kB
+├ ○ /recommendations                              32.3 kB         172 kB
+├ ○ /test                                         2.36 kB         142 kB
+└ ○ /test-modals                                  1.22 kB         141 kB
++ First Load JS shared by all                      163 kB
+  ├ chunks/06687ac130c66111.js                    58.9 kB
+  ├ chunks/3f0e1419cdd4235d.js                    24.6 kB
+  ├ chunks/63d7abdc8f2020d3.js                    17.2 kB
+  ├ chunks/a07208a5c2ed5b58.js                      13 kB
+  ├ chunks/074abc6bd948dd82.css                   22.7 kB
+  └ other shared chunks (total)                   26.7 kB
+
+
+ƒ Middleware                                      39.1 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

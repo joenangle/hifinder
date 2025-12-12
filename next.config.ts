@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
   // External packages for server components
   serverExternalPackages: [],
 
+  // React Compiler for automatic memoization (Next.js 16+)
+  reactCompiler: true,
+
   // Optimize package imports to reduce bundle size
   experimental: {
     optimizePackageImports: ['lucide-react'],
@@ -17,6 +20,8 @@ const nextConfig: NextConfig = {
 
   // Allow external images from Google and other providers
   images: {
+    minimumCacheTTL: 3600, // Cache images for 1 hour (default changed to 4 hours in Next.js 16)
+    formats: ['image/webp', 'image/avif'], // Modern image formats for better performance
     remotePatterns: [
       {
         protocol: 'https',
