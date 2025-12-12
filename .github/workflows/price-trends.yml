@@ -1,0 +1,54 @@
+name: Update Price Trends
+
+on:
+  schedule:
+    # Run every Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+  # Allow manual triggering from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      months:
+        description: 'Number of months to analyze (default: 6)'
+        required: false
+        default: '6'
+
+jobs:
+  analyze-prices:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run price trend analysis
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Running manual analysis for ${{ github.event.inputs.months }} months"
+            node scripts/analyze-price-trends.js --months=${{ github.event.inputs.months }}
+          else
+            echo "Running scheduled analysis for 6 months"
+            npm run analyze:prices
+          fi
+
+      - name: Report results
+        if: always()
+        run: |
+          echo "Price trend analysis completed"
+          echo "Check job logs for detailed results"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Price trend analysis failed - check logs above"
