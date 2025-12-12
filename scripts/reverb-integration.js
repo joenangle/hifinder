@@ -301,7 +301,9 @@ function transformReverbListing(listing, component) {
     images: listing.photos ? listing.photos.slice(0, 5).map(photo => photo._links?.large?.href).filter(Boolean) : [],
     description: listing.description || null,
     is_active: listing.state?.slug === 'live',
-    status: listing.state?.slug === 'live' ? 'available' : 'removed',
+    status: listing.state?.slug === 'live' ? 'available' :
+            listing.state?.slug === 'sold' ? 'sold' :
+            listing.state?.slug === 'ended' ? 'expired' : 'removed',
     price_is_reasonable: priceValidation.isReasonable,
     price_variance_percentage: priceValidation.variance,
     price_warning: priceValidation.warning,

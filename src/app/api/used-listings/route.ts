@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     let query = supabaseServer
       .from('used_listings')
       .select('*', { count: 'exact' })
-      .eq('is_active', true)
+      .eq('status', 'available') // Filter out sold, expired, and removed listings
 
     // Filter by component ID(s)
     if (component_id) {
