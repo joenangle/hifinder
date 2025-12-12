@@ -218,9 +218,22 @@ function calculateDiscountFactor(soldAvg, activeListings) {
     return null;
   }
 
+  const factor = soldAvg / activeAvg;
+
+  // SANITY CHECK: Discount factors should be 0.50-1.20
+  // Outside this range likely indicates data quality issues:
+  // - Component mismatch (wrong product linked)
+  // - Time period mismatch (old prices vs current market)
+  // - Condition mismatch (Mint vs Good)
+  // - Bundle differences (accessories included vs not)
+  if (factor < 0.50 || factor > 1.20) {
+    console.warn(`⚠️  Suspicious discount factor ${factor.toFixed(2)} for sold avg $${soldAvg} vs active avg $${activeAvg} - excluding from analysis`);
+    return null;
+  }
+
   // Discount factor: sold_avg / active_avg
   // E.g., if items sell for $230 avg and are listed at $250 avg, factor = 0.92
-  return parseFloat((soldAvg / activeAvg).toFixed(2));
+  return parseFloat(factor.toFixed(2));
 }
 
 /**
@@ -334,6 +347,7 @@ async function analyzePriceTrends(options = {}) {
     console.log(`\n✨ Analysis Complete!`);
     console.log(`✅ Saved: ${savedCount} trends`);
     console.log(`⏭️  Skipped: ${skippedCount} (no valid data)`);
+    console.log(`⚠️  Check warnings above for suspicious discount factors`);
 
     if (dryRun) {
       console.log('\n🔍 This was a DRY RUN - no data was saved');
