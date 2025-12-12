@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS price_trends (
   id SERIAL PRIMARY KEY,
-  component_id INTEGER REFERENCES components(id) ON DELETE CASCADE,
+  component_id UUID REFERENCES components(id) ON DELETE CASCADE,
 
   -- Time period for this trend data
   period_start DATE NOT NULL,
