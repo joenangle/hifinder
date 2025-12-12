@@ -27,7 +27,11 @@
     "// Cache management scripts": "",
     "cache:warm": "node scripts/warm-cache.js",
     "cache:warm:production": "node scripts/warm-cache.js --production",
-    "cache:invalidate": "curl -X POST http://localhost:3000/api/cache/invalidate -H 'Content-Type: application/json' -d '{\"tag\":\"recommendations\"}'"
+    "cache:invalidate": "curl -X POST http://localhost:3000/api/cache/invalidate -H 'Content-Type: application/json' -d '{\"tag\":\"recommendations\"}'",
+    "// Price trend analysis scripts": "",
+    "analyze:prices": "node scripts/analyze-price-trends.js --months=6",
+    "analyze:prices:dry-run": "node scripts/analyze-price-trends.js --dry-run --months=3",
+    "analyze:prices:full": "node scripts/analyze-price-trends.js --months=12"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
