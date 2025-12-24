@@ -23,7 +23,7 @@ interface AudioComponent {
   thd_n?: number
   // ASR expert data (for ExpertAnalysisPanel compatibility)
   crin_comments?: string  // Will use for ASR review summary
-  driver_type?: string    // Not used for signal gear but keeps interface compatible
+  driver_type?: string | null    // Not used for signal gear but keeps interface compatible
 }
 
 interface SignalGearCardProps {

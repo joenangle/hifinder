@@ -12,15 +12,15 @@ interface ComparisonItem {
   price_used_min?: number | null
   price_used_max?: number | null
   matchScore?: number
-  crinacle_sound_signature?: string
+  crinacle_sound_signature?: string | null
   sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | null
-  crin_tone?: string
-  crin_tech?: string
-  crin_rank?: number
-  crin_value?: number
+  crin_tone?: string | null
+  crin_tech?: string | null
+  crin_rank?: number | null
+  crin_value?: number | null
   impedance?: number | null
-  fit?: string
-  driver_type?: string
+  fit?: string | null
+  driver_type?: string | null
   asr_sinad?: number | null
   power_output_mw?: number
   thd_n?: number

@@ -16,15 +16,15 @@ interface AudioComponent {
   impedance?: number | null
   matchScore?: number
   sound_signature?: string | null
-  crinacle_sound_signature?: string
+  crinacle_sound_signature?: string | null
   expert_grade_numeric?: number
   value_rating?: number
-  fit?: string
+  fit?: string | null
   manufacturer_url?: string | null
   usedListingsCount?: number
-  crin_tone?: string
-  crin_tech?: string
-  crin_rank?: number
+  crin_tone?: string | null
+  crin_tech?: string | null
+  crin_rank?: number | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
     explanation: string

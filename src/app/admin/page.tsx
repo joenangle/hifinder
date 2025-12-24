@@ -3,8 +3,10 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import ComponentsTable from '@/components/admin/ComponentsTable'
+import ComponentForm from '@/components/admin/ComponentForm'
 
-type Tab = 'scraper-stats' | 'candidates'
+type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component'
 
 interface ScraperStats {
   summary: {
@@ -60,12 +62,13 @@ interface CandidateDetailsResponse {
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<Tab>('scraper-stats')
+  const [activeTab, setActiveTab] = useState<Tab>('components-database')
   const [scraperStats, setScraperStats] = useState<ScraperStats | null>(null)
   const [candidates, setCandidates] = useState<CandidatesResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
   const [candidateDetails, setCandidateDetails] = useState<CandidateDetailsResponse | null>(null)
+  const [editComponentId, setEditComponentId] = useState<string | null>(null)
 
   // Auth check
   useEffect(() => {
@@ -199,6 +202,26 @@ export default function AdminPage() {
         <div className="border-b border-border-default dark:border-border-default mb-8">
           <nav className="flex space-x-8">
             <button
+              onClick={() => setActiveTab('components-database')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'components-database'
+                  ? 'border-accent-primary text-accent-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+              }`}
+            >
+              Components Database
+            </button>
+            <button
+              onClick={() => setActiveTab('add-component')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'add-component'
+                  ? 'border-accent-primary text-accent-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+              }`}
+            >
+              Add Component
+            </button>
+            <button
               onClick={() => setActiveTab('scraper-stats')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'scraper-stats'
@@ -227,6 +250,35 @@ export default function AdminPage() {
         </div>
 
         {/* Content */}
+        {activeTab === 'components-database' && !editComponentId && (
+          <ComponentsTable
+            onEditComponent={(id) => {
+              setEditComponentId(id)
+            }}
+          />
+        )}
+
+        {activeTab === 'components-database' && editComponentId && (
+          <ComponentForm
+            editComponentId={editComponentId}
+            onSuccess={() => {
+              setEditComponentId(null)
+            }}
+            onCancel={() => {
+              setEditComponentId(null)
+            }}
+          />
+        )}
+
+        {activeTab === 'add-component' && (
+          <ComponentForm
+            onSuccess={() => {
+              // Switch to database tab to view new component
+              setActiveTab('components-database')
+            }}
+          />
+        )}
+
         {activeTab === 'scraper-stats' && scraperStats && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

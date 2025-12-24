@@ -4,14 +4,14 @@ import { useState } from 'react'
 
 interface ExpertAnalysisProps {
   component: {
-    crin_signature?: string
-    crin_tone?: string
-    crin_tech?: string
-    crin_comments?: string
-    driver_type?: string
-    fit?: string
-    crin_rank?: number
-    crin_value?: number
+    crin_signature?: string | null
+    crin_tone?: string | null
+    crin_tech?: string | null
+    crin_comments?: string | null
+    driver_type?: string | null
+    fit?: string | null
+    crin_rank?: number | null
+    crin_value?: number | null
   }
   totalRankedComponents?: number
   forceExpanded?: boolean

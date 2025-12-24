@@ -7,9 +7,9 @@ interface ComparisonItem {
   category: string
   price_used_min?: number | null
   price_used_max?: number | null
-  crin_tone?: string
-  crin_tech?: string
-  crin_rank?: number
+  crin_tone?: string | null
+  crin_tech?: string | null
+  crin_rank?: number | null
   matchScore?: number
   sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | null
 }

@@ -22,6 +22,18 @@ export interface Component {
   // ASR measurement fields
   asr_sinad?: number | null;
   asr_review_url?: string | null;
+  // Crinacle expert data fields
+  crin_rank?: number | null;
+  crin_tone?: string | null;
+  crin_tech?: string | null;
+  crin_value?: number | null;
+  crin_signature?: string | null;
+  crinacle_sound_signature?: string | null; // Legacy field name
+  // Technical specification fields
+  driver_type?: string | null;
+  fit?: string | null;
+  manufacturer_url?: string | null;
+  source?: string | null;
   amazon_url: string | null;
   why_recommended: string;
   created_at: string;
