@@ -777,11 +777,6 @@ function MarketplaceContent() {
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Condition</span>
                   </div>
 
-                  {/* Price Analysis - hide on small screens */}
-                  <div className="hidden md:block w-16">
-                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
-                  </div>
-
                   {/* Bundle - hide on small screens */}
                   <div className="hidden md:block w-20">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Bundle</span>
@@ -800,6 +795,16 @@ function MarketplaceContent() {
                   {/* Price - always visible */}
                   <div className="w-20 sm:w-24 text-right">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Price</span>
+                  </div>
+
+                  {/* Price Analysis - hide on small screens */}
+                  <div className="hidden md:block w-16">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
+                  </div>
+
+                  {/* MSRP - hide on small screens */}
+                  <div className="hidden md:block w-20 text-right">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">MSRP</span>
                   </div>
 
                   {/* Action - always visible */}

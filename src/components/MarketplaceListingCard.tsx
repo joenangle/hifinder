@@ -130,19 +130,6 @@ export function MarketplaceListingCard({
             )}
           </div>
 
-          {/* Deal - hide on small screens */}
-          <div className="hidden md:block w-16 flex-shrink-0">
-            {priceAnalysis.type !== 'fair' && (
-              <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800' :
-                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
-              </span>
-            )}
-          </div>
-
           {/* Bundle badge - hide on mobile */}
           <div className="hidden md:block w-20 flex-shrink-0">
             {listing.is_bundle && (
@@ -181,6 +168,24 @@ export function MarketplaceListingCard({
           {/* Price - always visible, responsive sizing */}
           <div className="w-20 sm:w-24 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
             {formatPrice(listing.price)}
+          </div>
+
+          {/* Deal - hide on small screens */}
+          <div className="hidden md:block w-16 flex-shrink-0">
+            {priceAnalysis.type !== 'fair' && (
+              <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800' :
+                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
+              </span>
+            )}
+          </div>
+
+          {/* MSRP - hide on small screens */}
+          <div className="hidden md:block w-20 flex-shrink-0 text-right text-xs text-muted">
+            {component.price_new ? formatPrice(component.price_new) : '—'}
           </div>
 
           {/* Action - always visible, responsive sizing */}

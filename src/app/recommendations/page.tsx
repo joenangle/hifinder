@@ -41,16 +41,13 @@ interface AudioComponent extends Component {
     explanation: string;
     estimatedSensitivity?: number;
   }
-  // Expert analysis fields
-  crinacle_sound_signature?: string
+  // Expert analysis fields (additional fields not in Component interface)
   tone_grade?: string
   technical_grade?: string
   expert_grade_numeric?: number
   crinacle_comments?: string
-  driver_type?: string
-  fit?: string
-  crinacle_rank?: number
   value_rating?: number
+  // Note: crinacle_sound_signature, driver_type, fit, and crinacle_rank are inherited from Component
 }
 
 function RecommendationsContent() {
