@@ -19,8 +19,8 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
   const [priceNewMax, setPriceNewMax] = useState<string>('')
   const [priceUsedMin, setPriceUsedMin] = useState<string>('')
   const [priceUsedMax, setPriceUsedMax] = useState<string>('')
-  const [sortBy, setSortBy] = useState<'name' | 'brand' | 'price_new'>('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState<'name' | 'brand' | 'price_new' | 'created_at'>('created_at')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 50
 
@@ -107,6 +107,9 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
       } else if (sortBy === 'price_new') {
         aVal = a.price_new || 0
         bVal = b.price_new || 0
+      } else if (sortBy === 'created_at') {
+        aVal = new Date(a.created_at).getTime()
+        bVal = new Date(b.created_at).getTime()
       } else {
         return 0
       }
@@ -319,6 +322,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="flex-1 px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
               >
+                <option value="created_at">Date Added</option>
                 <option value="name">Name</option>
                 <option value="brand">Brand</option>
                 <option value="price_new">Price</option>
