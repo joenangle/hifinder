@@ -487,28 +487,28 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
           <table className="w-full">
             <thead className="bg-surface-hover dark:bg-surface-hover">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Brand
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Model
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Price (New)
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Price (Used)
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Sound
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Expert Data
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
                   Actions
                 </th>
               </tr>
