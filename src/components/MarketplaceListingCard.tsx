@@ -184,7 +184,7 @@ export function MarketplaceListingCard({
           </div>
 
           {/* MSRP - hide on small screens */}
-          <div className="hidden md:block w-20 flex-shrink-0 text-right text-xs text-muted">
+          <div className="hidden md:block w-20 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
             {component.price_new ? formatPrice(component.price_new) : '—'}
           </div>
 
