@@ -292,9 +292,56 @@ function transformRedditPost(postData, matchResult) {
   const component = matchResult.component;
   const price = extractPrice(postData.title, postData.selftext || '');
 
-  // Extract location from title (common pattern: [WTS][US-CA] or [US-TX])
-  const locationMatch = postData.title.match(/\[([A-Z]{2}(?:-[A-Z]{2})?)\]/);
-  const location = locationMatch ? locationMatch[1] : 'Unknown';
+  // Extract location from title - Reddit standard: [US-XX] where XX is state postal code
+  // Also handles: [USA-CA] (normalize to US-CA), [US CA] (space instead of hyphen)
+  const locationPatterns = [
+    // US formats (most common)
+    /\[USA[\s-]([A-Z]{2})\]/i,      // [USA-CA] or [USA CA] → normalize to US-XX
+    /\[US[\s-]([A-Z]{2})\]/i,       // [US-CA] or [US CA] → US-XX
+
+    // Canada formats
+    /\[CAN[\s-]([A-Z]{2})\]/i,      // [CAN-ON] or [CAN ON] → CA-XX
+    /\[CA[\s-]([A-Z]{2})\]/i,       // [CA-ON] or [CA ON] → CA-XX
+
+    // Other countries (single codes)
+    /\[(UK|EU|AU|AUS|NZ|IND|KSA|AUS-[A-Z]{2,3})\]/i,  // [UK], [AUS-SYD], etc.
+
+    // Generic fallback for any XX-YY pattern
+    /\[([A-Z]{2,3})[\s-]([A-Z]{2,3})\]/i
+  ];
+
+  let location = 'Unknown';
+  for (const pattern of locationPatterns) {
+    const match = postData.title.match(pattern);
+    if (match) {
+      const fullMatch = match[0];
+
+      // Normalize USA-XX to US-XX
+      if (fullMatch.includes('USA')) {
+        const state = match[1];
+        location = `US-${state}`;
+      }
+      // Normalize CAN-XX to CA-XX
+      else if (fullMatch.includes('CAN')) {
+        const province = match[1];
+        location = `CA-${province}`;
+      }
+      // For US-XX or CA-XX with space, normalize to hyphen
+      else if (fullMatch.match(/\[US\s/i)) {
+        const state = match[1];
+        location = `US-${state}`;
+      }
+      else if (fullMatch.match(/\[CA\s/i)) {
+        const province = match[1];
+        location = `CA-${province}`;
+      }
+      // For other formats, return as-is without brackets
+      else {
+        location = fullMatch.replace(/[\[\]]/g, '').replace(/\s+/g, '-');
+      }
+      break;
+    }
+  }
 
   // Detect if this is a bundle listing
   const bundleInfo = detectMultipleComponents(postData.title);
