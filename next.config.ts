@@ -7,15 +7,19 @@ const nextConfig: NextConfig = {
   // Disable source maps in production for faster builds
   productionBrowserSourceMaps: false,
 
-  // External packages for server components
-  serverExternalPackages: [],
+  // External packages for server components (scripts-only dependencies)
+  serverExternalPackages: ['puppeteer-core', 'jsdom', 'xlsx'],
 
   // React Compiler for automatic memoization (Next.js 16+)
   reactCompiler: true,
 
   // Optimize package imports to reduce bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@supabase/supabase-js',
+      'lodash',
+    ],
   },
 
   // Allow external images from Google and other providers
