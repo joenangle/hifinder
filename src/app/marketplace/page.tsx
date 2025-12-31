@@ -103,21 +103,9 @@ function MarketplaceContent() {
         })
       })
 
-      // Fetch component info for each listing
-      const listingsWithComponents = await Promise.all(
-        data.listings.map(async (listing: UsedListing) => {
-          const { data: component } = await supabase
-            .from('components')
-            .select('*')
-            .eq('id', listing.component_id)
-            .single()
-
-          return {
-            ...listing,
-            component
-          } as ListingWithComponent
-        })
-      )
+      // Component data is now included in the API response (joined server-side)
+      // No need for separate fetches - this fixes the N+1 query pattern
+      const listingsWithComponents = data.listings as ListingWithComponent[]
 
       // Filter by search query (client-side since it involves component data)
       let filteredData = listingsWithComponents

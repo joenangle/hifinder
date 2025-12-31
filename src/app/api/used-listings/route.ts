@@ -19,8 +19,16 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseServer
       .from('used_listings')
-      .select('*', { count: 'exact' })
+      .select(`
+        *,
+        component:components(*)
+      `, { count: 'exact' })
       .eq('status', 'available') // Filter out sold, expired, and removed listings
+      // Filter out sample/demo listings in SQL (performance optimization)
+      .not('url', 'ilike', '%sample%')
+      .not('url', 'ilike', '%demo%')
+      .not('title', 'ilike', '%sample%')
+      .not('title', 'ilike', '%demo%')
 
     // Filter by component ID(s)
     if (component_id) {
@@ -76,22 +84,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
 
-    // Filter out sample/demo listings in application code (same as recommendations API)
-    const filteredListings = listings?.filter(listing => {
-      const urlLower = (listing.url || '').toLowerCase();
-      const titleLower = (listing.title || '').toLowerCase();
-      const isSampleOrDemo =
-        urlLower.includes('sample') ||
-        urlLower.includes('demo') ||
-        titleLower.includes('sample') ||
-        titleLower.includes('demo');
-      return !isSampleOrDemo;
-    }) || [];
-
+    // Listings are already filtered by SQL (sample/demo excluded)
     // Group by component_id if multiple were requested
-    if (component_ids && filteredListings) {
-      type ListingType = typeof filteredListings[number]
-      const grouped = filteredListings.reduce((acc, listing) => {
+    if (component_ids && listings) {
+      type ListingType = typeof listings[number]
+      const grouped = listings.reduce((acc, listing) => {
         const componentId = listing.component_id
         if (!acc[componentId]) {
           acc[componentId] = []
@@ -123,19 +120,19 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         listings: prioritized,
-        total: filteredListings.length,
+        total: listings.length,
         page,
         per_page: limit,
-        total_pages: Math.ceil(filteredListings.length / limit)
+        total_pages: Math.ceil(listings.length / limit)
       })
     }
 
     return NextResponse.json({
-      listings: filteredListings,
-      total: filteredListings.length,
+      listings: listings || [],
+      total: count || 0,
       page,
       per_page: limit,
-      total_pages: Math.ceil(filteredListings.length / limit)
+      total_pages: Math.ceil((count || 0) / limit)
     })
   } catch (error) {
     console.error('Error fetching used listings:', error)
