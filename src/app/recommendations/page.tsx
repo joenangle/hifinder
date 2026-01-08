@@ -238,6 +238,12 @@ function RecommendationsContent() {
   // Create stable key for typeFilters to avoid infinite re-renders
   const typeFiltersKey = useMemo(() => [...typeFilters].sort().join(','), [typeFilters])
 
+  // Create stable key for wantRecommendationsFor to detect component changes
+  const wantRecommendationsForKey = useMemo(
+    () => JSON.stringify(wantRecommendationsFor),
+    [wantRecommendationsFor]
+  )
+
   // PERFORMANCE: Memoize champion calculations for cans (recalc only when cans array changes)
   const cansChampions = useMemo(() => {
     if (cans.length === 0) return { topTechnical: null, topTone: null, topBudget: null }
@@ -499,10 +505,10 @@ function RecommendationsContent() {
     // Removed JSON.stringify dependencies - they create new references every render
   ])
 
-  // Clear custom budget allocation when budget changes (prevents stale allocation being sent to API)
+  // Clear custom budget allocation when budget or components change (prevents stale allocation)
   useEffect(() => {
     setCustomBudgetAllocation(null)
-  }, [userPrefs.budget])
+  }, [userPrefs.budget, wantRecommendationsForKey])
 
   // Initial fetch on mount + when fetchRecommendations changes
   useEffect(() => {
