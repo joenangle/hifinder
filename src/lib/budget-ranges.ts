@@ -52,6 +52,29 @@ export function calculateBudgetRange(
   // PRIORITY 2: Smooth progressive defaults (no hard boundaries)
   // Uses exponential decay curves for seamless transitions
 
+  // SPECIAL HANDLING FOR SIGNAL GEAR (DAC/Amp/Combo)
+  // Signal gear has excellent options at low price points (dongles, budget DACs)
+  // Search wider ranges to capture these options
+  if (isSignalGear) {
+    if (budget <= 250) {
+      // Entry-level signal gear: Search from $20 to catch budget options
+      // Examples: Apple dongle ($9), Tempotec ($40), Atom DAC/Modi ($100)
+      return {
+        min: 20,
+        max: Math.round(budget * 1.1) // +10% above budget
+      };
+    } else {
+      // Higher-end signal gear: Search 30% lower to catch good deals
+      // Many excellent amps/DACs available below allocated budget
+      const maxPercent = 5 + 15 * Math.exp(-budget / 800);
+      return {
+        min: Math.max(20, Math.round(budget * 0.7)), // Search 30% lower
+        max: Math.round(budget * (1 + maxPercent / 100))
+      };
+    }
+  }
+
+  // STANDARD HANDLING FOR HEADPHONES/IEMs
   // Calculate adaptive percentages based on budget
   // maxPercent: 20% at $0 → 5% at $2500+ (smooth decay)
   const maxPercent = 5 + 15 * Math.exp(-budget / 800);
@@ -60,7 +83,7 @@ export function calculateBudgetRange(
   const minPercent = 10 + 25 * Math.exp(-budget / 1000);
 
   // Apply absolute minimums for very low budgets
-  const absoluteMin = isSignalGear ? 5 : 20;
+  const absoluteMin = 20;
   const calculatedMin = Math.round(budget * (1 - minPercent / 100));
 
   return {

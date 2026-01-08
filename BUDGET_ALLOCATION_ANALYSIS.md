@@ -250,9 +250,35 @@ For signal gear with component budgets > $250:
 
 ### Implementation
 
+**Phase 1 (Initial Fix):**
 Updated both APIs with identical signal gear logic:
 - `src/app/api/recommendations/v2/route.ts`: Lines 375-398
 - `src/app/api/filters/counts/route.ts`: Lines 86-150
+
+**Phase 2 (Comprehensive Fix):**
+Moved signal gear logic to shared budget range calculation:
+- `src/lib/budget-ranges.ts`: Lines 55-75
+- ✅ Now applies to BOTH automatic allocation AND custom user allocation
+- ✅ Eliminates code duplication across APIs
+- ✅ Ensures consistent behavior regardless of allocation method
+
+### Real-World Test Cases
+
+**Test Case 1: $500 Budget - IEMs + DAC (Automatic)**
+- IEMs: $357, DAC: $142
+- DAC search: $20-$156 ✅ Finds Atom DAC 2, Modi 3E, Tempotec
+
+**Test Case 2: $2000 Budget - Custom Allocation**
+- User sets: IEMs $1100, DAC $400, Amp $500
+- DAC search: $280-$420 ✅ Finds Topping D70s, Modi 3E, many options
+- Amp search: $350-$525 ✅ Finds many amps below $500 (not just Schiit Kara)
+- **Key insight**: Many excellent amps exist at $200-$400, system now guides users to allocate more to transducers
+
+**Test Case 3: $1000 Budget - Headphones + DAC + Amp**
+- Headphones: $555, DAC: $222, Amp: $222
+- DAC search: $20-$244 ✅ Catches Modi 3+, Atom DAC+
+- Amp search: $20-$244 ✅ Catches Atom Amp+, Magni
+- All components find excellent options
 
 ---
 
