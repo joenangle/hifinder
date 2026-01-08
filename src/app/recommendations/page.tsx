@@ -69,6 +69,8 @@ function RecommendationsContent() {
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
   const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
   const [customBudgetAllocation, setCustomBudgetAllocation] = useState<BudgetAllocation | null>(null)
+  const [autoBudgetAllocation, setAutoBudgetAllocation] = useState<BudgetAllocation | null>(null)
+  const debouncedCustomBudgetAllocation = useDebounce(customBudgetAllocation, 300)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAmplification, setShowAmplification] = useState(false)
@@ -313,9 +315,9 @@ function RecommendationsContent() {
         soundSignatures: JSON.stringify(soundFilters)
       })
 
-      // Add custom budget allocation if provided
-      if (customBudgetAllocation) {
-        params.set('customBudgetAllocation', JSON.stringify(customBudgetAllocation))
+      // Add custom budget allocation if provided (using debounced value)
+      if (debouncedCustomBudgetAllocation) {
+        params.set('customBudgetAllocation', JSON.stringify(debouncedCustomBudgetAllocation))
       }
 
       // Debug logging for race condition investigation
@@ -383,8 +385,8 @@ function RecommendationsContent() {
         wantRecommendationsFor: wantRecommendationsFor
       })
 
-      // Initialize custom budget allocation if not already set (first load)
-      if (!customBudgetAllocation && recommendations.budgetAllocation) {
+      // Store server's automatic allocation for display (but don't auto-use it)
+      if (recommendations.budgetAllocation) {
         const allocation: BudgetAllocation = {}
         const totalBudget = debouncedBudget
 
@@ -399,7 +401,7 @@ function RecommendationsContent() {
           }
         })
 
-        setCustomBudgetAllocation(allocation)
+        setAutoBudgetAllocation(allocation)
       }
       
       // Check if we got any results
@@ -437,6 +439,7 @@ function RecommendationsContent() {
     }
   }, [
     debouncedBudget,
+    debouncedCustomBudgetAllocation,
     userPrefs.budgetRangeMin,
     userPrefs.budgetRangeMax,
     userPrefs.usage,
@@ -467,6 +470,11 @@ function RecommendationsContent() {
         excludedUsages: JSON.stringify(userPrefs.excludedUsages)
       })
 
+      // Add custom budget allocation if provided (using debounced value)
+      if (debouncedCustomBudgetAllocation) {
+        params.set('customBudgetAllocation', JSON.stringify(debouncedCustomBudgetAllocation))
+      }
+
       const response = await fetch(`/api/filters/counts?${params.toString()}`)
 
       if (!response.ok) {
@@ -481,6 +489,7 @@ function RecommendationsContent() {
     }
   }, [
     debouncedBudget,
+    debouncedCustomBudgetAllocation,
     userPrefs.budgetRangeMin,
     userPrefs.budgetRangeMax,
     userPrefs.headphoneType,
@@ -862,9 +871,7 @@ function RecommendationsContent() {
           </div>
         </Tooltip>
 
-        {/* Budget Allocation Controls removed - always use automatic allocation */}
-
-       {/* Compact Filters */}
+       {/* Compact Filters (includes budget allocation controls) */}
         <FiltersSection
           typeFilters={typeFilters}
           soundFilters={soundFilters}
@@ -886,6 +893,12 @@ function RecommendationsContent() {
           onToggleGuidedMode={toggleGuidedMode}
           isMultiSelectMode={isMultiSelectMode}
           onToggleMultiSelect={handleToggleMultiSelect}
+          totalBudget={debouncedBudget}
+          budgetAllocation={customBudgetAllocation}
+          autoBudgetAllocation={autoBudgetAllocation}
+          onBudgetAllocationChange={handleBudgetAllocationChange}
+          budgetRangeMin={userPrefs.budgetRangeMin}
+          budgetRangeMax={userPrefs.budgetRangeMax}
         />
 
         {/* Amplification Warning Banner for Beginners/Intermediates */}

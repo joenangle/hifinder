@@ -13,11 +13,13 @@ function getCacheKey(params: {
   equipment?: string[]
   soundSignature?: string | null
   wantRecommendationsFor?: string
+  customBudgetAllocation?: string
 }) {
   const equipStr = params.equipment?.sort().join('-') || 'none'
   const soundStr = params.soundSignature || 'none'
   const wantStr = params.wantRecommendationsFor || 'headphones'
-  return `filter_counts_${params.budget}_${params.rangeMin}_${params.rangeMax}_${equipStr}_${soundStr}_${wantStr}`
+  const customStr = params.customBudgetAllocation || 'auto'
+  return `filter_counts_${params.budget}_${params.rangeMin}_${params.rangeMax}_${equipStr}_${soundStr}_${wantStr}_${customStr}`
 }
 
 export async function GET(request: NextRequest) {
@@ -45,6 +47,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Parse custom budget allocation (user-defined)
+    const customBudgetAllocationParam = searchParams.get('customBudgetAllocation')
+    let customBudgetAllocation: Record<string, { amount: number; rangeMin?: number; rangeMax?: number }> | null = null
+    if (customBudgetAllocationParam) {
+      try {
+        customBudgetAllocation = JSON.parse(customBudgetAllocationParam)
+      } catch {
+        // Invalid format, ignore
+      }
+    }
+
     // Parse current filters
     const equipmentParam = searchParams.get('equipment') || ''
     const soundSignatureParam = searchParams.get('soundSignatures') || ''
@@ -58,7 +71,8 @@ export async function GET(request: NextRequest) {
       rangeMax,
       equipment: activeEquipment,
       soundSignature: activeSoundSignature,
-      wantRecommendationsFor: wantRecsParam || ''
+      wantRecommendationsFor: wantRecsParam || '',
+      customBudgetAllocation: customBudgetAllocationParam || ''
     })
     const cached = cache.get(cacheKey)
 
@@ -66,46 +80,61 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached.data)
     }
 
-    // Calculate budget allocation (same logic as recommendations API)
-    const requestedComponents = []
-    if (wantRecommendationsFor.headphones) requestedComponents.push('headphones')
-    if (wantRecommendationsFor.dac) requestedComponents.push('dac')
-    if (wantRecommendationsFor.amp) requestedComponents.push('amp')
-    if (wantRecommendationsFor.combo) requestedComponents.push('combo')
-
-    // Price ratios for budget allocation
-    const priceRatios = {
-      headphones: 0.5,
-      dac: 0.2,
-      amp: 0.2,
-      combo: 0.35
-    }
-
-    // Calculate budget allocation using progressive ranges
+    // Calculate budget allocation
     const budgetAllocation: Record<string, { min: number, max: number }> = {}
 
-    if (requestedComponents.length === 1) {
-      const component = requestedComponents[0]
-      const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-      const range = calculateBudgetRange(budget, undefined, undefined, isSignalGear)
-      budgetAllocation[component] = range
-    } else if (requestedComponents.length > 0) {
-      // Proportional allocation for multiple components
-      const totalRatio = requestedComponents.reduce((sum, comp) => {
-        return sum + (priceRatios[comp as keyof typeof priceRatios] || 0.25)
-      }, 0)
-
-      requestedComponents.forEach(component => {
-        const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
-        const componentBudget = Math.floor(budget * (ratio / totalRatio))
+    if (customBudgetAllocation) {
+      // Use custom user-defined allocation
+      Object.entries(customBudgetAllocation).forEach(([component, data]) => {
+        const { amount, rangeMin: customRangeMin, rangeMax: customRangeMax } = data
         const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-        const range = calculateBudgetRange(componentBudget, undefined, undefined, isSignalGear)
+        const range = calculateBudgetRange(
+          amount,
+          customRangeMin ?? rangeMin,
+          customRangeMax ?? rangeMax,
+          isSignalGear
+        )
         budgetAllocation[component] = range
       })
     } else {
-      // Default to headphones if no components selected
-      const range = calculateBudgetRange(budget, undefined, undefined, false)
-      budgetAllocation['headphones'] = range
+      // Use automatic allocation (same logic as recommendations API)
+      const requestedComponents = []
+      if (wantRecommendationsFor.headphones) requestedComponents.push('headphones')
+      if (wantRecommendationsFor.dac) requestedComponents.push('dac')
+      if (wantRecommendationsFor.amp) requestedComponents.push('amp')
+      if (wantRecommendationsFor.combo) requestedComponents.push('combo')
+
+      // Price ratios for budget allocation
+      const priceRatios = {
+        headphones: 0.5,
+        dac: 0.2,
+        amp: 0.2,
+        combo: 0.35
+      }
+
+      if (requestedComponents.length === 1) {
+        const component = requestedComponents[0]
+        const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
+        const range = calculateBudgetRange(budget, undefined, undefined, isSignalGear)
+        budgetAllocation[component] = range
+      } else if (requestedComponents.length > 0) {
+        // Proportional allocation for multiple components
+        const totalRatio = requestedComponents.reduce((sum, comp) => {
+          return sum + (priceRatios[comp as keyof typeof priceRatios] || 0.25)
+        }, 0)
+
+        requestedComponents.forEach(component => {
+          const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
+          const componentBudget = Math.floor(budget * (ratio / totalRatio))
+          const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
+          const range = calculateBudgetRange(componentBudget, undefined, undefined, isSignalGear)
+          budgetAllocation[component] = range
+        })
+      } else {
+        // Default to headphones if no components selected
+        const range = calculateBudgetRange(budget, undefined, undefined, false)
+        budgetAllocation['headphones'] = range
+      }
     }
 
     // OPTIMIZED: Single query approach - fetch minimal data and count in-memory

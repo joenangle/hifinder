@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { Tooltip } from '@/components/Tooltip'
 import { FilterButton } from '@/components/FilterButton'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
+import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 
 interface FilterCounts {
   sound: Record<string, number>
@@ -42,6 +43,13 @@ interface FiltersSectionProps {
   onToggleGuidedMode?: () => void
   isMultiSelectMode?: boolean
   onToggleMultiSelect?: () => void
+  // Budget allocation props
+  totalBudget?: number
+  budgetAllocation?: BudgetAllocation | null
+  autoBudgetAllocation?: BudgetAllocation | null
+  onBudgetAllocationChange?: (allocation: BudgetAllocation) => void
+  budgetRangeMin?: number
+  budgetRangeMax?: number
 }
 
 const FiltersSectionComponent = ({
@@ -58,7 +66,13 @@ const FiltersSectionComponent = ({
   onToggleExpandExperts,
   onToggleGuidedMode,
   isMultiSelectMode = false,
-  onToggleMultiSelect
+  onToggleMultiSelect,
+  totalBudget,
+  budgetAllocation,
+  autoBudgetAllocation,
+  onBudgetAllocationChange,
+  budgetRangeMin = 20,
+  budgetRangeMax = 10
 }: FiltersSectionProps) => {
   // Always show all filters (simplified experience)
   const showEquipmentFilters = true
@@ -273,6 +287,20 @@ const FiltersSectionComponent = ({
               showTooltip={guidedModeEnabled}
             />
           </div>
+        </div>
+      )}
+
+      {/* Budget Allocation Row - Advanced feature */}
+      {totalBudget && onBudgetAllocationChange && (
+        <div className="mt-4 pt-4 border-t border-border-default">
+          <BudgetAllocationControls
+            totalBudget={totalBudget}
+            allocation={budgetAllocation || autoBudgetAllocation || {}}
+            onChange={onBudgetAllocationChange}
+            globalRangeMin={budgetRangeMin}
+            globalRangeMax={budgetRangeMax}
+            wantRecommendationsFor={wantRecommendationsFor}
+          />
         </div>
       )}
     </div>
