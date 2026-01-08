@@ -236,6 +236,56 @@ function RecommendationsContent() {
   // Create stable key for typeFilters to avoid infinite re-renders
   const typeFiltersKey = useMemo(() => [...typeFilters].sort().join(','), [typeFilters])
 
+  // PERFORMANCE: Memoize champion calculations for cans (recalc only when cans array changes)
+  const cansChampions = useMemo(() => {
+    if (cans.length === 0) return { topTechnical: null, topTone: null, topBudget: null }
+
+    const topTechnical = cans.reduce((prev, current) => {
+      const prevGrade = prev.expert_grade_numeric || 0
+      const currGrade = current.expert_grade_numeric || 0
+      return currGrade > prevGrade ? current : prev
+    })
+
+    const topTone = cans.reduce((prev, current) => {
+      const prevScore = prev.matchScore || 0
+      const currScore = current.matchScore || 0
+      return currScore > prevScore ? current : prev
+    })
+
+    const topBudget = cans.reduce((prev, current) => {
+      const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
+      const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
+      return currValue > prevValue ? current : prev
+    })
+
+    return { topTechnical, topTone, topBudget }
+  }, [cans])
+
+  // PERFORMANCE: Memoize champion calculations for IEMs (recalc only when iems array changes)
+  const iemsChampions = useMemo(() => {
+    if (iems.length === 0) return { topTechnical: null, topTone: null, topBudget: null }
+
+    const topTechnical = iems.reduce((prev, current) => {
+      const prevGrade = prev.expert_grade_numeric || 0
+      const currGrade = current.expert_grade_numeric || 0
+      return currGrade > prevGrade ? current : prev
+    })
+
+    const topTone = iems.reduce((prev, current) => {
+      const prevScore = prev.matchScore || 0
+      const currScore = current.matchScore || 0
+      return currScore > prevScore ? current : prev
+    })
+
+    const topBudget = iems.reduce((prev, current) => {
+      const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
+      const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
+      return currValue > prevValue ? current : prev
+    })
+
+    return { topTechnical, topTone, topBudget }
+  }, [iems])
+
   // ===== MOVED TO API - RECOMMENDATIONS LOGIC NOW SERVER-SIDE =====
 
   // Main recommendation fetching logic using new API
@@ -919,24 +969,8 @@ function RecommendationsContent() {
               >
               {/* Separate Headphones (Cans) Section */}
               {hasCans && (() => {
-                // Identify top performers for cans
-                const topTechnical = cans.reduce((prev, current) => {
-                  const prevGrade = prev.expert_grade_numeric || 0
-                  const currGrade = current.expert_grade_numeric || 0
-                  return currGrade > prevGrade ? current : prev
-                })
-
-                const topTone = cans.reduce((prev, current) => {
-                  const prevScore = prev.matchScore || 0
-                  const currScore = current.matchScore || 0
-                  return currScore > prevScore ? current : prev
-                })
-
-                const topBudget = cans.reduce((prev, current) => {
-                  const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
-                  const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
-                  return currValue > prevValue ? current : prev
-                })
+                // Use memoized champion calculations for better performance
+                const { topTechnical, topTone, topBudget } = cansChampions
 
                 return (
             <div className="card overflow-hidden">
@@ -955,9 +989,9 @@ function RecommendationsContent() {
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayCans.map((headphone) => {
-                  const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
-                  const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
+                  const isTechnicalChamp = topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
+                  const isToneChamp = topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
+                  const isBudgetChamp = topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
 
                   return (
                     <HeadphoneCard
@@ -990,24 +1024,8 @@ function RecommendationsContent() {
 
               {/* Separate IEMs Section */}
               {hasIems && (() => {
-                // Identify top performers for iems
-                const topTechnical = iems.reduce((prev, current) => {
-                  const prevGrade = prev.expert_grade_numeric || 0
-                  const currGrade = current.expert_grade_numeric || 0
-                  return currGrade > prevGrade ? current : prev
-                })
-
-                const topTone = iems.reduce((prev, current) => {
-                  const prevScore = prev.matchScore || 0
-                  const currScore = current.matchScore || 0
-                  return currScore > prevScore ? current : prev
-                })
-
-                const topBudget = iems.reduce((prev, current) => {
-                  const prevValue = (prev.value_rating || 0) / (((prev.price_used_min || 0) + (prev.price_used_max || 0)) / 2 || 1)
-                  const currValue = (current.value_rating || 0) / (((current.price_used_min || 0) + (current.price_used_max || 0)) / 2 || 1)
-                  return currValue > prevValue ? current : prev
-                })
+                // Use memoized champion calculations for better performance
+                const { topTechnical, topTone, topBudget } = iemsChampions
 
                 return (
             <div className="card overflow-hidden">
@@ -1026,9 +1044,9 @@ function RecommendationsContent() {
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayIems.map((headphone) => {
-                  const isTechnicalChamp = headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
-                  const isBudgetChamp = headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
+                  const isTechnicalChamp = topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
+                  const isToneChamp = topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
+                  const isBudgetChamp = topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
 
                   return (
                     <HeadphoneCard
