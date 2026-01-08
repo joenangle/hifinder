@@ -372,20 +372,24 @@ async function allocateBudgetAcrossComponents(
   for (const component of requestedComponents) {
     const componentBudget = initialAllocation[component];
 
-    // Entry-level budget handling: For very low budgets, allow ultra-budget options
-    // Examples: Apple dongle ($9), budget IEMs ($10-30), budget headphones ($20-50)
+    // Entry-level budget handling: For signal gear, search lower to catch budget options
+    // Examples: Apple dongle ($9), Tempotec ($40), Atom DAC/Modi ($100)
     let searchMin: number;
     let searchMax: number;
 
-    if (
-      totalBudget <= 150 &&
-      (component === "dac" || component === "amp" || component === "combo")
-    ) {
-      // For entry-level total budgets with signal gear, start from $5 to include dongles
-      searchMin = 5;
+    const isSignalGear = component === "dac" || component === "amp" || component === "combo";
+
+    if (isSignalGear && componentBudget <= 250) {
+      // For signal gear with modest component budgets, search much lower
+      // This catches budget DACs ($80-110) that are excellent value
+      searchMin = 20; // Allow searching down to dongles/budget options
+      searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
+    } else if (isSignalGear) {
+      // For higher signal gear budgets, still search 30% lower to catch good deals
+      searchMin = Math.max(20, Math.round(componentBudget * 0.7));
       searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
     } else {
-      // Standard behavior for higher budgets
+      // Standard behavior for headphones
       searchMin = Math.max(
         20,
         Math.round(componentBudget * (1 - rangeMin / 100))

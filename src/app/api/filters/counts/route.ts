@@ -88,13 +88,25 @@ export async function GET(request: NextRequest) {
       Object.entries(customBudgetAllocation).forEach(([component, data]) => {
         const { amount, rangeMin: customRangeMin, rangeMax: customRangeMax } = data
         const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-        const range = calculateBudgetRange(
-          amount,
-          customRangeMin ?? rangeMin,
-          customRangeMax ?? rangeMax,
-          isSignalGear
-        )
-        budgetAllocation[component] = range
+        const userRangeMin = customRangeMin ?? rangeMin
+        const userRangeMax = customRangeMax ?? rangeMax
+
+        // Use same signal gear logic as recommendations API
+        let searchMin: number
+        let searchMax: number
+
+        if (isSignalGear && amount <= 250) {
+          searchMin = 20
+          searchMax = Math.round(amount * (1 + userRangeMax / 100))
+        } else if (isSignalGear) {
+          searchMin = Math.max(20, Math.round(amount * 0.7))
+          searchMax = Math.round(amount * (1 + userRangeMax / 100))
+        } else {
+          searchMin = Math.max(20, Math.round(amount * (1 - userRangeMin / 100)))
+          searchMax = Math.round(amount * (1 + userRangeMax / 100))
+        }
+
+        budgetAllocation[component] = { min: searchMin, max: searchMax }
       })
     } else {
       // Use automatic allocation (same logic as recommendations API)
@@ -115,8 +127,23 @@ export async function GET(request: NextRequest) {
       if (requestedComponents.length === 1) {
         const component = requestedComponents[0]
         const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-        const range = calculateBudgetRange(budget, undefined, undefined, isSignalGear)
-        budgetAllocation[component] = range
+
+        // Use same logic as recommendations API for consistency
+        let searchMin: number
+        let searchMax: number
+
+        if (isSignalGear && budget <= 250) {
+          searchMin = 20
+          searchMax = Math.round(budget * (1 + rangeMax / 100))
+        } else if (isSignalGear) {
+          searchMin = Math.max(20, Math.round(budget * 0.7))
+          searchMax = Math.round(budget * (1 + rangeMax / 100))
+        } else {
+          searchMin = Math.max(20, Math.round(budget * (1 - rangeMin / 100)))
+          searchMax = Math.round(budget * (1 + rangeMax / 100))
+        }
+
+        budgetAllocation[component] = { min: searchMin, max: searchMax }
       } else if (requestedComponents.length > 0) {
         // Proportional allocation for multiple components
         const totalRatio = requestedComponents.reduce((sum, comp) => {
@@ -127,8 +154,26 @@ export async function GET(request: NextRequest) {
           const ratio = priceRatios[component as keyof typeof priceRatios] || 0.25
           const componentBudget = Math.floor(budget * (ratio / totalRatio))
           const isSignalGear = ['dac', 'amp', 'combo'].includes(component)
-          const range = calculateBudgetRange(componentBudget, undefined, undefined, isSignalGear)
-          budgetAllocation[component] = range
+
+          // Use same logic as recommendations API for consistency
+          let searchMin: number
+          let searchMax: number
+
+          if (isSignalGear && componentBudget <= 250) {
+            // For signal gear with modest budgets, search lower to catch budget options
+            searchMin = 20
+            searchMax = Math.round(componentBudget * (1 + rangeMax / 100))
+          } else if (isSignalGear) {
+            // For higher signal gear budgets, search 30% lower
+            searchMin = Math.max(20, Math.round(componentBudget * 0.7))
+            searchMax = Math.round(componentBudget * (1 + rangeMax / 100))
+          } else {
+            // Standard behavior for headphones
+            searchMin = Math.max(20, Math.round(componentBudget * (1 - rangeMin / 100)))
+            searchMax = Math.round(componentBudget * (1 + rangeMax / 100))
+          }
+
+          budgetAllocation[component] = { min: searchMin, max: searchMax }
         })
       } else {
         // Default to headphones if no components selected

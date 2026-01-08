@@ -214,21 +214,48 @@ if (totalBudget <= 700 && includesSignalGear) {
 
 ---
 
-## Recommended Fix
+## ✅ Implemented Fix
 
-**Combination of B + D:**
+**Solution: Search Lower for Signal Gear**
 
-1. **Show warnings** when allocation is $0 with explanation
-2. **Adjust minimum budgets** for signal gear at low total budgets
-3. **Add "Auto-Fix" button** that adjusts budget or removes component
+Instead of complex UI warnings or ratio adjustments, we fixed the root cause: the search range calculation.
 
-Example UI:
-```
-Budget Allocation (Auto)
+### What Changed
 
-🎧 IEMs: $499 (99.8%)
-🔌 DAC: $0 (0%)
+For signal gear (DAC/Amp/Combo) with component budgets ≤ $250:
+- **Old**: Search from $113 (missed $80-110 budget DACs)
+- **New**: Search from $20 (catches dongles, Tempotec, Atom DAC, Modi)
 
-⚠️ No DACs found in affordable range ($113-$156)
-💡 [Remove DAC] or [Increase Budget to $600]
-```
+For signal gear with component budgets > $250:
+- Search from 30% below budget (catches good deals)
+
+### Example: $500 Budget - IEMs + DAC
+
+**Before Fix:**
+- IEMs: $357, DAC: $142
+- DAC search range: $113-$156 ❌ Missed Atom DAC 2 ($100), Modi 3E ($100)
+- Result after redistribution: IEMs $499, DAC $0
+
+**After Fix:**
+- IEMs: $357, DAC: $142
+- DAC search range: $20-$156 ✅ Includes all budget DACs
+- Result: IEMs $357, DAC $142 (no redistribution needed)
+
+### Benefits
+
+✅ **Catches budget signal gear**: Atom DAC 2, Modi 3E, Tempotec, Apple dongle
+✅ **No confusing UI**: Allocation stays as intended
+✅ **Works at all budgets**: Scales from $300 to $2,000+
+✅ **Synced APIs**: Both recommendations and filter counts use same logic
+
+### Implementation
+
+Updated both APIs with identical signal gear logic:
+- `src/app/api/recommendations/v2/route.ts`: Lines 375-398
+- `src/app/api/filters/counts/route.ts`: Lines 86-150
+
+---
+
+## Previous Recommendations (Not Implemented)
+
+The following options were considered but not needed after fixing the root cause:
