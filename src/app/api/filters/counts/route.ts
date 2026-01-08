@@ -108,135 +108,80 @@ export async function GET(request: NextRequest) {
       budgetAllocation['headphones'] = range
     }
 
-    // Query for sound signature counts (headphones + IEMs only)
-    const soundSignatures = ['neutral', 'warm', 'bright', 'fun']
-    const soundCounts: Record<string, number> = {}
+    // OPTIMIZED: Single query approach - fetch minimal data and count in-memory
+    // This replaces 9+ separate queries with 1 query + client-side aggregation
 
-    // Only count sound signatures if headphones are wanted
+    // Build list of all categories and price ranges we need
+    const categoriesToFetch: Array<{category: string; minPrice: number; maxPrice: number}> = []
+
     if (wantRecommendationsFor.headphones && budgetAllocation.headphones) {
-      const { min: headphoneMin, max: headphoneMax } = budgetAllocation.headphones
-
-      await Promise.all(
-        soundSignatures.map(async (signature) => {
-          let query = supabase
-            .from('components')
-            .select('id', { count: 'exact', head: true })
-            .eq('sound_signature', signature)
-            .gte('price_used_min', headphoneMin)
-            .lte('price_used_max', headphoneMax)
-
-          // Apply equipment filter if set
-          if (activeEquipment.length > 0) {
-            // Filter to only cans/iems that are in active equipment
-            const relevantCategories = activeEquipment.filter(cat => ['cans', 'iems'].includes(cat))
-            if (relevantCategories.length > 0) {
-              query = query.in('category', relevantCategories)
-            } else {
-              // If active equipment has no cans/iems, count should be 0
-              soundCounts[signature] = 0
-              return
-            }
-          } else {
-            query = query.in('category', ['cans', 'iems'])
-          }
-
-          const { count } = await query
-          soundCounts[signature] = count || 0
-        })
-      )
-    } else {
-      // Set all counts to 0 if headphones not wanted
-      soundSignatures.forEach(signature => {
-        soundCounts[signature] = 0
-      })
+      const { min, max } = budgetAllocation.headphones
+      categoriesToFetch.push({ category: 'cans', minPrice: min, maxPrice: max })
+      categoriesToFetch.push({ category: 'iems', minPrice: min, maxPrice: max })
+    }
+    if (wantRecommendationsFor.dac && budgetAllocation.dac) {
+      const { min, max } = budgetAllocation.dac
+      categoriesToFetch.push({ category: 'dac', minPrice: min, maxPrice: max })
+    }
+    if (wantRecommendationsFor.amp && budgetAllocation.amp) {
+      const { min, max } = budgetAllocation.amp
+      categoriesToFetch.push({ category: 'amp', minPrice: min, maxPrice: max })
+    }
+    if (wantRecommendationsFor.combo && budgetAllocation.combo) {
+      const { min, max } = budgetAllocation.combo
+      categoriesToFetch.push({ category: 'dac_amp', minPrice: min, maxPrice: max })
     }
 
-    // Query for equipment type counts based on allocated budgets
+    // Single query to fetch all components we need for counting
+    const allCategories = [...new Set(categoriesToFetch.map(c => c.category))]
+    const { data: componentsData } = await supabase
+      .from('components')
+      .select('category, sound_signature, price_used_min, price_used_max')
+      .in('category', allCategories)
+
+    // Count in-memory (still faster than multiple round trips)
+    const soundSignatures = ['neutral', 'warm', 'bright', 'fun']
+    const soundCounts: Record<string, number> = {}
     let cansCount = 0
     let iemsCount = 0
     let dacsCount = 0
     let ampsCount = 0
     let combosCount = 0
 
-    // Equipment toggle counts should ALWAYS be calculated (static pills)
-    // They show total available in budget range regardless of active toggles
-    const shouldCountCans = true
-    const shouldCountIems = true
-    const shouldCountDacs = true
-    const shouldCountAmps = true
-    const shouldCountCombos = true
+    // Initialize sound signature counts
+    soundSignatures.forEach(sig => { soundCounts[sig] = 0 })
 
-    // Headphones counts
-    if (wantRecommendationsFor.headphones && budgetAllocation.headphones) {
-      const { min: headphoneMin, max: headphoneMax } = budgetAllocation.headphones
+    // Count each component
+    componentsData?.forEach(comp => {
+      const categoryRange = categoriesToFetch.find(
+        r => r.category === comp.category &&
+             comp.price_used_min !== null &&
+             comp.price_used_max !== null &&
+             comp.price_used_min >= r.minPrice &&
+             comp.price_used_max <= r.maxPrice
+      )
 
-      // Only query cans if they should be counted
-      if (shouldCountCans) {
-        const cansQuery = supabase
-          .from('components')
-          .select('id', { count: 'exact', head: true })
-          .eq('category', 'cans')
-          .gte('price_used_min', headphoneMin)
-          .lte('price_used_max', headphoneMax)
-        // Note: Equipment counts are static - don't filter by sound signature
+      if (!categoryRange) return // Component doesn't match any requested range
 
-        const cansResult = await cansQuery
-        cansCount = cansResult.count || 0
+      // Count for equipment types
+      if (comp.category === 'cans') cansCount++
+      else if (comp.category === 'iems') iemsCount++
+      else if (comp.category === 'dac') dacsCount++
+      else if (comp.category === 'amp') ampsCount++
+      else if (comp.category === 'dac_amp') combosCount++
+
+      // Count for sound signatures (headphones only)
+      if ((comp.category === 'cans' || comp.category === 'iems') && comp.sound_signature) {
+        // Apply equipment filter if set
+        if (activeEquipment.length > 0) {
+          if (activeEquipment.includes(comp.category)) {
+            soundCounts[comp.sound_signature] = (soundCounts[comp.sound_signature] || 0) + 1
+          }
+        } else {
+          soundCounts[comp.sound_signature] = (soundCounts[comp.sound_signature] || 0) + 1
+        }
       }
-
-      // Only query IEMs if they should be counted
-      if (shouldCountIems) {
-        const iemsQuery = supabase
-          .from('components')
-          .select('id', { count: 'exact', head: true })
-          .eq('category', 'iems')
-          .gte('price_used_min', headphoneMin)
-          .lte('price_used_max', headphoneMax)
-        // Note: Equipment counts are static - don't filter by sound signature
-
-        const iemsResult = await iemsQuery
-        iemsCount = iemsResult.count || 0
-      }
-    }
-
-    // DAC counts - only query if DACs should be counted
-    if (shouldCountDacs && wantRecommendationsFor.dac && budgetAllocation.dac) {
-      const { min: dacMin, max: dacMax } = budgetAllocation.dac
-      const dacsResult = await supabase
-        .from('components')
-        .select('id', { count: 'exact', head: true })
-        .eq('category', 'dac')
-        .gte('price_used_min', dacMin)
-        .lte('price_used_max', dacMax)
-
-      dacsCount = dacsResult.count || 0
-    }
-
-    // Amp counts - only query if amps should be counted
-    if (shouldCountAmps && wantRecommendationsFor.amp && budgetAllocation.amp) {
-      const { min: ampMin, max: ampMax } = budgetAllocation.amp
-      const ampsResult = await supabase
-        .from('components')
-        .select('id', { count: 'exact', head: true })
-        .eq('category', 'amp')
-        .gte('price_used_min', ampMin)
-        .lte('price_used_max', ampMax)
-
-      ampsCount = ampsResult.count || 0
-    }
-
-    // Combo counts - only query if combos should be counted
-    if (shouldCountCombos && wantRecommendationsFor.combo && budgetAllocation.combo) {
-      const { min: comboMin, max: comboMax } = budgetAllocation.combo
-      const combosResult = await supabase
-        .from('components')
-        .select('id', { count: 'exact', head: true })
-        .eq('category', 'dac_amp')
-        .gte('price_used_min', comboMin)
-        .lte('price_used_max', comboMax)
-
-      combosCount = combosResult.count || 0
-    }
+    })
 
     const result = {
       sound: soundCounts,
