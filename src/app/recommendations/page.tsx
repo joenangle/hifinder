@@ -989,9 +989,9 @@ function RecommendationsContent() {
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayCans.map((headphone) => {
-                  const isTechnicalChamp = topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
-                  const isBudgetChamp = topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
+                  const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
+                  const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
 
                   return (
                     <HeadphoneCard
@@ -1044,9 +1044,9 @@ function RecommendationsContent() {
               </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayIems.map((headphone) => {
-                  const isTechnicalChamp = topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3
-                  const isToneChamp = topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85
-                  const isBudgetChamp = topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4
+                  const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
+                  const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
 
                   return (
                     <HeadphoneCard

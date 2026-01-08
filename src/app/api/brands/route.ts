@@ -3,21 +3,19 @@ import { supabaseServer } from '@/lib/supabase-server'
 
 export async function GET() {
   try {
+    // Use database function for efficient DISTINCT query (no client-side deduplication needed)
     const { data, error } = await supabaseServer
-      .from('components')
-      .select('brand')
-      .not('brand', 'is', null)
-      .order('brand')
+      .rpc('get_unique_brands')
 
     if (error) {
       console.error('Error fetching brands:', error)
       return NextResponse.json({ error: 'Failed to fetch brands' }, { status: 500 })
     }
 
-    // Extract unique brands
-    const uniqueBrands = [...new Set(data?.map(item => item.brand) || [])]
-    
-    return NextResponse.json(uniqueBrands)
+    // Database returns array of objects with brand property, extract values
+    const brands = data?.map((item: { brand: string }) => item.brand) || []
+
+    return NextResponse.json(brands)
   } catch (error) {
     console.error('Error fetching brands:', error)
     return NextResponse.json(

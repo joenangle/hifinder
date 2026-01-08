@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Component } from '@/types'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface ComponentsTableProps {
   onEditComponent?: (componentId: string) => void
@@ -12,6 +13,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
   const [filteredComponents, setFilteredComponents] = useState<Component[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300) // 300ms debounce
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [soundSignatureFilter, setSoundSignatureFilter] = useState<string>('all')
   const [expertDataFilter, setExpertDataFilter] = useState<string>('all') // all, has, missing
@@ -43,13 +45,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
     fetchComponents()
   }, [])
 
-  // Apply filters and search
+  // Apply filters and search (debounced search for better performance)
   useEffect(() => {
     let filtered = [...components]
 
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+    // Search filter (uses debounced value)
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase()
       filtered = filtered.filter(
         (c) =>
           c.brand.toLowerCase().includes(query) ||
@@ -124,7 +126,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
     setFilteredComponents(filtered)
     setCurrentPage(1) // Reset to first page when filters change
   }, [
-    searchQuery,
+    debouncedSearchQuery, // Use debounced value to reduce filtering frequency
     categoryFilter,
     soundSignatureFilter,
     expertDataFilter,
