@@ -237,7 +237,7 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
   return exactMatches[userPref]?.[crinSig] || 0;
 }
 
-// Helper: Check if components are available in a budget range
+// Helper: Check if components are available in a budget range (single category)
 async function checkComponentAvailability(
   category: string,
   minPrice: number,
@@ -251,6 +251,39 @@ async function checkComponentAvailability(
     .lte("price_used_max", maxPrice);
 
   return count || 0;
+}
+
+// Optimized: Batch check availability for multiple categories (single query)
+async function checkMultiCategoryAvailability(
+  categoryRanges: Array<{ category: string; minPrice: number; maxPrice: number }>
+): Promise<Record<string, number>> {
+  if (categoryRanges.length === 0) return {};
+
+  // Build a single query with OR conditions for all categories
+  const categories = categoryRanges.map(r => r.category);
+
+  const { data, error } = await supabaseServer
+    .from("components")
+    .select("category, price_used_min, price_used_max")
+    .in("category", categories);
+
+  if (error || !data) return {};
+
+  // Count matches in-memory (still more efficient than multiple round trips)
+  const counts: Record<string, number> = {};
+
+  categoryRanges.forEach(({ category, minPrice, maxPrice }) => {
+    const matchCount = data.filter(
+      c => c.category === category &&
+           c.price_used_min !== null &&
+           c.price_used_max !== null &&
+           c.price_used_min >= minPrice &&
+           c.price_used_max <= maxPrice
+    ).length;
+    counts[category] = matchCount;
+  });
+
+  return counts;
 }
 
 // Calculate budget allocation with smart redistribution
@@ -333,6 +366,9 @@ async function allocateBudgetAcrossComponents(
     combo: "dac_amp",
   };
 
+  // OPTIMIZATION: Build all category ranges first, then query once
+  const categoryRanges: Array<{ component: string; category: string; minPrice: number; maxPrice: number }> = [];
+
   for (const component of requestedComponents) {
     const componentBudget = initialAllocation[component];
 
@@ -357,28 +393,35 @@ async function allocateBudgetAcrossComponents(
       searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
     }
 
-    let count = 0;
     if (component === "headphones") {
       // Check both cans and iems
-      const cansCount = await checkComponentAvailability(
-        "cans",
-        searchMin,
-        searchMax
-      );
-      const iemsCount = await checkComponentAvailability(
-        "iems",
-        searchMin,
-        searchMax
-      );
-      count = cansCount + iemsCount;
+      categoryRanges.push({ component, category: "cans", minPrice: searchMin, maxPrice: searchMax });
+      categoryRanges.push({ component, category: "iems", minPrice: searchMin, maxPrice: searchMax });
     } else {
       const category = categoryMap[component];
       if (category) {
-        count = await checkComponentAvailability(
-          category,
-          searchMin,
-          searchMax
-        );
+        categoryRanges.push({ component, category, minPrice: searchMin, maxPrice: searchMax });
+      }
+    }
+  }
+
+  // OPTIMIZATION: Single database query for all categories
+  const availabilityCounts = await checkMultiCategoryAvailability(
+    categoryRanges.map(r => ({ category: r.category, minPrice: r.minPrice, maxPrice: r.maxPrice }))
+  );
+
+  // Check which components have no results
+  for (const component of requestedComponents) {
+    let count = 0;
+
+    if (component === "headphones") {
+      const cansRange = categoryRanges.find(r => r.component === component && r.category === "cans");
+      const iemsRange = categoryRanges.find(r => r.component === component && r.category === "iems");
+      count = (availabilityCounts["cans"] || 0) + (availabilityCounts["iems"] || 0);
+    } else {
+      const category = categoryMap[component];
+      if (category) {
+        count = availabilityCounts[category] || 0;
       }
     }
 
