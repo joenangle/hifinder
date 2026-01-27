@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
-import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import {
+  assessAmplificationFromImpedance,
+  parsePowerSpec,
+  calculatePowerAtImpedance,
+  estimatePowerFromImpedance
+} from '@/lib/audio-calculations'
 import { calculateExpertScore, gradeToNumeric, type ScoringComponent } from '@/lib/crinacle-scoring'
 
 // Intelligent caching system for recommendations
@@ -68,6 +73,10 @@ interface RecommendationComponent {
   performanceScore?: number
   valueRating?: string | null
   asr_sinad?: number  // ASR measurement for DACs/amps
+  // Power matching fields (for amps)
+  power_output?: string  // e.g., "500mW @ 32Ω"
+  powerMatchScore?: number  // 0-1 score based on headphone compatibility
+  powerMatchExplanation?: string  // Human-readable power matching info
 }
 
 interface RecommendationRequest {
@@ -776,16 +785,89 @@ export async function GET(request: NextRequest) {
 
         console.log('🔧 Processing amps with budget:', ampBudget, 'from', componentsByCategory.amps.length, 'available amps')
 
-        results.amps = filterAndScoreComponents(
+        let filteredAmps = filterAndScoreComponents(
           componentsByCategory.amps,
           ampBudget,
           req.budgetRangeMin, // Use same range as headphones (-20% to +10%)
           req.budgetRangeMax, // Use same range as headphones
           req.soundSignature,
           req.usageRanking[0] || req.usage,
-          maxOptions
+          maxOptions * 2 // Get more initially, then re-sort by power matching
         )
 
+        // Apply power matching if we have headphone recommendations
+        if (results.headphones.length > 0) {
+          // Find the most demanding headphone
+          const mostDemandingHP = results.headphones.reduce((most, current) => {
+            const currentDifficulty = current.amplificationAssessment?.difficulty || 'unknown'
+            const mostDifficulty = most.amplificationAssessment?.difficulty || 'unknown'
+            const difficultyOrder = { 'easy': 1, 'moderate': 2, 'demanding': 3, 'very_demanding': 4, 'unknown': 0 }
+            return difficultyOrder[currentDifficulty] > difficultyOrder[mostDifficulty] ? current : most
+          }, results.headphones[0])
+
+          const targetImpedance = mostDemandingHP.impedance || 32
+          const powerReq = estimatePowerFromImpedance(targetImpedance)
+          const powerNeeded = powerReq?.powerNeeded_mW || 50
+
+          console.log('⚡ Power matching against:', mostDemandingHP.name, `(${targetImpedance}Ω, needs ~${powerNeeded}mW)`)
+
+          // Add power matching scores to amps
+          filteredAmps = filteredAmps.map(amp => {
+            const ampData = amp as { power_output?: string }
+            const parsedSpec = parsePowerSpec(ampData.power_output)
+            let powerAtHeadphoneZ: number
+            let powerMatchExplanation: string
+
+            if (parsedSpec) {
+              powerAtHeadphoneZ = calculatePowerAtImpedance(
+                parsedSpec.power_mW,
+                parsedSpec.reference_impedance,
+                targetImpedance
+              )
+              const powerRatio = powerAtHeadphoneZ / powerNeeded
+              if (powerRatio >= 2) {
+                powerMatchExplanation = `Delivers ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω - excellent headroom`
+              } else if (powerRatio >= 1) {
+                powerMatchExplanation = `Delivers ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω - adequate power`
+              } else {
+                powerMatchExplanation = `Only ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω - may struggle`
+              }
+            } else {
+              // Estimate based on price tier
+              const avgPrice = amp.avgPrice || 0
+              if (avgPrice > 500) powerAtHeadphoneZ = 1000
+              else if (avgPrice > 300) powerAtHeadphoneZ = 500
+              else if (avgPrice > 150) powerAtHeadphoneZ = 250
+              else powerAtHeadphoneZ = 100
+              powerMatchExplanation = `Estimated ~${powerAtHeadphoneZ}mW output (no specs)`
+            }
+
+            const powerRatio = powerAtHeadphoneZ / powerNeeded
+            let powerMatchScore: number
+            if (powerRatio >= 4) powerMatchScore = 1.0
+            else if (powerRatio >= 2) powerMatchScore = 0.9
+            else if (powerRatio >= 1.5) powerMatchScore = 0.8
+            else if (powerRatio >= 1) powerMatchScore = 0.6
+            else powerMatchScore = Math.max(0.1, powerRatio * 0.5)
+
+            return {
+              ...amp,
+              powerMatchScore,
+              powerMatchExplanation
+            }
+          })
+
+          // Re-sort: 60% original score + 40% power match
+          filteredAmps.sort((a, b) => {
+            const aOriginal = (a.performanceScore || 0) * 0.78 + (a.synergyScore || 0) * 0.22
+            const bOriginal = (b.performanceScore || 0) * 0.78 + (b.synergyScore || 0) * 0.22
+            const aFinal = aOriginal * 0.6 + (a.powerMatchScore || 0.5) * 0.4
+            const bFinal = bOriginal * 0.6 + (b.powerMatchScore || 0.5) * 0.4
+            return bFinal - aFinal
+          })
+        }
+
+        results.amps = filteredAmps.slice(0, maxOptions)
         console.log('🔧 Filtered amps result:', results.amps.length, 'amps')
       }
 

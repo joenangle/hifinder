@@ -5,6 +5,11 @@ import { Component } from '@/types'
 import { CompatibilityWarning } from '@/lib/stacks'
 import { generateEbayAffiliateLinkAdvanced, generateTrackingId } from '@/lib/ebay-affiliate'
 import { trackEvent } from '@/lib/analytics'
+import {
+  parsePowerSpec,
+  calculatePowerAtImpedance,
+  estimatePowerFromImpedance
+} from '@/lib/audio-calculations'
 
 interface StackBuilderModalProps {
   isOpen: boolean
@@ -60,29 +65,93 @@ export function StackBuilderModal({
 
     setFinalComponents(components)
 
-    // Generate compatibility warnings
-    // TODO: Implement compatibility checking
-    const mockWarnings: CompatibilityWarning[] = []
+    // Generate compatibility warnings with power matching analysis
+    const newWarnings: CompatibilityWarning[] = []
 
-    // Check for high impedance headphones without amplification
-    const highImpedanceHP = selectedComponents.headphones.filter(hp =>
-      hp.impedance && parseInt(hp.impedance.toString()) > 150
-    )
+    // Analyze power matching between headphones and amps
+    const allAmps = [...selectedComponents.amps, ...selectedComponents.combos]
 
-    if (highImpedanceHP.length > 0 &&
-        selectedComponents.amps.length === 0 &&
-        selectedComponents.combos.length === 0) {
-      mockWarnings.push({
-        type: 'power',
-        severity: 'warning',
-        message: 'High impedance headphones may need amplification for optimal performance',
-        components: highImpedanceHP.map(hp => hp.name)
-      })
-    }
+    selectedComponents.headphones.forEach(hp => {
+      const impedance = hp.impedance ? parseInt(hp.impedance.toString()) : null
+
+      if (!impedance) return
+
+      // Get power requirements for this headphone
+      const powerReq = estimatePowerFromImpedance(impedance)
+      const powerNeeded = powerReq?.powerNeeded_mW || 50
+      const difficulty = powerReq?.difficulty || 'moderate'
+
+      // Check if no amp is selected for demanding headphones
+      if (allAmps.length === 0) {
+        if (difficulty === 'demanding' || difficulty === 'very_demanding') {
+          newWarnings.push({
+            type: 'power',
+            severity: 'error',
+            message: `${hp.name} (${impedance}Ω) requires amplification - needs ~${Math.round(powerNeeded)}mW`,
+            components: [hp.name]
+          })
+        } else if (impedance > 80) {
+          newWarnings.push({
+            type: 'power',
+            severity: 'warning',
+            message: `${hp.name} (${impedance}Ω) benefits from dedicated amplification`,
+            components: [hp.name]
+          })
+        }
+      } else {
+        // Check power adequacy of selected amps
+        allAmps.forEach(amp => {
+          const ampComponent = amp as Component & { power_output?: string }
+          const parsedSpec = parsePowerSpec(ampComponent.power_output)
+          let powerAtHeadphoneZ: number
+
+          if (parsedSpec) {
+            powerAtHeadphoneZ = calculatePowerAtImpedance(
+              parsedSpec.power_mW,
+              parsedSpec.reference_impedance,
+              impedance
+            )
+          } else {
+            // Estimate based on price tier
+            const avgPrice = ((amp.price_used_min || 0) + (amp.price_used_max || 0)) / 2
+            if (avgPrice > 500) powerAtHeadphoneZ = 1000
+            else if (avgPrice > 300) powerAtHeadphoneZ = 500
+            else if (avgPrice > 150) powerAtHeadphoneZ = 250
+            else powerAtHeadphoneZ = 100
+          }
+
+          const powerRatio = powerAtHeadphoneZ / powerNeeded
+
+          if (powerRatio < 1) {
+            newWarnings.push({
+              type: 'power',
+              severity: 'error',
+              message: `${amp.name} may struggle to drive ${hp.name} - only ${Math.round(powerAtHeadphoneZ)}mW at ${impedance}Ω (needs ~${Math.round(powerNeeded)}mW)`,
+              components: [amp.name, hp.name]
+            })
+          } else if (powerRatio < 1.5 && (difficulty === 'demanding' || difficulty === 'very_demanding')) {
+            newWarnings.push({
+              type: 'power',
+              severity: 'warning',
+              message: `${amp.name} has limited headroom for ${hp.name} - ${Math.round(powerAtHeadphoneZ)}mW at ${impedance}Ω`,
+              components: [amp.name, hp.name]
+            })
+          } else if (powerRatio >= 2) {
+            // Add positive note for good matches
+            newWarnings.push({
+              type: 'power',
+              severity: 'info' as CompatibilityWarning['severity'],
+              message: `${amp.name} has excellent headroom for ${hp.name} - ${Math.round(powerAtHeadphoneZ)}mW at ${impedance}Ω (${powerRatio.toFixed(1)}x needed)`,
+              components: [amp.name, hp.name]
+            })
+          }
+        })
+      }
+    })
 
     // Check for multiple headphones
     if (selectedComponents.headphones.length > 1) {
-      mockWarnings.push({
+      newWarnings.push({
         type: 'category',
         severity: 'warning',
         message: 'Multiple headphones selected - consider creating separate stacks',
@@ -90,7 +159,7 @@ export function StackBuilderModal({
       })
     }
 
-    setWarnings(mockWarnings)
+    setWarnings(newWarnings)
 
     // Auto-generate stack name
     const types = []
@@ -240,25 +309,65 @@ export function StackBuilderModal({
             </div>
           </div>
 
-          {/* Compatibility Warnings */}
+          {/* Compatibility Warnings & Power Analysis */}
           {warnings.length > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-                Compatibility Notes
-              </h4>
-              <div className="space-y-2">
-                {warnings.map((warning, index) => (
-                  <div key={index} className="text-sm text-yellow-700">
-                    <p className="font-medium">{warning.message}</p>
-                    {warning.components.length > 0 && (
-                      <p className="text-xs mt-1">Affects: {warning.components.join(', ')}</p>
-                    )}
+            <div className="space-y-3">
+              {/* Errors */}
+              {warnings.filter(w => w.severity === 'error').length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    Power Issues
+                  </h4>
+                  <div className="space-y-2">
+                    {warnings.filter(w => w.severity === 'error').map((warning, index) => (
+                      <div key={index} className="text-sm text-red-700">
+                        <p className="font-medium">{warning.message}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {/* Warnings */}
+              {warnings.filter(w => w.severity === 'warning').length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    Compatibility Notes
+                  </h4>
+                  <div className="space-y-2">
+                    {warnings.filter(w => w.severity === 'warning').map((warning, index) => (
+                      <div key={index} className="text-sm text-yellow-700">
+                        <p className="font-medium">{warning.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Info (good matches) */}
+              {warnings.filter(w => (w.severity as string) === 'info').length > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-medium text-green-800 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Power Analysis
+                  </h4>
+                  <div className="space-y-2">
+                    {warnings.filter(w => (w.severity as string) === 'info').map((warning, index) => (
+                      <div key={index} className="text-sm text-green-700">
+                        <p className="font-medium">{warning.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

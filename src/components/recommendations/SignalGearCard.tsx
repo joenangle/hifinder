@@ -20,10 +20,14 @@ interface AudioComponent {
   output_types?: string | string[]
   why_recommended?: string
   power_output_mw?: number
+  power_output?: string  // e.g., "500mW @ 32Ω"
   thd_n?: number
   // ASR expert data (for ExpertAnalysisPanel compatibility)
   crin_comments?: string  // Will use for ASR review summary
   driver_type?: string | null    // Not used for signal gear but keeps interface compatible
+  // Power matching fields (computed by recommendations API)
+  powerMatchScore?: number  // 0-1 score based on headphone compatibility
+  powerMatchExplanation?: string  // Human-readable power matching info
 }
 
 interface SignalGearCardProps {
@@ -122,7 +126,7 @@ const SignalGearCardComponent = ({
       )}
 
       {/* Performance Section */}
-      {(component.asr_sinad || component.asr_review_url || component.power_output_mw || component.thd_n) && (
+      {(component.asr_sinad || component.asr_review_url || component.power_output_mw || component.power_output || component.thd_n) && (
         <div className="mb-3">
           <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
           <div className="text-sm text-text-primary dark:text-text-primary">
@@ -133,8 +137,8 @@ const SignalGearCardComponent = ({
                 component.asr_sinad >= 100 ? '(Good)' : '(Fair)'
               }</div>
             )}
-            {component.power_output_mw && (
-              <div>• Power: {component.power_output_mw} mW</div>
+            {(component.power_output_mw || component.power_output) && (
+              <div>• Power: {component.power_output || `${component.power_output_mw} mW`}</div>
             )}
             {component.thd_n && (
               <div>• THD+N: {component.thd_n}%</div>
@@ -143,6 +147,27 @@ const SignalGearCardComponent = ({
               <div>• ASR Review Available</div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Power Matching Section (for amps with headphone context) */}
+      {component.powerMatchExplanation && (
+        <div className="mb-3">
+          <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🎧 Headphone Compatibility</h4>
+          <div className="flex items-center gap-2">
+            <div className={`text-sm font-medium ${
+              (component.powerMatchScore || 0) >= 0.9 ? 'text-green-600 dark:text-green-400' :
+              (component.powerMatchScore || 0) >= 0.6 ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {(component.powerMatchScore || 0) >= 0.9 ? '✓ Excellent match' :
+               (component.powerMatchScore || 0) >= 0.6 ? '~ Adequate' :
+               '⚠ May struggle'}
+            </div>
+          </div>
+          <p className="text-xs text-text-secondary dark:text-text-secondary mt-1">
+            {component.powerMatchExplanation}
+          </p>
         </div>
       )}
 
