@@ -14,6 +14,7 @@ require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { findComponentMatch, isAccessoryOnly, detectMultipleComponents } = require('./component-matcher-enhanced');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
+const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
 const fs = require('fs');
 const path = require('path');
 
@@ -250,50 +251,71 @@ function isSoldPost(postData) {
  * Consolidated regex pattern fixes $1,200 -> $200 bug from pattern overlap
  */
 function extractPrice(title, selftext = '') {
-  // Combine title and selftext for comprehensive search
   const combinedText = title + ' ' + (selftext || '');
 
-  // Consolidated pattern that checks dollar sign FIRST to prevent "shipped" pattern from matching partial numbers
-  // Priority order: $X,XXX > asking/price/selling $X > X shipped > X USD
-  const pricePattern = /\$(\d{1,5}(?:,\d{3})*)|(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)|(\d{3,5})\s*shipped|(\d{1,5})\s*(?:usd|dollars?)/gi;
+  // Pattern 1: $X,XXX or $XXX (highest priority)
+  const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
+
+  // Pattern 2: asking/price/selling $XXX
+  const askingPattern = /\b(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)/gi;
+
+  // Pattern 3: XXX shipped / XXX obo
+  const shippedPattern = /\b(\d{3,5})\s*(?:shipped|obo|or best offer|firm)\b/gi;
+
+  // Pattern 4: XXX USD
+  const currencyPattern = /\b(\d{3,5})\s*(?:usd|dollars?)\b/gi;
 
   const allPrices = [];
+
+  // Extract with priority 1
   let match;
-
-  while ((match = pricePattern.exec(combinedText)) !== null) {
-    // Extract from whichever capture group matched
-    const priceStr = (match[1] || match[2] || match[3] || match[4]).replace(/,/g, '');
-    const price = parseInt(priceStr, 10);
-
-    if (!isNaN(price) && price > 0) {
-      allPrices.push(price);
+  while ((match = dollarPattern.exec(combinedText)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 1 });
     }
   }
 
-  if (allPrices.length === 0) {
-    // console.warn(`Price extraction failed for: ${title.substring(0, 50)}...`);
-    return null;
+  // Extract with priority 2
+  while ((match = askingPattern.exec(combinedText)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 2 });
+    }
   }
 
-  // Filter out unrealistic prices (model numbers, typos, etc.)
-  // Audio gear typically ranges from $10 to $10,000
-  const validPrices = allPrices.filter(p => p >= 10 && p <= 10000);
+  // Extract with priority 3
+  while ((match = shippedPattern.exec(combinedText)) !== null) {
+    const price = parseInt(match[1], 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 3 });
+    }
+  }
 
-  if (validPrices.length === 0) return null;
+  // Extract with priority 4
+  while ((match = currencyPattern.exec(combinedText)) !== null) {
+    const price = parseInt(match[1], 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 4 });
+    }
+  }
 
-  // Return lowest valid price (most conservative estimate)
-  return Math.min(...validPrices);
+  if (allPrices.length === 0) return null;
+
+  // Sort by priority, then lowest price
+  allPrices.sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return a.price - b.price;
+  });
+
+  return allPrices[0].price;
 }
 
 /**
- * Transform Reddit post into listing object
+ * Extract location from Reddit post title
+ * Handles: [US-XX], [USA-XX], [CAN-XX], [UK], etc.
  */
-function transformRedditPost(postData, matchResult) {
-  const component = matchResult.component;
-  const price = extractPrice(postData.title, postData.selftext || '');
-
-  // Extract location from title - Reddit standard: [US-XX] where XX is state postal code
-  // Also handles: [USA-CA] (normalize to US-CA), [US CA] (space instead of hyphen)
+function extractLocation(title) {
   const locationPatterns = [
     // US formats (most common)
     /\[USA[\s-]([A-Z]{2})\]/i,      // [USA-CA] or [USA CA] → normalize to US-XX
@@ -312,7 +334,7 @@ function transformRedditPost(postData, matchResult) {
 
   let location = 'Unknown';
   for (const pattern of locationPatterns) {
-    const match = postData.title.match(pattern);
+    const match = title.match(pattern);
     if (match) {
       const fullMatch = match[0];
 
@@ -343,9 +365,18 @@ function transformRedditPost(postData, matchResult) {
     }
   }
 
-  // Detect if this is a bundle listing
-  const bundleInfo = detectMultipleComponents(postData.title);
+  return location;
+}
 
+/**
+ * Transform Reddit post into listing object (DEPRECATED - kept for backward compatibility)
+ * NOTE: Main scraper now uses bundle-aware extraction directly
+ */
+function transformRedditPost(postData, matchResult) {
+  const component = matchResult.component;
+  const price = extractPrice(postData.title, postData.selftext || '');
+  const location = extractLocation(postData.title);
+  const bundleInfo = detectMultipleComponents(postData.title);
   const soldStatus = isSoldPost(postData);
 
   return {
@@ -357,11 +388,11 @@ function transformRedditPost(postData, matchResult) {
     location: location,
     date_posted: new Date(postData.created_utc * 1000).toISOString(),
     seller_username: postData.author,
-    condition: 'good', // Default, Reddit doesn't standardize this
+    condition: 'good',
     status: soldStatus ? 'sold' : 'available',
-    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null, // Set sold date when detected
+    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null,
     images: extractImages(postData),
-    seller_confirmed_trades: null, // Will be populated by separate bot check if needed
+    seller_confirmed_trades: null,
     price_warning: price ? null : 'Price not found in title',
     is_bundle: bundleInfo.isBundle,
     component_count: bundleInfo.componentCount
@@ -425,14 +456,14 @@ async function scrapeReddit() {
 
       console.log(`\n📝 Processing: ${post.title.substring(0, 70)}...`);
 
-      // Attempt to match to component database
-      const matchResult = await findComponentMatch(
+      // Attempt to match using bundle-aware extraction
+      const bundleMatches = await extractBundleComponents(
         post.title,
         post.selftext || '',
         'reddit_avexchange'
       );
 
-      if (!matchResult) {
+      if (bundleMatches.length === 0) {
         stats.noMatchFound++;
 
         // Extract as component candidate for review
@@ -440,7 +471,7 @@ async function scrapeReddit() {
         const candidate = await extractComponentCandidate({
           title: post.title,
           price: extractPrice(post.title),
-          id: null, // Will be created as candidate, not listing
+          id: null,
           url: `https://www.reddit.com${post.permalink}`
         });
 
@@ -457,23 +488,70 @@ async function scrapeReddit() {
 
       stats.componentsMatched++;
 
-      // Transform into listing object
-      const listing = transformRedditPost(post, matchResult);
+      // Generate bundle group ID if multiple matches
+      const bundleGroupId = bundleMatches.length > 1
+        ? generateBundleGroupId()
+        : null;
 
-      // Upsert to database
-      const { data, error } = await supabase
-        .from('used_listings')
-        .upsert(listing, {
-          onConflict: 'url',
-          ignoreDuplicates: false
-        })
-        .select('id');
+      // Extract common data once
+      const totalPrice = extractPrice(post.title, post.selftext);
+      const location = extractLocation(post.title);
+      const images = extractImages(post);
+      const soldStatus = isSoldPost(post);
 
-      if (error) {
-        console.error(`❌ Error upserting:`, error.message);
-      } else {
-        stats.newListings++;
-        console.log(`💾 Saved listing for ${matchResult.component.brand} ${matchResult.component.name}`);
+      console.log(`  📦 Creating ${bundleMatches.length} listing(s) from ${bundleMatches.length > 1 ? 'bundle' : 'single item'}`);
+
+      // Create listing for EACH matched component
+      for (let i = 0; i < bundleMatches.length; i++) {
+        const match = bundleMatches[i];
+
+        // Calculate price for this component
+        const priceInfo = bundleMatches.length > 1
+          ? calculateBundlePrice(totalPrice, bundleMatches.length, i, match.component)
+          : { individual_price: totalPrice, bundle_total_price: null };
+
+        const listing = {
+          component_id: match.component.id,
+          title: post.title,
+          price: priceInfo.individual_price || 0,
+
+          // Bundle metadata
+          is_bundle: bundleMatches.length > 1,
+          bundle_group_id: bundleGroupId,
+          bundle_total_price: priceInfo.bundle_total_price,
+          bundle_component_count: bundleMatches.length,
+          bundle_position: bundleMatches.length > 1 ? i + 1 : null,
+          matched_segment: match.segment,
+
+          // Common data
+          url: `https://www.reddit.com${post.permalink}`,
+          source: 'reddit_avexchange',
+          location: location,
+          date_posted: new Date(post.created_utc * 1000).toISOString(),
+          seller_username: post.author,
+          condition: 'good', // Default
+          images: images,
+          status: soldStatus ? 'sold' : 'available',
+          component_count: bundleMatches.length,
+          seller_confirmed_trades: null,
+          seller_feedback_score: null
+        };
+
+        // Upsert to database
+        const { data, error } = await supabase
+          .from('used_listings')
+          .upsert(listing, {
+            onConflict: 'url,component_id', // New composite unique constraint
+            ignoreDuplicates: false
+          })
+          .select('id');
+
+        if (error) {
+          console.error(`  ❌ Failed to upsert ${match.component.brand} ${match.component.name}:`, error.message);
+        } else {
+          stats.newListings++;
+          console.log(`  ✅ Saved: ${match.component.brand} ${match.component.name} (${match.score.toFixed(2)})`);
+        }
       }
 
       // Rate limiting
