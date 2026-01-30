@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import ComponentsTable from '@/components/admin/ComponentsTable'
 import ComponentForm from '@/components/admin/ComponentForm'
+import FlaggedListingsTab from '@/components/admin/FlaggedListingsTab'
 
-type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component'
+type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component' | 'flagged-listings'
 
 interface ScraperStats {
   summary: {
@@ -72,6 +73,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>('components-database')
   const [scraperStats, setScraperStats] = useState<ScraperStats | null>(null)
   const [candidates, setCandidates] = useState<CandidatesResponse | null>(null)
+  const [flaggedListingsCount, setFlaggedListingsCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
   const [candidateDetails, setCandidateDetails] = useState<CandidateDetailsResponse | null>(null)
@@ -96,6 +98,23 @@ export default function AdminPage() {
       router.push('/')
     }
   }, [status, session, router])
+
+  // Fetch flagged listings count on mount (for badge)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    const fetchFlaggedCount = async () => {
+      try {
+        const res = await fetch('/api/admin/flagged-listings?status=pending&limit=1')
+        const data = await res.json()
+        setFlaggedListingsCount(data.summary.totalPending || 0)
+      } catch (error) {
+        console.error('Error fetching flagged count:', error)
+      }
+    }
+
+    fetchFlaggedCount()
+  }, [status])
 
   // Fetch data based on active tab
   useEffect(() => {
@@ -524,6 +543,32 @@ export default function AdminPage() {
               {candidates && candidates.summary.byStatus.pending > 0 && (
                 <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent-primary rounded-full">
                   {candidates.summary.byStatus.pending}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  const confirmed = confirm('You have unsaved changes. Are you sure you want to leave this page?')
+                  if (!confirmed) return
+                  setIsEditing(false)
+                  setEditedCandidate(null)
+                  setValidationErrors({})
+                  setVerificationWarnings([])
+                  setError(null)
+                }
+                setActiveTab('flagged-listings')
+              }}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'flagged-listings'
+                  ? 'border-accent-primary text-accent-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+              }`}
+            >
+              Flagged Listings
+              {flaggedListingsCount > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent-primary rounded-full">
+                  {flaggedListingsCount}
                 </span>
               )}
             </button>
@@ -1059,6 +1104,10 @@ export default function AdminPage() {
               )}
             </div>
           </div>
+        )}
+
+        {activeTab === 'flagged-listings' && (
+          <FlaggedListingsTab />
         )}
       </div>
     </div>
