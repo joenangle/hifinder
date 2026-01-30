@@ -9,7 +9,7 @@ import { supabaseServer } from '@/lib/supabase-server'
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -21,7 +21,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Fetch the listing with component details
     const { data: listing, error } = await supabaseServer
@@ -86,7 +86,7 @@ export async function GET(
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -98,7 +98,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const { action, notes, newComponentId } = body
 
@@ -189,7 +189,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -201,7 +201,7 @@ export async function DELETE(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Hard delete (actually remove from database)
     // Note: We prefer soft delete via PATCH with action='delete'
