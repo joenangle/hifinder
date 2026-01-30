@@ -99,6 +99,8 @@ function extractModel(title, brand) {
     /\b(with|includes|comes with|box|original|accessories)\b/gi,
     /\b(for sale|fs|wts|wtt|trade|sell|selling)\b/gi,
     /\b(price drop|reduced|obo|or best offer)\b/gi,
+    /\b(paypal|pp|venmo|zelle|cashapp|cash app|wire|wire transfer|bank transfer|local cash|cash only|money order)\b/gi, // Payment methods
+    /\b(g&s|gs|f&f|ff|friends and family|goods and services)\b/gi, // PayPal types
     /\$\d+/g, // Remove prices
     /\d+\/\d+/g, // Remove trade scores
     /[\[\](){}]/g, // Remove remaining brackets
