@@ -81,6 +81,15 @@ function extractModel(title, brand) {
 
   let model = title;
 
+  // Remove Reddit formatting tags FIRST (before removing brackets)
+  model = model.replace(/\[WTS\]/gi, '');
+  model = model.replace(/\[WTT\]/gi, '');
+  model = model.replace(/\[WTB\]/gi, '');
+  model = model.replace(/\[US-[A-Z]{2}\]/gi, ''); // State codes like [US-CA]
+  model = model.replace(/\[H\]/gi, ''); // Have section
+  model = model.replace(/\[W\]/gi, ''); // Want section
+  model = model.replace(/\[USA-[A-Z]{2}\]/gi, ''); // Alternative state format
+
   // Remove brand name
   model = model.replace(new RegExp(brand, 'gi'), '');
 
@@ -92,7 +101,7 @@ function extractModel(title, brand) {
     /\b(price drop|reduced|obo|or best offer)\b/gi,
     /\$\d+/g, // Remove prices
     /\d+\/\d+/g, // Remove trade scores
-    /[\[\](){}]/g, // Remove brackets
+    /[\[\](){}]/g, // Remove remaining brackets
     /\s+-\s+/g, // Remove dashes with spaces
     /\s+/g // Normalize whitespace
   ];
