@@ -108,15 +108,26 @@ function MarketplaceContent() {
       const listingsWithComponents = data.listings as ListingWithComponent[]
 
       // Filter by search query (client-side since it involves component data)
+      // Normalize: strip spaces/hyphens so "HD 660" matches "HD660", "DT-990" matches "DT990", etc.
+      const normalize = (s: string) => s.toLowerCase().replace(/[\s\-]/g, '')
       let filteredData = listingsWithComponents
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase()
-        filteredData = filteredData.filter(listing =>
-          listing.component?.name.toLowerCase().includes(query) ||
-          listing.component?.brand.toLowerCase().includes(query) ||
-          listing.title.toLowerCase().includes(query) ||
-          (listing.description && listing.description.toLowerCase().includes(query))
-        )
+        const normalizedQuery = normalize(searchQuery)
+        filteredData = filteredData.filter(listing => {
+          // Standard substring match
+          const standardMatch =
+            listing.component?.name.toLowerCase().includes(query) ||
+            listing.component?.brand.toLowerCase().includes(query) ||
+            listing.title.toLowerCase().includes(query) ||
+            (listing.description && listing.description.toLowerCase().includes(query))
+          if (standardMatch) return true
+          // Normalized match (spaces/hyphens stripped) for model number fuzzy matching
+          return (
+            normalize(listing.component?.name || '').includes(normalizedQuery) ||
+            normalize(listing.title || '').includes(normalizedQuery)
+          )
+        })
       }
 
       // Filter by category
@@ -191,12 +202,12 @@ function MarketplaceContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortBy, selectedSource, selectedConditions])
 
-  // Search with debounce (text input)
+  // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1)
       fetchUsedListings(1, true)
-    }, 500)
+    }, 800)
 
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
