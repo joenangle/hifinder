@@ -150,6 +150,10 @@ function RecommendationsContent() {
   // Simple debouncing for API calls - debounce budget only
   const debouncedBudget = useDebounce(userPrefs.budget, 300)
 
+  // Track selected items for background re-fetch (debounced to avoid spam)
+  const [selectedItemsForApi, setSelectedItemsForApi] = useState<Array<{ id: string; category: string; avgPrice: number }>>([])
+  const debouncedSelectedItems = useDebounce(selectedItemsForApi, 500)
+
   // Filter state for UI controls - now supporting multi-select
   const [typeFilters, setTypeFilters] = useState<string[]>(() => {
     const param = searchParams.get('headphoneTypes')
@@ -297,10 +301,10 @@ function RecommendationsContent() {
   // ===== MOVED TO API - RECOMMENDATIONS LOGIC NOW SERVER-SIDE =====
 
   // Main recommendation fetching logic using new API
-  const fetchRecommendations = useCallback(async () => {
-    console.log('🎯 FETCH TRIGGERED - Budget:', debouncedBudget, 'Timestamp:', Date.now())
+  const fetchRecommendations = useCallback(async (background = false) => {
+    console.log('🎯 FETCH TRIGGERED - Budget:', debouncedBudget, 'Background:', background, 'Timestamp:', Date.now())
 
-    setLoading(true)
+    if (!background) setLoading(true)
     setError(null)
 
     try {
@@ -324,6 +328,11 @@ function RecommendationsContent() {
       // Add custom budget allocation if provided (using debounced value)
       if (debouncedCustomBudgetAllocation) {
         params.set('customBudgetAllocation', JSON.stringify(debouncedCustomBudgetAllocation))
+      }
+
+      // Add selected items for budget-aware re-ranking
+      if (debouncedSelectedItems.length > 0) {
+        params.set('selectedItems', JSON.stringify(debouncedSelectedItems))
       }
 
       // Debug logging for race condition investigation
@@ -441,17 +450,19 @@ function RecommendationsContent() {
       setDacAmps([])
       setShowAmplification(false)
     } finally {
-      setLoading(false)
+      if (!background) setLoading(false)
     }
   }, [
     debouncedBudget,
     debouncedCustomBudgetAllocation,
+    debouncedSelectedItems,
     userPrefs.budgetRangeMin,
     userPrefs.budgetRangeMax,
     userPrefs.usage,
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
-    typeFilters // Need actual array for headphoneType conversion
+    typeFilters, // Need actual array for headphoneType conversion
+    userPrefs.budget // Need for selectedItems budget shift calculation
     // Removed JSON.stringify dependencies - they create new references every render
     // The API stringifies these internally, so changes are reflected in the request
   ])
@@ -510,10 +521,19 @@ function RecommendationsContent() {
     setCustomBudgetAllocation(null)
   }, [userPrefs.budget, wantRecommendationsForKey])
 
+  // Track whether initial load is complete (for background re-fetch detection)
+  const hasInitiallyLoaded = React.useRef(false)
+
   // Initial fetch on mount + when fetchRecommendations changes
   useEffect(() => {
-    fetchRecommendations()
-  }, [fetchRecommendations])
+    if (hasInitiallyLoaded.current && debouncedSelectedItems.length > 0) {
+      // Background re-fetch: selections changed, don't show loading spinner
+      fetchRecommendations(true)
+    } else {
+      fetchRecommendations(false)
+      hasInitiallyLoaded.current = true
+    }
+  }, [fetchRecommendations]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch filter counts when budget changes
   useEffect(() => {
@@ -610,12 +630,80 @@ function RecommendationsContent() {
   const selectedAmpItems = amps.filter(a => selectedAmps.includes(a.id))
   const selectedDacAmpItems = dacAmps.filter(da => selectedDacAmps.includes(da.id))
 
-  const _totalSelectedPrice = [ // Reserved for future budget tracking
-    ...selectedHeadphoneItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
-    ...selectedDacItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
-    ...selectedAmpItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2),
-    ...selectedDacAmpItems.map(item => ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2)
-  ].reduce((sum, price) => sum + price, 0)
+  // Helper to get avg price of a component
+  const getAvgPrice = (item: { price_used_min?: number | null; price_used_max?: number | null }) =>
+    ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2
+
+  const totalSelectedPrice = [
+    ...selectedHeadphoneItems,
+    ...selectedDacItems,
+    ...selectedAmpItems,
+    ...selectedDacAmpItems
+  ].reduce((sum, item) => sum + getAvgPrice(item), 0)
+
+  // Calculate cost of selected items per category
+  const selectedHeadphoneCost = selectedHeadphoneItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+  const selectedDacCost = selectedDacItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+  const selectedAmpCost = selectedAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+  const selectedDacAmpCost = selectedDacAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+
+  // Remaining budget per category = total budget - cost of ALL other selected categories
+  const hasAnySelections = totalSelectedPrice > 0
+  const remainingForHeadphones = userPrefs.budget - selectedDacCost - selectedAmpCost - selectedDacAmpCost
+  const remainingForDacs = userPrefs.budget - selectedHeadphoneCost - selectedAmpCost - selectedDacAmpCost
+  const remainingForAmps = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedDacAmpCost
+  const remainingForCombos = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedAmpCost
+
+  // Client-side budget filtering: hide items over remaining budget when other categories have selections
+  const isHeadphoneBudgetConstrained = hasAnySelections && selectedHeadphoneItems.length === 0 && (selectedDacCost + selectedAmpCost + selectedDacAmpCost) > 0
+  const isDacBudgetConstrained = hasAnySelections && selectedDacItems.length === 0 && (selectedHeadphoneCost + selectedAmpCost + selectedDacAmpCost) > 0
+  const isAmpBudgetConstrained = hasAnySelections && selectedAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedDacAmpCost) > 0
+  const isComboBudgetConstrained = hasAnySelections && selectedDacAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedAmpCost) > 0
+
+  const filteredCans = useMemo(() => {
+    if (!isHeadphoneBudgetConstrained) return cans
+    return cans.filter(c => getAvgPrice(c) <= remainingForHeadphones * 1.1) // 10% grace
+  }, [cans, isHeadphoneBudgetConstrained, remainingForHeadphones])
+
+  const filteredIems = useMemo(() => {
+    if (!isHeadphoneBudgetConstrained) return iems
+    return iems.filter(c => getAvgPrice(c) <= remainingForHeadphones * 1.1)
+  }, [iems, isHeadphoneBudgetConstrained, remainingForHeadphones])
+
+  const filteredDacs = useMemo(() => {
+    if (!isDacBudgetConstrained) return dacs
+    return dacs.filter(d => getAvgPrice(d) <= remainingForDacs * 1.1)
+  }, [dacs, isDacBudgetConstrained, remainingForDacs])
+
+  const filteredAmps = useMemo(() => {
+    if (!isAmpBudgetConstrained) return amps
+    return amps.filter(a => getAvgPrice(a) <= remainingForAmps * 1.1)
+  }, [amps, isAmpBudgetConstrained, remainingForAmps])
+
+  const filteredDacAmps = useMemo(() => {
+    if (!isComboBudgetConstrained) return dacAmps
+    return dacAmps.filter(da => getAvgPrice(da) <= remainingForCombos * 1.1)
+  }, [dacAmps, isComboBudgetConstrained, remainingForCombos])
+
+  // Update selectedItemsForApi when selections change significantly (>30% budget shift)
+  useEffect(() => {
+    if (!hasAnySelections) {
+      if (selectedItemsForApi.length > 0) setSelectedItemsForApi([])
+      return
+    }
+    const items: Array<{ id: string; category: string; avgPrice: number }> = [
+      ...selectedHeadphoneItems.map(h => ({ id: h.id, category: 'headphones', avgPrice: getAvgPrice(h) })),
+      ...selectedDacItems.map(d => ({ id: d.id, category: 'dac', avgPrice: getAvgPrice(d) })),
+      ...selectedAmpItems.map(a => ({ id: a.id, category: 'amp', avgPrice: getAvgPrice(a) })),
+      ...selectedDacAmpItems.map(da => ({ id: da.id, category: 'combo', avgPrice: getAvgPrice(da) }))
+    ]
+    const totalSelected = items.reduce((sum, i) => sum + i.avgPrice, 0)
+    // Only trigger background re-fetch if selections consume >30% of total budget
+    if (totalSelected / userPrefs.budget > 0.3) {
+      setSelectedItemsForApi(items)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCans, selectedIems, selectedDacs, selectedAmps, selectedDacAmps])
 
   // Combine all selected items for comparison view
   const comparisonItems = [
@@ -657,20 +745,21 @@ function RecommendationsContent() {
     return items.slice(0, initialLimit)
   }
 
-  const displayCans = getDisplayItems(cans, showAllCans)
-  const displayIems = getDisplayItems(iems, showAllIems)
-  const displayDacs = getDisplayItems(dacs, showAllDacs)
-  const displayAmps = getDisplayItems(amps, showAllAmps)
-  const displayDacAmps = getDisplayItems(dacAmps, showAllCombos)
+  const displayCans = getDisplayItems(filteredCans, showAllCans)
+  const displayIems = getDisplayItems(filteredIems, showAllIems)
+  const displayDacs = getDisplayItems(filteredDacs, showAllDacs)
+  const displayAmps = getDisplayItems(filteredAmps, showAllAmps)
+  const displayDacAmps = getDisplayItems(filteredDacAmps, showAllCombos)
 
   // Debug: Log show more button visibility
   console.log('Show More Debug:', {
     initialLimit,
-    cans: { total: cans.length, display: displayCans.length, showButton: !showAllCans && cans.length > initialLimit },
-    iems: { total: iems.length, display: displayIems.length, showButton: !showAllIems && iems.length > initialLimit },
-    dacs: { total: dacs.length, display: displayDacs.length, showButton: !showAllDacs && dacs.length > initialLimit },
-    amps: { total: amps.length, display: displayAmps.length, showButton: !showAllAmps && amps.length > initialLimit },
-    combos: { total: dacAmps.length, display: displayDacAmps.length, showButton: !showAllCombos && dacAmps.length > initialLimit }
+    cans: { total: cans.length, filtered: filteredCans.length, display: displayCans.length },
+    iems: { total: iems.length, filtered: filteredIems.length, display: displayIems.length },
+    dacs: { total: dacs.length, filtered: filteredDacs.length, display: displayDacs.length },
+    amps: { total: amps.length, filtered: filteredAmps.length, display: displayAmps.length },
+    combos: { total: dacAmps.length, filtered: filteredDacAmps.length, display: displayDacAmps.length },
+    budgetConstrained: { headphones: isHeadphoneBudgetConstrained, dac: isDacBudgetConstrained, amp: isAmpBudgetConstrained, combo: isComboBudgetConstrained }
   })
 
   // Dynamic title and description 
@@ -923,6 +1012,7 @@ function RecommendationsContent() {
           selectedAmps={selectedAmpItems}
           selectedCombos={selectedDacAmpItems}
           budget={budget}
+          remainingBudget={userPrefs.budget - totalSelectedPrice}
           onBuildStack={() => setShowStackBuilder(true)}
           onClearAll={() => {
             setSelectedCans([])
@@ -944,10 +1034,10 @@ function RecommendationsContent() {
         {(() => {
           // Check for separate cans/iems or combined headphones
           // Always show separate sections for cans and iems
-          const hasCans = wantRecommendationsFor.headphones && cans.length > 0
-          const hasIems = wantRecommendationsFor.headphones && iems.length > 0
-          const hasDacs = wantRecommendationsFor.dac && dacs.length > 0
-          const hasAmps = wantRecommendationsFor.amp && amps.length > 0
+          const hasCans = wantRecommendationsFor.headphones && filteredCans.length > 0
+          const hasIems = wantRecommendationsFor.headphones && filteredIems.length > 0
+          const hasDacs = wantRecommendationsFor.dac && filteredDacs.length > 0
+          const hasAmps = wantRecommendationsFor.amp && filteredAmps.length > 0
           const hasCombos = wantRecommendationsFor.combo && dacAmps.length > 0
           const hasSignalGear = hasDacs || hasAmps || hasCombos
 
@@ -999,9 +1089,14 @@ function RecommendationsContent() {
                 </h2>
                 <div className="text-center mt-0.5">
                   <span className="text-xs text-white">
-                    {cans.length} options
-                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 && (
+                    {filteredCans.length} options
+                    {isHeadphoneBudgetConstrained ? (
+                      <> • Remaining: {formatBudgetUSD(remainingForHeadphones)}</>
+                    ) : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
+                    ) : null}
+                    {isHeadphoneBudgetConstrained && filteredCans.length < cans.length && (
+                      <> ({cans.length - filteredCans.length} over budget)</>
                     )}
                   </span>
                 </div>
@@ -1028,12 +1123,12 @@ function RecommendationsContent() {
                 })}
 
                 {/* Show More Button */}
-                {!showAllCans && cans.length > initialLimit && (
+                {!showAllCans && filteredCans.length > initialLimit && (
                   <button
                     onClick={() => setShowAllCans(true)}
                     className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
                   >
-                    Show {cans.length - initialLimit} more headphones
+                    Show {filteredCans.length - initialLimit} more headphones
                   </button>
                 )}
               </div>
@@ -1054,9 +1149,14 @@ function RecommendationsContent() {
                 </h2>
                 <div className="text-center mt-0.5">
                   <span className="text-xs text-white">
-                    {iems.length} options
-                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 && (
+                    {filteredIems.length} options
+                    {isHeadphoneBudgetConstrained ? (
+                      <> • Remaining: {formatBudgetUSD(remainingForHeadphones)}</>
+                    ) : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? (
                       <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
+                    ) : null}
+                    {isHeadphoneBudgetConstrained && filteredIems.length < iems.length && (
+                      <> ({iems.length - filteredIems.length} over budget)</>
                     )}
                   </span>
                 </div>
@@ -1083,12 +1183,12 @@ function RecommendationsContent() {
                 })}
 
                 {/* Show More Button */}
-                {!showAllIems && iems.length > initialLimit && (
+                {!showAllIems && filteredIems.length > initialLimit && (
                   <button
                     onClick={() => setShowAllIems(true)}
                     className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
                   >
-                    Show {iems.length - initialLimit} more IEMs
+                    Show {filteredIems.length - initialLimit} more IEMs
                   </button>
                 )}
               </div>
@@ -1106,7 +1206,7 @@ function RecommendationsContent() {
                 {/* DACs Section */}
                 {wantRecommendationsFor.dac && (
                   <div className="card overflow-hidden">
-                    {dacs.length > 0 ? (
+                    {filteredDacs.length > 0 ? (
                       <>
                         <div className="px-4 py-3 border-b dark:border-emerald-700/30 bg-gradient-to-b from-emerald-300 to-emerald-200 dark:from-emerald-400/80 dark:to-emerald-300/80 rounded-t-xl">
                           <h2 className="text-lg font-semibold text-center text-white">
@@ -1114,9 +1214,14 @@ function RecommendationsContent() {
                           </h2>
                           <div className="text-center mt-0.5">
                             <span className="text-xs text-white">
-                              {dacs.length} options
-                              {budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 && (
+                              {filteredDacs.length} options
+                              {isDacBudgetConstrained ? (
+                                <> • Remaining: {formatBudgetUSD(remainingForDacs)}</>
+                              ) : budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? (
                                 <> • Budget: {formatBudgetUSD(budgetAllocation.dac)}</>
+                              ) : null}
+                              {isDacBudgetConstrained && filteredDacs.length < dacs.length && (
+                                <> ({dacs.length - filteredDacs.length} over budget)</>
                               )}
                             </span>
                           </div>
@@ -1135,12 +1240,12 @@ function RecommendationsContent() {
                           ))}
 
                           {/* Show More Button */}
-                          {!showAllDacs && dacs.length > initialLimit && (
+                          {!showAllDacs && filteredDacs.length > initialLimit && (
                             <button
                               onClick={() => setShowAllDacs(true)}
                               className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
                             >
-                              Show {dacs.length - initialLimit} more DACs
+                              Show {filteredDacs.length - initialLimit} more DACs
                             </button>
                           )}
                         </div>
@@ -1174,7 +1279,7 @@ function RecommendationsContent() {
           {/* Amps Section */}
           {wantRecommendationsFor.amp && (
             <div className="card overflow-hidden">
-              {amps.length > 0 ? (
+              {filteredAmps.length > 0 ? (
                 <>
                   <div className="px-4 py-3 border-b dark:border-amber-700/30 bg-gradient-to-b from-amber-300 to-amber-200 dark:from-amber-400/80 dark:to-amber-300/80 rounded-t-xl">
                     <h2 className="text-lg font-semibold text-center text-white">
@@ -1182,9 +1287,14 @@ function RecommendationsContent() {
                     </h2>
                     <div className="text-center mt-0.5">
                       <span className="text-xs text-white">
-                        {amps.length} options
-                        {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 && (
+                        {filteredAmps.length} options
+                        {isAmpBudgetConstrained ? (
+                          <> • Remaining: {formatBudgetUSD(remainingForAmps)}</>
+                        ) : budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? (
                           <> • Budget: {formatBudgetUSD(budgetAllocation.amp)}</>
+                        ) : null}
+                        {isAmpBudgetConstrained && filteredAmps.length < amps.length && (
+                          <> ({amps.length - filteredAmps.length} over budget)</>
                         )}
                       </span>
                     </div>
@@ -1203,12 +1313,12 @@ function RecommendationsContent() {
                     ))}
 
                     {/* Show More Button */}
-                    {!showAllAmps && amps.length > initialLimit && (
+                    {!showAllAmps && filteredAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllAmps(true)}
                         className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
                       >
-                        Show {amps.length - initialLimit} more amps
+                        Show {filteredAmps.length - initialLimit} more amps
                       </button>
                     )}
                   </div>
@@ -1242,7 +1352,7 @@ function RecommendationsContent() {
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && (
             <div className="card overflow-hidden">
-              {dacAmps.length > 0 ? (
+              {filteredDacAmps.length > 0 ? (
                 <>
                   <div className="px-4 py-3 border-b dark:border-blue-700/30 bg-gradient-to-b from-blue-300 to-blue-200 dark:from-blue-400/80 dark:to-blue-300/80 rounded-t-xl">
                     <h2 className="text-lg font-semibold text-center text-white">
@@ -1250,9 +1360,14 @@ function RecommendationsContent() {
                     </h2>
                     <div className="text-center mt-0.5">
                       <span className="text-xs text-white">
-                        {dacAmps.length} options
-                        {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 && (
+                        {filteredDacAmps.length} options
+                        {isComboBudgetConstrained ? (
+                          <> • Remaining: {formatBudgetUSD(remainingForCombos)}</>
+                        ) : budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? (
                           <> • Budget: {formatBudgetUSD(budgetAllocation.combo)}</>
+                        ) : null}
+                        {isComboBudgetConstrained && filteredDacAmps.length < dacAmps.length && (
+                          <> ({dacAmps.length - filteredDacAmps.length} over budget)</>
                         )}
                       </span>
                     </div>
@@ -1271,12 +1386,12 @@ function RecommendationsContent() {
                     ))}
 
                     {/* Show More Button */}
-                    {!showAllCombos && dacAmps.length > initialLimit && (
+                    {!showAllCombos && filteredDacAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllCombos(true)}
                         className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
                       >
-                        Show {dacAmps.length - initialLimit} more combos
+                        Show {filteredDacAmps.length - initialLimit} more combos
                       </button>
                     )}
                   </div>

@@ -15,6 +15,7 @@ interface SelectedSystemSummaryProps {
   selectedAmps: AudioComponent[]
   selectedCombos: AudioComponent[]
   budget: number
+  remainingBudget: number
   onBuildStack: () => void
   onClearAll: () => void
 }
@@ -29,6 +30,7 @@ const SelectedSystemSummaryComponent = ({
   selectedAmps,
   selectedCombos,
   budget,
+  remainingBudget,
   onBuildStack,
   onClearAll
 }: SelectedSystemSummaryProps) => {
@@ -45,6 +47,11 @@ const SelectedSystemSummaryComponent = ({
   const hasItems = selectedHeadphones.length > 0 || selectedDacs.length > 0 || selectedAmps.length > 0 || selectedCombos.length > 0
 
   if (!hasItems) return null
+
+  // Count how many category slots are still empty
+  const allCategories = [selectedHeadphones, selectedDacs, selectedAmps, selectedCombos]
+  const filledCategories = allCategories.filter(arr => arr.length > 0).length
+  const totalCategories = allCategories.length
 
   return (
     <div className="card p-6 mb-8 border-l-4 border-accent-primary">
@@ -98,15 +105,22 @@ const SelectedSystemSummaryComponent = ({
           <p className="text-xl font-bold text-text-primary mb-2">
             ${Math.round(totalSelectedPrice).toLocaleString()}
           </p>
-          <p className={`text-sm font-medium mb-1 ${
-            totalSelectedPrice > budget * 1.1
-              ? 'text-red-700 dark:text-red-400'
-              : totalSelectedPrice > budget * 0.9
-              ? 'text-text-secondary'
-              : 'text-green-700 dark:text-green-400'
-          }`}>
-            {totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()}
-          </p>
+          <div className="flex items-center justify-center gap-4 mb-1">
+            <p className={`text-sm font-medium ${
+              totalSelectedPrice > budget * 1.1
+                ? 'text-red-700 dark:text-red-400'
+                : totalSelectedPrice > budget * 0.9
+                ? 'text-text-secondary'
+                : 'text-green-700 dark:text-green-400'
+            }`}>
+              {totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()}
+            </p>
+            {filledCategories < totalCategories && remainingBudget > 0 && (
+              <p className="text-sm font-medium text-accent-primary">
+                {formatBudgetUSD(remainingBudget)} remaining
+              </p>
+            )}
+          </div>
           <p className="text-xs text-text-secondary">Est. System Cost</p>
         </div>
 

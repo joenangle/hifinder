@@ -824,11 +824,19 @@ export async function GET(request: NextRequest) {
     };
 
     // Generate cache key for this query
+    // Parse selectedItems early for cache key
+    let selectedItemsForCache: Array<{ id: string; category: string; avgPrice: number }> = [];
+    const selectedItemsParamForCache = searchParams.get("selectedItems");
+    if (selectedItemsParamForCache) {
+      try { selectedItemsForCache = JSON.parse(selectedItemsParamForCache); } catch { /* ignore */ }
+    }
+
     const cacheKey = generateCacheKey({
       budget: req.budget,
       soundSignatures: req.soundSignatures,
       headphoneType: req.headphoneType,
       wantRecommendationsFor: req.wantRecommendationsFor,
+      selectedItems: selectedItemsForCache.map(i => i.id).sort(),
     });
 
     // Wrap recommendation generation in cache
@@ -840,6 +848,29 @@ export async function GET(request: NextRequest) {
       const requestedComponents = Object.entries(req.wantRecommendationsFor)
         .filter(([, wanted]) => wanted)
         .map(([component]) => component);
+
+      // Parse selectedItems for budget-aware re-ranking
+      let selectedItems: Array<{ id: string; category: string; avgPrice: number }> = [];
+      const selectedItemsParam = searchParams.get("selectedItems");
+      if (selectedItemsParam) {
+        try {
+          selectedItems = JSON.parse(selectedItemsParam);
+        } catch {
+          selectedItems = [];
+        }
+      }
+
+      // Calculate effective budget: subtract cost of selected items
+      const selectedItemsCost = selectedItems.reduce((sum, item) => sum + item.avgPrice, 0);
+      const effectiveBudget = selectedItems.length > 0 ? req.budget - selectedItemsCost : req.budget;
+
+      // Determine which categories already have selections (skip re-fetching for those)
+      const categoriesWithSelections = new Set(selectedItems.map(item => item.category));
+
+      // Filter requestedComponents to only fetch for categories without selections
+      const componentsToFetch = selectedItems.length > 0
+        ? requestedComponents.filter(c => !categoriesWithSelections.has(c))
+        : requestedComponents;
 
       // Calculate budget allocation with smart redistribution
       // Use custom allocation if provided, otherwise use smart allocation
@@ -868,10 +899,10 @@ export async function GET(request: NextRequest) {
           }
         });
       } else {
-        // Use smart allocation
+        // Use smart allocation with effective budget (remaining after selections)
         budgetAllocation = await allocateBudgetAcrossComponents(
-          req.budget,
-          requestedComponents,
+          selectedItems.length > 0 ? Math.max(effectiveBudget, 20) : req.budget,
+          selectedItems.length > 0 ? componentsToFetch : requestedComponents,
           req.existingGear,
           req.budgetRangeMin,
           req.budgetRangeMax
@@ -896,10 +927,10 @@ export async function GET(request: NextRequest) {
         needsAmplification: false,
       };
 
-      // Build query for all components
+      // Build query for all components (skip categories with existing selections)
       const requestedCategories: string[] = [];
 
-      if (req.wantRecommendationsFor.headphones) {
+      if (req.wantRecommendationsFor.headphones && !categoriesWithSelections.has("headphones")) {
         if (req.headphoneType === "cans") {
           requestedCategories.push("cans");
         } else if (req.headphoneType === "iems") {
@@ -909,15 +940,15 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      if (req.wantRecommendationsFor.dac) {
+      if (req.wantRecommendationsFor.dac && !categoriesWithSelections.has("dac")) {
         requestedCategories.push("dac");
       }
 
-      if (req.wantRecommendationsFor.amp) {
+      if (req.wantRecommendationsFor.amp && !categoriesWithSelections.has("amp")) {
         requestedCategories.push("amp");
       }
 
-      if (req.wantRecommendationsFor.combo) {
+      if (req.wantRecommendationsFor.combo && !categoriesWithSelections.has("combo")) {
         requestedCategories.push("dac_amp");
       }
 
