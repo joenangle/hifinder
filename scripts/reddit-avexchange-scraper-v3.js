@@ -252,7 +252,62 @@ function isSoldPost(postData) {
  */
 function extractPrice(title, selftext = '') {
   const combinedText = title + ' ' + (selftext || '');
+  return extractPricesFromText(combinedText);
+}
 
+/**
+ * Extract the price associated with a specific component from a multi-item post body.
+ * Handles formatted posts like:
+ *   * Qudelix 5k - $75 - No box
+ *   * Tanchjim Stargate 2 - $25
+ *   Sennheiser HD600 $350 shipped
+ *
+ * Falls back to the global extractPrice() if no line-level match is found.
+ *
+ * @param {string} componentName - e.g. "Qudelix 5K"
+ * @param {string} title - Post title
+ * @param {string} selftext - Post body
+ * @param {string} [matchedSegment] - The segment text that matched this component
+ * @returns {number|null} - Price or null
+ */
+function extractComponentPrice(componentName, title, selftext = '', matchedSegment = '') {
+  if (!selftext) return extractPrice(title, selftext);
+
+  // Normalize for comparison: lowercase, strip hyphens/extra spaces
+  const normalize = (s) => s.toLowerCase().replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
+  const normalizedName = normalize(componentName);
+
+  // Build search terms from component name (e.g. "Qudelix 5K" → ["qudelix", "5k"])
+  const nameTokens = normalizedName.split(' ').filter(t => t.length >= 2);
+
+  // Split body into lines
+  const lines = selftext.split(/\n/);
+
+  for (const line of lines) {
+    const normalizedLine = normalize(line);
+
+    // Check if this line contains enough tokens from the component name
+    const matchedTokens = nameTokens.filter(token => normalizedLine.includes(token));
+    if (matchedTokens.length < Math.max(1, Math.ceil(nameTokens.length * 0.6))) {
+      continue; // Not enough tokens matched on this line
+    }
+
+    // Found the line — extract price from THIS line only
+    const linePrice = extractPricesFromText(line);
+    if (linePrice) {
+      return linePrice;
+    }
+  }
+
+  // Fallback: try extracting from the title (for single-item posts or title-priced posts)
+  return extractPricesFromText(title);
+}
+
+/**
+ * Core price extraction from a text string.
+ * Returns the highest-priority, lowest price found.
+ */
+function extractPricesFromText(text) {
   // Pattern 1: $X,XXX or $XXX (highest priority)
   const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
 
@@ -269,7 +324,7 @@ function extractPrice(title, selftext = '') {
 
   // Extract with priority 1
   let match;
-  while ((match = dollarPattern.exec(combinedText)) !== null) {
+  while ((match = dollarPattern.exec(text)) !== null) {
     const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 1 });
@@ -277,7 +332,7 @@ function extractPrice(title, selftext = '') {
   }
 
   // Extract with priority 2
-  while ((match = askingPattern.exec(combinedText)) !== null) {
+  while ((match = askingPattern.exec(text)) !== null) {
     const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 2 });
@@ -285,7 +340,7 @@ function extractPrice(title, selftext = '') {
   }
 
   // Extract with priority 3
-  while ((match = shippedPattern.exec(combinedText)) !== null) {
+  while ((match = shippedPattern.exec(text)) !== null) {
     const price = parseInt(match[1], 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 3 });
@@ -293,7 +348,7 @@ function extractPrice(title, selftext = '') {
   }
 
   // Extract with priority 4
-  while ((match = currencyPattern.exec(combinedText)) !== null) {
+  while ((match = currencyPattern.exec(text)) !== null) {
     const price = parseInt(match[1], 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 4 });
@@ -505,10 +560,30 @@ async function scrapeReddit() {
       for (let i = 0; i < bundleMatches.length; i++) {
         const match = bundleMatches[i];
 
+        // Extract per-component price from body text (handles multi-item posts with individual prices)
+        const componentName = `${match.component.brand} ${match.component.name}`;
+        const perComponentPrice = extractComponentPrice(
+          componentName, post.title, post.selftext, match.segment
+        );
+
         // Calculate price for this component
-        const priceInfo = bundleMatches.length > 1
-          ? calculateBundlePrice(totalPrice, bundleMatches.length, i, match.component)
-          : { individual_price: totalPrice, bundle_total_price: null };
+        let priceInfo;
+        if (bundleMatches.length > 1) {
+          if (perComponentPrice && perComponentPrice !== totalPrice) {
+            // Found a per-item price in the body — use it directly
+            priceInfo = {
+              individual_price: perComponentPrice,
+              bundle_total_price: totalPrice,
+              bundle_component_count: bundleMatches.length
+            };
+            console.log(`    💰 Per-item price for ${match.component.name}: $${perComponentPrice}`);
+          } else {
+            priceInfo = calculateBundlePrice(totalPrice, bundleMatches.length, i, match.component);
+          }
+        } else {
+          // Single item — try per-component price first (for when global extractPrice picks wrong price)
+          priceInfo = { individual_price: perComponentPrice || totalPrice, bundle_total_price: null };
+        }
 
         const listing = {
           component_id: match.component.id,
