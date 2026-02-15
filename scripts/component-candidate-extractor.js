@@ -8,11 +8,36 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { getComponentsFromCache } = require('./component-matcher-enhanced');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Candidate cache - loaded once per run to avoid per-post DB queries
+let _candidateCache = null;
+
+async function getCandidateCache() {
+  if (_candidateCache) return _candidateCache;
+
+  const { data, error } = await supabase
+    .from('new_component_candidates')
+    .select('*');
+
+  if (error) {
+    console.error('Error loading candidate cache:', error.message);
+    _candidateCache = new Map();
+    return _candidateCache;
+  }
+
+  _candidateCache = new Map();
+  for (const candidate of (data || [])) {
+    _candidateCache.set(`${candidate.brand}::${candidate.model}`, candidate);
+  }
+  console.log(`📦 Candidate cache loaded: ${_candidateCache.size} candidates`);
+  return _candidateCache;
+}
 
 // Known audio brands (reused from component-matcher-enhanced.js)
 const KNOWN_BRANDS = [
@@ -185,25 +210,20 @@ function calculateQualityScore(candidate) {
 
 /**
  * Check if candidate already exists in components table (fuzzy match)
+ * Uses the shared component cache from component-matcher-enhanced.js
  */
 async function checkExistingComponent(brand, model) {
   try {
-    const { data, error } = await supabase
-      .from('components')
-      .select('id, brand, name')
-      .eq('brand', brand)
-      .ilike('name', `%${model}%`);
+    const components = await getComponentsFromCache();
+    const brandLower = brand.toLowerCase();
+    const modelLower = model.toLowerCase();
 
-    if (error) {
-      console.error('Error checking existing components:', error.message);
-      return null;
-    }
+    const match = components.find(c =>
+      c.brand.toLowerCase() === brandLower &&
+      c.name.toLowerCase().includes(modelLower)
+    );
 
-    if (data && data.length > 0) {
-      return data[0]; // Return existing component
-    }
-
-    return null;
+    return match ? { id: match.id, brand: match.brand, name: match.name } : null;
   } catch (error) {
     console.error('Error in checkExistingComponent:', error.message);
     return null;
@@ -212,22 +232,12 @@ async function checkExistingComponent(brand, model) {
 
 /**
  * Check if candidate already exists in candidates table
+ * Uses in-memory cache to avoid per-post DB queries
  */
 async function checkExistingCandidate(brand, model) {
   try {
-    const { data, error } = await supabase
-      .from('new_component_candidates')
-      .select('*')
-      .eq('brand', brand)
-      .eq('model', model)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
-      console.error('Error checking existing candidates:', error.message);
-      return null;
-    }
-
-    return data || null;
+    const cache = await getCandidateCache();
+    return cache.get(`${brand}::${model}`) || null;
   } catch (error) {
     console.error('Error in checkExistingCandidate:', error.message);
     return null;
@@ -295,6 +305,8 @@ async function saveComponentCandidate(candidateData, listingId) {
         return null;
       }
 
+      // Update cache with fresh data
+      _candidateCache.set(`${brand}::${model}`, data);
       console.log(`  ♻️  Updated candidate: ${brand} ${model} (${data.listing_count} listings)`);
       return data;
     }
@@ -328,6 +340,8 @@ async function saveComponentCandidate(candidateData, listingId) {
       return null;
     }
 
+    // Add to cache for subsequent posts in this run
+    _candidateCache.set(`${brand}::${model}`, data);
     console.log(`  ✨ New candidate: ${brand} ${model} (quality: ${data.quality_score}%)`);
     return data;
   } catch (error) {

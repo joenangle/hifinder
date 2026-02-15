@@ -1,9 +1,10 @@
 'use client'
 
 import { Component } from '@/types'
-import { X, Volume2, Cpu, Zap } from 'lucide-react'
+import { X, Volume2, Cpu, Zap, TrendingUp } from 'lucide-react'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { PriceHistoryChart } from './PriceHistoryChart'
 
 interface ComponentDetailModalProps {
   component: Component
@@ -75,6 +76,18 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Price History Chart */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-foreground">Sold Price History</h3>
+            </div>
+            <PriceHistoryChart
+              componentId={component.id}
+              priceNew={component.price_new}
+            />
           </div>
 
           {/* Amplification Requirements */}

@@ -61,8 +61,37 @@ const stats = {
   newListings: 0,
   updatedListings: 0,
   candidatesCreated: 0,
-  candidatesUpdated: 0
+  candidatesUpdated: 0,
+  soldStatusUpdated: 0,
+  soldSkipped: 0
 };
+
+const VERBOSE = process.env.SCRAPER_VERBOSE === '1' || process.argv.includes('--verbose');
+
+// Timing tracking
+const timings = {
+  overall: { start: 0, end: 0 },
+  oauthToken: { start: 0, end: 0 },
+  fetchPosts: { start: 0, end: 0 },
+  processing: { start: 0, end: 0 },
+  perPost: [],          // Array of { title, totalMs, matchMs, upsertMs, candidateMs }
+  totalMatchMs: 0,
+  totalUpsertMs: 0,
+  totalCandidateMs: 0,
+  totalDelayMs: 0,
+  rateLimit429Count: 0,
+  rateLimitWaitMs: 0,
+};
+
+function elapsed(timing) {
+  return ((timing.end - timing.start) / 1000).toFixed(2);
+}
+
+function msLabel(ms) {
+  if (ms >= 60000) return `${(ms / 60000).toFixed(1)}m`;
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${Math.round(ms)}ms`;
+}
 
 /**
  * Acquire lock
@@ -151,6 +180,8 @@ async function fetchWithRetry(url, options, retries = 0) {
 
     if (response.status === 429 && retries < REDDIT_CONFIG.maxRetries) {
       const delay = REDDIT_CONFIG.retryBaseDelay * Math.pow(2, retries);
+      timings.rateLimit429Count++;
+      timings.rateLimitWaitMs += delay;
       console.log(`⚠️  Rate limited, waiting ${delay/1000}s... (retry ${retries + 1}/${REDDIT_CONFIG.maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries + 1);
@@ -487,13 +518,36 @@ function extractImages(postData) {
 async function scrapeReddit() {
   console.log('🚀 Starting Reddit r/AVExchange Scraper V3\n');
   console.log('Architecture: Fetch-all → Parse → Match\n');
+  timings.overall.start = Date.now();
 
   try {
     // Fetch all recent posts
+    timings.fetchPosts.start = Date.now();
     const posts = await fetchAllRecentPosts();
+    timings.fetchPosts.end = Date.now();
     stats.postsProcessed = posts.length;
 
+    // Pre-load existing listing URLs to skip already-processed posts
+    console.log('📦 Loading existing listing URLs...');
+    const { data: existingRows, error: existingErr } = await supabase
+      .from('used_listings')
+      .select('id, url, status')
+      .eq('source', 'reddit_avexchange');
+
+    // Map: url -> array of { id, status }
+    const existingByUrl = new Map();
+    if (!existingErr && existingRows) {
+      for (const row of existingRows) {
+        if (!existingByUrl.has(row.url)) {
+          existingByUrl.set(row.url, []);
+        }
+        existingByUrl.get(row.url).push({ id: row.id, status: row.status });
+      }
+      console.log(`📦 Loaded ${existingByUrl.size} existing listing URLs\n`);
+    }
+
     console.log('🔍 Processing posts...\n');
+    timings.processing.start = Date.now();
 
     for (const post of posts) {
       // Filter for selling posts only
@@ -503,32 +557,76 @@ async function scrapeReddit() {
 
       stats.sellPostsFound++;
 
-      // Skip if already sold
+      const postUrl = `https://www.reddit.com${post.permalink}`;
+
+      // If post is sold, update any existing listings in DB and move on
       if (isSoldPost(post)) {
-        console.log(`⏭️  Skipping sold post: ${post.title.substring(0, 50)}...`);
+        const existing = existingByUrl.get(postUrl);
+        const needsUpdate = existing?.filter(l => l.status !== 'sold') || [];
+
+        if (needsUpdate.length > 0) {
+          const ids = needsUpdate.map(l => l.id);
+          const { error: updateErr } = await supabase
+            .from('used_listings')
+            .update({
+              status: 'sold',
+              date_sold: new Date().toISOString()
+            })
+            .in('id', ids);
+
+          if (!updateErr) {
+            stats.soldStatusUpdated += ids.length;
+            console.log(`🏷️  Marked ${ids.length} listing(s) as sold: ${post.title.substring(0, 50)}...`);
+          } else {
+            console.error(`  ❌ Failed to update sold status:`, updateErr.message);
+          }
+        } else {
+          stats.soldSkipped++;
+        }
         continue;
       }
+
+      // Skip posts already processed (URL exists in DB with active status)
+      if (existingByUrl.has(postUrl)) {
+        stats.skippedExisting = (stats.skippedExisting || 0) + 1;
+        continue;
+      }
+
+      const postTiming = {
+        title: post.title.substring(0, 60),
+        totalStart: Date.now(),
+        matchMs: 0,
+        upsertMs: 0,
+        candidateMs: 0,
+        totalMs: 0,
+      };
 
       console.log(`\n📝 Processing: ${post.title.substring(0, 70)}...`);
 
       // Attempt to match using bundle-aware extraction
+      const matchStart = Date.now();
       const bundleMatches = await extractBundleComponents(
         post.title,
         post.selftext || '',
         'reddit_avexchange'
       );
+      postTiming.matchMs = Date.now() - matchStart;
+      timings.totalMatchMs += postTiming.matchMs;
 
       if (bundleMatches.length === 0) {
         stats.noMatchFound++;
 
         // Extract as component candidate for review
         console.log(`  ⚠️  No match found, extracting as candidate...`);
+        const candidateStart = Date.now();
         const candidate = await extractComponentCandidate({
           title: post.title,
           price: extractPrice(post.title),
           id: null,
           url: `https://www.reddit.com${post.permalink}`
         });
+        postTiming.candidateMs = Date.now() - candidateStart;
+        timings.totalCandidateMs += postTiming.candidateMs;
 
         if (candidate) {
           if (candidate.listing_count === 1) {
@@ -538,6 +636,9 @@ async function scrapeReddit() {
           }
         }
 
+        postTiming.totalMs = Date.now() - postTiming.totalStart;
+        timings.perPost.push(postTiming);
+        if (VERBOSE) console.log(`  ⏱️  Post took ${msLabel(postTiming.totalMs)} (match: ${msLabel(postTiming.matchMs)}, candidate: ${msLabel(postTiming.candidateMs)})`);
         continue;
       }
 
@@ -557,6 +658,7 @@ async function scrapeReddit() {
       console.log(`  📦 Creating ${bundleMatches.length} listing(s) from ${bundleMatches.length > 1 ? 'bundle' : 'single item'}`);
 
       // Create listing for EACH matched component
+      const upsertStart = Date.now();
       for (let i = 0; i < bundleMatches.length; i++) {
         const match = bundleMatches[i];
 
@@ -613,7 +715,7 @@ async function scrapeReddit() {
         };
 
         // Upsert to database
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('used_listings')
           .upsert(listing, {
             onConflict: 'url,component_id', // New composite unique constraint
@@ -628,10 +730,39 @@ async function scrapeReddit() {
           console.log(`  ✅ Saved: ${match.component.brand} ${match.component.name} (${match.score.toFixed(2)})`);
         }
       }
+      postTiming.upsertMs = Date.now() - upsertStart;
+      timings.totalUpsertMs += postTiming.upsertMs;
 
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Note: No per-post delay needed — Reddit API is called once upfront.
+      // The 500ms delay was originally for Reddit rate limiting but all API
+      // calls happen in fetchAllRecentPosts(). Remaining work is DB-only.
+
+      postTiming.totalMs = Date.now() - postTiming.totalStart;
+      timings.perPost.push(postTiming);
+      if (VERBOSE) console.log(`  ⏱️  Post took ${msLabel(postTiming.totalMs)} (match: ${msLabel(postTiming.matchMs)}, upsert: ${msLabel(postTiming.upsertMs)})`);
     }
+
+    timings.processing.end = Date.now();
+
+    // Expire stale listings (Reddit posts older than 30 days without a sale)
+    console.log('\n🧹 Checking for stale listings...');
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: staleListings, error: staleErr } = await supabase
+      .from('used_listings')
+      .update({ status: 'expired' })
+      .eq('source', 'reddit_avexchange')
+      .eq('status', 'available')
+      .lt('date_posted', thirtyDaysAgo)
+      .select('id');
+
+    if (!staleErr && staleListings) {
+      console.log(`🧹 Expired ${staleListings.length} stale listing(s) (>30 days old)`);
+      stats.expiredListings = staleListings.length;
+    } else if (staleErr) {
+      console.error('  ❌ Failed to expire stale listings:', staleErr.message);
+    }
+
+    timings.overall.end = Date.now();
 
     // Print statistics
     console.log('\n' + '='.repeat(60));
@@ -643,15 +774,56 @@ async function scrapeReddit() {
     console.log(`Components matched:     ${stats.componentsMatched}`);
     console.log(`No match found:         ${stats.noMatchFound}`);
     console.log(`Listings saved/updated: ${stats.newListings}`);
+    console.log(`Sold status updated:    ${stats.soldStatusUpdated}`);
+    console.log(`Already processed:      ${stats.skippedExisting || 0}`);
+    console.log(`Stale listings expired: ${stats.expiredListings || 0}`);
     console.log(`\n🆕 Component Candidates:`);
     console.log(`  New candidates:       ${stats.candidatesCreated}`);
     console.log(`  Updated candidates:   ${stats.candidatesUpdated}`);
     console.log('='.repeat(60));
 
+    // Always show total execution time
+    console.log(`\n⏱️  Total execution: ${elapsed(timings.overall)}s`);
+
+    // Detailed timing report only with SCRAPER_VERBOSE=1 or --verbose
+    if (VERBOSE) {
+      console.log('\n' + '='.repeat(60));
+      console.log('⏱️  Detailed Timing Report');
+      console.log('='.repeat(60));
+      console.log(`  Fetch posts:          ${elapsed(timings.fetchPosts)}s`);
+      console.log(`  Processing:           ${elapsed(timings.processing)}s`);
+      console.log(`    Component matching: ${msLabel(timings.totalMatchMs)}`);
+      console.log(`    DB upserts:         ${msLabel(timings.totalUpsertMs)}`);
+      console.log(`    Candidate extract:  ${msLabel(timings.totalCandidateMs)}`);
+      console.log(`    Rate limit delays:  ${msLabel(timings.totalDelayMs)}`);
+      console.log(`  Rate limit 429s:      ${timings.rateLimit429Count} (waited ${msLabel(timings.rateLimitWaitMs)})`);
+
+      // Slowest posts
+      const sortedPosts = [...timings.perPost].sort((a, b) => b.totalMs - a.totalMs);
+      if (sortedPosts.length > 0) {
+        console.log(`\n🐌 Top 5 Slowest Posts:`);
+        for (const p of sortedPosts.slice(0, 5)) {
+          console.log(`  ${msLabel(p.totalMs).padStart(6)} | match: ${msLabel(p.matchMs).padStart(6)} | upsert: ${msLabel(p.upsertMs).padStart(6)} | ${p.title}`);
+        }
+
+        const avgTotal = timings.perPost.reduce((s, p) => s + p.totalMs, 0) / timings.perPost.length;
+        const avgMatch = timings.perPost.reduce((s, p) => s + p.matchMs, 0) / timings.perPost.length;
+        console.log(`\n  Average per post:     ${msLabel(avgTotal)} (match: ${msLabel(avgMatch)})`);
+      }
+
+      console.log('='.repeat(60));
+    }
     console.log('\n✅ Scraping complete!');
 
   } catch (error) {
+    // Print partial timing on failure
+    timings.overall.end = Date.now();
     console.error('\n❌ Fatal error:', error);
+    console.log(`\n⏱️  Failed after ${elapsed(timings.overall)}s`);
+    console.log(`  Posts processed so far: ${timings.perPost.length}`);
+    console.log(`  Component matching:     ${msLabel(timings.totalMatchMs)}`);
+    console.log(`  DB upserts:             ${msLabel(timings.totalUpsertMs)}`);
+    console.log(`  Rate limit 429s:        ${timings.rateLimit429Count} (waited ${msLabel(timings.rateLimitWaitMs)})`);
     throw error;
   }
 }

@@ -136,6 +136,31 @@ const GENERIC_WORDS = [
 // Model number pattern
 const MODEL_NUMBER_PATTERN = /\b([a-z]{1,4})?(\d{2,4})([a-z]{0,3})?\b/gi;
 
+// Component cache - loaded once, reused for all matching calls
+let _componentCache = null;
+let _componentCacheTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function getComponentsFromCache() {
+  const now = Date.now();
+  if (_componentCache && (now - _componentCacheTime) < CACHE_TTL_MS) {
+    return _componentCache;
+  }
+
+  const { data: components, error } = await supabase
+    .from('components')
+    .select('*');
+
+  if (error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  _componentCache = components;
+  _componentCacheTime = now;
+  console.log(`📦 Component cache loaded: ${components.length} components`);
+  return components;
+}
+
 /**
  * Normalize text by removing color suffixes and special characters
  */
@@ -353,14 +378,8 @@ async function findComponentMatch(title, description = '', source = '') {
       return null;
     }
 
-    // Get all components from database
-    const { data: components, error } = await supabase
-      .from('components')
-      .select('*');
-
-    if (error) {
-      throw new Error(`Database error: ${error.message}`);
-    }
+    // Get components from cache (single DB query per run)
+    const components = await getComponentsFromCache();
 
     const candidates = [];
 
@@ -750,5 +769,6 @@ module.exports = {
   findComponentMatch,
   isAccessoryOnly,
   extractModelNumbers,
-  detectMultipleComponents
+  detectMultipleComponents,
+  getComponentsFromCache
 };
