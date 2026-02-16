@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import ComponentsTable from '@/components/admin/ComponentsTable'
 import ComponentForm from '@/components/admin/ComponentForm'
+import FlaggedListingsTab from '@/components/admin/FlaggedListingsTab'
 
-type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component'
+type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component' | 'flagged-listings'
 
 interface ScraperStats {
   summary: {
@@ -66,12 +67,44 @@ interface CandidateDetailsResponse {
   }>
 }
 
+// Helper function to calculate quality score breakdown
+function calculateQualityBreakdown(candidate: ComponentCandidate) {
+  const breakdown = {
+    core: 0,      // Brand (20) + Model (20) = 40
+    category: 0,  // Category (15)
+    pricing: 0,   // Price observed (15) + Price estimate (10) = 25
+    specs: 0,     // Impedance (5) + Driver type (5) = 10
+    expert: 0     // ASR/Crinacle (10)
+  }
+
+  // Core identification (40 points)
+  if (candidate.brand) breakdown.core += 20
+  if (candidate.model && candidate.model.length >= 3) breakdown.core += 20
+
+  // Category (15 points)
+  if (candidate.category) breakdown.category += 15
+
+  // Pricing (25 points)
+  if (candidate.price_observed_min) breakdown.pricing += 15
+  if (candidate.price_estimate_new) breakdown.pricing += 10
+
+  // Technical specs (10 points)
+  if (candidate.impedance) breakdown.specs += 5
+  if (candidate.driver_type) breakdown.specs += 5
+
+  // Expert data (10 points) - simplified check
+  if ((candidate as any).asr_sinad || (candidate as any).crin_rank) breakdown.expert += 10
+
+  return breakdown
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('components-database')
   const [scraperStats, setScraperStats] = useState<ScraperStats | null>(null)
   const [candidates, setCandidates] = useState<CandidatesResponse | null>(null)
+  const [flaggedListingsCount, setFlaggedListingsCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
   const [candidateDetails, setCandidateDetails] = useState<CandidateDetailsResponse | null>(null)
@@ -96,6 +129,23 @@ export default function AdminPage() {
       router.push('/')
     }
   }, [status, session, router])
+
+  // Fetch flagged listings count on mount (for badge)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    const fetchFlaggedCount = async () => {
+      try {
+        const res = await fetch('/api/admin/flagged-listings?status=pending&limit=1')
+        const data = await res.json()
+        setFlaggedListingsCount(data.summary.totalPending || 0)
+      } catch (error) {
+        console.error('Error fetching flagged count:', error)
+      }
+    }
+
+    fetchFlaggedCount()
+  }, [status])
 
   // Fetch data based on active tab
   useEffect(() => {
@@ -527,6 +577,32 @@ export default function AdminPage() {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  const confirmed = confirm('You have unsaved changes. Are you sure you want to leave this page?')
+                  if (!confirmed) return
+                  setIsEditing(false)
+                  setEditedCandidate(null)
+                  setValidationErrors({})
+                  setVerificationWarnings([])
+                  setError(null)
+                }
+                setActiveTab('flagged-listings')
+              }}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'flagged-listings'
+                  ? 'border-accent-primary text-accent-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+              }`}
+            >
+              Flagged Listings
+              {flaggedListingsCount > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent-primary rounded-full">
+                  {flaggedListingsCount}
+                </span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -655,11 +731,118 @@ export default function AdminPage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-accent-primary dark:text-accent-primary">
-                          {candidate.quality_score}%
+                      <div className="text-right w-48">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-text-tertiary dark:text-text-tertiary">Quality</span>
+                          <span className="text-lg font-bold text-accent-primary dark:text-accent-primary">
+                            {candidate.quality_score}%
+                          </span>
                         </div>
-                        <div className="text-xs text-text-tertiary dark:text-text-tertiary">Quality</div>
+
+                        {/* Segmented progress bar */}
+                        <div className="relative group">
+                          <div className="h-2 bg-surface-hover dark:bg-surface-hover rounded-full overflow-hidden flex">
+                            {(() => {
+                              const breakdown = calculateQualityBreakdown(candidate)
+                              return (
+                                <>
+                                  {/* Core ID (Brand + Model) */}
+                                  {breakdown.core > 0 && (
+                                    <div
+                                      className="bg-green-500 transition-all duration-500"
+                                      style={{ width: `${breakdown.core}%` }}
+                                      title={`Brand & Model (${breakdown.core} pts)`}
+                                    />
+                                  )}
+
+                                  {/* Category */}
+                                  {breakdown.category > 0 && (
+                                    <div
+                                      className="bg-emerald-500 transition-all duration-500"
+                                      style={{ width: `${breakdown.category}%` }}
+                                      title={`Category (${breakdown.category} pts)`}
+                                    />
+                                  )}
+
+                                  {/* Pricing */}
+                                  {breakdown.pricing > 0 && (
+                                    <div
+                                      className="bg-blue-500 transition-all duration-500"
+                                      style={{ width: `${breakdown.pricing}%` }}
+                                      title={`Pricing (${breakdown.pricing} pts)`}
+                                    />
+                                  )}
+
+                                  {/* Specs */}
+                                  {breakdown.specs > 0 && (
+                                    <div
+                                      className="bg-purple-500 transition-all duration-500"
+                                      style={{ width: `${breakdown.specs}%` }}
+                                      title={`Tech Specs (${breakdown.specs} pts)`}
+                                    />
+                                  )}
+
+                                  {/* Expert data */}
+                                  {breakdown.expert > 0 && (
+                                    <div
+                                      className="bg-yellow-500 transition-all duration-500"
+                                      style={{ width: `${breakdown.expert}%` }}
+                                      title={`Expert Data (${breakdown.expert} pts)`}
+                                    />
+                                  )}
+
+                                  {/* Missing (gray) */}
+                                  {candidate.quality_score < 100 && (
+                                    <div
+                                      className="bg-gray-600 dark:bg-gray-700 transition-all duration-500"
+                                      style={{ width: `${100 - candidate.quality_score}%` }}
+                                      title={`Missing Data (${100 - candidate.quality_score} pts)`}
+                                    />
+                                  )}
+                                </>
+                              )
+                            })()}
+                          </div>
+
+                          {/* Hover tooltip */}
+                          <div className="absolute left-0 bottom-full mb-2 w-56 p-3 bg-surface-secondary dark:bg-surface-secondary border border-border-default dark:border-border-default rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+                            <div className="text-xs font-semibold text-text-primary dark:text-text-primary mb-2">Quality Breakdown</div>
+                            <div className="space-y-1 text-xs">
+                              {(() => {
+                                const breakdown = calculateQualityBreakdown(candidate)
+                                return (
+                                  <>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                      <span className="text-text-secondary dark:text-text-secondary">Brand & Model</span>
+                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.core}/40</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                      <span className="text-text-secondary dark:text-text-secondary">Category</span>
+                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.category}/15</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                      <span className="text-text-secondary dark:text-text-secondary">Pricing</span>
+                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.pricing}/25</span>
+                                    </div>
+                                    <div className={`flex items-center gap-2 ${breakdown.specs === 0 ? 'opacity-50' : ''}`}>
+                                      <div className={`w-3 h-3 ${breakdown.specs > 0 ? 'bg-purple-500' : 'bg-gray-600 dark:bg-gray-700'} rounded-full`}></div>
+                                      <span className="text-text-secondary dark:text-text-secondary">Tech Specs</span>
+                                      <span className={`ml-auto font-semibold ${breakdown.specs === 0 ? 'text-text-tertiary dark:text-text-tertiary' : 'text-text-primary dark:text-text-primary'}`}>{breakdown.specs}/10</span>
+                                    </div>
+                                    <div className={`flex items-center gap-2 ${breakdown.expert === 0 ? 'opacity-50' : ''}`}>
+                                      <div className={`w-3 h-3 ${breakdown.expert > 0 ? 'bg-yellow-500' : 'bg-gray-600 dark:bg-gray-700'} rounded-full`}></div>
+                                      <span className="text-text-secondary dark:text-text-secondary">Expert Data</span>
+                                      <span className={`ml-auto font-semibold ${breakdown.expert === 0 ? 'text-text-tertiary dark:text-text-tertiary' : 'text-text-primary dark:text-text-primary'}`}>{breakdown.expert}/10</span>
+                                    </div>
+                                  </>
+                                )
+                              })()}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -670,7 +853,7 @@ export default function AdminPage() {
             {/* Details Panel */}
             <div className="lg:col-span-1">
               {selectedCandidate && candidateDetails ? (
-                <div className="card p-6 sticky top-8">
+                <div className="card p-6 sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
                   {/* Success/Error Messages */}
                   {successMessage && (
                     <div className="bg-green-900/20 border border-green-500 rounded p-3 mb-4">
@@ -1059,6 +1242,10 @@ export default function AdminPage() {
               )}
             </div>
           </div>
+        )}
+
+        {activeTab === 'flagged-listings' && (
+          <FlaggedListingsTab />
         )}
       </div>
     </div>

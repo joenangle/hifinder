@@ -14,6 +14,7 @@ require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { findComponentMatch, isAccessoryOnly, detectMultipleComponents } = require('./component-matcher-enhanced');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
+const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
 const fs = require('fs');
 const path = require('path');
 
@@ -60,8 +61,37 @@ const stats = {
   newListings: 0,
   updatedListings: 0,
   candidatesCreated: 0,
-  candidatesUpdated: 0
+  candidatesUpdated: 0,
+  soldStatusUpdated: 0,
+  soldSkipped: 0
 };
+
+const VERBOSE = process.env.SCRAPER_VERBOSE === '1' || process.argv.includes('--verbose');
+
+// Timing tracking
+const timings = {
+  overall: { start: 0, end: 0 },
+  oauthToken: { start: 0, end: 0 },
+  fetchPosts: { start: 0, end: 0 },
+  processing: { start: 0, end: 0 },
+  perPost: [],          // Array of { title, totalMs, matchMs, upsertMs, candidateMs }
+  totalMatchMs: 0,
+  totalUpsertMs: 0,
+  totalCandidateMs: 0,
+  totalDelayMs: 0,
+  rateLimit429Count: 0,
+  rateLimitWaitMs: 0,
+};
+
+function elapsed(timing) {
+  return ((timing.end - timing.start) / 1000).toFixed(2);
+}
+
+function msLabel(ms) {
+  if (ms >= 60000) return `${(ms / 60000).toFixed(1)}m`;
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${Math.round(ms)}ms`;
+}
 
 /**
  * Acquire lock
@@ -150,6 +180,8 @@ async function fetchWithRetry(url, options, retries = 0) {
 
     if (response.status === 429 && retries < REDDIT_CONFIG.maxRetries) {
       const delay = REDDIT_CONFIG.retryBaseDelay * Math.pow(2, retries);
+      timings.rateLimit429Count++;
+      timings.rateLimitWaitMs += delay;
       console.log(`⚠️  Rate limited, waiting ${delay/1000}s... (retry ${retries + 1}/${REDDIT_CONFIG.maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries + 1);
@@ -250,50 +282,126 @@ function isSoldPost(postData) {
  * Consolidated regex pattern fixes $1,200 -> $200 bug from pattern overlap
  */
 function extractPrice(title, selftext = '') {
-  // Combine title and selftext for comprehensive search
   const combinedText = title + ' ' + (selftext || '');
-
-  // Consolidated pattern that checks dollar sign FIRST to prevent "shipped" pattern from matching partial numbers
-  // Priority order: $X,XXX > asking/price/selling $X > X shipped > X USD
-  const pricePattern = /\$(\d{1,5}(?:,\d{3})*)|(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)|(\d{3,5})\s*shipped|(\d{1,5})\s*(?:usd|dollars?)/gi;
-
-  const allPrices = [];
-  let match;
-
-  while ((match = pricePattern.exec(combinedText)) !== null) {
-    // Extract from whichever capture group matched
-    const priceStr = (match[1] || match[2] || match[3] || match[4]).replace(/,/g, '');
-    const price = parseInt(priceStr, 10);
-
-    if (!isNaN(price) && price > 0) {
-      allPrices.push(price);
-    }
-  }
-
-  if (allPrices.length === 0) {
-    // console.warn(`Price extraction failed for: ${title.substring(0, 50)}...`);
-    return null;
-  }
-
-  // Filter out unrealistic prices (model numbers, typos, etc.)
-  // Audio gear typically ranges from $10 to $10,000
-  const validPrices = allPrices.filter(p => p >= 10 && p <= 10000);
-
-  if (validPrices.length === 0) return null;
-
-  // Return lowest valid price (most conservative estimate)
-  return Math.min(...validPrices);
+  return extractPricesFromText(combinedText);
 }
 
 /**
- * Transform Reddit post into listing object
+ * Extract the price associated with a specific component from a multi-item post body.
+ * Handles formatted posts like:
+ *   * Qudelix 5k - $75 - No box
+ *   * Tanchjim Stargate 2 - $25
+ *   Sennheiser HD600 $350 shipped
+ *
+ * Falls back to the global extractPrice() if no line-level match is found.
+ *
+ * @param {string} componentName - e.g. "Qudelix 5K"
+ * @param {string} title - Post title
+ * @param {string} selftext - Post body
+ * @param {string} [matchedSegment] - The segment text that matched this component
+ * @returns {number|null} - Price or null
  */
-function transformRedditPost(postData, matchResult) {
-  const component = matchResult.component;
-  const price = extractPrice(postData.title, postData.selftext || '');
+function extractComponentPrice(componentName, title, selftext = '', matchedSegment = '') {
+  if (!selftext) return extractPrice(title, selftext);
 
-  // Extract location from title - Reddit standard: [US-XX] where XX is state postal code
-  // Also handles: [USA-CA] (normalize to US-CA), [US CA] (space instead of hyphen)
+  // Normalize for comparison: lowercase, strip hyphens/extra spaces
+  const normalize = (s) => s.toLowerCase().replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
+  const normalizedName = normalize(componentName);
+
+  // Build search terms from component name (e.g. "Qudelix 5K" → ["qudelix", "5k"])
+  const nameTokens = normalizedName.split(' ').filter(t => t.length >= 2);
+
+  // Split body into lines
+  const lines = selftext.split(/\n/);
+
+  for (const line of lines) {
+    const normalizedLine = normalize(line);
+
+    // Check if this line contains enough tokens from the component name
+    const matchedTokens = nameTokens.filter(token => normalizedLine.includes(token));
+    if (matchedTokens.length < Math.max(1, Math.ceil(nameTokens.length * 0.6))) {
+      continue; // Not enough tokens matched on this line
+    }
+
+    // Found the line — extract price from THIS line only
+    const linePrice = extractPricesFromText(line);
+    if (linePrice) {
+      return linePrice;
+    }
+  }
+
+  // Fallback: try extracting from the title (for single-item posts or title-priced posts)
+  return extractPricesFromText(title);
+}
+
+/**
+ * Core price extraction from a text string.
+ * Returns the highest-priority, lowest price found.
+ */
+function extractPricesFromText(text) {
+  // Pattern 1: $X,XXX or $XXX (highest priority)
+  const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
+
+  // Pattern 2: asking/price/selling $XXX
+  const askingPattern = /\b(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)/gi;
+
+  // Pattern 3: XXX shipped / XXX obo
+  const shippedPattern = /\b(\d{3,5})\s*(?:shipped|obo|or best offer|firm)\b/gi;
+
+  // Pattern 4: XXX USD
+  const currencyPattern = /\b(\d{3,5})\s*(?:usd|dollars?)\b/gi;
+
+  const allPrices = [];
+
+  // Extract with priority 1
+  let match;
+  while ((match = dollarPattern.exec(text)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 1 });
+    }
+  }
+
+  // Extract with priority 2
+  while ((match = askingPattern.exec(text)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 2 });
+    }
+  }
+
+  // Extract with priority 3
+  while ((match = shippedPattern.exec(text)) !== null) {
+    const price = parseInt(match[1], 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 3 });
+    }
+  }
+
+  // Extract with priority 4
+  while ((match = currencyPattern.exec(text)) !== null) {
+    const price = parseInt(match[1], 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 4 });
+    }
+  }
+
+  if (allPrices.length === 0) return null;
+
+  // Sort by priority, then lowest price
+  allPrices.sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return a.price - b.price;
+  });
+
+  return allPrices[0].price;
+}
+
+/**
+ * Extract location from Reddit post title
+ * Handles: [US-XX], [USA-XX], [CAN-XX], [UK], etc.
+ */
+function extractLocation(title) {
   const locationPatterns = [
     // US formats (most common)
     /\[USA[\s-]([A-Z]{2})\]/i,      // [USA-CA] or [USA CA] → normalize to US-XX
@@ -312,7 +420,7 @@ function transformRedditPost(postData, matchResult) {
 
   let location = 'Unknown';
   for (const pattern of locationPatterns) {
-    const match = postData.title.match(pattern);
+    const match = title.match(pattern);
     if (match) {
       const fullMatch = match[0];
 
@@ -343,9 +451,18 @@ function transformRedditPost(postData, matchResult) {
     }
   }
 
-  // Detect if this is a bundle listing
-  const bundleInfo = detectMultipleComponents(postData.title);
+  return location;
+}
 
+/**
+ * Transform Reddit post into listing object (DEPRECATED - kept for backward compatibility)
+ * NOTE: Main scraper now uses bundle-aware extraction directly
+ */
+function transformRedditPost(postData, matchResult) {
+  const component = matchResult.component;
+  const price = extractPrice(postData.title, postData.selftext || '');
+  const location = extractLocation(postData.title);
+  const bundleInfo = detectMultipleComponents(postData.title);
   const soldStatus = isSoldPost(postData);
 
   return {
@@ -357,11 +474,11 @@ function transformRedditPost(postData, matchResult) {
     location: location,
     date_posted: new Date(postData.created_utc * 1000).toISOString(),
     seller_username: postData.author,
-    condition: 'good', // Default, Reddit doesn't standardize this
+    condition: 'good',
     status: soldStatus ? 'sold' : 'available',
-    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null, // Set sold date when detected
+    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null,
     images: extractImages(postData),
-    seller_confirmed_trades: null, // Will be populated by separate bot check if needed
+    seller_confirmed_trades: null,
     price_warning: price ? null : 'Price not found in title',
     is_bundle: bundleInfo.isBundle,
     component_count: bundleInfo.componentCount
@@ -401,13 +518,36 @@ function extractImages(postData) {
 async function scrapeReddit() {
   console.log('🚀 Starting Reddit r/AVExchange Scraper V3\n');
   console.log('Architecture: Fetch-all → Parse → Match\n');
+  timings.overall.start = Date.now();
 
   try {
     // Fetch all recent posts
+    timings.fetchPosts.start = Date.now();
     const posts = await fetchAllRecentPosts();
+    timings.fetchPosts.end = Date.now();
     stats.postsProcessed = posts.length;
 
+    // Pre-load existing listing URLs to skip already-processed posts
+    console.log('📦 Loading existing listing URLs...');
+    const { data: existingRows, error: existingErr } = await supabase
+      .from('used_listings')
+      .select('id, url, status')
+      .eq('source', 'reddit_avexchange');
+
+    // Map: url -> array of { id, status }
+    const existingByUrl = new Map();
+    if (!existingErr && existingRows) {
+      for (const row of existingRows) {
+        if (!existingByUrl.has(row.url)) {
+          existingByUrl.set(row.url, []);
+        }
+        existingByUrl.get(row.url).push({ id: row.id, status: row.status });
+      }
+      console.log(`📦 Loaded ${existingByUrl.size} existing listing URLs\n`);
+    }
+
     console.log('🔍 Processing posts...\n');
+    timings.processing.start = Date.now();
 
     for (const post of posts) {
       // Filter for selling posts only
@@ -417,32 +557,76 @@ async function scrapeReddit() {
 
       stats.sellPostsFound++;
 
-      // Skip if already sold
+      const postUrl = `https://www.reddit.com${post.permalink}`;
+
+      // If post is sold, update any existing listings in DB and move on
       if (isSoldPost(post)) {
-        console.log(`⏭️  Skipping sold post: ${post.title.substring(0, 50)}...`);
+        const existing = existingByUrl.get(postUrl);
+        const needsUpdate = existing?.filter(l => l.status !== 'sold') || [];
+
+        if (needsUpdate.length > 0) {
+          const ids = needsUpdate.map(l => l.id);
+          const { error: updateErr } = await supabase
+            .from('used_listings')
+            .update({
+              status: 'sold',
+              date_sold: new Date().toISOString()
+            })
+            .in('id', ids);
+
+          if (!updateErr) {
+            stats.soldStatusUpdated += ids.length;
+            console.log(`🏷️  Marked ${ids.length} listing(s) as sold: ${post.title.substring(0, 50)}...`);
+          } else {
+            console.error(`  ❌ Failed to update sold status:`, updateErr.message);
+          }
+        } else {
+          stats.soldSkipped++;
+        }
         continue;
       }
 
+      // Skip posts already processed (URL exists in DB with active status)
+      if (existingByUrl.has(postUrl)) {
+        stats.skippedExisting = (stats.skippedExisting || 0) + 1;
+        continue;
+      }
+
+      const postTiming = {
+        title: post.title.substring(0, 60),
+        totalStart: Date.now(),
+        matchMs: 0,
+        upsertMs: 0,
+        candidateMs: 0,
+        totalMs: 0,
+      };
+
       console.log(`\n📝 Processing: ${post.title.substring(0, 70)}...`);
 
-      // Attempt to match to component database
-      const matchResult = await findComponentMatch(
+      // Attempt to match using bundle-aware extraction
+      const matchStart = Date.now();
+      const bundleMatches = await extractBundleComponents(
         post.title,
         post.selftext || '',
         'reddit_avexchange'
       );
+      postTiming.matchMs = Date.now() - matchStart;
+      timings.totalMatchMs += postTiming.matchMs;
 
-      if (!matchResult) {
+      if (bundleMatches.length === 0) {
         stats.noMatchFound++;
 
         // Extract as component candidate for review
         console.log(`  ⚠️  No match found, extracting as candidate...`);
+        const candidateStart = Date.now();
         const candidate = await extractComponentCandidate({
           title: post.title,
           price: extractPrice(post.title),
-          id: null, // Will be created as candidate, not listing
+          id: null,
           url: `https://www.reddit.com${post.permalink}`
         });
+        postTiming.candidateMs = Date.now() - candidateStart;
+        timings.totalCandidateMs += postTiming.candidateMs;
 
         if (candidate) {
           if (candidate.listing_count === 1) {
@@ -452,33 +636,133 @@ async function scrapeReddit() {
           }
         }
 
+        postTiming.totalMs = Date.now() - postTiming.totalStart;
+        timings.perPost.push(postTiming);
+        if (VERBOSE) console.log(`  ⏱️  Post took ${msLabel(postTiming.totalMs)} (match: ${msLabel(postTiming.matchMs)}, candidate: ${msLabel(postTiming.candidateMs)})`);
         continue;
       }
 
       stats.componentsMatched++;
 
-      // Transform into listing object
-      const listing = transformRedditPost(post, matchResult);
+      // Generate bundle group ID if multiple matches
+      const bundleGroupId = bundleMatches.length > 1
+        ? generateBundleGroupId()
+        : null;
 
-      // Upsert to database
-      const { data, error } = await supabase
-        .from('used_listings')
-        .upsert(listing, {
-          onConflict: 'url',
-          ignoreDuplicates: false
-        })
-        .select('id');
+      // Extract common data once
+      const totalPrice = extractPrice(post.title, post.selftext);
+      const location = extractLocation(post.title);
+      const images = extractImages(post);
+      const soldStatus = isSoldPost(post);
 
-      if (error) {
-        console.error(`❌ Error upserting:`, error.message);
-      } else {
-        stats.newListings++;
-        console.log(`💾 Saved listing for ${matchResult.component.brand} ${matchResult.component.name}`);
+      console.log(`  📦 Creating ${bundleMatches.length} listing(s) from ${bundleMatches.length > 1 ? 'bundle' : 'single item'}`);
+
+      // Create listing for EACH matched component
+      const upsertStart = Date.now();
+      for (let i = 0; i < bundleMatches.length; i++) {
+        const match = bundleMatches[i];
+
+        // Extract per-component price from body text (handles multi-item posts with individual prices)
+        const componentName = `${match.component.brand} ${match.component.name}`;
+        const perComponentPrice = extractComponentPrice(
+          componentName, post.title, post.selftext, match.segment
+        );
+
+        // Calculate price for this component
+        let priceInfo;
+        if (bundleMatches.length > 1) {
+          if (perComponentPrice && perComponentPrice !== totalPrice) {
+            // Found a per-item price in the body — use it directly
+            priceInfo = {
+              individual_price: perComponentPrice,
+              bundle_total_price: totalPrice,
+              bundle_component_count: bundleMatches.length
+            };
+            console.log(`    💰 Per-item price for ${match.component.name}: $${perComponentPrice}`);
+          } else {
+            priceInfo = calculateBundlePrice(totalPrice, bundleMatches.length, i, match.component);
+          }
+        } else {
+          // Single item — try per-component price first (for when global extractPrice picks wrong price)
+          priceInfo = { individual_price: perComponentPrice || totalPrice, bundle_total_price: null };
+        }
+
+        const listing = {
+          component_id: match.component.id,
+          title: post.title,
+          price: priceInfo.individual_price || 0,
+
+          // Bundle metadata
+          is_bundle: bundleMatches.length > 1,
+          bundle_group_id: bundleGroupId,
+          bundle_total_price: priceInfo.bundle_total_price,
+          bundle_component_count: bundleMatches.length,
+          bundle_position: bundleMatches.length > 1 ? i + 1 : null,
+          matched_segment: match.segment,
+
+          // Common data
+          url: `https://www.reddit.com${post.permalink}`,
+          source: 'reddit_avexchange',
+          location: location,
+          date_posted: new Date(post.created_utc * 1000).toISOString(),
+          seller_username: post.author,
+          condition: 'good', // Default
+          images: images,
+          status: soldStatus ? 'sold' : 'available',
+          component_count: bundleMatches.length,
+          seller_confirmed_trades: null,
+          seller_feedback_score: null
+        };
+
+        // Upsert to database
+        const { error } = await supabase
+          .from('used_listings')
+          .upsert(listing, {
+            onConflict: 'url,component_id', // New composite unique constraint
+            ignoreDuplicates: false
+          })
+          .select('id');
+
+        if (error) {
+          console.error(`  ❌ Failed to upsert ${match.component.brand} ${match.component.name}:`, error.message);
+        } else {
+          stats.newListings++;
+          console.log(`  ✅ Saved: ${match.component.brand} ${match.component.name} (${match.score.toFixed(2)})`);
+        }
       }
+      postTiming.upsertMs = Date.now() - upsertStart;
+      timings.totalUpsertMs += postTiming.upsertMs;
 
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Note: No per-post delay needed — Reddit API is called once upfront.
+      // The 500ms delay was originally for Reddit rate limiting but all API
+      // calls happen in fetchAllRecentPosts(). Remaining work is DB-only.
+
+      postTiming.totalMs = Date.now() - postTiming.totalStart;
+      timings.perPost.push(postTiming);
+      if (VERBOSE) console.log(`  ⏱️  Post took ${msLabel(postTiming.totalMs)} (match: ${msLabel(postTiming.matchMs)}, upsert: ${msLabel(postTiming.upsertMs)})`);
     }
+
+    timings.processing.end = Date.now();
+
+    // Expire stale listings (Reddit posts older than 30 days without a sale)
+    console.log('\n🧹 Checking for stale listings...');
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: staleListings, error: staleErr } = await supabase
+      .from('used_listings')
+      .update({ status: 'expired' })
+      .eq('source', 'reddit_avexchange')
+      .eq('status', 'available')
+      .lt('date_posted', thirtyDaysAgo)
+      .select('id');
+
+    if (!staleErr && staleListings) {
+      console.log(`🧹 Expired ${staleListings.length} stale listing(s) (>30 days old)`);
+      stats.expiredListings = staleListings.length;
+    } else if (staleErr) {
+      console.error('  ❌ Failed to expire stale listings:', staleErr.message);
+    }
+
+    timings.overall.end = Date.now();
 
     // Print statistics
     console.log('\n' + '='.repeat(60));
@@ -490,15 +774,56 @@ async function scrapeReddit() {
     console.log(`Components matched:     ${stats.componentsMatched}`);
     console.log(`No match found:         ${stats.noMatchFound}`);
     console.log(`Listings saved/updated: ${stats.newListings}`);
+    console.log(`Sold status updated:    ${stats.soldStatusUpdated}`);
+    console.log(`Already processed:      ${stats.skippedExisting || 0}`);
+    console.log(`Stale listings expired: ${stats.expiredListings || 0}`);
     console.log(`\n🆕 Component Candidates:`);
     console.log(`  New candidates:       ${stats.candidatesCreated}`);
     console.log(`  Updated candidates:   ${stats.candidatesUpdated}`);
     console.log('='.repeat(60));
 
+    // Always show total execution time
+    console.log(`\n⏱️  Total execution: ${elapsed(timings.overall)}s`);
+
+    // Detailed timing report only with SCRAPER_VERBOSE=1 or --verbose
+    if (VERBOSE) {
+      console.log('\n' + '='.repeat(60));
+      console.log('⏱️  Detailed Timing Report');
+      console.log('='.repeat(60));
+      console.log(`  Fetch posts:          ${elapsed(timings.fetchPosts)}s`);
+      console.log(`  Processing:           ${elapsed(timings.processing)}s`);
+      console.log(`    Component matching: ${msLabel(timings.totalMatchMs)}`);
+      console.log(`    DB upserts:         ${msLabel(timings.totalUpsertMs)}`);
+      console.log(`    Candidate extract:  ${msLabel(timings.totalCandidateMs)}`);
+      console.log(`    Rate limit delays:  ${msLabel(timings.totalDelayMs)}`);
+      console.log(`  Rate limit 429s:      ${timings.rateLimit429Count} (waited ${msLabel(timings.rateLimitWaitMs)})`);
+
+      // Slowest posts
+      const sortedPosts = [...timings.perPost].sort((a, b) => b.totalMs - a.totalMs);
+      if (sortedPosts.length > 0) {
+        console.log(`\n🐌 Top 5 Slowest Posts:`);
+        for (const p of sortedPosts.slice(0, 5)) {
+          console.log(`  ${msLabel(p.totalMs).padStart(6)} | match: ${msLabel(p.matchMs).padStart(6)} | upsert: ${msLabel(p.upsertMs).padStart(6)} | ${p.title}`);
+        }
+
+        const avgTotal = timings.perPost.reduce((s, p) => s + p.totalMs, 0) / timings.perPost.length;
+        const avgMatch = timings.perPost.reduce((s, p) => s + p.matchMs, 0) / timings.perPost.length;
+        console.log(`\n  Average per post:     ${msLabel(avgTotal)} (match: ${msLabel(avgMatch)})`);
+      }
+
+      console.log('='.repeat(60));
+    }
     console.log('\n✅ Scraping complete!');
 
   } catch (error) {
+    // Print partial timing on failure
+    timings.overall.end = Date.now();
     console.error('\n❌ Fatal error:', error);
+    console.log(`\n⏱️  Failed after ${elapsed(timings.overall)}s`);
+    console.log(`  Posts processed so far: ${timings.perPost.length}`);
+    console.log(`  Component matching:     ${msLabel(timings.totalMatchMs)}`);
+    console.log(`  DB upserts:             ${msLabel(timings.totalUpsertMs)}`);
+    console.log(`  Rate limit 429s:        ${timings.rateLimit429Count} (waited ${msLabel(timings.rateLimitWaitMs)})`);
     throw error;
   }
 }

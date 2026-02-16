@@ -127,8 +127,39 @@ const COLOR_SUFFIXES = [
   'limited', 'ltd', 'special edition', 'se' // Editions
 ];
 
+// Generic words that should penalize matching (too common, cause false positives)
+const GENERIC_WORDS = [
+  'space', 'audio', 'pro', 'lite', 'plus', 'mini', 'max', 'ultra',
+  'one', 'two', 'three', 'air', 'go', 'se', 'ex', 'dx'
+];
+
 // Model number pattern
 const MODEL_NUMBER_PATTERN = /\b([a-z]{1,4})?(\d{2,4})([a-z]{0,3})?\b/gi;
+
+// Component cache - loaded once, reused for all matching calls
+let _componentCache = null;
+let _componentCacheTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function getComponentsFromCache() {
+  const now = Date.now();
+  if (_componentCache && (now - _componentCacheTime) < CACHE_TTL_MS) {
+    return _componentCache;
+  }
+
+  const { data: components, error } = await supabase
+    .from('components')
+    .select('*');
+
+  if (error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  _componentCache = components;
+  _componentCacheTime = now;
+  console.log(`📦 Component cache loaded: ${components.length} components`);
+  return components;
+}
 
 /**
  * Normalize text by removing color suffixes and special characters
@@ -237,6 +268,104 @@ function isAccessoryOnly(text) {
 }
 
 /**
+ * Calculate penalty for generic brand/model names
+ * Generic words like "space", "audio", "pro" are too common and cause false positives
+ */
+function calculateGenericnessPenalty(brand, name) {
+  let penalty = 0;
+
+  const brandWords = brand.toLowerCase().split(/\s+/);
+  const nameWords = name.toLowerCase().split(/\s+/);
+
+  // -15% per generic word in brand
+  for (const word of brandWords) {
+    if (GENERIC_WORDS.includes(word) && word.length <= 5) {
+      penalty += 0.15;
+    }
+  }
+
+  // -10% per generic word in model
+  for (const word of nameWords) {
+    if (GENERIC_WORDS.includes(word) && word.length <= 5) {
+      penalty += 0.10;
+    }
+  }
+
+  // Extra -10% if BOTH brand and model are short (more likely to be generic)
+  if (brand.length <= 10 && name.length <= 10) {
+    penalty += 0.10;
+  }
+
+  return Math.min(penalty, 0.4); // Cap at -40%
+}
+
+/**
+ * Extract [H] (Have) section from Reddit post title
+ * Format: [WTS][H] HD600 + Arya [W] PayPal
+ */
+function extractHaveSection(title) {
+  const haveMatch = title.match(/\[H\]\s*(.+?)\s*\[W\]/i);
+  return haveMatch ? haveMatch[1] : null;
+}
+
+/**
+ * Calculate position-based scoring bonus/penalty
+ * Matches in title are more reliable than matches in body text
+ * Matches near accessory keywords are likely false positives
+ * [H] section matches are strongly boosted, [W] section matches penalized
+ */
+function calculatePositionScore(text, brand, name, title) {
+  const titleLower = title.toLowerCase();
+  const brandLower = brand.toLowerCase();
+  const nameLower = name.toLowerCase();
+
+  // Check for [H] section (Have = what they're selling)
+  const haveSection = extractHaveSection(title);
+  if (haveSection) {
+    const haveLower = haveSection.toLowerCase();
+    const brandInHave = haveLower.includes(brandLower);
+    const nameInHave = haveLower.includes(nameLower);
+
+    // +25% if brand AND model in [H] section (strong signal)
+    if (brandInHave && nameInHave) {
+      return 0.25;
+    }
+
+    // -40% if match is in title but NOT in [H] section (likely in [W] section)
+    const brandInTitle = titleLower.includes(brandLower);
+    const nameInTitle = titleLower.includes(nameLower);
+
+    if ((brandInTitle || nameInTitle) && !brandInHave && !nameInHave) {
+      return -0.4; // Probably in [W] section (want to buy, not selling)
+    }
+  }
+
+  // Standard title matching (when no [H] section)
+  const brandInTitle = titleLower.includes(brandLower);
+  const nameInTitle = titleLower.includes(nameLower);
+
+  if (brandInTitle && nameInTitle) return 0.2;
+  if (brandInTitle || nameInTitle) return 0.1;
+
+  // -30% if match is near accessory context
+  const accessoryPattern = /\b(with|w\/|w\s|cable|case|comes with|includes)\s+/gi;
+  const brandIndex = text.indexOf(brandLower);
+
+  if (brandIndex > 0) {
+    const beforeMatchText = text.substring(
+      Math.max(0, brandIndex - 20),
+      brandIndex
+    );
+
+    if (accessoryPattern.test(beforeMatchText)) {
+      return -0.3; // Likely accessory mention
+    }
+  }
+
+  return 0;
+}
+
+/**
  * Enhanced component matching with stricter requirements
  */
 async function findComponentMatch(title, description = '', source = '') {
@@ -249,19 +378,13 @@ async function findComponentMatch(title, description = '', source = '') {
       return null;
     }
 
-    // Get all components from database
-    const { data: components, error } = await supabase
-      .from('components')
-      .select('*');
-
-    if (error) {
-      throw new Error(`Database error: ${error.message}`);
-    }
+    // Get components from cache (single DB query per run)
+    const components = await getComponentsFromCache();
 
     const candidates = [];
 
     for (const component of components) {
-      const score = calculateMatchScore(text, component, source);
+      const score = calculateMatchScore(text, component, source, title);
       if (score >= 0.7) { // Raised from 0.3 to 0.7
         candidates.push({
           component,
@@ -271,11 +394,52 @@ async function findComponentMatch(title, description = '', source = '') {
       }
     }
 
+    // Exclusivity scoring: Penalize when too many candidates match
+    // (indicates text is too generic or matching too broadly)
+    if (candidates.length >= 5) {
+      const exclusivityPenalty = Math.min(0.2, (candidates.length - 4) * 0.05);
+      console.log(`⚠️  High candidate count (${candidates.length}) - applying exclusivity penalty: -${(exclusivityPenalty * 100).toFixed(0)}%`);
+
+      // Apply penalty to all candidates
+      for (const candidate of candidates) {
+        candidate.score = Math.max(0, candidate.score - exclusivityPenalty);
+      }
+
+      // Re-filter candidates that may have dropped below threshold
+      const filteredCandidates = candidates.filter(c => c.score >= 0.7);
+      if (filteredCandidates.length < candidates.length) {
+        console.log(`   Filtered out ${candidates.length - filteredCandidates.length} candidates after penalty`);
+        candidates.length = 0;
+        candidates.push(...filteredCandidates);
+      }
+    }
+
     // Sort by score (highest first)
     candidates.sort((a, b) => b.score - a.score);
 
     if (candidates.length > 0) {
       const best = candidates[0];
+
+      // Ambiguity detection: Check if top 2 matches are too close
+      if (candidates.length >= 2) {
+        const second = candidates[1];
+        const scoreDiff = best.score - second.score;
+
+        if (scoreDiff < 0.15) {
+          console.log(`⚠️  Ambiguous match for "${title.substring(0, 50)}..."`);
+          console.log(`   Option 1: ${best.component.brand} ${best.component.name} (${best.score.toFixed(2)})`);
+          console.log(`   Option 2: ${second.component.brand} ${second.component.name} (${second.score.toFixed(2)})`);
+          console.log(`   Score difference: ${scoreDiff.toFixed(3)} (threshold: 0.15)`);
+
+          // Flag for manual review but still return best match
+          best.isAmbiguous = true;
+          best.ambiguousOptions = [
+            { component: best.component, score: best.score },
+            { component: second.component, score: second.score }
+          ];
+        }
+      }
+
       console.log(`✅ Matched "${title.substring(0, 50)}..." → ${best.component.brand} ${best.component.name} (score: ${best.score.toFixed(2)})`);
       return best;
     }
@@ -292,7 +456,7 @@ async function findComponentMatch(title, description = '', source = '') {
 /**
  * Calculate match score with stricter requirements
  */
-function calculateMatchScore(text, component, source = '') {
+function calculateMatchScore(text, component, source = '', title = '') {
   let score = 0;
   const brand = component.brand.toLowerCase();
   const name = component.name.toLowerCase();
@@ -310,6 +474,14 @@ function calculateMatchScore(text, component, source = '') {
   // 3. Category validation
   const categoryScore = calculateCategoryScore(text, component.category);
   score += categoryScore * 0.1;
+
+  // 4. Apply position bonus/penalty (title matches more reliable)
+  const positionBonus = calculatePositionScore(text, brand, name, title);
+  score = Math.max(0, Math.min(1.0, score + positionBonus));
+
+  // 5. Apply genericness penalty (prevents false matches on common words)
+  const penalty = calculateGenericnessPenalty(component.brand, component.name);
+  score = Math.max(0, score - penalty);
 
   return Math.min(score, 1.0);
 }
@@ -597,5 +769,6 @@ module.exports = {
   findComponentMatch,
   isAccessoryOnly,
   extractModelNumbers,
-  detectMultipleComponents
+  detectMultipleComponents,
+  getComponentsFromCache
 };

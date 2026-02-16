@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const minPrice = searchParams.get('min_price') ? parseFloat(searchParams.get('min_price')!) : null
     const maxPrice = searchParams.get('max_price') ? parseFloat(searchParams.get('max_price')!) : null
     const conditions = searchParams.get('conditions') // Comma-separated conditions
+    const categories = searchParams.get('categories') // Comma-separated categories (cans, iems, dac, amp, dac_amp)
+    const search = searchParams.get('search') // Search query for brand/model/title
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit
@@ -55,6 +57,17 @@ export async function GET(request: NextRequest) {
     if (conditions) {
       const conditionsArray = conditions.split(',').map(c => c.trim())
       query = query.in('condition', conditionsArray)
+    }
+
+    // Filter by category (via joined component table)
+    if (categories) {
+      const categoriesArray = categories.split(',').map(c => c.trim())
+      query = query.in('component.category', categoriesArray)
+    }
+
+    // Search by title (server-side text search)
+    if (search) {
+      query = query.ilike('title', `%${search}%`)
     }
 
     // Apply sorting

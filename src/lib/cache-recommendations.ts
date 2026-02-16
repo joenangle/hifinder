@@ -9,6 +9,7 @@ export function generateCacheKey(params: {
   soundSignatures: string[]
   headphoneType: string
   wantRecommendationsFor: Record<string, boolean>
+  selectedItems?: string[]
 }): string {
   // Normalize parameters for consistent cache keys
   const normalized = {
@@ -27,9 +28,12 @@ export function generateCacheKey(params: {
       .map(([k]) => k)
       .sort()
       .join(','),
+
+    // Include selected items in cache key for budget-aware re-ranking
+    selected: params.selectedItems?.length ? params.selectedItems.join(',') : '',
   }
 
-  return `${normalized.budget}:${normalized.signatures}:${normalized.type}:${normalized.wants}`
+  return `${normalized.budget}:${normalized.signatures}:${normalized.type}:${normalized.wants}:${normalized.selected}`
 }
 
 /**

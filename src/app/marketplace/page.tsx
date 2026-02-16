@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
 // import { useSession } from 'next-auth/react' // Unused
-import { supabase } from '@/lib/supabase'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
 import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
@@ -84,6 +83,15 @@ function MarketplaceContent() {
         params.append('conditions', selectedConditions.join(','))
       }
 
+      // Server-side filters (moved from client-side)
+      if (selectedCategories.length > 0) {
+        params.append('categories', selectedCategories.join(','))
+      }
+
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim())
+      }
+
       const response = await fetch(`/api/used-listings?${params.toString()}`)
 
       if (!response.ok) {
@@ -92,41 +100,30 @@ function MarketplaceContent() {
 
       const data = await response.json()
 
-      // DEBUG: Check image data in API response
-      console.log('📸 Image Debug - First 3 listings:')
-      data.listings.slice(0, 3).forEach((listing: UsedListing, idx: number) => {
-        console.log(`Listing ${idx + 1}:`, {
-          title: listing.title,
-          hasImages: !!listing.images,
-          imageCount: listing.images?.length || 0,
-          imageUrls: listing.images?.slice(0, 2) || 'none'
-        })
-      })
-
       // Component data is now included in the API response (joined server-side)
-      // No need for separate fetches - this fixes the N+1 query pattern
-      const listingsWithComponents = data.listings as ListingWithComponent[]
+      let filteredData = data.listings as ListingWithComponent[]
 
-      // Filter by search query (client-side since it involves component data)
-      let filteredData = listingsWithComponents
+      // Client-side search with normalization for fuzzy model number matching
+      // (e.g., "HD 660" matches "HD660", "DT-990" matches "DT990")
+      const normalize = (s: string) => s.toLowerCase().replace(/[\s\-]/g, '')
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase()
-        filteredData = filteredData.filter(listing =>
-          listing.component?.name.toLowerCase().includes(query) ||
-          listing.component?.brand.toLowerCase().includes(query) ||
-          listing.title.toLowerCase().includes(query) ||
-          (listing.description && listing.description.toLowerCase().includes(query))
-        )
+        const normalizedQuery = normalize(searchQuery)
+        filteredData = filteredData.filter(listing => {
+          const standardMatch =
+            listing.component?.name.toLowerCase().includes(query) ||
+            listing.component?.brand.toLowerCase().includes(query) ||
+            listing.title.toLowerCase().includes(query) ||
+            (listing.description && listing.description.toLowerCase().includes(query))
+          if (standardMatch) return true
+          return (
+            normalize(listing.component?.name || '').includes(normalizedQuery) ||
+            normalize(listing.title || '').includes(normalizedQuery)
+          )
+        })
       }
 
-      // Filter by category
-      if (selectedCategories.length > 0) {
-        filteredData = filteredData.filter(listing =>
-          listing.component && selectedCategories.includes(listing.component.category)
-        )
-      }
-
-      // Filter by region
+      // Region filter (kept client-side — location data is freeform text, hard to filter in SQL)
       if (selectedRegion !== 'all') {
         filteredData = filteredData.filter(listing => {
           const location = listing.location.toLowerCase()
@@ -147,11 +144,11 @@ function MarketplaceContent() {
         })
       }
 
-      // Filter by deal quality
+      // Deal quality filter (kept client-side — requires component price data for comparison)
       if (dealQuality.length > 0) {
         filteredData = filteredData.filter(listing => {
           if (!listing.component?.price_used_min || !listing.component?.price_used_max) {
-            return false // Can't assess deal quality without price data
+            return false
           }
 
           const expectedAvg = (listing.component.price_used_min + listing.component.price_used_max) / 2
@@ -189,14 +186,14 @@ function MarketplaceContent() {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories])
 
-  // Search with debounce (text input)
+  // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1)
       fetchUsedListings(1, true)
-    }, 500)
+    }, 800)
 
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps

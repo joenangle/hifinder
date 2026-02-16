@@ -251,16 +251,92 @@ export function assessAmplificationFromImpedance(
 }
 
 /**
+ * Parse amplifier power output specification string
+ *
+ * Supports formats like:
+ * - "500mW @ 32Ω" or "500mW@32Ω"
+ * - "2W @ 32Ω" or "2000mW @ 32Ω"
+ * - "1.5W into 32 ohms"
+ * - "500mW/32Ω"
+ *
+ * @returns Parsed power in mW and reference impedance, or null if unparseable
+ */
+export function parsePowerSpec(powerSpec: string | undefined | null): {
+  power_mW: number;
+  reference_impedance: number;
+} | null {
+  if (!powerSpec) return null;
+
+  const spec = powerSpec.toLowerCase().trim();
+
+  // Match patterns like "500mw @ 32Ω", "2w@32ohms", "1.5w into 32 ohms", "500mw/32Ω"
+  const powerMatch = spec.match(/(\d+(?:\.\d+)?)\s*(mw|w)\s*[@\/]?\s*(?:into\s+)?(\d+)\s*(?:Ω|ohms?)?/i);
+
+  if (!powerMatch) return null;
+
+  const value = parseFloat(powerMatch[1]);
+  const unit = powerMatch[2].toLowerCase();
+  const impedance = parseInt(powerMatch[3], 10);
+
+  // Convert to mW if in W
+  const power_mW = unit === 'w' ? value * 1000 : value;
+
+  return {
+    power_mW,
+    reference_impedance: impedance
+  };
+}
+
+/**
+ * Calculate amplifier power output at a different impedance
+ *
+ * Uses the relationship between power, voltage, and impedance:
+ * - For voltage-limited amps: P = V²/R (power decreases as impedance increases)
+ * - For current-limited amps: P = I²R (power increases as impedance increases)
+ *
+ * Most headphone amps are voltage-limited for practical impedance ranges,
+ * with current limiting only kicking in at very low impedances.
+ *
+ * @param referencePower_mW - Power at reference impedance
+ * @param referenceImpedance - Reference impedance (typically 32Ω)
+ * @param targetImpedance - Target impedance to calculate power for
+ * @param currentLimit_mA - Optional current limit (defaults to generous 500mA)
+ * @returns Power output in mW at target impedance
+ */
+export function calculatePowerAtImpedance(
+  referencePower_mW: number,
+  referenceImpedance: number,
+  targetImpedance: number,
+  currentLimit_mA: number = 500
+): number {
+  // Calculate reference voltage: V = sqrt(P * R)
+  const referencePower_W = referencePower_mW / 1000;
+  const referenceVoltage = Math.sqrt(referencePower_W * referenceImpedance);
+
+  // Calculate voltage-limited power at target impedance: P = V²/R
+  const voltageLimitedPower_W = (referenceVoltage * referenceVoltage) / targetImpedance;
+
+  // Calculate current-limited power: P = I²R
+  const currentLimit_A = currentLimit_mA / 1000;
+  const currentLimitedPower_W = currentLimit_A * currentLimit_A * targetImpedance;
+
+  // Amp delivers whichever limit is hit first (lower value)
+  const actualPower_W = Math.min(voltageLimitedPower_W, currentLimitedPower_W);
+
+  return actualPower_W * 1000; // Convert back to mW
+}
+
+/**
  * Match amplifiers to headphone requirements
- * 
+ *
  * This function evaluates which amplifiers can adequately drive given headphones
  * based on power requirements and provides intelligent matching with headroom considerations.
  */
 export function matchAmplifiersToHeadphones(
   headphones: { impedance: number | null; powerRequirement?: PowerRequirements }[],
-  amplifiers: { 
-    id: string; 
-    name: string; 
+  amplifiers: {
+    id: string;
+    name: string;
     brand: string;
     power_output?: string; // e.g., "500mW @ 32Ω"
     price_used_min: number | null;
@@ -273,39 +349,84 @@ export function matchAmplifiersToHeadphones(
   powerAtHeadphoneZ: number;
   explanation: string;
 }> {
-  // For now, return a simplified assessment based on price tiers
-  // TODO: Implement full power matching when amp power specs are available
-  
+  // Find the most demanding headphone to match against
+  const mostDemandingHeadphone = headphones.reduce((most, current) => {
+    const currentPower = current.powerRequirement?.powerNeeded_mW ?? 0;
+    const mostPower = most?.powerRequirement?.powerNeeded_mW ?? 0;
+    return currentPower > mostPower ? current : most;
+  }, headphones[0]);
+
+  const targetImpedance = mostDemandingHeadphone?.impedance ?? 32;
+  const powerNeeded = mostDemandingHeadphone?.powerRequirement?.powerNeeded_mW ?? 50;
+
   const results = amplifiers.map(amp => {
-    const avgPrice = ((amp.price_used_min || 0) + (amp.price_used_max || 0)) / 2;
-    
-    // Simple power estimation based on price and brand
-    let estimatedPower = 100; // Base power in mW
-    if (avgPrice > 500) estimatedPower = 1000;
-    else if (avgPrice > 300) estimatedPower = 500;
-    else if (avgPrice > 150) estimatedPower = 250;
-    
-    // Calculate compatibility with most demanding headphone
-    const powerAtHeadphoneZ = estimatedPower; // Simplified - would adjust for impedance
-    
-    const compatibilityScore = Math.min(1, powerAtHeadphoneZ / 100); // Normalized score
-    const headroomScore = powerAtHeadphoneZ > 200 ? 0.9 : powerAtHeadphoneZ / 200;
-    
+    const parsedSpec = parsePowerSpec(amp.power_output);
+    let powerAtHeadphoneZ: number;
+    let specBased = false;
+
+    if (parsedSpec) {
+      // Full power matching with actual specs
+      powerAtHeadphoneZ = calculatePowerAtImpedance(
+        parsedSpec.power_mW,
+        parsedSpec.reference_impedance,
+        targetImpedance
+      );
+      specBased = true;
+    } else {
+      // Fallback: estimate based on price tier
+      const avgPrice = ((amp.price_used_min || 0) + (amp.price_used_max || 0)) / 2;
+      let estimatedPower = 100; // Base power in mW
+      if (avgPrice > 500) estimatedPower = 1000;
+      else if (avgPrice > 300) estimatedPower = 500;
+      else if (avgPrice > 150) estimatedPower = 250;
+      powerAtHeadphoneZ = estimatedPower;
+    }
+
+    // Calculate compatibility: can amp deliver required power?
+    // Score 1.0 = can deliver exactly what's needed, >1.0 = headroom
+    const powerRatio = powerAtHeadphoneZ / powerNeeded;
+    const compatibilityScore = Math.min(1, powerRatio);
+
+    // Headroom score: how much extra power beyond minimum?
+    // 2x power (3dB headroom) is ideal, 4x (6dB) is excellent
+    let headroomScore: number;
+    if (powerRatio >= 4) headroomScore = 1.0;      // 6dB+ headroom - excellent
+    else if (powerRatio >= 2) headroomScore = 0.9; // 3-6dB headroom - great
+    else if (powerRatio >= 1.5) headroomScore = 0.7; // Some headroom
+    else if (powerRatio >= 1) headroomScore = 0.5;  // Just enough
+    else headroomScore = powerRatio * 0.5;         // Underpowered
+
+    // Generate explanation
+    let explanation: string;
+    if (specBased) {
+      const parsedPower = parsedSpec!.power_mW;
+      const parsedZ = parsedSpec!.reference_impedance;
+      if (powerRatio >= 2) {
+        explanation = `Delivers ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω (from ${parsedPower}mW @ ${parsedZ}Ω spec). Excellent headroom for demanding passages.`;
+      } else if (powerRatio >= 1) {
+        explanation = `Delivers ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω. Adequate power with some headroom.`;
+      } else {
+        explanation = `Only ${Math.round(powerAtHeadphoneZ)}mW at ${targetImpedance}Ω - may struggle with demanding headphones. Consider more powerful amp.`;
+      }
+    } else {
+      explanation = `Estimated ${Math.round(powerAtHeadphoneZ)}mW output (no specs available). ${
+        powerAtHeadphoneZ > 200 ? 'Should drive most headphones well.' : 'Suitable for easier to drive headphones.'
+      }`;
+    }
+
     return {
       amplifier: amp,
       compatibilityScore,
-      headroomScore,  
-      powerAtHeadphoneZ,
-      explanation: `Estimated ${estimatedPower}mW output. ${
-        powerAtHeadphoneZ > 200 ? 'Should drive most headphones well.' : 'Suitable for easier to drive headphones.'
-      }`
+      headroomScore,
+      powerAtHeadphoneZ: Math.round(powerAtHeadphoneZ),
+      explanation
     };
   });
 
-  // Sort by overall suitability (compatibility + headroom)
+  // Sort by overall suitability (weighted: compatibility more important than headroom)
   return results.sort((a, b) => {
-    const aScore = (a.compatibilityScore + a.headroomScore) / 2;
-    const bScore = (b.compatibilityScore + b.headroomScore) / 2;
+    const aScore = (a.compatibilityScore * 0.7) + (a.headroomScore * 0.3);
+    const bScore = (b.compatibilityScore * 0.7) + (b.headroomScore * 0.3);
     return bScore - aScore;
   });
 }
