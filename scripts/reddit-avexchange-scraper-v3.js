@@ -336,62 +336,90 @@ function extractComponentPrice(componentName, title, selftext = '', matchedSegme
 
 /**
  * Core price extraction from a text string.
- * Returns the highest-priority, lowest price found.
+ * Returns the highest-priority price, preferring bundle totals over per-item prices.
  */
 function extractPricesFromText(text) {
-  // Pattern 1: $X,XXX or $XXX (highest priority)
+  // Check if this is likely a bundle listing with multiple prices
+  const hasBundleKeywords = /\b(all|bundle|total|together|both|for everything|combo|package)\b/i.test(text);
+
+  // Priority 0 (HIGHEST): Price in [W] (Want) section - most reliable for total price
+  const wantPattern = /\[W\][^\[]*?\$?(\d{1,5}(?:,\d{3})*)\b/gi;
+
+  // Pattern 1: Bundle keywords + price (e.g., "asking $500 for all", "$300 total")
+  const bundlePattern = /\b(?:asking|price:?|selling)\s*\$?(\d{1,5}(?:,\d{3})*)\s*(?:for\s+)?(?:all|total|together|both|everything|bundle)/gi;
+
+  // Pattern 2: $X,XXX or $XXX (standard dollar signs)
   const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
 
-  // Pattern 2: asking/price/selling $XXX
+  // Pattern 3: asking/price/selling $XXX (without bundle keywords)
   const askingPattern = /\b(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)/gi;
 
-  // Pattern 3: XXX shipped / XXX obo
+  // Pattern 4: XXX shipped / XXX obo
   const shippedPattern = /\b(\d{3,5})\s*(?:shipped|obo|or best offer|firm)\b/gi;
 
-  // Pattern 4: XXX USD
+  // Pattern 5: XXX USD
   const currencyPattern = /\b(\d{3,5})\s*(?:usd|dollars?)\b/gi;
 
   const allPrices = [];
 
-  // Extract with priority 1
+  // Extract Priority 0: [W] section prices
   let match;
-  while ((match = dollarPattern.exec(text)) !== null) {
+  while ((match = wantPattern.exec(text)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 0 });
+    }
+  }
+
+  // Extract Priority 1: Bundle keyword + price
+  while ((match = bundlePattern.exec(text)) !== null) {
     const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 1 });
     }
   }
 
-  // Extract with priority 2
-  while ((match = askingPattern.exec(text)) !== null) {
+  // Extract Priority 2: Standard dollar signs
+  while ((match = dollarPattern.exec(text)) !== null) {
     const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 2 });
     }
   }
 
-  // Extract with priority 3
-  while ((match = shippedPattern.exec(text)) !== null) {
-    const price = parseInt(match[1], 10);
+  // Extract Priority 3: Asking/price/selling
+  while ((match = askingPattern.exec(text)) !== null) {
+    const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 3 });
     }
   }
 
-  // Extract with priority 4
-  while ((match = currencyPattern.exec(text)) !== null) {
+  // Extract Priority 4: Shipped/OBO
+  while ((match = shippedPattern.exec(text)) !== null) {
     const price = parseInt(match[1], 10);
     if (price >= 10 && price <= 10000) {
       allPrices.push({ price, priority: 4 });
     }
   }
 
+  // Extract Priority 5: USD/dollars
+  while ((match = currencyPattern.exec(text)) !== null) {
+    const price = parseInt(match[1], 10);
+    if (price >= 10 && price <= 10000) {
+      allPrices.push({ price, priority: 5 });
+    }
+  }
+
   if (allPrices.length === 0) return null;
 
-  // Sort by priority, then lowest price
+  // Sort by priority first
   allPrices.sort((a, b) => {
     if (a.priority !== b.priority) return a.priority - b.priority;
-    return a.price - b.price;
+
+    // Within same priority: if bundle keywords exist, prefer HIGHEST price (likely the total)
+    // Otherwise prefer LOWEST price (for single items)
+    return hasBundleKeywords ? b.price - a.price : a.price - b.price;
   });
 
   return allPrices[0].price;
@@ -690,7 +718,8 @@ async function scrapeReddit() {
         const listing = {
           component_id: match.component.id,
           title: post.title,
-          price: priceInfo.individual_price || 0,
+          price: priceInfo.individual_price || null,
+          price_is_estimated: priceInfo.price_is_estimated || false,
 
           // Bundle metadata
           is_bundle: bundleMatches.length > 1,

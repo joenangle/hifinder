@@ -20,13 +20,21 @@ export function MarketplaceListingCard({
   onViewDetails 
 }: MarketplaceListingCardProps) {
   
-  const formatPrice = (amount: number) => {
+  const formatPrice = (amount: number | null | undefined) => {
+    if (!amount) return null
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount)
+  }
+
+  const displayPrice = (price: number | null | undefined, isEstimated?: boolean) => {
+    const formatted = formatPrice(price)
+    if (!formatted) return 'See listing'
+    if (isEstimated) return `~${formatted}`
+    return formatted
   }
   
   const getConditionColor = (condition: string) => {
@@ -65,8 +73,8 @@ export function MarketplaceListingCard({
     return { text: `${Math.floor(diffInDays / 30)}mo ago`, urgent: false }
   }
 
-  const getPriceAnalysis = (listingPrice: number) => {
-    if (!component.price_used_min || !component.price_used_max) {
+  const getPriceAnalysis = (listingPrice: number | null) => {
+    if (!listingPrice || !component.price_used_min || !component.price_used_max) {
       return { type: 'neutral', message: '', percentage: 0, trend: 'stable' }
     }
 
@@ -167,7 +175,7 @@ export function MarketplaceListingCard({
 
           {/* Price - always visible, responsive sizing */}
           <div className="w-20 sm:w-24 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
-            {formatPrice(listing.price)}
+            {displayPrice(listing.price, listing.price_is_estimated)}
           </div>
 
           {/* Deal - hide on small screens */}
@@ -323,7 +331,7 @@ export function MarketplaceListingCard({
       {/* Price & Actions */}
       <div className="mt-auto">
         <div className="text-center mb-3">
-          <div className="text-xl font-bold text-foreground">{formatPrice(listing.price)}</div>
+          <div className="text-xl font-bold text-foreground">{displayPrice(listing.price, listing.price_is_estimated)}</div>
           {/* Reverb-specific: Show shipping cost */}
           {listing.source === 'reverb' && listing.shipping_cost !== undefined && listing.shipping_cost > 0 && (
             <div className="text-xs text-muted">

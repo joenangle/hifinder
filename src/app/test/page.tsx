@@ -184,7 +184,7 @@ export default function AdminDashboard() {
                         {listing.title}
                       </a>
                     </td>
-                    <td className="py-3">${listing.price}</td>
+                    <td className="py-3">{listing.price ? `$${listing.price}` : 'No price'}</td>
                     <td className="py-3"><StatusBadge status={listing.status} /></td>
                     <td className="py-3 capitalize text-gray-400">{listing.source.replace('_', ' ')}</td>
                     <td className="py-3 text-gray-400">{listing.seller_username || 'N/A'}</td>

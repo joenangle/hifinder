@@ -115,8 +115,15 @@ async function searchReverbForComponent(component) {
     
     const listings = data.listings
       .filter(listing => isRelevantListing(listing, component))
-      .map(listing => transformReverbListing(listing, component));
-    
+      .map(listing => transformReverbListing(listing, component))
+      .filter(listing => {
+        if (!listing.price || listing.price < 20) {
+          console.log(`⚠️ Skipping Reverb listing "${listing.title}" — no valid price (got ${listing.price})`);
+          return false;
+        }
+        return true;
+      });
+
     console.log(`📦 Found ${listings.length} relevant Reverb listings for ${component.brand} ${component.name}`);
     
     return listings;

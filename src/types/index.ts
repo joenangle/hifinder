@@ -54,7 +54,8 @@ export interface UsedListing {
   id: string;
   component_id: string;
   title: string;
-  price: number;
+  price: number | null;
+  price_is_estimated?: boolean;
   condition: 'excellent' | 'very_good' | 'good' | 'fair' | 'parts_only';
   location: string;
   source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'reverb' | 'manual';
@@ -82,6 +83,7 @@ export interface UsedListing {
   accepts_offers?: boolean;
   // Bundle detection fields
   is_bundle?: boolean;
+  bundle_total_price?: number;
   component_count?: number;
 }
 

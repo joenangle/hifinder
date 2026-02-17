@@ -341,7 +341,7 @@ export default function FlaggedListingsTab() {
                         </span>
                       </div>
                       <span className="text-sm font-medium text-text-primary dark:text-text-primary">
-                        ${listing.price}
+                        {listing.price ? `$${listing.price}` : 'No price'}
                       </span>
                     </div>
 
@@ -453,7 +453,7 @@ export default function FlaggedListingsTab() {
                     Listing Info
                   </h4>
                   <p className="text-sm text-text-primary dark:text-text-primary mb-1">
-                    <strong>Price:</strong> ${selectedListingDetails.listing.price}
+                    <strong>Price:</strong> {selectedListingDetails.listing.price ? `$${selectedListingDetails.listing.price}` : 'No price'}
                   </p>
                   <p className="text-sm text-text-primary dark:text-text-primary mb-1">
                     <strong>Condition:</strong> {selectedListingDetails.listing.condition || 'Unknown'}

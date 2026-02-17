@@ -30,9 +30,9 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         case 'newest':
           return new Date(b.date_posted).getTime() - new Date(a.date_posted).getTime()
         case 'price_low':
-          return a.price - b.price
+          return (a.price ?? Infinity) - (b.price ?? Infinity)
         case 'price_high':
-          return b.price - a.price
+          return (b.price ?? 0) - (a.price ?? 0)
         default:
           return 0
       }

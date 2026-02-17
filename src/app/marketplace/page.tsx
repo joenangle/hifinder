@@ -152,6 +152,7 @@ function MarketplaceContent() {
           }
 
           const expectedAvg = (listing.component.price_used_min + listing.component.price_used_max) / 2
+          if (!listing.price) return false
           const percentage = ((listing.price - expectedAvg) / expectedAvg) * 100
 
           let meetsFilter = false

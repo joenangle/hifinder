@@ -129,12 +129,16 @@ function generateBundleGroupId() {
  * @returns {Object} - Price info for this component
  */
 function calculateBundlePrice(totalPrice, componentCount, componentIndex, component) {
-  // Strategy: Price marked as null for individual components
-  // Keep total price in bundle metadata
+  // Estimate per-item price from bundle total (even split)
+  const estimatedPrice = totalPrice && componentCount > 0
+    ? Math.round(totalPrice / componentCount)
+    : null;
+
   return {
-    individual_price: null,
+    individual_price: estimatedPrice,
     bundle_total_price: totalPrice,
     bundle_component_count: componentCount,
+    price_is_estimated: true,
     price_note: `Part of ${componentCount}-item bundle ($${totalPrice} total)`
   };
 }
