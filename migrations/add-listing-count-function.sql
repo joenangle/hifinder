@@ -15,7 +15,7 @@ BEGIN
     COUNT(*)::bigint as listing_count
   FROM used_listings ul
   WHERE
-    ul.is_active = true
+    ul.status = 'available'
     AND ul.component_id = ANY(component_ids)
     -- Filter out sample/demo listings
     AND ul.url NOT ILIKE '%sample%'

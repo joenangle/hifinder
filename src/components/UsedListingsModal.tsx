@@ -2,10 +2,9 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowUpRight, ExternalLink, MapPin, Clock } from 'lucide-react'
 import { Modal } from './Modal'
 import { PriceHistoryChart } from './PriceHistoryChart'
-import { MarketplaceListingCard } from './MarketplaceListingCard'
 import type { Component, UsedListing } from '@/types'
 
 interface UsedListingsModalProps {
@@ -18,8 +17,6 @@ interface UsedListingsModalProps {
 
 type SortOption = 'date_desc' | 'price_asc' | 'price_desc'
 
-const INITIAL_SHOW_COUNT = 5
-
 function formatPrice(amount: number | null | undefined) {
   if (!amount) return null
   return new Intl.NumberFormat('en-US', {
@@ -30,6 +27,39 @@ function formatPrice(amount: number | null | undefined) {
   }).format(amount)
 }
 
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diff / 86400000)
+  if (days === 0) return 'Today'
+  if (days === 1) return '1d ago'
+  if (days < 30) return `${days}d ago`
+  return `${Math.floor(days / 30)}mo ago`
+}
+
+function conditionLabel(condition: string) {
+  return condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+function conditionColor(condition: string) {
+  switch (condition) {
+    case 'excellent': return 'text-green-700 dark:text-green-400'
+    case 'very_good': return 'text-blue-700 dark:text-blue-400'
+    case 'good': return 'text-yellow-700 dark:text-yellow-400'
+    case 'fair': return 'text-orange-700 dark:text-orange-400'
+    default: return 'text-muted'
+  }
+}
+
+function sourceLabel(source: string) {
+  switch (source) {
+    case 'reddit_avexchange': return 'r/AVex'
+    case 'reverb': return 'Reverb'
+    case 'ebay': return 'eBay'
+    case 'head_fi': return 'Head-Fi'
+    default: return source
+  }
+}
+
 export function UsedListingsModal({
   isOpen,
   onClose,
@@ -38,7 +68,6 @@ export function UsedListingsModal({
   listingsLoading,
 }: UsedListingsModalProps) {
   const [sortBy, setSortBy] = useState<SortOption>('date_desc')
-  const [showAll, setShowAll] = useState(false)
 
   const sortedListings = useMemo(() => {
     const sorted = [...listings]
@@ -56,105 +85,134 @@ export function UsedListingsModal({
     return sorted
   }, [listings, sortBy])
 
-  const displayedListings = showAll ? sortedListings : sortedListings.slice(0, INITIAL_SHOW_COUNT)
-  const hasMore = sortedListings.length > INITIAL_SHOW_COUNT
-
   const searchQuery = encodeURIComponent(`${component.brand} ${component.name}`)
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`${component.brand} ${component.name} — Used Market`} maxWidth="4xl">
-      <div className="p-4 sm:p-6 space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title={`${component.brand} ${component.name}`} maxWidth="4xl">
+      <div className="flex flex-col lg:flex-row lg:h-[70vh] max-h-[80vh]">
 
-        {/* Price Summary Bar */}
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div className="p-3 bg-surface-secondary rounded-lg">
-            <div className="text-xs text-muted mb-1">Used Range</div>
-            <div className="text-sm font-semibold text-foreground">
-              {component.price_used_min && component.price_used_max
-                ? `${formatPrice(component.price_used_min)} – ${formatPrice(component.price_used_max)}`
-                : 'No data'}
+        {/* Left column: Price stats + history chart */}
+        <div className="lg:w-1/2 p-4 lg:border-r border-border flex flex-col gap-3 lg:overflow-y-auto">
+          {/* Inline price stats */}
+          <div className="flex gap-2 text-xs">
+            <div className="flex-1 p-2 bg-surface-secondary rounded text-center">
+              <span className="text-muted">Used </span>
+              <span className="font-semibold text-foreground">
+                {component.price_used_min && component.price_used_max
+                  ? `${formatPrice(component.price_used_min)}–${formatPrice(component.price_used_max)}`
+                  : '—'}
+              </span>
+            </div>
+            <div className="flex-1 p-2 bg-surface-secondary rounded text-center">
+              <span className="text-muted">New </span>
+              <span className="font-semibold text-foreground">{formatPrice(component.price_new) ?? '—'}</span>
+            </div>
+            <div className="flex-1 p-2 bg-surface-secondary rounded text-center">
+              <span className="text-muted">Listed </span>
+              <span className="font-semibold text-foreground">{listingsLoading ? '…' : listings.length}</span>
             </div>
           </div>
-          <div className="p-3 bg-surface-secondary rounded-lg">
-            <div className="text-xs text-muted mb-1">New / MSRP</div>
-            <div className="text-sm font-semibold text-foreground">
-              {formatPrice(component.price_new) ?? 'N/A'}
-            </div>
-          </div>
-          <div className="p-3 bg-surface-secondary rounded-lg">
-            <div className="text-xs text-muted mb-1">Active Listings</div>
-            <div className="text-sm font-semibold text-foreground">
-              {listingsLoading ? '...' : listings.length}
-            </div>
+
+          {/* Price history chart */}
+          <div className="flex-1 min-h-0">
+            <PriceHistoryChart componentId={component.id} priceNew={component.price_new} />
           </div>
         </div>
 
-        {/* Price History Chart */}
-        <div>
-          <h3 className="text-sm font-semibold text-foreground mb-3">Price History (Sold)</h3>
-          <PriceHistoryChart componentId={component.id} priceNew={component.price_new} />
-        </div>
-
-        {/* Available Listings */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Available Listings{!listingsLoading && ` (${listings.length})`}
-            </h3>
+        {/* Right column: Listings + marketplace link */}
+        <div className="lg:w-1/2 flex flex-col min-h-0">
+          {/* Listings header */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+            <span className="text-sm font-semibold text-foreground">
+              Available{!listingsLoading && ` (${listings.length})`}
+            </span>
             {listings.length > 1 && (
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="text-xs bg-surface-secondary text-foreground border border-border rounded px-2 py-1"
+                className="text-xs bg-surface-secondary text-foreground border border-border rounded px-1.5 py-0.5"
               >
                 <option value="date_desc">Newest</option>
-                <option value="price_asc">Price: Low → High</option>
-                <option value="price_desc">Price: High → Low</option>
+                <option value="price_asc">Price ↑</option>
+                <option value="price_desc">Price ↓</option>
               </select>
             )}
           </div>
 
-          {listingsLoading ? (
-            <div className="py-8 text-center text-muted text-sm">Loading listings...</div>
-          ) : listings.length === 0 ? (
-            <div className="py-8 text-center text-muted text-sm">
-              No active listings right now. Check back later or browse the full marketplace.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {displayedListings.map((listing) => (
-                <MarketplaceListingCard
-                  key={listing.id}
-                  listing={listing}
-                  component={component}
-                  viewMode="list"
-                />
-              ))}
+          {/* Listings body */}
+          <div className="flex-1 overflow-y-auto">
+            {listingsLoading ? (
+              <div className="py-8 text-center text-muted text-sm">Loading…</div>
+            ) : listings.length === 0 ? (
+              <div className="py-8 text-center text-muted text-sm">
+                No active listings right now.
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {sortedListings.map((listing) => (
+                  <a
+                    key={listing.id}
+                    href={listing.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-hover transition-colors group"
+                  >
+                    {/* Price */}
+                    <div className="w-16 flex-shrink-0 text-right">
+                      <span className="font-semibold text-foreground text-sm">
+                        {listing.price
+                          ? `${listing.price_is_estimated ? '~' : ''}${formatPrice(listing.price)}`
+                          : '—'}
+                      </span>
+                    </div>
 
-              {hasMore && (
-                <button
-                  onClick={() => setShowAll(!showAll)}
-                  className="w-full py-2 text-sm text-accent hover:text-accent-hover font-medium flex items-center justify-center gap-1 transition-colors"
-                >
-                  {showAll ? (
-                    <>Show fewer <ChevronUp className="w-4 h-4" /></>
-                  ) : (
-                    <>Show all {sortedListings.length} listings <ChevronDown className="w-4 h-4" /></>
-                  )}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 text-xs text-muted">
+                        <span className={`font-medium ${conditionColor(listing.condition)}`}>
+                          {conditionLabel(listing.condition)}
+                        </span>
+                        <span className="text-border">·</span>
+                        <span>{sourceLabel(listing.source)}</span>
+                        {listing.location && (
+                          <>
+                            <span className="text-border">·</span>
+                            <span className="truncate flex items-center gap-0.5">
+                              <MapPin className="w-3 h-3 inline flex-shrink-0" />
+                              {listing.location}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted mt-0.5">
+                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        <span>{timeAgo(listing.date_posted)}</span>
+                        {listing.seller_username && (
+                          <>
+                            <span className="text-border">·</span>
+                            <span className="truncate">{listing.seller_username}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
 
-        {/* Footer: Link to full marketplace */}
-        <div className="pt-2 border-t border-border">
-          <Link
-            href={`/marketplace?search=${searchQuery}`}
-            className="w-full px-4 py-2.5 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            Browse on Marketplace <ArrowUpRight className="w-4 h-4" />
-          </Link>
+                    {/* External link icon */}
+                    <ExternalLink className="w-3.5 h-3.5 text-muted opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer: marketplace link */}
+          <div className="px-4 py-3 border-t border-border">
+            <Link
+              href={`/marketplace?search=${searchQuery}`}
+              className="w-full px-3 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+            >
+              Browse on Marketplace <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
       </div>
