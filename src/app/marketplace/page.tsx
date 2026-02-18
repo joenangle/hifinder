@@ -38,6 +38,7 @@ function MarketplaceContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [dealQuality, setDealQuality] = useState<string[]>([]) // 'great', 'good', 'hideOverpriced'
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('available')
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('date_desc')
 
@@ -66,6 +67,10 @@ function MarketplaceContent() {
         limit: '50', // Load 50 at a time
         sort: sortBy
       })
+
+      if (selectedStatus && selectedStatus !== 'all') {
+        params.append('status', selectedStatus)
+      }
 
       if (selectedSource && selectedSource !== 'all') {
         params.append('source', selectedSource)
@@ -180,14 +185,14 @@ function MarketplaceContent() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedRegion, dealQuality])
+  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedRegion, selectedStatus, dealQuality])
 
   // Initial load - non-debounced filters (dropdowns, checkboxes)
   useEffect(() => {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions, selectedCategories])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedStatus])
 
   // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
@@ -538,7 +543,7 @@ function MarketplaceContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* Source Filter */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Source</label>
@@ -550,6 +555,21 @@ function MarketplaceContent() {
                     {sourceOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
+                  </select>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="available">Available</option>
+                    <option value="sold">Sold</option>
+                    <option value="expired">Expired</option>
                   </select>
                 </div>
 
@@ -621,7 +641,7 @@ function MarketplaceContent() {
         </div>
 
         {/* Active Filters Summary */}
-        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedRegion !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
+        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedStatus !== 'available' || selectedRegion !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
           <div className="bg-surface-elevated rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground">Active Filters</h3>
@@ -631,6 +651,7 @@ function MarketplaceContent() {
                   setDealQuality([])
                   setSelectedConditions([])
                   setSelectedSource('all')
+                  setSelectedStatus('available')
                   setSelectedRegion('all')
                   setSearchQuery('')
                   setPriceRange({ min: '', max: '' })
@@ -696,6 +717,17 @@ function MarketplaceContent() {
                   Source: {sourceOptions.find(o => o.value === selectedSource)?.label}
                   <button
                     onClick={() => setSelectedSource('all')}
+                    className="hover:text-accent"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {selectedStatus !== 'available' && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-foreground capitalize">
+                  Status: {selectedStatus}
+                  <button
+                    onClick={() => setSelectedStatus('available')}
                     className="hover:text-accent"
                   >
                     <X className="w-3 h-3" />
@@ -776,6 +808,11 @@ function MarketplaceContent() {
                   {/* Time - always visible */}
                   <div className="w-16 sm:w-20">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Posted</span>
+                  </div>
+
+                  {/* Status */}
+                  <div className="w-20">
+                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Status</span>
                   </div>
 
                   {/* Price - always visible */}

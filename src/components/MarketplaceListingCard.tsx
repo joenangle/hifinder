@@ -48,6 +48,16 @@ export function MarketplaceListingCard({
     }
   }
 
+  const getStatusDisplay = (status?: string) => {
+    switch (status) {
+      case 'sold': return { label: 'Sold', color: 'text-red-800 bg-red-100' }
+      case 'expired': return { label: 'Expired', color: 'text-gray-800 bg-gray-100' }
+      case 'removed': return { label: 'Removed', color: 'text-gray-800 bg-gray-100' }
+      case 'available':
+      default: return { label: 'Available', color: 'text-green-800 bg-green-100' }
+    }
+  }
+
   const getSourceDisplay = (source: string) => {
     const sourceMap: { [key: string]: { name: string; color: string; icon: string } } = {
       'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800 border-orange-200', icon: '🔥' },
@@ -108,6 +118,7 @@ export function MarketplaceListingCard({
   )
 
   const sourceInfo = getSourceDisplay(listing.source)
+  const statusInfo = getStatusDisplay(listing.status)
   const timeInfo = timeAgo(listing.date_posted)
   const priceAnalysis = getPriceAnalysis(listing.price)
 
@@ -171,6 +182,13 @@ export function MarketplaceListingCard({
           {/* Posted - always visible, responsive sizing */}
           <div className={`w-16 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
             {timeInfo.text}
+          </div>
+
+          {/* Status */}
+          <div className="w-20 flex-shrink-0">
+            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`}>
+              {statusInfo.label}
+            </span>
           </div>
 
           {/* Price - always visible, responsive sizing */}
@@ -238,6 +256,9 @@ export function MarketplaceListingCard({
       <div className="flex flex-wrap gap-1 mb-3">
         <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${sourceInfo.color}`}>
           {sourceInfo.name}
+        </span>
+        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`}>
+          {statusInfo.label}
         </span>
         {showCondition && (
           <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
