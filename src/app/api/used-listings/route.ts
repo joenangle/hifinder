@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const categories = searchParams.get('categories') // Comma-separated categories (cans, iems, dac, amp, dac_amp)
     const search = searchParams.get('search') // Search query for brand/model/title
     const status = searchParams.get('status') // Filter by status (available, sold, expired)
+    const brands = searchParams.get('brands') // Comma-separated brand names
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit
@@ -71,6 +72,12 @@ export async function GET(request: NextRequest) {
     if (categories) {
       const categoriesArray = categories.split(',').map(c => c.trim())
       query = query.in('component.category', categoriesArray)
+    }
+
+    // Filter by brand (via joined component table)
+    if (brands) {
+      const brandsArray = brands.split(',').map(b => b.trim())
+      query = query.in('component.brand', brandsArray)
     }
 
     // Search by title (server-side text search)
