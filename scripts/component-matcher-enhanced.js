@@ -61,7 +61,7 @@ const BRAND_ALIASES = {
 const MODEL_VARIATIONS = {
   // AKG variants
   'k240 studio': ['k240', 'k240 mkii', 'k240mkii', 'k 240', 'k-240'],
-  'k371': ['k371-bt', 'k371 bt', 'k-371'],
+  'k371': ['k-371'],
   'k702': ['k 702', 'k-702'],
 
   // 64 Audio color variants
@@ -72,16 +72,18 @@ const MODEL_VARIATIONS = {
   'up': ['top pro', 'mangird top pro', 'xenns top pro'],
   'tea pro': ['mangird tea pro', 'xenns tea pro'],
 
-  // HiFiMan revisions
-  'sundara': ['sundara 2020', 'sundara closed', 'sundara stealth'],
+  // HiFiMan revisions — only formatting variants, NOT different products
+  'sundara': ['sundara 2020', 'sundara stealth'],
+  'sundara closed': ['sundara closed-back'],
   'arya': ['arya stealth', 'arya v2', 'arya v3', 'arya organic'],
   'he6se': ['he6se v1', 'he6se v2', 'he-6se'],
-  'edition xs': ['edition x', 'edition xx'],
+  'edition xs': ['edition-xs'],
 
   // Sennheiser variants
   'hd600': ['hd 600', 'hd-600'],
   'hd650': ['hd 650', 'hd-650'],
-  'hd660s': ['hd 660s', 'hd-660s', 'hd660s2'],
+  'hd660s': ['hd 660s', 'hd-660s'],
+  'hd660s2': ['hd 660s2', 'hd-660s2', 'hd660 s2'],
   'hd800': ['hd 800', 'hd-800'],
   'hd800s': ['hd 800s', 'hd-800s', 'hd800 s'],
 
@@ -90,8 +92,9 @@ const MODEL_VARIATIONS = {
   'lcd-2': ['lcd-2 classic', 'lcd2', 'lcd 2'],
   'lcd-xc': ['lcdxc', 'lcd xc'],
 
-  // Focal variants
-  'clear': ['clear mg', 'clear og', 'clear original'],
+  // Focal variants — Clear and Clear MG are different products
+  'clear': ['clear og', 'clear original'],
+  'clear mg': ['clear mg professional'],
   'utopia': ['utopia 2022', 'utopia 2020'],
 
   // ZMF variants
@@ -99,7 +102,8 @@ const MODEL_VARIATIONS = {
   'aeolus': ['aeolus stabilized'],
 
   // Moondrop variants
-  'blessing 2': ['blessing 2 dusk', 'blessing2', 'b2'],
+  'blessing 2': ['blessing2', 'b2'],
+  'blessing 2 dusk': ['blessing2 dusk', 'b2 dusk'],
   'aria': ['aria snow', 'aria se'],
 
   // Thieaudio Monarch variants (MK II, MK III, MK IV)
@@ -591,6 +595,14 @@ function calculateNameScore(text, name, brand) {
   const normalizedText = normalizeModelName(text);
   const normalizedName = normalizeModelName(name);
   if (normalizedText.includes(normalizedName)) {
+    // Verify this isn't a substring of a longer model (e.g., "hd660s" inside "hd660s2")
+    // Check that the match ends at a word boundary or end of string
+    const idx = normalizedText.indexOf(normalizedName);
+    const afterMatch = normalizedText[idx + normalizedName.length];
+    // If the next character is alphanumeric, this is a substring of a longer model name — penalize
+    if (afterMatch && /[a-z0-9]/i.test(afterMatch)) {
+      return 0.7; // Partial substring match — lower confidence
+    }
     return 0.9; // Slightly lower than exact, but still high confidence
   }
 
