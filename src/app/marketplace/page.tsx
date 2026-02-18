@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 // import { useSession } from 'next-auth/react' // Unused
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
@@ -19,6 +20,7 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function MarketplaceContent() {
+  const searchParams = useSearchParams()
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -55,6 +57,14 @@ function MarketplaceContent() {
 
   // Search input ref - maintains focus across re-renders
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Initialize search from URL params (e.g. ?search=Sennheiser+HD600)
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search')
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch used listings with server-side filtering & pagination
   const fetchUsedListings = useCallback(async (pageNum: number, resetListings = false) => {

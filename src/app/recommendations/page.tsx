@@ -20,6 +20,7 @@ import { AmplificationWarningBanner } from '@/components/recommendations/Amplifi
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { ComparisonBar } from '@/components/ComparisonBar'
 import { ComparisonModal } from '@/components/ComparisonModal'
+import { UsedListingsModal } from '@/components/UsedListingsModal'
 
 // Lazy load guided mode components for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -87,8 +88,9 @@ function RecommendationsContent() {
 
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
+  const [listingsLoading, setListingsLoading] = useState(false)
   const [showMarketplace, setShowMarketplace] = useState(false)
-  const [focusedComponentId, setFocusedComponentId] = useState<string | null>(null)
+  const [usedModalComponent, setUsedModalComponent] = useState<Component | null>(null)
 
   // Stack builder state
   const [showStackBuilder, setShowStackBuilder] = useState(false)
@@ -547,15 +549,12 @@ function RecommendationsContent() {
 
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
-    if (!showMarketplace) return
-
     const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
     const componentIds = allComponents.map(c => c.id)
-    
-    console.log('Fetching used listings for components:', componentIds.length)
-    
+
     if (componentIds.length === 0) return
-    
+
+    setListingsLoading(true)
     try {
       const response = await fetch(`/api/used-listings?component_ids=${componentIds.join(',')}&limit=200`)
       if (!response.ok) {
@@ -563,16 +562,15 @@ function RecommendationsContent() {
       }
 
       const data = await response.json()
-      // API returns { listings: {...}, total, page, ... } so extract listings
       const groupedListings: {[componentId: string]: UsedListing[]} = data.listings || {}
-      console.log('Fetched listings for', Object.keys(groupedListings).length, 'components')
 
       setUsedListings(groupedListings)
     } catch (error) {
       console.error('Error fetching used listings:', error)
-      return
+    } finally {
+      setListingsLoading(false)
     }
-  }, [showMarketplace, cans, iems, dacs, amps, dacAmps])
+  }, [cans, iems, dacs, amps, dacAmps])
   
   // Used market data is now loaded inline in fetchUsedListings function above
 
@@ -866,35 +864,14 @@ function RecommendationsContent() {
     setCustomBudgetAllocation(allocation)
   }, [])
 
-  // Handle "Find Used" button click
-  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
-    console.log('🔍 Find Used clicked:', { componentId, componentName })
-    console.log('📦 Available listings:', usedListings[componentId]?.length ?? 0)
-
-    // Open used market section
-    setShowMarketplace(true)
-    // Set focused component to filter listings
-    setFocusedComponentId(componentId)
-
-    console.log('✅ State updated - showMarketplace: true, focusedComponentId:', componentId)
-  }, [usedListings])
-
-  // Scroll to used market section after it renders
-  useEffect(() => {
-    if (showMarketplace && focusedComponentId && usedListings[focusedComponentId]) {
-      console.log('📜 Scrolling to marketplace section for:', focusedComponentId)
-
-      // Use requestAnimationFrame to ensure DOM has updated
-      requestAnimationFrame(() => {
-        const usedMarketSection = document.querySelector('[data-marketplace-section]')
-        console.log('🎯 Found marketplace section:', !!usedMarketSection)
-
-        if (usedMarketSection) {
-          usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      })
+  // Handle "Find Used" button click — open modal
+  const handleFindUsed = useCallback((componentId: string, _componentName: string) => {
+    const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
+    const component = allComponents.find(c => c.id === componentId)
+    if (component) {
+      setUsedModalComponent(component)
     }
-  }, [showMarketplace, focusedComponentId, usedListings])
+  }, [cans, iems, dacs, amps, dacAmps])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
@@ -1482,31 +1459,16 @@ function RecommendationsContent() {
             return null
           }
 
-          // Filter by focused component if set
-          const filteredListings = focusedComponentId
-            ? listingsToDisplay.filter(({ component }) => component.id === focusedComponentId)
-            : listingsToDisplay
-
           return (
             <div className="mt-12 space-y-8" data-marketplace-section>
               <div className="text-center mb-6">
                 <h2 className="heading-3 mb-2">
-                  {focusedComponentId
-                    ? 'Used Listings for Selected Item'
-                    : hasSelections
+                  {hasSelections
                     ? 'Used Listings for Selected Items'
                     : 'Marketplace Listings'}
                 </h2>
-                {focusedComponentId && (
-                  <button
-                    onClick={() => setFocusedComponentId(null)}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    ← Show all listings
-                  </button>
-                )}
               </div>
-              {filteredListings.map(({ component, listings }) => (
+              {listingsToDisplay.map(({ component, listings }) => (
                 <UsedListingsSection
                   key={component.id}
                   component={component}
@@ -1696,6 +1658,17 @@ function RecommendationsContent() {
         <ComparisonModal
           items={comparisonItems}
           onClose={() => setShowComparisonView(false)}
+        />
+      )}
+
+      {/* Used Listings Modal - Quick preview for a single component */}
+      {usedModalComponent && (
+        <UsedListingsModal
+          isOpen={!!usedModalComponent}
+          onClose={() => setUsedModalComponent(null)}
+          component={usedModalComponent}
+          listings={usedListings[usedModalComponent.id] || []}
+          listingsLoading={listingsLoading}
         />
       )}
       </div>
