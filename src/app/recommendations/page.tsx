@@ -866,6 +866,40 @@ function RecommendationsContent() {
     })
   }, [wantRecommendationsFor, updateURL])
 
+  // Budget context label: clarifies what the topline budget covers
+  const budgetLabel = useMemo(() => {
+    const hasOtherCategories = wantRecommendationsFor.dac || wantRecommendationsFor.amp || wantRecommendationsFor.combo
+    return hasOtherCategories ? 'System Budget' : 'Headphone Budget'
+  }, [wantRecommendationsFor])
+
+  // Handle clicking empty slots in the signal chain visualization
+  const handleChainSlotClick = useCallback((type: 'dac' | 'amp' | 'combo' | 'headphones') => {
+    if (type === 'headphones') return
+
+    const sectionId = type === 'dac' ? 'section-dacs'
+      : type === 'amp' ? 'section-amps'
+      : 'section-combos'
+
+    // If already active, just scroll to the section
+    if (wantRecommendationsFor[type]) {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+
+    // Activate the equipment type (triggers API re-fetch via URL update)
+    updateURL({
+      wantRecommendationsFor: {
+        ...wantRecommendationsFor,
+        [type]: true
+      }
+    })
+
+    // Scroll after render (section conditionally renders on wantRecommendationsFor)
+    setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 300)
+  }, [wantRecommendationsFor, updateURL])
+
   // Handle custom budget allocation changes
   const handleBudgetAllocationChange = useCallback((allocation: BudgetAllocation) => {
     setCustomBudgetAllocation(allocation)
@@ -936,6 +970,7 @@ function RecommendationsContent() {
               budget={budget}
               onChange={(newBudget) => updateURL({ budget: newBudget })}
               variant="simple"
+              budgetLabel={budgetLabel}
               userExperience="intermediate"
               showInput={true}
               showLabels={true}
@@ -1005,6 +1040,7 @@ function RecommendationsContent() {
             setSelectedAmps([])
             setSelectedDacAmps([])
           }}
+          onSlotClick={handleChainSlotClick}
         />
 
         {/* Error Display */}
@@ -1189,7 +1225,7 @@ function RecommendationsContent() {
               <SignalGearWrapper {...wrapperProps}>
                 {/* DACs Section */}
                 {wantRecommendationsFor.dac && (
-                  <div className="card overflow-hidden">
+                  <div id="section-dacs" className="card overflow-hidden">
                     {filteredDacs.length > 0 ? (
                       <>
                         <div className="px-4 py-3 border-b dark:border-emerald-700/30 bg-gradient-to-b from-emerald-300 to-emerald-200 dark:from-emerald-400/80 dark:to-emerald-300/80 rounded-t-xl">
@@ -1262,7 +1298,7 @@ function RecommendationsContent() {
 
           {/* Amps Section */}
           {wantRecommendationsFor.amp && (
-            <div className="card overflow-hidden">
+            <div id="section-amps" className="card overflow-hidden">
               {filteredAmps.length > 0 ? (
                 <>
                   <div className="px-4 py-3 border-b dark:border-amber-700/30 bg-gradient-to-b from-amber-300 to-amber-200 dark:from-amber-400/80 dark:to-amber-300/80 rounded-t-xl">
@@ -1335,7 +1371,7 @@ function RecommendationsContent() {
 
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && (
-            <div className="card overflow-hidden">
+            <div id="section-combos" className="card overflow-hidden">
               {filteredDacAmps.length > 0 ? (
                 <>
                   <div className="px-4 py-3 border-b dark:border-blue-700/30 bg-gradient-to-b from-blue-300 to-blue-200 dark:from-blue-400/80 dark:to-blue-300/80 rounded-t-xl">

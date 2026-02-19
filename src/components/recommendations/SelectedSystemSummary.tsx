@@ -27,6 +27,7 @@ interface SelectedSystemSummaryProps {
   remainingBudget: number
   onBuildStack: () => void
   onClearAll: () => void
+  onSlotClick?: (type: 'dac' | 'amp' | 'combo' | 'headphones') => void
 }
 
 const formatPrice = (amount: number) => `$${Math.round(amount).toLocaleString()}`
@@ -143,6 +144,7 @@ function ChainNode({
   emptyLabel,
   color,
   isComboSpan,
+  onEmptyClick,
 }: {
   icon: React.ElementType
   label: string
@@ -150,15 +152,27 @@ function ChainNode({
   emptyLabel: string
   color: string
   isComboSpan?: boolean
+  onEmptyClick?: () => void
 }) {
   const isEmpty = items.length === 0
 
   if (isEmpty) {
+    const isClickable = !!onEmptyClick
+    const Wrapper = isClickable ? 'button' : 'div'
     return (
-      <div className={`flex-1 min-w-0 border-2 border-dashed border-border rounded-lg p-2.5 text-center ${isComboSpan ? 'col-span-2' : ''}`}>
-        <Icon className="w-4 h-4 text-muted mx-auto mb-1" />
-        <p className="text-xs text-muted">{emptyLabel}</p>
-      </div>
+      <Wrapper
+        onClick={onEmptyClick}
+        className={`flex-1 min-w-0 border-2 border-dashed rounded-lg p-2.5 text-center ${isComboSpan ? 'col-span-2' : ''} ${
+          isClickable
+            ? 'border-accent-primary/50 hover:border-accent-primary hover:bg-accent-primary/5 cursor-pointer transition-all group'
+            : 'border-border'
+        }`}
+      >
+        <Icon className={`w-4 h-4 mx-auto mb-1 ${isClickable ? 'text-accent-primary/60 group-hover:text-accent-primary' : 'text-muted'}`} />
+        <p className={`text-xs ${isClickable ? 'text-accent-primary/70 group-hover:text-accent-primary font-medium' : 'text-muted'}`}>
+          {isClickable ? `+ ${emptyLabel}` : emptyLabel}
+        </p>
+      </Wrapper>
     )
   }
 
@@ -197,7 +211,8 @@ const SelectedSystemSummaryComponent = ({
   budget,
   remainingBudget,
   onBuildStack,
-  onClearAll
+  onClearAll,
+  onSlotClick
 }: SelectedSystemSummaryProps) => {
   const hasItems = selectedHeadphones.length > 0 || selectedDacs.length > 0 || selectedAmps.length > 0 || selectedCombos.length > 0
 
@@ -249,6 +264,7 @@ const SelectedSystemSummaryComponent = ({
               emptyLabel="DAC/Amp"
               color="bg-orange-500"
               isComboSpan
+              onEmptyClick={selectedCombos.length === 0 ? () => onSlotClick?.('combo') : undefined}
             />
           </>
         ) : (
@@ -259,6 +275,7 @@ const SelectedSystemSummaryComponent = ({
               items={selectedDacs}
               emptyLabel="Add DAC"
               color="bg-red-500"
+              onEmptyClick={selectedDacs.length === 0 ? () => onSlotClick?.('dac') : undefined}
             />
             <ChainArrow />
             <ChainNode
@@ -267,6 +284,7 @@ const SelectedSystemSummaryComponent = ({
               items={selectedAmps}
               emptyLabel="Add Amp"
               color="bg-amber-500"
+              onEmptyClick={selectedAmps.length === 0 ? () => onSlotClick?.('amp') : undefined}
             />
           </>
         )}
@@ -297,16 +315,16 @@ const SelectedSystemSummaryComponent = ({
 
         {hasCombo && !hasSeparateDacAmp ? (
           <div className="w-full">
-            <ChainNode icon={MonitorSpeaker} label="DAC/Amp" items={selectedCombos} emptyLabel="DAC/Amp" color="bg-orange-500" />
+            <ChainNode icon={MonitorSpeaker} label="DAC/Amp" items={selectedCombos} emptyLabel="DAC/Amp" color="bg-orange-500" onEmptyClick={selectedCombos.length === 0 ? () => onSlotClick?.('combo') : undefined} />
           </div>
         ) : (
           <>
             <div className="w-full">
-              <ChainNode icon={MonitorSpeaker} label="DAC" items={selectedDacs} emptyLabel="Add DAC" color="bg-red-500" />
+              <ChainNode icon={MonitorSpeaker} label="DAC" items={selectedDacs} emptyLabel="Add DAC" color="bg-red-500" onEmptyClick={selectedDacs.length === 0 ? () => onSlotClick?.('dac') : undefined} />
             </div>
             <ChainArrow vertical />
             <div className="w-full">
-              <ChainNode icon={Zap} label="Amp" items={selectedAmps} emptyLabel="Add Amp" color="bg-amber-500" />
+              <ChainNode icon={Zap} label="Amp" items={selectedAmps} emptyLabel="Add Amp" color="bg-amber-500" onEmptyClick={selectedAmps.length === 0 ? () => onSlotClick?.('amp') : undefined} />
             </div>
           </>
         )}

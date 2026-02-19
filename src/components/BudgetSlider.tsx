@@ -21,6 +21,7 @@ interface BudgetSliderProps {
   budgetRangeMax?: number
   onRangeChange?: (min: number, max: number) => void
   className?: string
+  budgetLabel?: string
 }
 
 // Convert budget value to linear slider position
@@ -144,7 +145,8 @@ export function BudgetSlider({
   budgetRangeMin = 20,
   budgetRangeMax = 10,
   onRangeChange,
-  className = ''
+  className = '',
+  budgetLabel
 }: BudgetSliderProps) {
   const [localBudget, setLocalBudget] = useState(displayBudget || budget)
   const [budgetInputValue, setBudgetInputValue] = useState(localBudget.toString())
@@ -313,6 +315,11 @@ export function BudgetSlider({
 
   return (
     <div className={`space-y-2 ${className}`}>
+      {/* Budget context label */}
+      {budgetLabel && (
+        <p className="text-xs font-medium text-secondary text-center mb-1">{budgetLabel}</p>
+      )}
+
       {/* Consolidated budget display - single line */}
       <div className="flex items-center justify-center gap-2 mb-0">
         {/* Budget amount */}
