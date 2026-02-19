@@ -379,18 +379,25 @@ function RecommendationsContent() {
       })
 
       // Set recommendations - API always returns separate cans and iems arrays
-      setCans(recommendations.cans || [])
-      console.log('✅ SET CANS:', recommendations.cans?.length, 'items -', recommendations.cans?.map((c: Component) => c.name))
-
-      setIems(recommendations.iems || [])
-      console.log('✅ SET IEMS:', recommendations.iems?.length, 'items -', recommendations.iems?.map((c: Component) => c.name))
-
-      setDacs(recommendations.dacs || [])
-      console.log('✅ SET DACS:', recommendations.dacs?.length, 'items')
+      // During background re-fetch, the API skips categories with active selections
+      // (returns empty arrays). Preserve current data for those categories.
+      if (!background || recommendations.cans?.length > 0 || selectedCans.length === 0) {
+        setCans(recommendations.cans || [])
+      }
+      if (!background || recommendations.iems?.length > 0 || selectedIems.length === 0) {
+        setIems(recommendations.iems || [])
+      }
+      if (!background || recommendations.dacs?.length > 0 || selectedDacs.length === 0) {
+        setDacs(recommendations.dacs || [])
+      }
+      if (!background || recommendations.amps?.length > 0 || selectedAmps.length === 0) {
+        setAmps(recommendations.amps || [])
+      }
+      if (!background || recommendations.combos?.length > 0 || selectedDacAmps.length === 0) {
+        setDacAmps(recommendations.combos || [])
+      }
 
       setBudgetAllocation(recommendations.budgetAllocation || {})
-      setAmps(recommendations.amps || [])
-      setDacAmps(recommendations.combos || [])
       setShowAmplification(recommendations.needsAmplification || false)
 
       // Debug logging for IEMs
