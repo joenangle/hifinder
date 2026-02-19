@@ -471,9 +471,8 @@ function RecommendationsContent() {
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
     typeFilters, // Need actual array for headphoneType conversion
-    userPrefs.budget // Need for selectedItems budget shift calculation
-    // Removed JSON.stringify dependencies - they create new references every render
-    // The API stringifies these internally, so changes are reflected in the request
+    userPrefs.budget, // Need for selectedItems budget shift calculation
+    wantRecommendationsForKey // Triggers refetch when equipment toggles change (dac/amp/combo)
   ])
 
   // Fetch filter counts - use stable strings instead of array references
