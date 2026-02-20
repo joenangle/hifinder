@@ -17,6 +17,7 @@ import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
+import { BudgetPresets } from '@/components/recommendations/BudgetPresets'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { ComparisonBar } from '@/components/ComparisonBar'
 import { ComparisonModal } from '@/components/ComparisonModal'
@@ -871,6 +872,18 @@ function RecommendationsContent() {
     return hasOtherCategories ? 'System Budget' : 'Headphone Budget'
   }, [wantRecommendationsFor])
 
+  // Budget helper text: explains what the budget covers in more detail
+  const budgetHelperText = useMemo(() => {
+    const hasSignalGear = wantRecommendationsFor.dac || wantRecommendationsFor.amp || wantRecommendationsFor.combo
+    if (hasSignalGear) {
+      return 'Split across headphones and signal gear'
+    }
+    if (userPrefs.headphoneType === 'both') {
+      return 'Shows headphones and IEMs within this range'
+    }
+    return undefined
+  }, [wantRecommendationsFor, userPrefs.headphoneType])
+
   // Handle clicking empty slots in the signal chain visualization
   const handleChainSlotClick = useCallback((type: 'dac' | 'amp' | 'combo' | 'headphones') => {
     if (type === 'headphones') return
@@ -970,6 +983,7 @@ function RecommendationsContent() {
               onChange={(newBudget) => updateURL({ budget: newBudget })}
               variant="simple"
               budgetLabel={budgetLabel}
+              budgetHelperText={budgetHelperText}
               userExperience="intermediate"
               showInput={true}
               showLabels={true}
@@ -980,6 +994,10 @@ function RecommendationsContent() {
               budgetRangeMin={userPrefs.budgetRangeMin}
               budgetRangeMax={userPrefs.budgetRangeMax}
               className="w-full"
+            />
+            <BudgetPresets
+              currentBudget={budget}
+              onSelect={(newBudget) => updateURL({ budget: newBudget })}
             />
           </div>
         </Tooltip>
@@ -1124,7 +1142,7 @@ function RecommendationsContent() {
                 {displayCans.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
 
                   return (
                     <HeadphoneCard
@@ -1135,6 +1153,7 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
+                      isValuePick={(headphone.value_rating || headphone.crin_value || 0) >= 2}
                       onFindUsed={handleFindUsed}
                       expandAllExperts={expandAllExperts}
                     />
@@ -1184,7 +1203,7 @@ function RecommendationsContent() {
                 {displayIems.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
 
                   return (
                     <HeadphoneCard
@@ -1195,6 +1214,7 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
+                      isValuePick={(headphone.value_rating || headphone.crin_value || 0) >= 2}
                       onFindUsed={handleFindUsed}
                       expandAllExperts={expandAllExperts}
                     />

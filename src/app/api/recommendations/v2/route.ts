@@ -672,11 +672,11 @@ function filterAndScoreComponents(
       return isInRange && hasReasonableRange;
     })
     .map((comp) => {
-      // V3.1 SCORING ALGORITHM
-      // Priority order: Performance (65%) > Sound Signature (25%) > Value (10%)
+      // V3.2 SCORING ALGORITHM
+      // Budget-adaptive weighting: lower budgets emphasize value, higher budgets emphasize expert quality
       // Signature bonus multiplier: 1.2x when signature matches
 
-      // 1. EXPERT PERFORMANCE SCORE (65% weight)
+      // 1. EXPERT PERFORMANCE SCORE (budget-adaptive weight)
       // Uses Crinacle rank/tone/tech/value or ASR measurements
       const expertScoreValue =
         (comp as unknown as { expertScore?: number }).expertScore ?? 5.0; // 0-10 scale
@@ -689,33 +689,43 @@ function filterAndScoreComponents(
       // Apply 1.2x bonus multiplier when signature score is high (>0.35 = good match)
       const signatureBonus = signatureScore > 0.35 ? 1.2 : 1.0;
 
-      // 3. VALUE-FOR-MONEY SCORE (10% weight)
-      // Reward under-budget items at same performance tier
-      // Linear scoring: items at 50-100% of budget get proportional value score
-      let valueScore = 0;
+      // 3. VALUE-FOR-MONEY SCORE (budget-adaptive weight)
+      // Blends expert value rating with price efficiency
+      const crinValueScore = ((comp as unknown as { crin_value?: number }).crin_value ?? 1) / 3; // 0-1 scale, default 1/3
       const priceRatio = comp.avgPrice / budget;
 
+      let priceEfficiency = 0;
       if (comp.avgPrice <= budget) {
-        // Under budget: Linear scale from 0.5 to 1.0
-        // 50% of budget = 0.5 score, 75% = 0.75, 100% = 1.0
-        valueScore = Math.max(0.5, priceRatio);
+        // Under budget: reward saving money
+        // $30 at $250 budget = 0.88 efficiency, $200 at $250 = 0.20
+        priceEfficiency = 1 - priceRatio;
       } else {
-        // Over budget: Steep penalty (should already be filtered out)
+        // Over budget: steep penalty
         const overageRatio = (comp.avgPrice - budget) / budget;
-        valueScore = Math.max(0, 1 - overageRatio * 2);
+        priceEfficiency = Math.max(0, -overageRatio * 2);
       }
+
+      // Blend: 60% expert value assessment, 40% price efficiency
+      const valueScore = crinValueScore * 0.6 + priceEfficiency * 0.4;
 
       // 4. POWER ADEQUACY BONUS (for amps only, max +5%)
       const powerBonus =
         comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
+      // Budget-adaptive weighting
+      // Lower budgets: value matters more (best bang-for-buck)
+      // Higher budgets: expert performance matters more (paying for quality)
+      const weights = budget <= 100 ? { expert: 0.50, value: 0.25 }
+        : budget <= 400 ? { expert: 0.55, value: 0.20 }
+        : budget <= 1000 ? { expert: 0.60, value: 0.15 }
+        : { expert: 0.65, value: 0.10 };
+
       // FINAL SCORE CALCULATION
-      // Expert: 65% + Signature: 25% + Value: 10% + Power bonus: 0-5%
-      // Then apply signature bonus multiplier (1.0x or 1.2x)
+      // Expert + Signature (25%) + Value + Power bonus, then signature bonus multiplier
       const rawScore =
-        (expertScore * 0.65 +
+        (expertScore * weights.expert +
         signatureScore * 0.25 +
-        valueScore * 0.10 +
+        valueScore * weights.value +
         powerBonus) * signatureBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)

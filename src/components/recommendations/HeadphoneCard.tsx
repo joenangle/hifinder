@@ -39,6 +39,7 @@ interface HeadphoneCardProps {
   isTechnicalChamp: boolean
   isToneChamp: boolean
   isBudgetChamp: boolean
+  isValuePick?: boolean
   onFindUsed?: (componentId: string, componentName: string) => void
   expandAllExperts?: boolean
 }
@@ -54,6 +55,7 @@ const HeadphoneCardComponent = ({
   isTechnicalChamp,
   isToneChamp,
   isBudgetChamp,
+  isValuePick = false,
   onFindUsed,
   expandAllExperts = false
 }: HeadphoneCardProps) => {
@@ -171,7 +173,7 @@ const HeadphoneCardComponent = ({
             MSRP: {formatBudgetUSD(headphone.price_new)}
           </div>
         )}
-        {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
+        {(isTechnicalChamp || isToneChamp || isBudgetChamp || isValuePick) && (
           <div className="flex flex-wrap gap-1 justify-end">
             {isTechnicalChamp && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/60 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
@@ -186,6 +188,11 @@ const HeadphoneCardComponent = ({
             {isBudgetChamp && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-600 dark:bg-orange-400/50 text-white dark:text-orange-100 text-xs font-semibold rounded-full">
                 💰 Value
+              </span>
+            )}
+            {isValuePick && !isBudgetChamp && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-600 dark:bg-emerald-400/50 text-white dark:text-emerald-100 text-xs font-semibold rounded-full">
+                Value Pick
               </span>
             )}
           </div>
