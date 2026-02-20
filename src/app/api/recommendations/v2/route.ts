@@ -1049,7 +1049,12 @@ export async function GET(request: NextRequest) {
 
         // Process cans and IEMs: ALWAYS separate, never combine
         if (req.wantRecommendationsFor.headphones) {
-          const headphoneBudget = budgetAllocation.headphones || req.budget;
+          // "Headphones first" flow: when no items are selected yet, show headphones
+          // at full budget so users can browse freely. Budget only splits once they
+          // start selecting signal gear, which constrains remaining budget naturally.
+          const headphoneBudget = selectedItems.length === 0
+            ? req.budget
+            : (budgetAllocation.headphones || req.budget);
 
           // Check if user wants both types or just one specific type
           const wantsBoth = req.headphoneType === "both";

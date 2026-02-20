@@ -876,13 +876,16 @@ function RecommendationsContent() {
   const budgetHelperText = useMemo(() => {
     const hasSignalGear = wantRecommendationsFor.dac || wantRecommendationsFor.amp || wantRecommendationsFor.combo
     if (hasSignalGear) {
-      return 'Split across headphones and signal gear'
+      // Show suggested split as guidance (headphones still show at full budget until selections are made)
+      const hpBudget = Math.round(budget * 0.5)
+      const gearBudget = budget - hpBudget
+      return `Suggested split: ~$${hpBudget} headphones + ~$${gearBudget} signal gear`
     }
     if (userPrefs.headphoneType === 'both') {
       return 'Shows headphones and IEMs within this range'
     }
     return undefined
-  }, [wantRecommendationsFor, userPrefs.headphoneType])
+  }, [wantRecommendationsFor, userPrefs.headphoneType, budget])
 
   // Handle clicking empty slots in the signal chain visualization
   const handleChainSlotClick = useCallback((type: 'dac' | 'amp' | 'combo' | 'headphones') => {
@@ -1058,6 +1061,19 @@ function RecommendationsContent() {
             setSelectedDacAmps([])
           }}
           onSlotClick={handleChainSlotClick}
+          onRemoveItem={(id, category) => {
+            if (category === 'headphones') {
+              // Item could be in cans or iems
+              setSelectedCans(prev => prev.filter(item => item !== id))
+              setSelectedIems(prev => prev.filter(item => item !== id))
+            } else if (category === 'dac') {
+              setSelectedDacs(prev => prev.filter(item => item !== id))
+            } else if (category === 'amp') {
+              setSelectedAmps(prev => prev.filter(item => item !== id))
+            } else if (category === 'combo') {
+              setSelectedDacAmps(prev => prev.filter(item => item !== id))
+            }
+          }}
         />
 
         {/* Error Display */}

@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useMemo } from 'react'
-import { Music, MonitorSpeaker, Zap, Headphones, ChevronRight, ChevronDown } from 'lucide-react'
+import { Music, MonitorSpeaker, Zap, Headphones, ChevronRight, ChevronDown, X } from 'lucide-react'
 import { Tooltip } from '@/components/Tooltip'
 import { parsePowerSpec, calculatePowerAtImpedance, assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 
@@ -28,6 +28,7 @@ interface SelectedSystemSummaryProps {
   onBuildStack: () => void
   onClearAll: () => void
   onSlotClick?: (type: 'dac' | 'amp' | 'combo' | 'headphones') => void
+  onRemoveItem?: (id: string, category: 'headphones' | 'dac' | 'amp' | 'combo') => void
 }
 
 const formatPrice = (amount: number) => `$${Math.round(amount).toLocaleString()}`
@@ -145,6 +146,7 @@ function ChainNode({
   color,
   isComboSpan,
   onEmptyClick,
+  onRemoveItem,
 }: {
   icon: React.ElementType
   label: string
@@ -153,6 +155,7 @@ function ChainNode({
   color: string
   isComboSpan?: boolean
   onEmptyClick?: () => void
+  onRemoveItem?: (id: string) => void
 }) {
   const isEmpty = items.length === 0
 
@@ -179,7 +182,7 @@ function ChainNode({
   return (
     <div className={`flex-1 min-w-0 ${isComboSpan ? 'col-span-2' : ''}`}>
       {items.map(item => (
-        <div key={item.id} className={`border border-border rounded-lg p-2.5 bg-surface-hover`}>
+        <div key={item.id} className={`border border-border rounded-lg p-2.5 bg-surface-hover group/chain-item`}>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${color} flex-shrink-0`} />
             <div className="min-w-0 flex-1">
@@ -196,6 +199,16 @@ function ChainNode({
                 )}
               </div>
             </div>
+            {onRemoveItem && (
+              <button
+                onClick={() => onRemoveItem(item.id)}
+                className="flex-shrink-0 p-0.5 rounded-full text-muted hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors opacity-0 group-hover/chain-item:opacity-100 focus:opacity-100"
+                title={`Remove ${item.name}`}
+                aria-label={`Remove ${item.name}`}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       ))}
@@ -212,7 +225,8 @@ const SelectedSystemSummaryComponent = ({
   remainingBudget,
   onBuildStack,
   onClearAll,
-  onSlotClick
+  onSlotClick,
+  onRemoveItem
 }: SelectedSystemSummaryProps) => {
   const hasItems = selectedHeadphones.length > 0 || selectedDacs.length > 0 || selectedAmps.length > 0 || selectedCombos.length > 0
 
@@ -265,6 +279,7 @@ const SelectedSystemSummaryComponent = ({
               color="bg-orange-500"
               isComboSpan
               onEmptyClick={selectedCombos.length === 0 ? () => onSlotClick?.('combo') : undefined}
+              onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'combo') : undefined}
             />
           </>
         ) : (
@@ -276,6 +291,7 @@ const SelectedSystemSummaryComponent = ({
               emptyLabel="Add DAC"
               color="bg-red-500"
               onEmptyClick={selectedDacs.length === 0 ? () => onSlotClick?.('dac') : undefined}
+              onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'dac') : undefined}
             />
             <ChainArrow />
             <ChainNode
@@ -285,6 +301,7 @@ const SelectedSystemSummaryComponent = ({
               emptyLabel="Add Amp"
               color="bg-amber-500"
               onEmptyClick={selectedAmps.length === 0 ? () => onSlotClick?.('amp') : undefined}
+              onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'amp') : undefined}
             />
           </>
         )}
@@ -298,6 +315,7 @@ const SelectedSystemSummaryComponent = ({
           items={selectedHeadphones}
           emptyLabel="Add Headphones"
           color="bg-accent-primary"
+          onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'headphones') : undefined}
         />
       </div>
 
@@ -315,16 +333,16 @@ const SelectedSystemSummaryComponent = ({
 
         {hasCombo && !hasSeparateDacAmp ? (
           <div className="w-full">
-            <ChainNode icon={MonitorSpeaker} label="DAC/Amp" items={selectedCombos} emptyLabel="DAC/Amp" color="bg-orange-500" onEmptyClick={selectedCombos.length === 0 ? () => onSlotClick?.('combo') : undefined} />
+            <ChainNode icon={MonitorSpeaker} label="DAC/Amp" items={selectedCombos} emptyLabel="DAC/Amp" color="bg-orange-500" onEmptyClick={selectedCombos.length === 0 ? () => onSlotClick?.('combo') : undefined} onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'combo') : undefined} />
           </div>
         ) : (
           <>
             <div className="w-full">
-              <ChainNode icon={MonitorSpeaker} label="DAC" items={selectedDacs} emptyLabel="Add DAC" color="bg-red-500" onEmptyClick={selectedDacs.length === 0 ? () => onSlotClick?.('dac') : undefined} />
+              <ChainNode icon={MonitorSpeaker} label="DAC" items={selectedDacs} emptyLabel="Add DAC" color="bg-red-500" onEmptyClick={selectedDacs.length === 0 ? () => onSlotClick?.('dac') : undefined} onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'dac') : undefined} />
             </div>
             <ChainArrow vertical />
             <div className="w-full">
-              <ChainNode icon={Zap} label="Amp" items={selectedAmps} emptyLabel="Add Amp" color="bg-amber-500" onEmptyClick={selectedAmps.length === 0 ? () => onSlotClick?.('amp') : undefined} />
+              <ChainNode icon={Zap} label="Amp" items={selectedAmps} emptyLabel="Add Amp" color="bg-amber-500" onEmptyClick={selectedAmps.length === 0 ? () => onSlotClick?.('amp') : undefined} onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'amp') : undefined} />
             </div>
           </>
         )}
@@ -332,7 +350,7 @@ const SelectedSystemSummaryComponent = ({
         <ChainArrow compat={powerCompat} vertical />
 
         <div className="w-full">
-          <ChainNode icon={Headphones} label="Headphones" items={selectedHeadphones} emptyLabel="Add Headphones" color="bg-accent-primary" />
+          <ChainNode icon={Headphones} label="Headphones" items={selectedHeadphones} emptyLabel="Add Headphones" color="bg-accent-primary" onRemoveItem={onRemoveItem ? (id) => onRemoveItem(id, 'headphones') : undefined} />
         </div>
       </div>
 
