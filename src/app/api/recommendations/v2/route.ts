@@ -292,18 +292,22 @@ async function allocateBudgetAcrossComponents(
   requestedComponents: string[],
   existingGear: RecommendationRequest["existingGear"],
   rangeMin: number = 20,
-  rangeMax: number = 10
+  rangeMax: number = 10,
+  isRemainingBudget: boolean = false
 ): Promise<Record<string, number>> {
   const allocation: Record<string, number> = {};
 
   // V3: Dynamic budget caps that scale with total budget
-  // Removed hard $2K/$3K caps that stranded money at high-end budgets
-  const componentBudgetCaps = {
-    headphones: totalBudget * 0.9, // Headphones can take most budget
-    dac: totalBudget * 0.4,         // DACs up to 40% (was capped at $2K)
-    amp: totalBudget * 0.4,         // Amps up to 40% (was capped at $2K)
-    combo: totalBudget * 0.6,       // Combos up to 60% (was capped at $3K)
-  };
+  // When isRemainingBudget=true, the budget IS already the ceiling (post-selection),
+  // so skip percentage caps that would artificially constrain signal gear
+  const componentBudgetCaps = isRemainingBudget
+    ? { headphones: totalBudget, dac: totalBudget, amp: totalBudget, combo: totalBudget }
+    : {
+        headphones: totalBudget * 0.9, // Headphones can take most budget
+        dac: totalBudget * 0.4,         // DACs up to 40%
+        amp: totalBudget * 0.4,         // Amps up to 40%
+        combo: totalBudget * 0.6,       // Combos up to 60%
+      };
 
   // Price ratios adjusted for existing gear
   const priceRatios = {
@@ -915,7 +919,8 @@ export async function GET(request: NextRequest) {
           selectedItems.length > 0 ? componentsToFetch : requestedComponents,
           req.existingGear,
           req.budgetRangeMin,
-          req.budgetRangeMax
+          req.budgetRangeMax,
+          selectedItems.length > 0 // Skip percentage caps when allocating remaining budget
         );
       }
 
@@ -1166,6 +1171,47 @@ export async function GET(request: NextRequest) {
             req.budgetRangeMin, // V3: Pass user range parameters
             req.budgetRangeMax
           );
+        }
+
+        // Combo fallback: At low budgets, standalone amps barely exist but combo
+        // DAC/amps are plentiful (e.g. Moondrop Dawn Pro $42, Qudelix 5K $90).
+        // Include combos as alternatives when requesting amp or dac with tight budget.
+        const signalGearBudget = budgetAllocation.amp || budgetAllocation.dac || 0;
+        const shouldIncludeCombos = signalGearBudget > 0 &&
+          signalGearBudget <= 250 &&
+          !req.wantRecommendationsFor.combo &&
+          (req.wantRecommendationsFor.amp || req.wantRecommendationsFor.dac) &&
+          componentsByCategory.combos.length > 0;
+
+        if (shouldIncludeCombos) {
+          const comboAlternatives = filterAndScoreComponents(
+            componentsByCategory.combos,
+            signalGearBudget,
+            req.soundSignatures,
+            req.usageRanking[0] || req.usage,
+            maxOptions,
+            undefined,
+            undefined,
+            req.budget,
+            req.budgetRangeMin,
+            req.budgetRangeMax
+          );
+
+          if (comboAlternatives.length > 0) {
+            console.log(`🔄 Combo fallback: Adding ${comboAlternatives.length} combo alternatives for $${signalGearBudget} signal gear budget`);
+
+            // Merge combos into the requested category
+            if (req.wantRecommendationsFor.amp) {
+              results.amps = [...(results.amps || []), ...comboAlternatives]
+                .sort((a, b) => ((b as any).matchScore || 0) - ((a as any).matchScore || 0))
+                .slice(0, maxOptions);
+            }
+            if (req.wantRecommendationsFor.dac) {
+              results.dacs = [...(results.dacs || []), ...comboAlternatives]
+                .sort((a, b) => ((b as any).matchScore || 0) - ((a as any).matchScore || 0))
+                .slice(0, maxOptions);
+            }
+          }
         }
       }
 
