@@ -17,11 +17,9 @@ import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
-import { BudgetPresets } from '@/components/recommendations/BudgetPresets'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { ComparisonBar } from '@/components/ComparisonBar'
 import { ComparisonModal } from '@/components/ComparisonModal'
-import { UsedListingsModal } from '@/components/UsedListingsModal'
 
 // Lazy load guided mode components for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -89,9 +87,8 @@ function RecommendationsContent() {
 
   // Used market state
   const [usedListings, setUsedListings] = useState<{[componentId: string]: UsedListing[]}>({})
-  const [listingsLoading, setListingsLoading] = useState(false)
   const [showMarketplace, setShowMarketplace] = useState(false)
-  const [usedModalComponent, setUsedModalComponent] = useState<Component | null>(null)
+  const [focusedComponentId, setFocusedComponentId] = useState<string | null>(null)
 
   // Stack builder state
   const [showStackBuilder, setShowStackBuilder] = useState(false)
@@ -305,8 +302,6 @@ function RecommendationsContent() {
 
   // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async (background = false) => {
-    console.log('🎯 FETCH TRIGGERED - Budget:', debouncedBudget, 'Background:', background, 'Timestamp:', Date.now())
-
     if (!background) setLoading(true)
     setError(null)
 
@@ -338,14 +333,6 @@ function RecommendationsContent() {
         params.set('selectedItems', JSON.stringify(debouncedSelectedItems))
       }
 
-      // Debug logging for race condition investigation
-      console.log('🔍 Fetch params:', {
-        debouncedBudget,
-        userPrefsBudget: userPrefs.budget,
-        urlBudget: params.get('budget'),
-        timestamp: Date.now()
-      })
-
       const response = await fetch(`/api/recommendations/v2?${params.toString()}`)
       
       if (!response.ok) {
@@ -360,55 +347,15 @@ function RecommendationsContent() {
         throw new Error('Invalid response format from recommendations API')
       }
       
-      console.log('✅ Recommendations received:', {
-        cans: recommendations.cans?.length || 0,
-        iems: recommendations.iems?.length || 0,
-        dacs: recommendations.dacs?.length || 0,
-        amps: recommendations.amps?.length || 0,
-        combos: recommendations.combos?.length || 0,
-        needsAmplification: recommendations.needsAmplification,
-        budgetAllocation: recommendations.budgetAllocation
-      })
-
-      // Debug: Log current state values for troubleshooting
-      console.log('🔍 Frontend State Check:', {
-        wantRecommendationsFor,
-        'wantRecommendationsFor.headphones': wantRecommendationsFor?.headphones,
-        'cans.length': recommendations.cans?.length || 0,
-        'iems.length': recommendations.iems?.length || 0,
-        'separate sections': !!recommendations.cans && !!recommendations.iems
-      })
-
       // Set recommendations - API always returns separate cans and iems arrays
-      // During background re-fetch, the API skips categories with active selections
-      // (returns empty arrays). Preserve current data for those categories.
-      if (!background || recommendations.cans?.length > 0 || selectedCans.length === 0) {
-        setCans(recommendations.cans || [])
-      }
-      if (!background || recommendations.iems?.length > 0 || selectedIems.length === 0) {
-        setIems(recommendations.iems || [])
-      }
-      if (!background || recommendations.dacs?.length > 0 || selectedDacs.length === 0) {
-        setDacs(recommendations.dacs || [])
-      }
-      if (!background || recommendations.amps?.length > 0 || selectedAmps.length === 0) {
-        setAmps(recommendations.amps || [])
-      }
-      if (!background || recommendations.combos?.length > 0 || selectedDacAmps.length === 0) {
-        setDacAmps(recommendations.combos || [])
-      }
+      setCans(recommendations.cans || [])
+      setIems(recommendations.iems || [])
+      setDacs(recommendations.dacs || [])
 
       setBudgetAllocation(recommendations.budgetAllocation || {})
+      setAmps(recommendations.amps || [])
+      setDacAmps(recommendations.combos || [])
       setShowAmplification(recommendations.needsAmplification || false)
-
-      // Debug logging for IEMs
-      console.log('🔍 IEMs detailed check:', {
-        iemsReceived: recommendations.iems,
-        iemsCount: recommendations.iems?.length || 0,
-        currentSoundFilters: soundFilters,
-        currentTypeFilters: typeFilters,
-        wantRecommendationsFor: wantRecommendationsFor
-      })
 
       // Store server's automatic allocation for display (but don't auto-use it)
       if (recommendations.budgetAllocation) {
@@ -437,16 +384,6 @@ function RecommendationsContent() {
                           (recommendations.amps?.length || 0) +
                           (recommendations.combos?.length || 0)
 
-      console.log('🔍 Frontend results check:', {
-        cans: recommendations.cans?.length || 0,
-        iems: recommendations.iems?.length || 0,
-        dacs: recommendations.dacs?.length || 0,
-        amps: recommendations.amps?.length || 0,
-        combos: recommendations.combos?.length || 0,
-        totalResults,
-        wantRecommendationsFor
-      })
-
     } catch (error) {
       console.error('Recommendations API error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations'
@@ -472,8 +409,9 @@ function RecommendationsContent() {
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
     typeFilters, // Need actual array for headphoneType conversion
-    userPrefs.budget, // Need for selectedItems budget shift calculation
-    wantRecommendationsForKey // Triggers refetch when equipment toggles change (dac/amp/combo)
+    userPrefs.budget // Need for selectedItems budget shift calculation
+    // Removed JSON.stringify dependencies - they create new references every render
+    // The API stringifies these internally, so changes are reflected in the request
   ])
 
   // Fetch filter counts - use stable strings instead of array references
@@ -556,12 +494,13 @@ function RecommendationsContent() {
 
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
+    if (!showMarketplace) return
+
     const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
     const componentIds = allComponents.map(c => c.id)
-
+    
     if (componentIds.length === 0) return
-
-    setListingsLoading(true)
+    
     try {
       const response = await fetch(`/api/used-listings?component_ids=${componentIds.join(',')}&limit=200`)
       if (!response.ok) {
@@ -569,15 +508,14 @@ function RecommendationsContent() {
       }
 
       const data = await response.json()
+      // API returns { listings: {...}, total, page, ... } so extract listings
       const groupedListings: {[componentId: string]: UsedListing[]} = data.listings || {}
-
       setUsedListings(groupedListings)
     } catch (error) {
       console.error('Error fetching used listings:', error)
-    } finally {
-      setListingsLoading(false)
+      return
     }
-  }, [cans, iems, dacs, amps, dacAmps])
+  }, [showMarketplace, cans, iems, dacs, amps, dacAmps])
   
   // Used market data is now loaded inline in fetchUsedListings function above
 
@@ -756,16 +694,7 @@ function RecommendationsContent() {
   const displayAmps = getDisplayItems(filteredAmps, showAllAmps)
   const displayDacAmps = getDisplayItems(filteredDacAmps, showAllCombos)
 
-  // Debug: Log show more button visibility
-  console.log('Show More Debug:', {
-    initialLimit,
-    cans: { total: cans.length, filtered: filteredCans.length, display: displayCans.length },
-    iems: { total: iems.length, filtered: filteredIems.length, display: displayIems.length },
-    dacs: { total: dacs.length, filtered: filteredDacs.length, display: displayDacs.length },
-    amps: { total: amps.length, filtered: filteredAmps.length, display: displayAmps.length },
-    combos: { total: dacAmps.length, filtered: filteredDacAmps.length, display: displayDacAmps.length },
-    budgetConstrained: { headphones: isHeadphoneBudgetConstrained, dac: isDacBudgetConstrained, amp: isAmpBudgetConstrained, combo: isComboBudgetConstrained }
-  })
+
 
   // Dynamic title and description 
   const getTitle = () => {
@@ -866,68 +795,32 @@ function RecommendationsContent() {
     })
   }, [wantRecommendationsFor, updateURL])
 
-  // Budget context label: clarifies what the topline budget covers
-  const budgetLabel = useMemo(() => {
-    const hasOtherCategories = wantRecommendationsFor.dac || wantRecommendationsFor.amp || wantRecommendationsFor.combo
-    return hasOtherCategories ? 'System Budget' : 'Headphone Budget'
-  }, [wantRecommendationsFor])
-
-  // Budget helper text: explains what the budget covers in more detail
-  const budgetHelperText = useMemo(() => {
-    const hasSignalGear = wantRecommendationsFor.dac || wantRecommendationsFor.amp || wantRecommendationsFor.combo
-    if (hasSignalGear) {
-      // Show suggested split as guidance (headphones still show at full budget until selections are made)
-      const hpBudget = Math.round(budget * 0.5)
-      const gearBudget = budget - hpBudget
-      return `Suggested split: ~$${hpBudget} headphones + ~$${gearBudget} signal gear`
-    }
-    if (userPrefs.headphoneType === 'both') {
-      return 'Shows headphones and IEMs within this range'
-    }
-    return undefined
-  }, [wantRecommendationsFor, userPrefs.headphoneType, budget])
-
-  // Handle clicking empty slots in the signal chain visualization
-  const handleChainSlotClick = useCallback((type: 'dac' | 'amp' | 'combo' | 'headphones') => {
-    if (type === 'headphones') return
-
-    const sectionId = type === 'dac' ? 'section-dacs'
-      : type === 'amp' ? 'section-amps'
-      : 'section-combos'
-
-    // If already active, just scroll to the section
-    if (wantRecommendationsFor[type]) {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      return
-    }
-
-    // Activate the equipment type (triggers API re-fetch via URL update)
-    updateURL({
-      wantRecommendationsFor: {
-        ...wantRecommendationsFor,
-        [type]: true
-      }
-    })
-
-    // Scroll after render (section conditionally renders on wantRecommendationsFor)
-    setTimeout(() => {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 300)
-  }, [wantRecommendationsFor, updateURL])
-
   // Handle custom budget allocation changes
   const handleBudgetAllocationChange = useCallback((allocation: BudgetAllocation) => {
     setCustomBudgetAllocation(allocation)
   }, [])
 
-  // Handle "Find Used" button click — open modal
-  const handleFindUsed = useCallback((componentId: string, _componentName: string) => {
-    const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
-    const component = allComponents.find(c => c.id === componentId)
-    if (component) {
-      setUsedModalComponent(component)
+  // Handle "Find Used" button click
+  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
+    // Open used market section
+    setShowMarketplace(true)
+    // Set focused component to filter listings
+    setFocusedComponentId(componentId)
+  }, [usedListings])
+
+  // Scroll to used market section after it renders
+  useEffect(() => {
+    if (showMarketplace && focusedComponentId && usedListings[focusedComponentId]) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        const usedMarketSection = document.querySelector('[data-marketplace-section]')
+
+        if (usedMarketSection) {
+          usedMarketSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
     }
-  }, [cans, iems, dacs, amps, dacAmps])
+  }, [showMarketplace, focusedComponentId, usedListings])
 
   // Show initial loading screen only on first mount
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
@@ -938,72 +831,51 @@ function RecommendationsContent() {
     }
   }, [loading, hasLoadedOnce])
 
-  if (loading && !hasLoadedOnce) {
-    return (
-      <div className="page-container">
-        <div className="text-center mt-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4 mx-auto"></div>
-          <p className="text-secondary">Building your personalized recommendations...</p>
+    if (loading && !hasLoadedOnce) {
+      return (
+        <div className="page-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div className="animate-spin rounded-full h-8 w-8 mx-auto mb-4" style={{ border: '2px solid var(--border-default)', borderTopColor: 'var(--accent-primary)' }} />
+            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Building your recommendations…</p>
+          </div>
         </div>
-      </div>
-    )
-  }
+      )
+    }
 
 
   return (
-    <div className="page-container">
-      <div className="max-w-none mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
-        <div className="text-center mb-6">
-          <h1 className="heading-1 mb-2">
-            {getTitle()}
-          </h1>
-          {!isBudgetFocused && (
-            <p className="text-base text-secondary max-w-3xl mx-auto">
-              {getDescription()}
-            </p>
-          )}
+    <>
+      <div style={{ background: 'var(--background-primary)' }}>
+
+      {/* ── Page header strip ── */}
+      <div style={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--border-subtle)', background: 'var(--background-secondary)', padding: '16px 0' }}>
+        {/* Grid texture */}
+        <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)', backgroundSize: '48px 48px', opacity: 0.4, pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 100% at 50% 0%, var(--background-secondary) 50%, transparent 100%)', pointerEvents: 'none' }} />
+        <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px', position: 'relative', zIndex: 1 }}>
+            <div data-budget-slider>
+                <Tooltip content={guidedModeEnabled ? FILTER_TOOLTIPS.budget : ''} position="bottom" className="w-full">
+                  <BudgetSlider
+                    budget={budget}
+                    onChange={(newBudget) => updateURL({ budget: newBudget })}
+                    variant="simple"
+                    userExperience="intermediate"
+                    showInput={true}
+                    showLabels={true}
+                    showItemCount={true}
+                    itemCount={cans.length + iems.length + dacs.length + amps.length + dacAmps.length}
+                    minBudget={20}
+                    maxBudget={10000}
+                    budgetRangeMin={userPrefs.budgetRangeMin}
+                    budgetRangeMax={userPrefs.budgetRangeMax}
+                    className="w-full"
+                  />
+                </Tooltip>
+                </div>
+            </div>
         </div>
 
-        {/* Welcome Banner for First-Time Users */}
-        {showWelcome && guidedModeLoaded && (
-          <WelcomeBanner
-            onDismiss={dismissWelcome}
-            onEnableGuidedMode={enableGuidedMode}
-          />
-        )}
-
-        {/* Browse mode removed - simplified experience */}
-
-        {/* Enhanced Budget Control */}
-        <Tooltip
-          content={guidedModeEnabled ? FILTER_TOOLTIPS.budget : ''}
-          position="bottom"
-          className="w-full"
-        >
-          <div className="card p-4" style={{ marginBottom: '16px', width: '100%' }} data-budget-slider>
-            <BudgetSlider
-              budget={budget}
-              onChange={(newBudget) => updateURL({ budget: newBudget })}
-              variant="simple"
-              budgetLabel={budgetLabel}
-              budgetHelperText={budgetHelperText}
-              userExperience="intermediate"
-              showInput={true}
-              showLabels={true}
-              showItemCount={true}
-              itemCount={cans.length + iems.length + dacs.length + amps.length + dacAmps.length}
-              minBudget={20}
-              maxBudget={10000}
-              budgetRangeMin={userPrefs.budgetRangeMin}
-              budgetRangeMax={userPrefs.budgetRangeMax}
-              className="w-full"
-            />
-            <BudgetPresets
-              currentBudget={budget}
-              onSelect={(newBudget) => updateURL({ budget: newBudget })}
-            />
-          </div>
-        </Tooltip>
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6" style={{ width: '95%', maxWidth: '1400px' }}>
 
        {/* Compact Filters (includes budget allocation controls) */}
         <FiltersSection
@@ -1059,20 +931,6 @@ function RecommendationsContent() {
             setSelectedDacs([])
             setSelectedAmps([])
             setSelectedDacAmps([])
-          }}
-          onSlotClick={handleChainSlotClick}
-          onRemoveItem={(id, category) => {
-            if (category === 'headphones') {
-              // Item could be in cans or iems
-              setSelectedCans(prev => prev.filter(item => item !== id))
-              setSelectedIems(prev => prev.filter(item => item !== id))
-            } else if (category === 'dac') {
-              setSelectedDacs(prev => prev.filter(item => item !== id))
-            } else if (category === 'amp') {
-              setSelectedAmps(prev => prev.filter(item => item !== id))
-            } else if (category === 'combo') {
-              setSelectedDacAmps(prev => prev.filter(item => item !== id))
-            }
           }}
         />
 
@@ -1134,31 +992,22 @@ function RecommendationsContent() {
                 // Use memoized champion calculations for better performance
                 const { topTechnical, topTone, topBudget } = cansChampions
 
-                return (
-            <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-purple-700/30 bg-gradient-to-b from-purple-300 to-purple-200 dark:from-purple-400/80 dark:to-purple-300/80 rounded-t-xl">
-                <h2 className="text-lg font-semibold text-center text-white">
-                  🎧 Headphones
-                </h2>
-                <div className="text-center mt-0.5">
-                  <span className="text-xs text-white">
-                    {filteredCans.length} options
-                    {isHeadphoneBudgetConstrained ? (
-                      <> • Remaining: {formatBudgetUSD(remainingForHeadphones)}</>
-                    ) : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? (
-                      <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
-                    ) : null}
-                    {isHeadphoneBudgetConstrained && filteredCans.length < cans.length && (
-                      <> ({cans.length - filteredCans.length} over budget)</>
-                    )}
+                  return (
+              <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(167 139 250)' }}>
+                <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+                  <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                    Headphones
+                  </h2>
+                  <span className="text-xs text-text-tertiary tabular-nums">
+                    {filteredCans.length} results
+                    {isHeadphoneBudgetConstrained ? ` · ${formatBudgetUSD(remainingForHeadphones)} remaining` : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
                 </div>
-              </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayCans.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
 
                   return (
                     <HeadphoneCard
@@ -1169,7 +1018,6 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
-                      isValuePick={(headphone.value_rating || headphone.crin_value || 0) >= 2}
                       onFindUsed={handleFindUsed}
                       expandAllExperts={expandAllExperts}
                     />
@@ -1195,31 +1043,22 @@ function RecommendationsContent() {
                 // Use memoized champion calculations for better performance
                 const { topTechnical, topTone, topBudget } = iemsChampions
 
-                return (
-            <div className="card overflow-hidden">
-              <div className="px-4 py-3 border-b dark:border-indigo-700/30 bg-gradient-to-b from-indigo-300 to-indigo-200 dark:from-indigo-400/80 dark:to-indigo-300/80 rounded-t-xl">
-                <h2 className="text-lg font-semibold text-center text-white">
-                  👂 IEMs
-                </h2>
-                <div className="text-center mt-0.5">
-                  <span className="text-xs text-white">
-                    {filteredIems.length} options
-                    {isHeadphoneBudgetConstrained ? (
-                      <> • Remaining: {formatBudgetUSD(remainingForHeadphones)}</>
-                    ) : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? (
-                      <> • Budget: {formatBudgetUSD(budgetAllocation.headphones)}</>
-                    ) : null}
-                    {isHeadphoneBudgetConstrained && filteredIems.length < iems.length && (
-                      <> ({iems.length - filteredIems.length} over budget)</>
-                    )}
+                  return (
+              <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(129 140 248)' }}>
+                <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+                  <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                    IEMs
+                  </h2>
+                  <span className="text-xs text-text-tertiary tabular-nums">
+                    {filteredIems.length} results
+                    {isHeadphoneBudgetConstrained ? ` · ${formatBudgetUSD(remainingForHeadphones)} remaining` : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
                 </div>
-              </div>
               <div className="p-4 flex flex-col gap-[5px]">
                 {displayIems.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
 
                   return (
                     <HeadphoneCard
@@ -1230,7 +1069,6 @@ function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
-                      isValuePick={(headphone.value_rating || headphone.crin_value || 0) >= 2}
                       onFindUsed={handleFindUsed}
                       expandAllExperts={expandAllExperts}
                     />
@@ -1259,28 +1097,19 @@ function RecommendationsContent() {
             return (
               <SignalGearWrapper {...wrapperProps}>
                 {/* DACs Section */}
-                {wantRecommendationsFor.dac && (
-                  <div id="section-dacs" className="card overflow-hidden">
-                    {filteredDacs.length > 0 ? (
-                      <>
-                        <div className="px-4 py-3 border-b dark:border-emerald-700/30 bg-gradient-to-b from-emerald-300 to-emerald-200 dark:from-emerald-400/80 dark:to-emerald-300/80 rounded-t-xl">
-                          <h2 className="text-lg font-semibold text-center text-white">
-                            🔄 DACs
-                          </h2>
-                          <div className="text-center mt-0.5">
-                            <span className="text-xs text-white">
-                              {filteredDacs.length} options
-                              {isDacBudgetConstrained ? (
-                                <> • Remaining: {formatBudgetUSD(remainingForDacs)}</>
-                              ) : budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? (
-                                <> • Budget: {formatBudgetUSD(budgetAllocation.dac)}</>
-                              ) : null}
-                              {isDacBudgetConstrained && filteredDacs.length < dacs.length && (
-                                <> ({dacs.length - filteredDacs.length} over budget)</>
-                              )}
+                  {wantRecommendationsFor.dac && (
+                    <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(45 212 191)' }}>
+                      {filteredDacs.length > 0 ? (
+                        <>
+                          <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+                            <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                              DACs
+                            </h2>
+                            <span className="text-xs text-text-tertiary tabular-nums">
+                              {filteredDacs.length} results
+                              {isDacBudgetConstrained ? ` · ${formatBudgetUSD(remainingForDacs)} remaining` : budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.dac)} budget` : ''}
                             </span>
                           </div>
-                        </div>
                         <div className="p-4 flex flex-col gap-[5px]">
                           {displayDacs.map((dac) => (
                             <SignalGearCard
@@ -1306,54 +1135,34 @@ function RecommendationsContent() {
                         </div>
                       </>
                     ) : (
-                      <button
-                        onClick={() => {
-                          const sliderEl = document.querySelector('[data-budget-slider]')
-                          sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        }}
-                        className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
-                      >
-                        <div className="text-4xl mb-3">🔄</div>
-                        <h3 className="text-lg font-semibold text-text-primary mb-2">No DACs Found</h3>
-                        <p className="text-sm text-text-secondary mb-2">
-                          No matching DAC results within the allocated budget range.
-                          {budgetAllocation.dac === 0 && (
-                            <span className="block mt-1 text-text-tertiary">
-                              (Budget was reallocated because no DACs were available in this price range)
-                            </span>
-                          )}
-                        </p>
-                        <span className="text-sm text-accent-primary hover:underline font-medium">
-                          → Click to adjust budget allocation
-                        </span>
-                      </button>
+                        <button
+                          onClick={() => {
+                            const sliderEl = document.querySelector('[data-budget-slider]')
+                            sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          }}
+                          className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
+                        >
+                          <h3 className="text-sm font-medium text-text-secondary mb-1">No DACs in range</h3>
+                          <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                        </button>
                     )}
                   </div>
                 )}
 
           {/* Amps Section */}
           {wantRecommendationsFor.amp && (
-            <div id="section-amps" className="card overflow-hidden">
-              {filteredAmps.length > 0 ? (
-                <>
-                  <div className="px-4 py-3 border-b dark:border-amber-700/30 bg-gradient-to-b from-amber-300 to-amber-200 dark:from-amber-400/80 dark:to-amber-300/80 rounded-t-xl">
-                    <h2 className="text-lg font-semibold text-center text-white">
-                      ⚡ Amplifiers
-                    </h2>
-                    <div className="text-center mt-0.5">
-                      <span className="text-xs text-white">
-                        {filteredAmps.length} options
-                        {isAmpBudgetConstrained ? (
-                          <> • Remaining: {formatBudgetUSD(remainingForAmps)}</>
-                        ) : budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? (
-                          <> • Budget: {formatBudgetUSD(budgetAllocation.amp)}</>
-                        ) : null}
-                        {isAmpBudgetConstrained && filteredAmps.length < amps.length && (
-                          <> ({amps.length - filteredAmps.length} over budget)</>
-                        )}
+              <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
+                {filteredAmps.length > 0 ? (
+                  <>
+                    <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+                      <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                        Amplifiers
+                      </h2>
+                      <span className="text-xs text-text-tertiary tabular-nums">
+                        {filteredAmps.length} results
+                        {isAmpBudgetConstrained ? ` · ${formatBudgetUSD(remainingForAmps)} remaining` : budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.amp)} budget` : ''}
                       </span>
                     </div>
-                  </div>
                   <div className="p-4 flex flex-col gap-[5px]">
                     {displayAmps.map((amp) => (
                       <SignalGearCard
@@ -1379,54 +1188,34 @@ function RecommendationsContent() {
                   </div>
                 </>
               ) : (
-                <button
-                  onClick={() => {
-                    const sliderEl = document.querySelector('[data-budget-slider]')
-                    sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                  }}
-                  className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
-                >
-                  <div className="text-4xl mb-3">⚡</div>
-                  <h3 className="text-lg font-semibold text-text-primary mb-2">No Amplifiers Found</h3>
-                  <p className="text-sm text-text-secondary mb-2">
-                    No matching amplifier results within the allocated budget range.
-                    {budgetAllocation.amp === 0 && (
-                      <span className="block mt-1 text-text-tertiary">
-                        (Budget was reallocated because no amplifiers were available in this price range)
-                      </span>
-                    )}
-                  </p>
-                  <span className="text-sm text-accent-primary hover:underline font-medium">
-                    → Click to adjust budget allocation
-                  </span>
-                </button>
+                  <button
+                    onClick={() => {
+                      const sliderEl = document.querySelector('[data-budget-slider]')
+                      sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }}
+                    className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
+                  >
+                    <h3 className="text-sm font-medium text-text-secondary mb-1">No amplifiers in range</h3>
+                    <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                  </button>
               )}
             </div>
           )}
 
           {/* Combo Units Section */}
           {wantRecommendationsFor.combo && (
-            <div id="section-combos" className="card overflow-hidden">
-              {filteredDacAmps.length > 0 ? (
-                <>
-                  <div className="px-4 py-3 border-b dark:border-blue-700/30 bg-gradient-to-b from-blue-300 to-blue-200 dark:from-blue-400/80 dark:to-blue-300/80 rounded-t-xl">
-                    <h2 className="text-lg font-semibold text-center text-white">
-                      🎯 DAC/Amp Combos
-                    </h2>
-                    <div className="text-center mt-0.5">
-                      <span className="text-xs text-white">
-                        {filteredDacAmps.length} options
-                        {isComboBudgetConstrained ? (
-                          <> • Remaining: {formatBudgetUSD(remainingForCombos)}</>
-                        ) : budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? (
-                          <> • Budget: {formatBudgetUSD(budgetAllocation.combo)}</>
-                        ) : null}
-                        {isComboBudgetConstrained && filteredDacAmps.length < dacAmps.length && (
-                          <> ({dacAmps.length - filteredDacAmps.length} over budget)</>
-                        )}
+              <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(96 165 250)' }}>
+                {filteredDacAmps.length > 0 ? (
+                  <>
+                    <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+                      <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                        DAC/Amp Combos
+                      </h2>
+                      <span className="text-xs text-text-tertiary tabular-nums">
+                        {filteredDacAmps.length} results
+                        {isComboBudgetConstrained ? ` · ${formatBudgetUSD(remainingForCombos)} remaining` : budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.combo)} budget` : ''}
                       </span>
                     </div>
-                  </div>
                   <div className="p-4 flex flex-col gap-[5px]">
                     {displayDacAmps.map((combo) => (
                       <SignalGearCard
@@ -1452,27 +1241,16 @@ function RecommendationsContent() {
                   </div>
                 </>
               ) : (
-                <button
-                  onClick={() => {
-                    const sliderEl = document.querySelector('[data-budget-slider]')
-                    sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                  }}
-                  className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
-                >
-                  <div className="text-4xl mb-3">🎯</div>
-                  <h3 className="text-lg font-semibold text-text-primary mb-2">No DAC/Amp Combos Found</h3>
-                  <p className="text-sm text-text-secondary mb-2">
-                    No matching DAC/amp combo results within the allocated budget range.
-                    {budgetAllocation.combo === 0 && (
-                      <span className="block mt-1 text-text-tertiary">
-                        (Budget was reallocated because no combos were available in this price range)
-                      </span>
-                    )}
-                  </p>
-                  <span className="text-sm text-accent-primary hover:underline font-medium">
-                    → Click to adjust budget allocation
-                  </span>
-                </button>
+                  <button
+                    onClick={() => {
+                      const sliderEl = document.querySelector('[data-budget-slider]')
+                      sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }}
+                    className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
+                  >
+                    <h3 className="text-sm font-medium text-text-secondary mb-1">No combos in range</h3>
+                    <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                  </button>
               )}
             </div>
           )}
@@ -1487,10 +1265,7 @@ function RecommendationsContent() {
         {/* Used Market Toggle */}
         <div className="mt-12 mb-8 text-center">
           <button
-            onClick={() => {
-              console.log('Toggling used market:', !showMarketplace)
-              setShowMarketplace(!showMarketplace)
-            }}
+            onClick={() => setShowMarketplace(!showMarketplace)}
             className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
           >
             {showMarketplace ? 'Hide' : 'Show'} Marketplace Listings
@@ -1537,16 +1312,31 @@ function RecommendationsContent() {
             return null
           }
 
+          // Filter by focused component if set
+          const filteredListings = focusedComponentId
+            ? listingsToDisplay.filter(({ component }) => component.id === focusedComponentId)
+            : listingsToDisplay
+
           return (
             <div className="mt-12 space-y-8" data-marketplace-section>
               <div className="text-center mb-6">
                 <h2 className="heading-3 mb-2">
-                  {hasSelections
+                  {focusedComponentId
+                    ? 'Used Listings for Selected Item'
+                    : hasSelections
                     ? 'Used Listings for Selected Items'
                     : 'Marketplace Listings'}
                 </h2>
+                {focusedComponentId && (
+                  <button
+                    onClick={() => setFocusedComponentId(null)}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    ← Show all listings
+                  </button>
+                )}
               </div>
-              {listingsToDisplay.map(({ component, listings }) => (
+              {filteredListings.map(({ component, listings }) => (
                 <UsedListingsSection
                   key={component.id}
                   component={component}
@@ -1737,19 +1527,9 @@ function RecommendationsContent() {
           items={comparisonItems}
           onClose={() => setShowComparisonView(false)}
         />
-      )}
-
-      {/* Used Listings Modal - Quick preview for a single component */}
-      {usedModalComponent && (
-        <UsedListingsModal
-          isOpen={!!usedModalComponent}
-          onClose={() => setUsedModalComponent(null)}
-          component={usedModalComponent}
-          listings={usedListings[usedModalComponent.id] || []}
-          listingsLoading={listingsLoading}
-        />
-      )}
-      </div>
+          )}
+        </div>
+    </>
   )
 }
 

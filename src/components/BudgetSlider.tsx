@@ -21,8 +21,6 @@ interface BudgetSliderProps {
   budgetRangeMax?: number
   onRangeChange?: (min: number, max: number) => void
   className?: string
-  budgetLabel?: string
-  budgetHelperText?: string
 }
 
 // Convert budget value to linear slider position
@@ -146,9 +144,7 @@ export function BudgetSlider({
   budgetRangeMin = 20,
   budgetRangeMax = 10,
   onRangeChange,
-  className = '',
-  budgetLabel,
-  budgetHelperText
+  className = ''
 }: BudgetSliderProps) {
   const [localBudget, setLocalBudget] = useState(displayBudget || budget)
   const [budgetInputValue, setBudgetInputValue] = useState(localBudget.toString())
@@ -317,16 +313,9 @@ export function BudgetSlider({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {/* Budget context label */}
-      {budgetLabel && (
-        <p className="text-xs font-medium text-secondary text-center mb-1">{budgetLabel}</p>
-      )}
-      {budgetHelperText && (
-        <p className="text-[10px] text-text-tertiary text-center -mt-0.5">{budgetHelperText}</p>
-      )}
-
       {/* Consolidated budget display - single line */}
-      <div className="flex items-center justify-center gap-2 mb-0">
+        <div className="flex items-center justify-center gap-2 mb-0">
+          <span className="text-xs font-semibold shrink-0 mr-1" style={{ color: 'var(--accent-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Budget</span>
         {/* Budget amount */}
         {effectiveVariant === 'dual-range' ? (
           <h3 className="text-2xl font-bold" style={{ color: currentTier.color }}>
