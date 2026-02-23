@@ -38,27 +38,14 @@ export function calculateBudgetRange(
   isSignalGear: boolean = false
 ): BudgetRange {
 
-  // PRIORITY 1: User-specified ranges (override defaults for headphones)
-  // For signal gear, take the wider of user range vs signal gear defaults
-  // because user percentages are set for the total budget, not per-component allocations
+  // PRIORITY 1: User-specified ranges (override all defaults)
   if (rangeMinPercent !== undefined && rangeMaxPercent !== undefined) {
     const absoluteMin = isSignalGear ? 5 : 20;
-    const userMin = Math.max(absoluteMin, Math.round(budget * (1 - rangeMinPercent / 100)));
-    const userMax = Math.round(budget * (1 + rangeMaxPercent / 100));
-
-    if (!isSignalGear) {
-      return { min: userMin, max: userMax };
-    }
-
-    // Signal gear: use the wider of user range vs signal gear defaults
-    // This prevents tiny search windows when budget is split across components
-    const signalGearDefaults = budget <= 250
-      ? { min: 20, max: Math.round(budget * 1.1) }
-      : { min: Math.max(20, Math.round(budget * 0.7)), max: Math.round(budget * (1 + (5 + 15 * Math.exp(-budget / 800)) / 100)) };
+    const calculatedMin = Math.round(budget * (1 - rangeMinPercent / 100));
 
     return {
-      min: Math.min(userMin, signalGearDefaults.min),
-      max: Math.max(userMax, signalGearDefaults.max)
+      min: Math.max(absoluteMin, calculatedMin),
+      max: Math.round(budget * (1 + rangeMaxPercent / 100))
     };
   }
 

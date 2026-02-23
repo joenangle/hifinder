@@ -30,9 +30,9 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         case 'newest':
           return new Date(b.date_posted).getTime() - new Date(a.date_posted).getTime()
         case 'price_low':
-          return (a.price ?? Infinity) - (b.price ?? Infinity)
+          return a.price - b.price
         case 'price_high':
-          return (b.price ?? 0) - (a.price ?? 0)
+          return b.price - a.price
         default:
           return 0
       }
@@ -158,20 +158,20 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
       )}
 
       {/* Safety Warning */}
-      <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 p-4 rounded-xl mb-6 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
-            <div className="w-5 h-5 rounded-full bg-yellow-500 dark:bg-yellow-400 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">!</span>
+      <div className="border-l-4 border-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-r mb-6">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium mb-1">Safety First</p>
+              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                Always use PayPal Goods & Services for buyer protection. Verify seller reputation and ask for additional photos before purchasing.
+              </p>
             </div>
           </div>
-          <div>
-            <p className="text-yellow-900 text-sm font-medium mb-1">Safety First</p>
-            <p className="text-yellow-700 text-sm">
-              Always use PayPal Goods & Services for buyer protection. Verify seller reputation and ask for additional photos before purchasing.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Listings */}

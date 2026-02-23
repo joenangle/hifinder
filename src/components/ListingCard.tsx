@@ -8,7 +8,7 @@ interface ListingCardProps {
 }
 
 export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
-  const priceVariance = listing.price ? ((listing.price - expectedPrice) / expectedPrice) * 100 : 0
+  const priceVariance = ((listing.price - expectedPrice) / expectedPrice) * 100
   
   const formatBudgetUSD = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -105,7 +105,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
         </div>
 
         <div className="text-right ml-4">
-          <div className="text-2xl font-bold text-primary">{listing.price ? formatBudgetUSD(listing.price) : 'See listing'}</div>
+          <div className="text-2xl font-bold text-primary">{formatBudgetUSD(listing.price)}</div>
           
           {/* Price Variance Indicator */}
           <div className={`text-sm font-medium ${

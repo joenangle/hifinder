@@ -25,9 +25,9 @@ const AmplificationWarningBannerComponent = ({
   }
 
   return (
-    <div className="flex items-center gap-2 py-2 px-4 border-l-4 border-yellow-500 bg-yellow-50 rounded-r" style={{ marginBottom: '12px' }}>
+    <div className="flex items-center gap-2 py-2 px-4 border-l-4 border-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 rounded-r" style={{ marginBottom: '12px' }}>
       <span className="text-lg flex-shrink-0">⚡</span>
-      <span className="text-sm text-yellow-800 flex-1">
+      <span className="text-sm text-yellow-900 dark:text-yellow-200 flex-1">
         Some recommendations benefit from external amplification
       </span>
       <button
@@ -43,7 +43,7 @@ const AmplificationWarningBannerComponent = ({
       </button>
       <button
         onClick={() => setIsDismissed(true)}
-        className="text-yellow-700 hover:text-yellow-900 transition-colors flex-shrink-0"
+        className="text-yellow-800 dark:text-yellow-300 hover:text-yellow-950 dark:hover:text-yellow-100 transition-colors flex-shrink-0"
         aria-label="Dismiss warning"
       >
         <svg

@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
 // import { useSession } from 'next-auth/react' // Unused
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
@@ -20,7 +19,6 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function MarketplaceContent() {
-  const searchParams = useSearchParams()
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -40,13 +38,8 @@ function MarketplaceContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [dealQuality, setDealQuality] = useState<string[]>([]) // 'great', 'good', 'hideOverpriced'
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
-  const [selectedStatus, setSelectedStatus] = useState<string>('available')
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('date_desc')
-
-  // Brand options loaded from API
-  const [brandOptions, setBrandOptions] = useState<string[]>([])
 
   // Modal state - Component details
   const [modalOpen, setModalOpen] = useState(false)
@@ -57,14 +50,6 @@ function MarketplaceContent() {
 
   // Search input ref - maintains focus across re-renders
   const searchInputRef = useRef<HTMLInputElement>(null)
-
-  // Initialize search from URL params (e.g. ?search=Sennheiser+HD600)
-  useEffect(() => {
-    const searchFromUrl = searchParams.get('search')
-    if (searchFromUrl) {
-      setSearchQuery(searchFromUrl)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch used listings with server-side filtering & pagination
   const fetchUsedListings = useCallback(async (pageNum: number, resetListings = false) => {
@@ -81,10 +66,6 @@ function MarketplaceContent() {
         limit: '50', // Load 50 at a time
         sort: sortBy
       })
-
-      if (selectedStatus && selectedStatus !== 'all') {
-        params.append('status', selectedStatus)
-      }
 
       if (selectedSource && selectedSource !== 'all') {
         params.append('source', selectedSource)
@@ -105,10 +86,6 @@ function MarketplaceContent() {
       // Server-side filters (moved from client-side)
       if (selectedCategories.length > 0) {
         params.append('categories', selectedCategories.join(','))
-      }
-
-      if (selectedBrands.length > 0) {
-        params.append('brands', selectedBrands.join(','))
       }
 
       if (searchQuery.trim()) {
@@ -175,7 +152,6 @@ function MarketplaceContent() {
           }
 
           const expectedAvg = (listing.component.price_used_min + listing.component.price_used_max) / 2
-          if (!listing.price) return false
           const percentage = ((listing.price - expectedAvg) / expectedAvg) * 100
 
           let meetsFilter = false
@@ -203,22 +179,14 @@ function MarketplaceContent() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedBrands, selectedRegion, selectedStatus, dealQuality])
+  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedRegion, dealQuality])
 
   // Initial load - non-debounced filters (dropdowns, checkboxes)
   useEffect(() => {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedStatus, selectedBrands])
-
-  // Fetch brand options once on mount
-  useEffect(() => {
-    fetch('/api/brands')
-      .then(res => res.json())
-      .then(brands => setBrandOptions(brands))
-      .catch(err => console.error('Failed to fetch brands:', err))
-  }, [])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories])
 
   // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
@@ -267,6 +235,8 @@ function MarketplaceContent() {
     }
   }, [hasMore, loading, loadingMore, page, fetchUsedListings])
 
+  // Get unique filter options (simplified - we'll fetch these from API in future)
+  const conditionOptions = ['excellent', 'very_good', 'good', 'fair', 'parts_only']
   const sourceOptions = [
     { value: 'all', label: 'All Sources' },
     { value: 'reddit_avexchange', label: 'r/AVexchange' },
@@ -329,7 +299,6 @@ function MarketplaceContent() {
               setPriceRange({ min: '', max: '' })
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedBrands([])
               setSelectedRegion('all')
               setSelectedSource('all')
             }}
@@ -343,7 +312,6 @@ function MarketplaceContent() {
               setDealQuality([])
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedBrands([])
               setSelectedRegion('all')
               setSelectedSource('all')
             }}
@@ -357,7 +325,6 @@ function MarketplaceContent() {
               setDealQuality([])
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedBrands([])
               setSelectedRegion('all')
               setSelectedSource('all')
             }}
@@ -371,7 +338,6 @@ function MarketplaceContent() {
               setDealQuality([])
               setPriceRange({ min: '', max: '' })
               setSelectedConditions([])
-              setSelectedBrands([])
               setSelectedRegion('all')
               setSelectedSource('all')
             }}
@@ -571,104 +537,7 @@ function MarketplaceContent() {
                 </div>
               </div>
 
-              {/* Condition Filters */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Condition</label>
-                <div className="flex flex-wrap gap-1.5">
-                  <FilterButton
-                    active={selectedConditions.includes('excellent')}
-                    onClick={() => {
-                      if (selectedConditions.includes('excellent')) {
-                        setSelectedConditions(selectedConditions.filter(c => c !== 'excellent'))
-                      } else {
-                        setSelectedConditions([...selectedConditions, 'excellent'])
-                      }
-                    }}
-                    icon="✨"
-                    label="Excellent"
-                    activeClass="bg-green-100 text-green-800 border-green-300"
-                  />
-                  <FilterButton
-                    active={selectedConditions.includes('very_good')}
-                    onClick={() => {
-                      if (selectedConditions.includes('very_good')) {
-                        setSelectedConditions(selectedConditions.filter(c => c !== 'very_good'))
-                      } else {
-                        setSelectedConditions([...selectedConditions, 'very_good'])
-                      }
-                    }}
-                    icon="👍"
-                    label="Very Good"
-                    activeClass="bg-blue-100 text-blue-800 border-blue-300"
-                  />
-                  <FilterButton
-                    active={selectedConditions.includes('good')}
-                    onClick={() => {
-                      if (selectedConditions.includes('good')) {
-                        setSelectedConditions(selectedConditions.filter(c => c !== 'good'))
-                      } else {
-                        setSelectedConditions([...selectedConditions, 'good'])
-                      }
-                    }}
-                    icon="👌"
-                    label="Good"
-                    activeClass="bg-yellow-100 text-yellow-800 border-yellow-300"
-                  />
-                  <FilterButton
-                    active={selectedConditions.includes('fair')}
-                    onClick={() => {
-                      if (selectedConditions.includes('fair')) {
-                        setSelectedConditions(selectedConditions.filter(c => c !== 'fair'))
-                      } else {
-                        setSelectedConditions([...selectedConditions, 'fair'])
-                      }
-                    }}
-                    icon="⚠️"
-                    label="Fair"
-                    activeClass="bg-orange-100 text-orange-800 border-orange-300"
-                  />
-                  <FilterButton
-                    active={selectedConditions.includes('parts_only')}
-                    onClick={() => {
-                      if (selectedConditions.includes('parts_only')) {
-                        setSelectedConditions(selectedConditions.filter(c => c !== 'parts_only'))
-                      } else {
-                        setSelectedConditions([...selectedConditions, 'parts_only'])
-                      }
-                    }}
-                    icon="🔧"
-                    label="Parts Only"
-                    activeClass="bg-red-100 text-red-800 border-red-300"
-                  />
-                </div>
-              </div>
-
-              {/* Brand Filters */}
-              {brandOptions.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1.5">Brand</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {brandOptions.map(brand => (
-                      <FilterButton
-                        key={brand}
-                        active={selectedBrands.includes(brand)}
-                        onClick={() => {
-                          if (selectedBrands.includes(brand)) {
-                            setSelectedBrands(selectedBrands.filter(b => b !== brand))
-                          } else {
-                            setSelectedBrands([...selectedBrands, brand])
-                          }
-                        }}
-                        icon=""
-                        label={brand}
-                        activeClass="bg-violet-100 text-violet-800 border-violet-300"
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Source Filter */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Source</label>
@@ -680,21 +549,6 @@ function MarketplaceContent() {
                     {sourceOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
-                  </select>
-                </div>
-
-                {/* Status Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="available">Available</option>
-                    <option value="sold">Sold</option>
-                    <option value="expired">Expired</option>
                   </select>
                 </div>
 
@@ -712,6 +566,32 @@ function MarketplaceContent() {
                     <option value="eu">🇪🇺 Europe</option>
                     <option value="asia">🌏 Asia</option>
                   </select>
+                </div>
+
+                {/* Condition Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Condition</label>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                    {conditionOptions.map(condition => (
+                      <label key={condition} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedConditions.includes(condition)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedConditions([...selectedConditions, condition])
+                            } else {
+                              setSelectedConditions(selectedConditions.filter(c => c !== condition))
+                            }
+                          }}
+                          className="mr-2 rounded border-border text-accent focus:ring-accent"
+                        />
+                        <span className="text-sm text-foreground capitalize">
+                          {condition.replace('_', ' ')}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -740,7 +620,7 @@ function MarketplaceContent() {
         </div>
 
         {/* Active Filters Summary */}
-        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedBrands.length > 0 || selectedSource !== 'all' || selectedStatus !== 'available' || selectedRegion !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
+        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedRegion !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
           <div className="bg-surface-elevated rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground">Active Filters</h3>
@@ -750,9 +630,7 @@ function MarketplaceContent() {
                   setDealQuality([])
                   setSelectedConditions([])
                   setSelectedSource('all')
-                  setSelectedStatus('available')
                   setSelectedRegion('all')
-                  setSelectedBrands([])
                   setSearchQuery('')
                   setPriceRange({ min: '', max: '' })
                 }}
@@ -812,33 +690,11 @@ function MarketplaceContent() {
                   </button>
                 </span>
               ))}
-              {selectedBrands.map(brand => (
-                <span key={brand} className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-foreground">
-                  {brand}
-                  <button
-                    onClick={() => setSelectedBrands(selectedBrands.filter(b => b !== brand))}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
               {selectedSource !== 'all' && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-foreground">
                   Source: {sourceOptions.find(o => o.value === selectedSource)?.label}
                   <button
                     onClick={() => setSelectedSource('all')}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedStatus !== 'available' && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-foreground capitalize">
-                  Status: {selectedStatus}
-                  <button
-                    onClick={() => setSelectedStatus('available')}
                     className="hover:text-accent"
                   >
                     <X className="w-3 h-3" />
@@ -919,11 +775,6 @@ function MarketplaceContent() {
                   {/* Time - always visible */}
                   <div className="w-16 sm:w-20">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Posted</span>
-                  </div>
-
-                  {/* Status */}
-                  <div className="w-20">
-                    <span className="text-xs font-semibold text-muted uppercase tracking-wide">Status</span>
                   </div>
 
                   {/* Price - always visible */}

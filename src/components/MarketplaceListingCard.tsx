@@ -20,21 +20,13 @@ export function MarketplaceListingCard({
   onViewDetails 
 }: MarketplaceListingCardProps) {
   
-  const formatPrice = (amount: number | null | undefined) => {
-    if (!amount) return null
+  const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount)
-  }
-
-  const displayPrice = (price: number | null | undefined, isEstimated?: boolean) => {
-    const formatted = formatPrice(price)
-    if (!formatted) return 'See listing'
-    if (isEstimated) return `~${formatted}`
-    return formatted
   }
   
   const getConditionColor = (condition: string) => {
@@ -45,16 +37,6 @@ export function MarketplaceListingCard({
       case 'fair': return 'text-orange-800 bg-orange-100'
       case 'parts_only': return 'text-red-800 bg-red-100'
       default: return 'text-secondary bg-surface-secondary'
-    }
-  }
-
-  const getStatusDisplay = (status?: string) => {
-    switch (status) {
-      case 'sold': return { label: 'Sold', color: 'text-red-800 bg-red-100' }
-      case 'expired': return { label: 'Expired', color: 'text-gray-800 bg-gray-100' }
-      case 'removed': return { label: 'Removed', color: 'text-gray-800 bg-gray-100' }
-      case 'available':
-      default: return { label: 'Available', color: 'text-green-800 bg-green-100' }
     }
   }
 
@@ -83,8 +65,8 @@ export function MarketplaceListingCard({
     return { text: `${Math.floor(diffInDays / 30)}mo ago`, urgent: false }
   }
 
-  const getPriceAnalysis = (listingPrice: number | null) => {
-    if (!listingPrice || !component.price_used_min || !component.price_used_max) {
+  const getPriceAnalysis = (listingPrice: number) => {
+    if (!component.price_used_min || !component.price_used_max) {
       return { type: 'neutral', message: '', percentage: 0, trend: 'stable' }
     }
 
@@ -118,7 +100,6 @@ export function MarketplaceListingCard({
   )
 
   const sourceInfo = getSourceDisplay(listing.source)
-  const statusInfo = getStatusDisplay(listing.status)
   const timeInfo = timeAgo(listing.date_posted)
   const priceAnalysis = getPriceAnalysis(listing.price)
 
@@ -184,16 +165,9 @@ export function MarketplaceListingCard({
             {timeInfo.text}
           </div>
 
-          {/* Status */}
-          <div className="w-20 flex-shrink-0">
-            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`}>
-              {statusInfo.label}
-            </span>
-          </div>
-
           {/* Price - always visible, responsive sizing */}
           <div className="w-20 sm:w-24 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
-            {displayPrice(listing.price, listing.price_is_estimated)}
+            {formatPrice(listing.price)}
           </div>
 
           {/* Deal - hide on small screens */}
@@ -256,9 +230,6 @@ export function MarketplaceListingCard({
       <div className="flex flex-wrap gap-1 mb-3">
         <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${sourceInfo.color}`}>
           {sourceInfo.name}
-        </span>
-        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`}>
-          {statusInfo.label}
         </span>
         {showCondition && (
           <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
@@ -352,7 +323,7 @@ export function MarketplaceListingCard({
       {/* Price & Actions */}
       <div className="mt-auto">
         <div className="text-center mb-3">
-          <div className="text-xl font-bold text-foreground">{displayPrice(listing.price, listing.price_is_estimated)}</div>
+          <div className="text-xl font-bold text-foreground">{formatPrice(listing.price)}</div>
           {/* Reverb-specific: Show shipping cost */}
           {listing.source === 'reverb' && listing.shipping_cost !== undefined && listing.shipping_cost > 0 && (
             <div className="text-xs text-muted">

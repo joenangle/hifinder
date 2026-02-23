@@ -15,8 +15,6 @@ export async function GET(request: NextRequest) {
     const conditions = searchParams.get('conditions') // Comma-separated conditions
     const categories = searchParams.get('categories') // Comma-separated categories (cans, iems, dac, amp, dac_amp)
     const search = searchParams.get('search') // Search query for brand/model/title
-    const status = searchParams.get('status') // Filter by status (available, sold, expired)
-    const brands = searchParams.get('brands') // Comma-separated brand names
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit
@@ -27,19 +25,12 @@ export async function GET(request: NextRequest) {
         *,
         component:components(*)
       `, { count: 'exact' })
+      .eq('status', 'available') // Filter out sold, expired, and removed listings
       // Filter out sample/demo listings in SQL (performance optimization)
       .not('url', 'ilike', '%sample%')
       .not('url', 'ilike', '%demo%')
       .not('title', 'ilike', '%sample%')
       .not('title', 'ilike', '%demo%')
-
-    // Filter by status (default to 'available' if not specified)
-    if (status && status !== 'all') {
-      query = query.eq('status', status)
-    } else if (!status) {
-      query = query.eq('status', 'available')
-    }
-    // When status='all', no filter applied — returns all statuses
 
     // Filter by component ID(s)
     if (component_id) {
@@ -72,12 +63,6 @@ export async function GET(request: NextRequest) {
     if (categories) {
       const categoriesArray = categories.split(',').map(c => c.trim())
       query = query.in('component.category', categoriesArray)
-    }
-
-    // Filter by brand (via joined component table)
-    if (brands) {
-      const brandsArray = brands.split(',').map(b => b.trim())
-      query = query.in('component.brand', brandsArray)
     }
 
     // Search by title (server-side text search)

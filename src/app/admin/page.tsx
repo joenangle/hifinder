@@ -1210,7 +1210,7 @@ export default function AdminPage() {
                               {listing.title.substring(0, 40)}...
                             </a>
                             <span className="text-text-tertiary dark:text-text-tertiary ml-2">
-                              {listing.price ? `$${listing.price}` : 'No price'}
+                              ${listing.price}
                             </span>
                           </li>
                         ))}

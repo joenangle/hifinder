@@ -2,7 +2,6 @@
 
 import { memo } from 'react'
 import { Tooltip } from '@/components/Tooltip'
-import { FilterButton } from '@/components/FilterButton'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 
@@ -43,13 +42,68 @@ interface FiltersSectionProps {
   onToggleGuidedMode?: () => void
   isMultiSelectMode?: boolean
   onToggleMultiSelect?: () => void
-  // Budget allocation props
   totalBudget?: number
   budgetAllocation?: BudgetAllocation | null
   autoBudgetAllocation?: BudgetAllocation | null
   onBudgetAllocationChange?: (allocation: BudgetAllocation) => void
   budgetRangeMin?: number
   budgetRangeMax?: number
+}
+
+const Pill = ({
+  active,
+  onClick,
+  label,
+  count,
+  tooltip,
+  showTooltip,
+  activeClass,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  count?: number
+  tooltip?: string
+  showTooltip?: boolean
+  activeClass?: string
+}) => {
+  const base =
+    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none'
+  const inactive = 'border-border-default text-text-secondary bg-background-primary hover:border-text-tertiary hover:text-text-primary'
+
+  const btn = (
+    <button
+      onClick={onClick}
+      className={`${base} ${active ? (activeClass || 'border-accent-primary text-accent-primary bg-accent-subtle') : inactive}`}
+    >
+      {label}
+      {count !== undefined && (
+        <span className={`text-[10px] tabular-nums ${active ? 'opacity-70' : 'text-text-tertiary'}`}>
+          {count}
+        </span>
+      )}
+    </button>
+  )
+
+  if (showTooltip && tooltip) {
+    return <Tooltip content={tooltip} position="top">{btn}</Tooltip>
+  }
+  return btn
+}
+
+const SOUND_ACTIVE: Record<string, string> = {
+  neutral: 'border-slate-400 text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30',
+  warm: 'border-amber-400 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20',
+  bright: 'border-sky-400 text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20',
+  fun: 'border-pink-400 text-pink-700 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/20',
+}
+
+const EQUIP_ACTIVE: Record<string, string> = {
+  cans: 'border-violet-400 text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20',
+  iems: 'border-indigo-400 text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20',
+  dac: 'border-teal-400 text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20',
+  amp: 'border-amber-400 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20',
+  combo: 'border-blue-400 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20',
 }
 
 const FiltersSectionComponent = ({
@@ -74,225 +128,113 @@ const FiltersSectionComponent = ({
   budgetRangeMin = 20,
   budgetRangeMax = 10
 }: FiltersSectionProps) => {
-  // Always show all filters (simplified experience)
-  const showEquipmentFilters = true
-  const showSoundFilters = true
-
-  // Calculate total results
-  const totalResults = (resultCounts?.cans || 0) +
-                       (resultCounts?.iems || 0) +
-                       (resultCounts?.dacs || 0) +
-                       (resultCounts?.amps || 0) +
-                       (resultCounts?.combos || 0)
-
-  // Standard labels for all modes
-  const getSoundLabel = (signature: string) => {
-    const standardLabels = {
-      neutral: 'Neutral',
-      warm: 'Warm',
-      bright: 'Bright',
-      fun: 'V-Shaped'
-    }
-    return standardLabels[signature as keyof typeof standardLabels] || signature
-  }
-
-  // Build results breakdown text
-  const getResultsBreakdown = () => {
-    const parts: string[] = []
-    if (resultCounts?.cans) parts.push(`${resultCounts.cans} headphones`)
-    if (resultCounts?.iems) parts.push(`${resultCounts.iems} IEMs`)
-    if (resultCounts?.dacs) parts.push(`${resultCounts.dacs} DACs`)
-    if (resultCounts?.amps) parts.push(`${resultCounts.amps} amps`)
-    if (resultCounts?.combos) parts.push(`${resultCounts.combos} combos`)
-    return parts.join(', ')
-  }
+  const totalResults =
+    (resultCounts?.cans || 0) +
+    (resultCounts?.iems || 0) +
+    (resultCounts?.dacs || 0) +
+    (resultCounts?.amps || 0) +
+    (resultCounts?.combos || 0)
 
   return (
-    <div className="filter-card-compact">
-      <div className="mb-4">
-        {/* Row 1: Title + Results (always on same line) */}
-        <div className="flex items-center justify-between mb-2">
-          <Tooltip
-            content={guidedModeEnabled ? FILTER_TOOLTIPS.general.refineSearch : ''}
-            position="bottom"
-          >
-            <h3 className="filter-title-compact mb-0">Refine Your Search</h3>
-          </Tooltip>
+    <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
 
-          {totalResults > 0 && (
-            <div className="text-sm text-text-secondary">
-              <span className="font-semibold text-text-primary">{totalResults} results</span>
-              {getResultsBreakdown() && (
-                <span className="text-text-tertiary hidden md:inline"> ({getResultsBreakdown()})</span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Row 2: Display Controls (stack on mobile, inline on desktop) */}
-        {(onToggleGuidedMode || onToggleExpandExperts) && (
-          <div className="flex flex-wrap items-center gap-2">
-            {onToggleGuidedMode && (
-              <button
-                onClick={onToggleGuidedMode}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-              >
-                <span>{guidedModeEnabled ? '💡' : '🔍'}</span>
-                <span>{guidedModeEnabled ? 'Hide Tooltips' : 'Show Tooltips'}</span>
-              </button>
-            )}
-
-            {onToggleExpandExperts && (
-              <button
-                onClick={onToggleExpandExperts}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
-              >
-                <span>{expandAllExperts ? '📖' : '📕'}</span>
-                <span>{expandAllExperts ? 'Collapse Expert Analysis' : 'Expand Expert Analysis'}</span>
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Equipment Type Row - Hidden in guided mode */}
-      {showEquipmentFilters && (
-        <div className="filter-row">
-          <span className="filter-label-compact">Equipment</span>
-          <div className="filter-buttons-compact">
-          <FilterButton
+        {/* Equipment group */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
+            Type
+          </span>
+          <Pill
             active={typeFilters.includes('cans')}
             onClick={() => onTypeFilterChange('cans')}
-            icon="🎧"
             label="Headphones"
             count={filterCounts?.equipment.cans}
-            activeClass="active-purple"
-            tooltip={FILTER_TOOLTIPS.equipment.headphones}
+            tooltip={FILTER_TOOLTIPS.equipment.headphones.description}
             showTooltip={guidedModeEnabled}
+            activeClass={EQUIP_ACTIVE.cans}
           />
-
-          <FilterButton
+          <Pill
             active={typeFilters.includes('iems')}
             onClick={() => onTypeFilterChange('iems')}
-            icon="👂"
             label="IEMs"
             count={filterCounts?.equipment.iems}
-            activeClass="active-indigo"
-            tooltip={FILTER_TOOLTIPS.equipment.iems}
+            tooltip={FILTER_TOOLTIPS.equipment.iems.description}
             showTooltip={guidedModeEnabled}
+            activeClass={EQUIP_ACTIVE.iems}
           />
-
-          <FilterButton
+          <Pill
             active={wantRecommendationsFor.dac}
             onClick={() => onEquipmentToggle('dac')}
-            icon="🔄"
             label="DACs"
             count={filterCounts?.equipment.dacs}
-            activeClass="active-green"
-            tooltip={FILTER_TOOLTIPS.equipment.dacs}
+            tooltip={FILTER_TOOLTIPS.equipment.dacs.description}
             showTooltip={guidedModeEnabled}
+            activeClass={EQUIP_ACTIVE.dac}
           />
-
-          <FilterButton
+          <Pill
             active={wantRecommendationsFor.amp}
             onClick={() => onEquipmentToggle('amp')}
-            icon="⚡"
             label="Amps"
             count={filterCounts?.equipment.amps}
-            activeClass="active-amber"
-            tooltip={FILTER_TOOLTIPS.equipment.amps}
+            tooltip={FILTER_TOOLTIPS.equipment.amps.description}
             showTooltip={guidedModeEnabled}
+            activeClass={EQUIP_ACTIVE.amp}
           />
-
-          <FilterButton
+          <Pill
             active={wantRecommendationsFor.combo}
             onClick={() => onEquipmentToggle('combo')}
-            icon="🔗"
             label="Combos"
             count={filterCounts?.equipment.combos}
-            activeClass="active-blue"
-            tooltip={FILTER_TOOLTIPS.equipment.combos}
+            tooltip={FILTER_TOOLTIPS.equipment.combos.description}
             showTooltip={guidedModeEnabled}
+            activeClass={EQUIP_ACTIVE.combo}
           />
         </div>
-      </div>
-      )}
 
-      {/* Sound Signature Row */}
-      {showSoundFilters && (
-        <div className="filter-row">
-          <div className="flex items-center gap-2">
-            <span className="filter-label-compact">Sound Preference</span>
-            {onToggleMultiSelect && (
-              <Tooltip
-                content={isMultiSelectMode
-                  ? "Multi-select mode: Select multiple sound signatures to compare (OR logic)"
-                  : "Single-select mode: Click to replace selection"}
-                position="top"
-              >
-                <label className="flex items-center gap-1.5 cursor-pointer text-xs text-text-secondary hover:text-text-primary transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={isMultiSelectMode}
-                    onChange={onToggleMultiSelect}
-                    className="w-3.5 h-3.5 rounded border-border-default text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0"
-                  />
-                  <span>Multi-select</span>
-                </label>
-              </Tooltip>
-            )}
-          </div>
-          <div className="filter-buttons-compact">
-            <FilterButton
-              active={soundFilters.includes('neutral')}
-              onClick={() => onSoundFilterChange('neutral')}
-              icon="⚖️"
-              label={getSoundLabel('neutral')}
-              count={filterCounts?.sound.neutral}
-              activeClass="active-neutral"
-              tooltip={FILTER_TOOLTIPS.sound.neutral}
-              showTooltip={guidedModeEnabled}
-            />
+        {/* Divider */}
+        <div className="hidden sm:block h-5 w-px bg-border-default" />
 
-            <FilterButton
-              active={soundFilters.includes('warm')}
-              onClick={() => onSoundFilterChange('warm')}
-              icon="🔥"
-              label={getSoundLabel('warm')}
-              count={filterCounts?.sound.warm}
-              activeClass="active-warm"
-              tooltip={FILTER_TOOLTIPS.sound.warm}
+        {/* Sound signature group */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
+            Sound
+          </span>
+          {(['neutral', 'warm', 'bright', 'fun'] as const).map(sig => (
+            <Pill
+              key={sig}
+              active={soundFilters.includes(sig)}
+              onClick={() => onSoundFilterChange(sig)}
+              label={sig === 'fun' ? 'V-Shaped' : sig.charAt(0).toUpperCase() + sig.slice(1)}
+              count={filterCounts?.sound[sig]}
+              tooltip={FILTER_TOOLTIPS.sound[sig]?.description}
               showTooltip={guidedModeEnabled}
+              activeClass={SOUND_ACTIVE[sig]}
             />
-
-            <FilterButton
-              active={soundFilters.includes('bright')}
-              onClick={() => onSoundFilterChange('bright')}
-              icon="✨"
-              label={getSoundLabel('bright')}
-              count={filterCounts?.sound.bright}
-              activeClass="active-bright"
-              tooltip={FILTER_TOOLTIPS.sound.bright}
-              showTooltip={guidedModeEnabled}
-            />
-
-            <FilterButton
-              active={soundFilters.includes('fun')}
-              onClick={() => onSoundFilterChange('fun')}
-              icon="🎉"
-              label={getSoundLabel('fun')}
-              count={filterCounts?.sound.fun}
-              activeClass="active-fun"
-              tooltip={FILTER_TOOLTIPS.sound.fun}
-              showTooltip={guidedModeEnabled}
-            />
-          </div>
+          ))}
         </div>
-      )}
 
-      {/* Budget Allocation Row - Advanced feature */}
+        {/* Right side: result count + utility toggles */}
+        <div className="ml-auto flex items-center gap-3 text-xs text-text-tertiary">
+          {totalResults > 0 && (
+            <span className="tabular-nums">
+              <span className="font-semibold text-text-primary">{totalResults}</span> results
+            </span>
+          )}
+          {onToggleExpandExperts && (
+            <button
+              onClick={onToggleExpandExperts}
+              className="text-text-tertiary hover:text-text-primary transition-colors"
+              title={expandAllExperts ? 'Collapse expert analysis' : 'Expand expert analysis'}
+            >
+              {expandAllExperts ? 'Collapse analysis' : 'Expand analysis'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Budget allocation — below the filter row if active */}
       {totalBudget && onBudgetAllocationChange && (
-        <div className="mt-4 pt-4 border-t border-border-default">
+        <div className="mt-3 pt-3 border-t border-border-default">
           <BudgetAllocationControls
             totalBudget={totalBudget}
             allocation={budgetAllocation || autoBudgetAllocation || {}}

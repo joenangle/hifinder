@@ -292,22 +292,18 @@ async function allocateBudgetAcrossComponents(
   requestedComponents: string[],
   existingGear: RecommendationRequest["existingGear"],
   rangeMin: number = 20,
-  rangeMax: number = 10,
-  isRemainingBudget: boolean = false
+  rangeMax: number = 10
 ): Promise<Record<string, number>> {
   const allocation: Record<string, number> = {};
 
   // V3: Dynamic budget caps that scale with total budget
-  // When isRemainingBudget=true, the budget IS already the ceiling (post-selection),
-  // so skip percentage caps that would artificially constrain signal gear
-  const componentBudgetCaps = isRemainingBudget
-    ? { headphones: totalBudget, dac: totalBudget, amp: totalBudget, combo: totalBudget }
-    : {
-        headphones: totalBudget * 0.9, // Headphones can take most budget
-        dac: totalBudget * 0.4,         // DACs up to 40%
-        amp: totalBudget * 0.4,         // Amps up to 40%
-        combo: totalBudget * 0.6,       // Combos up to 60%
-      };
+  // Removed hard $2K/$3K caps that stranded money at high-end budgets
+  const componentBudgetCaps = {
+    headphones: totalBudget * 0.9, // Headphones can take most budget
+    dac: totalBudget * 0.4,         // DACs up to 40% (was capped at $2K)
+    amp: totalBudget * 0.4,         // Amps up to 40% (was capped at $2K)
+    combo: totalBudget * 0.6,       // Combos up to 60% (was capped at $3K)
+  };
 
   // Price ratios adjusted for existing gear
   const priceRatios = {
@@ -676,11 +672,11 @@ function filterAndScoreComponents(
       return isInRange && hasReasonableRange;
     })
     .map((comp) => {
-      // V3.2 SCORING ALGORITHM
-      // Budget-adaptive weighting: lower budgets emphasize value, higher budgets emphasize expert quality
+      // V3.1 SCORING ALGORITHM
+      // Priority order: Performance (65%) > Sound Signature (25%) > Value (10%)
       // Signature bonus multiplier: 1.2x when signature matches
 
-      // 1. EXPERT PERFORMANCE SCORE (budget-adaptive weight)
+      // 1. EXPERT PERFORMANCE SCORE (65% weight)
       // Uses Crinacle rank/tone/tech/value or ASR measurements
       const expertScoreValue =
         (comp as unknown as { expertScore?: number }).expertScore ?? 5.0; // 0-10 scale
@@ -693,43 +689,33 @@ function filterAndScoreComponents(
       // Apply 1.2x bonus multiplier when signature score is high (>0.35 = good match)
       const signatureBonus = signatureScore > 0.35 ? 1.2 : 1.0;
 
-      // 3. VALUE-FOR-MONEY SCORE (budget-adaptive weight)
-      // Blends expert value rating with price efficiency
-      const crinValueScore = ((comp as unknown as { crin_value?: number }).crin_value ?? 1) / 3; // 0-1 scale, default 1/3
+      // 3. VALUE-FOR-MONEY SCORE (10% weight)
+      // Reward under-budget items at same performance tier
+      // Linear scoring: items at 50-100% of budget get proportional value score
+      let valueScore = 0;
       const priceRatio = comp.avgPrice / budget;
 
-      let priceEfficiency = 0;
       if (comp.avgPrice <= budget) {
-        // Under budget: reward saving money
-        // $30 at $250 budget = 0.88 efficiency, $200 at $250 = 0.20
-        priceEfficiency = 1 - priceRatio;
+        // Under budget: Linear scale from 0.5 to 1.0
+        // 50% of budget = 0.5 score, 75% = 0.75, 100% = 1.0
+        valueScore = Math.max(0.5, priceRatio);
       } else {
-        // Over budget: steep penalty
+        // Over budget: Steep penalty (should already be filtered out)
         const overageRatio = (comp.avgPrice - budget) / budget;
-        priceEfficiency = Math.max(0, -overageRatio * 2);
+        valueScore = Math.max(0, 1 - overageRatio * 2);
       }
-
-      // Blend: 60% expert value assessment, 40% price efficiency
-      const valueScore = crinValueScore * 0.6 + priceEfficiency * 0.4;
 
       // 4. POWER ADEQUACY BONUS (for amps only, max +5%)
       const powerBonus =
         comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
-      // Budget-adaptive weighting
-      // Lower budgets: value matters more (best bang-for-buck)
-      // Higher budgets: expert performance matters more (paying for quality)
-      const weights = budget <= 100 ? { expert: 0.50, value: 0.25 }
-        : budget <= 400 ? { expert: 0.55, value: 0.20 }
-        : budget <= 1000 ? { expert: 0.60, value: 0.15 }
-        : { expert: 0.65, value: 0.10 };
-
       // FINAL SCORE CALCULATION
-      // Expert + Signature (25%) + Value + Power bonus, then signature bonus multiplier
+      // Expert: 65% + Signature: 25% + Value: 10% + Power bonus: 0-5%
+      // Then apply signature bonus multiplier (1.0x or 1.2x)
       const rawScore =
-        (expertScore * weights.expert +
+        (expertScore * 0.65 +
         signatureScore * 0.25 +
-        valueScore * weights.value +
+        valueScore * 0.10 +
         powerBonus) * signatureBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)
@@ -919,8 +905,7 @@ export async function GET(request: NextRequest) {
           selectedItems.length > 0 ? componentsToFetch : requestedComponents,
           req.existingGear,
           req.budgetRangeMin,
-          req.budgetRangeMax,
-          selectedItems.length > 0 // Skip percentage caps when allocating remaining budget
+          req.budgetRangeMax
         );
       }
 
@@ -978,8 +963,6 @@ export async function GET(request: NextRequest) {
 
       // Fetch active used listings counts using optimized database function
       const componentIds = allComponentsData?.map((c) => c.id) || [];
-      console.log('🔍 DEBUG: Fetching listings for', componentIds.length, 'components');
-
       // Use database function for efficient aggregated query (filters sample/demo in SQL)
       const { data: listingCountsData, error: listingsError } = await supabaseServer
         .rpc('get_active_listing_counts', { component_ids: componentIds });
@@ -988,27 +971,11 @@ export async function GET(request: NextRequest) {
         console.error('❌ DEBUG: Error fetching listings:', listingsError);
       }
 
-      console.log('📊 DEBUG: Listing counts from DB:', listingCountsData?.length, 'components with listings');
-
       // Build count map from aggregated results
       const countMap = new Map<string, number>();
       listingCountsData?.forEach((item: { component_id: string; listing_count: number }) => {
         countMap.set(item.component_id, item.listing_count);
       });
-
-      console.log('🗺️ DEBUG: Count map size:', countMap.size, 'unique components with listings');
-
-      // Log components with high counts (>5 listings)
-      const highCountComponents = Array.from(countMap.entries())
-        .filter(([_, count]) => count > 5)
-        .map(([id, count]) => {
-          const comp = allComponentsData?.find(c => c.id === id);
-          return { id, count, name: comp ? `${comp.brand} ${comp.name}` : 'unknown' };
-        });
-
-      if (highCountComponents.length > 0) {
-        console.log('⚠️ DEBUG: Components with >5 listings:', highCountComponents);
-      }
 
       // Transform data to add used listings count
       const transformedComponents = allComponentsData?.map((comp) => ({
@@ -1042,24 +1009,11 @@ export async function GET(request: NextRequest) {
           combos: transformedComponents.filter((c) => c.category === "dac_amp"),
         };
 
-        // Debug: Log what we got from database
-        console.log("🔍 API: Components from database:", {
-          totalComponents: transformedComponents.length,
-          cans: componentsByCategory.cans.length,
-          iems: componentsByCategory.iems.length,
-          budget: req.budget,
-          soundSignatures: req.soundSignatures,
-          headphoneType: req.headphoneType,
-        });
+
 
         // Process cans and IEMs: ALWAYS separate, never combine
         if (req.wantRecommendationsFor.headphones) {
-          // "Headphones first" flow: when no items are selected yet, show headphones
-          // at full budget so users can browse freely. Budget only splits once they
-          // start selecting signal gear, which constrains remaining budget naturally.
-          const headphoneBudget = selectedItems.length === 0
-            ? req.budget
-            : (budgetAllocation.headphones || req.budget);
+          const headphoneBudget = budgetAllocation.headphones || req.budget;
 
           // Check if user wants both types or just one specific type
           const wantsBoth = req.headphoneType === "both";
@@ -1171,47 +1125,6 @@ export async function GET(request: NextRequest) {
             req.budgetRangeMin, // V3: Pass user range parameters
             req.budgetRangeMax
           );
-        }
-
-        // Combo fallback: At low budgets, standalone amps barely exist but combo
-        // DAC/amps are plentiful (e.g. Moondrop Dawn Pro $42, Qudelix 5K $90).
-        // Include combos as alternatives when requesting amp or dac with tight budget.
-        const signalGearBudget = budgetAllocation.amp || budgetAllocation.dac || 0;
-        const shouldIncludeCombos = signalGearBudget > 0 &&
-          signalGearBudget <= 250 &&
-          !req.wantRecommendationsFor.combo &&
-          (req.wantRecommendationsFor.amp || req.wantRecommendationsFor.dac) &&
-          componentsByCategory.combos.length > 0;
-
-        if (shouldIncludeCombos) {
-          const comboAlternatives = filterAndScoreComponents(
-            componentsByCategory.combos,
-            signalGearBudget,
-            req.soundSignatures,
-            req.usageRanking[0] || req.usage,
-            maxOptions,
-            undefined,
-            undefined,
-            req.budget,
-            req.budgetRangeMin,
-            req.budgetRangeMax
-          );
-
-          if (comboAlternatives.length > 0) {
-            console.log(`🔄 Combo fallback: Adding ${comboAlternatives.length} combo alternatives for $${signalGearBudget} signal gear budget`);
-
-            // Merge combos into the requested category
-            if (req.wantRecommendationsFor.amp) {
-              results.amps = [...(results.amps || []), ...comboAlternatives]
-                .sort((a, b) => ((b as any).matchScore || 0) - ((a as any).matchScore || 0))
-                .slice(0, maxOptions);
-            }
-            if (req.wantRecommendationsFor.dac) {
-              results.dacs = [...(results.dacs || []), ...comboAlternatives]
-                .sort((a, b) => ((b as any).matchScore || 0) - ((a as any).matchScore || 0))
-                .slice(0, maxOptions);
-            }
-          }
         }
       }
 

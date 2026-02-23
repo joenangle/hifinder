@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { calculateBudgetRange } from '@/lib/budget-ranges'
 
 // Simple in-memory cache for filter counts
-const cache = new Map<string, { data: unknown, expires: number }>()
+let cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (longer since this changes less frequently)
 
 function getCacheKey(params: {
@@ -227,13 +227,12 @@ export async function GET(request: NextRequest) {
 
     // Count each component
     componentsData?.forEach(comp => {
-      const categoryRange = categoriesToFetch.find(
-        r => r.category === comp.category &&
-             comp.price_used_min !== null &&
-             comp.price_used_max !== null &&
-             comp.price_used_min >= r.minPrice &&
-             comp.price_used_max <= r.maxPrice
-      )
+        const categoryRange = categoriesToFetch.find(
+          r => r.category === comp.category &&
+               comp.price_used_max !== null &&
+               comp.price_used_max >= r.minPrice &&
+               comp.price_used_max <= r.maxPrice
+        )
 
       if (!categoryRange) return // Component doesn't match any requested range
 

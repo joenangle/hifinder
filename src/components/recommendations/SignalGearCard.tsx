@@ -20,14 +20,12 @@ interface AudioComponent {
   output_types?: string | string[]
   why_recommended?: string
   power_output_mw?: number
-  power_output?: string  // e.g., "500mW @ 32Ω"
+  power_output?: string
   thd_n?: number
-  // ASR expert data (for ExpertAnalysisPanel compatibility)
-  crin_comments?: string  // Will use for ASR review summary
-  driver_type?: string | null    // Not used for signal gear but keeps interface compatible
-  // Power matching fields (computed by recommendations API)
-  powerMatchScore?: number  // 0-1 score based on headphone compatibility
-  powerMatchExplanation?: string  // Human-readable power matching info
+  crin_comments?: string
+  driver_type?: string | null
+  powerMatchScore?: number
+  powerMatchExplanation?: string
 }
 
 interface SignalGearCardProps {
@@ -39,29 +37,12 @@ interface SignalGearCardProps {
   expandAllExperts?: boolean
 }
 
-const formatBudgetUSD = (amount: number) => {
-  return `$${Math.round(amount).toLocaleString()}`
-}
+const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
 
-const TYPE_CONFIG = {
-  dac: {
-    icon: '🔄',
-    label: 'DAC',
-    bgClass: 'bg-emerald-50/50 dark:bg-emerald-900/20',
-    textClass: 'text-emerald-600 dark:text-emerald-400'
-  },
-  amp: {
-    icon: '⚡',
-    label: 'Amplifier',
-    bgClass: 'bg-amber-50/50 dark:bg-amber-900/20',
-    textClass: 'text-amber-600 dark:text-amber-400'
-  },
-  combo: {
-    icon: '🔗',
-    label: 'DAC/Amp Combo',
-    bgClass: 'bg-blue-50/50 dark:bg-blue-900/20',
-    textClass: 'text-blue-600 dark:text-blue-400'
-  }
+const TYPE_LABEL = {
+  dac: 'DAC',
+  amp: 'Amp',
+  combo: 'DAC/Amp',
 } as const
 
 const SignalGearCardComponent = ({
@@ -72,26 +53,48 @@ const SignalGearCardComponent = ({
   onFindUsed,
   expandAllExperts = false
 }: SignalGearCardProps) => {
-  const config = TYPE_CONFIG[type]
+  const inputs = component.input_types
+    ? (Array.isArray(component.input_types) ? component.input_types : [component.input_types])
+    : []
+  const outputs = component.output_types
+    ? (Array.isArray(component.output_types) ? component.output_types : [component.output_types])
+    : []
 
-  return (
-    <div
-      className={`card-interactive ${isSelected ? 'card-interactive-selected' : ''}`}
+  const powerMatch = component.powerMatchScore
+  const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
+
+    const SELECTED_STYLE = {
+      dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-sm',
+      amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-sm',
+      combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-sm',
+    }
+    const HOVER_STYLE = {
+      dac:   'hover:border-teal-300 hover:shadow-sm',
+      amp:   'hover:border-amber-300 hover:shadow-sm',
+      combo: 'hover:border-blue-300 hover:shadow-sm',
+    }
+
+    return (
+      <div
+        className={`group relative rounded-xl border transition-all duration-200 cursor-pointer px-4 py-3 ${
+          isSelected
+            ? SELECTED_STYLE[type]
+            : `border-border-default bg-surface-card ${HOVER_STYLE[type]}`
+        }`}
       onClick={() => onToggleSelection(component.id)}
     >
-      {/* Header: Category badge */}
-      <div className="flex items-center justify-between mb-2">
-        <span className={`text-xs font-semibold px-2 py-1 rounded ${config.bgClass} ${config.textClass}`}>
-          {config.icon} {config.label}
-        </span>
-      </div>
-
-      {/* Name (Brand + Model) and Price on same line */}
-      <div className="flex items-baseline justify-between mb-1">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
-              {component.brand} {component.name}
+      {/* Row 1: Type label + name + price */}
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+              {TYPE_LABEL[type]}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-semibold text-base text-text-primary leading-snug">
+              <span className="font-normal text-text-secondary">{component.brand} </span>
+              {component.name}
             </h3>
             {component.manufacturer_url && (
               <a
@@ -99,161 +102,122 @@ const SignalGearCardComponent = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-text-tertiary hover:text-accent-primary dark:text-text-tertiary dark:hover:text-accent-primary transition-colors flex-shrink-0"
-                title="View on manufacturer website"
-                aria-label={`View ${component.brand} ${component.name} on manufacturer website`}
+                className="flex-shrink-0 text-text-tertiary hover:text-accent-primary transition-colors"
+                title="Manufacturer page"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
             )}
           </div>
         </div>
-        <div className="text-right ml-4">
-          <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
-            {formatBudgetUSD(component.price_used_min || 0)}-{formatBudgetUSD(component.price_used_max || 0)}
+
+        <div className="text-right flex-shrink-0">
+          <div className="text-base font-bold text-text-primary tabular-nums">
+            {fmt(component.price_used_min || 0)}–{fmt(component.price_used_max || 0)}
           </div>
+          <div className="text-[10px] text-text-tertiary leading-none mt-0.5">used est.</div>
           <PriceHistoryBadge componentId={component.id} />
         </div>
       </div>
 
-      {/* MSRP */}
-      {component.price_new && (
-        <div className="text-xs text-text-tertiary dark:text-text-tertiary mb-2">
-          MSRP: {formatBudgetUSD(component.price_new)}
-        </div>
-      )}
-
-      {/* Performance Section */}
-      {(component.asr_sinad || component.asr_review_url || component.power_output_mw || component.power_output || component.thd_n) && (
-        <div className="mb-3">
-          <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">⚡ Performance</h4>
-          <div className="text-sm text-text-primary dark:text-text-primary">
-            {component.asr_sinad && (
-              <div>• SINAD: {component.asr_sinad} dB {
-                component.asr_sinad >= 120 ? '(Excellent)' :
-                component.asr_sinad >= 110 ? '(Very Good)' :
-                component.asr_sinad >= 100 ? '(Good)' : '(Fair)'
-              }</div>
-            )}
-            {(component.power_output_mw || component.power_output) && (
-              <div>• Power: {component.power_output || `${component.power_output_mw} mW`}</div>
-            )}
-            {component.thd_n && (
-              <div>• THD+N: {component.thd_n}%</div>
-            )}
-            {component.asr_review_url && !component.asr_sinad && (
-              <div>• ASR Review Available</div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Power Matching Section (for amps with headphone context) */}
-      {component.powerMatchExplanation && (
-        <div className="mb-3">
-          <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🎧 Headphone Compatibility</h4>
-          <div className="flex items-center gap-2">
-            <div className={`text-sm font-medium ${
-              (component.powerMatchScore || 0) >= 0.9 ? 'text-green-600 dark:text-green-400' :
-              (component.powerMatchScore || 0) >= 0.6 ? 'text-yellow-600 dark:text-yellow-400' :
+      {/* Row 2: Key measurements + compatibility */}
+      {(hasMeasurements || powerMatch !== undefined) && (
+        <div className="flex flex-wrap items-center gap-3 mb-2 text-sm">
+          {component.asr_sinad && (
+            <span className="text-text-secondary tabular-nums">
+              SINAD <span className="font-semibold text-text-primary">{component.asr_sinad}</span>
+              <span className="text-xs text-text-tertiary ml-1">
+                {component.asr_sinad >= 120 ? 'excellent' : component.asr_sinad >= 110 ? 'very good' : component.asr_sinad >= 100 ? 'good' : 'fair'}
+              </span>
+            </span>
+          )}
+          {(component.power_output || component.power_output_mw) && (
+            <span className="text-text-secondary">
+              <span className="font-semibold text-text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
+            </span>
+          )}
+          {powerMatch !== undefined && (
+            <span className={`text-xs font-medium ${
+              powerMatch >= 0.9 ? 'text-emerald-600 dark:text-emerald-400' :
+              powerMatch >= 0.6 ? 'text-amber-600 dark:text-amber-400' :
               'text-red-600 dark:text-red-400'
             }`}>
-              {(component.powerMatchScore || 0) >= 0.9 ? '✓ Excellent match' :
-               (component.powerMatchScore || 0) >= 0.6 ? '~ Adequate' :
-               '⚠ May struggle'}
-            </div>
-          </div>
-          <p className="text-xs text-text-secondary dark:text-text-secondary mt-1">
-            {component.powerMatchExplanation}
-          </p>
+              {powerMatch >= 0.9 ? 'Excellent pairing' : powerMatch >= 0.6 ? 'Adequate' : 'May struggle'}
+            </span>
+          )}
         </div>
       )}
 
-      {/* Connectivity Section */}
-      {(component.input_types || component.output_types) && (
-        <div className="mb-3">
-          <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">🔌 Connectivity</h4>
-          <div className="text-sm text-text-primary dark:text-text-primary space-y-1">
-            {component.input_types && (
-              <div>• Inputs: {Array.isArray(component.input_types) ? component.input_types.join(', ') : component.input_types}</div>
-            )}
-            {component.output_types && (
-              <div>• Outputs: {Array.isArray(component.output_types) ? component.output_types.join(', ') : component.output_types}</div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Row 3: Attribute pills */}
+      <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-secondary">
+        {inputs.slice(0, 3).map(i => (
+          <span key={i} className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary">
+            {i}
+          </span>
+        ))}
+        {outputs.slice(0, 2).map(o => (
+          <span key={o} className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary">
+            {o} out
+          </span>
+        ))}
+        {component.price_new && (
+          <span className="text-text-tertiary ml-auto">
+            MSRP {fmt(component.price_new)}
+          </span>
+        )}
+      </div>
 
-      {/* Why Recommended */}
+      {/* Why recommended — subtle, below pills */}
       {component.why_recommended && (
-        <div className="mb-2">
-          <h4 className="text-xs font-semibold text-text-secondary dark:text-text-secondary uppercase tracking-wide mb-1">💡 Why Recommended</h4>
-          <p className="text-sm text-text-secondary dark:text-text-secondary">{component.why_recommended}</p>
-        </div>
+        <p className="mt-2 text-xs text-text-tertiary leading-snug line-clamp-2">
+          {component.why_recommended}
+        </p>
       )}
 
-      {/* Expert Analysis Panel - Shows ASR measurements and technical details */}
       <ExpertAnalysisPanel component={component} forceExpanded={expandAllExperts} />
 
-      {/* Action Buttons */}
-      <div className="mt-3 flex gap-2">
-        {/* Find Used Button - Only show if listings exist */}
+      {/* Action row */}
+      <div className="mt-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
         {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
           <button
-            onClick={(e) => {
-              e.stopPropagation() // Prevent card selection toggle
-              onFindUsed(component.id, `${component.brand} ${component.name}`)
-            }}
-            className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-center gap-2"
+            onClick={() => onFindUsed(component.id, `${component.brand} ${component.name}`)}
+            className="text-xs font-medium text-accent-primary hover:text-accent-hover transition-colors flex items-center gap-1"
           >
-            <span>🔍</span>
-            <span>
-              View {component.usedListingsCount} Used Listing{component.usedListingsCount !== 1 ? 's' : ''}
-            </span>
+            {component.usedListingsCount} used listing{component.usedListingsCount !== 1 ? 's' : ''}
+            <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         )}
-
-        {/* Wishlist Button */}
-        <div onClick={(e) => e.stopPropagation()} className={(component.usedListingsCount ?? 0) > 0 ? '' : 'w-full'}>
-          <WishlistButton
-            componentId={component.id}
-            className="px-3 py-2"
-            showText
-          />
+        <div className="ml-auto">
+          <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
     </div>
   )
 }
 
-// Price History Badge - shows recent sales data if available
 const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
   const [priceStats, setPriceStats] = useState<{ count: number; median: number } | null>(null)
 
   useEffect(() => {
-    // Fetch price history stats
     fetch(`/api/components/${componentId}/price-history?days=90`)
       .then(res => res.json())
       .then(data => {
         if (data.statistics && data.statistics.count >= 3) {
-          setPriceStats({
-            count: data.statistics.count,
-            median: data.statistics.median
-          })
+          setPriceStats({ count: data.statistics.count, median: data.statistics.median })
         }
       })
-      .catch(() => {
-        // Silently fail - not critical
-      })
+      .catch(() => {})
   }, [componentId])
 
   if (!priceStats) return null
 
   return (
-    <div className="text-xs text-text-tertiary dark:text-text-tertiary mt-1">
-      {priceStats.count} recent sales · median ${Math.round(priceStats.median)}
+    <div className="text-[10px] text-text-tertiary mt-0.5 tabular-nums">
+      {priceStats.count} sales · med. ${Math.round(priceStats.median)}
     </div>
   )
 }

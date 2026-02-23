@@ -4,21 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
-import {
-  Check,
-  Package,
-  Construction,
-  ShoppingCart,
-  Target,
-} from "lucide-react";
+import { ArrowRight, SlidersHorizontal, ShoppingBag, Layers, BookOpen, ChevronDown } from "lucide-react";
 
 interface SiteStats {
   components: number;
   listings: number;
-  budgetRange: {
-    min: number;
-    max: number;
-  };
+  budgetRange: { min: number; max: number };
 }
 
 export function LandingPageV2() {
@@ -27,339 +18,638 @@ export function LandingPageV2() {
     listings: 316,
     budgetRange: { min: 20, max: 10000 },
   });
+  const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
     fetch("/api/stats")
-      .then((res) => res.json())
-      .then((data) => setStats(data))
-      .catch(() => {
-        // Keep fallback values
-      });
+      .then((r) => r.json())
+      .then((d) => setStats(d))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setPastHero(window.scrollY > window.innerHeight * 0.6);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <main className="min-h-screen">
-      {/* Hero Section - Lovable Style */}
-      <section className="relative pt-8 pb-8 sm:pt-12 sm:pb-12 lg:pt-16 lg:pb-16 overflow-hidden bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10">
-        <div className="absolute inset-0"></div>
+    <div style={{ background: "var(--background-primary)" }}>
 
-        <div className="container mx-auto px-4 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Content */}
-            <div className="space-y-4 sm:space-y-5 lg:space-y-6 text-center lg:text-left">
-              {/* Logo and Brand */}
-              <div className="flex items-center justify-center lg:justify-start gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center shadow-xl border-2 border-accent/20 flex-shrink-0">
-                  <span className="text-2xl leading-none">🎧</span>
-                </div>
-                <h1
-                  className="text-4xl md:text-5xl font-bold text-foreground leading-none"
-                  style={{ margin: 0, padding: 0 }}
+      {/* ─────────────────────────────────────────
+          HERO — full-bleed, split layout
+      ───────────────────────────────────────── */}
+      <section
+        style={{
+          minHeight: "calc(100vh - 64px)",
+          display: "flex",
+          alignItems: "center",
+          borderBottom: "1px solid var(--border-subtle)",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* Background grid texture */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            opacity: 0.5,
+            pointerEvents: "none",
+          }}
+        />
+        {/* Radial fade over grid */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse 70% 60% at 50% 50%, var(--background-primary) 40%, transparent 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          className="container mx-auto px-6"
+          style={{ maxWidth: "1100px", position: "relative", zIndex: 1 }}
+        >
+          <div className="grid lg:grid-cols-[1fr_440px] gap-12 items-center">
+
+            {/* ── Left copy ── */}
+            <div>
+              {/* Eyebrow */}
+              <div
+                className="inline-flex items-center gap-2 mb-8"
+                style={{
+                  background: "var(--background-secondary)",
+                  border: "1px solid var(--border-default)",
+                  borderRadius: "999px",
+                  padding: "6px 14px",
+                }}
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "var(--accent-primary)",
+                    display: "inline-block",
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: "var(--text-secondary)", letterSpacing: "0.04em" }}
                 >
-                  HiFinder
-                </h1>
-              </div>
-
-              {/* Top Badge */}
-              <div>
-                <span className="text-sm font-semibold text-accent uppercase tracking-wide">
-                  Your Audio Gear Guide
+                  Audio gear, simplified
                 </span>
               </div>
 
-              {/* Main Headline */}
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-                Find Your Perfect
-                <span className="text-accent"> Headphones</span>
-              </h2>
+              {/* Headline */}
+              <h1
+                className="font-bold"
+                style={{
+                  fontSize: "clamp(2.75rem, 6vw, 5rem)",
+                  lineHeight: 1.0,
+                  letterSpacing: "-0.04em",
+                  color: "var(--text-primary)",
+                  marginBottom: "1.5rem",
+                }}
+              >
+                Listen better.
+                <br />
+                <span
+                  style={{
+                    WebkitTextStroke: "2px var(--text-primary)",
+                    color: "transparent",
+                  }}
+                >
+                  Spend smarter.
+                </span>
+              </h1>
 
-              {/* Description */}
-              <p className="text-lg text-secondary leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Build, track, and optimize your audio gear collection with
-                personalized recommendations, stack management, and used market
-                integration.
+              {/* Sub */}
+              <p
+                style={{
+                  fontSize: "1.125rem",
+                  color: "var(--text-secondary)",
+                  lineHeight: 1.75,
+                  maxWidth: "460px",
+                  marginBottom: "2.5rem",
+                }}
+              >
+                HiFinder matches you with audio gear that suits your ears, your budget, and
+                the way you actually listen — no forums, no guesswork.
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
+              {/* CTAs */}
+              <div className="flex flex-wrap gap-3" style={{ marginBottom: "3rem" }}>
                 <Link
                   href="/recommendations"
-                  className="inline-flex items-center justify-center gap-3 px-6 py-2 bg-accent hover:bg-accent-hover text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl group w-auto"
+                  className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+                  style={{
+                    background: "var(--text-primary)",
+                    color: "var(--background-primary)",
+                    padding: "14px 24px",
+                    borderRadius: "12px",
+                    fontSize: "0.9375rem",
+                  }}
                   onClick={() =>
-                    trackEvent({
-                      name: "hero_cta_clicked",
-                      properties: { location: "hero_primary" },
-                    })
+                    trackEvent({ name: "hero_cta_clicked", properties: { location: "hero_primary" } })
                   }
                 >
-                  🎯 Find My Perfect Setup
+                  Find my setup
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5"
+                  />
                 </Link>
                 <Link
                   href="/learn"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-border hover:bg-surface-secondary text-foreground font-semibold rounded-lg transition-colors w-auto"
+                  className="inline-flex items-center gap-2 font-medium transition-all duration-150"
+                  style={{
+                    color: "var(--text-secondary)",
+                    padding: "14px 24px",
+                    borderRadius: "12px",
+                    fontSize: "0.9375rem",
+                    border: "1px solid var(--border-default)",
+                    background: "transparent",
+                  }}
                   onClick={() =>
-                    trackEvent({
-                      name: "learn_clicked",
-                      properties: { location: "hero_secondary" },
-                    })
+                    trackEvent({ name: "learn_clicked", properties: { location: "hero_secondary" } })
                   }
                 >
-                  📚 Learn Audio Essentials
+                  Learn the basics
                 </Link>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 text-sm text-secondary">
-                <div className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span>Free forever</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span>No signup required</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span>Instant recommendations</span>
-                </div>
+              {/* Stats */}
+              <div className="flex gap-8">
+                {[
+                  { n: `${stats.components}+`, label: "Components indexed" },
+                  { n: `${stats.listings}+`, label: "Used listings" },
+                  { n: "Free", label: "No account needed" },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div
+                      className="font-semibold"
+                      style={{
+                        fontSize: "1.1rem",
+                        color: "var(--text-primary)",
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {s.n}
+                    </div>
+                    <div
+                      className="text-xs"
+                      style={{ color: "var(--text-tertiary)", marginTop: "2px" }}
+                    >
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right Column: Hero Image */}
-            <div className="relative lg:block hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/30 to-accent-hover/20 rounded-3xl blur-3xl opacity-20"></div>
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+            {/* ── Right image ── */}
+            <div className="hidden lg:block relative">
+              {/* Accent square behind */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: "12%",
+                  right: "-8%",
+                  width: "80%",
+                  height: "80%",
+                  borderRadius: "24px",
+                  background: `rgba(var(--accent-primary-rgb), 0.08)`,
+                  border: `1px solid rgba(var(--accent-primary-rgb), 0.15)`,
+                }}
+              />
+              <div
+                className="relative rounded-2xl overflow-hidden"
+                style={{
+                  boxShadow: "0 40px 80px -20px rgba(0,0,0,0.22), 0 0 0 1px var(--border-subtle)",
+                }}
+              >
                 <Image
                   src="/images/hero-headphones.webp"
-                  alt="Premium audio headphones collection"
-                  width={1200}
-                  height={675}
-                  className="w-full h-auto object-contain"
+                  alt="Premium audio headphones"
+                  width={880}
+                  height={580}
+                  className="w-full h-auto object-cover"
                   priority
+                  style={{ display: "block" }}
                 />
-                {/* Photo attribution */}
-                <div className="absolute bottom-2 right-2 text-xs text-white/60 bg-black/30 px-2 py-1 rounded">
-                  Photo:{" "}
-                  <a
-                    href="https://www.flickr.com/photos/fourfridays/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white/80"
-                  >
-                    Umair Abassi
-                  </a>
-                </div>
               </div>
+              {/* Photo credit */}
+              <p
+                className="text-xs mt-2 text-right"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                Photo:{" "}
+                <a
+                  href="https://www.flickr.com/photos/fourfridays/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--text-tertiary)" }}
+                  className="hover:underline"
+                >
+                  Umair Abassi
+                </a>
+              </p>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-8 bg-surface-secondary border-y border-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center space-y-2 group cursor-default">
-              <div className="text-3xl md:text-4xl font-bold text-accent transition-transform group-hover:scale-110">
-                {stats.components}+
-              </div>
-              <div className="text-sm text-secondary">Components</div>
-            </div>
-            <div className="text-center space-y-2 group cursor-default">
-              <div className="text-3xl md:text-4xl font-bold text-accent transition-transform group-hover:scale-110">
-                $20-10k
-              </div>
-              <div className="text-sm text-secondary">Budget Range</div>
-            </div>
-            <div className="text-center space-y-2 group cursor-default">
-              <div className="text-3xl md:text-4xl font-bold text-accent transition-transform group-hover:scale-110">
-                {stats.listings}+
-              </div>
-              <div className="text-sm text-secondary">Used Listings</div>
-            </div>
-            <div className="text-center space-y-2 group cursor-default">
-              <div className="text-3xl md:text-4xl font-bold text-accent transition-transform group-hover:scale-110">
-                Smart
-              </div>
-              <div className="text-sm text-secondary">Tracking</div>
-            </div>
-          </div>
+      {/* ─────────────────────────────────────────
+          MARQUEE STRIP — thin social proof line
+      ───────────────────────────────────────── */}
+      <div
+        style={{
+          borderBottom: "1px solid var(--border-subtle)",
+          background: "var(--background-secondary)",
+          padding: "14px 0",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          className="flex items-center gap-12 px-8"
+          style={{ color: "var(--text-tertiary)", fontSize: "0.8rem", letterSpacing: "0.06em" }}
+        >
+          {["HEADPHONES", "IEMS", "DACS", "AMPLIFIERS", "CABLES", "SOURCES", "STACKS", "USED MARKET"].map(
+            (t, i) => (
+              <span key={t} className="whitespace-nowrap flex items-center gap-12">
+                {i > 0 && (
+                  <span aria-hidden style={{ opacity: 0.35 }}>
+                    /
+                  </span>
+                )}
+                {t}
+              </span>
+            )
+          )}
         </div>
-      </section>
+      </div>
 
-      {/* Features Section */}
-      <section className="py-12 bg-surface-secondary/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 space-y-4">
-            <h2 className="text-4xl font-bold">
-              Complete Audio Gear Management
-            </h2>
-            <p className="text-secondary text-lg max-w-2xl mx-auto">
-              Everything you need to build, manage, and optimize your perfect
-              audio setup
-            </p>
-          </div>
+      {/* ─────────────────────────────────────────
+          FEATURES — horizontal scroll on mobile,
+          2x2 editorial grid on desktop
+      ───────────────────────────────────────── */}
+      <section style={{ padding: "100px 0" }}>
+        <div className="container mx-auto px-6" style={{ maxWidth: "1100px" }}>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            {/* Feature Cards */}
+          {/* Section label */}
+          <p
+            className="text-xs font-semibold mb-6"
+            style={{
+              color: "var(--accent-primary)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
+            What HiFinder does
+          </p>
+
+          <div className="grid lg:grid-cols-2 gap-6">
             {[
               {
-                icon: <Package className="h-6 w-6" />,
-                title: "Gear Collection",
-                description:
-                  "Track your audio gear, monitor values, set up price alerts, and discover upgrade paths. Keep detailed records of your entire setup.",
-                link: "/gear",
-                linkText: "Track & manage →",
-              },
-              {
-                icon: <Construction className="h-6 w-6" />,
-                title: "Stack Builder",
-                description:
-                  "Build and compare complete audio systems. Test different combinations, calculate total costs, and find the perfect synergy.",
-                link: "/dashboard?tab=stacks",
-                linkText: "Create systems →",
-              },
-              {
-                icon: <ShoppingCart className="h-6 w-6" />,
-                title: "Used Market",
-                description:
-                  "Browse used audio gear from multiple sources. Get alerts on price drops, find rare items, and save money on quality equipment.",
-                link: "/marketplace",
-                linkText: "Find deals →",
-              },
-              {
-                icon: <Target className="h-6 w-6" />,
+                icon: <SlidersHorizontal className="h-5 w-5" />,
                 title: "Smart Recommendations",
                 description:
-                  "Algorithm-driven recommendations based on measurements, your preferences, and existing gear. Science-based, not hype-based.",
-                link: "/recommendations",
-                linkText: "See recommendations →",
+                  "Answer a few questions about how you listen and what you own. We surface gear that genuinely fits — ranked by measurements, synergy, and budget.",
+                href: "/recommendations",
+                tag: "Most used",
               },
-            ].map((feature, index) => (
+              {
+                icon: <Layers className="h-5 w-5" />,
+                title: "Stack Builder",
+                description:
+                  "Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.",
+                href: "/dashboard?tab=stacks",
+                tag: null,
+              },
+              {
+                icon: <ShoppingBag className="h-5 w-5" />,
+                title: "Used Market",
+                description:
+                  "Browse aggregated listings from communities and resellers. Save searches, track price history, get alerts when something you want drops.",
+                href: "/marketplace",
+                tag: null,
+              },
+              {
+                icon: <BookOpen className="h-5 w-5" />,
+                title: "Learn the Basics",
+                description:
+                  "Not sure what a DAC does or why impedance matters? Our guides are written for people who want better sound — not audio engineers.",
+                href: "/learn",
+                tag: null,
+              },
+            ].map((f) => (
               <Link
-                key={index}
-                href={feature.link}
-                className="p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group bg-card border border-border rounded-lg"
+                key={f.title}
+                href={f.href}
+                className="group block"
+                style={{
+                  background: "var(--background-secondary)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: "16px",
+                  padding: "32px",
+                  transition: "border-color 0.15s, box-shadow 0.15s",
+                  textDecoration: "none",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-default)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 32px -8px rgba(0,0,0,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                }}
                 onClick={() =>
                   trackEvent({
                     name: "feature_clicked",
-                    properties: {
-                      feature: feature.title.toLowerCase().replace(" ", "_"),
-                    },
+                    properties: { feature: f.title.toLowerCase().replace(/ /g, "_") },
                   })
                 }
               >
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-lg bg-accent/50 text-accent group-hover:bg-accent group-hover:text-white transition-colors">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-2xl font-bold">{feature.title}</h3>
+                <div className="flex items-start justify-between mb-5">
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "10px",
+                      background: "var(--background-primary)",
+                      border: "1px solid var(--border-default)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    {f.icon}
                   </div>
-
-                  <p className="text-secondary leading-relaxed">
-                    {feature.description}
-                  </p>
-
-                  <div className="pt-2">
-                    <span className="text-accent font-medium group-hover:underline">
-                      {feature.linkText}
+                  {f.tag && (
+                    <span
+                      className="text-xs font-medium"
+                      style={{
+                        background: `rgba(var(--accent-primary-rgb), 0.1)`,
+                        color: "var(--accent-primary)",
+                        padding: "4px 10px",
+                        borderRadius: "999px",
+                      }}
+                    >
+                      {f.tag}
                     </span>
-                  </div>
+                  )}
+                </div>
+
+                <h3
+                  className="font-semibold mb-2"
+                  style={{ fontSize: "1.0625rem", color: "var(--text-primary)", lineHeight: 1.3 }}
+                >
+                  {f.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
+                >
+                  {f.description}
+                </p>
+
+                <div
+                  className="flex items-center gap-1 mt-6 text-sm font-medium"
+                  style={{
+                    color: "var(--text-tertiary)",
+                    transition: "color 0.15s, gap 0.15s",
+                  }}
+                >
+                  <span className="group-hover:text-[var(--text-primary)] transition-colors duration-150">
+                    Explore
+                  </span>
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-all duration-150 group-hover:translate-x-1 group-hover:text-[var(--text-primary)]"
+                  />
                 </div>
               </Link>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl font-bold">Why HiFinder?</h2>
-            <p className="text-secondary text-lg max-w-2xl mx-auto">
-              The smartest way to navigate the audio gear market
-            </p>
-          </div>
+      {/* ─────────────────────────────────────────
+          HOW IT WORKS — 3-step inline row
+      ───────────────────────────────────────── */}
+      <section
+        style={{
+          borderTop: "1px solid var(--border-subtle)",
+          borderBottom: "1px solid var(--border-subtle)",
+          padding: "80px 0",
+          background: "var(--background-secondary)",
+        }}
+      >
+        <div className="container mx-auto px-6" style={{ maxWidth: "1100px" }}>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <p
+            className="text-xs font-semibold mb-10"
+            style={{
+              color: "var(--accent-primary)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
+            How it works
+          </p>
+
+          <div className="grid sm:grid-cols-3 gap-0">
             {[
               {
-                title: "Reality-Based",
-                description:
-                  "Considers reviews, measurements, and objective data, not marketing hype",
+                step: "01",
+                title: "Tell us how you listen",
+                body: "Headphones at home, IEMs at the gym, or both? We ask a handful of questions about your habits, budget, and gear.",
               },
               {
-                title: "Save Money",
-                description:
-                  "Find the best deals on used gear and avoid overpaying for new equipment",
+                step: "02",
+                title: "We match gear to you",
+                body: "Our system cross-references measurements, user reviews, and synergy data to rank real options — not affiliate-stuffed lists.",
               },
               {
-                title: "Reduce Waste",
-                description:
-                  "Shopping used reduces excess manufacturing and extends the life of quality gear",
+                step: "03",
+                title: "Build, track, and upgrade",
+                body: "Save your setup, monitor used market prices, and get alerts when a better deal surfaces for gear on your wishlist.",
               },
-              {
-                title: "Track Everything",
-                description:
-                  "Monitor your collection's value, set alerts, and never miss a good deal",
-              },
-            ].map((benefit, index) => (
-              <div key={index} className="flex gap-4 group">
-                <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent transition-colors">
-                    <Check className="h-5 w-5 text-accent group-hover:text-white transition-colors" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold">{benefit.title}</h3>
-                  <p className="text-secondary leading-relaxed">
-                    {benefit.description}
-                  </p>
-                </div>
+            ].map((s, i) => (
+              <div
+                key={s.step}
+                style={{
+                  padding: "0 40px 0 0",
+                  borderLeft: i > 0 ? "1px solid var(--border-subtle)" : "none",
+                  paddingLeft: i > 0 ? "40px" : "0",
+                  marginLeft: i > 0 ? "0" : "0",
+                }}
+              >
+                <span
+                  className="font-bold block mb-4"
+                  style={{
+                    fontSize: "2.5rem",
+                    color: "var(--border-default)",
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1,
+                  }}
+                >
+                  {s.step}
+                </span>
+                <h3
+                  className="font-semibold mb-2"
+                  style={{ fontSize: "1rem", color: "var(--text-primary)", lineHeight: 1.3 }}
+                >
+                  {s.title}
+                </h3>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
+                >
+                  {s.body}
+                </p>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-5"></div>
-
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <h2 className="text-4xl md:text-5xl font-bold">
-              Ready to Find Your Perfect Audio Setup?
+      {/* ─────────────────────────────────────────
+          BOTTOM CTA — full bleed, editorial
+      ───────────────────────────────────────── */}
+      <section style={{ padding: "120px 0" }}>
+        <div className="container mx-auto px-6" style={{ maxWidth: "1100px" }}>
+          <div style={{ maxWidth: "640px" }}>
+            <h2
+              className="font-bold"
+              style={{
+                fontSize: "clamp(2rem, 4vw, 3.5rem)",
+                letterSpacing: "-0.04em",
+                lineHeight: 1.05,
+                color: "var(--text-primary)",
+                marginBottom: "1.5rem",
+              }}
+            >
+              Stop reading forums.
+              <br />
+              <span style={{ color: "var(--text-tertiary)" }}>Start listening better.</span>
             </h2>
-
-            <p className="text-xl text-secondary">
-              Join dozens of audio enthusiasts who trust HiFinder to explore
-              their ideal systems
+            <p
+              style={{
+                fontSize: "1.0625rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.7,
+                marginBottom: "2.5rem",
+                maxWidth: "480px",
+              }}
+            >
+              HiFinder is free, no account required. Get a personalized recommendation
+              in under two minutes.
             </p>
-
-            <div className="flex justify-center pt-4">
-              <Link
-                href="/recommendations"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent hover:bg-accent-hover text-white text-lg font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-                onClick={() =>
-                  trackEvent({
-                    name: "final_cta_clicked",
-                    properties: { location: "bottom_cta" },
-                  })
-                }
-              >
-                🎯 Get Started Now
-              </Link>
-            </div>
-
-            <p className="text-sm text-secondary">
-              No credit card required • Free forever • Instant recommendations
-            </p>
+            <Link
+              href="/recommendations"
+              className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+              style={{
+                background: "var(--accent-primary)",
+                color: "#fff",
+                padding: "15px 28px",
+                borderRadius: "12px",
+                fontSize: "0.9375rem",
+                boxShadow: `0 4px 20px rgba(var(--accent-primary-rgb), 0.3)`,
+                textDecoration: "none",
+              }}
+              onClick={() =>
+                trackEvent({ name: "final_cta_clicked", properties: { location: "bottom_cta" } })
+              }
+            >
+              Get my recommendation
+              <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
+            </Link>
           </div>
         </div>
       </section>
-    </main>
+
+      {/* ─────────────────────────────────────────
+          FLOATING BOTTOM BAR
+      ───────────────────────────────────────── */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "24px",
+          left: "50%",
+          transform: `translateX(-50%) translateY(${pastHero ? "120%" : "0"})`,
+          transition: "transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s",
+          opacity: pastHero ? 0 : 1,
+          zIndex: 50,
+          pointerEvents: pastHero ? "none" : "auto",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          background: "var(--background-primary)",
+          border: "1px solid var(--border-default)",
+          borderRadius: "999px",
+          padding: "10px 10px 10px 20px",
+          boxShadow: "0 8px 32px -4px rgba(0,0,0,0.18), 0 0 0 1px var(--border-subtle)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <span
+          className="text-sm font-medium whitespace-nowrap"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Scroll to explore
+        </span>
+        <button
+          aria-label="Scroll down"
+          onClick={() => window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" })}
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: "50%",
+            background: "var(--background-secondary)",
+            border: "1px solid var(--border-default)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "var(--text-secondary)",
+            flexShrink: 0,
+          }}
+        >
+          <ChevronDown className="h-4 w-4" />
+        </button>
+        <Link
+          href="/recommendations"
+          className="inline-flex items-center gap-2 font-semibold text-sm whitespace-nowrap"
+          style={{
+            background: "var(--text-primary)",
+            color: "var(--background-primary)",
+            padding: "8px 18px",
+            borderRadius: "999px",
+            textDecoration: "none",
+          }}
+          onClick={() =>
+            trackEvent({ name: "hero_cta_clicked", properties: { location: "floating_bar" } })
+          }
+        >
+          Find my setup
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+    </div>
   );
 }
