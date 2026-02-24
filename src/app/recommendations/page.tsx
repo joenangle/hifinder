@@ -475,23 +475,6 @@ function RecommendationsContent() {
     setCustomBudgetAllocation(null)
   }, [userPrefs.budget, wantRecommendationsForKey])
 
-  // Clear selections for disabled categories so they don't affect budget constraints
-  useEffect(() => {
-    if (!wantRecommendationsFor.headphones) {
-      if (selectedCans.size > 0) setSelectedCans(new Map())
-      if (selectedIems.size > 0) setSelectedIems(new Map())
-    }
-    if (!wantRecommendationsFor.dac) {
-      if (selectedDacs.size > 0) setSelectedDacs(new Map())
-    }
-    if (!wantRecommendationsFor.amp) {
-      if (selectedAmps.size > 0) setSelectedAmps(new Map())
-    }
-    if (!wantRecommendationsFor.combo) {
-      if (selectedDacAmps.size > 0) setSelectedDacAmps(new Map())
-    }
-  }, [wantRecommendationsForKey]) // eslint-disable-line react-hooks/exhaustive-deps
-
   // Track whether initial load is complete (for background re-fetch detection)
   const hasInitiallyLoaded = React.useRef(false)
 
@@ -663,53 +646,17 @@ function RecommendationsContent() {
     }
   }, [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
-  // Memoize remaining budget and constraint flags
-  const { hasAnySelections, remainingForHeadphones, remainingForDacs, remainingForAmps, remainingForCombos,
-          isHeadphoneBudgetConstrained, isDacBudgetConstrained, isAmpBudgetConstrained, isComboBudgetConstrained } = useMemo(() => {
-    const hasSelections = totalSelectedPrice > 0
-    const remHeadphones = userPrefs.budget - selectedDacCost - selectedAmpCost - selectedDacAmpCost
-    const remDacs = userPrefs.budget - selectedHeadphoneCost - selectedAmpCost - selectedDacAmpCost
-    const remAmps = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedDacAmpCost
-    const remCombos = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedAmpCost
-    return {
-      hasAnySelections: hasSelections,
-      remainingForHeadphones: remHeadphones,
-      remainingForDacs: remDacs,
-      remainingForAmps: remAmps,
-      remainingForCombos: remCombos,
-      isHeadphoneBudgetConstrained: hasSelections && selectedHeadphoneItems.length === 0 && (selectedDacCost + selectedAmpCost + selectedDacAmpCost) > 0,
-      isDacBudgetConstrained: hasSelections && selectedDacItems.length === 0 && (selectedHeadphoneCost + selectedAmpCost + selectedDacAmpCost) > 0,
-      isAmpBudgetConstrained: hasSelections && selectedAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedDacAmpCost) > 0,
-      isComboBudgetConstrained: hasSelections && selectedDacAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedAmpCost) > 0,
-    }
-  }, [totalSelectedPrice, userPrefs.budget, selectedHeadphoneCost, selectedDacCost, selectedAmpCost, selectedDacAmpCost, selectedHeadphoneItems.length, selectedDacItems.length, selectedAmpItems.length, selectedDacAmpItems.length])
+  // Memoize remaining budget info (used for display in SelectedSystemSummary)
+  const hasAnySelections = useMemo(() => totalSelectedPrice > 0, [totalSelectedPrice])
 
-  const filteredCans = useMemo(() => {
-    if (!isHeadphoneBudgetConstrained) return cans
-    return cans.filter(c => getAvgPrice(c) <= remainingForHeadphones * 1.1) // 10% grace
-  }, [cans, isHeadphoneBudgetConstrained, remainingForHeadphones])
+  // API handles intelligent budget reallocation — no client-side filtering needed
+  const filteredCans = cans
+  const filteredIems = iems
+  const filteredDacs = dacs
+  const filteredAmps = amps
+  const filteredDacAmps = dacAmps
 
-  const filteredIems = useMemo(() => {
-    if (!isHeadphoneBudgetConstrained) return iems
-    return iems.filter(c => getAvgPrice(c) <= remainingForHeadphones * 1.1)
-  }, [iems, isHeadphoneBudgetConstrained, remainingForHeadphones])
-
-  const filteredDacs = useMemo(() => {
-    if (!isDacBudgetConstrained) return dacs
-    return dacs.filter(d => getAvgPrice(d) <= remainingForDacs * 1.1)
-  }, [dacs, isDacBudgetConstrained, remainingForDacs])
-
-  const filteredAmps = useMemo(() => {
-    if (!isAmpBudgetConstrained) return amps
-    return amps.filter(a => getAvgPrice(a) <= remainingForAmps * 1.1)
-  }, [amps, isAmpBudgetConstrained, remainingForAmps])
-
-  const filteredDacAmps = useMemo(() => {
-    if (!isComboBudgetConstrained) return dacAmps
-    return dacAmps.filter(da => getAvgPrice(da) <= remainingForCombos * 1.1)
-  }, [dacAmps, isComboBudgetConstrained, remainingForCombos])
-
-  // Update selectedItemsForApi when selections change significantly (>30% budget shift)
+  // Update selectedItemsForApi when selections change — triggers API re-fetch with smart budget reallocation
   useEffect(() => {
     if (!hasAnySelections) {
       if (selectedItemsForApi.length > 0) setSelectedItemsForApi([])
@@ -721,11 +668,7 @@ function RecommendationsContent() {
       ...selectedAmpItems.map(a => ({ id: a.id, category: 'amp', avgPrice: getAvgPrice(a) })),
       ...selectedDacAmpItems.map(da => ({ id: da.id, category: 'combo', avgPrice: getAvgPrice(da) }))
     ]
-    const totalSelected = items.reduce((sum, i) => sum + i.avgPrice, 0)
-    // Only trigger background re-fetch if selections consume >30% of total budget
-    if (totalSelected / userPrefs.budget > 0.3) {
-      setSelectedItemsForApi(items)
-    }
+    setSelectedItemsForApi(items)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
@@ -1082,7 +1025,7 @@ function RecommendationsContent() {
                   </h2>
                   <span className="text-xs text-text-tertiary tabular-nums">
                     {filteredCans.length} results
-                    {isHeadphoneBudgetConstrained ? ` · ${formatBudgetUSD(remainingForHeadphones)} remaining` : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
+                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
                 </div>
               <div className="p-4 flex flex-col gap-[5px]">
@@ -1133,7 +1076,7 @@ function RecommendationsContent() {
                   </h2>
                   <span className="text-xs text-text-tertiary tabular-nums">
                     {filteredIems.length} results
-                    {isHeadphoneBudgetConstrained ? ` · ${formatBudgetUSD(remainingForHeadphones)} remaining` : budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
+                    {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
                 </div>
               <div className="p-4 flex flex-col gap-[5px]">
@@ -1189,7 +1132,7 @@ function RecommendationsContent() {
                             </h2>
                             <span className="text-xs text-text-tertiary tabular-nums">
                               {filteredDacs.length} results
-                              {isDacBudgetConstrained ? ` · ${formatBudgetUSD(remainingForDacs)} remaining` : budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.dac)} budget` : ''}
+                              {budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.dac)} budget` : ''}
                             </span>
                           </div>
                         <div className="p-4 flex flex-col gap-[5px]">
@@ -1242,7 +1185,7 @@ function RecommendationsContent() {
                       </h2>
                       <span className="text-xs text-text-tertiary tabular-nums">
                         {filteredAmps.length} results
-                        {isAmpBudgetConstrained ? ` · ${formatBudgetUSD(remainingForAmps)} remaining` : budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.amp)} budget` : ''}
+                        {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.amp)} budget` : ''}
                       </span>
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
@@ -1295,7 +1238,7 @@ function RecommendationsContent() {
                       </h2>
                       <span className="text-xs text-text-tertiary tabular-nums">
                         {filteredDacAmps.length} results
-                        {isComboBudgetConstrained ? ` · ${formatBudgetUSD(remainingForCombos)} remaining` : budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.combo)} budget` : ''}
+                        {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.combo)} budget` : ''}
                       </span>
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
