@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { GoogleAnalytics } from '@next/third-parties/google';
@@ -63,16 +65,18 @@ export const viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preload critical resources */}
-        <link rel="preload" href="/images/hero-headphones.webp" as="image" type="image/webp" />
+        {/* Preload critical resources — only on desktop where hero image is visible */}
+        <link rel="preload" href="/images/hero-headphones.webp" as="image" type="image/webp" media="(min-width: 1024px)" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
@@ -83,7 +87,7 @@ export default function RootLayout({
           color: 'var(--text-primary)',
         }}
       >
-        <AuthProvider>
+        <AuthProvider session={session}>
           <Script
             id="theme-script"
             strategy="beforeInteractive"
@@ -109,7 +113,7 @@ export default function RootLayout({
             Skip to main content
           </a>
           
-          <Header />
+          <Header initialSession={session} />
           
           <main id="main-content" role="main">
             {children}

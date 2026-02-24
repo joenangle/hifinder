@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
+import type { Session } from 'next-auth'
 import { Logo } from './Logo'
 import { DesktopNav } from './DesktopNav'
 import { ThemeToggle } from './ThemeToggle'
@@ -10,10 +11,16 @@ import { UserMenu } from './UserMenu'
 import { MobileMenuButton } from './MobileMenuButton'
 import { MobileMenu } from './MobileMenu'
 
-export function Header() {
+interface HeaderProps {
+  initialSession?: Session | null
+}
+
+export function Header({ initialSession }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
+  // useSession() resolves instantly because SessionProvider has the session prop.
+  // We still call it so sign in/out transitions are reactive.
   const { data: session } = useSession()
 
   // Handle scroll effect

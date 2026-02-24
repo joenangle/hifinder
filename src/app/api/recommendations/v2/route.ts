@@ -9,9 +9,8 @@ import {
 } from "@/lib/crinacle-scoring";
 import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
 
-// Force dynamic rendering - no caching
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Route handles dynamic query params; caching is managed by getCached() in cache-recommendations.ts
+// (5-min TTL, busted via revalidateTag('recommendations') on admin changes)
 
 // Enhanced component interface for recommendations
 interface RecommendationComponent {

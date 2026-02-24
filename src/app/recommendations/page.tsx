@@ -5,10 +5,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
-import { UsedListingsSection } from '@/components/UsedListingsSection'
 import { BudgetSlider } from '@/components/BudgetSlider'
 import { useDebounce } from '@/hooks/useDebounce'
-import { StackBuilderModal } from '@/components/StackBuilderModal'
 import { Tooltip } from '@/components/Tooltip'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
@@ -18,11 +16,21 @@ import { SelectedSystemSummary } from '@/components/recommendations/SelectedSyst
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
-import { ComparisonBar } from '@/components/ComparisonBar'
-import { ComparisonModal } from '@/components/ComparisonModal'
 
-// Lazy load guided mode components for better code splitting
+// Lazy load components only shown on user interaction for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
+  ssr: false
+})
+const StackBuilderModal = dynamic(() => import('@/components/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
+  ssr: false
+})
+const ComparisonBar = dynamic(() => import('@/components/ComparisonBar').then(mod => ({ default: mod.ComparisonBar })), {
+  ssr: false
+})
+const ComparisonModal = dynamic(() => import('@/components/ComparisonModal').then(mod => ({ default: mod.ComparisonModal })), {
+  ssr: false
+})
+const UsedListingsSection = dynamic(() => import('@/components/UsedListingsSection').then(mod => ({ default: mod.UsedListingsSection })), {
   ssr: false
 })
 

@@ -37,18 +37,21 @@ export function generateCacheKey(params: {
 }
 
 /**
- * V3: DISABLE CACHING TEMPORARILY for debugging
- *
- * The unstable_cache API is not working as expected.
- * Disabling cache entirely to verify algorithm fixes work correctly.
- * Will re-enable with proper implementation once verified.
+ * Cache wrapper for recommendation computations.
+ * Uses Next.js Data Cache with a 5-minute TTL and the 'recommendations' tag
+ * so admin changes can bust the cache via revalidateTag('recommendations').
  */
 export async function getCached<T>(
   cacheKey: string,
   computeFn: () => Promise<T>
 ): Promise<T> {
-  console.log('⚠️  Cache DISABLED (debugging) - computing:', cacheKey)
-  const result = await computeFn()
-  console.log('✅ Computed (no cache):', cacheKey)
-  return result
+  const cachedFn = unstable_cache(
+    computeFn,
+    [`recommendations:${cacheKey}`],
+    {
+      revalidate: 300, // 5 minutes
+      tags: ['recommendations'],
+    }
+  )
+  return await cachedFn()
 }
