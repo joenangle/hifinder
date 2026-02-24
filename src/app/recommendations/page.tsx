@@ -417,9 +417,8 @@ function RecommendationsContent() {
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
     typeFilters, // Need actual array for headphoneType conversion
-    userPrefs.budget // Need for selectedItems budget shift calculation
-    // Removed JSON.stringify dependencies - they create new references every render
-    // The API stringifies these internally, so changes are reflected in the request
+    userPrefs.budget, // Need for selectedItems budget shift calculation
+    wantRecommendationsForKey // Triggers refetch when equipment toggles change (dac/amp/combo)
   ])
 
   // Fetch filter counts - use stable strings instead of array references
@@ -475,6 +474,23 @@ function RecommendationsContent() {
   useEffect(() => {
     setCustomBudgetAllocation(null)
   }, [userPrefs.budget, wantRecommendationsForKey])
+
+  // Clear selections for disabled categories so they don't affect budget constraints
+  useEffect(() => {
+    if (!wantRecommendationsFor.headphones) {
+      if (selectedCans.size > 0) setSelectedCans(new Map())
+      if (selectedIems.size > 0) setSelectedIems(new Map())
+    }
+    if (!wantRecommendationsFor.dac) {
+      if (selectedDacs.size > 0) setSelectedDacs(new Map())
+    }
+    if (!wantRecommendationsFor.amp) {
+      if (selectedAmps.size > 0) setSelectedAmps(new Map())
+    }
+    if (!wantRecommendationsFor.combo) {
+      if (selectedDacAmps.size > 0) setSelectedDacAmps(new Map())
+    }
+  }, [wantRecommendationsForKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Track whether initial load is complete (for background re-fetch detection)
   const hasInitiallyLoaded = React.useRef(false)
