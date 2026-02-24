@@ -5,6 +5,7 @@ import { memo } from 'react'
 interface AudioComponent {
   id: string
   name: string
+  category?: string
   price_used_min?: number | null
   price_used_max?: number | null
 }
@@ -17,12 +18,25 @@ interface SelectedSystemSummaryProps {
   budget: number
   remainingBudget: number
   onBuildStack: () => void
+  onRemoveItem: (id: string, category: string) => void
   onClearAll: () => void
 }
 
 const formatBudgetUSD = (amount: number) => {
   return `$${Math.round(amount).toLocaleString()}`
 }
+
+const RemoveButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    onClick={(e) => { e.stopPropagation(); onClick() }}
+    className="ml-auto p-1 text-text-tertiary hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
+    title="Remove from selection"
+  >
+    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+)
 
 const SelectedSystemSummaryComponent = ({
   selectedHeadphones,
@@ -32,6 +46,7 @@ const SelectedSystemSummaryComponent = ({
   budget,
   remainingBudget,
   onBuildStack,
+  onRemoveItem,
   onClearAll
 }: SelectedSystemSummaryProps) => {
   const totalSelectedPrice = [
@@ -53,44 +68,54 @@ const SelectedSystemSummaryComponent = ({
   const filledCategories = allCategories.filter(arr => arr.length > 0).length
   const totalCategories = allCategories.length
 
+  // Determine category for headphones (cans vs iems) based on the component's category field
+  const getHeadphoneCategory = (item: AudioComponent) => {
+    if (item.category === 'iems') return 'iems'
+    return 'cans'
+  }
+
   return (
     <div className="card p-6 mb-8 border-l-4 border-accent-primary">
       <h3 className="heading-3 text-center mb-4">Your Selected System</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {selectedHeadphones.map(item => (
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-            <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
-            <div>
-              <p className="font-medium text-sm text-text-primary">{item.name}</p>
+            <div className="w-2 h-2 bg-accent-primary rounded-full flex-shrink-0"></div>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
+            <RemoveButton onClick={() => onRemoveItem(item.id, getHeadphoneCategory(item))} />
           </div>
         ))}
         {selectedDacs.map(item => (
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-            <div className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></div>
-            <div>
-              <p className="font-medium text-sm text-text-primary">{item.name}</p>
+            <div className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full flex-shrink-0"></div>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
+            <RemoveButton onClick={() => onRemoveItem(item.id, 'dacs')} />
           </div>
         ))}
         {selectedAmps.map(item => (
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-            <div className="w-2 h-2 bg-amber-500 dark:bg-amber-400 rounded-full"></div>
-            <div>
-              <p className="font-medium text-sm text-text-primary">{item.name}</p>
+            <div className="w-2 h-2 bg-amber-500 dark:bg-amber-400 rounded-full flex-shrink-0"></div>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
+            <RemoveButton onClick={() => onRemoveItem(item.id, 'amps')} />
           </div>
         ))}
         {selectedCombos.map(item => (
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
-            <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full"></div>
-            <div>
-              <p className="font-medium text-sm text-text-primary">{item.name}</p>
+            <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full flex-shrink-0"></div>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
+            <RemoveButton onClick={() => onRemoveItem(item.id, 'combos')} />
           </div>
         ))}
       </div>

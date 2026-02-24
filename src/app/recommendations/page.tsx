@@ -75,12 +75,12 @@ function RecommendationsContent() {
   const [error, setError] = useState<string | null>(null)
   const [showAmplification, setShowAmplification] = useState(false)
 
-  // Selection state
-  const [selectedCans, setSelectedCans] = useState<string[]>([])
-  const [selectedIems, setSelectedIems] = useState<string[]>([])
-  const [selectedDacs, setSelectedDacs] = useState<string[]>([])
-  const [selectedAmps, setSelectedAmps] = useState<string[]>([])
-  const [selectedDacAmps, setSelectedDacAmps] = useState<string[]>([])
+  // Selection state - store full objects so selections survive API re-fetches
+  const [selectedCans, setSelectedCans] = useState<Map<string, AudioComponent>>(new Map())
+  const [selectedIems, setSelectedIems] = useState<Map<string, AudioComponent>>(new Map())
+  const [selectedDacs, setSelectedDacs] = useState<Map<string, AudioComponent>>(new Map())
+  const [selectedAmps, setSelectedAmps] = useState<Map<string, AudioComponent>>(new Map())
+  const [selectedDacAmps, setSelectedDacAmps] = useState<Map<string, AudioComponent>>(new Map())
 
   // Expert Analysis expansion state
   const [expandAllExperts, setExpandAllExperts] = useState(false)
@@ -523,85 +523,142 @@ function RecommendationsContent() {
     fetchUsedListings()
   }, [fetchUsedListings])
 
-  // Selection toggle functions
-  const toggleCansSelection = (id: string) => {
-    setSelectedCans(prev =>
-      prev.includes(id)
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
+  // Selection toggle functions - store full component objects in Maps
+  const toggleCansSelection = useCallback((id: string) => {
+    setSelectedCans(prev => {
+      const next = new Map(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        const component = cans.find(c => c.id === id)
+        if (component) next.set(id, component)
+      }
+      return next
+    })
+  }, [cans])
 
-  const toggleIemsSelection = (id: string) => {
-    setSelectedIems(prev =>
-      prev.includes(id)
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
+  const toggleIemsSelection = useCallback((id: string) => {
+    setSelectedIems(prev => {
+      const next = new Map(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        const component = iems.find(c => c.id === id)
+        if (component) next.set(id, component)
+      }
+      return next
+    })
+  }, [iems])
 
-  const toggleDacSelection = (id: string) => {
-    setSelectedDacs(prev =>
-      prev.includes(id)
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
+  const toggleDacSelection = useCallback((id: string) => {
+    setSelectedDacs(prev => {
+      const next = new Map(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        const component = dacs.find(c => c.id === id)
+        if (component) next.set(id, component)
+      }
+      return next
+    })
+  }, [dacs])
 
-  const toggleAmpSelection = (id: string) => {
-    setSelectedAmps(prev => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
+  const toggleAmpSelection = useCallback((id: string) => {
+    setSelectedAmps(prev => {
+      const next = new Map(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        const component = amps.find(c => c.id === id)
+        if (component) next.set(id, component)
+      }
+      return next
+    })
+  }, [amps])
 
-  const toggleDacAmpSelection = (id: string) => {
-    setSelectedDacAmps(prev => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
-    )
-  }
+  const toggleDacAmpSelection = useCallback((id: string) => {
+    setSelectedDacAmps(prev => {
+      const next = new Map(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        const component = dacAmps.find(c => c.id === id)
+        if (component) next.set(id, component)
+      }
+      return next
+    })
+  }, [dacAmps])
 
-  // Calculate total for selected items
-  const selectedHeadphoneItems = [
-    ...cans.filter(h => selectedCans.includes(h.id)),
-    ...iems.filter(h => selectedIems.includes(h.id))
-  ]
-  const selectedDacItems = dacs.filter(d => selectedDacs.includes(d.id))
-  const selectedAmpItems = amps.filter(a => selectedAmps.includes(a.id))
-  const selectedDacAmpItems = dacAmps.filter(da => selectedDacAmps.includes(da.id))
+  // Remove item from selection by id and category (used by SelectedSystemSummary and StackBuilderModal)
+  const removeFromSelection = useCallback((id: string, category: string) => {
+    switch (category) {
+      case 'cans':
+        setSelectedCans(prev => { const next = new Map(prev); next.delete(id); return next })
+        break
+      case 'iems':
+        setSelectedIems(prev => { const next = new Map(prev); next.delete(id); return next })
+        break
+      case 'dacs':
+        setSelectedDacs(prev => { const next = new Map(prev); next.delete(id); return next })
+        break
+      case 'amps':
+        setSelectedAmps(prev => { const next = new Map(prev); next.delete(id); return next })
+        break
+      case 'combos':
+        setSelectedDacAmps(prev => { const next = new Map(prev); next.delete(id); return next })
+        break
+    }
+  }, [])
+
+  // Derive selected items from Maps (memoized - survives API re-fetches)
+  const selectedHeadphoneItems = useMemo(() => [
+    ...Array.from(selectedCans.values()),
+    ...Array.from(selectedIems.values())
+  ], [selectedCans, selectedIems])
+
+  const selectedDacItems = useMemo(() => Array.from(selectedDacs.values()), [selectedDacs])
+  const selectedAmpItems = useMemo(() => Array.from(selectedAmps.values()), [selectedAmps])
+  const selectedDacAmpItems = useMemo(() => Array.from(selectedDacAmps.values()), [selectedDacAmps])
 
   // Helper to get avg price of a component
   const getAvgPrice = (item: { price_used_min?: number | null; price_used_max?: number | null }) =>
     ((item.price_used_min || 0) + (item.price_used_max || 0)) / 2
 
-  const totalSelectedPrice = [
-    ...selectedHeadphoneItems,
-    ...selectedDacItems,
-    ...selectedAmpItems,
-    ...selectedDacAmpItems
-  ].reduce((sum, item) => sum + getAvgPrice(item), 0)
+  // Memoize all cost calculations to prevent cascading re-renders
+  const { totalSelectedPrice, selectedHeadphoneCost, selectedDacCost, selectedAmpCost, selectedDacAmpCost } = useMemo(() => {
+    const hpCost = selectedHeadphoneItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+    const dacCost = selectedDacItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+    const ampCost = selectedAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+    const dacAmpCost = selectedDacAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
+    return {
+      totalSelectedPrice: hpCost + dacCost + ampCost + dacAmpCost,
+      selectedHeadphoneCost: hpCost,
+      selectedDacCost: dacCost,
+      selectedAmpCost: ampCost,
+      selectedDacAmpCost: dacAmpCost
+    }
+  }, [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
-  // Calculate cost of selected items per category
-  const selectedHeadphoneCost = selectedHeadphoneItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
-  const selectedDacCost = selectedDacItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
-  const selectedAmpCost = selectedAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
-  const selectedDacAmpCost = selectedDacAmpItems.reduce((sum, item) => sum + getAvgPrice(item), 0)
-
-  // Remaining budget per category = total budget - cost of ALL other selected categories
-  const hasAnySelections = totalSelectedPrice > 0
-  const remainingForHeadphones = userPrefs.budget - selectedDacCost - selectedAmpCost - selectedDacAmpCost
-  const remainingForDacs = userPrefs.budget - selectedHeadphoneCost - selectedAmpCost - selectedDacAmpCost
-  const remainingForAmps = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedDacAmpCost
-  const remainingForCombos = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedAmpCost
-
-  // Client-side budget filtering: hide items over remaining budget when other categories have selections
-  const isHeadphoneBudgetConstrained = hasAnySelections && selectedHeadphoneItems.length === 0 && (selectedDacCost + selectedAmpCost + selectedDacAmpCost) > 0
-  const isDacBudgetConstrained = hasAnySelections && selectedDacItems.length === 0 && (selectedHeadphoneCost + selectedAmpCost + selectedDacAmpCost) > 0
-  const isAmpBudgetConstrained = hasAnySelections && selectedAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedDacAmpCost) > 0
-  const isComboBudgetConstrained = hasAnySelections && selectedDacAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedAmpCost) > 0
+  // Memoize remaining budget and constraint flags
+  const { hasAnySelections, remainingForHeadphones, remainingForDacs, remainingForAmps, remainingForCombos,
+          isHeadphoneBudgetConstrained, isDacBudgetConstrained, isAmpBudgetConstrained, isComboBudgetConstrained } = useMemo(() => {
+    const hasSelections = totalSelectedPrice > 0
+    const remHeadphones = userPrefs.budget - selectedDacCost - selectedAmpCost - selectedDacAmpCost
+    const remDacs = userPrefs.budget - selectedHeadphoneCost - selectedAmpCost - selectedDacAmpCost
+    const remAmps = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedDacAmpCost
+    const remCombos = userPrefs.budget - selectedHeadphoneCost - selectedDacCost - selectedAmpCost
+    return {
+      hasAnySelections: hasSelections,
+      remainingForHeadphones: remHeadphones,
+      remainingForDacs: remDacs,
+      remainingForAmps: remAmps,
+      remainingForCombos: remCombos,
+      isHeadphoneBudgetConstrained: hasSelections && selectedHeadphoneItems.length === 0 && (selectedDacCost + selectedAmpCost + selectedDacAmpCost) > 0,
+      isDacBudgetConstrained: hasSelections && selectedDacItems.length === 0 && (selectedHeadphoneCost + selectedAmpCost + selectedDacAmpCost) > 0,
+      isAmpBudgetConstrained: hasSelections && selectedAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedDacAmpCost) > 0,
+      isComboBudgetConstrained: hasSelections && selectedDacAmpItems.length === 0 && (selectedHeadphoneCost + selectedDacCost + selectedAmpCost) > 0,
+    }
+  }, [totalSelectedPrice, userPrefs.budget, selectedHeadphoneCost, selectedDacCost, selectedAmpCost, selectedDacAmpCost, selectedHeadphoneItems.length, selectedDacItems.length, selectedAmpItems.length, selectedDacAmpItems.length])
 
   const filteredCans = useMemo(() => {
     if (!isHeadphoneBudgetConstrained) return cans
@@ -646,23 +703,23 @@ function RecommendationsContent() {
       setSelectedItemsForApi(items)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCans, selectedIems, selectedDacs, selectedAmps, selectedDacAmps])
+  }, [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
-  // Combine all selected items for comparison view
-  const comparisonItems = [
+  // Combine all selected items for comparison view (memoized)
+  const comparisonItems = useMemo(() => [
     ...selectedHeadphoneItems,
     ...selectedDacItems,
     ...selectedAmpItems,
     ...selectedDacAmpItems
-  ]
+  ], [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
   // Handlers for comparison view
   const handleClearAllComparisons = useCallback(() => {
-    setSelectedCans([])
-    setSelectedIems([])
-    setSelectedDacs([])
-    setSelectedAmps([])
-    setSelectedDacAmps([])
+    setSelectedCans(new Map())
+    setSelectedIems(new Map())
+    setSelectedDacs(new Map())
+    setSelectedAmps(new Map())
+    setSelectedDacAmps(new Map())
     setIsComparisonBarExpanded(false)
   }, [])
 
@@ -925,12 +982,13 @@ function RecommendationsContent() {
           budget={budget}
           remainingBudget={userPrefs.budget - totalSelectedPrice}
           onBuildStack={() => setShowStackBuilder(true)}
+          onRemoveItem={removeFromSelection}
           onClearAll={() => {
-            setSelectedCans([])
-            setSelectedIems([])
-            setSelectedDacs([])
-            setSelectedAmps([])
-            setSelectedDacAmps([])
+            setSelectedCans(new Map())
+            setSelectedIems(new Map())
+            setSelectedDacs(new Map())
+            setSelectedAmps(new Map())
+            setSelectedDacAmps(new Map())
           }}
         />
 
@@ -949,7 +1007,7 @@ function RecommendationsContent() {
           const hasIems = wantRecommendationsFor.headphones && filteredIems.length > 0
           const hasDacs = wantRecommendationsFor.dac && filteredDacs.length > 0
           const hasAmps = wantRecommendationsFor.amp && filteredAmps.length > 0
-          const hasCombos = wantRecommendationsFor.combo && dacAmps.length > 0
+          const hasCombos = wantRecommendationsFor.combo && filteredDacAmps.length > 0
           const hasSignalGear = hasDacs || hasAmps || hasCombos
 
           const activeTypes = [
@@ -1013,7 +1071,7 @@ function RecommendationsContent() {
                     <HeadphoneCard
                       key={headphone.id}
                       headphone={headphone}
-                      isSelected={selectedCans.includes(headphone.id)}
+                      isSelected={selectedCans.has(headphone.id)}
                       onToggleSelection={toggleCansSelection}
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
@@ -1064,7 +1122,7 @@ function RecommendationsContent() {
                     <HeadphoneCard
                       key={headphone.id}
                       headphone={headphone}
-                      isSelected={selectedIems.includes(headphone.id)}
+                      isSelected={selectedIems.has(headphone.id)}
                       onToggleSelection={toggleIemsSelection}
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
@@ -1115,7 +1173,7 @@ function RecommendationsContent() {
                             <SignalGearCard
                               key={dac.id}
                               component={dac}
-                              isSelected={selectedDacs.includes(dac.id)}
+                              isSelected={selectedDacs.has(dac.id)}
                               onToggleSelection={toggleDacSelection}
                               type="dac"
                               onFindUsed={handleFindUsed}
@@ -1168,7 +1226,7 @@ function RecommendationsContent() {
                       <SignalGearCard
                         key={amp.id}
                         component={amp}
-                        isSelected={selectedAmps.includes(amp.id)}
+                        isSelected={selectedAmps.has(amp.id)}
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
                         onFindUsed={handleFindUsed}
@@ -1221,7 +1279,7 @@ function RecommendationsContent() {
                       <SignalGearCard
                         key={combo.id}
                         component={combo}
-                        isSelected={selectedDacAmps.includes(combo.id)}
+                        isSelected={selectedDacAmps.has(combo.id)}
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
                         onFindUsed={handleFindUsed}
@@ -1275,16 +1333,16 @@ function RecommendationsContent() {
         {/* Used Listings */}
         {showMarketplace && (() => {
           // Filter to only show selected items if any are selected
-          const hasSelections = selectedCans.length > 0 || selectedIems.length > 0 ||
-                                selectedDacs.length > 0 || selectedAmps.length > 0 || selectedDacAmps.length > 0
+          const hasSelections = selectedCans.size > 0 || selectedIems.size > 0 ||
+                                selectedDacs.size > 0 || selectedAmps.size > 0 || selectedDacAmps.size > 0
 
           const componentsToShow = hasSelections
             ? [
-                ...cans.filter(h => selectedCans.includes(h.id)),
-                ...iems.filter(h => selectedIems.includes(h.id)),
-                ...dacs.filter(d => selectedDacs.includes(d.id)),
-                ...amps.filter(a => selectedAmps.includes(a.id)),
-                ...dacAmps.filter(da => selectedDacAmps.includes(da.id))
+                ...Array.from(selectedCans.values()),
+                ...Array.from(selectedIems.values()),
+                ...Array.from(selectedDacs.values()),
+                ...Array.from(selectedAmps.values()),
+                ...Array.from(selectedDacAmps.values())
               ]
             : [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
 
@@ -1502,10 +1560,9 @@ function RecommendationsContent() {
           amps: selectedAmpItems,
           combos: selectedDacAmpItems
         }}
+        onRemoveComponent={removeFromSelection}
         onSaveStack={async (stackName, components) => {
-          // TODO: Implement actual stack saving
-          console.log('Saving stack:', stackName, components)
-          // For now, just close the modal
+          // Save handled inside StackBuilderModal with auth check
           setShowStackBuilder(false)
         }}
       />

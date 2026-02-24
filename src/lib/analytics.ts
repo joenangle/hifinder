@@ -45,6 +45,7 @@ export type AnalyticsEvent =
   | { name: 'gear_item_removed', parameters: { category: string } }
   | { name: 'stack_created', parameters: { components_count: number, total_value: number, budget_tier: BudgetTier } }
   | { name: 'stack_ebay_search_clicked', properties: { component_count: number, total_cost: number } }
+  | { name: 'stack_saved_from_recommendations', properties: { component_count: number, total_cost: number, stack_name: string } }
 
   // Used Market
   | { name: 'used_listing_clicked', parameters: { source: 'reddit' | 'headfi' | 'avexchange', price_range: string, category: string } }

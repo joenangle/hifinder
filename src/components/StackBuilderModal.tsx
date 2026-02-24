@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession, signIn } from 'next-auth/react'
 import { Component } from '@/types'
 import { CompatibilityWarning } from '@/lib/stacks'
 import { generateEbayAffiliateLinkAdvanced, generateTrackingId } from '@/lib/ebay-affiliate'
@@ -20,6 +21,7 @@ interface StackBuilderModalProps {
     amps: Component[]
     combos: Component[]
   }
+  onRemoveComponent?: (componentId: string, category: string) => void
   onSaveStack?: (stackName: string, components: Component[]) => void
 }
 
@@ -31,13 +33,18 @@ export function StackBuilderModal({
   isOpen,
   onClose,
   selectedComponents,
+  onRemoveComponent,
   onSaveStack
 }: StackBuilderModalProps) {
+  const { data: session } = useSession()
   const [stackName, setStackName] = useState('')
   const [stackDescription, setStackDescription] = useState('')
   const [finalComponents, setFinalComponents] = useState<StackComponent[]>([])
   const [warnings, setWarnings] = useState<CompatibilityWarning[]>([])
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
   // Organize components into stack positions
   useEffect(() => {
@@ -64,6 +71,9 @@ export function StackBuilderModal({
     })
 
     setFinalComponents(components)
+    setSaveError(null)
+    setSaveSuccess(false)
+    setShowLoginPrompt(false)
 
     // Generate compatibility warnings with power matching analysis
     const newWarnings: CompatibilityWarning[] = []
@@ -190,26 +200,79 @@ export function StackBuilderModal({
     }).format(price)
   }
 
-  // Handle save
+  // Handle save with auth check
   const handleSave = async () => {
-    if (!stackName.trim()) return
+    if (!stackName.trim() || finalComponents.length === 0) return
+
+    // Check auth - show login prompt if not authenticated
+    if (!session?.user) {
+      setShowLoginPrompt(true)
+      return
+    }
 
     setSaving(true)
+    setSaveError(null)
+
     try {
-      if (onSaveStack) {
-        await onSaveStack(stackName, finalComponents)
+      const response = await fetch('/api/stacks/from-recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: stackName.trim(),
+          description: stackDescription.trim() || null,
+          componentIds: finalComponents.map(c => c.id)
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || `Failed to save stack (${response.status})`)
       }
-      onClose()
+
+      setSaveSuccess(true)
+
+      trackEvent({
+        name: 'stack_saved_from_recommendations',
+        properties: {
+          component_count: finalComponents.length,
+          total_cost: totalCost,
+          stack_name: stackName
+        }
+      })
+
+      // Auto-close after brief success message
+      setTimeout(() => {
+        if (onSaveStack) {
+          onSaveStack(stackName, finalComponents)
+        }
+        onClose()
+      }, 1500)
     } catch (error) {
       console.error('Failed to save stack:', error)
+      setSaveError(error instanceof Error ? error.message : 'Failed to save stack')
     } finally {
       setSaving(false)
     }
   }
 
-  // Remove component
+  // Remove component and sync to parent
   const removeComponent = (componentId: string) => {
+    const component = finalComponents.find(c => c.id === componentId)
     setFinalComponents(prev => prev.filter(c => c.id !== componentId))
+
+    // Sync removal back to parent's selection state
+    // Map Component.category values ('cans'|'iems'|'dac'|'amp'|'dac_amp') to parent's selection categories
+    if (component && onRemoveComponent) {
+      const categoryMap: Record<string, string> = {
+        'cans': 'cans',
+        'iems': 'iems',
+        'dac': 'dacs',
+        'amp': 'amps',
+        'dac_amp': 'combos',
+        'cable': 'combos'
+      }
+      onRemoveComponent(componentId, categoryMap[component.category] || 'combos')
+    }
   }
 
   // Get category icon
@@ -254,6 +317,51 @@ export function StackBuilderModal({
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* Login Prompt Banner */}
+          {showLoginPrompt && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-medium text-amber-800 dark:text-amber-200">Sign in to save your stack</p>
+                  <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Your stack will be saved to your account so you can access it anytime.</p>
+                </div>
+                <button
+                  onClick={() => signIn('google')}
+                  className="px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors text-sm font-medium whitespace-nowrap"
+                >
+                  Sign In with Google
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Save Success Banner */}
+          {saveSuccess && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <p className="font-medium text-green-800 dark:text-green-200">Stack saved successfully!</p>
+              </div>
+            </div>
+          )}
+
+          {/* Save Error Banner */}
+          {saveError && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <p className="text-sm text-red-700 dark:text-red-300">{saveError}</p>
+              </div>
+            </div>
+          )}
+
           {/* Stack Overview */}
           <div className="bg-surface-secondary rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
@@ -450,7 +558,6 @@ export function StackBuilderModal({
                   `budget=${Math.round(totalCost)}&` +
                   `components=${finalComponents.map(c => c.id).join(',')}`
                 navigator.clipboard.writeText(shareUrl)
-                // TODO: Show toast notification
               }}
               className="px-4 py-2 text-orange-500 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
             >
@@ -459,7 +566,7 @@ export function StackBuilderModal({
 
             <button
               onClick={handleSave}
-              disabled={!stackName.trim() || finalComponents.length === 0 || saving}
+              disabled={!stackName.trim() || finalComponents.length === 0 || saving || saveSuccess}
               className="px-6 py-2 bg-orange-400 text-white rounded-lg hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {saving && (
@@ -467,7 +574,7 @@ export function StackBuilderModal({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               )}
-              Save Stack
+              {saveSuccess ? 'Saved!' : session ? 'Save Stack' : 'Sign In & Save'}
             </button>
           </div>
         </div>
