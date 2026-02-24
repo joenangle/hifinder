@@ -8,6 +8,7 @@ import { LayoutDashboard, Package, Heart, Bell, Layers } from 'lucide-react'
 import { WishlistTab } from '@/components/dashboard/WishlistTab'
 import { AlertsTab } from '@/components/dashboard/AlertsTab'
 import { GearTab } from '@/components/dashboard/GearTab'
+import { StacksTab } from '@/components/dashboard/StacksTab'
 
 // Tab type
 type DashboardTab = 'overview' | 'gear' | 'wishlist' | 'alerts' | 'stacks'
@@ -322,18 +323,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
 
 // GearTab, WishlistTab, and AlertsTab imported from components above
 
-function StacksTab() {
-  return (
-    <div className="text-center py-12">
-      <Layers className="w-16 h-16 mx-auto mb-4 text-muted" />
-      <h2 className="text-xl font-semibold text-foreground mb-2">Stacks</h2>
-      <p className="text-muted mb-6">This tab is under construction</p>
-      <Link href="/gear?view=stacks" className="button button-primary">
-        Go to Full Gear Page (Stacks View)
-      </Link>
-    </div>
-  )
-}
+// StacksTab is now imported from '@/components/dashboard/StacksTab'
 
 export default function DashboardPage() {
   return (

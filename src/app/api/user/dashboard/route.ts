@@ -31,7 +31,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch gear' }, { status: 500 })
     }
 
-    // Fetch user stacks with gear and components
+    // Fetch user stacks with gear and components (dual-path: user_gear + direct component_id)
     const { data: stacks, error: stacksError } = await supabaseServer
       .from('user_stacks')
       .select(`
@@ -40,6 +40,8 @@ export async function GET() {
           id,
           position,
           user_gear_id,
+          component_id,
+          created_at,
           user_gear (
             id,
             custom_name,
@@ -48,8 +50,19 @@ export async function GET() {
             purchase_price,
             component_id,
             components (
-              id, name, brand, category, price_new, price_used_min, price_used_max
+              id, name, brand, category, price_new, price_used_min, price_used_max,
+              budget_tier, sound_signature, impedance, needs_amp,
+              amplification_difficulty, amazon_url, image_url,
+              crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+              asr_sinad, driver_type, fit, why_recommended
             )
+          ),
+          components!stack_components_component_id_fkey (
+            id, name, brand, category, price_new, price_used_min, price_used_max,
+            budget_tier, sound_signature, impedance, needs_amp,
+            amplification_difficulty, amazon_url, image_url,
+            crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+            asr_sinad, driver_type, fit, why_recommended
           )
         )
       `)

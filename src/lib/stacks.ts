@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { UserGearItem } from './gear'
+import { Component } from '@/types'
 
 export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general'
 
@@ -18,45 +19,120 @@ export interface UserStack {
 export interface StackComponent {
   id: string
   stack_id: string
-  user_gear_id: string
+  user_gear_id: string | null
+  component_id?: string | null
   position: number
   created_at: string
-  user_gear?: UserGearItem
+  user_gear?: UserGearItem | null
+  components?: Partial<Component> | null  // Direct component reference (recommendation stacks)
 }
 
 export interface StackWithGear extends UserStack {
-  stack_components: (StackComponent & { user_gear: UserGearItem })[]
+  stack_components: StackComponent[]
 }
+
+// Normalized data from either user_gear→components or direct components path
+export interface StackComponentData {
+  id: string
+  brand: string
+  name: string
+  category: string
+  price_new: number | null
+  price_used_min: number | null
+  price_used_max: number | null
+  sound_signature: string | null
+  impedance: number | null
+  needs_amp: boolean
+  amplification_difficulty?: string | null
+  purchase_price: number | null
+  image_url: string | null
+  amazon_url: string | null
+  // Expert data
+  crin_tone: string | null
+  crin_tech: string | null
+  crin_rank: number | null
+  crin_value: number | null
+  crin_signature: string | null
+  asr_sinad: number | null
+  driver_type: string | null
+  fit: string | null
+  why_recommended: string
+  // Source tracking
+  source: 'gear' | 'recommendation'
+  // Original references for deletion
+  user_gear_id: string | null
+  component_id: string | null
+  stack_component_id: string
+}
+
+// Normalize stack component data from either path
+export function getStackComponentData(sc: StackComponent): StackComponentData {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const comp = (sc.user_gear?.components || sc.components) as Record<string, any> | undefined
+  return {
+    id: comp?.id || '',
+    brand: sc.user_gear?.custom_brand || comp?.brand || 'Unknown',
+    name: sc.user_gear?.custom_name || comp?.name || 'Unknown',
+    category: sc.user_gear?.custom_category || comp?.category || '',
+    price_new: comp?.price_new || null,
+    price_used_min: comp?.price_used_min || null,
+    price_used_max: comp?.price_used_max || null,
+    sound_signature: comp?.sound_signature || null,
+    impedance: comp?.impedance || null,
+    needs_amp: comp?.needs_amp || false,
+    amplification_difficulty: comp?.amplification_difficulty || null,
+    purchase_price: sc.user_gear?.purchase_price || null,
+    image_url: comp?.image_url || null,
+    amazon_url: comp?.amazon_url || null,
+    crin_tone: comp?.crin_tone || null,
+    crin_tech: comp?.crin_tech || null,
+    crin_rank: comp?.crin_rank || null,
+    crin_value: comp?.crin_value || null,
+    crin_signature: comp?.crin_signature || null,
+    asr_sinad: comp?.asr_sinad || null,
+    driver_type: comp?.driver_type || null,
+    fit: comp?.fit || null,
+    why_recommended: comp?.why_recommended || '',
+    source: sc.user_gear_id ? 'gear' : 'recommendation',
+    user_gear_id: sc.user_gear_id || null,
+    component_id: sc.component_id || null,
+    stack_component_id: sc.id,
+  }
+}
+
+// Common select fields for stack component queries
+const STACK_COMPONENT_SELECT = `
+  *,
+  stack_components (
+    id,
+    position,
+    user_gear_id,
+    component_id,
+    created_at,
+    user_gear (
+      *,
+      components (
+        id, name, brand, category, price_new, price_used_min, price_used_max,
+        budget_tier, sound_signature, use_cases, impedance, needs_amp,
+        amplification_difficulty, amazon_url, why_recommended, image_url,
+        crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+        asr_sinad, driver_type, fit
+      )
+    ),
+    components!stack_components_component_id_fkey (
+      id, name, brand, category, price_new, price_used_min, price_used_max,
+      budget_tier, sound_signature, use_cases, impedance, needs_amp,
+      amplification_difficulty, amazon_url, why_recommended, image_url,
+      crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+      asr_sinad, driver_type, fit
+    )
+  )
+`
 
 export async function getUserStacks(userId: string): Promise<StackWithGear[]> {
   const { data, error } = await supabase
     .from('user_stacks')
-    .select(`
-      *,
-      stack_components (
-        *,
-        user_gear (
-          *,
-          components (
-            id,
-            name,
-            brand,
-            category,
-            price_new,
-            price_used_min,
-            price_used_max,
-            budget_tier,
-            sound_signature,
-            use_cases,
-            impedance,
-            needs_amp,
-            amazon_url,
-            why_recommended,
-            image_url
-          )
-        )
-      )
-    `)
+    .select(STACK_COMPONENT_SELECT)
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -138,8 +214,8 @@ export async function addGearToStack(
       .order('position', { ascending: false })
       .limit(1)
 
-    position = existingComponents && existingComponents.length > 0 
-      ? existingComponents[0].position + 1 
+    position = existingComponents && existingComponents.length > 0
+      ? existingComponents[0].position + 1
       : 0
   }
 
@@ -183,12 +259,30 @@ export async function removeGearFromStack(
   return true
 }
 
+export async function removeComponentFromStack(
+  stackId: string,
+  componentId: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('stack_components')
+    .delete()
+    .eq('stack_id', stackId)
+    .eq('component_id', componentId)
+
+  if (error) {
+    console.error('Error removing component from stack:', error)
+    return false
+  }
+
+  return true
+}
+
 export async function reorderStackComponents(
   stackId: string,
   componentOrder: { id: string; position: number }[]
 ): Promise<boolean> {
   // Update positions for all components in the stack
-  const updates = componentOrder.map(({ id, position }) => 
+  const updates = componentOrder.map(({ id, position }) =>
     supabase
       .from('stack_components')
       .update({ position })
@@ -214,48 +308,45 @@ export interface CompatibilityWarning {
 
 export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarning[] {
   const warnings: CompatibilityWarning[] = []
-  const components = stack.stack_components
-  
+  const normalizedComponents = stack.stack_components.map(sc => ({
+    ...getStackComponentData(sc),
+    _sc: sc,
+  }))
+
   // Check for headphones without amp/DAC when high impedance
-  const headphones = components.filter(c => 
-    c.user_gear?.components?.category === 'headphones' || 
-    c.user_gear?.custom_category === 'headphones'
+  const headphones = normalizedComponents.filter(c =>
+    c.category === 'headphones' || c.category === 'cans'
   )
-  const amps = components.filter(c => 
-    c.user_gear?.components?.category === 'amps' || 
-    c.user_gear?.custom_category === 'amps'
+  const amps = normalizedComponents.filter(c =>
+    c.category === 'amps' || c.category === 'amp'
   )
-  const combos = components.filter(c => 
-    c.user_gear?.components?.category === 'combo' || 
-    c.user_gear?.custom_category === 'combo'
+  const combos = normalizedComponents.filter(c =>
+    c.category === 'combo' || c.category === 'dac_amp'
   )
-  
+
   headphones.forEach(hp => {
-    const impedance = hp.user_gear?.components?.impedance
-    const needsAmp = hp.user_gear?.components?.needs_amp
-    
-    if ((impedance && parseInt(impedance.toString()) > 150) || needsAmp) {
+    if ((hp.impedance && hp.impedance > 150) || hp.needs_amp) {
       if (amps.length === 0 && combos.length === 0) {
         warnings.push({
           type: 'power',
           severity: 'warning',
           message: 'High impedance headphones may need amplification',
-          components: [hp.user_gear?.components?.name || hp.user_gear?.custom_name || 'Unknown']
+          components: [`${hp.brand} ${hp.name}`]
         })
       }
     }
   })
-  
+
   // Check for multiple headphones
   if (headphones.length > 1) {
     warnings.push({
       type: 'category',
       severity: 'warning',
       message: 'Multiple headphones in one stack',
-      components: headphones.map(h => h.user_gear?.components?.name || h.user_gear?.custom_name || 'Unknown')
+      components: headphones.map(h => `${h.brand} ${h.name}`)
     })
   }
-  
+
   return warnings
 }
 
@@ -303,6 +394,15 @@ export const stackTemplates: StackTemplate[] = [
   }
 ]
 
+export const purposeIcons: Record<StackPurpose, string> = {
+  desktop: '🖥️',
+  portable: '🎒',
+  studio: '🎵',
+  gaming: '🎮',
+  office: '💼',
+  general: '📦',
+}
+
 export function calculateStackValue(stack: StackWithGear): {
   totalPaid: number
   currentValue: number
@@ -311,30 +411,25 @@ export function calculateStackValue(stack: StackWithGear): {
 } {
   let totalPaid = 0
   let currentValue = 0
-  
-  stack.stack_components.forEach(component => {
-    const gear = component.user_gear
-    if (gear) {
-      // Add purchase price if available
-      if (gear.purchase_price) {
-        totalPaid += parseFloat(gear.purchase_price.toString())
-      }
-      
-      // Add current value estimate
-      if (gear.components?.price_used_min && gear.components?.price_used_max) {
-        // Use average of used price range as current value estimate
-        const avgUsedPrice = (gear.components.price_used_min + gear.components.price_used_max) / 2
-        currentValue += avgUsedPrice
-      } else if (gear.components?.price_new) {
-        // Estimate 70% of new price if no used prices available
-        currentValue += gear.components.price_new * 0.7
-      } else if (gear.purchase_price) {
-        // Fallback to 70% of purchase price
-        currentValue += parseFloat(gear.purchase_price.toString()) * 0.7
-      }
+
+  stack.stack_components.forEach(sc => {
+    const data = getStackComponentData(sc)
+
+    // Add purchase price if available (only from user gear)
+    if (data.purchase_price) {
+      totalPaid += parseFloat(data.purchase_price.toString())
+    }
+
+    // Add current value estimate
+    if (data.price_used_min && data.price_used_max) {
+      currentValue += (data.price_used_min + data.price_used_max) / 2
+    } else if (data.price_new) {
+      currentValue += data.price_new * 0.7
+    } else if (data.purchase_price) {
+      currentValue += parseFloat(data.purchase_price.toString()) * 0.7
     }
   })
-  
+
   return {
     totalPaid,
     currentValue,

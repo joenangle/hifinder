@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, StackPurpose, createStack, deleteStack, calculateStackValue, updateStack, checkStackCompatibility, stackTemplates } from '@/lib/stacks'
+import { StackWithGear, StackPurpose, StackComponentData, createStack, deleteStack, calculateStackValue, updateStack, checkStackCompatibility, stackTemplates, getStackComponentData, removeComponentFromStack, purposeIcons } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -23,7 +23,8 @@ import {
 import { GearPageHeader } from '@/components/gear/GearPageHeader'
 import { GearFilters } from '@/components/gear/GearFilters'
 import { BrandCombobox } from '@/components/gear/BrandCombobox'
-import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon } from '@/lib/gear-utils'
+import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon, getCategoryLabel, getCategoryColor, getCategoryEmoji } from '@/lib/gear-utils'
+import { StackItemDetailModal } from '@/components/StackItemDetailModal'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 
@@ -63,6 +64,10 @@ function GearContent() {
   // TODO: Implement edit stack purpose functionality
   void editStackPurpose
   void setEditStackPurpose
+
+  // State for stack item detail modal
+  const [showStackItemDetail, setShowStackItemDetail] = useState(false)
+  const [selectedStackItemData, setSelectedStackItemData] = useState<StackComponentData | null>(null)
 
   // State for drag and drop
   const [draggedGear, setDraggedGear] = useState<UserGearItem | null>(null)
@@ -413,7 +418,7 @@ function GearContent() {
     return response.json()
   }
 
-  // Helper function to remove gear from stack via API
+  // Helper function to remove gear from stack via API (supports both user_gear and direct component refs)
   const removeGearFromStackAPI = async (stackId: string, gearId: string) => {
     const response = await fetch(`/api/stacks/components?stack_id=${stackId}&user_gear_id=${gearId}`, {
       method: 'DELETE',
@@ -425,6 +430,24 @@ function GearContent() {
       throw new Error(error.error || 'Failed to remove gear from stack')
     }
 
+    return response.json()
+  }
+
+  const removeStackItemAPI = async (stackId: string, data: StackComponentData) => {
+    const params = new URLSearchParams({ stack_id: stackId })
+    if (data.user_gear_id) {
+      params.set('user_gear_id', data.user_gear_id)
+    } else if (data.component_id) {
+      params.set('component_id', data.component_id)
+    }
+    const response = await fetch(`/api/stacks/components?${params.toString()}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to remove item from stack')
+    }
     return response.json()
   }
 
@@ -716,9 +739,16 @@ function GearContent() {
                           {/* Stack Header */}
                           <div className="flex items-start justify-between mb-4">
                             <div>
-                              <h3 className="text-lg font-semibold" style={{color: 'var(--text-primary)'}}>
-                                {stack.name}
-                              </h3>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-lg font-semibold" style={{color: 'var(--text-primary)'}}>
+                                  {stack.name}
+                                </h3>
+                                {stack.purpose && stack.purpose !== 'general' && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full capitalize bg-surface-secondary text-muted">
+                                    {purposeIcons[stack.purpose]} {stack.purpose}
+                                  </span>
+                                )}
+                              </div>
                               {stack.description && (
                                 <p className="text-sm mt-1" style={{color: 'var(--text-secondary)'}}>
                                   {stack.description}
@@ -787,27 +817,61 @@ function GearContent() {
 
                           {/* Stack Components */}
                           <div className="space-y-2">
-                            {stack.stack_components.map((component, index) => (
-                              <div key={component.id} className="flex items-center gap-3 p-2 rounded" style={{backgroundColor: 'var(--background-tertiary)'}}>
+                            {stack.stack_components.map((component, index) => {
+                              const itemData = getStackComponentData(component)
+                              const catColor = getCategoryColor(itemData.category)
+                              const avgPrice = itemData.price_used_min && itemData.price_used_max
+                                ? Math.round((itemData.price_used_min + itemData.price_used_max) / 2)
+                                : itemData.price_new
+                              return (
+                              <div
+                                key={component.id}
+                                className="flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-surface-hover transition-colors"
+                                style={{backgroundColor: 'var(--background-tertiary)'}}
+                                onClick={() => {
+                                  setSelectedStackItemData(itemData)
+                                  setShowStackItemDetail(true)
+                                }}
+                              >
                                 <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-medium" style={{backgroundColor: 'var(--accent-primary)', color: 'white'}}>
                                   {index + 1}
                                 </div>
-                                <div className="flex-1">
-                                  <div className="font-medium text-sm" style={{color: 'var(--text-primary)'}}>
-                                    {component.user_gear?.components?.brand || component.user_gear?.custom_brand} {component.user_gear?.components?.name || component.user_gear?.custom_name}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm truncate" style={{color: 'var(--text-primary)'}}>
+                                      {itemData.brand} {itemData.name}
+                                    </span>
                                   </div>
-                                  <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
-                                    {component.user_gear?.components?.category || component.user_gear?.custom_category}
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${catColor.bg} ${catColor.text}`}>
+                                      {getCategoryLabel(itemData.category)}
+                                    </span>
+                                    {itemData.sound_signature && (
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full capitalize ${
+                                        itemData.sound_signature === 'warm' ? 'bg-orange-500/15 text-orange-600 dark:text-orange-400' :
+                                        itemData.sound_signature === 'neutral' ? 'bg-gray-500/15 text-gray-600 dark:text-gray-400' :
+                                        itemData.sound_signature === 'bright' ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400' :
+                                        'bg-pink-500/15 text-pink-600 dark:text-pink-400'
+                                      }`}>
+                                        {itemData.sound_signature}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
+                                {avgPrice && (
+                                  <span className="text-xs font-semibold whitespace-nowrap" style={{color: 'var(--accent-primary)'}}>
+                                    ${avgPrice.toLocaleString()}
+                                  </span>
+                                )}
                                 <button
-                                  onClick={async () => {
+                                  onClick={async (e) => {
+                                    e.stopPropagation()
                                     if (confirm('Remove this item from the stack?')) {
                                       try {
-                                        await removeGearFromStackAPI(stack.id, component.user_gear_id)
+                                        await removeStackItemAPI(stack.id, itemData)
                                         await loadData()
                                       } catch (error: unknown) {
-                                        const errorMessage = error instanceof Error ? error.message : 'Failed to remove gear from stack'
+                                        const errorMessage = error instanceof Error ? error.message : 'Failed to remove item from stack'
                                         alert(errorMessage)
                                       }
                                     }
@@ -818,7 +882,8 @@ function GearContent() {
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
-                            ))}
+                              )
+                            })}
                           </div>
 
                           {/* Drop Zone Indicator */}
@@ -2160,6 +2225,16 @@ function GearContent() {
           </div>
         </div>
       )}
+
+      {/* Stack Item Detail Modal */}
+      <StackItemDetailModal
+        isOpen={showStackItemDetail}
+        onClose={() => {
+          setShowStackItemDetail(false)
+          setSelectedStackItemData(null)
+        }}
+        data={selectedStackItemData}
+      />
     </div>
   )
 }

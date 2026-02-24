@@ -16,14 +16,27 @@ export async function GET() {
       .select(`
         *,
         stack_components (
-          *,
+          id,
+          position,
+          user_gear_id,
+          component_id,
+          created_at,
           user_gear (
             *,
             components (
               id, name, brand, category, price_new, price_used_min, price_used_max,
               budget_tier, sound_signature, use_cases, impedance, needs_amp,
-              amazon_url, why_recommended, image_url
+              amplification_difficulty, amazon_url, why_recommended, image_url,
+              crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+              asr_sinad, driver_type, fit
             )
+          ),
+          components!stack_components_component_id_fkey (
+            id, name, brand, category, price_new, price_used_min, price_used_max,
+            budget_tier, sound_signature, use_cases, impedance, needs_amp,
+            amplification_difficulty, amazon_url, why_recommended, image_url,
+            crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
+            asr_sinad, driver_type, fit
           )
         )
       `)

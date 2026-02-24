@@ -112,9 +112,10 @@ export async function DELETE(request: NextRequest) {
     const url = new URL(request.url)
     const stack_id = url.searchParams.get('stack_id')
     const user_gear_id = url.searchParams.get('user_gear_id')
+    const component_id = url.searchParams.get('component_id')
 
-    if (!stack_id || !user_gear_id) {
-      return NextResponse.json({ error: 'Stack ID and gear ID are required' }, { status: 400 })
+    if (!stack_id || (!user_gear_id && !component_id)) {
+      return NextResponse.json({ error: 'Stack ID and either gear ID or component ID are required' }, { status: 400 })
     }
 
     // Verify the stack belongs to the user
@@ -129,23 +130,30 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Stack not found or unauthorized' }, { status: 404 })
     }
 
-    // Remove component from stack
-    const { error } = await supabaseServer
+    // Remove component from stack (supports both user_gear and direct component references)
+    let query = supabaseServer
       .from('stack_components')
       .delete()
       .eq('stack_id', stack_id)
-      .eq('user_gear_id', user_gear_id)
+
+    if (user_gear_id) {
+      query = query.eq('user_gear_id', user_gear_id)
+    } else if (component_id) {
+      query = query.eq('component_id', component_id)
+    }
+
+    const { error } = await query
 
     if (error) {
-      console.error('Error removing gear from stack:', error)
-      return NextResponse.json({ error: 'Failed to remove gear from stack' }, { status: 500 })
+      console.error('Error removing item from stack:', error)
+      return NextResponse.json({ error: 'Failed to remove item from stack' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in DELETE /api/stacks/components:', error)
     return NextResponse.json(
-      { error: 'Failed to remove gear from stack' },
+      { error: 'Failed to remove item from stack' },
       { status: 500 }
     )
   }
