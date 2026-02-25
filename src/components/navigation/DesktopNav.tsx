@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 
 const publicNavItems = [
   { href: '/', label: 'Home' },
-  { href: '/recommendations?budget=250', label: 'Recommendations' },
+  { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
   { href: '/learn', label: 'Learn' },
@@ -15,7 +15,7 @@ const publicNavItems = [
 const authNavItems = [
   { href: '/', label: 'Home' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/recommendations?budget=250', label: 'Recommendations' },
+  { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
   { href: '/learn', label: 'Learn' },

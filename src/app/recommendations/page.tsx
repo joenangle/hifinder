@@ -134,23 +134,37 @@ function RecommendationsContent() {
 
   // SIMPLIFIED STATE MANAGEMENT - Single source of truth pattern
 
+  // Default values — used for parsing and for stripping defaults from URL
+  const PREF_DEFAULTS = useMemo(() => ({
+    budget: 250,
+    budgetRangeMin: 20,
+    budgetRangeMax: 10,
+    headphoneType: 'both',
+    wantRecommendationsFor: { headphones: true, dac: false, amp: false, combo: false },
+    existingGear: { headphones: false, dac: false, amp: false, combo: false, specificModels: { headphones: '', dac: '', amp: '', combo: '' } },
+    usage: 'music',
+    usageRanking: [] as string[],
+    excludedUsages: [] as string[],
+    soundSignature: 'any'
+  }), [])
+
   // Parse URL parameters - recompute when URL changes
   const initialPrefs = useMemo(() => {
-    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || '{"headphones":true,"dac":false,"amp":false,"combo":false}')
+    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || JSON.stringify(PREF_DEFAULTS.wantRecommendationsFor))
 
     return {
-      budget: parseInt(searchParams.get('budget') || '250'),
-      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || '20'),
-      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || '10'),
-      headphoneType: searchParams.get('headphoneType') || 'both',
+      budget: parseInt(searchParams.get('budget') || String(PREF_DEFAULTS.budget)),
+      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || String(PREF_DEFAULTS.budgetRangeMin)),
+      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || String(PREF_DEFAULTS.budgetRangeMax)),
+      headphoneType: searchParams.get('headphoneType') || PREF_DEFAULTS.headphoneType,
       wantRecommendationsFor: wantRecsRaw,
-      existingGear: JSON.parse(searchParams.get('existingGear') || '{"headphones":false,"dac":false,"amp":false,"combo":false,"specificModels":{"headphones":"","dac":"","amp":"","combo":""}}'),
-      usage: searchParams.get('usage') || 'music',
-      usageRanking: JSON.parse(searchParams.get('usageRanking') || '[]'),
-      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || '[]'),
-      soundSignature: searchParams.get('soundSignature') || 'any'
+      existingGear: JSON.parse(searchParams.get('existingGear') || JSON.stringify(PREF_DEFAULTS.existingGear)),
+      usage: searchParams.get('usage') || PREF_DEFAULTS.usage,
+      usageRanking: JSON.parse(searchParams.get('usageRanking') || JSON.stringify(PREF_DEFAULTS.usageRanking)),
+      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || JSON.stringify(PREF_DEFAULTS.excludedUsages)),
+      soundSignature: searchParams.get('soundSignature') || PREF_DEFAULTS.soundSignature
     }
-  }, [searchParams]) // Re-parse when URL changes
+  }, [searchParams, PREF_DEFAULTS]) // Re-parse when URL changes
 
   // URL is the single source of truth - use initialPrefs directly
   const userPrefs = initialPrefs
@@ -211,22 +225,34 @@ function RecommendationsContent() {
   // debouncedBudget used for API calls (300ms delay)
 
   // Update URL directly - URL is single source of truth
+  // Only includes non-default values to keep URLs short
   const updateURL = useCallback((updates: Partial<typeof userPrefs>) => {
-    const params = new URLSearchParams(searchParams.toString())
+    // Merge current prefs with updates to get full state
+    const merged = { ...userPrefs, ...updates }
 
-    // Update changed fields
-    if (updates.budget !== undefined) params.set('budget', updates.budget.toString())
-    if (updates.budgetRangeMin !== undefined) params.set('budgetRangeMin', updates.budgetRangeMin.toString())
-    if (updates.budgetRangeMax !== undefined) params.set('budgetRangeMax', updates.budgetRangeMax.toString())
-    if (updates.headphoneType !== undefined) params.set('headphoneType', updates.headphoneType)
-    if (updates.wantRecommendationsFor !== undefined) params.set('wantRecommendationsFor', JSON.stringify(updates.wantRecommendationsFor))
-    if (updates.existingGear !== undefined) params.set('existingGear', JSON.stringify(updates.existingGear))
-    if (updates.usage !== undefined) params.set('usage', updates.usage)
-    if (updates.usageRanking !== undefined) params.set('usageRanking', JSON.stringify(updates.usageRanking))
-    if (updates.excludedUsages !== undefined) params.set('excludedUsages', JSON.stringify(updates.excludedUsages))
+    // Build params, omitting values that match defaults
+    const params = new URLSearchParams()
 
-    router.push(`/recommendations?${params.toString()}`, { scroll: false })
-  }, [router, searchParams])
+    if (merged.budget !== PREF_DEFAULTS.budget) params.set('budget', merged.budget.toString())
+    if (merged.budgetRangeMin !== PREF_DEFAULTS.budgetRangeMin) params.set('budgetRangeMin', merged.budgetRangeMin.toString())
+    if (merged.budgetRangeMax !== PREF_DEFAULTS.budgetRangeMax) params.set('budgetRangeMax', merged.budgetRangeMax.toString())
+    if (merged.headphoneType !== PREF_DEFAULTS.headphoneType) params.set('headphoneType', merged.headphoneType)
+    if (JSON.stringify(merged.wantRecommendationsFor) !== JSON.stringify(PREF_DEFAULTS.wantRecommendationsFor)) params.set('wantRecommendationsFor', JSON.stringify(merged.wantRecommendationsFor))
+    if (JSON.stringify(merged.existingGear) !== JSON.stringify(PREF_DEFAULTS.existingGear)) params.set('existingGear', JSON.stringify(merged.existingGear))
+    if (merged.usage !== PREF_DEFAULTS.usage) params.set('usage', merged.usage)
+    if (JSON.stringify(merged.usageRanking) !== JSON.stringify(PREF_DEFAULTS.usageRanking)) params.set('usageRanking', JSON.stringify(merged.usageRanking))
+    if (JSON.stringify(merged.excludedUsages) !== JSON.stringify(PREF_DEFAULTS.excludedUsages)) params.set('excludedUsages', JSON.stringify(merged.excludedUsages))
+
+    // Preserve non-pref params (source, headphoneTypes, soundSignatures)
+    const preserve = ['source', 'headphoneTypes', 'soundSignatures']
+    preserve.forEach(key => {
+      const val = searchParams.get(key)
+      if (val) params.set(key, val)
+    })
+
+    const qs = params.toString()
+    router.push(qs ? `/recommendations?${qs}` : '/recommendations', { scroll: false })
+  }, [router, searchParams, userPrefs, PREF_DEFAULTS])
 
   // Browse mode removed - no handler needed
 
