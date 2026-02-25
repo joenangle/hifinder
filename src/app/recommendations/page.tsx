@@ -127,9 +127,9 @@ function RecommendationsContent() {
 
   // Budget-focused flow detection (simplified preferences)
   const isBudgetFocused = searchParams.get('source') === 'quick-start' || (
-    searchParams.get('budget') &&
+    (searchParams.get('b') || searchParams.get('budget')) &&
     !searchParams.get('experience') &&
-    !searchParams.get('headphoneType')
+    !searchParams.get('type') && !searchParams.get('headphoneType')
   )
 
   // SIMPLIFIED STATE MANAGEMENT - Single source of truth pattern
@@ -148,23 +148,70 @@ function RecommendationsContent() {
     soundSignature: 'any'
   }), [])
 
+  // Helper: read a param with short name fallback to legacy long name
+  const getParam = useCallback((short: string, long: string) => {
+    return searchParams.get(short) ?? searchParams.get(long)
+  }, [searchParams])
+
   // Parse URL parameters - recompute when URL changes
+  // Supports compact params (b, type, want, gear, use, ranked, exclude) with legacy fallback
   const initialPrefs = useMemo(() => {
-    const wantRecsRaw = JSON.parse(searchParams.get('wantRecommendationsFor') || JSON.stringify(PREF_DEFAULTS.wantRecommendationsFor))
+    // Parse wantRecommendationsFor: compact "want=headphones,combo" or legacy JSON
+    let wantRecsRaw = PREF_DEFAULTS.wantRecommendationsFor
+    const wantCompact = searchParams.get('want')
+    const wantLegacy = searchParams.get('wantRecommendationsFor')
+    if (wantCompact) {
+      const keys = wantCompact.split(',')
+      wantRecsRaw = { headphones: keys.includes('headphones'), dac: keys.includes('dac'), amp: keys.includes('amp'), combo: keys.includes('combo') }
+    } else if (wantLegacy) {
+      try { wantRecsRaw = JSON.parse(wantLegacy) } catch { /* use default */ }
+    }
+
+    // Parse existingGear: compact "gear=headphones,dac" + "gearModels=headphones:HD650" or legacy JSON
+    let existingGearRaw = PREF_DEFAULTS.existingGear
+    const gearCompact = searchParams.get('gear')
+    const gearLegacy = searchParams.get('existingGear')
+    if (gearCompact) {
+      const keys = gearCompact.split(',')
+      const models = { headphones: '', dac: '', amp: '', combo: '' }
+      const gearModelsParam = searchParams.get('gearModels')
+      if (gearModelsParam) {
+        gearModelsParam.split(',').forEach(entry => {
+          const [k, v] = entry.split(':')
+          if (k && v && k in models) models[k as keyof typeof models] = v
+        })
+      }
+      existingGearRaw = {
+        headphones: keys.includes('headphones'), dac: keys.includes('dac'),
+        amp: keys.includes('amp'), combo: keys.includes('combo'),
+        specificModels: models
+      }
+    } else if (gearLegacy) {
+      try { existingGearRaw = JSON.parse(gearLegacy) } catch { /* use default */ }
+    }
+
+    // Parse arrays: compact comma-separated or legacy JSON
+    const parseArray = (short: string, long: string): string[] => {
+      const compact = searchParams.get(short)
+      if (compact) return compact.split(',').filter(Boolean)
+      const legacy = searchParams.get(long)
+      if (legacy) { try { return JSON.parse(legacy) } catch { return [] } }
+      return []
+    }
 
     return {
-      budget: parseInt(searchParams.get('budget') || String(PREF_DEFAULTS.budget)),
+      budget: parseInt(getParam('b', 'budget') || String(PREF_DEFAULTS.budget)),
       budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || String(PREF_DEFAULTS.budgetRangeMin)),
       budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || String(PREF_DEFAULTS.budgetRangeMax)),
-      headphoneType: searchParams.get('headphoneType') || PREF_DEFAULTS.headphoneType,
+      headphoneType: getParam('type', 'headphoneType') || PREF_DEFAULTS.headphoneType,
       wantRecommendationsFor: wantRecsRaw,
-      existingGear: JSON.parse(searchParams.get('existingGear') || JSON.stringify(PREF_DEFAULTS.existingGear)),
-      usage: searchParams.get('usage') || PREF_DEFAULTS.usage,
-      usageRanking: JSON.parse(searchParams.get('usageRanking') || JSON.stringify(PREF_DEFAULTS.usageRanking)),
-      excludedUsages: JSON.parse(searchParams.get('excludedUsages') || JSON.stringify(PREF_DEFAULTS.excludedUsages)),
+      existingGear: existingGearRaw,
+      usage: getParam('use', 'usage') || PREF_DEFAULTS.usage,
+      usageRanking: parseArray('ranked', 'usageRanking'),
+      excludedUsages: parseArray('exclude', 'excludedUsages'),
       soundSignature: searchParams.get('soundSignature') || PREF_DEFAULTS.soundSignature
     }
-  }, [searchParams, PREF_DEFAULTS]) // Re-parse when URL changes
+  }, [searchParams, PREF_DEFAULTS, getParam]) // Re-parse when URL changes
 
   // URL is the single source of truth - use initialPrefs directly
   const userPrefs = initialPrefs
@@ -183,14 +230,14 @@ function RecommendationsContent() {
       try {
         return JSON.parse(param)
       } catch {
-        return ['cans', 'iems'] // Default to both if parsing fails
+        return ['cans', 'iems']
       }
     }
-    // Legacy support for single headphoneType param
-    const legacyType = searchParams.get('headphoneType')
-    if (legacyType === 'cans') return ['cans']
-    if (legacyType === 'iems') return ['iems']
-    return ['cans', 'iems'] // Default to both
+    // Support compact 'type' and legacy 'headphoneType' params
+    const typeParam = searchParams.get('type') || searchParams.get('headphoneType')
+    if (typeParam === 'cans') return ['cans']
+    if (typeParam === 'iems') return ['iems']
+    return ['cans', 'iems']
   })
 
   // Show more state for progressive disclosure
@@ -225,23 +272,33 @@ function RecommendationsContent() {
   // debouncedBudget used for API calls (300ms delay)
 
   // Update URL directly - URL is single source of truth
-  // Only includes non-default values to keep URLs short
+  // Uses compact param names and comma-separated lists to keep URLs short
   const updateURL = useCallback((updates: Partial<typeof userPrefs>) => {
-    // Merge current prefs with updates to get full state
     const merged = { ...userPrefs, ...updates }
-
-    // Build params, omitting values that match defaults
     const params = new URLSearchParams()
 
-    if (merged.budget !== PREF_DEFAULTS.budget) params.set('budget', merged.budget.toString())
+    // Simple values — omit if default
+    if (merged.budget !== PREF_DEFAULTS.budget) params.set('b', merged.budget.toString())
     if (merged.budgetRangeMin !== PREF_DEFAULTS.budgetRangeMin) params.set('budgetRangeMin', merged.budgetRangeMin.toString())
     if (merged.budgetRangeMax !== PREF_DEFAULTS.budgetRangeMax) params.set('budgetRangeMax', merged.budgetRangeMax.toString())
-    if (merged.headphoneType !== PREF_DEFAULTS.headphoneType) params.set('headphoneType', merged.headphoneType)
-    if (JSON.stringify(merged.wantRecommendationsFor) !== JSON.stringify(PREF_DEFAULTS.wantRecommendationsFor)) params.set('wantRecommendationsFor', JSON.stringify(merged.wantRecommendationsFor))
-    if (JSON.stringify(merged.existingGear) !== JSON.stringify(PREF_DEFAULTS.existingGear)) params.set('existingGear', JSON.stringify(merged.existingGear))
-    if (merged.usage !== PREF_DEFAULTS.usage) params.set('usage', merged.usage)
-    if (JSON.stringify(merged.usageRanking) !== JSON.stringify(PREF_DEFAULTS.usageRanking)) params.set('usageRanking', JSON.stringify(merged.usageRanking))
-    if (JSON.stringify(merged.excludedUsages) !== JSON.stringify(PREF_DEFAULTS.excludedUsages)) params.set('excludedUsages', JSON.stringify(merged.excludedUsages))
+    if (merged.headphoneType !== PREF_DEFAULTS.headphoneType) params.set('type', merged.headphoneType)
+    if (merged.usage !== PREF_DEFAULTS.usage) params.set('use', merged.usage)
+
+    // wantRecommendationsFor → comma-separated truthy keys
+    const wantKeys = Object.entries(merged.wantRecommendationsFor).filter(([, v]) => v).map(([k]) => k)
+    const defaultWantKeys = Object.entries(PREF_DEFAULTS.wantRecommendationsFor).filter(([, v]) => v).map(([k]) => k)
+    if (JSON.stringify(wantKeys) !== JSON.stringify(defaultWantKeys)) params.set('want', wantKeys.join(','))
+
+    // existingGear → comma-separated truthy keys + gearModels for specific models
+    const gearKeys = ['headphones', 'dac', 'amp', 'combo'].filter(k => merged.existingGear[k as keyof typeof merged.existingGear])
+    if (gearKeys.length > 0) params.set('gear', gearKeys.join(','))
+    const models = merged.existingGear.specificModels || { headphones: '', dac: '', amp: '', combo: '' }
+    const modelEntries = Object.entries(models).filter(([, v]) => v).map(([k, v]) => `${k}:${v}`)
+    if (modelEntries.length > 0) params.set('gearModels', modelEntries.join(','))
+
+    // Arrays → comma-separated
+    if (merged.usageRanking.length > 0) params.set('ranked', merged.usageRanking.join(','))
+    if (merged.excludedUsages.length > 0) params.set('exclude', merged.excludedUsages.join(','))
 
     // Preserve non-pref params (source, headphoneTypes, soundSignatures)
     const preserve = ['source', 'headphoneTypes', 'soundSignatures']
