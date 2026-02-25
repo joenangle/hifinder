@@ -331,13 +331,10 @@ async function allocateBudgetAcrossComponents(
     requestedComponents = filteredComponents;
   }
 
-  // Single component gets full budget (respects caps)
+  // Single component gets full budget — no caps needed since the budget
+  // passed in is already the effective remaining amount after selections
   if (requestedComponents.length === 1) {
-    const component = requestedComponents[0];
-    const cap =
-      componentBudgetCaps[component as keyof typeof componentBudgetCaps] ||
-      totalBudget;
-    allocation[component] = Math.min(totalBudget, cap);
+    allocation[requestedComponents[0]] = totalBudget;
     return allocation;
   }
 
