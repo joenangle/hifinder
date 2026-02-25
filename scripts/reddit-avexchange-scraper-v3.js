@@ -12,7 +12,7 @@
 
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
-const { findComponentMatch, isAccessoryOnly, detectMultipleComponents } = require('./component-matcher-enhanced');
+const { findComponentMatch, isAccessoryOnly, detectMultipleComponents, extractSanitizedText } = require('./component-matcher-enhanced');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
 const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
 const fs = require('fs');
@@ -277,6 +277,30 @@ function isSoldPost(postData) {
 }
 
 /**
+ * Check if a price on a text line appears to be an MSRP/retail reference, not an asking price.
+ * @param {string} line - The text line containing the price
+ * @returns {boolean} - true if this appears to be an MSRP/retail price
+ */
+function isMsrpPrice(line) {
+  const msrpPatterns = [
+    /\bMSRP\b/i,
+    /\bretails?\s+(?:for|at|price)?\s*\$?/i,
+    /\boriginally\s+\$?/i,
+    /\boriginal\s+(?:price|cost|msrp)\b/i,
+    /\bbought\s+(?:for|at|it\s+for)\s*\$?/i,
+    /\bpaid\s+\$?/i,
+    /\bnew\s+price\s*[:=]?\s*\$?/i,
+    /\blist\s+price\s*[:=]?\s*\$?/i,
+    /\bwas\s+\$\d/i,
+    /\bworth\s+\$?/i,
+    /\bRRP\b/i,
+    /\b(?:retail|new)\s+(?:is|was|at|for)\s*\$?/i,
+    /\bcost\s+(?:me|was)\s*\$?/i
+  ];
+  return msrpPatterns.some(pattern => pattern.test(line));
+}
+
+/**
  * Extract price from post title and body
  * Searches both title and selftext for price information
  * Consolidated regex pattern fixes $1,200 -> $200 bug from pattern overlap
@@ -287,22 +311,31 @@ function extractPrice(title, selftext = '') {
 }
 
 /**
- * Extract the price associated with a specific component from a multi-item post body.
- * Handles formatted posts like:
- *   * Qudelix 5k - $75 - No box
- *   * Tanchjim Stargate 2 - $25
- *   Sennheiser HD600 $350 shipped
+ * Extract the asking price for a specific component.
  *
- * Falls back to the global extractPrice() if no line-level match is found.
+ * Priority order:
+ * 1. [W] section price in title (THE asking price for the listing)
+ * 2. Explicit asking-price patterns on component body lines ("asking $X", "$X shipped")
+ * 3. Per-component body line prices (excluding MSRP/retail context)
+ * 4. Fallback: title price extraction
  *
- * @param {string} componentName - e.g. "Qudelix 5K"
+ * @param {string} componentName - e.g. "Schiit Yggdrasil"
  * @param {string} title - Post title
  * @param {string} selftext - Post body
  * @param {string} [matchedSegment] - The segment text that matched this component
  * @returns {number|null} - Price or null
  */
 function extractComponentPrice(componentName, title, selftext = '', matchedSegment = '') {
-  if (!selftext) return extractPrice(title, selftext);
+  // Priority 1: [W] section price in title — this IS the asking price
+  const wantPriceMatch = title.match(/\[W\][^\[]*?\$(\d{1,5}(?:,\d{3})*)/i);
+  if (wantPriceMatch) {
+    const wantPrice = parseInt(wantPriceMatch[1].replace(/,/g, ''), 10);
+    if (wantPrice >= 10 && wantPrice <= 10000) {
+      return wantPrice;
+    }
+  }
+
+  if (!selftext) return extractPricesFromText(title);
 
   // Normalize for comparison: lowercase, strip hyphens/extra spaces
   const normalize = (s) => s.toLowerCase().replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -314,6 +347,7 @@ function extractComponentPrice(componentName, title, selftext = '', matchedSegme
   // Split body into lines
   const lines = selftext.split(/\n/);
 
+  // Priority 2 & 3: Search body lines that mention this component
   for (const line of lines) {
     const normalizedLine = normalize(line);
 
@@ -323,14 +357,32 @@ function extractComponentPrice(componentName, title, selftext = '', matchedSegme
       continue; // Not enough tokens matched on this line
     }
 
-    // Found the line — extract price from THIS line only
+    // Skip MSRP/retail price lines — these are NOT the asking price
+    if (isMsrpPrice(line)) {
+      continue;
+    }
+
+    // Priority 2a: Prefer explicit asking-price patterns on this line
+    const askingMatch = line.match(/(?:asking|selling\s+(?:for|at))\s*\$?(\d{1,5}(?:,\d{3})*)/i);
+    if (askingMatch) {
+      const price = parseInt(askingMatch[1].replace(/,/g, ''), 10);
+      if (price >= 10 && price <= 10000) return price;
+    }
+
+    const shippedMatch = line.match(/\$(\d{1,5}(?:,\d{3})*)\s*(?:shipped|obo|firm|or best offer)/i);
+    if (shippedMatch) {
+      const price = parseInt(shippedMatch[1].replace(/,/g, ''), 10);
+      if (price >= 10 && price <= 10000) return price;
+    }
+
+    // Priority 3: Any dollar amount on this (non-MSRP) component line
     const linePrice = extractPricesFromText(line);
     if (linePrice) {
       return linePrice;
     }
   }
 
-  // Fallback: try extracting from the title (for single-item posts or title-priced posts)
+  // Priority 4: Fallback to title price extraction
   return extractPricesFromText(title);
 }
 
@@ -380,10 +432,16 @@ function extractPricesFromText(text) {
   }
 
   // Extract Priority 2: Standard dollar signs
+  // MSRP-context prices get deprioritized to priority 6
   while ((match = dollarPattern.exec(text)) !== null) {
     const price = parseInt(match[1].replace(/,/g, ''), 10);
     if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 2 });
+      // Check surrounding context for MSRP/retail indicators
+      const contextStart = Math.max(0, match.index - 40);
+      const context = text.substring(contextStart, match.index);
+      const isRetailPrice = /\b(?:msrp|retail|originally?|bought\s+for|paid|new\s+price|list\s+price|was|worth|rrp|cost\s+(?:me|was))\s*$/i.test(context);
+
+      allPrices.push({ price, priority: isRetailPrice ? 6 : 2 });
     }
   }
 
@@ -683,6 +741,9 @@ async function scrapeReddit() {
       const images = extractImages(post);
       const soldStatus = isSoldPost(post);
 
+      // Use sanitized body for price extraction to avoid MSRP/wanted-section prices
+      const { sanitizedBody: priceBody } = extractSanitizedText(post.title, post.selftext || '');
+
       console.log(`  📦 Creating ${bundleMatches.length} listing(s) from ${bundleMatches.length > 1 ? 'bundle' : 'single item'}`);
 
       // Create listing for EACH matched component
@@ -690,10 +751,10 @@ async function scrapeReddit() {
       for (let i = 0; i < bundleMatches.length; i++) {
         const match = bundleMatches[i];
 
-        // Extract per-component price from body text (handles multi-item posts with individual prices)
+        // Extract per-component price from sanitized body text (handles multi-item posts with individual prices)
         const componentName = `${match.component.brand} ${match.component.name}`;
         const perComponentPrice = extractComponentPrice(
-          componentName, post.title, post.selftext, match.segment
+          componentName, post.title, priceBody, match.segment
         );
 
         // Calculate price for this component

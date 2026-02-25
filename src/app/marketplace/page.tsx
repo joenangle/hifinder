@@ -103,8 +103,7 @@ function MarketplaceContent() {
       // Component data is now included in the API response (joined server-side)
       let filteredData = data.listings as ListingWithComponent[]
 
-      // Client-side search with normalization for fuzzy model number matching
-      // (e.g., "HD 660" matches "HD660", "DT-990" matches "DT990")
+      // Client-side fuzzy matching for model numbers (e.g., "HD 660" matches "HD660")
       const normalize = (s: string) => s.toLowerCase().replace(/[\s\-]/g, '')
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase()

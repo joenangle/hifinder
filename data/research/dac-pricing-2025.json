@@ -1,0 +1,338 @@
+[
+  {
+    "brand": "Schiit",
+    "name": "Modi+",
+    "price_new": 129,
+    "asr_sinad": 113,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial input; AKM AK4490 chip"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Modi 3E",
+    "price_new": 119,
+    "asr_sinad": 110,
+    "sound_signature": "neutral",
+    "features": "USB input only; E-series (economy)"
+  },
+  {
+    "brand": "JDS Labs",
+    "name": "Atom DAC+",
+    "price_new": 109,
+    "asr_sinad": 114,
+    "sound_signature": "neutral",
+    "features": "USB input; RCA outputs"
+  },
+  {
+    "brand": "Topping",
+    "name": "D10s",
+    "price_new": 119,
+    "asr_sinad": 118,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; ES9038Q2M chip"
+  },
+  {
+    "brand": "Topping",
+    "name": "E30 II",
+    "price_new": 139,
+    "asr_sinad": 120,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; AK4493SEQ chip"
+  },
+  {
+    "brand": "SMSL",
+    "name": "SU-1",
+    "price_new": 89,
+    "asr_sinad": 112,
+    "sound_signature": "neutral",
+    "features": "USB to optical/coaxial converter; DDC functionality"
+  },
+  {
+    "brand": "SMSL",
+    "name": "D-6",
+    "price_new": 189,
+    "asr_sinad": 121,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; ES9039Q2M chip; balanced outputs"
+  },
+  {
+    "brand": "FiiO",
+    "name": "K11",
+    "price_new": 109,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB DAC; CS43131 chip; desktop form factor"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Bifrost 2",
+    "price_new": 749,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "Multibit R2R DAC; USB, optical, coaxial; balanced outputs"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Modius",
+    "price_new": 249,
+    "asr_sinad": 111,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; balanced outputs; AKM chip"
+  },
+  {
+    "brand": "Topping",
+    "name": "D50s",
+    "price_new": 279,
+    "asr_sinad": 121,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; ES9038Q2M; balanced outputs"
+  },
+  {
+    "brand": "Topping",
+    "name": "E50",
+    "price_new": 249,
+    "asr_sinad": 120,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; AK4493SEQ; balanced outputs"
+  },
+  {
+    "brand": "Topping",
+    "name": "E70 Velvet",
+    "price_new": 599,
+    "asr_sinad": 123,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, Bluetooth; ES9028PRO; remote control"
+  },
+  {
+    "brand": "SMSL",
+    "name": "SU-6",
+    "price_new": 279,
+    "asr_sinad": 115,
+    "sound_signature": "neutral",
+    "features": "USB, I2S, optical, coaxial; DDC with multiple outputs"
+  },
+  {
+    "brand": "SMSL",
+    "name": "DO200",
+    "price_new": 339,
+    "asr_sinad": 119,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; ES9039MSPRO; balanced outputs"
+  },
+  {
+    "brand": "SMSL",
+    "name": "DO200 Pro",
+    "price_new": 399,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; dual ES9039MSPRO chips; balanced"
+  },
+  {
+    "brand": "Gustard",
+    "name": "X16",
+    "price_new": 549,
+    "asr_sinad": 120,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, I2S; ES9068AS; balanced outputs"
+  },
+  {
+    "brand": "Gustard",
+    "name": "A18",
+    "price_new": 499,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; AKM AK4499EQ; balanced outputs"
+  },
+  {
+    "brand": "Denafrips",
+    "name": "Ares II",
+    "price_new": 849,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, optical, coaxial; balanced outputs"
+  },
+  {
+    "brand": "FiiO",
+    "name": "K9 Pro ESS",
+    "price_new": 599,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, Bluetooth; ES9038PRO; remote"
+  },
+  {
+    "brand": "Topping",
+    "name": "D90SE",
+    "price_new": 899,
+    "asr_sinad": 123,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, I2S; dual ES9038PRO; balanced"
+  },
+  {
+    "brand": "Topping",
+    "name": "D90 III Sabre",
+    "price_new": 899,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; ES9039MSPRO; latest generation"
+  },
+  {
+    "brand": "RME",
+    "name": "ADI-2 DAC FS",
+    "price_new": 1099,
+    "asr_sinad": 120,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; parametric EQ; remote; display"
+  },
+  {
+    "brand": "SMSL",
+    "name": "VMV D1se",
+    "price_new": 799,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, I2S; ES9038PRO; discrete output"
+  },
+  {
+    "brand": "SMSL",
+    "name": "D400 Pro",
+    "price_new": 619,
+    "asr_sinad": 132,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; dual ES9039MSPRO; XMOS XU316"
+  },
+  {
+    "brand": "Gustard",
+    "name": "X18",
+    "price_new": 849,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, I2S, optical, coaxial; dual ES9068AS; balanced"
+  },
+  {
+    "brand": "Gustard",
+    "name": "X26 Pro",
+    "price_new": 1499,
+    "asr_sinad": 122,
+    "sound_signature": "neutral",
+    "features": "USB, I2S, optical, coaxial; dual ES9038PRO; balanced"
+  },
+  {
+    "brand": "Chord",
+    "name": "Mojo 2",
+    "price_new": 599,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "USB, optical; portable form factor; built-in battery"
+  },
+  {
+    "brand": "iFi",
+    "name": "NEO iDSD",
+    "price_new": 649,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial; Burr-Brown chip; tube mode"
+  },
+  {
+    "brand": "Denafrips",
+    "name": "Pontus II",
+    "price_new": 1799,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, I2S, optical, coaxial; balanced"
+  },
+  {
+    "brand": "Benchmark",
+    "name": "DAC3 B",
+    "price_new": 1899,
+    "asr_sinad": 121,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, AES; ESS Sabre chip; studio grade"
+  },
+  {
+    "brand": "Chord",
+    "name": "Hugo 2",
+    "price_new": 2595,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "USB, optical, coaxial; portable; FPGA-based; battery"
+  },
+  {
+    "brand": "Chord",
+    "name": "Qutest",
+    "price_new": 1795,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "USB, optical, coaxial; desktop version of Hugo tech"
+  },
+  {
+    "brand": "Holo Audio",
+    "name": "Spring 3 KTE",
+    "price_new": 3999,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, I2S, optical, coaxial; balanced"
+  },
+  {
+    "brand": "Holo Audio",
+    "name": "May KTE",
+    "price_new": 5999,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, I2S, optical, coaxial; balanced"
+  },
+  {
+    "brand": "Denafrips",
+    "name": "Terminator II",
+    "price_new": 4999,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, I2S, optical, coaxial; balanced"
+  },
+  {
+    "brand": "Weiss",
+    "name": "DAC502",
+    "price_new": 8500,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB, AES, SPDIF; professional mastering grade"
+  },
+  {
+    "brand": "MSB Technology",
+    "name": "Discrete DAC",
+    "price_new": 9950,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "Modular inputs; discrete ladder DAC; balanced"
+  },
+  {
+    "brand": "Audio-GD",
+    "name": "R2R-11",
+    "price_new": 799,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB, optical, coaxial; balanced"
+  },
+  {
+    "brand": "iFi",
+    "name": "Zen DAC 3",
+    "price_new": 199,
+    "asr_sinad": null,
+    "sound_signature": "neutral",
+    "features": "USB input; Burr-Brown chip; bass boost; desktop"
+  },
+  {
+    "brand": "SMSL",
+    "name": "SU-9",
+    "price_new": 399,
+    "asr_sinad": 121,
+    "sound_signature": "neutral",
+    "features": "USB, optical, coaxial, Bluetooth; ES9038PRO; remote"
+  },
+  {
+    "brand": "Topping",
+    "name": "Centaurus R2R",
+    "price_new": 999,
+    "asr_sinad": null,
+    "sound_signature": "warm",
+    "features": "R2R ladder DAC; USB input; balanced outputs"
+  }
+]

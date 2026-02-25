@@ -61,9 +61,6 @@ function GearContent() {
   const [editStackName, setEditStackName] = useState('')
   const [editStackDescription, setEditStackDescription] = useState('')
   const [editStackPurpose, setEditStackPurpose] = useState<StackPurpose>('general')
-  // TODO: Implement edit stack purpose functionality
-  void editStackPurpose
-  void setEditStackPurpose
 
   // State for stack item detail modal
   const [showStackItemDetail, setShowStackItemDetail] = useState(false)

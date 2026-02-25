@@ -11,7 +11,7 @@
  * - Generates bundle group IDs for linking
  */
 
-const { findComponentMatch } = require('./component-matcher-enhanced');
+const { findComponentMatch, extractSanitizedText } = require('./component-matcher-enhanced');
 
 /**
  * Splits bundle text into individual component segments
@@ -46,7 +46,7 @@ function splitBundleSegments(text) {
 /**
  * Matches each bundle segment to components in database
  *
- * @param {string} title - Reddit post title
+ * @param {string} title - Reddit post title (original, with [H]/[W] markers)
  * @param {string} description - Post body text
  * @param {string} source - Source identifier (e.g., 'reddit_avexchange')
  * @returns {Promise<Array>} - Array of match results with segment info
@@ -54,17 +54,23 @@ function splitBundleSegments(text) {
 async function extractBundleComponents(title, description, source) {
   const segments = splitBundleSegments(title);
 
+  // Pre-sanitize: remove [W]-section and wanted content from body
+  // This prevents matching items the seller wants to BUY/TRADE for
+  const { sanitizedBody } = extractSanitizedText(title, description);
+
   if (segments.length <= 1) {
-    // Not a bundle, use single match
-    const match = await findComponentMatch(title, description, source);
+    // Not a bundle, use single match with sanitized body
+    // Pass original title so position scoring can apply [H]/[W] penalties
+    const match = await findComponentMatch(title, sanitizedBody, source, title);
     return match ? [{ ...match, segment: title }] : [];
   }
 
-  // Match each segment independently
+  // Match each segment independently, with sanitized body and original title
   const matches = [];
 
   for (const segment of segments) {
-    const match = await findComponentMatch(segment, description, source);
+    // KEY FIX: Pass original title as 4th arg so [H]/[W] position scoring works
+    const match = await findComponentMatch(segment, sanitizedBody, source, title);
 
     if (match) {
       matches.push({

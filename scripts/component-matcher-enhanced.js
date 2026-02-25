@@ -371,10 +371,17 @@ function calculatePositionScore(text, brand, name, title) {
 
 /**
  * Enhanced component matching with stricter requirements
+ * @param {string} title - Text to match against (may be a segment in bundle mode)
+ * @param {string} description - Post body text (should be sanitized in bundle mode)
+ * @param {string} source - Source identifier
+ * @param {string} [originalTitle] - Original full post title for [H]/[W] position scoring
  */
-async function findComponentMatch(title, description = '', source = '') {
+async function findComponentMatch(title, description = '', source = '', originalTitle = '') {
   try {
     const text = `${title} ${description}`.toLowerCase();
+
+    // Use original title for position scoring if provided, otherwise fall back to title
+    const titleForScoring = originalTitle || title;
 
     // Filter out accessory-only posts
     if (isAccessoryOnly(text)) {
@@ -388,7 +395,7 @@ async function findComponentMatch(title, description = '', source = '') {
     const candidates = [];
 
     for (const component of components) {
-      const score = calculateMatchScore(text, component, source, title);
+      const score = calculateMatchScore(text, component, source, titleForScoring);
       if (score >= 0.7) { // Raised from 0.3 to 0.7
         candidates.push({
           component,
@@ -777,10 +784,78 @@ function detectMultipleComponents(text) {
   };
 }
 
+/**
+ * Extract sanitized text for matching.
+ * Structurally separates [H] (for-sale) from [W] (wanted) content
+ * to prevent false matches on items the seller is looking for.
+ *
+ * @param {string} title - Original post title (with [H]/[W] markers)
+ * @param {string} body - Post body (selftext)
+ * @returns {{ haveText: string, wantedText: string, sanitizedBody: string }}
+ */
+function extractSanitizedText(title, body) {
+  // 1. Extract [H] and [W] sections from title
+  const haveMatch = title.match(/\[H\]\s*(.+?)\s*\[W\]/i);
+  const wantMatch = title.match(/\[W\]\s*(.+?)$/i);
+
+  const haveText = haveMatch ? haveMatch[1].trim() : title;
+  const wantedText = wantMatch ? wantMatch[1].trim() : '';
+
+  // 2. Extract wanted item tokens to detect in body
+  const paymentMethods = ['paypal', 'venmo', 'zelle', 'cash', 'local', 'shipped', 'trades', 'trade', 'g&s', 'f&f', 'goods'];
+  const wantedTokens = wantedText
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 3 && !paymentMethods.includes(t));
+
+  // 3. Sanitize body text - remove "wanted" sections and [W]-item references
+  const bodyLines = (body || '').split('\n');
+  const sanitizedLines = [];
+  let inWantedSection = false;
+
+  for (const line of bodyLines) {
+    const lineLower = line.toLowerCase().trim();
+
+    // Detect "wanted" section markers in body
+    if (/^(?:looking\s+for|want(?:ed|ing)?[:.]|w:|trading\s+for|interested\s+in|iso|in\s+search\s+of)/i.test(lineLower)) {
+      inWantedSection = true;
+      continue;
+    }
+
+    // Reset wanted section on blank line or "for sale" section header
+    if (lineLower === '' || /^(?:selling|for\s+sale|have|h:|timestamps?|price|condition|shipping)/i.test(lineLower)) {
+      inWantedSection = false;
+    }
+
+    if (inWantedSection) continue;
+
+    // Skip individual lines that are primarily about the [W] item
+    // (e.g., body line "Would love a Thieaudio Valhalla" when Valhalla is in [W])
+    if (wantedTokens.length > 0) {
+      const matchedWantedTokens = wantedTokens.filter(t => lineLower.includes(t));
+      // If most of the wanted tokens appear on this line AND it reads like a want
+      if (matchedWantedTokens.length >= Math.ceil(wantedTokens.length * 0.6) &&
+          /\b(looking|want|prefer|interested|trade|swap|iso)\b/i.test(lineLower)) {
+        continue;
+      }
+    }
+
+    sanitizedLines.push(line);
+  }
+
+  return {
+    haveText,
+    wantedText,
+    sanitizedBody: sanitizedLines.join('\n')
+  };
+}
+
 module.exports = {
   findComponentMatch,
   isAccessoryOnly,
   extractModelNumbers,
   detectMultipleComponents,
-  getComponentsFromCache
+  getComponentsFromCache,
+  extractSanitizedText
 };

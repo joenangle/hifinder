@@ -98,13 +98,30 @@ function extractBrand(title) {
 }
 
 /**
+ * Extract only the [H] (Have) section from Reddit titles
+ * Prevents [W] (Want/Payment) section from contaminating model extraction
+ */
+function extractRedditHaveSection(title) {
+  // Check if this is a Reddit-style title with [H] and [W] tags
+  const haveMatch = title.match(/\[H\]\s*(.+?)\s*\[W\]/i);
+
+  if (haveMatch) {
+    return haveMatch[1].trim();
+  }
+
+  // If no [H]/[W] structure, return full title
+  return title;
+}
+
+/**
  * Extract model name from listing title
  * Removes brand, price, condition, and common listing words
  */
 function extractModel(title, brand) {
   if (!brand) return null;
 
-  let model = title;
+  // Extract only [H] section for Reddit titles FIRST (before removing brackets)
+  let model = extractRedditHaveSection(title);
 
   // Remove Reddit formatting tags FIRST (before removing brackets)
   model = model.replace(/\[WTS\]/gi, '');
@@ -120,15 +137,35 @@ function extractModel(title, brand) {
 
   // Remove common listing words
   const removalPatterns = [
+    // Condition words
     /\b(new|mint|excellent|good|fair|poor|condition|like new|lnib)\b/gi,
     /\b(with|includes|comes with|box|original|accessories)\b/gi,
+
+    // Listing words
     /\b(for sale|fs|wts|wtt|trade|sell|selling)\b/gi,
     /\b(price drop|reduced|obo|or best offer)\b/gi,
-    /\b(paypal|pp|venmo|zelle|cashapp|cash app|wire|wire transfer|bank transfer|local cash|cash only|money order)\b/gi, // Payment methods
-    /\b(g&s|gs|f&f|ff|friends and family|goods and services)\b/gi, // PayPal types
+
+    // Payment methods
+    /\b(paypal|pp|venmo|zelle|cashapp|cash app|wire|wire transfer|bank transfer|local cash|cash only|money order)\b/gi,
+    /\b(g&s|g&amp;s|g and s|goods and services)\b/gi,
+    /\b(f&f|f&amp;f|friends and family)\b/gi,
+
+    // Shipping terms
+    /\b(shipped|shipping|usps|ups|fedex|priority)\b/gi,
+    /\b(conus|international|local pickup|local only)\b/gi,
+
+    // Reddit structure tags (prevents "US-CA H" in model)
+    /\[(?:WTS|WTB|WTT|USA?|US|H|W)\]/gi,
+    /\b(USA?-[A-Z]{2})\b/gi, // US-CA, USA-TX, etc.
+
+    // Prices and scores
     /\$\d+/g, // Remove prices
     /\d+\/\d+/g, // Remove trade scores
-    /[\[\](){}]/g, // Remove remaining brackets
+
+    // Brackets (after Reddit structure extraction)
+    /[\[\](){}]/g, // Remove brackets
+
+    // Cleanup
     /\s+-\s+/g, // Remove dashes with spaces
     /\s+/g // Normalize whitespace
   ];
@@ -146,6 +183,40 @@ function extractModel(title, brand) {
   }
 
   return model;
+}
+
+/**
+ * Detect if title contains multiple components
+ * If bundle, skip candidate extraction (too ambiguous)
+ */
+function isBundleListing(title) {
+  // Extract [H] section only
+  const haveSection = extractRedditHaveSection(title);
+  const haveLower = haveSection.toLowerCase();
+
+  // Common separators for multiple items
+  const separators = [',', ' + ', ' and ', ' & ', ' / ', ' with '];
+  const hasSeparator = separators.some(sep => haveLower.includes(sep));
+
+  if (!hasSeparator) return false;
+
+  // Count potential brands mentioned
+  let brandCount = 0;
+  for (const brand of KNOWN_BRANDS) {
+    if (haveLower.includes(brand.toLowerCase())) {
+      brandCount++;
+    }
+  }
+
+  // If 2+ brands, definitely bundle
+  if (brandCount >= 2) return true;
+
+  // If has separator + model number pattern, likely bundle
+  if (hasSeparator && /\b[A-Z]{2,4}\d{2,4}\b/i.test(haveSection)) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -359,6 +430,12 @@ async function extractComponentCandidate(listing) {
 
     console.log(`🔍 Extracting candidate from: "${title}"`);
 
+    // Skip bundle listings (too ambiguous)
+    if (isBundleListing(title)) {
+      console.log(`  ⏭️  Skipped: Bundle listing detected`);
+      return null;
+    }
+
     // Extract brand and model
     const brand = extractBrand(title);
     const model = brand ? extractModel(title, brand) : null;
@@ -391,5 +468,8 @@ module.exports = {
   isAccessory,
   calculateQualityScore,
   checkExistingComponent,
-  checkExistingCandidate
+  checkExistingCandidate,
+  // New functions for improved extraction
+  extractRedditHaveSection,
+  isBundleListing
 };
