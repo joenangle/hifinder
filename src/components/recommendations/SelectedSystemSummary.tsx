@@ -5,6 +5,7 @@ import { memo } from 'react'
 interface AudioComponent {
   id: string
   name: string
+  brand?: string
   category?: string
   price_used_min?: number | null
   price_used_max?: number | null
@@ -82,7 +83,7 @@ const SelectedSystemSummaryComponent = ({
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
             <div className="w-2 h-2 bg-accent-primary rounded-full flex-shrink-0"></div>
             <div className="min-w-0">
-              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
+              <p className="font-medium text-sm text-text-primary truncate">{item.brand ? `${item.brand} ${item.name}` : item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
             <RemoveButton onClick={() => onRemoveItem(item.id, getHeadphoneCategory(item))} />
@@ -92,7 +93,7 @@ const SelectedSystemSummaryComponent = ({
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
             <div className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full flex-shrink-0"></div>
             <div className="min-w-0">
-              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
+              <p className="font-medium text-sm text-text-primary truncate">{item.brand ? `${item.brand} ${item.name}` : item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
             <RemoveButton onClick={() => onRemoveItem(item.id, 'dacs')} />
@@ -102,7 +103,7 @@ const SelectedSystemSummaryComponent = ({
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
             <div className="w-2 h-2 bg-amber-500 dark:bg-amber-400 rounded-full flex-shrink-0"></div>
             <div className="min-w-0">
-              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
+              <p className="font-medium text-sm text-text-primary truncate">{item.brand ? `${item.brand} ${item.name}` : item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
             <RemoveButton onClick={() => onRemoveItem(item.id, 'amps')} />
@@ -112,7 +113,7 @@ const SelectedSystemSummaryComponent = ({
           <div key={item.id} className="flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
             <div className="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full flex-shrink-0"></div>
             <div className="min-w-0">
-              <p className="font-medium text-sm text-text-primary truncate">{item.name}</p>
+              <p className="font-medium text-sm text-text-primary truncate">{item.brand ? `${item.brand} ${item.name}` : item.name}</p>
               <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>{formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}</p>
             </div>
             <RemoveButton onClick={() => onRemoveItem(item.id, 'combos')} />

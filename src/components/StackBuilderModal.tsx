@@ -384,8 +384,8 @@ export function StackBuilderModal({
                       {getCategoryIcon(component.category)}
                     </span>
                     <div>
-                      <p className="font-medium text-primary">{component.name}</p>
-                      <p className="text-sm text-secondary">{component.brand} • {component.category}</p>
+                      <p className="font-medium text-primary">{component.brand} {component.name}</p>
+                      <p className="text-sm text-secondary">{component.category === 'dac_amp' ? 'DAC/Amp' : component.category}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
