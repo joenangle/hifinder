@@ -83,7 +83,7 @@ const SignalGearCardComponent = ({
         aria-pressed={isSelected}
         tabIndex={0}
         title={isSelected ? 'Click to remove from your system' : 'Click to add to your system'}
-        className={`group relative rounded-xl border transition-all duration-200 cursor-pointer px-4 py-3 active:scale-[0.98] ${
+        className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
           isSelected
             ? SELECTED_STYLE[type]
             : `border-border-default bg-surface-card ${HOVER_STYLE[type]}`

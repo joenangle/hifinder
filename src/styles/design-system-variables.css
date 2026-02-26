@@ -645,6 +645,47 @@ input[type="range"]::-moz-range-thumb:active {
   border-radius: var(--radius-sm);
 }
 
+/* Skeleton shape variants */
+.skeleton-text {
+  composes: skeleton;
+  height: 0.875rem;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-text-sm {
+  composes: skeleton;
+  height: 0.625rem;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-heading {
+  composes: skeleton;
+  height: 1.25rem;
+  width: 60%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-card {
+  composes: skeleton;
+  height: 10rem;
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-avatar {
+  composes: skeleton;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-pill {
+  composes: skeleton;
+  height: 1.5rem;
+  width: 4rem;
+  border-radius: 9999px;
+}
+
 @keyframes skeleton-loading {
   0% {
     background-position: 200% 0;
@@ -652,6 +693,47 @@ input[type="range"]::-moz-range-thumb:active {
   100% {
     background-position: -200% 0;
   }
+}
+
+/* ============================================
+   INTERACTIVE CARD TRANSITIONS
+   ============================================ */
+
+/* Spring easing for selection state changes (border, bg, shadow) */
+.card-interactive {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-interactive:hover {
+  transform: scale(1.01);
+}
+
+.card-interactive:active {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* Scaffold slot fill animation */
+@keyframes slot-fill {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slot-fill {
+  animation: slot-fill 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* ============================================

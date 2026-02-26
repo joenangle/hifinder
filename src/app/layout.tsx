@@ -75,8 +75,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preload critical resources — only on desktop where hero image is visible */}
-        <link rel="preload" href="/images/hero-headphones.webp" as="image" type="image/webp" media="(min-width: 1024px)" />
+        {/* Preconnect to external font services */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
