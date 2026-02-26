@@ -4,8 +4,13 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight, ExternalLink, MapPin, Clock } from 'lucide-react'
 import { Modal } from './Modal'
-import { PriceHistoryChart } from './PriceHistoryChart'
+import dynamic from 'next/dynamic'
 import type { Component, UsedListing } from '@/types'
+
+const PriceHistoryChart = dynamic(
+  () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
+  { ssr: false }
+)
 
 interface UsedListingsModalProps {
   isOpen: boolean

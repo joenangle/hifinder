@@ -22,8 +22,11 @@ export async function GET(request: NextRequest) {
     let query = supabaseServer
       .from('used_listings')
       .select(`
-        *,
-        component:components(*)
+        id, component_id, title, price, condition, date_posted, date_sold,
+        source, url, status, location, seller_username, seller_confirmed_trades,
+        is_bundle, component_count, shipping_cost, accepts_offers, sale_price,
+        price_warning,
+        component:components(id, brand, name, category, price_new, price_used_min, price_used_max)
       `, { count: 'exact' })
       .eq('status', 'available') // Filter out sold, expired, and removed listings
       // Filter out sample/demo listings in SQL (performance optimization)

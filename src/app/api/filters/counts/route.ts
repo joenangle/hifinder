@@ -77,7 +77,9 @@ export async function GET(request: NextRequest) {
     const cached = cache.get(cacheKey)
 
     if (cached && cached.expires > Date.now()) {
-      return NextResponse.json(cached.data)
+      return NextResponse.json(cached.data, {
+        headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=1200' }
+      })
     }
 
     // Calculate budget allocation
@@ -287,7 +289,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(result)
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=1200' }
+    })
 
   } catch (error) {
     console.error('Error fetching filter counts:', error)

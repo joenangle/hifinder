@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { debounce } from 'lodash'
+import { debounce } from '@/lib/debounce'
 
 interface BudgetStateOptions {
   initialBudget: number

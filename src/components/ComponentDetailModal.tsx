@@ -4,8 +4,13 @@ import { Component } from '@/types'
 import { X, Volume2, Cpu, Zap, TrendingUp } from 'lucide-react'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
-import { PriceHistoryChart } from './PriceHistoryChart'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const PriceHistoryChart = dynamic(
+  () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
+  { ssr: false }
+)
 import { useEffect, useRef, useCallback } from 'react'
 
 interface ComponentDetailModalProps {
