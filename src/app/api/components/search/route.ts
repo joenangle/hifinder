@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Search failed' }, { status: 500 })
     }
 
-    return NextResponse.json(data || [])
+    return NextResponse.json(data || [], {
+      headers: { 'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200' }
+    })
   } catch (error) {
     console.error('Error searching components:', error)
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 
@@ -223,4 +223,4 @@ const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
   )
 }
 
-export const SignalGearCard = SignalGearCardComponent
+export const SignalGearCard = memo(SignalGearCardComponent)

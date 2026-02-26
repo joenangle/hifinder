@@ -868,8 +868,8 @@ function RecommendationsContent() {
       : "Finding excellent options that balance performance and value for your setup."
   }
 
-  // Amplification detection
-  const getAmplificationNeeds = () => {
+  // Amplification detection (memoized to avoid re-filtering on every render)
+  const amplificationNeeds = useMemo(() => {
     const selectedHeadphonesThatNeedAmp = selectedHeadphoneItems.filter(hp => hp.needs_amp)
     const recommendedHeadphonesThatNeedAmp = [...cans, ...iems].filter(hp => hp.needs_amp)
 
@@ -879,9 +879,7 @@ function RecommendationsContent() {
       hasAmplification: wantRecommendationsFor.amp || wantRecommendationsFor.combo,
       shouldShowWarning: (selectedHeadphonesThatNeedAmp.length > 0 || recommendedHeadphonesThatNeedAmp.length > 0) && !wantRecommendationsFor.amp && !wantRecommendationsFor.combo
     }
-  }
-
-  const amplificationNeeds = getAmplificationNeeds()
+  }, [selectedHeadphoneItems, cans, iems, wantRecommendationsFor.amp, wantRecommendationsFor.combo])
 
   // Filter handlers
   const handleTypeFilterChange = useCallback((filter: 'cans' | 'iems') => {

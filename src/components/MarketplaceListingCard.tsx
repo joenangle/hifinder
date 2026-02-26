@@ -200,10 +200,10 @@ export function MarketplaceListingCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
-                aria-label="View listing"
+                aria-label={`View listing for ${listing.title} (opens in new tab)`}
               >
                 <span className="hidden sm:inline">View</span>
-                <ExternalLink className="w-4 h-4 sm:w-3 sm:h-3" />
+                <ExternalLink className="w-4 h-4 sm:w-3 sm:h-3" aria-hidden="true" />
               </a>
             )}
           </div>
@@ -348,9 +348,10 @@ export function MarketplaceListingCard({
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2.5 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm min-h-[44px]"
+              aria-label={`View listing for ${listing.title} (opens in new tab)`}
             >
               <span>View Listing</span>
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-4 h-4" aria-hidden="true" />
             </a>
           )}
           {onViewDetails && (

@@ -124,7 +124,7 @@
   --browse-mode-title-active: #7c2d12; /* Active title text (dark orange) */
 
   --browse-mode-description: #6c757d; /* Description text (secondary) */
-  --browse-mode-bestfor: #9ca3af; /* "Best for:" text (tertiary) */
+  --browse-mode-bestfor: #6b7280; /* "Best for:" text (tertiary) — improved contrast */
 }
 
 /* ============================================
@@ -240,7 +240,7 @@
   --browse-mode-title-active: #fed7aa; /* Lighter active title */
 
   --browse-mode-description: #adb5bd; /* Lighter description text */
-  --browse-mode-bestfor: #6c757d; /* Slightly darker tertiary text */
+  --browse-mode-bestfor: #9ca3af; /* Lighter tertiary text — improved contrast on dark bg */
 }
 
 /* ============================================

@@ -156,6 +156,7 @@ export function UsedListingsModal({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-hover transition-colors group"
+                    aria-label={`${listing.title} listing (opens in new tab)`}
                   >
                     {/* Price */}
                     <div className="w-16 flex-shrink-0 text-right">

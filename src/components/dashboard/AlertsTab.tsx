@@ -448,9 +448,10 @@ export function AlertsTab() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="button button-secondary flex items-center gap-2"
+                        aria-label="View listing (opens in new tab)"
                       >
                         View Listing
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3 h-3" aria-hidden="true" />
                       </a>
                     </div>
                   </div>

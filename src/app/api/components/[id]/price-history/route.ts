@@ -73,6 +73,8 @@ export async function GET(
         source: s.source,
         url: s.url
       }))
+    }, {
+      headers: { 'Cache-Control': 'public, max-age=86400, stale-while-revalidate=172800' }
     })
 
   } catch (error) {
