@@ -17,6 +17,7 @@ import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { X } from 'lucide-react'
+import { BatchPriceHistoryProvider } from '@/components/BatchPriceHistoryProvider'
 
 // Lazy load components only shown on user interaction for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -1044,6 +1045,7 @@ function RecommendationsContent() {
 
 
   return (
+    <BatchPriceHistoryProvider>
     <>
       <div style={{ background: 'var(--background-primary)' }}>
 
@@ -1782,6 +1784,7 @@ function RecommendationsContent() {
           )}
         </div>
     </>
+    </BatchPriceHistoryProvider>
   )
 }
 

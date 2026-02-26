@@ -1,24 +1,24 @@
 'use client'
 
 import { useState, useEffect, memo } from 'react'
+import { useBatchPriceHistory } from '@/hooks/useBatchPriceHistory'
 
 interface PriceStats {
   count: number
   median: number
 }
 
-// Simple in-memory cache shared across all PriceHistoryBadge instances
-// Prevents duplicate fetches when the same component appears in multiple views
+// ── Individual-fetch fallback (kept for components rendered outside the
+//    BatchPriceHistoryProvider, e.g. MarketplaceListingCard) ─────────────
+
 const priceCache = new Map<string, PriceStats | null>()
 const pendingRequests = new Map<string, Promise<PriceStats | null>>()
 
 function fetchPriceStats(componentId: string): Promise<PriceStats | null> {
-  // Return cached result immediately
   if (priceCache.has(componentId)) {
     return Promise.resolve(priceCache.get(componentId)!)
   }
 
-  // Deduplicate in-flight requests
   if (pendingRequests.has(componentId)) {
     return pendingRequests.get(componentId)!
   }
@@ -42,25 +42,49 @@ function fetchPriceStats(componentId: string): Promise<PriceStats | null> {
   return request
 }
 
+// ── Badge component ────────────────────────────────────────────────────────
+
 const PriceHistoryBadgeComponent = ({ componentId }: { componentId: string }) => {
-  const [priceStats, setPriceStats] = useState<PriceStats | null>(() => {
-    // Initialize from cache synchronously if available
+  const { data: batchData, isBatched } = useBatchPriceHistory(componentId)
+
+  // Fallback state for individual fetching (only used when NOT inside a provider)
+  const [fallbackStats, setFallbackStats] = useState<PriceStats | null>(() => {
     return priceCache.get(componentId) ?? null
   })
 
   useEffect(() => {
+    // If we're inside the batch provider, skip individual fetching
+    if (isBatched) return
+
     let cancelled = false
     fetchPriceStats(componentId).then(stats => {
-      if (!cancelled) setPriceStats(stats)
+      if (!cancelled) setFallbackStats(stats)
     })
     return () => { cancelled = true }
-  }, [componentId])
+  }, [componentId, isBatched])
 
-  if (!priceStats) return null
+  // Determine which data source to use
+  let stats: PriceStats | null = null
+
+  if (isBatched) {
+    // Using batch provider
+    if (batchData === undefined) {
+      // Still loading
+      return null
+    }
+    stats = batchData
+      ? { count: batchData.count, median: batchData.median }
+      : null
+  } else {
+    // Fallback: individual fetch
+    stats = fallbackStats
+  }
+
+  if (!stats) return null
 
   return (
     <div className="text-[10px] text-text-tertiary mt-0.5 tabular-nums">
-      {priceStats.count} sales · med. ${Math.round(priceStats.median)}
+      {stats.count} sales &middot; med. ${Math.round(stats.median)}
     </div>
   )
 }
