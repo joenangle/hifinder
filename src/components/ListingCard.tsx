@@ -65,13 +65,13 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
           <h4 className="font-semibold text-primary mb-2">{listing.title}</h4>
           
           <div className="flex flex-wrap gap-3 mb-3 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-text-secondary">
               📍 {listing.location}
             </span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-text-secondary">
               🕒 {timeAgo(listing.date_posted)}
             </span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-text-secondary">
               📱 {getSourceDisplay(listing.source)}
             </span>
             <span className={getConditionColor(listing.condition)}>
@@ -81,7 +81,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
 
           {/* Seller Trust Indicators */}
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-text-secondary">
               👤 u/{listing.seller_username}
             </span>
             {listing.seller_confirmed_trades && listing.seller_confirmed_trades > 0 && (
@@ -111,7 +111,7 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
           <div className={`text-sm font-medium ${
             priceVariance < -10 ? 'text-green-600 dark:text-green-400' :
             priceVariance > 10 ? 'text-red-600 dark:text-red-400' :
-            'text-gray-600 dark:text-gray-400'
+            'text-text-secondary'
           }`}>
             {priceVariance < -10 ? '💰 ' : priceVariance > 10 ? '⚠️ ' : ''}
             {priceVariance < 0 ? 
@@ -125,11 +125,12 @@ export function ListingCard({ listing, expectedPrice }: ListingCardProps) {
               Demo Listing
             </div>
           ) : (
-            <a 
+            <a
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
               className="button button-primary mt-2"
+              aria-label="View listing (opens in new tab)"
             >
               View Listing →
             </a>

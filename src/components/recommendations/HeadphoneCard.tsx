@@ -88,17 +88,17 @@ const HeadphoneCardComponent = ({
         {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
           <div className="flex gap-1 mb-1.5">
             {isTechnicalChamp && (
-              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500 text-white dark:bg-amber-600 dark:text-white">
                 Top Tech
               </span>
             )}
             {isToneChamp && (
-              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-sky-500 text-white dark:bg-sky-600 dark:text-white">
                 Best Match
               </span>
             )}
             {isBudgetChamp && !isTechnicalChamp && (
-              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-emerald-500 text-white dark:bg-emerald-600 dark:text-white">
                 Best Value
               </span>
             )}
@@ -121,6 +121,7 @@ const HeadphoneCardComponent = ({
                 onClick={(e) => e.stopPropagation()}
                 className="flex-shrink-0 text-text-tertiary hover:text-accent-primary transition-colors"
                 title="Manufacturer page"
+                aria-label={`${headphone.brand} ${headphone.name} manufacturer page (opens in new tab)`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

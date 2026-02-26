@@ -34,6 +34,9 @@ const ComparisonModal = dynamic(() => import('@/components/ComparisonModal').the
 const UsedListingsSection = dynamic(() => import('@/components/UsedListingsSection').then(mod => ({ default: mod.UsedListingsSection })), {
   ssr: false
 })
+const OwnedGearModal = dynamic(() => import('@/components/recommendations/OwnedGearModal').then(mod => ({ default: mod.OwnedGearModal })), {
+  ssr: false
+})
 
 // No longer need mapping functions - browseMode is used directly in API
 
@@ -101,6 +104,10 @@ function RecommendationsContent() {
 
   // Stack builder state
   const [showStackBuilder, setShowStackBuilder] = useState(false)
+
+  // Owned gear state — gear the user already has (excluded from budget)
+  const [ownedGear, setOwnedGear] = useState<Map<string, AudioComponent>>(new Map())
+  const [showOwnedGearModal, setShowOwnedGearModal] = useState(false)
 
   // Preferences modal state
   const [showPreferencesModal, setShowPreferencesModal] = useState(false)
@@ -701,6 +708,31 @@ function RecommendationsContent() {
     }
   }, [])
 
+  // Owned gear handlers
+  const addOwnedGear = useCallback((component: AudioComponent) => {
+    setOwnedGear(prev => {
+      const next = new Map(prev)
+      next.set(component.id, component)
+      return next
+    })
+  }, [])
+
+  const removeOwnedGear = useCallback((id: string) => {
+    setOwnedGear(prev => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+  }, [])
+
+  // Derive owned items by category
+  const ownedItems = useMemo(() => Array.from(ownedGear.values()), [ownedGear])
+  const ownedIds = useMemo(() => new Set(ownedGear.keys()), [ownedGear])
+  const ownedHeadphones = useMemo(() => ownedItems.filter(i => i.category === 'cans' || i.category === 'iems'), [ownedItems])
+  const ownedDacs = useMemo(() => ownedItems.filter(i => i.category === 'dac'), [ownedItems])
+  const ownedAmps = useMemo(() => ownedItems.filter(i => i.category === 'amp'), [ownedItems])
+  const ownedCombos = useMemo(() => ownedItems.filter(i => i.category === 'dac_amp'), [ownedItems])
+
   // Derive selected items from Maps (memoized - survives API re-fetches)
   const selectedHeadphoneItems = useMemo(() => [
     ...Array.from(selectedCans.values()),
@@ -731,7 +763,19 @@ function RecommendationsContent() {
   }, [selectedHeadphoneItems, selectedDacItems, selectedAmpItems, selectedDacAmpItems])
 
   // Memoize remaining budget info (used for display in SelectedSystemSummary)
-  const hasAnySelections = useMemo(() => totalSelectedPrice > 0, [totalSelectedPrice])
+  const hasAnySelections = useMemo(() => totalSelectedPrice > 0 || ownedItems.length > 0, [totalSelectedPrice, ownedItems])
+
+  // A stack is "complete" when headphones are paired with signal processing
+  // Includes both selected recommendations AND owned gear
+  const isStackComplete = useMemo(() => {
+    const hasHeadphones = selectedHeadphoneItems.length > 0 || ownedHeadphones.length > 0
+    const hasCombo = selectedDacAmpItems.length > 0 || ownedCombos.length > 0
+    const hasDac = selectedDacItems.length > 0 || ownedDacs.length > 0
+    const hasAmp = selectedAmpItems.length > 0 || ownedAmps.length > 0
+    // Headphones + combo = complete (combo provides both DAC and amp)
+    // Headphones + DAC + amp = complete (separate components)
+    return hasHeadphones && (hasCombo || (hasDac && hasAmp))
+  }, [selectedHeadphoneItems, selectedDacAmpItems, selectedDacItems, selectedAmpItems, ownedHeadphones, ownedCombos, ownedDacs, ownedAmps])
 
   // API handles intelligent budget reallocation — no client-side filtering needed
   const filteredCans = cans
@@ -1080,9 +1124,17 @@ function RecommendationsContent() {
           selectedDacs={selectedDacItems}
           selectedAmps={selectedAmpItems}
           selectedCombos={selectedDacAmpItems}
+          ownedHeadphones={ownedHeadphones}
+          ownedDacs={ownedDacs}
+          ownedAmps={ownedAmps}
+          ownedCombos={ownedCombos}
           budget={budget}
           remainingBudget={userPrefs.budget - totalSelectedPrice}
+          isStackComplete={isStackComplete}
           onBuildStack={() => setShowStackBuilder(true)}
+          onShowMarketplace={() => setShowMarketplace(true)}
+          onAddOwnedGear={() => setShowOwnedGearModal(true)}
+          onRemoveOwnedGear={removeOwnedGear}
           onRemoveItem={removeFromSelection}
           onClearAll={() => {
             setSelectedCans(new Map())
@@ -1090,6 +1142,7 @@ function RecommendationsContent() {
             setSelectedDacs(new Map())
             setSelectedAmps(new Map())
             setSelectedDacAmps(new Map())
+            setOwnedGear(new Map())
           }}
         />
 
@@ -1142,8 +1195,8 @@ function RecommendationsContent() {
                 </div>
               )}
 
-              {/* Empty state when no categories have results */}
-              {activeTypes === 0 && hasLoadedOnce && !loading && (
+              {/* Empty state when no categories have results — but not if the user already has a complete stack */}
+              {activeTypes === 0 && hasLoadedOnce && !loading && !isStackComplete && (
                 <div className="card p-12 text-center max-w-lg mx-auto">
                   <div className="text-4xl mb-4">🔍</div>
                   <h3 className="heading-3 mb-2">No results match your filters</h3>
@@ -1275,8 +1328,8 @@ function RecommendationsContent() {
 
             return (
               <SignalGearWrapper {...wrapperProps}>
-                {/* DACs Section */}
-                  {wantRecommendationsFor.dac && (
+                {/* DACs Section — hide empty fallback when stack is already complete */}
+                  {wantRecommendationsFor.dac && (!isStackComplete || filteredDacs.length > 0) && (
                     <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(45 212 191)' }}>
                       {filteredDacs.length > 0 ? (
                         <>
@@ -1329,7 +1382,7 @@ function RecommendationsContent() {
                 )}
 
           {/* Amps Section */}
-          {wantRecommendationsFor.amp && (
+          {wantRecommendationsFor.amp && (!isStackComplete || filteredAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
                 {filteredAmps.length > 0 ? (
                   <>
@@ -1381,8 +1434,8 @@ function RecommendationsContent() {
             </div>
           )}
 
-          {/* Combo Units Section */}
-          {wantRecommendationsFor.combo && (
+          {/* Combo Units Section — hide empty fallback when stack is already complete */}
+          {wantRecommendationsFor.combo && (!isStackComplete || filteredDacAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(96 165 250)' }}>
                 {filteredDacAmps.length > 0 ? (
                   <>
@@ -1694,6 +1747,14 @@ function RecommendationsContent() {
           // Save handled inside StackBuilderModal with auth check
           setShowStackBuilder(false)
         }}
+      />
+
+      {/* Owned Gear Search Modal */}
+      <OwnedGearModal
+        isOpen={showOwnedGearModal}
+        onClose={() => setShowOwnedGearModal(false)}
+        onAddOwnedGear={(component) => addOwnedGear(component as AudioComponent)}
+        ownedIds={ownedIds}
       />
 
       {/* Comparison Bar - Shows when items are selected */}

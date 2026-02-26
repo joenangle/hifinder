@@ -198,7 +198,7 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
                     key={i}
-                    className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}
+                    className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'}
                   >
                     ★
                   </span>

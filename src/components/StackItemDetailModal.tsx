@@ -16,13 +16,13 @@ const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
 
 function SoundSignaturePill({ signature }: { signature: string }) {
   const colors: Record<string, string> = {
-    warm: 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
-    neutral: 'bg-gray-500/15 text-gray-600 dark:text-gray-400',
-    bright: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400',
-    fun: 'bg-pink-500/15 text-pink-600 dark:text-pink-400',
+    warm: 'bg-orange-500/15 text-orange-700 dark:text-orange-400',
+    neutral: 'bg-gray-500/15 text-gray-700 dark:text-gray-300',
+    bright: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-400',
+    fun: 'bg-pink-500/15 text-pink-700 dark:text-pink-400',
   }
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${colors[signature] || 'bg-gray-500/15 text-gray-500'}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${colors[signature] || 'bg-gray-500/15 text-gray-700 dark:text-gray-300'}`}>
       {signature}
     </span>
   )
@@ -37,7 +37,7 @@ function AmpDifficultyBadge({ difficulty }: { difficulty: string }) {
   }
   const label = difficulty.replace('_', ' ')
   return (
-    <span className={`capitalize font-medium ${colors[difficulty] || 'text-gray-500'}`}>
+    <span className={`capitalize font-medium ${colors[difficulty] || 'text-gray-700 dark:text-gray-300'}`}>
       {label}
     </span>
   )

@@ -23,31 +23,41 @@ export function AmplificationIndicator({
 
   const configs = {
     easy: {
-      color: 'green',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+      border: 'border-emerald-200 dark:border-emerald-800',
+      text: 'text-emerald-800 dark:text-emerald-200',
       label: 'Easy to Drive',
       icon: '🎧',
       description: 'Works from any source'
     },
     moderate: {
-      color: 'yellow', 
+      bg: 'bg-amber-50 dark:bg-amber-950/40',
+      border: 'border-amber-200 dark:border-amber-800',
+      text: 'text-amber-800 dark:text-amber-200',
       label: 'Amp Beneficial',
       icon: '🔋',
       description: 'Benefits from amplification'
     },
     demanding: {
-      color: 'orange',
-      label: 'Amp Required', 
+      bg: 'bg-orange-50 dark:bg-orange-950/40',
+      border: 'border-orange-200 dark:border-orange-800',
+      text: 'text-orange-800 dark:text-orange-200',
+      label: 'Amp Required',
       icon: '⚡',
       description: 'Requires dedicated amplification'
     },
     very_demanding: {
-      color: 'red',
+      bg: 'bg-red-50 dark:bg-red-950/40',
+      border: 'border-red-200 dark:border-red-800',
+      text: 'text-red-800 dark:text-red-200',
       label: 'Powerful Amp Required',
       icon: '⚡⚡',
       description: 'Needs high-quality desktop amplification'
     },
     unknown: {
-      color: 'gray',
+      bg: 'bg-gray-50 dark:bg-gray-900/40',
+      border: 'border-gray-200 dark:border-gray-700',
+      text: 'text-gray-700 dark:text-gray-300',
       label: 'Unknown Requirement',
       icon: '❓',
       description: 'Amplification need cannot be determined'
@@ -62,12 +72,7 @@ export function AmplificationIndicator({
   }
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${className}`}
-         style={{
-           backgroundColor: `var(--${config.color}-50, color-mix(in srgb, var(--accent-primary) 8%, transparent))`,
-           borderColor: `var(--${config.color}-200, var(--accent-primary))`,
-           color: `var(--${config.color}-800, var(--text-primary))`
-         }}>
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${config.bg} ${config.border} ${config.text} ${className}`}>
       
       {/* Icon */}
       <span className="text-lg" role="img" aria-label={config.label}>
@@ -119,11 +124,11 @@ export function AmplificationBadge({
   if (!difficulty) return null;
 
   const configs = {
-    easy: { color: 'green', icon: '🎧', short: 'Easy' },
-    moderate: { color: 'yellow', icon: '🔋', short: 'Moderate' },
-    demanding: { color: 'orange', icon: '⚡', short: 'Demanding' },
-    very_demanding: { color: 'red', icon: '⚡⚡', short: 'Very Hard' },
-    unknown: { color: 'gray', icon: '❓', short: 'Unknown' }
+    easy: { bg: 'bg-emerald-50 dark:bg-emerald-950/40', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-800 dark:text-emerald-200', icon: '🎧', short: 'Easy' },
+    moderate: { bg: 'bg-amber-50 dark:bg-amber-950/40', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-800 dark:text-amber-200', icon: '🔋', short: 'Moderate' },
+    demanding: { bg: 'bg-orange-50 dark:bg-orange-950/40', border: 'border-orange-200 dark:border-orange-800', text: 'text-orange-800 dark:text-orange-200', icon: '⚡', short: 'Demanding' },
+    very_demanding: { bg: 'bg-red-50 dark:bg-red-950/40', border: 'border-red-200 dark:border-red-800', text: 'text-red-800 dark:text-red-200', icon: '⚡⚡', short: 'Very Hard' },
+    unknown: { bg: 'bg-gray-50 dark:bg-gray-900/40', border: 'border-gray-200 dark:border-gray-700', text: 'text-gray-700 dark:text-gray-300', icon: '❓', short: 'Unknown' }
   };
 
   const config = configs[difficulty];
@@ -134,13 +139,8 @@ export function AmplificationBadge({
   }
 
   return (
-    <div 
-      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium border ${className}`}
-      style={{
-        backgroundColor: `var(--${config.color}-50, color-mix(in srgb, var(--accent-primary) 8%, transparent))`,
-        borderColor: `var(--${config.color}-200, var(--accent-primary))`,
-        color: `var(--${config.color}-800, var(--text-primary))`
-      }}
+    <div
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium border ${config.bg} ${config.border} ${config.text} ${className}`}
       title={powerRequired && voltageRequired ? 
         `${powerRequired.toFixed(1)}mW, ${voltageRequired.toFixed(2)}V required` : 
         undefined
@@ -203,25 +203,25 @@ export function AmplificationAssessment({
           <h4 className="text-sm font-medium text-text-primary">Source Compatibility</h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {phoneCompatible !== undefined && (
-              <div className={`flex items-center gap-2 ${phoneCompatible ? 'text-green-700' : 'text-red-700'}`}>
+              <div className={`flex items-center gap-2 ${phoneCompatible ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
                 <span>{phoneCompatible ? '✅' : '❌'}</span>
                 <span>Phone/Mobile</span>
               </div>
             )}
             {laptopCompatible !== undefined && (
-              <div className={`flex items-center gap-2 ${laptopCompatible ? 'text-green-700' : 'text-red-700'}`}>
+              <div className={`flex items-center gap-2 ${laptopCompatible ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
                 <span>{laptopCompatible ? '✅' : '❌'}</span>
                 <span>Laptop/PC</span>
               </div>
             )}
             {portableAmpSufficient !== undefined && (
-              <div className={`flex items-center gap-2 ${portableAmpSufficient ? 'text-green-700' : 'text-yellow-700'}`}>
+              <div className={`flex items-center gap-2 ${portableAmpSufficient ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>
                 <span>{portableAmpSufficient ? '✅' : '⚠️'}</span>
                 <span>Portable Amp</span>
               </div>
             )}
             {desktopAmpRecommended !== undefined && (
-              <div className={`flex items-center gap-2 ${desktopAmpRecommended ? 'text-orange-700' : 'text-gray-600'}`}>
+              <div className={`flex items-center gap-2 ${desktopAmpRecommended ? 'text-orange-700 dark:text-orange-400' : 'text-gray-700 dark:text-gray-400'}`}>
                 <span>{desktopAmpRecommended ? '🏠' : '👍'}</span>
                 <span>Desktop Amp {desktopAmpRecommended ? 'Recommended' : 'Optional'}</span>
               </div>
