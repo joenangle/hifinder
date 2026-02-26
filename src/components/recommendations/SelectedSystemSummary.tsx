@@ -81,8 +81,6 @@ const SelectedSystemSummaryComponent = ({
   const hasSelectedItems = selectedHeadphones.length > 0 || selectedDacs.length > 0 || selectedAmps.length > 0 || selectedCombos.length > 0
   const hasItems = hasSelectedItems || hasOwnedGear
 
-  if (!hasItems) return null
-
   // Count filled categories (selected OR owned)
   const filledCategories = [
     selectedHeadphones.length > 0 || ownedHeadphones.length > 0,
@@ -125,6 +123,56 @@ const SelectedSystemSummaryComponent = ({
       <RemoveButton onClick={onRemove} title="Remove owned gear" />
     </div>
   )
+
+  // --- Empty-state scaffold: always visible so users understand the mental model ---
+  if (!hasItems) {
+    const EmptySlot = ({ label, icon }: { label: string; icon: React.ReactNode }) => (
+      <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed border-border-default bg-transparent">
+        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-tertiary flex-shrink-0">
+          {icon}
+        </div>
+        <div>
+          <p className="text-sm font-medium text-text-tertiary">{label}</p>
+          <p className="text-[11px] text-text-tertiary opacity-70">Click a card below to add</p>
+        </div>
+      </div>
+    )
+
+    return (
+      <div className="card p-5 mb-8 border border-dashed border-border-default bg-transparent">
+        <p className="text-sm font-medium text-text-secondary text-center mb-3">
+          Build your audio system
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <EmptySlot
+            label="Headphones"
+            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>}
+          />
+          <EmptySlot
+            label="DAC"
+            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>}
+          />
+          <EmptySlot
+            label="Amp"
+            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
+          />
+        </div>
+        <p className="text-xs text-text-tertiary text-center">
+          Click any recommendation card to start building your system
+        </p>
+        {onAddOwnedGear && (
+          <div className="text-center mt-2">
+            <button
+              onClick={onAddOwnedGear}
+              className="text-xs text-text-tertiary hover:text-accent-primary transition-colors underline underline-offset-2"
+            >
+              Already own gear? Add it here
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="card p-6 mb-8 border-l-4 border-accent-primary">

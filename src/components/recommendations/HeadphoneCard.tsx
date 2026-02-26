@@ -78,13 +78,34 @@ const HeadphoneCardComponent = ({
 
     return (
       <div
-        className={`group relative rounded-xl border transition-all duration-200 cursor-pointer px-4 py-3 ${
+        role="button"
+        aria-pressed={isSelected}
+        tabIndex={0}
+        title={isSelected ? 'Click to remove from your system' : 'Click to add to your system'}
+        className={`group relative rounded-xl border transition-all duration-200 cursor-pointer px-4 py-3 active:scale-[0.98] ${
           isSelected
             ? selectedStyle
             : `border-border-default bg-surface-card ${hoverStyle}`
         }`}
-      onClick={() => onToggleSelection(headphone.id)}
-    >
+        onClick={() => onToggleSelection(headphone.id)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(headphone.id) } }}
+      >
+        {/* Selection affordance icon */}
+        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+          isSelected
+            ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
+            : 'bg-transparent text-text-tertiary opacity-0 group-hover:opacity-100 border border-border-default'
+        }`}>
+          {isSelected ? (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+            </svg>
+          )}
+        </div>
         {/* Champion tags — inline above name, no absolute positioning */}
         {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
           <div className="flex gap-1 mb-1.5">
@@ -106,8 +127,8 @@ const HeadphoneCardComponent = ({
           </div>
         )}
 
-        {/* Row 1: Name + price */}
-        <div className="flex items-start justify-between gap-3 mb-2">
+        {/* Row 1: Name + price (pr-8 clears the selection affordance icon) */}
+        <div className="flex items-start justify-between gap-3 mb-2 pr-8">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3 className="font-semibold text-base text-text-primary leading-snug">
