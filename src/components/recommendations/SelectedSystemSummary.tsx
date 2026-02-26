@@ -209,6 +209,20 @@ const SelectedSystemSummaryComponent = ({
         ))}
       </div>
 
+      {/* Contextual hint about what's still needed */}
+      {!isStackComplete && (() => {
+        const hasHp = selectedHeadphones.length > 0 || ownedHeadphones.length > 0
+        const hasSignal = selectedDacs.length > 0 || ownedDacs.length > 0 || selectedCombos.length > 0 || ownedCombos.length > 0 || selectedAmps.length > 0 || ownedAmps.length > 0
+        const needed: string[] = []
+        if (!hasHp) needed.push('headphones')
+        if (!hasSignal) needed.push('a DAC or amp')
+        return needed.length > 0 ? (
+          <p className="text-xs text-text-tertiary text-center mb-3">
+            Add {needed.join(' and ')} to complete your system
+          </p>
+        ) : null
+      })()}
+
       {/* "Already own gear?" prompt — only show when no owned gear yet */}
       {!hasOwnedGear && onAddOwnedGear && (
         <div className="text-center mb-4">
