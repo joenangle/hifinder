@@ -68,12 +68,13 @@ const Pill = ({
   activeClass?: string
 }) => {
   const base =
-    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none'
+    'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none'
   const inactive = 'border-border-default text-text-secondary bg-background-primary hover:border-text-tertiary hover:text-text-primary'
 
   const btn = (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={`${base} ${active ? (activeClass || 'border-accent-primary text-accent-primary bg-accent-subtle') : inactive}`}
     >
       {label}

@@ -64,9 +64,9 @@ const SignalGearCardComponent = ({
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
 
     const SELECTED_STYLE = {
-      dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-sm',
-      amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-sm',
-      combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-sm',
+      dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-[0_0_0_3px_rgba(45,212,191,0.12),0_2px_8px_rgba(45,212,191,0.08)]',
+      amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-[0_0_0_3px_rgba(251,191,36,0.12),0_2px_8px_rgba(251,191,36,0.08)]',
+      combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-[0_0_0_3px_rgba(96,165,250,0.12),0_2px_8px_rgba(96,165,250,0.08)]',
     }
     const HOVER_STYLE = {
       dac:   'hover:border-teal-300 hover:shadow-sm',

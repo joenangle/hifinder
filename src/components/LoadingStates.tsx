@@ -123,7 +123,7 @@ export function EmptyState({
   action
 }: {
   icon?: string
-  title?: string  
+  title?: string
   message?: string
   action?: React.ReactNode
 }) {
@@ -133,6 +133,61 @@ export function EmptyState({
       <h3 className="heading-3 mb-2">{title}</h3>
       <p className="text-secondary mb-6">{message}</p>
       {action}
+    </div>
+  )
+}
+
+/* Skeleton variations for different content types */
+
+export function RecommendationCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-border-default p-4 animate-pulse">
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex-1">
+          <div className="skeleton h-5 w-44 rounded mb-1.5" />
+          <div className="skeleton h-3.5 w-28 rounded" />
+        </div>
+        <div className="skeleton h-6 w-16 rounded" />
+      </div>
+      <div className="flex gap-2 mt-3">
+        <div className="skeleton h-4 w-16 rounded-full" />
+        <div className="skeleton h-4 w-20 rounded-full" />
+        <div className="skeleton h-4 w-14 rounded-full" />
+      </div>
+    </div>
+  )
+}
+
+export function FilterBarSkeleton() {
+  return (
+    <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary animate-pulse">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="skeleton h-5 w-12 rounded" />
+        {[72, 48, 52, 52, 60].map((w, i) => (
+          <div key={i} className="skeleton h-7 rounded-full" style={{ width: w }} />
+        ))}
+        <div className="skeleton h-5 w-px mx-2 hidden sm:block" />
+        <div className="skeleton h-5 w-14 rounded" />
+        {[56, 48, 52, 60].map((w, i) => (
+          <div key={`s${i}`} className="skeleton h-7 rounded-full" style={{ width: w }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function CategoryColumnSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="card overflow-hidden animate-pulse">
+      <div className="px-4 py-3 border-b border-border-default flex justify-between">
+        <div className="skeleton h-4 w-20 rounded" />
+        <div className="skeleton h-4 w-16 rounded" />
+      </div>
+      <div className="p-4 flex flex-col gap-2">
+        {Array.from({ length: rows }, (_, i) => (
+          <RecommendationCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
   )
 }

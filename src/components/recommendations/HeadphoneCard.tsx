@@ -69,8 +69,8 @@ const HeadphoneCardComponent = ({
 
     const isCans = headphone.category !== 'iems'
     const selectedStyle = isCans
-      ? 'border-violet-400 bg-violet-50 dark:bg-violet-900/20 shadow-sm'
-      : 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 shadow-sm'
+      ? 'border-violet-400 bg-violet-50 dark:bg-violet-900/20 shadow-[0_0_0_3px_rgba(139,92,246,0.12),0_2px_8px_rgba(139,92,246,0.08)]'
+      : 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 shadow-[0_0_0_3px_rgba(99,102,241,0.12),0_2px_8px_rgba(99,102,241,0.08)]'
     const hoverStyle = isCans
       ? 'hover:border-violet-300 hover:shadow-sm'
       : 'hover:border-indigo-300 hover:shadow-sm'

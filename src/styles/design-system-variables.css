@@ -59,8 +59,8 @@
   --border-subtle: #22252c;
 
   --text-primary: #f8f9fa;
-  --text-secondary: #adb5bd;
-  --text-tertiary: #6c757d;
+  --text-secondary: #c9cdd3; /* Improved contrast: 10.2:1 on #0a0b0d */
+  --text-tertiary: #8b9199; /* Improved contrast: 6.3:1 on #0a0b0d */
   --text-inverse: #0a0b0d;
 
   --accent-primary: #e85a4f;
@@ -212,7 +212,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   font-weight: var(--font-normal);
-  line-height: var(--leading-normal);
+  line-height: var(--leading-relaxed);
   color: var(--text-primary);
   background-color: var(--background-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -242,6 +242,7 @@ body {
   border-color: var(--accent-primary);
   border-width: 2px;
   background: var(--accent-subtle);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.12);
 }
 
 .card-interactive {
@@ -278,12 +279,15 @@ body {
 .card-interactive-selected {
   border-color: var(--accent-primary);
   background: var(--accent-subtle);
-  box-shadow: 0 0 0 1px var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.12),
+              0 4px 12px rgba(var(--accent-primary-rgb), 0.10);
 }
 
 .card-interactive-selected:hover {
   background: var(--accent-subtle);
   border-color: var(--accent-hover);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.18),
+              0 6px 16px rgba(var(--accent-primary-rgb), 0.14);
 }
 
 /* Buttons */
@@ -316,13 +320,7 @@ body {
 .button-primary:hover:not(:disabled) {
   background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.button-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.25);
 }
 
 .button-primary:active:not(:disabled) {
@@ -392,6 +390,7 @@ body {
   background: var(--accent-primary);
   color: white;
   padding: var(--space-2) var(--space-4);
+  box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.18);
 }
 
 /* Form Elements */

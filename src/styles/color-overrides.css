@@ -146,8 +146,8 @@
 
   /* Card text */
   --rec-card-text-primary: #f8f9fa; /* Headings, important text */
-  --rec-card-text-secondary: #adb5bd; /* KNOWN ISSUE: Often too dim */
-  --rec-card-text-tertiary: #6c757d; /* Least important text */
+  --rec-card-text-secondary: #c9cdd3; /* Improved contrast */
+  --rec-card-text-tertiary: #8b9199; /* Improved contrast */
 
   /* === CHAMPION BADGES === */
 

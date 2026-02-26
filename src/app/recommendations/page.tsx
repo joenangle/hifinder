@@ -16,6 +16,7 @@ import { SelectedSystemSummary } from '@/components/recommendations/SelectedSyst
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
+import { X } from 'lucide-react'
 
 // Lazy load components only shown on user interaction for better code splitting
 const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
@@ -940,10 +941,60 @@ function RecommendationsContent() {
 
     if (loading && !hasLoadedOnce) {
       return (
-        <div className="page-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div className="animate-spin rounded-full h-8 w-8 mx-auto mb-4" style={{ border: '2px solid var(--border-default)', borderTopColor: 'var(--accent-primary)' }} />
-            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Building your recommendations…</p>
+        <div style={{ background: 'var(--background-primary)' }}>
+          {/* Skeleton budget slider area */}
+          <div style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--background-secondary)', padding: '16px 0' }}>
+            <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ width: '95%', maxWidth: '1400px' }}>
+              <div className="skeleton h-10 w-full rounded-lg" />
+            </div>
+          </div>
+
+          <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6" style={{ width: '95%', maxWidth: '1400px' }}>
+            {/* Skeleton filters bar */}
+            <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="skeleton h-5 w-12 rounded" />
+                {[72, 48, 52, 52, 60].map((w, i) => (
+                  <div key={i} className="skeleton h-7 rounded-full" style={{ width: w }} />
+                ))}
+                <div className="skeleton h-5 w-px mx-2 hidden sm:block" />
+                <div className="skeleton h-5 w-14 rounded" />
+                {[56, 48, 52, 60].map((w, i) => (
+                  <div key={`s${i}`} className="skeleton h-7 rounded-full" style={{ width: w }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Skeleton result grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {[1, 2].map(col => (
+                <div key={col} className="card overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border-default flex justify-between">
+                    <div className="skeleton h-4 w-20 rounded" />
+                    <div className="skeleton h-4 w-16 rounded" />
+                  </div>
+                  <div className="p-4 flex flex-col gap-2">
+                    {[1, 2, 3].map(row => (
+                      <div key={row} className="rounded-xl border border-border-default p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="skeleton h-5 w-40 rounded mb-1.5" />
+                            <div className="skeleton h-3.5 w-24 rounded" />
+                          </div>
+                          <div className="skeleton h-6 w-14 rounded" />
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <div className="skeleton h-4 w-16 rounded" />
+                          <div className="skeleton h-4 w-20 rounded" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-center text-sm text-text-tertiary mt-6 animate-pulse">Building your recommendations…</p>
           </div>
         </div>
       )
@@ -1091,6 +1142,26 @@ function RecommendationsContent() {
                 </div>
               )}
 
+              {/* Empty state when no categories have results */}
+              {activeTypes === 0 && hasLoadedOnce && !loading && (
+                <div className="card p-12 text-center max-w-lg mx-auto">
+                  <div className="text-4xl mb-4">🔍</div>
+                  <h3 className="heading-3 mb-2">No results match your filters</h3>
+                  <p className="text-secondary mb-6 text-sm">
+                    Try increasing your budget, widening your sound signature preference, or enabling more equipment categories.
+                  </p>
+                  <button
+                    onClick={() => {
+                      const sliderEl = document.querySelector('[data-budget-slider]')
+                      sliderEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }}
+                    className="button button-primary"
+                  >
+                    Adjust budget
+                  </button>
+                </div>
+              )}
+
               {/* Results grid with smooth opacity transition */}
               <div
                 className={`${gridClass} transition-opacity duration-300 ${loading && hasLoadedOnce ? 'opacity-90' : 'opacity-100'}`}
@@ -1136,7 +1207,7 @@ function RecommendationsContent() {
                 {!showAllCans && filteredCans.length > initialLimit && (
                   <button
                     onClick={() => setShowAllCans(true)}
-                    className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                    className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
                   >
                     Show {filteredCans.length - initialLimit} more headphones
                   </button>
@@ -1187,7 +1258,7 @@ function RecommendationsContent() {
                 {!showAllIems && filteredIems.length > initialLimit && (
                   <button
                     onClick={() => setShowAllIems(true)}
-                    className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                    className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
                   >
                     Show {filteredIems.length - initialLimit} more IEMs
                   </button>
@@ -1235,7 +1306,7 @@ function RecommendationsContent() {
                           {!showAllDacs && filteredDacs.length > initialLimit && (
                             <button
                               onClick={() => setShowAllDacs(true)}
-                              className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                              className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
                             >
                               Show {filteredDacs.length - initialLimit} more DACs
                             </button>
@@ -1288,7 +1359,7 @@ function RecommendationsContent() {
                     {!showAllAmps && filteredAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllAmps(true)}
-                        className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                        className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
                       >
                         Show {filteredAmps.length - initialLimit} more amps
                       </button>
@@ -1341,7 +1412,7 @@ function RecommendationsContent() {
                     {!showAllCombos && filteredDacAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllCombos(true)}
-                        className="mt-2 py-2 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg"
+                        className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
                       >
                         Show {filteredDacAmps.length - initialLimit} more combos
                       </button>
@@ -1460,16 +1531,24 @@ function RecommendationsContent() {
 
       {/* Preferences Adjustment Modal */}
       {showPreferencesModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-[8px] flex items-center justify-center p-4"
+          style={{ zIndex: 'var(--z-modal, 40)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Adjust Preferences"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowPreferencesModal(false) }}
+        >
+          <div className="bg-surface-card border border-border-default rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn">
+            <div className="sticky top-0 bg-surface-card border-b border-border-default px-6 py-4 rounded-t-xl z-10">
               <div className="flex justify-between items-center">
                 <h2 className="heading-2">Adjust Preferences</h2>
                 <button
                   onClick={() => setShowPreferencesModal(false)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                  className="p-1.5 hover:bg-background-secondary rounded-md transition-colors"
+                  aria-label="Close preferences"
                 >
-                  ×
+                  <X className="w-5 h-5 text-text-secondary" />
                 </button>
               </div>
             </div>
@@ -1477,7 +1556,7 @@ function RecommendationsContent() {
             <div className="p-6 space-y-6">
               {/* Budget Adjustment */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text-primary mb-2">
                   Budget: ${userPrefs.budget}
                 </label>
                 <input
@@ -1489,7 +1568,7 @@ function RecommendationsContent() {
                   onChange={(e) => updateURL({ budget: parseInt(e.target.value) })}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <div className="flex justify-between text-xs text-text-tertiary mt-1">
                   <span>$20</span>
                   <span>$10,000</span>
                 </div>
@@ -1497,7 +1576,7 @@ function RecommendationsContent() {
 
               {/* Budget Range */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-text-primary mb-3">
                   Budget Flexibility
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1519,7 +1598,7 @@ function RecommendationsContent() {
                       }`}
                     >
                       <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-gray-500">{option.desc}</div>
+                      <div className="text-xs text-text-tertiary">{option.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -1527,7 +1606,7 @@ function RecommendationsContent() {
 
               {/* Sound Signature */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-text-primary mb-3">
                   Sound Signature
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1547,7 +1626,7 @@ function RecommendationsContent() {
 
               {/* Component Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-text-primary mb-3">
                   Get Recommendations For
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -1577,7 +1656,7 @@ function RecommendationsContent() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <div className="sticky bottom-0 bg-background-secondary px-6 py-4 border-t border-border-default rounded-b-xl">
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowPreferencesModal(false)}

@@ -293,6 +293,9 @@ export function StackBuilderModal({
     <div
       className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-[10000] p-4"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.92)' }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Build Your Audio Stack"
     >
       <div
         className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10001]"
