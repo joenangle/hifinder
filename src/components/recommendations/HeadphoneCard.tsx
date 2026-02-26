@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { memo } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
+import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 
 interface AudioComponent {
   id: string
@@ -222,29 +223,6 @@ const HeadphoneCardComponent = ({
           <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
-    </div>
-  )
-}
-
-const PriceHistoryBadge = ({ componentId }: { componentId: string }) => {
-  const [priceStats, setPriceStats] = useState<{ count: number; median: number } | null>(null)
-
-  useEffect(() => {
-    fetch(`/api/components/${componentId}/price-history?days=90`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.statistics && data.statistics.count >= 3) {
-          setPriceStats({ count: data.statistics.count, median: data.statistics.median })
-        }
-      })
-      .catch(() => {})
-  }, [componentId])
-
-  if (!priceStats) return null
-
-  return (
-    <div className="text-[10px] text-text-tertiary mt-0.5 tabular-nums">
-      {priceStats.count} sales · med. ${Math.round(priceStats.median)}
     </div>
   )
 }

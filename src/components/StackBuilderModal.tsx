@@ -21,7 +21,14 @@ interface StackBuilderModalProps {
     amps: Component[]
     combos: Component[]
   }
+  ownedComponents?: {
+    headphones: Component[]
+    dacs: Component[]
+    amps: Component[]
+    combos: Component[]
+  }
   onRemoveComponent?: (componentId: string, category: string) => void
+  onRemoveOwnedComponent?: (id: string) => void
   onSaveStack?: (stackName: string, components: Component[]) => void
 }
 
@@ -33,7 +40,9 @@ export function StackBuilderModal({
   isOpen,
   onClose,
   selectedComponents,
+  ownedComponents,
   onRemoveComponent,
+  onRemoveOwnedComponent,
   onSaveStack
 }: StackBuilderModalProps) {
   const { data: session } = useSession()
@@ -45,6 +54,14 @@ export function StackBuilderModal({
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+
+  // Track which IDs are owned for cost exclusion and display
+  const ownedIds = new Set([
+    ...(ownedComponents?.headphones || []).map(c => c.id),
+    ...(ownedComponents?.dacs || []).map(c => c.id),
+    ...(ownedComponents?.amps || []).map(c => c.id),
+    ...(ownedComponents?.combos || []).map(c => c.id),
+  ])
 
   // Organize components into stack positions
   useEffect(() => {
@@ -70,6 +87,20 @@ export function StackBuilderModal({
       components.push({ ...combo, stackPosition: 'dac' })
     })
 
+    // Add owned components (they're in the stack but won't count toward cost)
+    ownedComponents?.headphones.forEach(hp => {
+      components.push({ ...hp, stackPosition: 'headphones' })
+    })
+    ownedComponents?.dacs.forEach(dac => {
+      components.push({ ...dac, stackPosition: 'dac' })
+    })
+    ownedComponents?.amps.forEach(amp => {
+      components.push({ ...amp, stackPosition: 'amp' })
+    })
+    ownedComponents?.combos.forEach(combo => {
+      components.push({ ...combo, stackPosition: 'dac' })
+    })
+
     setFinalComponents(components)
     setSaveError(null)
     setSaveSuccess(false)
@@ -78,10 +109,11 @@ export function StackBuilderModal({
     // Generate compatibility warnings with power matching analysis
     const newWarnings: CompatibilityWarning[] = []
 
-    // Analyze power matching between headphones and amps
-    const allAmps = [...selectedComponents.amps, ...selectedComponents.combos]
+    // Analyze power matching — include BOTH selected and owned amps/headphones
+    const allHeadphones = [...selectedComponents.headphones, ...(ownedComponents?.headphones || [])]
+    const allAmps = [...selectedComponents.amps, ...selectedComponents.combos, ...(ownedComponents?.amps || []), ...(ownedComponents?.combos || [])]
 
-    selectedComponents.headphones.forEach(hp => {
+    allHeadphones.forEach(hp => {
       const impedance = hp.impedance ? parseInt(hp.impedance.toString()) : null
 
       if (!impedance) return
@@ -173,22 +205,28 @@ export function StackBuilderModal({
 
     // Auto-generate stack name
     const types = []
-    if (selectedComponents.headphones.length > 0) types.push('Headphones')
-    if (selectedComponents.dacs.length > 0) types.push('DAC')
-    if (selectedComponents.amps.length > 0) types.push('Amp')
-    if (selectedComponents.combos.length > 0) types.push('DAC/Amp')
+    const totalHp = selectedComponents.headphones.length + (ownedComponents?.headphones.length || 0)
+    const totalDacs = selectedComponents.dacs.length + (ownedComponents?.dacs.length || 0)
+    const totalAmps = selectedComponents.amps.length + (ownedComponents?.amps.length || 0)
+    const totalCombos = selectedComponents.combos.length + (ownedComponents?.combos.length || 0)
+    if (totalHp > 0) types.push('Headphones')
+    if (totalDacs > 0) types.push('DAC')
+    if (totalAmps > 0) types.push('Amp')
+    if (totalCombos > 0) types.push('DAC/Amp')
 
     const autoName = types.length > 0 ? `${types.join(' + ')} Stack` : 'My Audio Stack'
     setStackName(autoName)
-  }, [isOpen, selectedComponents])
+  }, [isOpen, selectedComponents, ownedComponents])
 
-  // Calculate total cost
-  const totalCost = finalComponents.reduce((sum, component) => {
-    const avgPrice = component.price_used_min && component.price_used_max
-      ? (component.price_used_min + component.price_used_max) / 2
-      : component.price_new || 0
-    return sum + avgPrice
-  }, 0)
+  // Calculate total cost — exclude owned gear
+  const totalCost = finalComponents
+    .filter(c => !ownedIds.has(c.id))
+    .reduce((sum, component) => {
+      const avgPrice = component.price_used_min && component.price_used_max
+        ? (component.price_used_min + component.price_used_max) / 2
+        : component.price_new || 0
+      return sum + avgPrice
+    }, 0)
 
   // Format currency
   const formatPrice = (price: number) => {
@@ -220,7 +258,8 @@ export function StackBuilderModal({
         body: JSON.stringify({
           name: stackName.trim(),
           description: stackDescription.trim() || null,
-          componentIds: finalComponents.map(c => c.id)
+          componentIds: finalComponents.filter(c => !ownedIds.has(c.id)).map(c => c.id),
+          ownedComponentIds: finalComponents.filter(c => ownedIds.has(c.id)).map(c => c.id)
         })
       })
 
@@ -257,21 +296,24 @@ export function StackBuilderModal({
 
   // Remove component and sync to parent
   const removeComponent = (componentId: string) => {
-    const component = finalComponents.find(c => c.id === componentId)
     setFinalComponents(prev => prev.filter(c => c.id !== componentId))
 
-    // Sync removal back to parent's selection state
-    // Map Component.category values ('cans'|'iems'|'dac'|'amp'|'dac_amp') to parent's selection categories
-    if (component && onRemoveComponent) {
-      const categoryMap: Record<string, string> = {
-        'cans': 'cans',
-        'iems': 'iems',
-        'dac': 'dacs',
-        'amp': 'amps',
-        'dac_amp': 'combos',
-        'cable': 'combos'
+    // Route to appropriate parent handler
+    if (ownedIds.has(componentId)) {
+      onRemoveOwnedComponent?.(componentId)
+    } else {
+      const component = finalComponents.find(c => c.id === componentId)
+      if (component && onRemoveComponent) {
+        const categoryMap: Record<string, string> = {
+          'cans': 'cans',
+          'iems': 'iems',
+          'dac': 'dacs',
+          'amp': 'amps',
+          'dac_amp': 'combos',
+          'cable': 'combos'
+        }
+        onRemoveComponent(componentId, categoryMap[component.category] || 'combos')
       }
-      onRemoveComponent(componentId, categoryMap[component.category] || 'combos')
     }
   }
 
@@ -371,45 +413,66 @@ export function StackBuilderModal({
               <h3 className="text-lg font-semibold text-primary">Stack Overview</h3>
               <div className="text-right">
                 <p className="text-2xl font-bold text-primary">{formatPrice(totalCost)}</p>
-                <p className="text-sm text-secondary">Estimated Total</p>
+                <p className="text-sm text-secondary">
+                  {ownedIds.size > 0 ? 'Est. Total (excl. owned)' : 'Estimated Total'}
+                </p>
               </div>
             </div>
 
             {/* Components List */}
             <div className="space-y-3">
-              {finalComponents.map((component) => (
-                <div
-                  key={component.id}
-                  className="flex items-center justify-between bg-surface-secondary p-3 rounded-lg border border-border"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">
-                      {getCategoryIcon(component.category)}
-                    </span>
-                    <div>
-                      <p className="font-medium text-primary">{component.brand} {component.name}</p>
-                      <p className="text-sm text-secondary">{component.category === 'dac_amp' ? 'DAC/Amp' : component.category}</p>
+              {finalComponents.map((component) => {
+                const isOwned = ownedIds.has(component.id)
+                return (
+                  <div
+                    key={component.id}
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                      isOwned
+                        ? 'border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10'
+                        : 'border-border bg-surface-secondary'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">
+                        {getCategoryIcon(component.category)}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-primary">{component.brand} {component.name}</p>
+                          {isOwned && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                              Owned
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-secondary">{component.category === 'dac_amp' ? 'DAC/Amp' : component.category}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {isOwned ? (
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400">No cost</span>
+                      ) : (
+                        <span className="text-sm font-medium text-primary">
+                          {formatPrice(
+                            component.price_used_min && component.price_used_max
+                              ? (component.price_used_min + component.price_used_max) / 2
+                              : component.price_new || 0
+                          )}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => removeComponent(component.id)}
+                        className="p-1 text-secondary hover:text-red-500 transition-colors"
+                        aria-label={`Remove ${component.brand} ${component.name}`}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-primary">
-                      {formatPrice(
-                        component.price_used_min && component.price_used_max
-                          ? (component.price_used_min + component.price_used_max) / 2
-                          : component.price_new || 0
-                      )}
-                    </span>
-                    <button
-                      onClick={() => removeComponent(component.id)}
-                      className="p-1 text-secondary hover:text-red-500 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
 
               {finalComponents.length === 0 && (
                 <div className="text-center py-8 text-secondary">
@@ -425,8 +488,8 @@ export function StackBuilderModal({
             <div className="space-y-3">
               {/* Errors */}
               {warnings.filter(w => w.severity === 'error').length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-3 flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
@@ -434,7 +497,7 @@ export function StackBuilderModal({
                   </h4>
                   <div className="space-y-2">
                     {warnings.filter(w => w.severity === 'error').map((warning, index) => (
-                      <div key={index} className="text-sm text-red-700">
+                      <div key={index} className="text-sm text-red-700 dark:text-red-300">
                         <p className="font-medium">{warning.message}</p>
                       </div>
                     ))}
@@ -444,8 +507,8 @@ export function StackBuilderModal({
 
               {/* Warnings */}
               {warnings.filter(w => w.severity === 'warning').length > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-3 flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
@@ -453,7 +516,7 @@ export function StackBuilderModal({
                   </h4>
                   <div className="space-y-2">
                     {warnings.filter(w => w.severity === 'warning').map((warning, index) => (
-                      <div key={index} className="text-sm text-yellow-700">
+                      <div key={index} className="text-sm text-yellow-700 dark:text-yellow-300">
                         <p className="font-medium">{warning.message}</p>
                       </div>
                     ))}
@@ -463,8 +526,8 @@ export function StackBuilderModal({
 
               {/* Info (good matches) */}
               {warnings.filter(w => (w.severity as string) === 'info').length > 0 && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h4 className="font-medium text-green-800 mb-3 flex items-center gap-2">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <h4 className="font-medium text-green-800 dark:text-green-200 mb-3 flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -472,7 +535,7 @@ export function StackBuilderModal({
                   </h4>
                   <div className="space-y-2">
                     {warnings.filter(w => (w.severity as string) === 'info').map((warning, index) => (
-                      <div key={index} className="text-sm text-green-700">
+                      <div key={index} className="text-sm text-green-700 dark:text-green-300">
                         <p className="font-medium">{warning.message}</p>
                       </div>
                     ))}
@@ -524,8 +587,9 @@ export function StackBuilderModal({
           <div className="flex gap-3">
             <button
               onClick={() => {
-                // Generate eBay search for all components
+                // Generate eBay search for to-purchase components only (exclude owned)
                 const searchTerms = finalComponents
+                  .filter(c => !ownedIds.has(c.id))
                   .map(c => `${c.brand} ${c.name}`)
                   .join(' OR ')
 
@@ -550,7 +614,7 @@ export function StackBuilderModal({
                 window.open(ebayUrl, '_blank')
               }}
               disabled={finalComponents.length === 0}
-              className="px-4 py-2 text-blue-500 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-blue-500 dark:text-blue-400 border border-blue-300 dark:border-blue-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Search All on eBay
             </button>
@@ -562,7 +626,7 @@ export function StackBuilderModal({
                   `components=${finalComponents.map(c => c.id).join(',')}`
                 navigator.clipboard.writeText(shareUrl)
               }}
-              className="px-4 py-2 text-orange-500 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
+              className="px-4 py-2 text-orange-500 dark:text-orange-400 border border-orange-300 dark:border-orange-700 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
             >
               Share Stack
             </button>

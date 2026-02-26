@@ -364,11 +364,23 @@ select.input {
    ============================================ */
 
 /* Component Class Mappings - Maps Tailwind classes to CSS variables */
+.bg-surface {
+  background-color: var(--background-primary);
+}
 .bg-surface-elevated {
   background-color: var(--surface-card);
 }
 .bg-surface-secondary {
   background-color: var(--background-secondary);
+}
+.bg-surface-hover {
+  background-color: var(--surface-hover);
+}
+.bg-surface-primary {
+  background-color: var(--background-primary);
+}
+.text-border {
+  color: var(--border-default);
 }
 .text-foreground {
   color: var(--text-primary);

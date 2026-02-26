@@ -564,7 +564,7 @@ export function LandingPageV2() {
               className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
               style={{
                 background: "var(--accent-primary)",
-                color: "#fff",
+                color: "var(--text-inverse)",
                 padding: "15px 28px",
                 borderRadius: "12px",
                 fontSize: "0.9375rem",

@@ -5,6 +5,7 @@ import { Clock, MapPin, User, Star, AlertTriangle, TrendingDown, TrendingUp, Ext
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import { Tooltip } from './Tooltip'
+import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 
 interface MarketplaceListingCardProps {
   listing: UsedListing;
@@ -166,8 +167,11 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Price - always visible, responsive sizing */}
-          <div className="w-20 sm:w-24 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
-            {formatPrice(listing.price)}
+          <div className="w-20 sm:w-24 flex-shrink-0 text-right">
+            <div className="text-base sm:text-lg font-bold text-foreground">
+              {formatPrice(listing.price)}
+            </div>
+            <PriceHistoryBadge componentId={component.id} />
           </div>
 
           {/* Deal - hide on small screens */}
@@ -335,6 +339,7 @@ export function MarketplaceListingCard({
               Free shipping
             </div>
           )}
+          <PriceHistoryBadge componentId={component.id} />
         </div>
 
         <div className="flex flex-row gap-2">

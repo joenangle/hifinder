@@ -1740,7 +1740,14 @@ function RecommendationsContent() {
           amps: selectedAmpItems,
           combos: selectedDacAmpItems
         }}
+        ownedComponents={{
+          headphones: ownedHeadphones,
+          dacs: ownedDacs,
+          amps: ownedAmps,
+          combos: ownedCombos
+        }}
         onRemoveComponent={removeFromSelection}
+        onRemoveOwnedComponent={removeOwnedGear}
         onSaveStack={async (stackName, components) => {
           // Save handled inside StackBuilderModal with auth check
           setShowStackBuilder(false)
