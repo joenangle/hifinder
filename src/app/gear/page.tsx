@@ -486,6 +486,43 @@ function GearContent() {
     setDragOverStack(null)
   }
 
+  // Drop onto "New Stack" zone — create a stack and add the gear
+  const handleDropNewStack = async (e: React.DragEvent) => {
+    e.preventDefault()
+    if (!draggedGear || !session?.user?.id) return
+
+    try {
+      const gearName = draggedGear.components?.name || draggedGear.custom_name || 'Gear'
+      const response = await fetch('/api/stacks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: `${gearName} Stack`,
+          description: null,
+          purpose: 'general'
+        })
+      })
+
+      if (response.ok) {
+        const newStack = await response.json()
+        await addGearToStackAPI(newStack.id, draggedGear.id)
+        await loadData()
+        // Open edit modal so user can rename the auto-generated stack
+        setSelectedStackForEdit({ ...newStack, stack_components: [] })
+        setEditStackName(newStack.name)
+        setEditStackDescription('')
+        setEditStackPurpose('general')
+        setShowEditStackModal(true)
+      }
+    } catch (error) {
+      console.error('Error creating stack via drag:', error)
+    }
+
+    setDraggedGear(null)
+    setDragOverStack(null)
+  }
+
   const resetAddForm = () => {
     setSearchQuery('')
     setSearchResults([])
@@ -909,6 +946,43 @@ function GearContent() {
                         </div>
                       )
                     })}
+
+                    {/* New Stack Drop Zone */}
+                    <div
+                      className={`card p-6 border-2 border-dashed flex flex-col items-center justify-center min-h-[200px] transition-all ${
+                        dragOverStack === '__new__'
+                          ? 'border-accent ring-2 ring-accent bg-accent/10'
+                          : draggedGear
+                            ? 'border-accent/50 bg-accent/5'
+                            : 'border-secondary hover:border-primary'
+                      }`}
+                      onDragOver={(e) => handleDragOver(e, '__new__')}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDropNewStack}
+                    >
+                      <Layers className={`w-8 h-8 mb-3 ${draggedGear ? 'text-accent' : 'text-secondary'}`} />
+                      {draggedGear ? (
+                        <>
+                          <p className="text-sm font-medium text-accent">
+                            Drop to start a new stack
+                          </p>
+                          <p className="text-xs text-secondary mt-1">
+                            with &ldquo;{draggedGear.components?.name || draggedGear.custom_name}&rdquo;
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium text-primary mb-1">New Stack</p>
+                          <p className="text-xs text-secondary mb-3">Drag & drop a component here</p>
+                          <button
+                            onClick={() => setShowCreateStackModal(true)}
+                            className="text-xs font-medium text-accent hover:underline"
+                          >
+                            + New Stack
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -1171,6 +1245,90 @@ function GearContent() {
             </div>
           )
         })()}
+
+        {/* My Stacks Drop Zone (visible in grid/list views) */}
+        {viewMode !== 'stacks' && gear.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                <Layers className="w-5 h-5" />
+                My Stacks {stacks.length > 0 && `(${stacks.length})`}
+              </h3>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowCreateStackModal(true)}
+                  className="text-sm font-medium text-accent hover:underline flex items-center gap-1"
+                >
+                  <PlusIcon className="w-3.5 h-3.5" />
+                  New Stack
+                </button>
+                {stacks.length > 0 && (
+                  <button
+                    onClick={() => setViewMode('stacks')}
+                    className="text-sm text-secondary hover:text-primary"
+                  >
+                    View All →
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className={`grid gap-3 ${stacks.length > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}>
+              {/* Existing stacks as compact drop targets */}
+              {stacks.map(stack => (
+                <div
+                  key={stack.id}
+                  className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                    dragOverStack === stack.id
+                      ? 'border-accent ring-2 ring-accent/50 bg-accent/5'
+                      : 'border-subtle hover:border-primary'
+                  }`}
+                  onDragOver={(e) => handleDragOver(e, stack.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, stack.id)}
+                  onClick={() => setViewMode('stacks')}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    {stack.purpose && <span className="text-sm">{purposeIcons[stack.purpose] || '📦'}</span>}
+                    <h4 className="font-semibold text-sm text-primary truncate">{stack.name}</h4>
+                  </div>
+                  <p className="text-xs text-secondary">
+                    {stack.stack_components?.length || 0} {(stack.stack_components?.length || 0) === 1 ? 'item' : 'items'}
+                  </p>
+                  {dragOverStack === stack.id && draggedGear && (
+                    <p className="text-xs text-accent font-medium mt-1">
+                      Drop to add
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* New Stack drop zone */}
+              <div
+                className={`p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center min-h-[100px] transition-all ${
+                  dragOverStack === '__new__'
+                    ? 'border-accent ring-2 ring-accent bg-accent/10'
+                    : draggedGear
+                      ? 'border-accent/50 bg-accent/5'
+                      : 'border-secondary'
+                }`}
+                onDragOver={(e) => handleDragOver(e, '__new__')}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDropNewStack}
+              >
+                <Layers className={`w-5 h-5 mb-1.5 ${draggedGear ? 'text-accent' : 'text-secondary'}`} />
+                {draggedGear ? (
+                  <p className="text-xs font-medium text-accent text-center">
+                    Drop to start a new stack
+                  </p>
+                ) : (
+                  <p className="text-xs text-secondary text-center">
+                    Drag & drop a component<br />to start a new stack
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       </div>
 

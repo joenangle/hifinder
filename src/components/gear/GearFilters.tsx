@@ -97,7 +97,7 @@ export function GearFilters({
               onClick={onAddGear}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
             >
-              <span>+ New</span>
+              <span>+ Add to Collection</span>
             </button>
           )}
 

@@ -240,7 +240,7 @@ export function GearTab() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Quick Add
+            Add to Collection
           </button>
           <Link
             href="/gear"
