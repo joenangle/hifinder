@@ -32,13 +32,7 @@ const REVERB_CONFIG = {
 };
 
 function buildSearchQuery(component) {
-  const brand = component.brand;
-  const modelWords = component.name.split(/[\s\-\/]+/).filter(word => {
-    return word.length > 2 && !/^\(.*\)$/.test(word) && !/^\d{4}$/.test(word);
-  });
-
-  const firstModelWord = modelWords[0] || '';
-  return `${brand} ${firstModelWord}`.trim();
+  return `${component.brand} ${component.name}`.trim();
 }
 
 function levenshteinDistance(str1, str2) {
@@ -84,39 +78,50 @@ function isRelevantListing(listing, component) {
   const brand = component.brand.toLowerCase();
   const name = component.name.toLowerCase();
 
-  const brandInTitle = title.includes(brand);
-  const brandInDesc = description.includes(brand);
-
-  if (!brandInTitle && !brandInDesc) {
+  // Must contain brand name
+  if (!title.includes(brand) && !description.includes(brand)) {
     return false;
   }
 
+  // Must have an audio keyword
   const audioKeywords = ['headphone', 'headset', 'earphone', 'iem', 'in-ear', 'monitor', 'earbud'];
   const hasAudioKeyword = audioKeywords.some(keyword =>
     title.includes(keyword) || description.includes(keyword)
   );
 
-  const excludeKeywords = ['microphone', 'interface', 'speaker', 'cable', 'adapter', 'stand', 'case', 'amplifier', 'dac', 'mixer'];
+  const excludeKeywords = ['microphone', 'interface', 'speaker', 'cable', 'adapter', 'stand', 'case', 'mixer'];
   const hasExcludeKeyword = excludeKeywords.some(keyword => title.includes(keyword));
 
   if (!hasAudioKeyword || hasExcludeKeyword) {
     return false;
   }
 
+  // Check for exact model name match first (most reliable)
+  const modelVariations = [
+    name,
+    name.replace(/\s+/g, ''),
+    name.replace(/-/g, ' '),
+    name.replace(/\s+/g, '-'),
+  ];
+
+  const hasExactModelMatch = modelVariations.some(variation =>
+    title.includes(variation) || description.includes(variation)
+  );
+  if (hasExactModelMatch) return true;
+
+  // Word-based matching: require majority of model words
   const modelWords = name.split(/[\s\-\/]+/).filter(word => word.length > 2 && !/^\d{4}$/.test(word));
+  if (modelWords.length === 0) return false;
 
-  if (modelWords.length === 0) {
-    return true;
-  }
-
-  const hasModelMatch = modelWords.some(word => {
-    if (title.includes(word.toLowerCase())) return true;
-
+  const matchedWords = modelWords.filter(word => {
+    if (title.includes(word)) return true;
     const titleWords = title.split(/\s+/);
-    return titleWords.some(titleWord => stringSimilarity(word.toLowerCase(), titleWord) > 0.75);
+    return titleWords.some(titleWord => stringSimilarity(word, titleWord) > 0.80);
   });
 
-  return hasModelMatch;
+  // Require all words for short models, majority for longer ones
+  const requiredMatches = modelWords.length <= 2 ? modelWords.length : Math.ceil(modelWords.length * 0.5);
+  return matchedWords.length >= requiredMatches;
 }
 
 async function searchReverbForComponent(component) {

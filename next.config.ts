@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
 
   // External packages for server components (scripts-only dependencies)
-  serverExternalPackages: ['puppeteer-core', 'jsdom', 'xlsx'],
+  serverExternalPackages: ['jsdom'],
 
   // React Compiler for automatic memoization (Next.js 16+)
   reactCompiler: true,
