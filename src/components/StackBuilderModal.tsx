@@ -54,6 +54,7 @@ export function StackBuilderModal({
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [shareToast, setShareToast] = useState(false)
 
   // Track which IDs are owned for cost exclusion and display
   const ownedIds = new Set([
@@ -637,17 +638,44 @@ export function StackBuilderModal({
               Search All on eBay
             </button>
 
-            <button
-              onClick={() => {
-                const shareUrl = `${window.location.origin}/recommendations?` +
-                  `budget=${Math.round(totalCost)}&` +
-                  `components=${finalComponents.map(c => c.id).join(',')}`
-                navigator.clipboard.writeText(shareUrl)
-              }}
-              className="px-4 py-2 text-orange-500 dark:text-orange-400 border border-orange-300 dark:border-orange-700 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
-            >
-              Share Stack
-            </button>
+            <div className="relative">
+              {shareToast && (
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-green-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+                  Link copied!
+                </div>
+              )}
+              <button
+                onClick={async () => {
+                  const shareUrl = `${window.location.origin}/recommendations?` +
+                    `budget=${Math.round(totalCost)}&` +
+                    `components=${finalComponents.map(c => c.id).join(',')}`
+
+                  try {
+                    if (typeof navigator.share === 'function') {
+                      await navigator.share({
+                        title: 'My HiFinder Audio Stack',
+                        text: `Check out my ${finalComponents.length}-piece audio stack on HiFinder`,
+                        url: shareUrl,
+                      })
+                      return
+                    }
+                  } catch {
+                    // User cancelled or Web Share not supported — fall through to clipboard
+                  }
+
+                  try {
+                    await navigator.clipboard.writeText(shareUrl)
+                  } catch {
+                    // Clipboard API unavailable — silent fail
+                  }
+                  setShareToast(true)
+                  setTimeout(() => setShareToast(false), 2000)
+                }}
+                className="px-4 py-2 text-orange-500 dark:text-orange-400 border border-orange-300 dark:border-orange-700 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
+              >
+                Share Stack
+              </button>
+            </div>
 
             <button
               onClick={handleSave}
