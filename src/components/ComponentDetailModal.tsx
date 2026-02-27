@@ -17,9 +17,11 @@ interface ComponentDetailModalProps {
   component: Component
   isOpen: boolean
   onClose: () => void
+  isSelected?: boolean
+  onToggleSelection?: (id: string) => void
 }
 
-export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDetailModalProps) {
+export function ComponentDetailModal({ component, isOpen, onClose, isSelected, onToggleSelection }: ComponentDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
 
   // ESC to close + body scroll lock
@@ -260,12 +262,29 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
 
         {/* Footer */}
         <div className="p-6 border-t">
-          <button
-            onClick={onClose}
-            className="button button-primary w-full"
-          >
-            Close
-          </button>
+          {onToggleSelection ? (
+            <div className="flex gap-3">
+              <button
+                onClick={() => onToggleSelection(component.id)}
+                className={`flex-1 button ${isSelected ? 'button-secondary' : 'button-primary'}`}
+              >
+                {isSelected ? 'Remove from Stack' : 'Add to Stack'}
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 button button-ghost"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onClose}
+              className="button button-primary w-full"
+            >
+              Close
+            </button>
+          )}
         </div>
           </motion.div>
         </motion.div>

@@ -83,37 +83,42 @@ const HeadphoneCardComponent = ({
 
     return (
       <div
-        role="checkbox"
-        aria-checked={isSelected}
-        aria-label={`Select ${headphone.brand} ${headphone.name}`}
+        role="article"
+        aria-label={`${headphone.brand} ${headphone.name}`}
         tabIndex={0}
-        title={isSelected ? 'Click to remove from your system' : 'Click to add to your system'}
+        title="View details"
         className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
           isSelected
             ? selectedStyle
             : `bg-surface-card ${hoverStyle}`
         }`}
-        onClick={() => onToggleSelection(headphone.id)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(headphone.id) } }}
+        onClick={() => onViewDetails?.(headphone.id)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(headphone.id) } }}
       >
-        {/* Selection affordance icon */}
-        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow] duration-200 ${
-          isSelected
-            ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
-            : isFirstCardHint
-            ? 'border border-accent text-accent opacity-100 animate-hint-pulse'
-            : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
-        }`}>
+        {/* Selection button */}
+        <button
+          type="button"
+          aria-label={isSelected ? `Remove ${headphone.brand} ${headphone.name} from stack` : `Add ${headphone.brand} ${headphone.name} to stack`}
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow,opacity] duration-200 ${
+            isSelected
+              ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
+              : isFirstCardHint
+              ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
+              : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'
+          }`}
+          onClick={(e) => { e.stopPropagation(); onToggleSelection(headphone.id) }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onToggleSelection(headphone.id) } }}
+        >
           {isSelected ? (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
             </svg>
           )}
-        </div>
+        </button>
         {/* Champion tags — inline above name, no absolute positioning */}
         {(isTechnicalChamp || isToneChamp || isBudgetChamp) && (
           <div className="flex gap-1 mb-1.5">
@@ -135,8 +140,8 @@ const HeadphoneCardComponent = ({
           </div>
         )}
 
-        {/* Row 1: Name + price (pr-8 clears the selection affordance icon) */}
-        <div className="flex items-start justify-between gap-3 mb-2 pr-8">
+        {/* Row 1: Name + price (pr-10 clears the selection button) */}
+        <div className="flex items-start justify-between gap-3 mb-2 pr-10">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3 className="font-semibold text-base text-primary leading-snug">
@@ -250,23 +255,11 @@ const HeadphoneCardComponent = ({
           </button>
         )}
         <div className="ml-auto flex items-center gap-1">
-          {onViewDetails && (
-            <button
-              onClick={() => onViewDetails(headphone.id)}
-              className="p-1 text-tertiary hover:text-accent transition-colors rounded"
-              title="View details"
-              aria-label={`View details for ${headphone.brand} ${headphone.name}`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          )}
           <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
       {isFirstCardHint && !isSelected && (
-        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Click to add to your system</p>
+        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Tap card for details · <strong>+</strong> to add to stack</p>
       )}
     </div>
   )

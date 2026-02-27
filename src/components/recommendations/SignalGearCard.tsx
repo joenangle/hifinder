@@ -84,39 +84,44 @@ const SignalGearCardComponent = ({
 
     return (
       <div
-        role="checkbox"
-        aria-checked={isSelected}
-        aria-label={`Select ${component.brand} ${component.name}`}
+        role="article"
+        aria-label={`${component.brand} ${component.name}`}
         tabIndex={0}
-        title={isSelected ? 'Click to remove from your system' : 'Click to add to your system'}
+        title="View details"
         className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
           isSelected
             ? SELECTED_STYLE[type]
             : `bg-surface-card ${HOVER_STYLE[type]}`
         }`}
-        onClick={() => onToggleSelection(component.id)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(component.id) } }}
+        onClick={() => onViewDetails?.(component.id)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(component.id) } }}
       >
-        {/* Selection affordance icon */}
-        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow] duration-200 ${
-          isSelected
-            ? `${SELECTED_COLOR[type]} text-white`
-            : isFirstCardHint
-            ? 'border border-accent text-accent opacity-100 animate-hint-pulse'
-            : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
-        }`}>
+        {/* Selection button */}
+        <button
+          type="button"
+          aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow,opacity] duration-200 ${
+            isSelected
+              ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
+              : isFirstCardHint
+              ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
+              : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'
+          }`}
+          onClick={(e) => { e.stopPropagation(); onToggleSelection(component.id) }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onToggleSelection(component.id) } }}
+        >
           {isSelected ? (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
             </svg>
           )}
-        </div>
-      {/* Row 1: Type label + name + price (pr-8 clears the selection affordance icon) */}
-      <div className="flex items-start justify-between gap-3 mb-2 pr-8">
+        </button>
+      {/* Row 1: Type label + name + price (pr-10 clears the selection button) */}
+      <div className="flex items-start justify-between gap-3 mb-2 pr-10">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-tertiary">
@@ -226,23 +231,11 @@ const SignalGearCardComponent = ({
           </button>
         )}
         <div className="ml-auto flex items-center gap-1">
-          {onViewDetails && (
-            <button
-              onClick={() => onViewDetails(component.id)}
-              className="p-1 text-tertiary hover:text-accent transition-colors rounded"
-              title="View details"
-              aria-label={`View details for ${component.brand} ${component.name}`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          )}
           <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
       {isFirstCardHint && !isSelected && (
-        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Click to add to your system</p>
+        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Tap card for details · <strong>+</strong> to add to stack</p>
       )}
     </div>
   )

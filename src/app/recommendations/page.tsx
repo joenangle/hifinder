@@ -1001,6 +1001,19 @@ function RecommendationsContent() {
     if (comp) setDetailComponent(comp)
   }, [cans, iems, dacs, amps, dacAmps])
 
+  // Unified selection helpers for the detail modal
+  const isDetailComponentSelected = useCallback((id: string) => {
+    return selectedCans.has(id) || selectedIems.has(id) || selectedDacs.has(id) || selectedAmps.has(id) || selectedDacAmps.has(id)
+  }, [selectedCans, selectedIems, selectedDacs, selectedAmps, selectedDacAmps])
+
+  const toggleDetailComponentSelection = useCallback((id: string) => {
+    if (cans.find(c => c.id === id)) return toggleCansSelection(id)
+    if (iems.find(c => c.id === id)) return toggleIemsSelection(id)
+    if (dacs.find(c => c.id === id)) return toggleDacSelection(id)
+    if (amps.find(c => c.id === id)) return toggleAmpSelection(id)
+    if (dacAmps.find(c => c.id === id)) return toggleDacAmpSelection(id)
+  }, [cans, iems, dacs, amps, dacAmps, toggleCansSelection, toggleIemsSelection, toggleDacSelection, toggleAmpSelection, toggleDacAmpSelection])
+
   // Scroll to used market section after it renders
   useEffect(() => {
     if (showMarketplace && focusedComponentId && usedListings[focusedComponentId]) {
@@ -1853,6 +1866,8 @@ function RecommendationsContent() {
           component={detailComponent}
           isOpen={!!detailComponent}
           onClose={() => setDetailComponent(null)}
+          isSelected={isDetailComponentSelected(detailComponent.id)}
+          onToggleSelection={toggleDetailComponentSelection}
         />
       )}
 
