@@ -18,12 +18,17 @@ const nextConfig: NextConfig = {
   // React Compiler for automatic memoization (Next.js 16+)
   reactCompiler: true,
 
+  // Skip TypeScript checking during `next build` — tsc runs separately
+  // via the build script for faster builds with incremental caching
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // Optimize package imports to reduce bundle size
   experimental: {
     optimizePackageImports: [
       'lucide-react',
       '@supabase/supabase-js',
-      'lodash',
     ],
   },
 
