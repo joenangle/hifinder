@@ -177,25 +177,18 @@ function GearContent() {
   }, [])
 
   const searchComponents = async (query: string) => {
-    console.log('🔍 searchComponents called with query:', query);
-    
     if (query.length < 2) {
-      console.log('❌ Query too short, clearing results');
       setSearchResults([])
       return
     }
 
-    console.log('📞 Making supabase query...');
     const { data, error } = await supabase
       .from('components')
       .select('*')
       .or(`name.ilike.%${query}%,brand.ilike.%${query}%`)
       .limit(10)
 
-    console.log('📊 Query result:', { data: data?.length, error });
-    
     if (!error && data) {
-      console.log('✅ Setting search results:', data.length, 'items');
       setSearchResults(data)
     } else if (error) {
       console.error('❌ Search error:', error);
@@ -203,26 +196,17 @@ function GearContent() {
   }
 
   const handleAddGear = async () => {
-    console.log('🔄 handleAddGear called');
-    console.log('Session user ID:', session?.user?.id);
-    console.log('Is custom entry:', isCustomEntry);
-    console.log('Selected component:', selectedComponent);
-    console.log('Form data:', addFormData);
-    
     if (!session?.user?.id) {
-      console.log('❌ No user session');
       return;
     }
-    
+
     // Validation
     if (!isCustomEntry && !selectedComponent) {
-      console.log('❌ No component selected and not custom entry');
       alert('Please select a component or switch to custom entry');
       return;
     }
-    
+
     if (isCustomEntry && (!addFormData.custom_name || !addFormData.custom_brand)) {
-      console.log('❌ Missing custom entry fields');
       alert('Please fill in both brand and model for custom entry');
       return;
     }
@@ -243,8 +227,6 @@ function GearContent() {
       gearData.custom_category = addFormData.custom_category
     }
 
-    console.log('🚀 Attempting to add gear with data:', gearData);
-    
     try {
       const response = await fetch('/api/gear', {
         method: 'POST',
@@ -256,14 +238,12 @@ function GearContent() {
       })
       
       if (response.ok) {
-        const newItem = await response.json()
-        console.log('✅ Success! Added gear item:', newItem);
+        await response.json()
         await loadData()
         setShowAddModal(false)
         resetAddForm()
       } else {
         const error = await response.json()
-        console.log('❌ Add failed:', error);
         alert('Failed to add gear item: ' + (error.error || 'Unknown error'));
       }
     } catch (error) {
@@ -606,9 +586,23 @@ function GearContent() {
   }
 
   return (
-    <div className="min-h-screen" style={{backgroundColor: 'var(--background-primary)', color: 'var(--text-primary)'}}>
+    <div className="min-h-screen" style={{backgroundColor: 'var(--background-primary)', color: 'var(--text-primary)', position: 'relative', overflow: 'hidden'}}>
+      {/* Grid texture background — matches homepage */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundImage:
+            'linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          opacity: 0.3,
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Compact Integrated Header - 56px only */}
-      <GearPageHeader 
+      <GearPageHeader
         stats={{
           totalItems: gear.length,
           totalInvested: collectionStats?.totalPaid || 0,
@@ -616,10 +610,10 @@ function GearContent() {
           depreciation: collectionStats?.depreciation || 0
         }}
       />
-      
+
       {/* Filters Section - sticky below header, full width */}
       <div className="sticky top-[120px] z-20 border-b shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
-        <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+        <div style={{maxWidth: '1100px', margin: '0 auto', padding: '16px 24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
             onCategoryChange={(category) => {
@@ -639,7 +633,7 @@ function GearContent() {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto relative" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+      <div className="relative" style={{maxWidth: '1100px', margin: '0 auto', paddingLeft: '24px', paddingRight: '24px'}}>
         {/* Content Area - with padding from divider */}
         <div className="pt-10 relative">
         {/* Gear Display - Grid/List/Stacks */}
@@ -734,7 +728,7 @@ function GearContent() {
                               const newStack = await createStack(session?.user?.id || '', template.name, template.description)
                               if (newStack) loadData()
                             }}
-                            className="card p-4 hover:shadow-lg transition-all cursor-pointer border-2 border-dashed border-secondary hover:border-primary"
+                            className="card p-4 hover:shadow-lg transition-[border-color,box-shadow] cursor-pointer border-2 border-dashed border-secondary hover:border-primary"
                           >
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl">{template.icon}</span>
@@ -949,7 +943,7 @@ function GearContent() {
 
                     {/* New Stack Drop Zone */}
                     <div
-                      className={`card p-6 border-2 border-dashed flex flex-col items-center justify-center min-h-[200px] transition-all ${
+                      className={`card p-6 border-2 border-dashed flex flex-col items-center justify-center min-h-[200px] transition-[border-color,box-shadow] ${
                         dragOverStack === '__new__'
                           ? 'border-accent ring-2 ring-accent bg-accent/10'
                           : draggedGear
@@ -1277,7 +1271,7 @@ function GearContent() {
               {stacks.map(stack => (
                 <div
                   key={stack.id}
-                  className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                  className={`p-4 rounded-lg border-2 transition-[border-color,background-color] cursor-pointer ${
                     dragOverStack === stack.id
                       ? 'border-accent ring-2 ring-accent/50 bg-accent/5'
                       : 'border-subtle hover:border-primary'
@@ -1304,7 +1298,7 @@ function GearContent() {
 
               {/* New Stack drop zone */}
               <div
-                className={`p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center min-h-[100px] transition-all ${
+                className={`p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center min-h-[100px] transition-[border-color,background-color] ${
                   dragOverStack === '__new__'
                     ? 'border-accent ring-2 ring-accent bg-accent/10'
                     : draggedGear
@@ -1403,9 +1397,7 @@ function GearContent() {
 
                     {searchResults.length > 0 && (
                       <div className="mt-2 border rounded-lg max-h-48 overflow-y-auto shadow-lg" style={{backgroundColor: 'var(--surface-card)', borderColor: 'var(--border-default)'}}>
-                        {(() => {
-                          console.log('🔄 Rendering dropdown with', searchResults.length, 'results');
-                          return searchResults.map(component => (
+                        {searchResults.map(component => (
                             <button
                             key={component.id}
                             onClick={() => {
@@ -1424,8 +1416,7 @@ function GearContent() {
                             <span className="font-medium">{component.brand} {component.name}</span>
                             <span className="text-sm capitalize" style={{color: 'var(--text-secondary)'}}>{component.category}</span>
                             </button>
-                          ));
-                        })()}
+                          ))}
                       </div>
                     )}
                   </div>
@@ -1591,7 +1582,7 @@ function GearContent() {
       {/* Enhanced Gear Details Modal */}
       {showDetailsModal && selectedGear && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[40] p-4"
           onClick={() => {
             setShowDetailsModal(false)
             setSelectedGear(null)
@@ -2222,7 +2213,7 @@ function GearContent() {
                           {items.map(item => (
                             <div
                               key={item.id}
-                              className="card p-4 hover:shadow-lg transition-all cursor-pointer hover:border-accent"
+                              className="card p-4 hover:shadow-lg transition-[border-color,box-shadow] cursor-pointer hover:border-accent"
                               onClick={async () => {
                                 try {
                                   await addGearToStackAPI(selectedStackForGear.id, item.id)

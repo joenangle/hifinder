@@ -17,14 +17,14 @@ interface GearFiltersProps {
   onViewModeChange?: (mode: ViewMode) => void
 }
 
-export function GearFilters({ 
-  selectedCategory, 
-  onCategoryChange, 
-  categoryCounts, 
-  onAddGear, 
-  onExport, 
-  viewMode, 
-  onViewModeChange 
+export function GearFilters({
+  selectedCategory,
+  onCategoryChange,
+  categoryCounts,
+  onAddGear,
+  onExport,
+  viewMode,
+  onViewModeChange
 }: GearFiltersProps) {
   const filterCategories = [
     { id: 'headphones' as const, label: 'Headphones', icon: Headphones },
@@ -41,13 +41,11 @@ export function GearFilters({
           {/* All Gear Pill */}
           <button
             onClick={() => onCategoryChange('all')}
-            className={`
-              flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-              ${selectedCategory === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              }
-            `}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: selectedCategory === 'all' ? 'var(--accent-primary)' : 'var(--surface-hover)',
+              color: selectedCategory === 'all' ? 'white' : 'var(--text-secondary)',
+            }}
           >
             <span>All Gear</span>
             {categoryCounts.all > 0 && (
@@ -56,22 +54,16 @@ export function GearFilters({
               </span>
             )}
           </button>
-          
+
           {filterCategories.map((category) => {
             const IconComponent = category.icon
             const count = categoryCounts[category.id] || 0
-            
+
             return (
               <button
                 key={category.id}
                 onClick={() => onCategoryChange(category.id)}
-                className={`
-                  flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${selectedCategory === category.id
-                    ? 'bg-accent text-white'
-                    : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
-                  }
-                `}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
                 style={{
                   backgroundColor: selectedCategory === category.id ? 'var(--accent-primary)' : 'var(--surface-hover)',
                   color: selectedCategory === category.id ? 'white' : 'var(--text-secondary)'
@@ -95,7 +87,11 @@ export function GearFilters({
           {onAddGear && (
             <button
               onClick={onAddGear}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--accent-primary)',
+                color: 'white',
+              }}
             >
               <span>+ Add to Collection</span>
             </button>
@@ -106,7 +102,11 @@ export function GearFilters({
             {onExport && (
               <button
                 onClick={onExport}
-                className="px-3 py-1.5 rounded-md bg-surface-secondary hover:bg-surface-hover text-secondary hover:text-primary transition-colors"
+                className="px-3 py-1.5 rounded-md transition-colors"
+                style={{
+                  backgroundColor: 'var(--surface-hover)',
+                  color: 'var(--text-secondary)',
+                }}
                 title="Export Collection"
               >
                 <Download className="w-4 h-4" />
@@ -115,14 +115,14 @@ export function GearFilters({
             {viewMode && onViewModeChange && (
               <div className="flex items-center gap-2">
                 {/* View Mode Selector with Labels */}
-                <div className="flex rounded-lg overflow-hidden border border-border">
+                <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-default)' }}>
                   <button
                     onClick={() => onViewModeChange('grid')}
-                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
-                      viewMode === 'grid'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
-                    }`}
+                    className="px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium"
+                    style={{
+                      backgroundColor: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--surface-card)',
+                      color: viewMode === 'grid' ? 'white' : 'var(--text-secondary)',
+                    }}
                     title="Grid View"
                   >
                     <Grid3X3 className="w-4 h-4" />
@@ -130,11 +130,13 @@ export function GearFilters({
                   </button>
                   <button
                     onClick={() => onViewModeChange('list')}
-                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium border-x border-border ${
-                      viewMode === 'list'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
-                    }`}
+                    className="px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium"
+                    style={{
+                      borderLeft: '1px solid var(--border-default)',
+                      borderRight: '1px solid var(--border-default)',
+                      backgroundColor: viewMode === 'list' ? 'var(--accent-primary)' : 'var(--surface-card)',
+                      color: viewMode === 'list' ? 'white' : 'var(--text-secondary)',
+                    }}
                     title="List View"
                   >
                     <List className="w-4 h-4" />
@@ -142,22 +144,21 @@ export function GearFilters({
                   </button>
                   <button
                     onClick={() => onViewModeChange('stacks')}
-                    className={`px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium ${
-                      viewMode === 'stacks'
-                        ? 'bg-orange-600 text-white'
-                        : 'bg-surface-card text-secondary hover:bg-surface-hover'
-                    }`}
+                    className="px-3 py-1.5 transition-colors flex items-center gap-1.5 text-sm font-medium"
+                    style={{
+                      backgroundColor: viewMode === 'stacks' ? 'var(--accent-primary)' : 'var(--surface-card)',
+                      color: viewMode === 'stacks' ? 'white' : 'var(--text-secondary)',
+                    }}
                     title="Stack Builder - Organize your gear into purposeful setups"
                   >
                     <Layers className="w-4 h-4" />
                     <span className="hidden lg:inline font-semibold">Stacks</span>
-                    <span className="hidden xl:inline text-xs ml-1 px-1.5 py-0.5 bg-orange-500/20 text-orange-300 rounded">NEW</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
-          
+
           {/* Mobile Overflow Menu */}
           <div className="md:hidden">
             <OverflowMenu

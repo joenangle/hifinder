@@ -4,18 +4,16 @@ import { useSession } from 'next-auth/react'
 import { redirect, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Package, Heart, Bell, Layers } from 'lucide-react'
+import { LayoutDashboard, Heart, Bell, Package } from 'lucide-react'
 import { WishlistTab } from '@/components/dashboard/WishlistTab'
 import { AlertsTab } from '@/components/dashboard/AlertsTab'
-import { GearTab } from '@/components/dashboard/GearTab'
-import { StacksTab } from '@/components/dashboard/StacksTab'
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed'
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist'
 import { RecentSearches } from '@/components/dashboard/RecentSearches'
 import { WishlistMatches } from '@/components/dashboard/WishlistMatches'
 
 // Tab type
-type DashboardTab = 'overview' | 'gear' | 'wishlist' | 'alerts' | 'stacks'
+type DashboardTab = 'overview' | 'wishlist' | 'alerts'
 
 function DashboardContent() {
   const { data: session, status } = useSession()
@@ -32,7 +30,7 @@ function DashboardContent() {
   // Set active tab from URL
   useEffect(() => {
     const tab = searchParams.get('tab') as DashboardTab
-    if (tab && ['overview', 'gear', 'wishlist', 'alerts', 'stacks'].includes(tab)) {
+    if (tab && ['overview', 'wishlist', 'alerts'].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -67,13 +65,6 @@ function DashboardContent() {
               href="/dashboard?tab=overview"
             />
             <TabButton
-              icon={<Package className="w-4 h-4" />}
-              label="My Gear"
-              isActive={activeTab === 'gear'}
-              onClick={() => setActiveTab('gear')}
-              href="/dashboard?tab=gear"
-            />
-            <TabButton
               icon={<Heart className="w-4 h-4" />}
               label="Wishlist"
               isActive={activeTab === 'wishlist'}
@@ -87,23 +78,14 @@ function DashboardContent() {
               onClick={() => setActiveTab('alerts')}
               href="/dashboard?tab=alerts"
             />
-            <TabButton
-              icon={<Layers className="w-4 h-4" />}
-              label="Stacks"
-              isActive={activeTab === 'stacks'}
-              onClick={() => setActiveTab('stacks')}
-              href="/dashboard?tab=stacks"
-            />
           </nav>
         </div>
 
         {/* Tab Content */}
         <div className="pb-12">
           {activeTab === 'overview' && <OverviewTab setActiveTab={setActiveTab} />}
-          {activeTab === 'gear' && <GearTab />}
           {activeTab === 'wishlist' && <WishlistTab />}
           {activeTab === 'alerts' && <AlertsTab />}
-          {activeTab === 'stacks' && <StacksTab />}
         </div>
       </div>
     </div>
@@ -213,12 +195,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link
-          href="/dashboard?tab=gear"
+          href="/gear"
           className="card p-6 cursor-pointer hover:border-accent transition-colors"
-          onClick={(e) => {
-            e.preventDefault()
-            setActiveTab('gear')
-          }}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -266,7 +244,10 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
           </div>
         </Link>
 
-        <div className="card p-6">
+        <Link
+          href="/gear"
+          className="card p-6 cursor-pointer hover:border-accent transition-colors"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted mb-1">Collection Value</p>
@@ -281,7 +262,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
             </div>
             <Package className="w-8 h-8 text-accent" />
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Quick Actions */}
@@ -338,10 +319,6 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
     </div>
   )
 }
-
-// GearTab, WishlistTab, and AlertsTab imported from components above
-
-// StacksTab is now imported from '@/components/dashboard/StacksTab'
 
 export default function DashboardPage() {
   return (

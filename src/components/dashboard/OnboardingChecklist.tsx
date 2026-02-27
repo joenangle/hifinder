@@ -73,7 +73,7 @@ export function OnboardingChecklist({ setActiveTab }: { setActiveTab: (tab: stri
           description: 'Track what you own',
           icon: <Package className="w-4 h-4" />,
           done: hasGear,
-          action: { type: 'tab', tab: 'gear' }
+          action: { type: 'link', href: '/gear' }
         },
         {
           id: 'wishlist',
@@ -97,7 +97,7 @@ export function OnboardingChecklist({ setActiveTab }: { setActiveTab: (tab: stri
           description: 'Build your ideal audio system',
           icon: <Layers className="w-4 h-4" />,
           done: hasStacks,
-          action: { type: 'tab', tab: 'stacks' }
+          action: { type: 'link', href: '/gear?tab=stacks' }
         }
       ])
 
@@ -141,7 +141,7 @@ export function OnboardingChecklist({ setActiveTab }: { setActiveTab: (tab: stri
       {/* Progress bar */}
       <div className="h-1.5 bg-surface-secondary rounded-full mb-4 overflow-hidden">
         <div
-          className="h-full bg-accent rounded-full transition-all duration-500"
+          className="h-full bg-accent rounded-full transition-[width] duration-500"
           style={{ width: `${progressPct}%` }}
         />
       </div>

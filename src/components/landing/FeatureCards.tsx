@@ -18,7 +18,7 @@ const features = [
     title: 'Stack Builder',
     description:
       'Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.',
-    href: '/dashboard?tab=stacks',
+    href: '/gear?tab=stacks',
     tag: null,
   },
   {
@@ -137,7 +137,7 @@ export function FeatureCards() {
                 <span className="group-hover:text-[var(--text-primary)] transition-colors duration-150">
                   Explore
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 transition-all duration-150 group-hover:translate-x-1 group-hover:text-[var(--text-primary)]" />
+                <ArrowRight className="h-3.5 w-3.5 transition-[color,transform] duration-150 group-hover:translate-x-1 group-hover:text-[var(--text-primary)]" />
               </div>
             </Link>
           ))}

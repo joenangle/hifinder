@@ -2,6 +2,25 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl
+
+  // Redirect removed dashboard tabs to canonical /gear page
+  if (pathname === '/dashboard') {
+    const tab = searchParams.get('tab')
+    if (tab === 'gear') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/gear'
+      url.search = ''
+      return NextResponse.redirect(url, 302)
+    }
+    if (tab === 'stacks') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/gear'
+      url.search = '?tab=stacks'
+      return NextResponse.redirect(url, 302)
+    }
+  }
+
   const hostname = request.headers.get('host') || ''
 
   // Only protect staging.hifinder.app specifically

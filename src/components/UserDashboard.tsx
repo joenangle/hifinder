@@ -524,7 +524,7 @@ export function UserDashboard() {
                   based on what you own.
                 </p>
                 <Link
-                  href="/dashboard?tab=gear"
+                  href="/gear"
                   onClick={() =>
                     trackEvent({
                       name: 'dashboard_action_clicked',

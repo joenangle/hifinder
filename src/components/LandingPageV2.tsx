@@ -151,7 +151,7 @@ export function LandingPageV2() {
               <div className="flex flex-wrap gap-3" style={{ marginBottom: "3rem" }}>
                 <Link
                   href="/recommendations"
-                  className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+                  className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
                   style={{
                     background: "var(--text-primary)",
                     color: "var(--background-primary)",
@@ -170,7 +170,7 @@ export function LandingPageV2() {
                 </Link>
                 <Link
                   href="/learn"
-                  className="inline-flex items-center gap-2 font-medium transition-all duration-150"
+                  className="inline-flex items-center gap-2 font-medium transition-colors duration-150"
                   style={{
                     color: "var(--text-secondary)",
                     padding: "14px 24px",
@@ -334,7 +334,7 @@ export function LandingPageV2() {
                 title: "Stack Builder",
                 description:
                   "Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.",
-                href: "/dashboard?tab=stacks",
+                href: "/gear?tab=stacks",
                 tag: null,
               },
               {
@@ -436,7 +436,7 @@ export function LandingPageV2() {
                     Explore
                   </span>
                   <ArrowRight
-                    className="h-3.5 w-3.5 transition-all duration-150 group-hover:translate-x-1 group-hover:text-[var(--text-primary)]"
+                    className="h-3.5 w-3.5 transition-[color,transform] duration-150 group-hover:translate-x-1 group-hover:text-[var(--text-primary)]"
                   />
                 </div>
               </Link>
@@ -561,7 +561,7 @@ export function LandingPageV2() {
             </p>
             <Link
               href="/recommendations"
-              className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+              className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
               style={{
                 background: "var(--accent-primary)",
                 color: "var(--text-inverse)",
@@ -593,7 +593,7 @@ export function LandingPageV2() {
           transform: `translateX(-50%) translateY(${pastHero ? "120%" : "0"})`,
           transition: "transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s",
           opacity: pastHero ? 0 : 1,
-          zIndex: 50,
+          zIndex: 'var(--z-toast)',
           pointerEvents: pastHero ? "none" : "auto",
           display: "flex",
           alignItems: "center",

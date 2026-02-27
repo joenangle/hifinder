@@ -1,8 +1,5 @@
 'use client'
 
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
-
 interface GearStats {
   totalItems: number
   totalInvested: number
@@ -25,50 +22,90 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
   }
 
   return (
-    <div className="bg-primary border-b sticky top-16 z-10">
-      <div className="max-w-7xl mx-auto" style={{paddingLeft: '24px', paddingRight: '24px'}}>
-        <div className="h-14 flex items-center justify-between">
-          {/* Left: Back Arrow + Title */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-secondary hover:text-primary transition-colors flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-semibold" style={{color: 'var(--text-primary)'}}>
+    <div
+      style={{
+        borderBottom: '1px solid var(--border-subtle)',
+        position: 'sticky',
+        top: '64px',
+        zIndex: 10,
+        background: 'var(--background-primary)',
+      }}
+    >
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 var(--space-6)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '56px',
+          }}
+        >
+          {/* Left: Eyebrow + Title */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <p
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 500,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--accent-primary)',
+                margin: 0,
+              }}
+            >
               My Gear
-            </h1>
+            </p>
           </div>
-          
-          {/* Center: Inline Stats (Desktop) */}
-          <div className="hidden lg:flex items-center gap-6">
-            <div className="flex items-center gap-1 text-sm">
-              <span className="text-secondary" style={{color: 'var(--text-secondary)'}}>Items:</span>
-              <span className="font-semibold" style={{color: 'var(--text-primary)'}}>{stats.totalItems}</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm">
-              <span className="text-secondary" style={{color: 'var(--text-secondary)'}}>Value:</span>
-              <span className="font-semibold" style={{color: 'var(--text-primary)'}}>
-                {formatCurrency(stats.currentValue)}
+
+          {/* Desktop: Pipe-divided stats */}
+          <div className="hidden lg:flex" style={{ alignItems: 'center', gap: 0, fontSize: '0.8125rem' }}>
+            {[
+              { label: 'Items', value: `${stats.totalItems}` },
+              { label: 'Value', value: formatCurrency(stats.currentValue) },
+              { label: 'Invested', value: formatCurrency(stats.totalInvested) },
+              {
+                label: 'Depreciation',
+                value: `${stats.depreciation >= 0 ? '+' : ''}${formatCurrency(Math.abs(stats.depreciation))}`,
+                color: stats.depreciation >= 0 ? 'var(--error)' : 'var(--success)',
+              },
+            ].map((stat, i) => (
+              <span key={stat.label} style={{ display: 'flex', alignItems: 'center' }}>
+                {i > 0 && (
+                  <span
+                    style={{
+                      color: 'var(--text-tertiary)',
+                      margin: '0 var(--space-3)',
+                      opacity: 0.4,
+                    }}
+                  >
+                    |
+                  </span>
+                )}
+                <span style={{ color: 'var(--text-secondary)' }}>{stat.label}</span>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color: stat.color || 'var(--text-primary)',
+                    letterSpacing: '-0.03em',
+                    marginLeft: 'var(--space-1)',
+                  }}
+                >
+                  {stat.value}
+                </span>
               </span>
-            </div>
-            <div className="flex items-center gap-1 text-sm">
-              <span className="text-secondary" style={{color: 'var(--text-secondary)'}}>Invested:</span>
-              <span className="font-semibold" style={{color: 'var(--success)'}}>
-                {formatCurrency(stats.totalInvested)}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-sm">
-              <span className="text-secondary" style={{color: 'var(--text-secondary)'}}>Depreciation:</span>
-              <span className="font-semibold" style={{color: stats.depreciation >= 0 ? 'var(--error)' : 'var(--success)'}}>
-                {stats.depreciation >= 0 ? '+' : ''}{formatCurrency(Math.abs(stats.depreciation))}
-              </span>
-            </div>
+            ))}
           </div>
-          
-          {/* Medium: Compressed Stats */}
-          <div className="flex lg:hidden items-center text-sm" style={{color: 'var(--text-secondary)'}}>
-            <span>{stats.totalItems} items • {formatCurrency(stats.currentValue)}</span>
+
+          {/* Mobile: Compressed stats */}
+          <div
+            className="flex lg:hidden"
+            style={{ alignItems: 'center', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}
+          >
+            <span>{stats.totalItems} items</span>
+            <span style={{ margin: '0 6px', opacity: 0.4 }}>|</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
+              {formatCurrency(stats.currentValue)}
+            </span>
           </div>
-          
         </div>
       </div>
     </div>

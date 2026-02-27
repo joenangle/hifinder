@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 import {
   Package,
   Heart,
@@ -18,11 +19,12 @@ interface ActivityItem {
   title: string
   subtitle?: string
   timestamp: string
-  link?: { tab: string; label?: string }
+  link?: { tab?: string; href?: string; label?: string }
 }
 
 export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { data: session } = useSession()
+  const router = useRouter()
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -51,7 +53,7 @@ export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: strin
             title: comp ? `Added ${comp.brand} ${comp.name}` : 'Added gear to collection',
             subtitle: comp?.category,
             timestamp: item.created_at,
-            link: { tab: 'gear' }
+            link: { href: '/gear' }
           })
         }
       }
@@ -113,7 +115,7 @@ export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: strin
             type: 'stack_created',
             title: `Created stack "${item.name}"`,
             timestamp: item.created_at,
-            link: { tab: 'stacks' }
+            link: { href: '/gear?tab=stacks' }
           })
         }
       }
@@ -186,7 +188,13 @@ export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: strin
       {activities.map(activity => (
         <button
           key={activity.id}
-          onClick={() => activity.link && setActiveTab(activity.link.tab)}
+          onClick={() => {
+            if (activity.link?.href) {
+              router.push(activity.link.href)
+            } else if (activity.link?.tab) {
+              setActiveTab(activity.link.tab)
+            }
+          }}
           className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface-secondary transition-colors text-left"
         >
           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${COLORS[activity.type]}`}>
