@@ -38,6 +38,7 @@ interface SignalGearCardProps {
   onFindUsed?: (componentId: string, componentName: string) => void
   onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
+  isFirstCardHint?: boolean
 }
 
 const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
@@ -55,7 +56,8 @@ const SignalGearCardComponent = ({
   type,
   onFindUsed,
   onViewDetails,
-  expandAllExperts = false
+  expandAllExperts = false,
+  isFirstCardHint = false
 }: SignalGearCardProps) => {
   const inputs = component.input_types
     ? (Array.isArray(component.input_types) ? component.input_types : [component.input_types])
@@ -98,6 +100,8 @@ const SignalGearCardComponent = ({
         <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
           isSelected
             ? `${SELECTED_COLOR[type]} text-white`
+            : isFirstCardHint
+            ? 'border border-accent text-accent opacity-100 animate-hint-pulse'
             : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
         }`}>
           {isSelected ? (
@@ -236,6 +240,9 @@ const SignalGearCardComponent = ({
           <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
+      {isFirstCardHint && !isSelected && (
+        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Click to add to your system</p>
+      )}
     </div>
   )
 }

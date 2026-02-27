@@ -196,7 +196,7 @@ const FiltersSectionComponent = ({
         <div className="hidden sm:block h-5 w-px bg-border-default" />
 
         {/* Sound signature group */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5" data-sound-filters>
           <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
             Sound
           </span>

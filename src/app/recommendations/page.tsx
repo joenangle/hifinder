@@ -69,6 +69,7 @@ interface AudioComponent extends Component {
 function RecommendationsContent() {
   // Guided mode for first-time users
   const {
+    isFirstVisit,
     showWelcome,
     guidedModeEnabled,
     isLoaded: guidedModeLoaded,
@@ -136,6 +137,12 @@ function RecommendationsContent() {
   // Comparison view state
   const [showComparisonView, setShowComparisonView] = useState(false)
   const [isComparisonBarExpanded, setIsComparisonBarExpanded] = useState(false)
+
+  // First-card interaction hint: tracks whether user has ever selected any card
+  const [hasEverSelected, setHasEverSelected] = useState(() => {
+    if (typeof window === 'undefined') return true // SSR safe — assume returning user
+    return localStorage.getItem('hifinder_has_selected') === 'true'
+  })
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -608,6 +615,16 @@ function RecommendationsContent() {
     window.scrollTo({ top: 0, behavior: 'instant' })
     try { localStorage.setItem('hifinder_visited_recommendations', 'true') } catch {}
   }, [])
+
+  // Track first-ever card selection for interaction hint
+  useEffect(() => {
+    if (hasEverSelected) return
+    const totalSelected = selectedCans.size + selectedIems.size + selectedDacs.size + selectedAmps.size + selectedDacAmps.size
+    if (totalSelected > 0) {
+      setHasEverSelected(true)
+      try { localStorage.setItem('hifinder_has_selected', 'true') } catch {}
+    }
+  }, [hasEverSelected, selectedCans, selectedIems, selectedDacs, selectedAmps, selectedDacAmps])
 
   // Used listings fetch effect
   const fetchUsedListings = useCallback(async () => {
@@ -1104,6 +1121,18 @@ function RecommendationsContent() {
 
       <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-6 ${comparisonItems.length > 0 ? 'pb-28' : ''}`} style={{ width: '95%', maxWidth: '1400px' }}>
 
+       {/* Welcome banner for first-time visitors */}
+       {showWelcome && (
+         <WelcomeBanner
+           onDismiss={dismissWelcome}
+           onPickSound={() => {
+             setIsMultiSelectMode(true)
+             const soundEl = document.querySelector('[data-sound-filters]')
+             soundEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+           }}
+         />
+       )}
+
        {/* Compact Filters (includes budget allocation controls) */}
         <FiltersSection
           typeFilters={typeFilters}
@@ -1122,14 +1151,14 @@ function RecommendationsContent() {
           onEquipmentToggle={handleEquipmentToggle}
           onSoundFilterChange={handleSoundFilterChange}
           expandAllExperts={expandAllExperts}
-          onToggleExpandExperts={() => setExpandAllExperts(!expandAllExperts)}
+          onToggleExpandExperts={isFirstVisit && showWelcome ? undefined : () => setExpandAllExperts(!expandAllExperts)}
           onToggleGuidedMode={toggleGuidedMode}
           isMultiSelectMode={isMultiSelectMode}
           onToggleMultiSelect={handleToggleMultiSelect}
-          totalBudget={debouncedBudget}
+          totalBudget={isFirstVisit && showWelcome ? undefined : debouncedBudget}
           budgetAllocation={customBudgetAllocation}
           autoBudgetAllocation={autoBudgetAllocation}
-          onBudgetAllocationChange={handleBudgetAllocationChange}
+          onBudgetAllocationChange={isFirstVisit && showWelcome ? undefined : handleBudgetAllocationChange}
           budgetRangeMin={userPrefs.budgetRangeMin}
           budgetRangeMax={userPrefs.budgetRangeMax}
         />
@@ -1188,6 +1217,9 @@ function RecommendationsContent() {
           const hasAmps = wantRecommendationsFor.amp && filteredAmps.length > 0
           const hasCombos = wantRecommendationsFor.combo && filteredDacAmps.length > 0
           const hasSignalGear = hasDacs || hasAmps || hasCombos
+
+          // First-card hint flag — only the very first card across all sections gets the hint
+          let firstCardHintShown = false
 
           const activeTypes = [
             hasCans,
@@ -1265,6 +1297,8 @@ function RecommendationsContent() {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
                   const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const showHint = !firstCardHintShown && !hasEverSelected
+                  if (showHint) firstCardHintShown = true
 
                   return (
                     <HeadphoneCard
@@ -1278,6 +1312,7 @@ function RecommendationsContent() {
                       onFindUsed={handleFindUsed}
                       onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
+                      isFirstCardHint={showHint}
                     />
                   )
                 })}
@@ -1317,6 +1352,8 @@ function RecommendationsContent() {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
                   const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const showHint = !firstCardHintShown && !hasEverSelected
+                  if (showHint) firstCardHintShown = true
 
                   return (
                     <HeadphoneCard
@@ -1330,6 +1367,7 @@ function RecommendationsContent() {
                       onFindUsed={handleFindUsed}
                       onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
+                      isFirstCardHint={showHint}
                     />
                   )
                 })}
@@ -1370,7 +1408,10 @@ function RecommendationsContent() {
                             </span>
                           </div>
                         <div className="p-4 flex flex-col gap-[5px]">
-                          {displayDacs.map((dac) => (
+                          {displayDacs.map((dac) => {
+                            const showHint = !firstCardHintShown && !hasEverSelected
+                            if (showHint) firstCardHintShown = true
+                            return (
                             <SignalGearCard
                               key={dac.id}
                               component={dac}
@@ -1380,8 +1421,10 @@ function RecommendationsContent() {
                               onFindUsed={handleFindUsed}
                               onViewDetails={handleViewDetails}
                               expandAllExperts={expandAllExperts}
+                              isFirstCardHint={showHint}
                             />
-                          ))}
+                            )
+                          })}
 
                           {/* Show More Button */}
                           {!showAllDacs && filteredDacs.length > initialLimit && (
@@ -1424,7 +1467,10 @@ function RecommendationsContent() {
                       </span>
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
-                    {displayAmps.map((amp) => (
+                    {displayAmps.map((amp) => {
+                      const showHint = !firstCardHintShown && !hasEverSelected
+                      if (showHint) firstCardHintShown = true
+                      return (
                       <SignalGearCard
                         key={amp.id}
                         component={amp}
@@ -1434,8 +1480,10 @@ function RecommendationsContent() {
                         onFindUsed={handleFindUsed}
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
+                        isFirstCardHint={showHint}
                       />
-                    ))}
+                      )
+                    })}
 
                     {/* Show More Button */}
                     {!showAllAmps && filteredAmps.length > initialLimit && (
@@ -1478,7 +1526,10 @@ function RecommendationsContent() {
                       </span>
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
-                    {displayDacAmps.map((combo) => (
+                    {displayDacAmps.map((combo) => {
+                      const showHint = !firstCardHintShown && !hasEverSelected
+                      if (showHint) firstCardHintShown = true
+                      return (
                       <SignalGearCard
                         key={combo.id}
                         component={combo}
@@ -1488,8 +1539,10 @@ function RecommendationsContent() {
                         onFindUsed={handleFindUsed}
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
+                        isFirstCardHint={showHint}
                       />
-                    ))}
+                      )
+                    })}
 
                     {/* Show More Button */}
                     {!showAllCombos && filteredDacAmps.length > initialLimit && (

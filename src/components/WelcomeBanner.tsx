@@ -5,10 +5,10 @@ import { X, Lightbulb, Sparkles } from 'lucide-react'
 
 interface WelcomeBannerProps {
   onDismiss: () => void
-  onEnableGuidedMode?: () => void
+  onPickSound?: () => void
 }
 
-export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerProps) {
+export function WelcomeBanner({ onDismiss, onPickSound }: WelcomeBannerProps) {
   const [isVisible, setIsVisible] = useState(true)
 
   const handleDismiss = () => {
@@ -81,16 +81,16 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
-              {onEnableGuidedMode && (
+              {onPickSound && (
                 <button
                   onClick={() => {
-                    onEnableGuidedMode()
+                    onPickSound()
                     handleDismiss()
                   }}
                   className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-semibold transition-all bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
                 >
                   <Lightbulb className="w-4 h-4" />
-                  Enable Guided Mode
+                  Pick your sound
                 </button>
               )}
 

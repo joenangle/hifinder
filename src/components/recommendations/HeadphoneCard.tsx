@@ -43,6 +43,7 @@ interface HeadphoneCardProps {
   onFindUsed?: (componentId: string, componentName: string) => void
   onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
+  isFirstCardHint?: boolean
 }
 
 const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
@@ -65,7 +66,8 @@ const HeadphoneCardComponent = ({
   isBudgetChamp,
   onFindUsed,
   onViewDetails,
-  expandAllExperts = false
+  expandAllExperts = false,
+  isFirstCardHint = false
 }: HeadphoneCardProps) => {
   const hasGrades = headphone.crin_tone || headphone.crin_tech || headphone.crin_rank
   const soundSig = headphone.crinacle_sound_signature || headphone.sound_signature
@@ -97,6 +99,8 @@ const HeadphoneCardComponent = ({
         <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
           isSelected
             ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
+            : isFirstCardHint
+            ? 'border border-accent text-accent opacity-100 animate-hint-pulse'
             : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
         }`}>
           {isSelected ? (
@@ -260,6 +264,9 @@ const HeadphoneCardComponent = ({
           <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
+      {isFirstCardHint && !isSelected && (
+        <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Click to add to your system</p>
+      )}
     </div>
   )
 }
