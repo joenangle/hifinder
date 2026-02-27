@@ -750,9 +750,9 @@ function MarketplaceContent() {
           <>
             {viewMode === 'list' && (
               <div className="bg-surface-elevated border-b-2 border-border mb-0 overflow-x-auto">
-                <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2">
                   {/* Component Info */}
-                  <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
+                  <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Item</span>
                   </div>
 
@@ -772,27 +772,27 @@ function MarketplaceContent() {
                   </div>
 
                   {/* Time - always visible */}
-                  <div className="w-16 sm:w-20">
+                  <div className="w-12 sm:w-20 flex-shrink-0">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Posted</span>
                   </div>
 
                   {/* Price - always visible */}
-                  <div className="w-20 sm:w-24 text-right">
+                  <div className="w-16 sm:w-24 flex-shrink-0 text-right">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Price</span>
                   </div>
 
                   {/* Price Analysis - hide on small screens */}
-                  <div className="hidden md:block w-16">
+                  <div className="hidden md:block w-16 flex-shrink-0">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Deal</span>
                   </div>
 
                   {/* MSRP - hide on small screens */}
-                  <div className="hidden md:block w-20 text-right">
+                  <div className="hidden md:block w-20 flex-shrink-0 text-right">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">MSRP</span>
                   </div>
 
                   {/* Action - always visible */}
-                  <div className="w-16 sm:w-20">
+                  <div className="w-10 sm:w-20 flex-shrink-0">
                     <span className="text-xs font-semibold text-muted uppercase tracking-wide">Action</span>
                   </div>
                 </div>

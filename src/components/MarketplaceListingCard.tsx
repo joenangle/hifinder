@@ -112,9 +112,9 @@ export function MarketplaceListingCard({
   if (viewMode === 'list') {
     return (
       <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
-        <div className="flex items-center gap-3 px-4 py-2 min-w-max md:min-w-0">
-          {/* Item - flex-1 with responsive min-width */}
-          <div className="flex-1 min-w-[160px] sm:min-w-[200px]">
+        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2">
+          {/* Item - flex-1, truncates on small screens */}
+          <div className="flex-1 min-w-0">
             <div className="font-semibold text-foreground truncate text-sm sm:text-base">
               {component.brand} {component.name}
             </div>
@@ -162,13 +162,13 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Posted - always visible, responsive sizing */}
-          <div className={`w-16 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
+          <div className={`w-12 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
             {timeInfo.text}
           </div>
 
           {/* Price - always visible, responsive sizing */}
-          <div className="w-20 sm:w-24 flex-shrink-0 text-right">
-            <div className="text-base sm:text-lg font-bold text-foreground">
+          <div className="w-16 sm:w-24 flex-shrink-0 text-right">
+            <div className="text-sm sm:text-lg font-bold text-foreground">
               {formatPrice(listing.price)}
             </div>
             <PriceHistoryBadge componentId={component.id} />
@@ -193,9 +193,9 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Action - always visible, responsive sizing */}
-          <div className="w-16 sm:w-20 flex-shrink-0">
+          <div className="w-10 sm:w-20 flex-shrink-0">
             {listing.url.includes('/sample') ? (
-              <div className="px-2 sm:px-3 py-1 bg-surface-secondary text-secondary rounded text-xs text-center cursor-not-allowed">
+              <div className="px-1.5 sm:px-3 py-1 bg-surface-secondary text-secondary rounded text-xs text-center cursor-not-allowed">
                 Demo
               </div>
             ) : (
@@ -203,7 +203,7 @@ export function MarketplaceListingCard({
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
+                className="inline-flex items-center justify-center gap-1 px-1.5 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
                 aria-label={`View listing for ${listing.title} (opens in new tab)`}
               >
                 <span className="hidden sm:inline">View</span>
