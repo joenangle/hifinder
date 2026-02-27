@@ -137,7 +137,7 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
   const blurb = generateExpertBlurb(component)
 
   return (
-    <div className="border-t border pt-2 mt-2">
+    <div className="border-t pt-2 mt-2">
       <button
         onClick={(e) => {
           e.stopPropagation() // Prevent card selection

@@ -30,11 +30,14 @@ const TooltipComponent = ({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
 
+  const tooltipRef = useRef<HTMLDivElement>(null)
+
   const updateTooltipPosition = () => {
     if (!triggerRef.current) return
 
     const triggerRect = triggerRef.current.getBoundingClientRect()
     const tooltipOffset = 8 // 8px gap between trigger and tooltip
+    const edgePadding = 12 // min distance from viewport edge
 
     let top = 0
     let left = 0
@@ -59,6 +62,21 @@ const TooltipComponent = ({
     }
 
     setTooltipPosition({ top, left })
+
+    // After render, clamp to viewport if overflowing
+    requestAnimationFrame(() => {
+      if (!tooltipRef.current) return
+      const rect = tooltipRef.current.getBoundingClientRect()
+      const vw = window.innerWidth
+
+      if (rect.left < edgePadding) {
+        // Overflowing left — shift right
+        setTooltipPosition(prev => ({ ...prev, left: prev.left + (edgePadding - rect.left) }))
+      } else if (rect.right > vw - edgePadding) {
+        // Overflowing right — shift left
+        setTooltipPosition(prev => ({ ...prev, left: prev.left - (rect.right - vw + edgePadding) }))
+      }
+    })
   }
 
   const handleMouseEnter = () => {
@@ -138,6 +156,7 @@ const TooltipComponent = ({
   const tooltipContent = shouldRender && typeof document !== 'undefined' ? (
     createPortal(
       <div
+        ref={tooltipRef}
         className={`
           fixed z-[99999]
           transition-opacity duration-150
@@ -178,8 +197,14 @@ const TooltipComponent = ({
     )
   ) : null
 
-  const handleTouch = () => {
+  const handleTouch = (e: React.MouseEvent | React.TouchEvent) => {
     if (!content || (typeof content === 'string' && content.trim() === '')) return
+
+    // Don't intercept taps on interactive children (buttons, links, inputs)
+    const target = e.target as HTMLElement
+    if (target.closest('button, a, input, select, textarea, [role="button"]') && target.closest('button, a, input, select, textarea, [role="button"]') !== triggerRef.current) {
+      return
+    }
 
     if (shouldRender) {
       // Dismiss if already visible
@@ -218,9 +243,6 @@ const TooltipComponent = ({
       onFocus={handleMouseEnter}
       onBlur={handleMouseLeave}
       onClick={handleTouch}
-      onTouchStart={handleTouch}
-      tabIndex={0}
-      role="button"
     >
       {children}
       {tooltipContent}

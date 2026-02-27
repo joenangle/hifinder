@@ -28,7 +28,7 @@ export const FILTER_TOOLTIPS = {
     },
     combos: {
       title: 'DAC/Amp Combos',
-      description: 'All-in-one solution',
+      description: 'All-in-one DAC/Amp solutions',
       details: 'Combines DAC and amplifier in one unit. Convenient and often better value. Count shows total available options in your budget - we display the top-rated matches.'
     }
   },
