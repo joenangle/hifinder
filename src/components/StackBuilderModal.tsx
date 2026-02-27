@@ -665,11 +665,11 @@ export function StackBuilderModal({
 
                   try {
                     await navigator.clipboard.writeText(shareUrl)
+                    setShareToast(true)
+                    setTimeout(() => setShareToast(false), 2000)
                   } catch {
                     // Clipboard API unavailable — silent fail
                   }
-                  setShareToast(true)
-                  setTimeout(() => setShareToast(false), 2000)
                 }}
                 className="px-4 py-2 text-orange-500 dark:text-orange-400 border border-orange-300 dark:border-orange-700 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
               >

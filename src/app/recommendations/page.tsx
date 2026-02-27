@@ -40,10 +40,13 @@ export async function generateMetadata({
           .in('id', ids)
 
         if (data && data.length > 0) {
-          const names = data.map((c) => `${c.brand} ${c.name}`).join(' + ')
+          const maxDisplay = 2
+          const displayNames = data.slice(0, maxDisplay).map((c) => `${c.brand} ${c.name}`).join(' + ')
+          const suffix = data.length > maxDisplay ? ` + ${data.length - maxDisplay} more` : ''
+          const allNames = data.map((c) => `${c.brand} ${c.name}`).join(' + ')
           const budgetStr = budget ? ` — $${budget}` : ''
-          title = `HiFinder Stack: ${names}${budgetStr}`
-          description = `Check out this ${data.length}-piece audio stack on HiFinder: ${names}.${budgetStr ? ` Budget: $${budget}.` : ''} Build your own at hifinder.app`
+          title = `HiFinder Stack: ${displayNames}${suffix}${budgetStr}`
+          description = `Check out this ${data.length}-piece audio stack on HiFinder: ${allNames}.${budgetStr ? ` Budget: $${budget}.` : ''} Build your own at hifinder.app`
         }
       }
     } catch {
@@ -67,7 +70,7 @@ export async function generateMetadata({
       locale: 'en_US',
     },
     twitter: {
-      card: 'summary_large_image',
+      card: 'summary',
       title,
       description,
     },
