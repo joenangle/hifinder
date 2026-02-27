@@ -105,18 +105,18 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
       <div className="p-4">
         {/* Search input */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" aria-hidden="true" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tertiary" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by brand or model name..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border-default bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-primary/40 focus:border-accent-primary text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-secondary text-primary placeholder:text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent text-sm"
           />
           {loading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent-primary border-t-transparent" />
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent" />
             </div>
           )}
         </div>
@@ -129,8 +129,8 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
               onClick={() => setCategoryFilter(cat.value)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 categoryFilter === cat.value
-                  ? 'bg-accent-primary text-white'
-                  : 'bg-background-secondary text-text-secondary hover:bg-surface-hover border border-border-subtle'
+                  ? 'bg-accent text-white'
+                  : 'bg-secondary text-secondary hover:bg-surface-hover border border-subtle'
               }`}
             >
               {cat.label}
@@ -156,37 +156,37 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
-                        <span className="text-text-secondary font-normal">{item.brand}</span>{' '}
+                      <p className="text-sm font-medium text-primary truncate">
+                        <span className="text-secondary font-normal">{item.brand}</span>{' '}
                         {item.name}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-text-tertiary">
+                        <span className="text-xs text-tertiary">
                           {categoryLabels[item.category] || item.category}
                         </span>
                         {item.impedance && (
-                          <span className="text-xs text-text-tertiary">{item.impedance}&#8486;</span>
+                          <span className="text-xs text-tertiary">{item.impedance}&#8486;</span>
                         )}
                         {item.sound_signature && (
-                          <span className="text-xs text-text-tertiary capitalize">{item.sound_signature}</span>
+                          <span className="text-xs text-tertiary capitalize">{item.sound_signature}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex-shrink-0 text-right">
                       {isOwned ? (
-                        <span className="text-xs font-medium text-text-tertiary">Already added</span>
+                        <span className="text-xs font-medium text-tertiary">Already added</span>
                       ) : (
                         <>
                           {item.price_used_min && item.price_used_max ? (
-                            <span className="text-xs text-text-tertiary tabular-nums">
+                            <span className="text-xs text-tertiary tabular-nums">
                               {fmt(item.price_used_min)}–{fmt(item.price_used_max)}
                             </span>
                           ) : item.price_new ? (
-                            <span className="text-xs text-text-tertiary tabular-nums">
+                            <span className="text-xs text-tertiary tabular-nums">
                               {fmt(item.price_new)} new
                             </span>
                           ) : null}
-                          <div className="text-xs font-medium text-accent-primary mt-0.5">
+                          <div className="text-xs font-medium text-accent mt-0.5">
                             + Add
                           </div>
                         </>
@@ -198,13 +198,13 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
             </div>
           ) : hasSearched && debouncedQuery.length >= 2 ? (
             <div className="text-center py-12">
-              <p className="text-sm text-text-secondary">No components found for &ldquo;{debouncedQuery}&rdquo;</p>
-              <p className="text-xs text-text-tertiary mt-1">Try a different search term or category</p>
+              <p className="text-sm text-secondary">No components found for &ldquo;{debouncedQuery}&rdquo;</p>
+              <p className="text-xs text-tertiary mt-1">Try a different search term or category</p>
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-sm text-text-secondary">Search for gear you already own</p>
-              <p className="text-xs text-text-tertiary mt-1">
+              <p className="text-sm text-secondary">Search for gear you already own</p>
+              <p className="text-xs text-tertiary mt-1">
                 Adding your existing gear helps us build better system recommendations
               </p>
             </div>

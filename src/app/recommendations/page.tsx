@@ -1102,7 +1102,7 @@ function RecommendationsContent() {
             </div>
         </div>
 
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6" style={{ width: '95%', maxWidth: '1400px' }}>
+      <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-6 ${comparisonItems.length > 0 ? 'pb-28' : ''}`} style={{ width: '95%', maxWidth: '1400px' }}>
 
        {/* Compact Filters (includes budget allocation controls) */}
         <FiltersSection

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface ExpertAnalysisProps {
   component: {
@@ -82,14 +82,14 @@ export function CompactExpertBadge({ component }: { component: ExpertAnalysisPro
   if (!hasGrades) return null
 
   return (
-    <div className="flex items-center gap-2 text-[10px] text-text-tertiary dark:text-text-tertiary">
+    <div className="flex items-center gap-2 text-[10px] text-tertiary">
       {component.crin_tone && (
         <span className={`font-medium ${getGradeColor(component.crin_tone)}`}>
           {component.crin_tone} Tone
         </span>
       )}
       {component.crin_tech && (
-        <span className="text-text-tertiary dark:text-text-tertiary">|</span>
+        <span className="text-tertiary">|</span>
       )}
       {component.crin_tech && (
         <span className={`font-medium ${getGradeColor(component.crin_tech)}`}>
@@ -98,7 +98,7 @@ export function CompactExpertBadge({ component }: { component: ExpertAnalysisPro
       )}
       {component.crin_rank && (
         <>
-          <span className="text-text-tertiary dark:text-text-tertiary">|</span>
+          <span className="text-tertiary">|</span>
           <span className="font-medium">Rank #{component.crin_rank}</span>
         </>
       )}
@@ -109,9 +109,16 @@ export function CompactExpertBadge({ component }: { component: ExpertAnalysisPro
 export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, forceExpanded = false }: ExpertAnalysisProps) {
   // Start collapsed by default, but can be overridden by forceExpanded
   const [isExpanded, setIsExpanded] = useState(false)
+  // Track whether user has explicitly overridden the forceExpanded state
+  const [userOverride, setUserOverride] = useState<boolean | null>(null)
 
-  // Use forceExpanded if provided, otherwise use local state
-  const expanded = forceExpanded || isExpanded
+  // Reset user override when the global forceExpanded toggle changes
+  useEffect(() => {
+    setUserOverride(null)
+  }, [forceExpanded])
+
+  // Use user's explicit override if set, then forceExpanded, then local state
+  const expanded = userOverride !== null ? userOverride : (forceExpanded || isExpanded)
 
   // Check if component has any expert data
   const hasExpertData = !!(
@@ -130,13 +137,16 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
   const blurb = generateExpertBlurb(component)
 
   return (
-    <div className="border-t border-border-default dark:border-border-default pt-2 mt-2">
+    <div className="border-t border pt-2 mt-2">
       <button
         onClick={(e) => {
           e.stopPropagation() // Prevent card selection
-          setIsExpanded(!isExpanded)
+          const next = !expanded
+          setIsExpanded(next)
+          // If user is overriding forceExpanded, track the explicit choice
+          setUserOverride(next)
         }}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors border border-border-subtle"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-secondary hover:text-primary hover:bg-surface-hover transition-colors border border-subtle"
       >
         <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -148,13 +158,13 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
       </button>
 
       {expanded && (
-        <div className="mt-2 text-xs text-text-primary dark:text-text-primary leading-relaxed space-y-3">
+        <div className="mt-2 text-xs text-primary leading-relaxed space-y-3">
           {/* Visual Grade Summary Bar */}
           {(component.crin_tone || component.crin_tech || component.crin_rank) && (
-            <div className="flex items-center gap-3 p-2 bg-surface-hover dark:bg-surface-hover rounded">
+            <div className="flex items-center gap-3 p-2 bg-surface-hover rounded">
               {component.crin_tone && (
                 <div className="flex items-center gap-1">
-                  <span className="text-text-tertiary dark:text-text-tertiary">Tone:</span>
+                  <span className="text-tertiary">Tone:</span>
                   <span className={`font-bold ${getGradeColor(component.crin_tone)}`}>
                     {component.crin_tone}
                   </span>
@@ -162,7 +172,7 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
               )}
               {component.crin_tech && (
                 <div className="flex items-center gap-1">
-                  <span className="text-text-tertiary dark:text-text-tertiary">Tech:</span>
+                  <span className="text-tertiary">Tech:</span>
                   <span className={`font-bold ${getGradeColor(component.crin_tech)}`}>
                     {component.crin_tech}
                   </span>
@@ -170,14 +180,14 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
               )}
               {component.crin_rank && (
                 <div className="flex items-center gap-1">
-                  <span className="text-text-tertiary dark:text-text-tertiary">Rank:</span>
-                  <span className="font-bold text-accent-primary dark:text-accent-primary">
+                  <span className="text-tertiary">Rank:</span>
+                  <span className="font-bold text-accent">
                     #{component.crin_rank}
                   </span>
                   {(() => {
                     const percentile = calculatePercentile(component.crin_rank, totalRankedComponents)
                     return percentile > 0 ? (
-                      <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+                      <span className="text-tertiary text-[10px]">
                         (Top {percentile}%)
                       </span>
                     ) : null
@@ -190,7 +200,7 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
           {/* Value Rating with Visual Stars */}
           {component.crin_value && (
             <div className="flex items-center gap-2">
-              <span className="text-text-tertiary dark:text-text-tertiary">Value:</span>
+              <span className="text-tertiary">Value:</span>
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
@@ -201,17 +211,17 @@ export function ExpertAnalysisPanel({ component, totalRankedComponents = 400, fo
                   </span>
                 ))}
               </div>
-              <span className="text-text-tertiary dark:text-text-tertiary text-[10px]">
+              <span className="text-tertiary text-[10px]">
                 ({component.crin_value}/5)
               </span>
             </div>
           )}
 
-          <p className="text-text-secondary dark:text-text-secondary">{blurb}</p>
+          <p className="text-secondary">{blurb}</p>
 
           {/* Show original comments if available */}
           {component.crin_comments && (
-            <div className="bg-surface-hover dark:bg-surface-hover p-2 rounded text-xs italic border-l-2 border-accent-primary dark:border-accent-primary">
+            <div className="bg-surface-hover p-2 rounded text-xs italic border-l-2 border-accent">
               <strong>Crinacle:</strong> &ldquo;{component.crin_comments}&rdquo;
             </div>
           )}
