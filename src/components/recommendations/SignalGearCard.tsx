@@ -35,6 +35,7 @@ interface SignalGearCardProps {
   onToggleSelection: (id: string) => void
   type: 'dac' | 'amp' | 'combo'
   onFindUsed?: (componentId: string, componentName: string) => void
+  onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
 }
 
@@ -52,6 +53,7 @@ const SignalGearCardComponent = ({
   onToggleSelection,
   type,
   onFindUsed,
+  onViewDetails,
   expandAllExperts = false
 }: SignalGearCardProps) => {
   const inputs = component.input_types
@@ -216,7 +218,19 @@ const SignalGearCardComponent = ({
             </svg>
           </button>
         )}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          {onViewDetails && (
+            <button
+              onClick={() => onViewDetails(component.id)}
+              className="p-1 text-text-tertiary hover:text-accent-primary transition-colors rounded"
+              title="View details"
+              aria-label={`View details for ${component.brand} ${component.name}`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
           <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
         </div>
       </div>

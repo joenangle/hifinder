@@ -38,6 +38,9 @@ const UsedListingsSection = dynamic(() => import('@/components/UsedListingsSecti
 const OwnedGearModal = dynamic(() => import('@/components/recommendations/OwnedGearModal').then(mod => ({ default: mod.OwnedGearModal })), {
   ssr: false
 })
+const ComponentDetailModal = dynamic(() => import('@/components/ComponentDetailModal').then(mod => ({ default: mod.ComponentDetailModal })), {
+  ssr: false
+})
 
 // No longer need mapping functions - browseMode is used directly in API
 
@@ -112,6 +115,9 @@ function RecommendationsContent() {
 
   // Preferences modal state
   const [showPreferencesModal, setShowPreferencesModal] = useState(false)
+
+  // Component detail modal state
+  const [detailComponent, setDetailComponent] = useState<AudioComponent | null>(null)
 
   // Filter counts state
   const [filterCounts, setFilterCounts] = useState<{
@@ -959,6 +965,13 @@ function RecommendationsContent() {
     setFocusedComponentId(componentId)
   }, [usedListings])
 
+  // Handle "View Details" button click on cards
+  const handleViewDetails = useCallback((id: string) => {
+    const allComponents = [...cans, ...iems, ...dacs, ...amps, ...dacAmps]
+    const comp = allComponents.find(c => c.id === id)
+    if (comp) setDetailComponent(comp)
+  }, [cans, iems, dacs, amps, dacAmps])
+
   // Scroll to used market section after it renders
   useEffect(() => {
     if (showMarketplace && focusedComponentId && usedListings[focusedComponentId]) {
@@ -1251,6 +1264,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
+                      onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
                     />
                   )
@@ -1302,6 +1316,7 @@ function RecommendationsContent() {
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
                       onFindUsed={handleFindUsed}
+                      onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
                     />
                   )
@@ -1351,6 +1366,7 @@ function RecommendationsContent() {
                               onToggleSelection={toggleDacSelection}
                               type="dac"
                               onFindUsed={handleFindUsed}
+                              onViewDetails={handleViewDetails}
                               expandAllExperts={expandAllExperts}
                             />
                           ))}
@@ -1404,6 +1420,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
                         onFindUsed={handleFindUsed}
+                        onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                       />
                     ))}
@@ -1457,6 +1474,7 @@ function RecommendationsContent() {
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
                         onFindUsed={handleFindUsed}
+                        onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                       />
                     ))}
@@ -1763,6 +1781,15 @@ function RecommendationsContent() {
         onAddOwnedGear={(component) => addOwnedGear(component as AudioComponent)}
         ownedIds={ownedIds}
       />
+
+      {/* Component Detail Modal */}
+      {detailComponent && (
+        <ComponentDetailModal
+          component={detailComponent}
+          isOpen={!!detailComponent}
+          onClose={() => setDetailComponent(null)}
+        />
+      )}
 
       {/* Comparison Bar - Shows when items are selected */}
       {comparisonItems.length > 0 && (

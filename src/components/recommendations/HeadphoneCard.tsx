@@ -40,6 +40,7 @@ interface HeadphoneCardProps {
   isToneChamp: boolean
   isBudgetChamp: boolean
   onFindUsed?: (componentId: string, componentName: string) => void
+  onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
 }
 
@@ -62,6 +63,7 @@ const HeadphoneCardComponent = ({
   isToneChamp,
   isBudgetChamp,
   onFindUsed,
+  onViewDetails,
   expandAllExperts = false
 }: HeadphoneCardProps) => {
   const hasGrades = headphone.crin_tone || headphone.crin_tech || headphone.crin_rank
@@ -240,7 +242,19 @@ const HeadphoneCardComponent = ({
             </svg>
           </button>
         )}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          {onViewDetails && (
+            <button
+              onClick={() => onViewDetails(headphone.id)}
+              className="p-1 text-text-tertiary hover:text-accent-primary transition-colors rounded"
+              title="View details"
+              aria-label={`View details for ${headphone.brand} ${headphone.name}`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
           <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
         </div>
       </div>
