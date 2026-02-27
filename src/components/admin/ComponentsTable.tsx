@@ -321,7 +321,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
             <div className="flex gap-2">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as 'name' | 'brand' | 'price_new' | 'created_at')}
                 className="flex-1 px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="created_at">Date Added</option>

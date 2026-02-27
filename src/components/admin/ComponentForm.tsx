@@ -324,7 +324,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
               <h4 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">Possible Duplicate Detected</h4>
               <p className="text-yellow-700 dark:text-yellow-300 text-sm">{duplicateWarning}</p>
               <p className="text-yellow-600 dark:text-yellow-400 text-xs mt-2">
-                You can still submit this form if you're certain this is a different component or variant.
+                You can still submit this form if you&apos;re certain this is a different component or variant.
               </p>
             </div>
           </div>
