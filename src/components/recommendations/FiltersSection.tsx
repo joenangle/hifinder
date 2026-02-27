@@ -69,17 +69,17 @@ const Pill = ({
 }) => {
   const base =
     'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none'
-  const inactive = 'border-border-default text-text-secondary bg-background-primary hover:border-text-tertiary hover:text-text-primary'
+  const inactive = 'text-secondary bg-primary hover:border-subtle hover:text-primary'
 
   const btn = (
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`${base} ${active ? (activeClass || 'border-accent-primary text-accent-primary bg-accent-subtle') : inactive}`}
+      className={`${base} ${active ? (activeClass || 'border-accent text-accent bg-accent-subtle') : inactive}`}
     >
       {label}
       {count !== undefined && (
-        <span className={`text-[10px] tabular-nums ${active ? 'opacity-70' : 'text-text-tertiary'}`}>
+        <span className={`text-[10px] tabular-nums ${active ? 'opacity-70' : 'text-tertiary'}`}>
           {count}
         </span>
       )}
@@ -137,12 +137,12 @@ const FiltersSectionComponent = ({
     (resultCounts?.combos || 0)
 
   return (
-    <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary">
+    <div className="mb-4 px-4 py-3 rounded-xl border bg-secondary">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
 
         {/* Equipment group */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
+          <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
             Type
           </span>
           <Pill
@@ -197,7 +197,7 @@ const FiltersSectionComponent = ({
 
         {/* Sound signature group */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
+          <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
             Sound
           </span>
           {(['neutral', 'warm', 'bright', 'fun'] as const).map(sig => (
@@ -215,16 +215,16 @@ const FiltersSectionComponent = ({
         </div>
 
         {/* Right side: result count + utility toggles */}
-        <div className="ml-auto flex items-center gap-3 text-xs text-text-tertiary">
+        <div className="ml-auto flex items-center gap-3 text-xs text-tertiary">
           {totalResults > 0 && (
             <span className="tabular-nums">
-              <span className="font-semibold text-text-primary">{totalResults}</span> results
+              <span className="font-semibold text-primary">{totalResults}</span> results
             </span>
           )}
           {onToggleExpandExperts && (
             <button
               onClick={onToggleExpandExperts}
-              className="text-text-tertiary hover:text-text-primary transition-colors"
+              className="text-tertiary hover:text-primary transition-colors"
               title={expandAllExperts ? 'Collapse expert analysis' : 'Expand expert analysis'}
             >
               {expandAllExperts ? 'Collapse analysis' : 'Expand analysis'}
@@ -235,7 +235,7 @@ const FiltersSectionComponent = ({
 
       {/* Budget allocation — below the filter row if active */}
       {totalBudget && onBudgetAllocationChange && (
-        <div className="mt-3 pt-3 border-t border-border-default">
+        <div className="mt-3 pt-3 border-t">
           <BudgetAllocationControls
             totalBudget={totalBudget}
             allocation={budgetAllocation || autoBudgetAllocation || {}}

@@ -469,7 +469,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
           <p>Loading...</p>
         </div>
       </div>
@@ -481,12 +481,12 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-primary dark:bg-background-primary p-8">
+    <div className="min-h-screen bg-primary p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-text-primary dark:text-text-primary">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8 text-primary">Admin Dashboard</h1>
 
         {/* Tabs */}
-        <div className="border-b border-border-default dark:border-border-default mb-8">
+        <div className="border-b mb-8">
           <nav className="flex space-x-8">
             <button
               onClick={() => {
@@ -503,8 +503,8 @@ export default function AdminPage() {
               }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'components-database'
-                  ? 'border-accent-primary text-accent-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
               }`}
             >
               Components Database
@@ -524,8 +524,8 @@ export default function AdminPage() {
               }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'add-component'
-                  ? 'border-accent-primary text-accent-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
               }`}
             >
               Add Component
@@ -545,8 +545,8 @@ export default function AdminPage() {
               }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'scraper-stats'
-                  ? 'border-accent-primary text-accent-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
               }`}
             >
               Scraper Stats
@@ -566,13 +566,13 @@ export default function AdminPage() {
               }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'candidates'
-                  ? 'border-accent-primary text-accent-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
               }`}
             >
               Component Candidates
               {candidates && candidates.summary.byStatus.pending > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent-primary rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
                   {candidates.summary.byStatus.pending}
                 </span>
               )}
@@ -592,13 +592,13 @@ export default function AdminPage() {
               }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'flagged-listings'
-                  ? 'border-accent-primary text-accent-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-default'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
               }`}
             >
               Flagged Listings
               {flaggedListingsCount > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent-primary rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
                   {flaggedListingsCount}
                 </span>
               )}
@@ -640,26 +640,26 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="card p-6">
-                <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">Total Listings</h3>
-                <p className="text-3xl font-bold text-text-primary dark:text-text-primary">{scraperStats.summary.totalListings}</p>
+                <h3 className="text-sm font-medium text-tertiary mb-1">Total Listings</h3>
+                <p className="text-3xl font-bold text-primary">{scraperStats.summary.totalListings}</p>
               </div>
               <div className="card p-6">
-                <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">Available</h3>
+                <h3 className="text-sm font-medium text-tertiary mb-1">Available</h3>
                 <p className="text-3xl font-bold text-green-600">{scraperStats.summary.availableListings}</p>
               </div>
               <div className="card p-6">
-                <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">Sold</h3>
+                <h3 className="text-sm font-medium text-tertiary mb-1">Sold</h3>
                 <p className="text-3xl font-bold text-red-600">{scraperStats.summary.soldListings}</p>
               </div>
             </div>
 
             <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4 text-text-primary dark:text-text-primary">Listings by Source</h3>
+              <h3 className="text-lg font-semibold mb-4 text-primary">Listings by Source</h3>
               <div className="space-y-2">
                 {Object.entries(scraperStats.bySource || {}).map(([source, count]) => (
                   <div key={source} className="flex justify-between">
-                    <span className="text-text-secondary dark:text-text-secondary">{source}</span>
-                    <span className="font-semibold text-text-primary dark:text-text-primary">{count}</span>
+                    <span className="text-secondary">{source}</span>
+                    <span className="font-semibold text-primary">{count}</span>
                   </div>
                 ))}
               </div>
@@ -674,24 +674,24 @@ export default function AdminPage() {
               <div className="card p-6 mb-4">
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className="text-text-tertiary dark:text-text-tertiary">Total Pending:</span>
-                    <span className="ml-2 font-semibold text-text-primary dark:text-text-primary">{candidates.summary.byStatus.pending}</span>
+                    <span className="text-tertiary">Total Pending:</span>
+                    <span className="ml-2 font-semibold text-primary">{candidates.summary.byStatus.pending}</span>
                   </div>
                   <div>
-                    <span className="text-text-tertiary dark:text-text-tertiary">Avg Quality:</span>
-                    <span className="ml-2 font-semibold text-text-primary dark:text-text-primary">{Math.round(candidates.summary.avgQualityScore)}%</span>
+                    <span className="text-tertiary">Avg Quality:</span>
+                    <span className="ml-2 font-semibold text-primary">{Math.round(candidates.summary.avgQualityScore)}%</span>
                   </div>
                   <div>
-                    <span className="text-text-tertiary dark:text-text-tertiary">Total Ever:</span>
-                    <span className="ml-2 font-semibold text-text-primary dark:text-text-primary">{candidates.summary.total}</span>
+                    <span className="text-tertiary">Total Ever:</span>
+                    <span className="ml-2 font-semibold text-primary">{candidates.summary.total}</span>
                   </div>
                 </div>
               </div>
 
               {candidates.candidates.length === 0 ? (
                 <div className="card p-12 text-center">
-                  <p className="text-text-tertiary dark:text-text-tertiary text-lg">No pending candidates</p>
-                  <p className="text-text-tertiary dark:text-text-tertiary text-sm mt-2">Check back after the next scraper run</p>
+                  <p className="text-tertiary text-lg">No pending candidates</p>
+                  <p className="text-tertiary text-sm mt-2">Check back after the next scraper run</p>
                 </div>
               ) : (
                 candidates.candidates.map((candidate) => (
@@ -699,7 +699,7 @@ export default function AdminPage() {
                     key={candidate.id}
                     className={`card p-4 cursor-pointer transition-colors ${
                       selectedCandidate === candidate.id
-                        ? 'ring-2 ring-accent-primary'
+                        ? 'ring-2 ring-accent'
                         : 'hover:bg-surface-hover dark:hover:bg-surface-hover'
                     }`}
                     onClick={() => {
@@ -718,11 +718,11 @@ export default function AdminPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary">
+                        <h3 className="font-semibold text-lg text-primary">
                           {candidate.brand} {candidate.model}
                         </h3>
-                        <div className="flex items-center gap-3 mt-2 text-sm text-text-secondary dark:text-text-secondary">
-                          <span className="px-2 py-1 bg-surface-hover dark:bg-surface-hover rounded">
+                        <div className="flex items-center gap-3 mt-2 text-sm text-secondary">
+                          <span className="px-2 py-1 bg-surface-hover rounded">
                             {candidate.category || 'Unknown'}
                           </span>
                           <span>{candidate.listing_count} listing{candidate.listing_count !== 1 ? 's' : ''}</span>
@@ -733,15 +733,15 @@ export default function AdminPage() {
                       </div>
                       <div className="text-right w-48">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-text-tertiary dark:text-text-tertiary">Quality</span>
-                          <span className="text-lg font-bold text-accent-primary dark:text-accent-primary">
+                          <span className="text-xs text-tertiary">Quality</span>
+                          <span className="text-lg font-bold text-accent">
                             {candidate.quality_score}%
                           </span>
                         </div>
 
                         {/* Segmented progress bar */}
                         <div className="relative group">
-                          <div className="h-2 bg-surface-hover dark:bg-surface-hover rounded-full overflow-hidden flex">
+                          <div className="h-2 bg-surface-hover rounded-full overflow-hidden flex">
                             {(() => {
                               const breakdown = calculateQualityBreakdown(candidate)
                               return (
@@ -805,8 +805,8 @@ export default function AdminPage() {
                           </div>
 
                           {/* Hover tooltip */}
-                          <div className="absolute left-0 bottom-full mb-2 w-56 p-3 bg-surface-secondary dark:bg-surface-secondary border border-border-default dark:border-border-default rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
-                            <div className="text-xs font-semibold text-text-primary dark:text-text-primary mb-2">Quality Breakdown</div>
+                          <div className="absolute left-0 bottom-full mb-2 w-56 p-3 bg-surface-secondary border rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+                            <div className="text-xs font-semibold text-primary mb-2">Quality Breakdown</div>
                             <div className="space-y-1 text-xs">
                               {(() => {
                                 const breakdown = calculateQualityBreakdown(candidate)
@@ -814,28 +814,28 @@ export default function AdminPage() {
                                   <>
                                     <div className="flex items-center gap-2">
                                       <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                                      <span className="text-text-secondary dark:text-text-secondary">Brand & Model</span>
-                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.core}/40</span>
+                                      <span className="text-secondary">Brand & Model</span>
+                                      <span className="ml-auto text-primary font-semibold">{breakdown.core}/40</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                                      <span className="text-text-secondary dark:text-text-secondary">Category</span>
-                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.category}/15</span>
+                                      <span className="text-secondary">Category</span>
+                                      <span className="ml-auto text-primary font-semibold">{breakdown.category}/15</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                      <span className="text-text-secondary dark:text-text-secondary">Pricing</span>
-                                      <span className="ml-auto text-text-primary dark:text-text-primary font-semibold">{breakdown.pricing}/25</span>
+                                      <span className="text-secondary">Pricing</span>
+                                      <span className="ml-auto text-primary font-semibold">{breakdown.pricing}/25</span>
                                     </div>
                                     <div className={`flex items-center gap-2 ${breakdown.specs === 0 ? 'opacity-50' : ''}`}>
                                       <div className={`w-3 h-3 ${breakdown.specs > 0 ? 'bg-purple-500' : 'bg-gray-600 dark:bg-gray-700'} rounded-full`}></div>
-                                      <span className="text-text-secondary dark:text-text-secondary">Tech Specs</span>
-                                      <span className={`ml-auto font-semibold ${breakdown.specs === 0 ? 'text-text-tertiary dark:text-text-tertiary' : 'text-text-primary dark:text-text-primary'}`}>{breakdown.specs}/10</span>
+                                      <span className="text-secondary">Tech Specs</span>
+                                      <span className={`ml-auto font-semibold ${breakdown.specs === 0 ? 'text-tertiary' : 'text-primary'}`}>{breakdown.specs}/10</span>
                                     </div>
                                     <div className={`flex items-center gap-2 ${breakdown.expert === 0 ? 'opacity-50' : ''}`}>
                                       <div className={`w-3 h-3 ${breakdown.expert > 0 ? 'bg-yellow-500' : 'bg-gray-600 dark:bg-gray-700'} rounded-full`}></div>
-                                      <span className="text-text-secondary dark:text-text-secondary">Expert Data</span>
-                                      <span className={`ml-auto font-semibold ${breakdown.expert === 0 ? 'text-text-tertiary dark:text-text-tertiary' : 'text-text-primary dark:text-text-primary'}`}>{breakdown.expert}/10</span>
+                                      <span className="text-secondary">Expert Data</span>
+                                      <span className={`ml-auto font-semibold ${breakdown.expert === 0 ? 'text-tertiary' : 'text-primary'}`}>{breakdown.expert}/10</span>
                                     </div>
                                   </>
                                 )
@@ -871,14 +871,14 @@ export default function AdminPage() {
                   )}
 
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary">Candidate Details</h3>
+                    <h3 className="text-lg font-semibold text-primary">Candidate Details</h3>
                     {!isEditing ? (
                       <button
                         onClick={() => {
                           setIsEditing(true)
                           setEditedCandidate(candidateDetails.candidate)
                         }}
-                        className="px-3 py-1 text-sm bg-surface-hover dark:bg-surface-hover text-text-primary dark:text-text-primary rounded hover:bg-border-default dark:hover:bg-border-default transition-colors"
+                        className="px-3 py-1 text-sm bg-surface-hover text-primary rounded hover:bg-border-default dark:hover:bg-border-default transition-colors"
                       >
                         ✏️ Edit
                       </button>
@@ -887,7 +887,7 @@ export default function AdminPage() {
                         <button
                           onClick={handleSaveEdit}
                           disabled={saving}
-                          className="px-3 py-1 text-sm bg-accent-primary text-white rounded hover:bg-accent-secondary transition-colors disabled:opacity-50"
+                          className="px-3 py-1 text-sm bg-accent text-white rounded hover:bg-accent-secondary transition-colors disabled:opacity-50"
                         >
                           {saving ? 'Saving...' : '💾 Save'}
                         </button>
@@ -900,7 +900,7 @@ export default function AdminPage() {
                             setError(null)
                           }}
                           disabled={saving}
-                          className="px-3 py-1 text-sm bg-surface-hover dark:bg-surface-hover text-text-primary dark:text-text-primary rounded hover:bg-border-default dark:hover:bg-border-default transition-colors disabled:opacity-50"
+                          className="px-3 py-1 text-sm bg-surface-hover text-primary rounded hover:bg-border-default dark:hover:bg-border-default transition-colors disabled:opacity-50"
                         >
                           Cancel
                         </button>
@@ -911,7 +911,7 @@ export default function AdminPage() {
                   <div className="space-y-4 mb-6">
                     {/* Brand Field */}
                     <div>
-                      <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                      <label className="block text-sm text-tertiary mb-1">
                         Brand
                         {verificationWarnings.includes('brand') && (
                           <span className="ml-2 text-yellow-500 text-xs">⚠️ New brand (not in database)</span>
@@ -932,7 +932,7 @@ export default function AdminPage() {
                                 })
                               }
                             }}
-                            className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                            className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                             placeholder="e.g., Sennheiser"
                           />
                           {validationErrors.brand && (
@@ -940,7 +940,7 @@ export default function AdminPage() {
                           )}
                         </>
                       ) : (
-                        <p className="font-semibold text-text-primary dark:text-text-primary">
+                        <p className="font-semibold text-primary">
                           {candidateDetails.candidate.brand}
                         </p>
                       )}
@@ -948,7 +948,7 @@ export default function AdminPage() {
 
                     {/* Model Field */}
                     <div>
-                      <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                      <label className="block text-sm text-tertiary mb-1">
                         Model
                         {verificationWarnings.includes('duplicate') && (
                           <span className="ml-2 text-red-500 text-xs">❌ Already exists in database</span>
@@ -969,7 +969,7 @@ export default function AdminPage() {
                                 })
                               }
                             }}
-                            className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                            className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                             placeholder="e.g., HD 800 S"
                           />
                           {validationErrors.model && (
@@ -977,7 +977,7 @@ export default function AdminPage() {
                           )}
                         </>
                       ) : (
-                        <p className="font-semibold text-text-primary dark:text-text-primary">
+                        <p className="font-semibold text-primary">
                           {candidateDetails.candidate.model}
                         </p>
                       )}
@@ -985,7 +985,7 @@ export default function AdminPage() {
 
                     {/* Category Field */}
                     <div>
-                      <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">Category</label>
+                      <label className="block text-sm text-tertiary mb-1">Category</label>
                       {isEditing ? (
                         <>
                           <select
@@ -1000,7 +1000,7 @@ export default function AdminPage() {
                                 })
                               }
                             }}
-                            className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                            className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                           >
                             <option value="">Select category...</option>
                             <option value="headphones">Headphones</option>
@@ -1014,14 +1014,14 @@ export default function AdminPage() {
                           )}
                         </>
                       ) : (
-                        <p className="text-text-primary dark:text-text-primary">{candidateDetails.candidate.category || 'Unknown'}</p>
+                        <p className="text-primary">{candidateDetails.candidate.category || 'Unknown'}</p>
                       )}
                     </div>
 
                     {/* Price Fields */}
                     {(isEditing || candidateDetails.candidate.price_estimate_new) && (
                       <div>
-                        <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">Est. MSRP</label>
+                        <label className="block text-sm text-tertiary mb-1">Est. MSRP</label>
                         {isEditing ? (
                           <>
                             <input
@@ -1037,7 +1037,7 @@ export default function AdminPage() {
                                   })
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                              className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                               placeholder="500"
                               min="0"
                             />
@@ -1046,24 +1046,24 @@ export default function AdminPage() {
                             )}
                           </>
                         ) : (
-                          <p className="text-text-primary dark:text-text-primary">${candidateDetails.candidate.price_estimate_new}</p>
+                          <p className="text-primary">${candidateDetails.candidate.price_estimate_new}</p>
                         )}
                       </div>
                     )}
 
                     {/* Advanced Fields - Collapsible */}
                     {isEditing && (
-                      <div className="border-t border-border-default dark:border-border-default pt-4 mt-4">
+                      <div className="border-t pt-4 mt-4">
                         <button
                           type="button"
                           onClick={() => setAdvancedFieldsExpanded(!advancedFieldsExpanded)}
                           className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity mb-3"
                         >
-                          <span className="text-sm font-medium text-text-secondary dark:text-text-secondary">
+                          <span className="text-sm font-medium text-secondary">
                             Advanced Fields
                           </span>
                           <svg
-                            className={`w-4 h-4 text-text-tertiary transition-transform ${advancedFieldsExpanded ? 'rotate-180' : ''}`}
+                            className={`w-4 h-4 text-tertiary transition-transform ${advancedFieldsExpanded ? 'rotate-180' : ''}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -1076,7 +1076,7 @@ export default function AdminPage() {
                           <div className="space-y-4">
                             {/* Sound Signature */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Sound Signature
                               </label>
                               <select
@@ -1086,7 +1086,7 @@ export default function AdminPage() {
                                     setEditedCandidate({...editedCandidate, sound_signature: e.target.value || null})
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                               >
                                 <option value="">Not specified</option>
                                 <option value="neutral">Neutral</option>
@@ -1098,7 +1098,7 @@ export default function AdminPage() {
 
                             {/* Driver Type */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Driver Type
                               </label>
                               <input
@@ -1109,14 +1109,14 @@ export default function AdminPage() {
                                     setEditedCandidate({...editedCandidate, driver_type: e.target.value || null})
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                                 placeholder="e.g., Dynamic, Planar Magnetic"
                               />
                             </div>
 
                             {/* Impedance */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Impedance (Ω)
                               </label>
                               <input
@@ -1127,7 +1127,7 @@ export default function AdminPage() {
                                     setEditedCandidate({...editedCandidate, impedance: e.target.value ? parseInt(e.target.value) : null})
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                                 placeholder="32"
                                 min="0"
                               />
@@ -1135,7 +1135,7 @@ export default function AdminPage() {
 
                             {/* Needs Amp */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Needs Amplifier?
                               </label>
                               <select
@@ -1148,7 +1148,7 @@ export default function AdminPage() {
                                     })
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                               >
                                 <option value="">Not specified</option>
                                 <option value="true">Yes</option>
@@ -1158,7 +1158,7 @@ export default function AdminPage() {
 
                             {/* Manufacturer URL */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Manufacturer URL
                               </label>
                               <input
@@ -1169,14 +1169,14 @@ export default function AdminPage() {
                                     setEditedCandidate({...editedCandidate, manufacturer_url: e.target.value || null})
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                                 placeholder="https://..."
                               />
                             </div>
 
                             {/* Review Notes */}
                             <div>
-                              <label className="block text-sm text-text-tertiary dark:text-text-tertiary mb-1">
+                              <label className="block text-sm text-tertiary mb-1">
                                 Review Notes
                               </label>
                               <textarea
@@ -1186,7 +1186,7 @@ export default function AdminPage() {
                                     setEditedCandidate({...editedCandidate, review_notes: e.target.value || null})
                                   }
                                 }}
-                                className="w-full px-3 py-2 bg-surface-hover dark:bg-surface-hover border border-border-default dark:border-border-default rounded text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+                                className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                                 placeholder="Additional notes about this component..."
                                 rows={3}
                               />
@@ -1197,7 +1197,7 @@ export default function AdminPage() {
                     )}
 
                     <div>
-                      <span className="text-sm text-text-tertiary dark:text-text-tertiary">Triggering Listings:</span>
+                      <span className="text-sm text-tertiary">Triggering Listings:</span>
                       <ul className="mt-2 space-y-2">
                         {candidateDetails.triggeringListings.map((listing) => (
                           <li key={listing.id} className="text-sm">
@@ -1205,11 +1205,11 @@ export default function AdminPage() {
                               href={listing.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-accent-primary dark:text-accent-primary hover:underline"
+                              className="text-accent hover:underline"
                             >
                               {listing.title.substring(0, 40)}...
                             </a>
-                            <span className="text-text-tertiary dark:text-text-tertiary ml-2">
+                            <span className="text-tertiary ml-2">
                               ${listing.price}
                             </span>
                           </li>
@@ -1222,7 +1222,7 @@ export default function AdminPage() {
                     <button
                       onClick={() => handleApproveCandidate(selectedCandidate)}
                       disabled={isEditing}
-                      className="flex-1 px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-secondary transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       ✓ Approve
                     </button>
@@ -1237,7 +1237,7 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <div className="card p-12 text-center sticky top-8">
-                  <p className="text-text-tertiary dark:text-text-tertiary">Select a candidate to view details</p>
+                  <p className="text-tertiary">Select a candidate to view details</p>
                 </div>
               )}
             </div>

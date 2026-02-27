@@ -84,7 +84,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
           {/* Container */}
           <motion.div
             ref={modalRef}
-            className="relative bg-surface-elevated border border-border-default rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="relative bg-surface-elevated border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             style={{
               boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
             }}
@@ -94,34 +94,34 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
           >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-border-default">
+        <div className="flex items-start justify-between p-6 border-b">
           <div>
-            <h2 className="text-xl font-bold text-text-primary">
+            <h2 className="text-xl font-bold text-primary">
               {component.brand} {component.name}
             </h2>
-            <p className="text-text-secondary mt-1">
+            <p className="text-secondary mt-1">
               {component.category.charAt(0).toUpperCase() + component.category.slice(1)}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-background-secondary rounded-md transition-colors"
+            className="p-1.5 hover:bg-secondary rounded-md transition-colors"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5 text-text-secondary" />
+            <X className="w-5 h-5 text-secondary" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Price Range */}
-          <div className="flex items-center justify-between p-4 bg-background-secondary rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
             <div>
-              <h3 className="font-semibold text-text-primary">Typical Used Price Range</h3>
-              <p className="text-sm text-text-secondary">Based on recent marketplace data</p>
+              <h3 className="font-semibold text-primary">Typical Used Price Range</h3>
+              <p className="text-sm text-secondary">Based on recent marketplace data</p>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-text-primary">
+              <div className="text-lg font-bold text-primary">
                 {component.price_used_min && component.price_used_max ? (
                   `${formatPrice(component.price_used_min)} - ${formatPrice(component.price_used_max)}`
                 ) : (
@@ -129,7 +129,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
                 )}
               </div>
               {component.price_new && (
-                <div className="text-sm text-text-secondary">
+                <div className="text-sm text-secondary">
                   New: {formatPrice(component.price_new)}
                 </div>
               )}
@@ -139,8 +139,8 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
           {/* Price History Chart */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-accent-primary" />
-              <h3 className="font-semibold text-text-primary">Sold Price History</h3>
+              <TrendingUp className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-primary">Sold Price History</h3>
             </div>
             <PriceHistoryChart
               componentId={component.id}
@@ -152,22 +152,22 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
           {amplificationAssessment.difficulty !== 'unknown' && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-accent-primary" />
-                <h3 className="font-semibold text-text-primary">Amplification Requirements</h3>
+                <Zap className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-primary">Amplification Requirements</h3>
               </div>
-              <div className="p-4 bg-background-secondary rounded-lg space-y-3">
+              <div className="p-4 bg-secondary rounded-lg space-y-3">
                 <div className="flex items-center gap-3">
                   <AmplificationBadge difficulty={amplificationAssessment.difficulty} />
-                  <span className="text-text-primary font-medium">
+                  <span className="text-primary font-medium">
                     {amplificationAssessment.difficulty === 'easy' && 'Easy to Drive'}
                     {amplificationAssessment.difficulty === 'moderate' && 'Moderate Power Required'}
                     {amplificationAssessment.difficulty === 'demanding' && 'Dedicated Amplifier Recommended'}
                     {amplificationAssessment.difficulty === 'very_demanding' && 'High-Power Amplifier Required'}
                   </span>
                 </div>
-                <p className="text-sm text-text-secondary">{amplificationAssessment.explanation}</p>
+                <p className="text-sm text-secondary">{amplificationAssessment.explanation}</p>
                 {component.impedance && (
-                  <p className="text-xs text-text-tertiary">
+                  <p className="text-xs text-tertiary">
                     Impedance: {component.impedance}Ω
                   </p>
                 )}
@@ -178,14 +178,14 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
           {/* Technical Specifications */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Cpu className="w-5 h-5 text-accent-primary" />
-              <h3 className="font-semibold text-text-primary">Technical Specifications</h3>
+              <Cpu className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-primary">Technical Specifications</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {component.impedance && (
-                <div className="p-3 bg-background-secondary rounded">
-                  <div className="text-sm text-text-secondary">Impedance</div>
-                  <div className="font-medium text-text-primary">{component.impedance}Ω</div>
+                <div className="p-3 bg-secondary rounded">
+                  <div className="text-sm text-secondary">Impedance</div>
+                  <div className="font-medium text-primary">{component.impedance}Ω</div>
                 </div>
               )}
             </div>
@@ -195,24 +195,24 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
           {component.sound_signature && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Volume2 className="w-5 h-5 text-accent-primary" />
-                <h3 className="font-semibold text-text-primary">Sound Signature</h3>
+                <Volume2 className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-primary">Sound Signature</h3>
               </div>
-              <div className="p-4 bg-background-secondary rounded-lg">
-                <div className="font-medium text-text-primary capitalize mb-2">
+              <div className="p-4 bg-secondary rounded-lg">
+                <div className="font-medium text-primary capitalize mb-2">
                   {component.sound_signature.replace('_', ' ')}
                 </div>
                 {component.sound_signature === 'neutral' && (
-                  <p className="text-sm text-text-secondary">Balanced sound with accurate reproduction across all frequencies</p>
+                  <p className="text-sm text-secondary">Balanced sound with accurate reproduction across all frequencies</p>
                 )}
                 {component.sound_signature === 'warm' && (
-                  <p className="text-sm text-text-secondary">Emphasized bass and lower midrange with smooth, relaxed treble</p>
+                  <p className="text-sm text-secondary">Emphasized bass and lower midrange with smooth, relaxed treble</p>
                 )}
                 {component.sound_signature === 'bright' && (
-                  <p className="text-sm text-text-secondary">Emphasized treble and upper midrange for detail and clarity</p>
+                  <p className="text-sm text-secondary">Emphasized treble and upper midrange for detail and clarity</p>
                 )}
                 {component.sound_signature === 'fun' && (
-                  <p className="text-sm text-text-secondary">Lively and engaging sound with enhanced dynamics</p>
+                  <p className="text-sm text-secondary">Lively and engaging sound with enhanced dynamics</p>
                 )}
               </div>
             </div>
@@ -220,7 +220,7 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-border-default">
+        <div className="p-6 border-t">
           <button
             onClick={onClose}
             className="button button-primary w-full"

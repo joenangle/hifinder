@@ -375,7 +375,7 @@ export function StackBuilderModal({
                 </div>
                 <button
                   onClick={() => signIn('google')}
-                  className="px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors text-sm font-medium whitespace-nowrap"
+                  className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-secondary transition-colors text-sm font-medium whitespace-nowrap"
                 >
                   Sign In with Google
                 </button>

@@ -46,8 +46,8 @@ export function Header({ initialSession }: HeaderProps) {
   return (
     <>
       <header
-        className={`sticky top-0 w-full bg-background-primary/80 backdrop-blur-md transition-all duration-200 ${
-          scrolled ? 'shadow-sm border-b border-border-subtle' : ''
+        className={`sticky top-0 w-full bg-primary/80 backdrop-blur-md transition-all duration-200 ${
+          scrolled ? 'shadow-sm border-b border-subtle' : ''
         }`}
         style={{ zIndex: 'var(--z-header)' }}
       >

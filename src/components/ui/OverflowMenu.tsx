@@ -77,7 +77,7 @@ export function OverflowMenu({ items, className = '' }: OverflowMenuProps) {
       {mounted && isOpen && createPortal(
         <div
           ref={menuRef}
-          className="fixed w-48 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border border-border-default rounded-lg shadow-lg z-50"
+          className="fixed w-48 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border rounded-lg shadow-lg z-50"
           style={{ 
             top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 8 : 0,
             right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0
@@ -91,8 +91,8 @@ export function OverflowMenu({ items, className = '' }: OverflowMenuProps) {
                 disabled={item.disabled}
                 className={`w-full text-left px-3 py-2 text-sm rounded transition-colors flex items-center gap-3 ${
                   item.disabled
-                    ? 'text-text-tertiary cursor-not-allowed'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'text-tertiary cursor-not-allowed'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
               >
                 {item.icon && <item.icon className="w-4 h-4 flex-shrink-0" />}

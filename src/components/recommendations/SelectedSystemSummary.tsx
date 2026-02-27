@@ -38,7 +38,7 @@ const formatBudgetUSD = (amount: number) => {
 const RemoveButton = ({ onClick, title }: { onClick: () => void; title?: string }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onClick() }}
-    className="ml-auto p-1 text-text-tertiary hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
+    className="ml-auto p-1 text-tertiary hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
     title={title || 'Remove from selection'}
   >
     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,10 +99,10 @@ const SelectedSystemSummaryComponent = ({
     <div className="animate-slot-fill flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
       <div className={`w-2 h-2 ${color} rounded-full flex-shrink-0`} />
       <div className="min-w-0">
-        <p className="font-medium text-sm text-text-primary truncate">
+        <p className="font-medium text-sm text-primary truncate">
           {item.brand ? `${item.brand} ${item.name}` : item.name}
         </p>
-        <p className="text-xs text-text-secondary" style={{ minWidth: '60px' }}>
+        <p className="text-xs text-secondary" style={{ minWidth: '60px' }}>
           {formatBudgetUSD(Math.round(((item.price_used_min || 0) + (item.price_used_max || 0)) / 2))}
         </p>
       </div>
@@ -112,13 +112,13 @@ const SelectedSystemSummaryComponent = ({
 
   // Render an owned gear item (visually distinct — no price toward budget)
   const OwnedItem = ({ item, onRemove }: { item: AudioComponent; onRemove: () => void }) => (
-    <div className="animate-slot-fill flex items-center gap-3 p-3 rounded-lg border border-dashed border-border-default bg-transparent">
+    <div className="animate-slot-fill flex items-center gap-3 p-3 rounded-lg border border-dashed bg-transparent">
       <div className="w-2 h-2 bg-text-tertiary rounded-full flex-shrink-0 opacity-50" />
       <div className="min-w-0">
-        <p className="font-medium text-sm text-text-secondary truncate">
+        <p className="font-medium text-sm text-secondary truncate">
           {item.brand ? `${item.brand} ${item.name}` : item.name}
         </p>
-        <p className="text-xs text-text-tertiary">owned</p>
+        <p className="text-xs text-tertiary">owned</p>
       </div>
       <RemoveButton onClick={onRemove} title="Remove owned gear" />
     </div>
@@ -127,20 +127,20 @@ const SelectedSystemSummaryComponent = ({
   // --- Empty-state scaffold: always visible so users understand the mental model ---
   if (!hasItems) {
     const EmptySlot = ({ label, icon }: { label: string; icon: React.ReactNode }) => (
-      <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed border-border-default bg-transparent">
-        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-tertiary flex-shrink-0">
+      <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed bg-transparent">
+        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-tertiary flex-shrink-0">
           {icon}
         </div>
         <div>
-          <p className="text-sm font-medium text-text-tertiary">{label}</p>
-          <p className="text-[11px] text-text-tertiary opacity-70">Click a card below to add</p>
+          <p className="text-sm font-medium text-tertiary">{label}</p>
+          <p className="text-[11px] text-tertiary opacity-70">Click a card below to add</p>
         </div>
       </div>
     )
 
     return (
-      <div className="card p-5 mb-8 border border-dashed border-border-default bg-transparent">
-        <p className="text-sm font-medium text-text-secondary text-center mb-3">
+      <div className="card p-5 mb-8 border border-dashed bg-transparent">
+        <p className="text-sm font-medium text-secondary text-center mb-3">
           Build your audio system
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
@@ -157,14 +157,14 @@ const SelectedSystemSummaryComponent = ({
             icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
           />
         </div>
-        <p className="text-xs text-text-tertiary text-center">
+        <p className="text-xs text-tertiary text-center">
           Click any recommendation card to start building your system
         </p>
         {onAddOwnedGear && (
           <div className="text-center mt-2">
             <button
               onClick={onAddOwnedGear}
-              className="text-xs text-text-tertiary hover:text-accent-primary transition-colors underline underline-offset-2"
+              className="text-xs text-tertiary hover:text-accent transition-colors underline underline-offset-2"
             >
               Already own gear? Add it here
             </button>
@@ -175,14 +175,14 @@ const SelectedSystemSummaryComponent = ({
   }
 
   return (
-    <div className="card p-6 mb-8 border-l-4 border-accent-primary">
+    <div className="card p-6 mb-8 border-l-4 border-accent">
       <h3 className="heading-3 text-center mb-4">Your Selected System</h3>
 
       {/* Component grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {/* Selected items (new purchases) */}
         {selectedHeadphones.map(item => (
-          <SelectedItem key={item.id} item={item} color="bg-accent-primary" onRemove={() => onRemoveItem(item.id, getHeadphoneCategory(item))} />
+          <SelectedItem key={item.id} item={item} color="bg-accent" onRemove={() => onRemoveItem(item.id, getHeadphoneCategory(item))} />
         ))}
         {selectedDacs.map(item => (
           <SelectedItem key={item.id} item={item} color="bg-red-500 dark:bg-red-400" onRemove={() => onRemoveItem(item.id, 'dacs')} />
@@ -217,7 +217,7 @@ const SelectedSystemSummaryComponent = ({
         if (!hasHp) needed.push('headphones')
         if (!hasSignal) needed.push('a DAC or amp')
         return needed.length > 0 ? (
-          <p className="text-xs text-text-tertiary text-center mb-3">
+          <p className="text-xs text-tertiary text-center mb-3">
             Add {needed.join(' and ')} to complete your system
           </p>
         ) : null
@@ -228,7 +228,7 @@ const SelectedSystemSummaryComponent = ({
         <div className="text-center mb-4">
           <button
             onClick={onAddOwnedGear}
-            className="text-xs text-text-tertiary hover:text-accent-primary transition-colors underline underline-offset-2"
+            className="text-xs text-tertiary hover:text-accent transition-colors underline underline-offset-2"
           >
             Already own a DAC, amp, or headphones? Add them here
           </button>
@@ -236,15 +236,15 @@ const SelectedSystemSummaryComponent = ({
       )}
 
       {/* Budget summary */}
-      <div className={`pt-4 border-t border-border-default mt-4 rounded-lg p-4 ${
+      <div className={`pt-4 border-t mt-4 rounded-lg p-4 ${
         totalSelectedPrice > budget * 1.1
           ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800'
           : totalSelectedPrice > budget * 0.9
-          ? 'bg-transparent border border-border-default'
+          ? 'bg-transparent border'
           : 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800'
       }`}>
         <div className="text-center mb-4">
-          <p className="text-xl font-bold text-text-primary mb-2">
+          <p className="text-xl font-bold text-primary mb-2">
             {hasSelectedItems ? `$${Math.round(totalSelectedPrice).toLocaleString()}` : 'No new purchases'}
           </p>
           {hasSelectedItems && (
@@ -253,19 +253,19 @@ const SelectedSystemSummaryComponent = ({
                 totalSelectedPrice > budget * 1.1
                   ? 'text-red-700 dark:text-red-400'
                   : totalSelectedPrice > budget * 0.9
-                  ? 'text-text-secondary'
+                  ? 'text-secondary'
                   : 'text-green-700 dark:text-green-400'
               }`}>
                 {totalSelectedPrice <= budget ? 'Under' : 'Over'} budget by ${Math.abs(totalSelectedPrice - budget).toLocaleString()}
               </p>
               {!isStackComplete && filledCategories < 4 && remainingBudget > 0 && (
-                <p className="text-sm font-medium text-accent-primary">
+                <p className="text-sm font-medium text-accent">
                   {formatBudgetUSD(remainingBudget)} remaining
                 </p>
               )}
             </div>
           )}
-          {hasSelectedItems && <p className="text-xs text-text-secondary">Est. System Cost (new purchases only)</p>}
+          {hasSelectedItems && <p className="text-xs text-secondary">Est. System Cost (new purchases only)</p>}
         </div>
 
         {/* Action Buttons */}

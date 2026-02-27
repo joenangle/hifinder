@@ -225,7 +225,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     )
   }
@@ -235,42 +235,42 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">
+          <h3 className="text-sm font-medium text-tertiary mb-1">
             Total Components
           </h3>
-          <p className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <p className="text-2xl font-bold text-primary">
             {components.length}
           </p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">
+          <h3 className="text-sm font-medium text-tertiary mb-1">
             Headphones
           </h3>
-          <p className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <p className="text-2xl font-bold text-primary">
             {categoryStats['cans'] || 0}
           </p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">
+          <h3 className="text-sm font-medium text-tertiary mb-1">
             IEMs
           </h3>
-          <p className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <p className="text-2xl font-bold text-primary">
             {categoryStats['iems'] || 0}
           </p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">
+          <h3 className="text-sm font-medium text-tertiary mb-1">
             DACs
           </h3>
-          <p className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <p className="text-2xl font-bold text-primary">
             {categoryStats['dac'] || 0}
           </p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-text-tertiary dark:text-text-tertiary mb-1">
+          <h3 className="text-sm font-medium text-tertiary mb-1">
             Amps
           </h3>
-          <p className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <p className="text-2xl font-bold text-primary">
             {(categoryStats['amp'] || 0) + (categoryStats['dac_amp'] || 0)}
           </p>
         </div>
@@ -282,7 +282,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           {/* Search */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Search
             </label>
             <input
@@ -290,19 +290,19 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               placeholder="Search by brand or model name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
           {/* Category Filter */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Category
             </label>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="all">All Categories</option>
               <option value="cans">Headphones</option>
@@ -315,14 +315,14 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
 
           {/* Sort By */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Sort By
             </label>
             <div className="flex gap-2">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="flex-1 px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="flex-1 px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="created_at">Date Added</option>
                 <option value="name">Name</option>
@@ -331,7 +331,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               </select>
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="px-3 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+                className="px-3 py-2 border rounded-lg bg-primary text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
                 title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
               >
                 {sortOrder === 'asc' ? '↑' : '↓'}
@@ -344,7 +344,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           {/* Price New Min */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Price New (Min)
             </label>
             <input
@@ -352,13 +352,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               placeholder="Min $"
               value={priceNewMin}
               onChange={(e) => setPriceNewMin(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
           {/* Price New Max */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Price New (Max)
             </label>
             <input
@@ -366,13 +366,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               placeholder="Max $"
               value={priceNewMax}
               onChange={(e) => setPriceNewMax(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
           {/* Price Used Min */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Price Used (Min)
             </label>
             <input
@@ -380,13 +380,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               placeholder="Min $"
               value={priceUsedMin}
               onChange={(e) => setPriceUsedMin(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
           {/* Price Used Max */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Price Used (Max)
             </label>
             <input
@@ -394,7 +394,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
               placeholder="Max $"
               value={priceUsedMax}
               onChange={(e) => setPriceUsedMax(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
         </div>
@@ -403,13 +403,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Sound Signature Filter */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Sound Signature
             </label>
             <select
               value={soundSignatureFilter}
               onChange={(e) => setSoundSignatureFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="all">All Signatures</option>
               <option value="neutral">Neutral</option>
@@ -421,13 +421,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
 
           {/* Expert Data Filter */}
           <div>
-            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Expert Data
             </label>
             <select
               value={expertDataFilter}
               onChange={(e) => setExpertDataFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="all">All Components</option>
               <option value="has">Has Expert Data</option>
@@ -448,7 +448,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                 setPriceUsedMin('')
                 setPriceUsedMax('')
               }}
-              className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-secondary dark:text-text-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="w-full px-4 py-2 border rounded-lg bg-primary text-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               Clear All Filters
             </button>
@@ -457,13 +457,13 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
 
         {/* Actions Row */}
         <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-text-tertiary dark:text-text-tertiary">
+          <div className="text-sm text-tertiary">
             Showing {startIdx + 1}-{Math.min(endIdx, filteredComponents.length)} of{' '}
             {filteredComponents.length} components
           </div>
           <button
             onClick={exportToCSV}
-            className="px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors flex items-center gap-2 font-medium"
+            className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors flex items-center gap-2 font-medium"
           >
             <svg
               className="w-4 h-4"
@@ -487,30 +487,30 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-surface-hover dark:bg-surface-hover">
+            <thead className="bg-surface-hover">
               <tr>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Brand
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Model
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Category
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Price (New)
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Price (Used)
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Sound
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Expert Data
                 </th>
-                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-text-tertiary dark:text-text-tertiary uppercase tracking-wider bg-surface-hover dark:bg-surface-hover">
+                <th className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-tertiary uppercase tracking-wider bg-surface-hover">
                   Actions
                 </th>
               </tr>
@@ -526,38 +526,38 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                     key={component.id}
                     className="hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary dark:text-text-primary">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">
                       {component.brand}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary dark:text-text-primary">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">
                       {component.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className="px-2 py-1 rounded bg-surface-hover dark:bg-surface-hover text-text-secondary dark:text-text-secondary text-xs uppercase">
+                      <span className="px-2 py-1 rounded bg-surface-hover text-secondary text-xs uppercase">
                         {component.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary dark:text-text-primary">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">
                       {component.price_new ? (
                         `$${component.price_new}`
                       ) : (
-                        <span className="text-text-tertiary dark:text-text-tertiary">—</span>
+                        <span className="text-tertiary">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary dark:text-text-primary">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">
                       {component.price_used_min && component.price_used_max ? (
                         `$${component.price_used_min} - $${component.price_used_max}`
                       ) : (
-                        <span className="text-text-tertiary dark:text-text-tertiary">—</span>
+                        <span className="text-tertiary">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {component.sound_signature ? (
-                        <span className="capitalize text-text-primary dark:text-text-primary">
+                        <span className="capitalize text-primary">
                           {component.sound_signature}
                         </span>
                       ) : (
-                        <span className="text-text-tertiary dark:text-text-tertiary">—</span>
+                        <span className="text-tertiary">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -570,7 +570,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
                         onClick={() => onEditComponent?.(component.id)}
-                        className="text-accent-primary dark:text-accent-primary hover:underline font-medium"
+                        className="text-accent hover:underline font-medium"
                       >
                         Edit
                       </button>
@@ -585,7 +585,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
         {filteredComponents.length === 0 && (
           <div className="py-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-text-tertiary dark:text-text-tertiary mb-4"
+              className="mx-auto h-12 w-12 text-tertiary mb-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -597,10 +597,10 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <p className="text-text-tertiary dark:text-text-tertiary text-lg font-medium mb-2">
+            <p className="text-tertiary text-lg font-medium mb-2">
               No components found
             </p>
-            <p className="text-text-tertiary dark:text-text-tertiary text-sm mb-4">
+            <p className="text-tertiary text-sm mb-4">
               Try adjusting your search or filter criteria
             </p>
             <button
@@ -614,7 +614,7 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
                 setPriceUsedMin('')
                 setPriceUsedMax('')
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-secondary dark:text-text-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg bg-primary text-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -631,17 +631,17 @@ export default function ComponentsTable({ onEditComponent }: ComponentsTableProp
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border rounded-lg bg-primary text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
-          <span className="text-sm text-text-secondary dark:text-text-secondary">
+          <span className="text-sm text-secondary">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-background-primary dark:bg-background-primary text-text-primary dark:text-text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border rounded-lg bg-primary text-primary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>

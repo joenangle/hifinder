@@ -52,7 +52,7 @@ const gradeColor = (grade: string) => {
   if (first === 'A') return 'text-emerald-600 dark:text-emerald-400'
   if (first === 'B') return 'text-sky-600 dark:text-sky-400'
   if (first === 'C') return 'text-orange-500 dark:text-orange-400'
-  return 'text-text-tertiary'
+  return 'text-tertiary'
 }
 
 const HeadphoneCardComponent = ({
@@ -87,7 +87,7 @@ const HeadphoneCardComponent = ({
         className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
           isSelected
             ? selectedStyle
-            : `border-border-default bg-surface-card ${hoverStyle}`
+            : `bg-surface-card ${hoverStyle}`
         }`}
         onClick={() => onToggleSelection(headphone.id)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(headphone.id) } }}
@@ -96,7 +96,7 @@ const HeadphoneCardComponent = ({
         <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
           isSelected
             ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
-            : 'bg-transparent text-text-tertiary opacity-0 group-hover:opacity-100 border border-border-default'
+            : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
         }`}>
           {isSelected ? (
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,8 +133,8 @@ const HeadphoneCardComponent = ({
         <div className="flex items-start justify-between gap-3 mb-2 pr-8">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-semibold text-base text-text-primary leading-snug">
-                <span className="font-normal text-text-secondary">{headphone.brand} </span>
+              <h3 className="font-semibold text-base text-primary leading-snug">
+                <span className="font-normal text-secondary">{headphone.brand} </span>
                 {headphone.name}
               </h3>
             {headphone.manufacturer_url && (
@@ -143,7 +143,7 @@ const HeadphoneCardComponent = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="flex-shrink-0 text-text-tertiary hover:text-accent-primary transition-colors"
+                className="flex-shrink-0 text-tertiary hover:text-accent transition-colors"
                 title="Manufacturer page"
                 aria-label={`${headphone.brand} ${headphone.name} manufacturer page (opens in new tab)`}
               >
@@ -157,10 +157,10 @@ const HeadphoneCardComponent = ({
 
         {/* Price — right aligned */}
         <div className="text-right flex-shrink-0">
-          <div className="text-base font-bold text-text-primary tabular-nums">
+          <div className="text-base font-bold text-primary tabular-nums">
             {fmt(headphone.price_used_min || 0)}–{fmt(headphone.price_used_max || 0)}
           </div>
-          <div className="text-[10px] text-text-tertiary leading-none mt-0.5">used est.</div>
+          <div className="text-[10px] text-tertiary leading-none mt-0.5">used est.</div>
           <PriceHistoryBadge componentId={headphone.id} />
         </div>
       </div>
@@ -170,21 +170,21 @@ const HeadphoneCardComponent = ({
         <div className="flex items-center gap-3 mb-2 text-sm">
           {headphone.crin_tone && (
             <span className={`font-semibold tabular-nums ${gradeColor(headphone.crin_tone)}`}>
-              {headphone.crin_tone} <span className="font-normal text-text-tertiary text-xs">tone</span>
+              {headphone.crin_tone} <span className="font-normal text-tertiary text-xs">tone</span>
             </span>
           )}
           {headphone.crin_tech && (
             <span className={`font-semibold tabular-nums ${gradeColor(headphone.crin_tech)}`}>
-              {headphone.crin_tech} <span className="font-normal text-text-tertiary text-xs">tech</span>
+              {headphone.crin_tech} <span className="font-normal text-tertiary text-xs">tech</span>
             </span>
           )}
           {headphone.crin_rank && (
-            <span className="text-text-tertiary text-xs">
+            <span className="text-tertiary text-xs">
               #{headphone.crin_rank} ranked
             </span>
           )}
           {headphone.matchScore && (
-            <span className="ml-auto text-xs text-text-tertiary tabular-nums">
+            <span className="ml-auto text-xs text-tertiary tabular-nums">
               {headphone.matchScore}% match
             </span>
           )}
@@ -192,19 +192,19 @@ const HeadphoneCardComponent = ({
       )}
 
       {/* Row 3: Attribute pills */}
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-secondary">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs text-secondary">
         {soundSig && soundSig !== 'neutral' && (
-          <span className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary capitalize">
+          <span className="px-2 py-0.5 rounded-full border border-subtle bg-secondary capitalize">
             {soundSig}
           </span>
         )}
         {headphone.impedance && (
-          <span className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary">
+          <span className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
             {headphone.impedance}Ω
           </span>
         )}
         {headphone.fit && headphone.category !== 'iems' && (
-          <span className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary capitalize">
+          <span className="px-2 py-0.5 rounded-full border border-subtle bg-secondary capitalize">
             {headphone.fit}
           </span>
         )}
@@ -220,7 +220,7 @@ const HeadphoneCardComponent = ({
           </span>
         )}
         {headphone.price_new && (
-          <span className="text-text-tertiary ml-auto">
+          <span className="text-tertiary ml-auto">
             MSRP {fmt(headphone.price_new)}
           </span>
         )}
@@ -234,7 +234,7 @@ const HeadphoneCardComponent = ({
         {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
           <button
             onClick={() => onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)}
-            className="text-xs font-medium text-accent-primary hover:text-accent-hover transition-colors flex items-center gap-1"
+            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
           >
             {headphone.usedListingsCount} used listing{headphone.usedListingsCount !== 1 ? 's' : ''}
             <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +246,7 @@ const HeadphoneCardComponent = ({
           {onViewDetails && (
             <button
               onClick={() => onViewDetails(headphone.id)}
-              className="p-1 text-text-tertiary hover:text-accent-primary transition-colors rounded"
+              className="p-1 text-tertiary hover:text-accent transition-colors rounded"
               title="View details"
               aria-label={`View details for ${headphone.brand} ${headphone.name}`}
             >

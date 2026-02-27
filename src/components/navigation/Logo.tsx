@@ -11,7 +11,7 @@ export function Logo({ className = '' }: LogoProps) {
       className={`inline-flex items-center gap-2 text-xl font-bold tracking-tight hover:opacity-80 transition-opacity ${className}`}
     >
       <span className="text-2xl">🎧</span>
-      <span className="text-accent-primary">
+      <span className="text-accent">
         HiFinder
       </span>
     </Link>

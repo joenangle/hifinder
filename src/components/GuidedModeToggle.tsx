@@ -15,8 +15,8 @@ export function GuidedModeToggle({ enabled, onToggle, className = '' }: GuidedMo
       className={`
         flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-all
         ${enabled
-          ? 'bg-accent-primary/10 border-accent-primary text-accent-primary dark:bg-accent-primary/20'
-          : 'bg-surface-secondary border-border-default text-text-secondary hover:border-border-primary hover:text-text-primary'
+          ? 'bg-accent/10 border-accent text-accent dark:bg-accent/20'
+          : 'bg-surface-secondary text-secondary hover:border-primary hover:text-primary'
         }
         ${className}
       `}

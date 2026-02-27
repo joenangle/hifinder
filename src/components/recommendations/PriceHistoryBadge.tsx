@@ -83,7 +83,7 @@ const PriceHistoryBadgeComponent = ({ componentId }: { componentId: string }) =>
   if (!stats) return null
 
   return (
-    <div className="text-[10px] text-text-tertiary mt-0.5 tabular-nums">
+    <div className="text-[10px] text-tertiary mt-0.5 tabular-nums">
       {stats.count} sales &middot; med. ${Math.round(stats.median)}
     </div>
   )

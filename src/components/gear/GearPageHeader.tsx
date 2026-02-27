@@ -25,7 +25,7 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
   }
 
   return (
-    <div className="bg-background-primary border-b border-border-default sticky top-16 z-10">
+    <div className="bg-primary border-b sticky top-16 z-10">
       <div className="max-w-7xl mx-auto" style={{paddingLeft: '24px', paddingRight: '24px'}}>
         <div className="h-14 flex items-center justify-between">
           {/* Left: Back Arrow + Title */}

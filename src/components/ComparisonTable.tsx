@@ -79,7 +79,7 @@ function calculateWinners(items: ComparisonItem[]) {
 export function ComparisonTable({ items }: ComparisonTableProps) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-8 text-text-secondary dark:text-text-secondary">
+      <div className="text-center py-8 text-secondary">
         No items to compare. Select items from the recommendations page.
       </div>
     )
@@ -93,12 +93,12 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
   const _signalGear = items.filter(i => ['dac', 'amp', 'dac_amp'].includes(i.category))
 
   const renderRow = (label: string, getValue: (item: ComparisonItem) => React.ReactNode, _highlightBest?: boolean) => (
-    <tr className="border-b border-border-default dark:border-border-default">
-      <td className="sticky left-0 bg-surface-secondary dark:bg-surface-secondary px-4 py-3 font-medium text-sm text-text-primary dark:text-text-primary whitespace-nowrap z-10">
+    <tr className="border-b">
+      <td className="sticky left-0 bg-surface-secondary px-4 py-3 font-medium text-sm text-primary whitespace-nowrap z-10">
         {label}
       </td>
       {items.map((item) => (
-        <td key={item.id} className="px-4 py-3 text-sm text-text-secondary dark:text-text-secondary whitespace-nowrap">
+        <td key={item.id} className="px-4 py-3 text-sm text-secondary whitespace-nowrap">
           {getValue(item)}
         </td>
       ))}
@@ -108,12 +108,12 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
   return (
     <div className="overflow-x-auto">
       {/* Winners Banner */}
-      <div className="mb-4 p-4 bg-surface-hover dark:bg-surface-hover rounded-lg flex flex-wrap gap-4 justify-center text-sm">
+      <div className="mb-4 p-4 bg-surface-hover rounded-lg flex flex-wrap gap-4 justify-center text-sm">
         {winners.bestMatch.matchScore && (
           <div className="flex items-center gap-2">
             <span>🏆</span>
-            <span className="font-semibold text-text-primary dark:text-text-primary">Best Match:</span>
-            <span className="text-text-secondary dark:text-text-secondary">
+            <span className="font-semibold text-primary">Best Match:</span>
+            <span className="text-secondary">
               {winners.bestMatch.brand} {winners.bestMatch.name}
             </span>
           </div>
@@ -121,8 +121,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
         {winners.bestValue.crin_value && (
           <div className="flex items-center gap-2">
             <span>💰</span>
-            <span className="font-semibold text-text-primary dark:text-text-primary">Best Value:</span>
-            <span className="text-text-secondary dark:text-text-secondary">
+            <span className="font-semibold text-primary">Best Value:</span>
+            <span className="text-secondary">
               {winners.bestValue.brand} {winners.bestValue.name}
             </span>
           </div>
@@ -130,8 +130,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
         {winners.topTech.crin_tech && (
           <div className="flex items-center gap-2">
             <span>🔬</span>
-            <span className="font-semibold text-text-primary dark:text-text-primary">Top Tech:</span>
-            <span className="text-text-secondary dark:text-text-secondary">
+            <span className="font-semibold text-primary">Top Tech:</span>
+            <span className="text-secondary">
               {winners.topTech.brand} {winners.topTech.name}
             </span>
           </div>
@@ -140,19 +140,19 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b-2 border-border-default dark:border-border-default bg-surface-secondary dark:bg-surface-secondary">
-            <th className="sticky left-0 bg-surface-secondary dark:bg-surface-secondary px-4 py-3 text-left text-sm font-semibold text-text-primary dark:text-text-primary z-10">
+          <tr className="border-b-2 bg-surface-secondary">
+            <th className="sticky left-0 bg-surface-secondary px-4 py-3 text-left text-sm font-semibold text-primary z-10">
               Specification
             </th>
             {items.map((item) => (
               <th key={item.id} className="px-4 py-3 text-left min-w-[200px]">
-                <div className="font-semibold text-text-primary dark:text-text-primary">
+                <div className="font-semibold text-primary">
                   {item.brand}
                 </div>
-                <div className="text-sm font-normal text-text-secondary dark:text-text-secondary">
+                <div className="text-sm font-normal text-secondary">
                   {item.name}
                 </div>
-                <div className="text-xs text-text-tertiary dark:text-text-tertiary capitalize mt-1">
+                <div className="text-xs text-tertiary capitalize mt-1">
                   {item.category}
                 </div>
               </th>
@@ -162,7 +162,7 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
         <tbody>
           {/* Pricing Section */}
           {renderRow('Used Price Range', (item) => (
-            <span className="font-semibold text-accent-primary dark:text-accent-primary">
+            <span className="font-semibold text-accent">
               {formatPriceRange(item.price_used_min, item.price_used_max)}
             </span>
           ))}
@@ -170,8 +170,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
           {/* Match Score Section */}
           {items.some(i => i.matchScore) && (
-            <tr className="bg-surface-hover/50 dark:bg-surface-hover/50">
-              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-text-tertiary dark:text-text-tertiary uppercase tracking-wide">
+            <tr className="bg-surface-hover/50/50">
+              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-tertiary uppercase tracking-wide">
                 Match & Performance
               </td>
             </tr>
@@ -192,8 +192,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
           {/* Expert Grades Section (Headphones/IEMs) */}
           {items.some(i => i.crin_tone || i.crin_tech || i.crin_rank) && (
-            <tr className="bg-surface-hover/50 dark:bg-surface-hover/50">
-              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-text-tertiary dark:text-text-tertiary uppercase tracking-wide">
+            <tr className="bg-surface-hover/50/50">
+              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-tertiary uppercase tracking-wide">
                 Expert Ratings (Crinacle)
               </td>
             </tr>
@@ -230,8 +230,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
           {/* Technical Specs Section */}
           {items.some(i => i.crinacle_sound_signature || i.sound_signature || i.impedance || i.fit || i.driver_type) && (
-            <tr className="bg-surface-hover/50 dark:bg-surface-hover/50">
-              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-text-tertiary dark:text-text-tertiary uppercase tracking-wide">
+            <tr className="bg-surface-hover/50/50">
+              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-tertiary uppercase tracking-wide">
                 Technical Specifications
               </td>
             </tr>
@@ -255,8 +255,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
 
           {/* ASR Performance Section (Signal Gear) */}
           {items.some(i => i.asr_sinad || i.power_output_mw || i.thd_n) && (
-            <tr className="bg-surface-hover/50 dark:bg-surface-hover/50">
-              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-text-tertiary dark:text-text-tertiary uppercase tracking-wide">
+            <tr className="bg-surface-hover/50/50">
+              <td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-tertiary uppercase tracking-wide">
                 ASR Performance Measurements
               </td>
             </tr>

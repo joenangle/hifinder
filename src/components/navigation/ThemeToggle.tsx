@@ -47,9 +47,9 @@ export function ThemeToggle({ className = '', size = 'md' }: ThemeToggleProps) {
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? (
-        <Sun size={iconSize} className="text-text-primary" />
+        <Sun size={iconSize} className="text-primary" />
       ) : (
-        <Moon size={iconSize} className="text-text-primary" />
+        <Moon size={iconSize} className="text-primary" />
       )}
     </button>
   )

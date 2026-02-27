@@ -1019,7 +1019,7 @@ function RecommendationsContent() {
 
           <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6" style={{ width: '95%', maxWidth: '1400px' }}>
             {/* Skeleton filters bar */}
-            <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary">
+            <div className="mb-4 px-4 py-3 rounded-xl border bg-secondary">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="skeleton h-5 w-12 rounded" />
                 {[72, 48, 52, 52, 60].map((w, i) => (
@@ -1037,13 +1037,13 @@ function RecommendationsContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {[1, 2].map(col => (
                 <div key={col} className="card overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border-default flex justify-between">
+                  <div className="px-4 py-3 border-b flex justify-between">
                     <div className="skeleton h-4 w-20 rounded" />
                     <div className="skeleton h-4 w-16 rounded" />
                   </div>
                   <div className="p-4 flex flex-col gap-2">
                     {[1, 2, 3].map(row => (
-                      <div key={row} className="rounded-xl border border-border-default p-4">
+                      <div key={row} className="rounded-xl border p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <div className="skeleton h-5 w-40 rounded mb-1.5" />
@@ -1062,7 +1062,7 @@ function RecommendationsContent() {
               ))}
             </div>
 
-            <p className="text-center text-sm text-text-tertiary mt-6 animate-pulse">Building your recommendations…</p>
+            <p className="text-center text-sm text-tertiary mt-6 animate-pulse">Building your recommendations…</p>
           </div>
         </div>
       )
@@ -1214,8 +1214,8 @@ function RecommendationsContent() {
               {loading && hasLoadedOnce && (
                 <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none">
                   <div className="bg-gradient-to-b from-background-primary/95 to-transparent py-3 px-4 rounded-lg shadow-sm flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent-primary border-t-transparent"></div>
-                    <span className="text-sm text-text-secondary font-medium">Updating results...</span>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent"></div>
+                    <span className="text-sm text-secondary font-medium">Updating results...</span>
                   </div>
                 </div>
               )}
@@ -1251,11 +1251,11 @@ function RecommendationsContent() {
 
                   return (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(167 139 250)' }}>
-                <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-                  <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                     Headphones
                   </h2>
-                  <span className="text-xs text-text-tertiary tabular-nums">
+                  <span className="text-xs text-tertiary tabular-nums">
                     {filteredCans.length} results
                     {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
@@ -1286,7 +1286,7 @@ function RecommendationsContent() {
                 {!showAllCans && filteredCans.length > initialLimit && (
                   <button
                     onClick={() => setShowAllCans(true)}
-                    className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
+                    className="mt-2 py-3 px-4 text-sm font-medium text-accent hover:text-accent-secondary transition-colors border border-accent/30 hover:border-accent rounded-lg hover:bg-accent/5"
                   >
                     Show {filteredCans.length - initialLimit} more headphones
                   </button>
@@ -1303,11 +1303,11 @@ function RecommendationsContent() {
 
                   return (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(129 140 248)' }}>
-                <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-                  <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                     IEMs
                   </h2>
-                  <span className="text-xs text-text-tertiary tabular-nums">
+                  <span className="text-xs text-tertiary tabular-nums">
                     {filteredIems.length} results
                     {budgetAllocation.headphones && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.headphones)} budget` : ''}
                   </span>
@@ -1338,7 +1338,7 @@ function RecommendationsContent() {
                 {!showAllIems && filteredIems.length > initialLimit && (
                   <button
                     onClick={() => setShowAllIems(true)}
-                    className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
+                    className="mt-2 py-3 px-4 text-sm font-medium text-accent hover:text-accent-secondary transition-colors border border-accent/30 hover:border-accent rounded-lg hover:bg-accent/5"
                   >
                     Show {filteredIems.length - initialLimit} more IEMs
                   </button>
@@ -1360,11 +1360,11 @@ function RecommendationsContent() {
                     <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(45 212 191)' }}>
                       {filteredDacs.length > 0 ? (
                         <>
-                          <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-                            <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                          <div className="px-4 py-3 border-b flex items-center justify-between">
+                            <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                               DACs
                             </h2>
-                            <span className="text-xs text-text-tertiary tabular-nums">
+                            <span className="text-xs text-tertiary tabular-nums">
                               {filteredDacs.length} results
                               {budgetAllocation.dac && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.dac)} budget` : ''}
                             </span>
@@ -1387,7 +1387,7 @@ function RecommendationsContent() {
                           {!showAllDacs && filteredDacs.length > initialLimit && (
                             <button
                               onClick={() => setShowAllDacs(true)}
-                              className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
+                              className="mt-2 py-3 px-4 text-sm font-medium text-accent hover:text-accent-secondary transition-colors border border-accent/30 hover:border-accent rounded-lg hover:bg-accent/5"
                             >
                               Show {filteredDacs.length - initialLimit} more DACs
                             </button>
@@ -1402,8 +1402,8 @@ function RecommendationsContent() {
                           }}
                           className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
                         >
-                          <h3 className="text-sm font-medium text-text-secondary mb-1">No DACs in range</h3>
-                          <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                          <h3 className="text-sm font-medium text-secondary mb-1">No DACs in range</h3>
+                          <span className="text-xs text-accent hover:underline">Adjust budget allocation</span>
                         </button>
                     )}
                   </div>
@@ -1414,11 +1414,11 @@ function RecommendationsContent() {
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
                 {filteredAmps.length > 0 ? (
                   <>
-                    <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-                      <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                    <div className="px-4 py-3 border-b flex items-center justify-between">
+                      <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                         Amplifiers
                       </h2>
-                      <span className="text-xs text-text-tertiary tabular-nums">
+                      <span className="text-xs text-tertiary tabular-nums">
                         {filteredAmps.length} results
                         {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.amp)} budget` : ''}
                       </span>
@@ -1441,7 +1441,7 @@ function RecommendationsContent() {
                     {!showAllAmps && filteredAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllAmps(true)}
-                        className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
+                        className="mt-2 py-3 px-4 text-sm font-medium text-accent hover:text-accent-secondary transition-colors border border-accent/30 hover:border-accent rounded-lg hover:bg-accent/5"
                       >
                         Show {filteredAmps.length - initialLimit} more amps
                       </button>
@@ -1456,8 +1456,8 @@ function RecommendationsContent() {
                     }}
                     className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
                   >
-                    <h3 className="text-sm font-medium text-text-secondary mb-1">No amplifiers in range</h3>
-                    <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                    <h3 className="text-sm font-medium text-secondary mb-1">No amplifiers in range</h3>
+                    <span className="text-xs text-accent hover:underline">Adjust budget allocation</span>
                   </button>
               )}
             </div>
@@ -1468,11 +1468,11 @@ function RecommendationsContent() {
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(96 165 250)' }}>
                 {filteredDacAmps.length > 0 ? (
                   <>
-                    <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-                      <h2 className="text-xs font-semibold uppercase text-text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                    <div className="px-4 py-3 border-b flex items-center justify-between">
+                      <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                         DAC/Amp Combos
                       </h2>
-                      <span className="text-xs text-text-tertiary tabular-nums">
+                      <span className="text-xs text-tertiary tabular-nums">
                         {filteredDacAmps.length} results
                         {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.combo)} budget` : ''}
                       </span>
@@ -1495,7 +1495,7 @@ function RecommendationsContent() {
                     {!showAllCombos && filteredDacAmps.length > initialLimit && (
                       <button
                         onClick={() => setShowAllCombos(true)}
-                        className="mt-2 py-3 px-4 text-sm font-medium text-accent-primary hover:text-accent-secondary transition-colors border border-accent-primary/30 hover:border-accent-primary rounded-lg hover:bg-accent-primary/5"
+                        className="mt-2 py-3 px-4 text-sm font-medium text-accent hover:text-accent-secondary transition-colors border border-accent/30 hover:border-accent rounded-lg hover:bg-accent/5"
                       >
                         Show {filteredDacAmps.length - initialLimit} more combos
                       </button>
@@ -1510,8 +1510,8 @@ function RecommendationsContent() {
                     }}
                     className="p-6 text-center hover:bg-surface-secondary/50 transition-colors w-full"
                   >
-                    <h3 className="text-sm font-medium text-text-secondary mb-1">No combos in range</h3>
-                    <span className="text-xs text-accent-primary hover:underline">Adjust budget allocation</span>
+                    <h3 className="text-sm font-medium text-secondary mb-1">No combos in range</h3>
+                    <span className="text-xs text-accent hover:underline">Adjust budget allocation</span>
                   </button>
               )}
             </div>
@@ -1559,10 +1559,10 @@ function RecommendationsContent() {
             return (
               <div className="mt-12 text-center">
                 <div className="card p-8 max-w-2xl mx-auto">
-                  <p className="text-lg text-text-secondary">
+                  <p className="text-lg text-secondary">
                     No used market listings found for your selected items yet.
                   </p>
-                  <p className="text-sm text-text-tertiary mt-2">
+                  <p className="text-sm text-tertiary mt-2">
                     Check back later or try selecting different equipment.
                   </p>
                 </div>
@@ -1622,16 +1622,16 @@ function RecommendationsContent() {
           aria-label="Adjust Preferences"
           onClick={(e) => { if (e.target === e.currentTarget) setShowPreferencesModal(false) }}
         >
-          <div className="bg-surface-card border border-border-default rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn">
-            <div className="sticky top-0 bg-surface-card border-b border-border-default px-6 py-4 rounded-t-xl z-10">
+          <div className="bg-surface-card border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn">
+            <div className="sticky top-0 bg-surface-card border-b px-6 py-4 rounded-t-xl z-10">
               <div className="flex justify-between items-center">
                 <h2 className="heading-2">Adjust Preferences</h2>
                 <button
                   onClick={() => setShowPreferencesModal(false)}
-                  className="p-1.5 hover:bg-background-secondary rounded-md transition-colors"
+                  className="p-1.5 hover:bg-secondary rounded-md transition-colors"
                   aria-label="Close preferences"
                 >
-                  <X className="w-5 h-5 text-text-secondary" />
+                  <X className="w-5 h-5 text-secondary" />
                 </button>
               </div>
             </div>
@@ -1639,7 +1639,7 @@ function RecommendationsContent() {
             <div className="p-6 space-y-6">
               {/* Budget Adjustment */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
+                <label className="block text-sm font-medium text-primary mb-2">
                   Budget: ${userPrefs.budget}
                 </label>
                 <input
@@ -1651,7 +1651,7 @@ function RecommendationsContent() {
                   onChange={(e) => updateURL({ budget: parseInt(e.target.value) })}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-text-tertiary mt-1">
+                <div className="flex justify-between text-xs text-tertiary mt-1">
                   <span>$20</span>
                   <span>$10,000</span>
                 </div>
@@ -1659,7 +1659,7 @@ function RecommendationsContent() {
 
               {/* Budget Range */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-3">
+                <label className="block text-sm font-medium text-primary mb-3">
                   Budget Flexibility
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1681,7 +1681,7 @@ function RecommendationsContent() {
                       }`}
                     >
                       <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-text-tertiary">{option.desc}</div>
+                      <div className="text-xs text-tertiary">{option.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -1689,7 +1689,7 @@ function RecommendationsContent() {
 
               {/* Sound Signature */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-3">
+                <label className="block text-sm font-medium text-primary mb-3">
                   Sound Signature
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1709,7 +1709,7 @@ function RecommendationsContent() {
 
               {/* Component Selection */}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-3">
+                <label className="block text-sm font-medium text-primary mb-3">
                   Get Recommendations For
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -1739,7 +1739,7 @@ function RecommendationsContent() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-background-secondary px-6 py-4 border-t border-border-default rounded-b-xl">
+            <div className="sticky bottom-0 bg-secondary px-6 py-4 border-t rounded-b-xl">
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowPreferencesModal(false)}

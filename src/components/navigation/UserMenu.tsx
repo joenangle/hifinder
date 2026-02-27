@@ -74,18 +74,18 @@ export function UserMenu() {
             priority
           />
         ) : (
-          <User className="w-5 h-5 text-text-secondary" />
+          <User className="w-5 h-5 text-secondary" />
         )}
-        <span className="text-sm font-medium text-text-primary hidden sm:block">
+        <span className="text-sm font-medium text-primary hidden sm:block">
           {session.user?.name || 'User'}
         </span>
-        <ChevronDown className={`w-4 h-4 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {mounted && isOpen && createPortal(
         <div
           ref={menuRef}
-          className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border border-border-default rounded-lg shadow-lg"
+          className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border rounded-lg shadow-lg"
           style={{ 
             zIndex: 'var(--z-modal)',
             top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 8 : 0,
@@ -94,11 +94,11 @@ export function UserMenu() {
         >
           <div className="p-2">
             {/* User Info */}
-            <div className="px-3 py-3 border-b border-border-subtle">
-              <p className="font-medium text-text-primary text-sm">
+            <div className="px-3 py-3 border-b border-subtle">
+              <p className="font-medium text-primary text-sm">
                 {session.user?.name}
               </p>
-              <p className="text-xs text-text-tertiary">
+              <p className="text-xs text-tertiary">
                 {session.user?.email}
               </p>
             </div>
@@ -110,8 +110,8 @@ export function UserMenu() {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
                   pathname === '/dashboard'
-                    ? 'text-text-primary bg-surface-hover'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'text-primary bg-surface-hover'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
@@ -122,8 +122,8 @@ export function UserMenu() {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
                   pathname === '/gear'
-                    ? 'text-text-primary bg-surface-hover'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'text-primary bg-surface-hover'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
               >
                 <Package className="w-4 h-4" />
@@ -134,8 +134,8 @@ export function UserMenu() {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
                   pathname === '/wishlist'
-                    ? 'text-text-primary bg-surface-hover'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'text-primary bg-surface-hover'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
               >
                 <Heart className="w-4 h-4" />
@@ -146,8 +146,8 @@ export function UserMenu() {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
                   pathname === '/alerts'
-                    ? 'text-text-primary bg-surface-hover'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'text-primary bg-surface-hover'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
               >
                 <Bell className="w-4 h-4" />
@@ -156,7 +156,7 @@ export function UserMenu() {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-border-subtle my-2" />
+            <div className="border-t border-subtle my-2" />
 
             {/* Account Actions */}
             <div className="py-2">
@@ -165,7 +165,7 @@ export function UserMenu() {
                   setIsOpen(false)
                   signOut()
                 }}
-                className="flex items-center gap-3 w-full text-left px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded transition-colors"
+                className="flex items-center gap-3 w-full text-left px-3 py-2 text-sm text-secondary hover:text-primary hover:bg-surface-hover rounded transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out

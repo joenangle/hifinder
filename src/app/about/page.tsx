@@ -92,8 +92,8 @@ export default function AboutPage() {
                     HiFinder can help reduce the environmental impact of a hobby I love and share with countless other
                     listeners and audio enthusiasts.
                   </p>
-                  <p className="text-sm border-l-4 border-accent-primary pl-4 italic">
-                    &ldquo;Buying one used headphone instead of new saves about 14kg of CO₂ — barely a dent in your annual footprint. But if enough of us make it normal, manufacturers will have to build gear <a href="https://medium.com/@joenangle/the-life-deaths-of-a-toothbrush-da5e8b1cd408" target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline font-semibold">that lasts</a>. That&apos;s when real change happens.&rdquo;
+                  <p className="text-sm border-l-4 border-accent pl-4 italic">
+                    &ldquo;Buying one used headphone instead of new saves about 14kg of CO₂ — barely a dent in your annual footprint. But if enough of us make it normal, manufacturers will have to build gear <a href="https://medium.com/@joenangle/the-life-deaths-of-a-toothbrush-da5e8b1cd408" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-semibold">that lasts</a>. That&apos;s when real change happens.&rdquo;
                   </p>
                 </div>
               </div>
@@ -278,11 +278,11 @@ export default function AboutPage() {
 
         {/* Credits */}
         <section className="text-center py-8 border-t border-border">
-          <p className="text-sm text-text-tertiary mb-2">
+          <p className="text-sm text-tertiary mb-2">
             Built with Next.js, Supabase, and lots of coffee
           </p>
-          <p className="text-sm text-text-tertiary">
-            Expert data sourced from <a href="https://crinacle.com" target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline">Crinacle</a> and <a href="https://www.audiosciencereview.com" target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline">Audio Science Review</a>
+          <p className="text-sm text-tertiary">
+            Expert data sourced from <a href="https://crinacle.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Crinacle</a> and <a href="https://www.audiosciencereview.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Audio Science Review</a>
           </p>
         </section>
 

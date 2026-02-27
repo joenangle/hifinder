@@ -108,7 +108,7 @@ export function Modal({ isOpen, onClose, children, title, maxWidth = 'lg' }: Mod
           <motion.div
             ref={modalRef}
             tabIndex={-1}
-            className={`relative bg-surface-elevated rounded-xl border border-border-default shadow-xl ${maxWidthClasses[maxWidth]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
+            className={`relative bg-surface-elevated rounded-xl border shadow-xl ${maxWidthClasses[maxWidth]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
             style={{
               boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
             }}
@@ -119,14 +119,14 @@ export function Modal({ isOpen, onClose, children, title, maxWidth = 'lg' }: Mod
           >
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between p-4 border-b border-border-default">
-                <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="text-lg font-semibold text-primary">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="p-1.5 hover:bg-background-secondary rounded-md transition-colors"
+                  className="p-1.5 hover:bg-secondary rounded-md transition-colors"
                   aria-label="Close modal"
                 >
-                  <X className="w-5 h-5 text-text-secondary" />
+                  <X className="w-5 h-5 text-secondary" />
                 </button>
               </div>
             )}

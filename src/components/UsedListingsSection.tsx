@@ -81,7 +81,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
           <h3 className="heading-3 mb-1">
             Used Market for {component.name}
           </h3>
-          <p className="text-text-secondary text-sm">
+          <p className="text-secondary text-sm">
             {filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} found
           </p>
         </div>

@@ -88,7 +88,7 @@ const SignalGearCardComponent = ({
         className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
           isSelected
             ? SELECTED_STYLE[type]
-            : `border-border-default bg-surface-card ${HOVER_STYLE[type]}`
+            : `bg-surface-card ${HOVER_STYLE[type]}`
         }`}
         onClick={() => onToggleSelection(component.id)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(component.id) } }}
@@ -97,7 +97,7 @@ const SignalGearCardComponent = ({
         <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
           isSelected
             ? `${SELECTED_COLOR[type]} text-white`
-            : 'bg-transparent text-text-tertiary opacity-0 group-hover:opacity-100 border border-border-default'
+            : 'bg-transparent text-tertiary opacity-0 group-hover:opacity-100 border'
         }`}>
           {isSelected ? (
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,13 +113,13 @@ const SignalGearCardComponent = ({
       <div className="flex items-start justify-between gap-3 mb-2 pr-8">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-tertiary">
               {TYPE_LABEL[type]}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <h3 className="font-semibold text-base text-text-primary leading-snug">
-              <span className="font-normal text-text-secondary">{component.brand} </span>
+            <h3 className="font-semibold text-base text-primary leading-snug">
+              <span className="font-normal text-secondary">{component.brand} </span>
               {component.name}
             </h3>
             {component.manufacturer_url && (
@@ -128,7 +128,7 @@ const SignalGearCardComponent = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="flex-shrink-0 text-text-tertiary hover:text-accent-primary transition-colors"
+                className="flex-shrink-0 text-tertiary hover:text-accent transition-colors"
                 title="Manufacturer page"
                 aria-label={`${component.brand} ${component.name} manufacturer page (opens in new tab)`}
               >
@@ -141,10 +141,10 @@ const SignalGearCardComponent = ({
         </div>
 
         <div className="text-right flex-shrink-0">
-          <div className="text-base font-bold text-text-primary tabular-nums">
+          <div className="text-base font-bold text-primary tabular-nums">
             {fmt(component.price_used_min || 0)}–{fmt(component.price_used_max || 0)}
           </div>
-          <div className="text-[10px] text-text-tertiary leading-none mt-0.5">used est.</div>
+          <div className="text-[10px] text-tertiary leading-none mt-0.5">used est.</div>
           <PriceHistoryBadge componentId={component.id} />
         </div>
       </div>
@@ -153,16 +153,16 @@ const SignalGearCardComponent = ({
       {(hasMeasurements || powerMatch !== undefined) && (
         <div className="flex flex-wrap items-center gap-3 mb-2 text-sm">
           {component.asr_sinad && (
-            <span className="text-text-secondary tabular-nums">
-              SINAD <span className="font-semibold text-text-primary">{component.asr_sinad}</span>
-              <span className="text-xs text-text-tertiary ml-1">
+            <span className="text-secondary tabular-nums">
+              SINAD <span className="font-semibold text-primary">{component.asr_sinad}</span>
+              <span className="text-xs text-tertiary ml-1">
                 {component.asr_sinad >= 120 ? 'excellent' : component.asr_sinad >= 110 ? 'very good' : component.asr_sinad >= 100 ? 'good' : 'fair'}
               </span>
             </span>
           )}
           {(component.power_output || component.power_output_mw) && (
-            <span className="text-text-secondary">
-              <span className="font-semibold text-text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
+            <span className="text-secondary">
+              <span className="font-semibold text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
             </span>
           )}
           {powerMatch !== undefined && (
@@ -178,19 +178,19 @@ const SignalGearCardComponent = ({
       )}
 
       {/* Row 3: Attribute pills */}
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-secondary">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs text-secondary">
         {inputs.slice(0, 3).map(i => (
-          <span key={i} className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary">
+          <span key={i} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
             {i}
           </span>
         ))}
         {outputs.slice(0, 2).map(o => (
-          <span key={o} className="px-2 py-0.5 rounded-full border border-border-subtle bg-background-secondary">
+          <span key={o} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
             {o} out
           </span>
         ))}
         {component.price_new && (
-          <span className="text-text-tertiary ml-auto">
+          <span className="text-tertiary ml-auto">
             MSRP {fmt(component.price_new)}
           </span>
         )}
@@ -198,7 +198,7 @@ const SignalGearCardComponent = ({
 
       {/* Why recommended — subtle, below pills */}
       {component.why_recommended && (
-        <p className="mt-2 text-xs text-text-tertiary leading-snug line-clamp-2">
+        <p className="mt-2 text-xs text-tertiary leading-snug line-clamp-2">
           {component.why_recommended}
         </p>
       )}
@@ -210,7 +210,7 @@ const SignalGearCardComponent = ({
         {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
           <button
             onClick={() => onFindUsed(component.id, `${component.brand} ${component.name}`)}
-            className="text-xs font-medium text-accent-primary hover:text-accent-hover transition-colors flex items-center gap-1"
+            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
           >
             {component.usedListingsCount} used listing{component.usedListingsCount !== 1 ? 's' : ''}
             <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@ const SignalGearCardComponent = ({
           {onViewDetails && (
             <button
               onClick={() => onViewDetails(component.id)}
-              className="p-1 text-text-tertiary hover:text-accent-primary transition-colors rounded"
+              className="p-1 text-tertiary hover:text-accent transition-colors rounded"
               title="View details"
               aria-label={`View details for ${component.brand} ${component.name}`}
             >

@@ -121,7 +121,7 @@ export function RecommendationsChatbot({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-accent-primary text-white rounded-full p-4 shadow-lg hover:bg-accent-primary/90 transition-all transform hover:scale-105 z-50"
+          className="fixed bottom-6 right-6 bg-accent text-white rounded-full p-4 shadow-lg hover:bg-accent/90 transition-all transform hover:scale-105 z-50"
         >
           <div className="relative">
             <MessageCircle className="w-6 h-6" />
@@ -132,16 +132,16 @@ export function RecommendationsChatbot({
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-surface-primary rounded-xl shadow-2xl flex flex-col z-50 border border-border-primary">
+        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-surface-primary rounded-xl shadow-2xl flex flex-col z-50 border border-primary">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border-secondary">
+          <div className="flex items-center justify-between p-4 border-b border-subtle">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="font-semibold text-text-primary">Audio Advisor</span>
+              <span className="font-semibold text-primary">Audio Advisor</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-text-tertiary hover:text-text-primary transition-colors"
+              className="text-tertiary hover:text-primary transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -157,8 +157,8 @@ export function RecommendationsChatbot({
                 <div
                   className={`max-w-[80%] rounded-lg p-3 ${
                     message.role === 'user'
-                      ? 'bg-accent-primary text-white'
-                      : 'bg-surface-elevated text-text-primary'
+                      ? 'bg-accent text-white'
+                      : 'bg-surface-elevated text-primary'
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
@@ -206,7 +206,7 @@ export function RecommendationsChatbot({
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-border-secondary">
+          <div className="p-4 border-t border-subtle">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -214,12 +214,12 @@ export function RecommendationsChatbot({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Ask about your recommendations..."
-                className="flex-1 px-3 py-2 bg-surface-elevated rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="flex-1 px-3 py-2 bg-surface-elevated rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="p-2 bg-accent-primary text-white rounded-lg hover:bg-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -227,7 +227,7 @@ export function RecommendationsChatbot({
 
             {/* Quick Actions */}
             <div className="flex gap-2 mt-2">
-              <button className="text-xs text-text-tertiary hover:text-text-secondary">
+              <button className="text-xs text-tertiary hover:text-secondary">
                 <Settings className="w-3 h-3 inline mr-1" />
                 Adjust preferences
               </button>

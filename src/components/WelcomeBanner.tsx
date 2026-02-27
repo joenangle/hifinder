@@ -21,7 +21,7 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
   return (
     <div
       className={`
-        card border-l-4 border-accent-primary mb-8 overflow-hidden
+        card border-l-4 border-accent mb-8 overflow-hidden
         transition-all duration-300 animate-in fade-in slide-in-from-top-4
         ${isVisible ? 'opacity-100' : 'opacity-0'}
       `}
@@ -29,52 +29,52 @@ export function WelcomeBanner({ onDismiss, onEnableGuidedMode }: WelcomeBannerPr
       <div className="p-6">
         <div className="flex items-start gap-4">
           {/* Icon */}
-          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent-primary/10 dark:bg-accent-primary/20 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-accent-primary" />
+          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/10 dark:bg-accent/20 flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-accent" />
           </div>
 
           {/* Content */}
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
-              <h3 className="heading-3 text-text-primary">
+              <h3 className="heading-3 text-primary">
                 Welcome to HiFinder! 👋
               </h3>
               <button
                 onClick={handleDismiss}
-                className="text-text-tertiary hover:text-text-primary transition-colors p-1 -mt-1"
+                className="text-tertiary hover:text-primary transition-colors p-1 -mt-1"
                 aria-label="Dismiss welcome message"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-text-secondary mb-4">
+            <p className="text-secondary mb-4">
               We&apos;ve personalized these recommendations based on smart defaults. Use the filters below to refine your search:
             </p>
 
             {/* Quick tips */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div className="flex items-start gap-2">
-                <div className="text-accent-primary mt-0.5">💰</div>
+                <div className="text-accent mt-0.5">💰</div>
                 <div>
-                  <p className="text-sm font-medium text-text-primary">Adjust Your Budget</p>
-                  <p className="text-xs text-text-secondary">Slide to see options in your price range</p>
+                  <p className="text-sm font-medium text-primary">Adjust Your Budget</p>
+                  <p className="text-xs text-secondary">Slide to see options in your price range</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-2">
-                <div className="text-accent-primary mt-0.5">🎧</div>
+                <div className="text-accent mt-0.5">🎧</div>
                 <div>
-                  <p className="text-sm font-medium text-text-primary">Choose Equipment</p>
-                  <p className="text-xs text-text-secondary">Toggle headphones, IEMs, DACs, or amps</p>
+                  <p className="text-sm font-medium text-primary">Choose Equipment</p>
+                  <p className="text-xs text-secondary">Toggle headphones, IEMs, DACs, or amps</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-2">
-                <div className="text-accent-primary mt-0.5">👂</div>
+                <div className="text-accent mt-0.5">👂</div>
                 <div>
-                  <p className="text-sm font-medium text-text-primary">Pick Sound Style</p>
-                  <p className="text-xs text-text-secondary">Find your preferred sound signature</p>
+                  <p className="text-sm font-medium text-primary">Pick Sound Style</p>
+                  <p className="text-xs text-secondary">Find your preferred sound signature</p>
                 </div>
               </div>
             </div>

@@ -141,7 +141,7 @@ export function EmptyState({
 
 export function RecommendationCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border-default p-4 animate-pulse">
+    <div className="rounded-xl border p-4 animate-pulse">
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
           <div className="skeleton h-5 w-44 rounded mb-1.5" />
@@ -160,7 +160,7 @@ export function RecommendationCardSkeleton() {
 
 export function FilterBarSkeleton() {
   return (
-    <div className="mb-4 px-4 py-3 rounded-xl border border-border-default bg-background-secondary animate-pulse">
+    <div className="mb-4 px-4 py-3 rounded-xl border bg-secondary animate-pulse">
       <div className="flex flex-wrap items-center gap-3">
         <div className="skeleton h-5 w-12 rounded" />
         {[72, 48, 52, 52, 60].map((w, i) => (
@@ -179,7 +179,7 @@ export function FilterBarSkeleton() {
 export function CategoryColumnSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="card overflow-hidden animate-pulse">
-      <div className="px-4 py-3 border-b border-border-default flex justify-between">
+      <div className="px-4 py-3 border-b flex justify-between">
         <div className="skeleton h-4 w-20 rounded" />
         <div className="skeleton h-4 w-16 rounded" />
       </div>

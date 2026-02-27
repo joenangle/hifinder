@@ -192,7 +192,7 @@ export function AmplificationAssessment({
       </div>
       
       {explanation && (
-        <p className="text-sm text-text-secondary mt-3 leading-relaxed">
+        <p className="text-sm text-secondary mt-3 leading-relaxed">
           {explanation}
         </p>
       )}
@@ -200,7 +200,7 @@ export function AmplificationAssessment({
       {/* Source compatibility */}
       {(phoneCompatible !== undefined || laptopCompatible !== undefined) && (
         <div className="mt-4 space-y-2">
-          <h4 className="text-sm font-medium text-text-primary">Source Compatibility</h4>
+          <h4 className="text-sm font-medium text-primary">Source Compatibility</h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {phoneCompatible !== undefined && (
               <div className={`flex items-center gap-2 ${phoneCompatible ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>

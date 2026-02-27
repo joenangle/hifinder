@@ -75,7 +75,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full bg-surface-elevated border border-border-default rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
+              className="w-full bg-surface-elevated border rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
             >
               <option value="all">All Types</option>
               <option value="video">▶️ Videos</option>
@@ -91,7 +91,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="w-full bg-surface-elevated border border-border-default rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
+              className="w-full bg-surface-elevated border rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
             >
               <option value="all">All Levels</option>
               <option value="beginner">🟢 Beginner</option>
@@ -106,7 +106,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-surface-elevated border border-border-default rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
+              className="w-full bg-surface-elevated border rounded-lg p-3 text-primary focus:border-accent focus:outline-none"
             >
               <option value="all">All Categories</option>
               <option value="basics">💡 Basics</option>
@@ -189,7 +189,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
           <h2 className="heading-2 mb-4">All Resources</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {regularResources.map(resource => (
-              <div key={resource.id} className="card border border-border-default p-6 hover:border-border-focus transition-all">
+              <div key={resource.id} className="card border p-6 hover:border-accent transition-all">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-1 text-primary">{resource.title}</h3>

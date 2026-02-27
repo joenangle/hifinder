@@ -253,8 +253,8 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
     return (
       <div className="max-w-4xl flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading component...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-secondary">Loading component...</p>
         </div>
       </div>
     )
@@ -264,10 +264,10 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
     <div className="max-w-4xl">
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold text-text-primary dark:text-text-primary">
+          <h2 className="text-2xl font-bold text-primary">
             {isEditMode ? 'Edit Component' : 'Add New Component'}
           </h2>
-          <p className="text-text-secondary dark:text-text-secondary mt-1">
+          <p className="text-secondary mt-1">
             {isEditMode
               ? 'Update component information. Changes will be immediately reflected in recommendations.'
               : 'Add audio equipment to the database. All components will be immediately available in recommendations.'}
@@ -276,7 +276,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
         {isEditMode && onCancel && (
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-text-secondary hover:text-text-primary border border-border-default rounded-lg"
+            className="px-4 py-2 text-secondary hover:text-primary border rounded-lg"
           >
             Cancel
           </button>
@@ -315,12 +315,12 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Required Fields Section */}
         <div className="card p-6">
-          <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary mb-4">
+          <h3 className="text-lg font-semibold text-primary mb-4">
             Required Information
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="brand" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="brand" className="block text-sm font-medium text-primary mb-2">
                 Brand <span className="text-red-500">*</span>
               </label>
               <input
@@ -328,14 +328,14 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="brand"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="e.g. Sennheiser"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-primary mb-2">
                 Model Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -343,21 +343,21 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="e.g. HD 600"
                 required
               />
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="category" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="category" className="block text-sm font-medium text-primary mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
               <select
                 id="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 required
               >
                 <option value="">Select category...</option>
@@ -374,12 +374,12 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
 
         {/* Pricing Section */}
         <div className="card p-6">
-          <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary mb-4">
-            Pricing <span className="text-sm font-normal text-text-secondary">(at least one required)</span>
+          <h3 className="text-lg font-semibold text-primary mb-4">
+            Pricing <span className="text-sm font-normal text-secondary">(at least one required)</span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label htmlFor="priceNew" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="priceNew" className="block text-sm font-medium text-primary mb-2">
                 New Price (USD)
               </label>
               <input
@@ -387,7 +387,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="priceNew"
                 value={priceNew}
                 onChange={(e) => setPriceNew(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="299"
                 min="0"
                 step="0.01"
@@ -395,7 +395,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             </div>
 
             <div>
-              <label htmlFor="priceUsedMin" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="priceUsedMin" className="block text-sm font-medium text-primary mb-2">
                 Used Price Min (USD)
               </label>
               <input
@@ -403,7 +403,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="priceUsedMin"
                 value={priceUsedMin}
                 onChange={(e) => setPriceUsedMin(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="150"
                 min="0"
                 step="0.01"
@@ -411,7 +411,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             </div>
 
             <div>
-              <label htmlFor="priceUsedMax" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="priceUsedMax" className="block text-sm font-medium text-primary mb-2">
                 Used Price Max (USD)
               </label>
               <input
@@ -419,7 +419,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="priceUsedMax"
                 value={priceUsedMax}
                 onChange={(e) => setPriceUsedMax(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="250"
                 min="0"
                 step="0.01"
@@ -430,19 +430,19 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
 
         {/* Additional Details Section */}
         <div className="card p-6">
-          <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary mb-4">
-            Additional Details <span className="text-sm font-normal text-text-secondary">(optional)</span>
+          <h3 className="text-lg font-semibold text-primary mb-4">
+            Additional Details <span className="text-sm font-normal text-secondary">(optional)</span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="soundSignature" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="soundSignature" className="block text-sm font-medium text-primary mb-2">
                 Sound Signature
               </label>
               <select
                 id="soundSignature"
                 value={soundSignature}
                 onChange={(e) => setSoundSignature(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="">Select signature...</option>
                 <option value="neutral">Neutral</option>
@@ -453,7 +453,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             </div>
 
             <div>
-              <label htmlFor="driverType" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="driverType" className="block text-sm font-medium text-primary mb-2">
                 Driver Type
               </label>
               <input
@@ -461,13 +461,13 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="driverType"
                 value={driverType}
                 onChange={(e) => setDriverType(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="e.g. Dynamic, Planar Magnetic"
               />
             </div>
 
             <div>
-              <label htmlFor="impedance" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="impedance" className="block text-sm font-medium text-primary mb-2">
                 Impedance (Ω)
               </label>
               <input
@@ -475,7 +475,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="impedance"
                 value={impedance}
                 onChange={(e) => setImpedance(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="32"
                 min="0"
                 step="0.1"
@@ -483,14 +483,14 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             </div>
 
             <div>
-              <label htmlFor="needsAmp" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="needsAmp" className="block text-sm font-medium text-primary mb-2">
                 Needs Amplifier?
               </label>
               <select
                 id="needsAmp"
                 value={needsAmp === null ? '' : needsAmp.toString()}
                 onChange={(e) => setNeedsAmp(e.target.value === '' ? null : e.target.value === 'true')}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="">Not specified</option>
                 <option value="true">Yes</option>
@@ -499,7 +499,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="manufacturerUrl" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+              <label htmlFor="manufacturerUrl" className="block text-sm font-medium text-primary mb-2">
                 Manufacturer URL
               </label>
               <input
@@ -507,7 +507,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 id="manufacturerUrl"
                 value={manufacturerUrl}
                 onChange={(e) => setManufacturerUrl(e.target.value)}
-                className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="https://en-us.sennheiser.com/..."
               />
             </div>
@@ -521,11 +521,11 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             onClick={() => setExpertDataExpanded(!expertDataExpanded)}
             className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
           >
-            <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary">
-              Expert Data <span className="text-sm font-normal text-text-secondary">(optional - for headphones/IEMs)</span>
+            <h3 className="text-lg font-semibold text-primary">
+              Expert Data <span className="text-sm font-normal text-secondary">(optional - for headphones/IEMs)</span>
             </h3>
             <svg
-              className={`w-5 h-5 text-text-secondary transition-transform ${expertDataExpanded ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-secondary transition-transform ${expertDataExpanded ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -538,10 +538,10 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             <div className="space-y-6 mt-4">
             {/* ASR Data */}
             <div>
-              <h4 className="text-md font-medium text-text-primary dark:text-text-primary mb-3">ASR Measurements</h4>
+              <h4 className="text-md font-medium text-primary mb-3">ASR Measurements</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="asrSinad" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="asrSinad" className="block text-sm font-medium text-primary mb-2">
                     SINAD (dB)
                   </label>
                   <input
@@ -549,13 +549,13 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="asrSinad"
                     value={asrSinad}
                     onChange={(e) => setAsrSinad(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. 115"
                     step="0.1"
                   />
                 </div>
                 <div>
-                  <label htmlFor="asrReviewUrl" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="asrReviewUrl" className="block text-sm font-medium text-primary mb-2">
                     ASR Review URL
                   </label>
                   <input
@@ -563,7 +563,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="asrReviewUrl"
                     value={asrReviewUrl}
                     onChange={(e) => setAsrReviewUrl(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="https://www.audiosciencereview.com/..."
                   />
                 </div>
@@ -572,10 +572,10 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
 
             {/* Crinacle Data */}
             <div>
-              <h4 className="text-md font-medium text-text-primary dark:text-text-primary mb-3">Crinacle Ratings</h4>
+              <h4 className="text-md font-medium text-primary mb-3">Crinacle Ratings</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="crinRank" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="crinRank" className="block text-sm font-medium text-primary mb-2">
                     Ranking (1-400+)
                   </label>
                   <input
@@ -583,13 +583,13 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="crinRank"
                     value={crinRank}
                     onChange={(e) => setCrinRank(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. 42"
                     min="1"
                   />
                 </div>
                 <div>
-                  <label htmlFor="crinValue" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="crinValue" className="block text-sm font-medium text-primary mb-2">
                     Value Rating (0-10)
                   </label>
                   <input
@@ -597,7 +597,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="crinValue"
                     value={crinValue}
                     onChange={(e) => setCrinValue(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. 7.5"
                     min="0"
                     max="10"
@@ -605,7 +605,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                   />
                 </div>
                 <div>
-                  <label htmlFor="crinTone" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="crinTone" className="block text-sm font-medium text-primary mb-2">
                     Tone Grade (S, A+, A, B+, etc.)
                   </label>
                   <input
@@ -613,12 +613,12 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="crinTone"
                     value={crinTone}
                     onChange={(e) => setCrinTone(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. A+"
                   />
                 </div>
                 <div>
-                  <label htmlFor="crinTech" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="crinTech" className="block text-sm font-medium text-primary mb-2">
                     Technical Grade (S, A+, A, B+, etc.)
                   </label>
                   <input
@@ -626,12 +626,12 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="crinTech"
                     value={crinTech}
                     onChange={(e) => setCrinTech(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. B+"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label htmlFor="crinSignature" className="block text-sm font-medium text-text-primary dark:text-text-primary mb-2">
+                  <label htmlFor="crinSignature" className="block text-sm font-medium text-primary mb-2">
                     Detailed Sound Signature
                   </label>
                   <input
@@ -639,7 +639,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                     id="crinSignature"
                     value={crinSignature}
                     onChange={(e) => setCrinSignature(e.target.value)}
-                    className="w-full px-4 py-2 border border-border-default dark:border-border-default rounded-lg bg-bg-secondary dark:bg-bg-secondary text-text-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                    className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="e.g. Bright neutral, Mild V-shape, etc."
                   />
                 </div>
@@ -655,7 +655,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 border border-border-default text-text-secondary hover:text-text-primary rounded-lg"
+              className="px-6 py-3 border text-secondary hover:text-primary rounded-lg"
             >
               Cancel
             </button>
@@ -663,7 +663,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-accent-primary text-white font-medium rounded-lg hover:bg-accent-primary/90 focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Component' : 'Create Component')}
           </button>

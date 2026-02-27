@@ -581,7 +581,7 @@ function GearContent() {
       />
       
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-20 border-b border-border-default shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
+      <div className="sticky top-[120px] z-20 border-b shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div className="max-w-7xl mx-auto pt-4 pb-4" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
@@ -727,7 +727,7 @@ function GearContent() {
                         <div 
                           key={stack.id} 
                           className={`card p-6 ${
-                            dragOverStack === stack.id ? 'ring-2 ring-accent-primary bg-accent-primary/10' : ''
+                            dragOverStack === stack.id ? 'ring-2 ring-accent bg-accent/10' : ''
                           }`}
                           onDragOver={(e) => handleDragOver(e, stack.id)}
                           onDragLeave={handleDragLeave}
@@ -885,7 +885,7 @@ function GearContent() {
 
                           {/* Drop Zone Indicator */}
                           {draggedGear && dragOverStack === stack.id && (
-                            <div className="mt-3 p-4 border-2 border-dashed border-accent-primary rounded bg-accent-primary/10 text-center">
+                            <div className="mt-3 p-4 border-2 border-dashed border-accent rounded bg-accent/10 text-center">
                               <div className="text-sm font-medium" style={{color: 'var(--accent-primary)'}}>
                                 Drop to add &ldquo;{draggedGear.components?.name || draggedGear.custom_name}&rdquo; to stack
                               </div>
@@ -900,7 +900,7 @@ function GearContent() {
                             }}
                             className={`w-full mt-3 p-2 border-2 border-dashed transition-colors text-sm ${
                               draggedGear 
-                                ? 'border-accent-primary/50 text-accent-primary/50' 
+                                ? 'border-accent/50 text-accent/50' 
                                 : 'border-secondary text-secondary hover:text-primary hover:border-primary'
                             }`}
                           >
@@ -962,14 +962,14 @@ function GearContent() {
                               </span>
                             </div>
                             <div className="text-center">
-                              <div className="font-semibold text-xs text-text-primary dark:text-text-primary truncate mb-1">
+                              <div className="font-semibold text-xs text-primary truncate mb-1">
                                 {item.components?.brand || item.custom_brand}
                               </div>
-                              <div className="text-xs text-text-secondary dark:text-text-secondary truncate mb-2">
+                              <div className="text-xs text-secondary truncate mb-2">
                                 {item.components?.name || item.custom_name}
                               </div>
                               {item.purchase_price && (
-                                <div className="text-sm font-bold text-accent-primary dark:text-accent-primary">
+                                <div className="text-sm font-bold text-accent">
                                   ${item.purchase_price}
                                 </div>
                               )}
@@ -1057,12 +1057,12 @@ function GearContent() {
 
                     {/* Name and Price on same line */}
                     <div className="flex items-baseline justify-between mb-1 gap-2">
-                      <h3 className="font-semibold text-lg text-text-primary dark:text-text-primary truncate">
+                      <h3 className="font-semibold text-lg text-primary truncate">
                         {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
                       </h3>
                       {item.purchase_price && (
                         <div className="text-right flex-shrink-0">
-                          <div className="text-lg font-bold text-accent-primary dark:text-accent-primary whitespace-nowrap">
+                          <div className="text-lg font-bold text-accent whitespace-nowrap">
                             ${item.purchase_price}
                           </div>
                         </div>
@@ -1070,7 +1070,7 @@ function GearContent() {
                     </div>
 
                     {/* Compact metadata row with separators */}
-                    <div className="flex items-center justify-between text-xs text-text-secondary dark:text-text-secondary mb-2">
+                    <div className="flex items-center justify-between text-xs text-secondary mb-2">
                       <div className="truncate flex-1 flex items-center gap-2">
                         {item.components?.impedance && (
                           <span>{item.components.impedance}Ω</span>
@@ -1113,10 +1113,10 @@ function GearContent() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base text-text-primary dark:text-text-primary truncate">
+                      <h3 className="font-semibold text-base text-primary truncate">
                         {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
                       </h3>
-                      <div className="flex items-center gap-2 text-xs text-text-secondary dark:text-text-secondary mt-1">
+                      <div className="flex items-center gap-2 text-xs text-secondary mt-1">
                         <span className="uppercase font-medium">{getGearCategory(item)}</span>
                         {item.components?.impedance && (
                           <>
@@ -1137,7 +1137,7 @@ function GearContent() {
                       <div className="flex items-center gap-2">
                         {item.purchase_price && (
                           <div className="text-right">
-                            <div className="text-base font-bold text-accent-primary dark:text-accent-primary">
+                            <div className="text-base font-bold text-accent">
                               ${item.purchase_price}
                             </div>
                           </div>

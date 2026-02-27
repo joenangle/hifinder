@@ -52,14 +52,14 @@ export function ComparisonBar({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-border-default dark:border-border-default bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300"
+      className="fixed bottom-0 left-0 right-0 z-[100] border-t bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300"
       style={{
         maxHeight: isExpanded ? '50vh' : '80px',
         transform: 'translateY(0)'
       }}
     >
       {/* Minimized Header Bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border-default dark:border-border-default">
+      <div className="flex items-center justify-between px-4 py-3 border-b">
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleExpand}
@@ -67,7 +67,7 @@ export function ComparisonBar({
             aria-label={isExpanded ? 'Collapse comparison bar' : 'Expand comparison bar'}
           >
             <svg
-              className={`w-5 h-5 text-text-primary dark:text-text-primary transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-primary transition-transform ${isExpanded ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -76,10 +76,10 @@ export function ComparisonBar({
             </svg>
           </button>
           <div>
-            <h3 className="font-semibold text-text-primary dark:text-text-primary">
+            <h3 className="font-semibold text-primary">
               Comparing {items.length} {items.length === 1 ? 'item' : 'items'}
             </h3>
-            <p className="text-xs text-text-tertiary dark:text-text-tertiary">
+            <p className="text-xs text-tertiary">
               {isExpanded ? 'Click item for details or view full comparison' : 'Expand to preview'}
             </p>
           </div>
@@ -88,20 +88,20 @@ export function ComparisonBar({
         <div className="flex items-center gap-2">
           <button
             onClick={onViewFullComparison}
-            className="px-4 py-2 text-sm font-medium text-white bg-accent-primary hover:bg-accent-hover rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg transition-colors"
           >
             View Full Comparison
           </button>
           <button
             onClick={onClearAll}
-            className="px-3 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary hover:text-text-primary dark:hover:text-text-primary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+            className="px-3 py-2 text-sm font-medium text-secondary hover:text-primary dark:hover:text-primary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
           >
             Clear All
           </button>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 text-text-tertiary dark:text-text-tertiary hover:text-text-primary dark:hover:text-text-primary transition-colors"
+              className="p-2 text-tertiary hover:text-primary dark:hover:text-primary transition-colors"
               aria-label="Close comparison bar"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,22 +119,22 @@ export function ComparisonBar({
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex-shrink-0 w-64 p-3 border border-border-default dark:border-border-default rounded-lg bg-surface-secondary dark:bg-surface-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+                className="flex-shrink-0 w-64 p-3 border rounded-lg bg-surface-secondary hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
               >
                 {/* Item Header */}
                 <div className="mb-2">
-                  <h4 className="font-semibold text-sm text-text-primary dark:text-text-primary mb-1">
+                  <h4 className="font-semibold text-sm text-primary mb-1">
                     {item.brand} {item.name}
                   </h4>
-                  <span className="text-xs text-text-tertiary dark:text-text-tertiary capitalize">
+                  <span className="text-xs text-tertiary capitalize">
                     {item.category}
                   </span>
                 </div>
 
                 {/* Price */}
                 <div className="mb-2">
-                  <span className="text-xs text-text-tertiary dark:text-text-tertiary">Used Price:</span>
-                  <div className="text-sm font-semibold text-accent-primary dark:text-accent-primary">
+                  <span className="text-xs text-tertiary">Used Price:</span>
+                  <div className="text-sm font-semibold text-accent">
                     {formatPrice(item.price_used_min, item.price_used_max)}
                   </div>
                 </div>
@@ -142,8 +142,8 @@ export function ComparisonBar({
                 {/* Match Score */}
                 {item.matchScore && (
                   <div className="mb-2">
-                    <span className="text-xs text-text-tertiary dark:text-text-tertiary">Match: </span>
-                    <span className="text-sm font-medium text-text-primary dark:text-text-primary">
+                    <span className="text-xs text-tertiary">Match: </span>
+                    <span className="text-sm font-medium text-primary">
                       {item.matchScore}%
                     </span>
                   </div>
@@ -159,7 +159,7 @@ export function ComparisonBar({
                     )}
                     {item.crin_tech && (
                       <>
-                        {item.crin_tone && <span className="text-text-tertiary dark:text-text-tertiary">|</span>}
+                        {item.crin_tone && <span className="text-tertiary">|</span>}
                         <span className={`font-medium ${getGradeColor(item.crin_tech)}`}>
                           {item.crin_tech} Tech
                         </span>
@@ -167,8 +167,8 @@ export function ComparisonBar({
                     )}
                     {item.crin_rank && (
                       <>
-                        {(item.crin_tone || item.crin_tech) && <span className="text-text-tertiary dark:text-text-tertiary">|</span>}
-                        <span className="font-medium text-text-primary dark:text-text-primary">
+                        {(item.crin_tone || item.crin_tech) && <span className="text-tertiary">|</span>}
+                        <span className="font-medium text-primary">
                           #{item.crin_rank}
                         </span>
                       </>

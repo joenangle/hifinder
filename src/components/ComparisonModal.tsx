@@ -128,19 +128,19 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-default dark:border-border-default flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0">
           <div>
-            <h2 id="comparison-modal-title" className="text-xl font-bold text-text-primary dark:text-text-primary">
+            <h2 id="comparison-modal-title" className="text-xl font-bold text-primary">
               Component Comparison
             </h2>
-            <p className="text-sm text-text-tertiary dark:text-text-tertiary mt-1">
+            <p className="text-sm text-tertiary mt-1">
               Comparing {items.length} {items.length === 1 ? 'item' : 'items'} side-by-side
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-text-tertiary dark:text-text-tertiary hover:text-text-primary dark:hover:text-text-primary hover:bg-surface-hover dark:hover:bg-surface-hover rounded-lg transition-colors"
+            className="p-2 text-tertiary hover:text-primary dark:hover:text-primary hover:bg-surface-hover dark:hover:bg-surface-hover rounded-lg transition-colors"
             aria-label="Close comparison"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,33 +155,33 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border-default dark:border-border-default bg-surface-secondary dark:bg-surface-secondary flex-shrink-0">
-          <div className="text-xs text-text-tertiary dark:text-text-tertiary">
+        <div className="flex items-center justify-between px-6 py-4 border-t bg-surface-secondary flex-shrink-0">
+          <div className="text-xs text-tertiary">
             Tip: Scroll horizontally to see all specifications
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={handleCopyLink}
-              className="px-4 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               📋 Copy Link
             </button>
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               📊 Export CSV
             </button>
             <button
               onClick={() => window.print()}
-              className="px-4 py-2 text-sm font-medium text-text-secondary dark:text-text-secondary border border-border-default dark:border-border-default rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               🖨️ Print
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-white bg-accent-primary hover:bg-accent-secondary rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-secondary rounded-lg transition-colors"
             >
               Close
             </button>

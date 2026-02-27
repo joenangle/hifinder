@@ -153,11 +153,11 @@ export function BudgetAllocationControls({
         className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
       >
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-text-secondary" />
-          <h3 className="text-sm font-semibold text-text-secondary">
+          <Settings className="w-5 h-5 text-secondary" />
+          <h3 className="text-sm font-semibold text-secondary">
             Budget Allocation
             {!isExpanded && (
-              <span className="ml-2 text-xs font-normal text-text-tertiary">
+              <span className="ml-2 text-xs font-normal text-tertiary">
                 (click to customize)
               </span>
             )}
@@ -165,14 +165,14 @@ export function BudgetAllocationControls({
         </div>
         <div className="flex items-center gap-3">
           {!isExpanded && (
-            <span className="text-sm text-text-secondary">
+            <span className="text-sm text-secondary">
               Auto: {formatCurrency(totalBudget)}
             </span>
           )}
           {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-text-secondary" />
+            <ChevronUp className="w-5 h-5 text-secondary" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-text-secondary" />
+            <ChevronDown className="w-5 h-5 text-secondary" />
           )}
         </div>
       </button>
@@ -202,7 +202,7 @@ export function BudgetAllocationControls({
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold">{formatCurrency(budget.amount)}</span>
-                    <span className="text-xs text-text-tertiary">({budget.percentage.toFixed(0)}%)</span>
+                    <span className="text-xs text-tertiary">({budget.percentage.toFixed(0)}%)</span>
                   </div>
                 </div>
 
@@ -225,15 +225,15 @@ export function BudgetAllocationControls({
                     className="p-1 rounded hover:bg-surface-secondary transition-colors"
                     title="Customize range"
                   >
-                    <Settings className="w-4 h-4 text-text-tertiary" />
+                    <Settings className="w-4 h-4 text-tertiary" />
                   </button>
                 </div>
 
                 {/* Search range display */}
-                <div className="text-xs text-text-tertiary">
+                <div className="text-xs text-tertiary">
                   Search range: {formatCurrency(searchMin)} to {formatCurrency(searchMax)}
                   {(budget.rangeMin !== undefined || budget.rangeMax !== undefined) && (
-                    <span className="ml-2 text-accent-primary">
+                    <span className="ml-2 text-accent">
                       (custom: -{rangeMin}% to +{rangeMax}%)
                     </span>
                   )}
@@ -242,12 +242,12 @@ export function BudgetAllocationControls({
                 {/* Custom range controls (when editing) */}
                 {editingComponent === component && (
                   <div className="mt-2 p-3 bg-surface-secondary rounded-lg space-y-3">
-                    <p className="text-xs font-medium text-text-secondary">
+                    <p className="text-xs font-medium text-secondary">
                       Custom Search Range
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-text-secondary">Min:</span>
+                        <span className="text-xs text-secondary">Min:</span>
                         <span className="text-xs font-medium">-{rangeMin}%</span>
                       </div>
                       <input
@@ -271,7 +271,7 @@ export function BudgetAllocationControls({
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-text-secondary">Max:</span>
+                        <span className="text-xs text-secondary">Max:</span>
                         <span className="text-xs font-medium">+{rangeMax}%</span>
                       </div>
                       <input
@@ -306,7 +306,7 @@ export function BudgetAllocationControls({
                         }
                         onChange(updatedAllocation)
                       }}
-                      className="text-xs text-accent-primary hover:underline"
+                      className="text-xs text-accent hover:underline"
                     >
                       Reset to global range
                     </button>
@@ -317,12 +317,12 @@ export function BudgetAllocationControls({
           })}
 
           {/* Total and actions */}
-          <div className="pt-4 border-t border-border-default">
+          <div className="pt-4 border-t">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold">Total:</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold">{formatCurrency(totalAllocated)}</span>
-                <span className="text-xs text-text-tertiary">
+                <span className="text-xs text-tertiary">
                   ({totalPercentage.toFixed(0)}%)
                 </span>
                 {!isValid && (
@@ -338,7 +338,7 @@ export function BudgetAllocationControls({
 
             <button
               onClick={handleResetToDefaults}
-              className="flex items-center gap-2 text-sm text-accent-primary hover:underline"
+              className="flex items-center gap-2 text-sm text-accent hover:underline"
             >
               <RotateCcw className="w-4 h-4" />
               Reset to Smart Defaults
