@@ -58,7 +58,7 @@ export default function FlaggedListingsTab() {
   const [data, setData] = useState<FlaggedListingsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedListing, setSelectedListing] = useState<string | null>(null)
-  const [selectedListingDetails, setSelectedListingDetails] = useState<any>(null)
+  const [selectedListingDetails, setSelectedListingDetails] = useState<{ listing: FlaggedListing } | null>(null)
 
   // Filters
   const [statusFilter, setStatusFilter] = useState('pending')
