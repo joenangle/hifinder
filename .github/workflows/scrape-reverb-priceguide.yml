@@ -1,0 +1,37 @@
+name: Scrape Reverb Price Guide
+
+on:
+  schedule:
+    # Daily at 7am UTC (2am EST / 3am EDT)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  scrape-priceguide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scrape Reverb Price Guide
+        timeout-minutes: 20
+        run: npm run scrape:reverb-priceguide
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REVERB_API_TOKEN: ${{ secrets.REVERB_API_TOKEN }}
+
+      - name: Log completion
+        run: |
+          echo "Reverb Price Guide scrape completed at $(date)"

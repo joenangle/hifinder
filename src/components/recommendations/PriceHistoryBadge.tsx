@@ -90,3 +90,8 @@ const PriceHistoryBadgeComponent = ({ componentId }: { componentId: string }) =>
 }
 
 export const PriceHistoryBadge = memo(PriceHistoryBadgeComponent)
+
+/** Get cached price stats (non-null only after PriceHistoryBadge has rendered for this ID) */
+export function getCachedPriceStats(componentId: string): PriceStats | null {
+  return priceCache.get(componentId) ?? null
+}

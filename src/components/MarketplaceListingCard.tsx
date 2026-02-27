@@ -5,7 +5,7 @@ import { Clock, MapPin, User, Star, AlertTriangle, TrendingDown, TrendingUp, Ext
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import { Tooltip } from './Tooltip'
-import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
+import { PriceHistoryBadge, getCachedPriceStats } from '@/components/recommendations/PriceHistoryBadge'
 
 interface MarketplaceListingCardProps {
   listing: UsedListing;
@@ -67,17 +67,28 @@ export function MarketplaceListingCard({
   }
 
   const getPriceAnalysis = (listingPrice: number) => {
-    if (!component.price_used_min || !component.price_used_max) {
+    // Use actual sales median as benchmark when available (much more accurate)
+    const cachedStats = getCachedPriceStats(component.id)
+    const hasMarketData = cachedStats && cachedStats.median > 0
+
+    if (!hasMarketData && !component.price_used_min && !component.price_used_max) {
       return { type: 'neutral', message: '', percentage: 0, trend: 'stable' }
     }
 
-    const expectedMin = component.price_used_min
-    const expectedMax = component.price_used_max
-    const expectedAvg = (expectedMin + expectedMax) / 2
+    const expectedAvg = hasMarketData
+      ? cachedStats.median
+      : ((component.price_used_min || 0) + (component.price_used_max || 0)) / 2
+    const expectedMin = hasMarketData
+      ? cachedStats.median * 0.8
+      : (component.price_used_min || 0)
+    const expectedMax = hasMarketData
+      ? cachedStats.median * 1.2
+      : (component.price_used_max || 0)
     const percentage = Math.round(((listingPrice - expectedAvg) / expectedAvg) * 100)
 
     // Price trend analysis based on position in range
-    const rangePosition = (listingPrice - expectedMin) / (expectedMax - expectedMin)
+    const range = expectedMax - expectedMin
+    const rangePosition = range > 0 ? (listingPrice - expectedMin) / range : 0.5
     let trend = 'stable'
     if (rangePosition < 0.3) trend = 'dropping'
     else if (rangePosition > 0.7) trend = 'rising'

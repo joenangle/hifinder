@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
+import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
 
 interface AudioComponent {
   id: string
@@ -162,6 +163,7 @@ const HeadphoneCardComponent = ({
           </div>
           <div className="text-[10px] text-tertiary leading-none mt-0.5">used est.</div>
           <PriceHistoryBadge componentId={headphone.id} />
+          <PriceTrendIndicator componentId={headphone.id} />
         </div>
       </div>
 

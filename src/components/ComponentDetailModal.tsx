@@ -11,7 +11,7 @@ const PriceHistoryChart = dynamic(
   () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
   { ssr: false }
 )
-import { useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface ComponentDetailModalProps {
   component: Component
@@ -47,6 +47,30 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
     component.name,
     component.brand
   )
+
+  // Fetch actual sales data for this component
+  const [marketData, setMarketData] = useState<{
+    count: number; median: number; min: number; max: number
+  } | null>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    let cancelled = false
+    fetch(`/api/components/${component.id}/price-history?days=90`)
+      .then(res => res.json())
+      .then(data => {
+        if (!cancelled && data.statistics && data.statistics.count >= 3) {
+          setMarketData({
+            count: data.statistics.count,
+            median: data.statistics.median,
+            min: data.statistics.min,
+            max: data.statistics.max,
+          })
+        }
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [isOpen, component.id])
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -114,25 +138,40 @@ export function ComponentDetailModal({ component, isOpen, onClose }: ComponentDe
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Price Range */}
-          <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-            <div>
-              <h3 className="font-semibold text-primary">Typical Used Price Range</h3>
-              <p className="text-sm text-secondary">Based on recent marketplace data</p>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-primary">
-                {component.price_used_min && component.price_used_max ? (
-                  `${formatPrice(component.price_used_min)} - ${formatPrice(component.price_used_max)}`
-                ) : (
-                  'Price data unavailable'
+          {/* Price Range — enhanced with actual market data */}
+          <div className="p-4 bg-secondary rounded-lg space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-primary">
+                  {marketData ? 'Market Value' : 'Typical Used Price Range'}
+                </h3>
+                <p className="text-sm text-secondary">
+                  {marketData
+                    ? `Based on ${marketData.count} recent sale${marketData.count !== 1 ? 's' : ''}`
+                    : 'Based on recent marketplace data'}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-bold text-primary">
+                  {marketData ? (
+                    `${formatPrice(marketData.min)} - ${formatPrice(marketData.max)}`
+                  ) : component.price_used_min && component.price_used_max ? (
+                    `${formatPrice(component.price_used_min)} - ${formatPrice(component.price_used_max)}`
+                  ) : (
+                    'Price data unavailable'
+                  )}
+                </div>
+                {marketData && (
+                  <div className="text-sm text-secondary">
+                    Median: {formatPrice(marketData.median)}
+                  </div>
+                )}
+                {component.price_new && (
+                  <div className="text-sm text-secondary">
+                    New: {formatPrice(component.price_new)}
+                  </div>
                 )}
               </div>
-              {component.price_new && (
-                <div className="text-sm text-secondary">
-                  New: {formatPrice(component.price_new)}
-                </div>
-              )}
             </div>
           </div>
 

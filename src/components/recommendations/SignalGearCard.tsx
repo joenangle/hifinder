@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
+import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
 
 interface AudioComponent {
   id: string
@@ -146,6 +147,7 @@ const SignalGearCardComponent = ({
           </div>
           <div className="text-[10px] text-tertiary leading-none mt-0.5">used est.</div>
           <PriceHistoryBadge componentId={component.id} />
+          <PriceTrendIndicator componentId={component.id} />
         </div>
       </div>
 

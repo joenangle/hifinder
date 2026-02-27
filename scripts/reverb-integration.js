@@ -43,21 +43,11 @@ const REVERB_CONFIG = {
 };
 
 /**
- * Build better Reverb search query
- * Strategy: Brand + first significant word of model (balances precision/recall)
+ * Build Reverb search query
+ * Strategy: Brand + full model name (let Reverb handle keyword matching)
  */
 function buildSearchQuery(component) {
-  const brand = component.brand;
-  const modelWords = component.name.split(/[\s\-\/]+/).filter(word => {
-    // Filter out parentheticals, years, and short words
-    return word.length > 2 && !/^\(.*\)$/.test(word) && !/^\d{4}$/.test(word);
-  });
-
-  // Use brand + first significant model word for best balance
-  const firstModelWord = modelWords[0] || '';
-  const query = `${brand} ${firstModelWord}`.trim();
-
-  return query;
+  return `${component.brand} ${component.name}`.trim();
 }
 
 /**
@@ -187,39 +177,40 @@ function isRelevantListing(listing, component) {
   const brand = component.brand.toLowerCase();
   const name = component.name.toLowerCase();
 
-  // Must contain brand name (with fuzzy matching for typos)
-  const brandInTitle = title.includes(brand);
-  const brandInDesc = description.includes(brand);
+  // Must contain brand name — also check common abbreviations/aliases
+  const brandAliases = {
+    'beyerdynamic': ['beyerdynamic', 'beyer'],
+    'audio technica': ['audio technica', 'audio-technica', 'audiotechnica'],
+    'campfire audio': ['campfire audio', 'campfire'],
+  };
+  const aliases = brandAliases[brand] || [brand];
+  const brandInTitle = aliases.some(a => title.includes(a));
+  const brandInDesc = aliases.some(a => description.includes(a));
 
   if (!brandInTitle && !brandInDesc) {
     return false;
   }
 
-  // Filter out obvious non-headphone/IEM items first
-  const audioKeywords = ['headphone', 'headset', 'earphone', 'iem', 'in-ear', 'monitor', 'earbud', 'amplifier', 'amp', 'dac', 'preamp'];
-  const hasAudioKeyword = audioKeywords.some(keyword =>
-    title.includes(keyword) || description.includes(keyword)
-  );
-
-  // Exclude instruments, accessories, and non-audio gear (keep amps, DACs, combos)
+  // Exclude instruments, accessories, and non-audio gear
   const excludeKeywords = [
     // Musical instruments
     'guitar', 'bass', 'drum', 'keyboard', 'piano', 'synth', 'violin', 'trumpet', 'saxophone',
     'ukulele', 'banjo', 'mandolin', 'cello', 'flute', 'clarinet', 'trombone', 'pedal',
-    // Accessories and non-audio gear
-    'microphone', 'mic', 'speaker', 'cable', 'adapter', 'stand', 'case', 'mixer', 'tuner',
-    'strap', 'pick', 'string', 'reed', 'bow', 'valve', 'mouthpiece'
+    // Accessories and non-audio gear (NOTE: no "mic" — collides with "beyerdynamic")
+    'microphone', 'speaker', 'cable only', 'adapter', 'mixer', 'tuner',
+    'strap', 'pick', 'string', 'reed', 'bow', 'valve', 'mouthpiece',
+    // Replacement parts / accessories (not the product itself)
+    'ear pad', 'earpad', 'ear cushion', 'replacement pad', 'dekoni', 'headband pad',
+    'carrying case', 'replacement cable'
   ];
   const hasExcludeKeyword = excludeKeywords.some(keyword => title.includes(keyword));
 
-  if (!hasAudioKeyword || hasExcludeKeyword) {
+  if (hasExcludeKeyword) {
     return false;
   }
 
-  // CRITICAL: Require model-specific validation, never allow brand-only matches
-  // This prevents "Sennheiser HD 650" from matching "Sennheiser Momentum"
-
-  // Check for exact model name match first (most reliable)
+  // Check for exact model name match with word boundaries
+  // Prevents "Clear" from matching "Clear MG" (different product)
   const modelVariations = [
     name,
     name.replace(/\s+/g, ''),
@@ -227,11 +218,24 @@ function isRelevantListing(listing, component) {
     name.replace(/\s+/g, '-'),
   ];
 
-  const hasExactModelMatch = modelVariations.some(variation =>
-    title.includes(variation.toLowerCase()) || description.includes(variation.toLowerCase())
+  const hasExactModelMatch = modelVariations.some(variation => {
+    const escaped = variation.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?:^|[\\s\\-\\(\\[/])${escaped}(?:$|[\\s\\-\\)\\]/,;:.])`, 'i');
+    return regex.test(title) || regex.test(description);
+  });
+
+  // If exact model matches, trust it — skip audio keyword check
+  if (hasExactModelMatch) return true;
+
+  // For fuzzy/word-based matching, require an audio keyword to avoid false positives
+  const audioKeywords = ['headphone', 'headset', 'earphone', 'iem', 'in-ear', 'monitor', 'earbud', 'amplifier', 'amp', 'dac', 'preamp'];
+  const hasAudioKeyword = audioKeywords.some(keyword =>
+    title.includes(keyword) || description.includes(keyword)
   );
 
-  if (hasExactModelMatch) return true;
+  if (!hasAudioKeyword) {
+    return false;
+  }
 
   // Fuzzy matching: Calculate similarity between full model name and title
   const MIN_SIMILARITY = 0.80; // Require 80%+ similarity to prevent false matches
