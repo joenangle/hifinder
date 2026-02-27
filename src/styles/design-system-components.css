@@ -636,155 +636,8 @@ select.input {
 }
 
 /* ============================================
-   FILTER TOGGLE BUTTONS
+   COMPACT FILTER BUTTONS (Marketplace)
    ============================================ */
-
-.filter-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 2px solid;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  background-color: var(--background-secondary);
-  border-color: var(--border-default);
-  color: var(--text-secondary);
-}
-
-.filter-toggle-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.filter-toggle-btn:active {
-  transform: translateY(0);
-}
-
-.filter-toggle-badge {
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-}
-
-/* Dark mode adjustments */
-[data-theme="dark"] .filter-toggle-btn:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Filter button color variants */
-.filter-btn-purple.active {
-  background-color: rgba(139, 92, 246, 0.15);
-  border-color: var(--ui-purple);
-  color: var(--ui-purple);
-}
-
-.filter-btn-indigo.active {
-  background-color: rgba(99, 102, 241, 0.15);
-  border-color: var(--ui-indigo);
-  color: var(--ui-indigo);
-}
-
-.filter-btn-green.active {
-  background-color: rgba(16, 185, 129, 0.15);
-  border-color: var(--ui-green);
-  color: var(--ui-green);
-}
-
-.filter-btn-amber.active {
-  background-color: rgba(245, 158, 11, 0.15);
-  border-color: var(--ui-amber);
-  color: var(--ui-amber);
-}
-
-.filter-btn-blue.active {
-  background-color: rgba(59, 130, 246, 0.15);
-  border-color: var(--ui-blue);
-  color: var(--ui-blue);
-}
-
-.filter-btn-neutral.active {
-  background-color: rgba(107, 114, 128, 0.15);
-  border-color: var(--ui-neutral);
-  color: var(--ui-neutral);
-}
-
-.filter-btn-warm.active {
-  background-color: rgba(251, 146, 60, 0.15);
-  border-color: var(--ui-warm);
-  color: var(--ui-warm);
-}
-
-.filter-btn-bright.active {
-  background-color: rgba(56, 189, 248, 0.15);
-  border-color: var(--ui-bright);
-  color: var(--ui-bright);
-}
-
-.filter-btn-fun.active {
-  background-color: rgba(244, 114, 182, 0.15);
-  border-color: var(--ui-fun);
-  color: var(--ui-fun);
-}
-
-.filter-toggle-btn.active .filter-toggle-badge {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="dark"] .filter-toggle-btn.active .filter-toggle-badge {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* ============================================
-   COMPACT FILTER BUTTONS
-   ============================================ */
-
-/* Compact Filter Container */
-.filter-card-compact {
-  background: var(--background-secondary);
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-}
-
-.filter-title-compact {
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 16px;
-  color: var(--text-primary);
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-.filter-row:last-child {
-  margin-bottom: 0;
-}
-
-.filter-label-compact {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  min-width: 80px;
-}
-
-.filter-buttons-compact {
-  display: flex;
-  gap: 6px; /* Reduced from 8px for vertical density */
-  flex: 1;
-  flex-wrap: wrap;
-}
 
 /* Compact Toggle Button */
 .toggle-compact {
@@ -869,20 +722,6 @@ select.input {
 
 /* Mobile responsiveness */
 @media (max-width: 640px) {
-  .filter-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .filter-label-compact {
-    min-width: auto;
-    margin-bottom: 8px;
-  }
-
-  .filter-buttons-compact {
-    width: 100%;
-  }
-
   .toggle-compact {
     padding: 8px 12px;
     font-size: 0.8125rem;
@@ -919,41 +758,6 @@ select.input {
 /* Fix the checkmark visibility */
 [data-theme="dark"] .text-green-500 {
   color: #34d399; /* Brighter green for dark mode */
-}
-
-/* ============================================
-   RECOMMENDATIONS PAGE COLOR MAPPING
-   Maps user-editable override variables to component classes
-   Edit values in color-overrides.css
-   ============================================ */
-
-/* Map override variables to existing UI system */
-:root {
-  /* Update filter button colors from overrides */
-  --ui-purple: var(--rec-filter-headphones, #8b5cf6);
-  --ui-indigo: var(--rec-filter-iems, #6366f1);
-  --ui-green: var(--rec-filter-dacs, #10b981);
-  --ui-amber: var(--rec-filter-amps, #f59e0b);
-  --ui-blue: var(--rec-filter-combos, #3b82f6);
-
-  --ui-neutral: var(--rec-filter-neutral, #6b7280);
-  --ui-warm: var(--rec-filter-warm, #fb923c);
-  --ui-bright: var(--rec-filter-bright, #38bdf8);
-  --ui-fun: var(--rec-filter-fun, #f472b6);
-}
-
-[data-theme="dark"] {
-  /* Override with dark mode values from color-overrides.css */
-  --ui-purple: var(--rec-filter-headphones, #a78bfa);
-  --ui-indigo: var(--rec-filter-iems, #818cf8);
-  --ui-green: var(--rec-filter-dacs, #34d399);
-  --ui-amber: var(--rec-filter-amps, #fcd34d);
-  --ui-blue: var(--rec-filter-combos, #60a5fa);
-
-  --ui-neutral: var(--rec-filter-neutral, #9ca3af);
-  --ui-warm: var(--rec-filter-warm, #fdba74);
-  --ui-bright: var(--rec-filter-bright, #7dd3fc);
-  --ui-fun: var(--rec-filter-fun, #f9a8d4);
 }
 
 /* ============================================

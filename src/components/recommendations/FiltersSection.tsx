@@ -68,18 +68,18 @@ const Pill = ({
   activeClass?: string
 }) => {
   const base =
-    'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none'
-  const inactive = 'text-secondary bg-primary hover:border-subtle hover:text-primary'
+    'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs border transition-all duration-150 cursor-pointer select-none'
+  const inactive = 'font-medium text-secondary bg-primary hover:border-subtle hover:text-primary'
 
   const btn = (
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`${base} ${active ? (activeClass || 'border-accent text-accent bg-accent-subtle') : inactive}`}
+      className={`${base} ${active ? `font-semibold ${activeClass || 'border-accent text-accent bg-primary'}` : inactive}`}
     >
       {label}
       {count !== undefined && (
-        <span className={`text-[10px] tabular-nums ${active ? 'opacity-70' : 'text-tertiary'}`}>
+        <span className={`text-[10px] tabular-nums ${active ? 'opacity-80' : 'text-tertiary'}`}>
           {count}
         </span>
       )}
@@ -93,18 +93,18 @@ const Pill = ({
 }
 
 const SOUND_ACTIVE: Record<string, string> = {
-  neutral: 'border-slate-400 text-slate-900 bg-slate-300 dark:text-slate-200 dark:bg-slate-800/40',
-  warm: 'border-amber-400 text-amber-900 bg-amber-200 dark:text-amber-300 dark:bg-amber-900/30',
-  bright: 'border-sky-400 text-sky-900 bg-sky-200 dark:text-sky-300 dark:bg-sky-900/30',
-  fun: 'border-pink-400 text-pink-900 bg-pink-200 dark:text-pink-300 dark:bg-pink-900/30',
+  neutral: 'border-slate-400 text-slate-700 bg-primary dark:text-slate-300 dark:border-slate-500',
+  warm: 'border-amber-400 text-amber-700 bg-primary dark:text-amber-300 dark:border-amber-500',
+  bright: 'border-sky-400 text-sky-700 bg-primary dark:text-sky-300 dark:border-sky-500',
+  fun: 'border-pink-400 text-pink-700 bg-primary dark:text-pink-300 dark:border-pink-500',
 }
 
 const EQUIP_ACTIVE: Record<string, string> = {
-  cans: 'border-violet-400 text-violet-900 bg-violet-200 dark:text-violet-300 dark:bg-violet-900/30',
-  iems: 'border-indigo-400 text-indigo-900 bg-indigo-200 dark:text-indigo-300 dark:bg-indigo-900/30',
-  dac: 'border-teal-400 text-teal-900 bg-teal-200 dark:text-teal-300 dark:bg-teal-900/30',
-  amp: 'border-amber-500 text-amber-900 bg-amber-200 dark:text-amber-300 dark:bg-amber-900/30',
-  combo: 'border-blue-400 text-blue-900 bg-blue-200 dark:text-blue-300 dark:bg-blue-900/30',
+  cans: 'border-violet-400 text-violet-700 bg-primary dark:text-violet-300 dark:border-violet-500',
+  iems: 'border-indigo-400 text-indigo-700 bg-primary dark:text-indigo-300 dark:border-indigo-500',
+  dac: 'border-teal-400 text-teal-700 bg-primary dark:text-teal-300 dark:border-teal-500',
+  amp: 'border-amber-500 text-amber-700 bg-primary dark:text-amber-300 dark:border-amber-500',
+  combo: 'border-blue-400 text-blue-700 bg-primary dark:text-blue-300 dark:border-blue-500',
 }
 
 const FiltersSectionComponent = ({

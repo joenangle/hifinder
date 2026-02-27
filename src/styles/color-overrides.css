@@ -71,26 +71,6 @@
   --rec-match-score-text: #ea580c; /* Match percentage text - KNOWN ISSUE: Can blend with orange theme */
   --rec-match-score-star: #f59e0b; /* Star emoji color */
 
-  /* === FILTER BUTTONS === */
-
-  /* Equipment filters */
-  --rec-filter-headphones: #8b5cf6; /* Purple for headphones filter */
-  --rec-filter-iems: #6366f1; /* Indigo for IEMs filter */
-  --rec-filter-dacs: #10b981; /* Green for DACs filter */
-  --rec-filter-amps: #f59e0b; /* Amber for Amps filter */
-  --rec-filter-combos: #3b82f6; /* Blue for Combos filter */
-
-  /* Sound signature filters */
-  --rec-filter-neutral: #6b7280; /* Gray for neutral */
-  --rec-filter-warm: #fb923c; /* Orange for warm */
-  --rec-filter-bright: #38bdf8; /* Cyan for bright */
-  --rec-filter-fun: #f472b6; /* Pink for fun/V-shaped */
-
-  /* Filter button states */
-  --rec-filter-bg-inactive: #f8f9fa; /* Inactive filter background */
-  --rec-filter-bg-active-opacity: 0.08; /* Active filter background opacity (applies to filter color) */
-  --rec-filter-border-inactive: #dee2e6; /* Inactive filter border */
-
   /* === TEXT CONTRAST === */
 
   --rec-text-muted: #4f4f4f; /* Muted text (specs, details) */
@@ -186,26 +166,6 @@
 
   --rec-match-score-text: #fdba74; /* Lighter orange for dark mode visibility */
   --rec-match-score-star: #fcd34d; /* Brighter star in dark mode */
-
-  /* === FILTER BUTTONS === */
-
-  /* Equipment filters - brighter in dark mode */
-  --rec-filter-headphones: #a78bfa; /* Lighter purple */
-  --rec-filter-iems: #818cf8; /* Lighter indigo */
-  --rec-filter-dacs: #34d399; /* Lighter green */
-  --rec-filter-amps: #fcd34d; /* Lighter amber */
-  --rec-filter-combos: #60a5fa; /* Lighter blue */
-
-  /* Sound signature filters - brighter in dark mode */
-  --rec-filter-neutral: #9ca3af; /* Lighter gray */
-  --rec-filter-warm: #fdba74; /* Lighter orange */
-  --rec-filter-bright: #7dd3fc; /* Lighter cyan */
-  --rec-filter-fun: #f9a8d4; /* Lighter pink */
-
-  /* Filter button states */
-  --rec-filter-bg-inactive: #1c1f26; /* Darker inactive background */
-  --rec-filter-bg-active-opacity: 0.15; /* Higher opacity for visibility in dark mode */
-  --rec-filter-border-inactive: #2c3038; /* Darker border */
 
   /* === TEXT CONTRAST === */
 
