@@ -93,18 +93,18 @@ const Pill = ({
 }
 
 const SOUND_ACTIVE: Record<string, string> = {
-  neutral: 'border-slate-400 text-slate-800 dark:text-slate-200 bg-slate-200 dark:bg-slate-800/40',
-  warm: 'border-amber-400 text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30',
-  bright: 'border-sky-400 text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/30',
-  fun: 'border-pink-400 text-pink-800 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30',
+  neutral: 'border-slate-400 text-slate-900 bg-slate-300 dark:text-slate-200 dark:bg-slate-800/40',
+  warm: 'border-amber-400 text-amber-900 bg-amber-200 dark:text-amber-300 dark:bg-amber-900/30',
+  bright: 'border-sky-400 text-sky-900 bg-sky-200 dark:text-sky-300 dark:bg-sky-900/30',
+  fun: 'border-pink-400 text-pink-900 bg-pink-200 dark:text-pink-300 dark:bg-pink-900/30',
 }
 
 const EQUIP_ACTIVE: Record<string, string> = {
-  cans: 'border-violet-400 text-violet-800 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30',
-  iems: 'border-indigo-400 text-indigo-800 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30',
-  dac: 'border-teal-400 text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/30',
-  amp: 'border-amber-500 text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30',
-  combo: 'border-blue-400 text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30',
+  cans: 'border-violet-400 text-violet-900 bg-violet-200 dark:text-violet-300 dark:bg-violet-900/30',
+  iems: 'border-indigo-400 text-indigo-900 bg-indigo-200 dark:text-indigo-300 dark:bg-indigo-900/30',
+  dac: 'border-teal-400 text-teal-900 bg-teal-200 dark:text-teal-300 dark:bg-teal-900/30',
+  amp: 'border-amber-500 text-amber-900 bg-amber-200 dark:text-amber-300 dark:bg-amber-900/30',
+  combo: 'border-blue-400 text-blue-900 bg-blue-200 dark:text-blue-300 dark:bg-blue-900/30',
 }
 
 const FiltersSectionComponent = ({
