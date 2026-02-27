@@ -19,7 +19,6 @@ export function WishlistTab() {
 
     setLoading(true)
     const items = await getUserWishlist(session.user.id)
-    console.log('Wishlist loaded:', items.length, 'items')
     setWishlistItems(items)
     setLoading(false)
   }, [session?.user?.id])
@@ -34,7 +33,6 @@ export function WishlistTab() {
   // Refetch wishlist when window regains focus (user returns to tab)
   useEffect(() => {
     const handleFocus = () => {
-      console.log('Window focused, refetching wishlist...')
       if (session?.user?.id) {
         loadWishlist()
       }

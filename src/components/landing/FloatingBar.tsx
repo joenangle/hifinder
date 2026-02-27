@@ -23,7 +23,7 @@ export function FloatingBar() {
         transform: `translateX(-50%) translateY(${pastHero ? '120%' : '0'})`,
         transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s',
         opacity: pastHero ? 0 : 1,
-        zIndex: 50,
+        zIndex: 'var(--z-toast)',
         pointerEvents: pastHero ? 'none' : 'auto',
         display: 'flex',
         alignItems: 'center',

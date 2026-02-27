@@ -83,8 +83,9 @@ const HeadphoneCardComponent = ({
 
     return (
       <div
-        role="button"
-        aria-pressed={isSelected}
+        role="checkbox"
+        aria-checked={isSelected}
+        aria-label={`Select ${headphone.brand} ${headphone.name}`}
         tabIndex={0}
         title={isSelected ? 'Click to remove from your system' : 'Click to add to your system'}
         className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
@@ -96,7 +97,7 @@ const HeadphoneCardComponent = ({
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleSelection(headphone.id) } }}
       >
         {/* Selection affordance icon */}
-        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${
+        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow] duration-200 ${
           isSelected
             ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
             : isFirstCardHint

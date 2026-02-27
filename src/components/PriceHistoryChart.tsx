@@ -85,11 +85,13 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
 export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartProps) {
   const [data, setData] = useState<PriceHistoryData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [days, setDays] = useState(90)
 
   useEffect(() => {
     async function fetchPriceHistory() {
       setLoading(true)
+      setError(null)
       try {
         const res = await fetch(`/api/components/${componentId}/price-history?days=${days}`)
         if (res.ok) {
@@ -98,6 +100,7 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
         }
       } catch (err) {
         console.error('Failed to fetch price history:', err)
+        setError('Failed to load price history')
       } finally {
         setLoading(false)
       }
@@ -111,6 +114,14 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
         <div className="h-48 flex items-center justify-center text-muted text-sm">
           Loading price history...
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-sm text-tertiary text-center py-4">
+        {error}
       </div>
     )
   }

@@ -84,7 +84,7 @@ export function BrandCombobox({ value, onChange, availableBrands, placeholder, c
       {/* Suggestions Dropdown */}
       {showSuggestions && (filteredBrands.length > 0 || similarBrands.length > 0) && (
         <div
-          className="absolute z-[60] w-full mt-1 rounded-md border shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-[50] w-full mt-1 rounded-md border shadow-lg max-h-60 overflow-y-auto"
           style={{
             backgroundColor: 'var(--background-secondary)',
             borderColor: 'var(--border-default)',

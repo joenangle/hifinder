@@ -68,7 +68,7 @@ const Pill = ({
   activeClass?: string
 }) => {
   const base =
-    'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs border transition-all duration-150 cursor-pointer select-none'
+    'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs border transition-[color,background-color,border-color] duration-150 cursor-pointer select-none'
   const inactive = 'font-medium text-secondary bg-primary hover:border-subtle hover:text-primary'
 
   const btn = (

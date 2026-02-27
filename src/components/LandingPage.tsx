@@ -146,7 +146,7 @@ export async function LandingPage() {
                 <TrackableLink
                   href="/recommendations"
                   event={{ name: 'hero_cta_clicked', properties: { location: 'hero_primary' } }}
-                  className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+                  className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
                   style={{
                     background: 'var(--text-primary)',
                     color: 'var(--background-primary)',
@@ -161,7 +161,7 @@ export async function LandingPage() {
                 <TrackableLink
                   href="/learn"
                   event={{ name: 'learn_clicked', properties: { location: 'hero_secondary' } }}
-                  className="inline-flex items-center gap-2 font-medium transition-all duration-150"
+                  className="inline-flex items-center gap-2 font-medium transition-colors duration-150"
                   style={{
                     color: 'var(--text-secondary)',
                     padding: '14px 24px',
@@ -411,7 +411,7 @@ export async function LandingPage() {
             <TrackableLink
               href="/recommendations"
               event={{ name: 'final_cta_clicked', properties: { location: 'bottom_cta' } }}
-              className="inline-flex items-center gap-2 font-semibold transition-all duration-150 group"
+              className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
               style={{
                 background: 'var(--accent-primary)',
                 color: '#fff',

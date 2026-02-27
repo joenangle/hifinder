@@ -52,7 +52,7 @@ export function ComparisonBar({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] border-t bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300 pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] border-t bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-[transform,opacity] duration-300 pb-[env(safe-area-inset-bottom)]"
       style={{
         maxHeight: isExpanded ? '50vh' : '80px',
         transform: 'translateY(0)'

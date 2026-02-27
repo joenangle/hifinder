@@ -43,7 +43,7 @@ export function ThemeToggle({ className = '', size = 'md' }: ThemeToggleProps) {
   return (
     <button
       onClick={toggleTheme}
-      className={`p-2 min-w-[44px] min-h-[44px] rounded-lg bg-surface-hover hover:bg-surface-elevated transition-all duration-200 hover:scale-105 active:scale-95 ${className}`}
+      className={`p-2 min-w-[44px] min-h-[44px] rounded-lg bg-surface-hover hover:bg-surface-elevated transition-[color,background-color,transform] duration-200 hover:scale-105 active:scale-95 ${className}`}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? (

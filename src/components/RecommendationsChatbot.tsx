@@ -121,7 +121,7 @@ export function RecommendationsChatbot({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-accent text-white rounded-full p-4 shadow-lg hover:bg-accent/90 transition-all transform hover:scale-105 z-50"
+          className="fixed bottom-6 right-6 bg-accent text-white rounded-full p-4 shadow-lg hover:bg-accent/90 transition-[color,background-color,transform] transform hover:scale-105 z-50"
         >
           <div className="relative">
             <MessageCircle className="w-6 h-6" />

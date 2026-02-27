@@ -115,8 +115,8 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
           setDuplicateWarning(null)
         }
       } catch (err) {
-        // Silently fail - don't block user from submitting
         console.error('Error checking for duplicates:', err)
+        setDuplicateWarning('Duplicate check unavailable — verify manually before submitting')
       }
     }
 
@@ -173,7 +173,26 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
       }
 
       // Build request body
-      const body: any = {
+      const body: {
+        brand: string
+        name: string
+        category: string
+        price_new?: number
+        price_used_min?: number
+        price_used_max?: number
+        sound_signature?: string
+        driver_type?: string
+        impedance?: number
+        needs_amp?: boolean
+        manufacturer_url?: string
+        asr_sinad?: number
+        asr_review_url?: string
+        crin_rank?: number
+        crin_tone?: string
+        crin_tech?: string
+        crin_value?: number
+        crin_signature?: string
+      } = {
         brand: brand.trim(),
         name: name.trim(),
         category,

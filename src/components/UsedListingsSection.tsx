@@ -237,7 +237,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
               href={component.amazon_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 rounded-lg font-semibold transition-[color,background-color,box-shadow,transform] shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               aria-label="Buy new on Amazon (opens in new tab)"
             >
               <span>Buy New on Amazon</span>

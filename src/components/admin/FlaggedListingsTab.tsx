@@ -325,7 +325,7 @@ export default function FlaggedListingsTab() {
                   <div
                     key={listing.id}
                     onClick={() => setSelectedListing(listing.id)}
-                    className={`card p-4 cursor-pointer transition-all ${
+                    className={`card p-4 cursor-pointer transition-[border-color,box-shadow] ${
                       isSelected
                         ? 'ring-2 ring-accent'
                         : 'hover:bg-surface-hover dark:hover:bg-surface-hover'

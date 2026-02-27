@@ -22,7 +22,7 @@ export function WelcomeBanner({ onDismiss, onPickSound }: WelcomeBannerProps) {
     <div
       className={`
         card border-l-4 border-accent mb-8 overflow-hidden
-        transition-all duration-300 animate-in fade-in slide-in-from-top-4
+        transition-[opacity,transform] duration-300 animate-in fade-in slide-in-from-top-4
         ${isVisible ? 'opacity-100' : 'opacity-0'}
       `}
     >
@@ -87,7 +87,7 @@ export function WelcomeBanner({ onDismiss, onPickSound }: WelcomeBannerProps) {
                     onPickSound()
                     handleDismiss()
                   }}
-                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-semibold transition-all bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
+                  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-semibold transition-colors bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white dark:bg-orange-500 dark:hover:bg-orange-600 dark:active:bg-orange-700"
                 >
                   <Lightbulb className="w-4 h-4" />
                   Pick your sound

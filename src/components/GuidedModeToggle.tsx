@@ -13,7 +13,7 @@ export function GuidedModeToggle({ enabled, onToggle, className = '' }: GuidedMo
     <button
       onClick={onToggle}
       className={`
-        flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-all
+        flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-[color,background-color,border-color]
         ${enabled
           ? 'bg-accent/10 border-accent text-accent dark:bg-accent/20'
           : 'bg-surface-secondary text-secondary hover:border-primary hover:text-primary'

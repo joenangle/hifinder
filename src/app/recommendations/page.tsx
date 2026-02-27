@@ -1581,7 +1581,7 @@ function RecommendationsContent() {
         <div className="mt-12 mb-8 text-center">
           <button
             onClick={() => setShowMarketplace(!showMarketplace)}
-            className="px-6 py-3 rounded-lg font-semibold text-lg transition-all bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
+            className="px-6 py-3 rounded-lg font-semibold text-lg transition-colors bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500 dark:active:bg-orange-600"
           >
             {showMarketplace ? 'Hide' : 'Show'} Marketplace Listings
           </button>

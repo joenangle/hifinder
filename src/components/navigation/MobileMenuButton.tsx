@@ -20,12 +20,12 @@ export const MobileMenuButton = forwardRef<HTMLButtonElement, MobileMenuButtonPr
     >
       <div className="relative w-5 h-5">
         <Menu 
-          className={`absolute inset-0 w-5 h-5 text-primary transition-all duration-300 ${
+          className={`absolute inset-0 w-5 h-5 text-primary transition-[opacity,transform] duration-300 ${
             isOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
           }`} 
         />
         <X 
-          className={`absolute inset-0 w-5 h-5 text-primary transition-all duration-300 ${
+          className={`absolute inset-0 w-5 h-5 text-primary transition-[opacity,transform] duration-300 ${
             isOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
           }`} 
         />

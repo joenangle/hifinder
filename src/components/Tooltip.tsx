@@ -158,7 +158,7 @@ const TooltipComponent = ({
       <div
         ref={tooltipRef}
         className={`
-          fixed z-[99999]
+          fixed z-[50]
           transition-opacity duration-150
           ${isVisible ? 'opacity-100' : 'opacity-0'}
         `}

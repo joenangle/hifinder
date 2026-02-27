@@ -26,8 +26,6 @@ export async function POST(request: NextRequest) {
     // 'max' enables stale-while-revalidate (serve stale, fetch fresh in background)
     revalidateTag(tag || 'recommendations', 'max')
 
-    console.log(`✅ Cache invalidated for tag: ${tag || 'recommendations'}`)
-
     return NextResponse.json({
       success: true,
       message: `Cache invalidated for tag: ${tag || 'recommendations'}`,

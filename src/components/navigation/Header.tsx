@@ -46,7 +46,7 @@ export function Header({ initialSession }: HeaderProps) {
   return (
     <>
       <header
-        className={`sticky top-0 w-full bg-primary/80 backdrop-blur-md transition-all duration-200 ${
+        className={`sticky top-0 w-full bg-primary/80 backdrop-blur-md transition-[box-shadow,border-color] duration-200 ${
           scrolled ? 'shadow-sm border-b border-subtle' : ''
         }`}
         style={{ zIndex: 'var(--z-header)' }}

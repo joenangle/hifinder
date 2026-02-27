@@ -80,7 +80,7 @@ export function WishlistButton({ componentId, className = '', showText = false }
       title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
       aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
     >
-      <Heart className={`w-4 h-4 transition-all duration-200 ${isWishlisted ? 'fill-current scale-110' : ''}`} aria-hidden="true" />
+      <Heart className={`w-4 h-4 transition-[color,transform] duration-200 ${isWishlisted ? 'fill-current scale-110' : ''}`} aria-hidden="true" />
       {showText && (
         <span>{isWishlisted ? 'Saved' : 'Save'}</span>
       )}

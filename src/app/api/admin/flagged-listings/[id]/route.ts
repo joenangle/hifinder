@@ -109,7 +109,15 @@ export async function PATCH(
       )
     }
 
-    let updateData: any = {
+    let updateData: {
+      reviewed_by: string | null | undefined
+      reviewed_at: string
+      manual_review_notes: string | null
+      requires_manual_review?: boolean
+      status?: string
+      component_id?: string
+      validation_warnings?: string[]
+    } = {
       reviewed_by: session.user.email,
       reviewed_at: new Date().toISOString(),
       manual_review_notes: notes || null

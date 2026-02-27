@@ -458,8 +458,8 @@ export default function AdminPage() {
       setSuccessMessage('Changes saved successfully')
       setTimeout(() => setSuccessMessage(null), 3000)
 
-    } catch (error: any) {
-      setError(error.message || 'Failed to save changes')
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Failed to save changes')
     } finally {
       setSaving(false)
     }
@@ -749,7 +749,7 @@ export default function AdminPage() {
                                   {/* Core ID (Brand + Model) */}
                                   {breakdown.core > 0 && (
                                     <div
-                                      className="bg-green-500 transition-all duration-500"
+                                      className="bg-green-500 transition-[width] duration-500"
                                       style={{ width: `${breakdown.core}%` }}
                                       title={`Brand & Model (${breakdown.core} pts)`}
                                     />
@@ -758,7 +758,7 @@ export default function AdminPage() {
                                   {/* Category */}
                                   {breakdown.category > 0 && (
                                     <div
-                                      className="bg-emerald-500 transition-all duration-500"
+                                      className="bg-emerald-500 transition-[width] duration-500"
                                       style={{ width: `${breakdown.category}%` }}
                                       title={`Category (${breakdown.category} pts)`}
                                     />
@@ -767,7 +767,7 @@ export default function AdminPage() {
                                   {/* Pricing */}
                                   {breakdown.pricing > 0 && (
                                     <div
-                                      className="bg-blue-500 transition-all duration-500"
+                                      className="bg-blue-500 transition-[width] duration-500"
                                       style={{ width: `${breakdown.pricing}%` }}
                                       title={`Pricing (${breakdown.pricing} pts)`}
                                     />
@@ -776,7 +776,7 @@ export default function AdminPage() {
                                   {/* Specs */}
                                   {breakdown.specs > 0 && (
                                     <div
-                                      className="bg-purple-500 transition-all duration-500"
+                                      className="bg-purple-500 transition-[width] duration-500"
                                       style={{ width: `${breakdown.specs}%` }}
                                       title={`Tech Specs (${breakdown.specs} pts)`}
                                     />
@@ -785,7 +785,7 @@ export default function AdminPage() {
                                   {/* Expert data */}
                                   {breakdown.expert > 0 && (
                                     <div
-                                      className="bg-yellow-500 transition-all duration-500"
+                                      className="bg-yellow-500 transition-[width] duration-500"
                                       style={{ width: `${breakdown.expert}%` }}
                                       title={`Expert Data (${breakdown.expert} pts)`}
                                     />
@@ -794,7 +794,7 @@ export default function AdminPage() {
                                   {/* Missing (gray) */}
                                   {candidate.quality_score < 100 && (
                                     <div
-                                      className="bg-gray-600 dark:bg-gray-700 transition-all duration-500"
+                                      className="bg-gray-600 dark:bg-gray-700 transition-[width] duration-500"
                                       style={{ width: `${100 - candidate.quality_score}%` }}
                                       title={`Missing Data (${100 - candidate.quality_score} pts)`}
                                     />
@@ -805,7 +805,7 @@ export default function AdminPage() {
                           </div>
 
                           {/* Hover tooltip */}
-                          <div className="absolute left-0 bottom-full mb-2 w-56 p-3 bg-surface-secondary border rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
+                          <div className="absolute left-0 bottom-full mb-2 w-56 p-3 bg-surface-secondary border rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-[opacity,visibility] duration-200 z-10 pointer-events-none">
                             <div className="text-xs font-semibold text-primary mb-2">Quality Breakdown</div>
                             <div className="space-y-1 text-xs">
                               {(() => {

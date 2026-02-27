@@ -105,7 +105,7 @@ export default function AboutPage() {
         <section className="mb-12">
           <h2 className="heading-2 mb-6 text-center">What We Offer</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Link href="/recommendations" className="card p-6 hover:shadow-lg transition-all duration-300 block">
+            <Link href="/recommendations" className="card p-6 hover:shadow-lg transition-[border-color,box-shadow] duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">👂</span>
@@ -117,7 +117,7 @@ export default function AboutPage() {
               </p>
             </Link>
 
-            <div className="card p-6 hover:shadow-lg transition-all duration-300">
+            <div className="card p-6 hover:shadow-lg transition-[border-color,box-shadow] duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">🏗️</span>
@@ -129,7 +129,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <Link href="/gear" className="card p-6 hover:shadow-lg transition-all duration-300 block">
+            <Link href="/gear" className="card p-6 hover:shadow-lg transition-[border-color,box-shadow] duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">📊</span>
@@ -141,7 +141,7 @@ export default function AboutPage() {
               </p>
             </Link>
 
-            <Link href="/marketplace" className="card p-6 hover:shadow-lg transition-all duration-300 block">
+            <Link href="/marketplace" className="card p-6 hover:shadow-lg transition-[border-color,box-shadow] duration-300 block">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-lg flex items-center justify-center">
                   <span className="text-3xl">🛒</span>

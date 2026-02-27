@@ -145,7 +145,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {featuredResources.slice(0, 3).map(resource => (
-              <div key={resource.id} className="card bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 p-6 hover:border-accent/40 transition-all">
+              <div key={resource.id} className="card bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 p-6 hover:border-accent/40 transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between mb-3">
                   <span className="text-2xl">{getTypeIcon(resource.type)}</span>
                   <span className={`text-xs px-2 py-1 rounded-full border ${getDifficultyColor(resource.difficulty)}`}>
@@ -189,7 +189,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
           <h2 className="heading-2 mb-4">All Resources</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {regularResources.map(resource => (
-              <div key={resource.id} className="card border p-6 hover:border-accent transition-all">
+              <div key={resource.id} className="card border p-6 hover:border-accent transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-1 text-primary">{resource.title}</h3>
