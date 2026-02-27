@@ -7,6 +7,7 @@ import {
   calculatePowerAtImpedance,
   matchAmplifiersToHeadphones,
   estimatePowerFromImpedance,
+  type PowerRequirements,
 } from '../audio-calculations'
 
 // ─── calculatePowerRequirements ─────────────────────────────────────────────
@@ -299,7 +300,7 @@ describe('calculatePowerAtImpedance', () => {
 
 describe('matchAmplifiersToHeadphones', () => {
   const headphones = [
-    { impedance: 300, powerRequirement: { powerNeeded_mW: 20 } as any },
+    { impedance: 300, powerRequirement: { powerNeeded_mW: 20 } as PowerRequirements },
   ]
 
   const amplifiers = [
@@ -367,8 +368,8 @@ describe('matchAmplifiersToHeadphones', () => {
 
   it('uses most demanding headphone for matching', () => {
     const multiHeadphones = [
-      { impedance: 32, powerRequirement: { powerNeeded_mW: 5 } as any },
-      { impedance: 300, powerRequirement: { powerNeeded_mW: 200 } as any },
+      { impedance: 32, powerRequirement: { powerNeeded_mW: 5 } as PowerRequirements },
+      { impedance: 300, powerRequirement: { powerNeeded_mW: 200 } as PowerRequirements },
     ]
     const results = matchAmplifiersToHeadphones(multiHeadphones, amplifiers)
     // The 300Ω headphone needs 200mW — that's what scoring should be based on

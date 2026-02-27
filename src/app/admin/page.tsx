@@ -93,7 +93,8 @@ function calculateQualityBreakdown(candidate: ComponentCandidate) {
   if (candidate.driver_type) breakdown.specs += 5
 
   // Expert data (10 points) - simplified check
-  if ((candidate as any).asr_sinad || (candidate as any).crin_rank) breakdown.expert += 10
+  const rec = candidate as unknown as Record<string, unknown>
+  if (rec.asr_sinad || rec.crin_rank) breakdown.expert += 10
 
   return breakdown
 }

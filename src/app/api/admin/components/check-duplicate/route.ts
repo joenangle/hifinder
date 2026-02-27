@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     const normalizedName = name.trim().toLowerCase()
 
     // Query for exact matches (case-insensitive)
-    let query = supabaseServer
+    const query = supabaseServer
       .from('components')
       .select('id, brand, name')
 

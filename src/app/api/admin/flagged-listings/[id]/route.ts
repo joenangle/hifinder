@@ -59,7 +59,7 @@ export async function GET(
     // Find alternative component matches
     // This would ideally call the matcher again, but for now we'll return empty
     // In the future, we can re-run findComponentMatch() and return top 5 candidates
-    const alternatives: any[] = []
+    const alternatives: Record<string, unknown>[] = []
 
     // TODO: Re-run component matcher to get alternatives
     // const { findComponentMatch } = require('@/scripts/component-matcher-enhanced')
@@ -109,7 +109,7 @@ export async function PATCH(
       )
     }
 
-    let updateData: {
+    const updateData: {
       reviewed_by: string | null | undefined
       reviewed_at: string
       manual_review_notes: string | null

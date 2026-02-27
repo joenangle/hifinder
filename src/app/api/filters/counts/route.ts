@@ -3,7 +3,7 @@ import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
 import { calculateBudgetRange } from '@/lib/budget-ranges'
 
 // Simple in-memory cache for filter counts
-let cache = new Map<string, { data: unknown, expires: number }>()
+const cache = new Map<string, { data: unknown, expires: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (longer since this changes less frequently)
 
 function getCacheKey(params: {
