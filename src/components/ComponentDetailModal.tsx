@@ -1,7 +1,8 @@
 'use client'
 
 import { Component } from '@/types'
-import { X, Volume2, Cpu, Zap, TrendingUp } from 'lucide-react'
+import { X, Volume2, Cpu, Zap, TrendingUp, Star } from 'lucide-react'
+import { StarRating } from './StarRating'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import dynamic from 'next/dynamic'
@@ -55,6 +56,13 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     count: number; median: number; min: number; max: number
   } | null>(null)
 
+  const [ratings, setRatings] = useState<{
+    average: number; count: number;
+    reviews: { rating: number; review_text: string; created_at: string }[]
+  } | null>(null)
+  const [userRating, setUserRating] = useState(0)
+  const [submitting, setSubmitting] = useState(false)
+
   useEffect(() => {
     if (!isOpen) return
     let cancelled = false
@@ -73,6 +81,33 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
       .catch(() => {})
     return () => { cancelled = true }
   }, [isOpen, component.id])
+
+  useEffect(() => {
+    if (!isOpen) return
+    let cancelled = false
+    fetch(`/api/components/${component.id}/ratings`)
+      .then(res => res.json())
+      .then(data => { if (!cancelled) setRatings(data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [isOpen, component.id])
+
+  const handleRatingSubmit = async (rating: number) => {
+    setUserRating(rating)
+    setSubmitting(true)
+    try {
+      await fetch(`/api/components/${component.id}/ratings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+      })
+      // Refresh ratings
+      const res = await fetch(`/api/components/${component.id}/ratings`)
+      const data = await res.json()
+      setRatings(data)
+    } catch { /* silent fail */ }
+    setSubmitting(false)
+  }
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -258,6 +293,50 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               </div>
             </div>
           )}
+
+          {/* User Ratings */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-primary">Community Ratings</h3>
+            </div>
+            <div className="p-4 bg-secondary rounded-lg space-y-3">
+              {ratings && ratings.count > 0 ? (
+                <div className="flex items-center gap-3">
+                  <StarRating rating={Math.round(ratings.average)} />
+                  <span className="text-primary font-medium">{ratings.average}</span>
+                  <span className="text-sm text-secondary">from {ratings.count} user{ratings.count !== 1 ? 's' : ''}</span>
+                </div>
+              ) : (
+                <p className="text-sm text-secondary">No ratings yet. Be the first!</p>
+              )}
+              {/* User rating input */}
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-secondary mb-2">Your rating:</p>
+                <StarRating
+                  rating={userRating}
+                  onRate={handleRatingSubmit}
+                  interactive={!submitting}
+                />
+              </div>
+              {/* Recent reviews */}
+              {ratings?.reviews && ratings.reviews.length > 0 && (
+                <div className="pt-2 space-y-2">
+                  {ratings.reviews.slice(0, 3).map((review, i) => (
+                    <div key={i} className="text-sm">
+                      <div className="flex items-center gap-2">
+                        <StarRating rating={review.rating} size="sm" />
+                        <span className="text-tertiary text-xs">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-secondary mt-1">{review.review_text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
