@@ -9,8 +9,7 @@ import {
   Heart,
   Bell,
   Layers,
-  Clock,
-  ExternalLink
+  Clock
 } from 'lucide-react'
 
 interface ActivityItem {
