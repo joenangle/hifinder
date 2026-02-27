@@ -490,6 +490,17 @@ function RecommendationsContent() {
                           (recommendations.amps?.length || 0) +
                           (recommendations.combos?.length || 0)
 
+      // Save search for dashboard "Recent Searches" (only on non-background fetches with results)
+      if (!background && totalResults > 0) {
+        try {
+          const { saveSearch } = await import('@/lib/saved-searches')
+          const typeLabel = typeFilters.join(' + ')
+          const soundLabel = soundFilters.join(', ')
+          const filters = `${typeLabel} · ${soundLabel} · ${totalResults} results`
+          saveSearch(window.location.href, debouncedBudget, filters)
+        } catch {}
+      }
+
     } catch (error) {
       console.error('Recommendations API error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations'
@@ -592,9 +603,10 @@ function RecommendationsContent() {
     fetchFilterCounts()
   }, [fetchFilterCounts])
 
-  // Scroll to top on mount
+  // Scroll to top on mount + mark recommendations as visited for onboarding
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
+    try { localStorage.setItem('hifinder_visited_recommendations', 'true') } catch {}
   }, [])
 
   // Used listings fetch effect

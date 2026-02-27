@@ -20,11 +20,12 @@ export async function GET() {
 
     const userId = session.user.id
 
-    // Fetch gear collection count and value
+    // Fetch gear collection count, value, and component used prices for depreciation
     const { data: gear, error: gearError } = await supabaseServer
       .from('user_gear')
-      .select('purchase_price')
+      .select('purchase_price, components(price_used_min, price_used_max)')
       .eq('user_id', userId)
+      .eq('is_active', true)
 
     if (gearError) throw gearError
 
@@ -57,16 +58,24 @@ export async function GET() {
 
     if (unreadError) throw unreadError
 
-    // Calculate total value (simplified - uses purchase price as current value)
-    // In the future, could calculate depreciation based on component price_used_min/max
-    const totalValue = totalInvested
+    // Calculate current market value from used price data
+    const currentValue = (gear || []).reduce((sum, item) => {
+      // Supabase returns single-object joins as an object (not array) for belongsTo relations
+      const comp = item.components as unknown as { price_used_min: number | null; price_used_max: number | null } | null
+      if (comp?.price_used_min && comp?.price_used_max) {
+        return sum + (comp.price_used_min + comp.price_used_max) / 2
+      }
+      return sum + (item.purchase_price || 0)
+    }, 0)
+
+    const depreciation = totalInvested > 0 ? totalInvested - currentValue : 0
 
     return NextResponse.json({
       collection: {
         count: collectionCount,
         totalInvested,
-        totalValue,
-        depreciation: 0 // Placeholder for future calculation
+        totalValue: currentValue,
+        depreciation
       },
       wishlist: {
         count: wishlistCount || 0

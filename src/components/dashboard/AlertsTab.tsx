@@ -29,6 +29,10 @@ export function AlertsTab() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active')
+  const [selectedAlert, setSelectedAlert] = useState<PriceAlert | null>(null)
+  const [selectedAlertHistory, setSelectedAlertHistory] = useState<AlertHistory[]>([])
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [historyLoading, setHistoryLoading] = useState(false)
   
   // Create alert form state
   const [searchQuery, setSearchQuery] = useState('')
@@ -137,6 +141,16 @@ export function AlertsTab() {
     if (success) {
       await loadAlerts()
     }
+  }
+
+  const handleShowAlertHistory = async (alert: PriceAlert) => {
+    if (!session?.user?.id) return
+    setSelectedAlert(alert)
+    setShowHistoryModal(true)
+    setHistoryLoading(true)
+    const history = await getAlertHistory(session.user.id, alert.id)
+    setSelectedAlertHistory(history)
+    setHistoryLoading(false)
   }
 
   const handleMarkViewed = async (historyId: string) => {
@@ -366,16 +380,13 @@ export function AlertsTab() {
                           {alert.is_active ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                         </button>
                         
-                        {/* TODO: History modal functionality */}
-                        {/* <button
-                          onClick={() => {
-                            _setSelectedAlert(alert)
-                            _setShowHistoryModal(true)
-                          }}
+                        <button
+                          onClick={() => handleShowAlertHistory(alert)}
                           className="p-2 text-muted hover:text-foreground hover:bg-surface-secondary rounded transition-colors"
+                          title="View match history"
                         >
                           <History className="w-4 h-4" />
-                        </button> */}
+                        </button>
                         
                         <button
                           onClick={() => handleDeleteAlert(alert.id)}
@@ -761,6 +772,95 @@ export function AlertsTab() {
                   Create Alert
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Alert History Modal */}
+      {showHistoryModal && selectedAlert && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface-elevated rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Match History</h2>
+                  <p className="text-sm text-muted mt-1">
+                    {selectedAlert.components
+                      ? `${selectedAlert.components.brand} ${selectedAlert.components.name}`
+                      : selectedAlert.custom_search_query || `${selectedAlert.custom_brand} ${selectedAlert.custom_model}`
+                    }
+                    {' '}&middot; {selectedAlert.trigger_count} total matches
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowHistoryModal(false)
+                    setSelectedAlert(null)
+                    setSelectedAlertHistory([])
+                  }}
+                  className="text-muted hover:text-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {historyLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+                </div>
+              ) : selectedAlertHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <History className="w-12 h-12 text-muted mx-auto mb-3" />
+                  <p className="text-muted">No matches found for this alert yet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedAlertHistory.map(item => (
+                    <div
+                      key={item.id}
+                      className={`p-4 rounded-lg border ${!item.user_viewed ? 'border-accent bg-accent/5' : 'border-border'}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-foreground text-sm truncate">
+                            {item.listing_title}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted">
+                            <span className="font-semibold text-foreground">
+                              {formatCurrency(item.listing_price)}
+                            </span>
+                            <span>{item.listing_condition}</span>
+                            <span>{item.listing_source}</span>
+                            <span>{new Date(item.triggered_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {!item.user_viewed && (
+                            <button
+                              onClick={() => handleMarkViewed(item.id)}
+                              className="text-xs text-accent hover:underline"
+                            >
+                              Mark read
+                            </button>
+                          )}
+                          <a
+                            href={item.listing_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-muted hover:text-accent transition-colors"
+                            aria-label="View listing (opens in new tab)"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

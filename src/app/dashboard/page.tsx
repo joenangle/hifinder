@@ -9,6 +9,10 @@ import { WishlistTab } from '@/components/dashboard/WishlistTab'
 import { AlertsTab } from '@/components/dashboard/AlertsTab'
 import { GearTab } from '@/components/dashboard/GearTab'
 import { StacksTab } from '@/components/dashboard/StacksTab'
+import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed'
+import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist'
+import { RecentSearches } from '@/components/dashboard/RecentSearches'
+import { WishlistMatches } from '@/components/dashboard/WishlistMatches'
 
 // Tab type
 type DashboardTab = 'overview' | 'gear' | 'wishlist' | 'alerts' | 'stacks'
@@ -265,10 +269,15 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         <div className="card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted mb-1">Total Value</p>
+              <p className="text-sm text-muted mb-1">Collection Value</p>
               <p className="text-3xl font-bold text-foreground">
                 {stats?.collection?.totalValue ? formatCurrency(stats.collection.totalValue) : '$0'}
               </p>
+              {stats?.collection?.depreciation !== undefined && stats.collection.depreciation !== 0 && (
+                <p className={`text-xs mt-1 ${stats.collection.depreciation > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                  {stats.collection.depreciation > 0 ? '-' : '+'}{formatCurrency(Math.abs(stats.collection.depreciation))} from purchase
+                </p>
+              )}
             </div>
             <Package className="w-8 h-8 text-accent" />
           </div>
@@ -312,10 +321,19 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         </div>
       </div>
 
+      {/* Onboarding Checklist — shown until all steps done or dismissed */}
+      <OnboardingChecklist setActiveTab={setActiveTab as (tab: string) => void} />
+
+      {/* Wishlist items with available used listings */}
+      <WishlistMatches setActiveTab={setActiveTab as (tab: string) => void} />
+
+      {/* Recent Searches — auto-saved from recommendations page */}
+      <RecentSearches />
+
       {/* Recent Activity */}
       <div className="card p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
-        <p className="text-muted text-center py-8">No recent activity</p>
+        <RecentActivityFeed setActiveTab={setActiveTab as (tab: string) => void} />
       </div>
     </div>
   )
