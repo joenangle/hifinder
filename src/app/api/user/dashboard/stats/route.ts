@@ -23,7 +23,7 @@ export async function GET() {
     // Fetch gear collection count, value, and component used prices for depreciation
     const { data: gear, error: gearError } = await supabaseServer
       .from('user_gear')
-      .select('purchase_price, components(price_used_min, price_used_max)')
+      .select('purchase_price, components(price_used_min, price_used_max, price_new)')
       .eq('user_id', userId)
       .eq('is_active', true)
 
@@ -59,11 +59,14 @@ export async function GET() {
     if (unreadError) throw unreadError
 
     // Calculate current market value from used price data
+    // Fallback chain: avg(used_min, used_max) → price_new * 0.7 → purchase_price
     const currentValue = (gear || []).reduce((sum, item) => {
-      // Supabase returns single-object joins as an object (not array) for belongsTo relations
-      const comp = item.components as unknown as { price_used_min: number | null; price_used_max: number | null } | null
+      const comp = item.components as unknown as { price_used_min: number | null; price_used_max: number | null; price_new: number | null } | null
       if (comp?.price_used_min && comp?.price_used_max) {
         return sum + (comp.price_used_min + comp.price_used_max) / 2
+      }
+      if (comp?.price_new) {
+        return sum + comp.price_new * 0.7
       }
       return sum + (item.purchase_price || 0)
     }, 0)

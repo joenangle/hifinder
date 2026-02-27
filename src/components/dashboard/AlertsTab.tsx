@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { getUserAlerts, createAlert, updateAlert, deleteAlert, getAlertHistory, markAlertViewed, checkAlerts, PriceAlert, AlertHistory } from '@/lib/alerts'
 import { supabase } from '@/lib/supabase'
 import { Component } from '@/types'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus,
   Bell,
@@ -34,6 +35,33 @@ export function AlertsTab() {
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [historyLoading, setHistoryLoading] = useState(false)
   
+  // ESC to close + body scroll lock for history modal
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowHistoryModal(false)
+        setSelectedAlert(null)
+        setSelectedAlertHistory([])
+      }
+    }
+    if (showHistoryModal) {
+      document.addEventListener('keydown', handleEsc)
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = 'unset'
+    }
+  }, [showHistoryModal])
+
+  const handleHistoryBackdropClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setShowHistoryModal(false)
+      setSelectedAlert(null)
+      setSelectedAlertHistory([])
+    }
+  }, [])
+
   // Create alert form state
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Component[]>([])
@@ -778,93 +806,124 @@ export function AlertsTab() {
       )}
 
       {/* Alert History Modal */}
-      {showHistoryModal && selectedAlert && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface-elevated rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-foreground">Match History</h2>
-                  <p className="text-sm text-muted mt-1">
-                    {selectedAlert.components
-                      ? `${selectedAlert.components.brand} ${selectedAlert.components.name}`
-                      : selectedAlert.custom_search_query || `${selectedAlert.custom_brand} ${selectedAlert.custom_model}`
-                    }
-                    {' '}&middot; {selectedAlert.trigger_count} total matches
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowHistoryModal(false)
-                    setSelectedAlert(null)
-                    setSelectedAlertHistory([])
-                  }}
-                  className="text-muted hover:text-foreground"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+      <AnimatePresence>
+        {showHistoryModal && selectedAlert && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            onClick={handleHistoryBackdropClick}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Alert match history"
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/50 backdrop-blur-[8px]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              aria-hidden
+            />
 
-            <div className="p-6">
-              {historyLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            {/* Container */}
+            <motion.div
+              className="relative bg-surface-elevated rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              style={{
+                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
+              }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 5 }}
+              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <div className="p-6 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Match History</h2>
+                    <p className="text-sm text-muted mt-1">
+                      {selectedAlert.components
+                        ? `${selectedAlert.components.brand} ${selectedAlert.components.name}`
+                        : selectedAlert.custom_search_query || `${selectedAlert.custom_brand} ${selectedAlert.custom_model}`
+                      }
+                      {' '}&middot; {selectedAlert.trigger_count} total matches
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowHistoryModal(false)
+                      setSelectedAlert(null)
+                      setSelectedAlertHistory([])
+                    }}
+                    className="text-muted hover:text-foreground"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              ) : selectedAlertHistory.length === 0 ? (
-                <div className="text-center py-8">
-                  <History className="w-12 h-12 text-muted mx-auto mb-3" />
-                  <p className="text-muted">No matches found for this alert yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {selectedAlertHistory.map(item => (
-                    <div
-                      key={item.id}
-                      className={`p-4 rounded-lg border ${!item.user_viewed ? 'border-accent bg-accent/5' : 'border-border'}`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-foreground text-sm truncate">
-                            {item.listing_title}
-                          </h4>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-muted">
-                            <span className="font-semibold text-foreground">
-                              {formatCurrency(item.listing_price)}
-                            </span>
-                            <span>{item.listing_condition}</span>
-                            <span>{item.listing_source}</span>
-                            <span>{new Date(item.triggered_at).toLocaleDateString()}</span>
+              </div>
+
+              <div className="p-6">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+                  </div>
+                ) : selectedAlertHistory.length === 0 ? (
+                  <div className="text-center py-8">
+                    <History className="w-12 h-12 text-muted mx-auto mb-3" />
+                    <p className="text-muted">No matches found for this alert yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedAlertHistory.map(item => (
+                      <div
+                        key={item.id}
+                        className={`p-4 rounded-lg border ${!item.user_viewed ? 'border-accent bg-accent/5' : 'border-border'}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-foreground text-sm truncate">
+                              {item.listing_title}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted">
+                              <span className="font-semibold text-foreground">
+                                {formatCurrency(item.listing_price)}
+                              </span>
+                              <span>{item.listing_condition}</span>
+                              <span>{item.listing_source}</span>
+                              <span>{new Date(item.triggered_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {!item.user_viewed && (
+                              <button
+                                onClick={() => handleMarkViewed(item.id)}
+                                className="text-xs text-accent hover:underline"
+                              >
+                                Mark read
+                              </button>
+                            )}
+                            <a
+                              href={item.listing_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 text-muted hover:text-accent transition-colors"
+                              aria-label="View listing (opens in new tab)"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {!item.user_viewed && (
-                            <button
-                              onClick={() => handleMarkViewed(item.id)}
-                              className="text-xs text-accent hover:underline"
-                            >
-                              Mark read
-                            </button>
-                          )}
-                          <a
-                            href={item.listing_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 text-muted hover:text-accent transition-colors"
-                            aria-label="View listing (opens in new tab)"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
