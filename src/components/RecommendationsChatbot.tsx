@@ -132,7 +132,7 @@ export function RecommendationsChatbot({
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-surface-primary rounded-xl shadow-2xl flex flex-col z-50 border border-primary">
+        <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-96 h-[600px] bg-surface-primary rounded-xl shadow-2xl flex flex-col z-50 border border-primary">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-subtle">
             <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ export function RecommendationsChatbot({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Ask about your recommendations..."
-                className="flex-1 px-3 py-2 bg-surface-elevated rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="flex-1 px-3 py-2 bg-surface-elevated rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <button
                 onClick={handleSend}

@@ -114,14 +114,14 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[9998] flex items-center justify-center backdrop-blur-sm bg-black/30"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center backdrop-blur-sm bg-black/30"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="comparison-modal-title"
     >
       <div
-        className="relative w-full max-w-[95vw] max-h-[90vh] bg-surface-primary dark:bg-surface-primary rounded-lg shadow-2xl flex flex-col"
+        className="relative w-full sm:max-w-[95vw] sm:max-h-[90vh] max-h-full sm:rounded-lg rounded-none bg-surface-primary dark:bg-surface-primary shadow-2xl flex flex-col"
         style={{
           background: 'var(--surface-primary)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
@@ -160,7 +160,7 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
             Tip: Scroll horizontally to see all specifications
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={handleCopyLink}
               className="px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
@@ -175,7 +175,7 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
             </button>
             <button
               onClick={() => window.print()}
-              className="px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
+              className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-secondary border rounded-lg hover:bg-surface-hover dark:hover:bg-surface-hover transition-colors"
             >
               🖨️ Print
             </button>

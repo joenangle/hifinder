@@ -14,7 +14,7 @@ export const MobileMenuButton = forwardRef<HTMLButtonElement, MobileMenuButtonPr
     <button
       ref={ref}
       onClick={onClick}
-      className="lg:hidden p-2 rounded-lg bg-surface-hover hover:bg-surface-elevated transition-colors flex items-center justify-center"
+      className="lg:hidden p-2 min-w-[44px] min-h-[44px] rounded-lg bg-surface-hover hover:bg-surface-elevated transition-colors flex items-center justify-center"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
       aria-expanded={isOpen}
     >

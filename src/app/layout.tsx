@@ -63,6 +63,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover' as const,
 };
 
 export default async function RootLayout({
@@ -114,7 +115,7 @@ export default async function RootLayout({
           
           <Header initialSession={session} />
           
-          <main id="main-content" role="main">
+          <main id="main-content" role="main" className="pb-[env(safe-area-inset-bottom)]">
             {children}
           </main>
         </AuthProvider>

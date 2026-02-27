@@ -178,6 +178,37 @@ const TooltipComponent = ({
     )
   ) : null
 
+  const handleTouch = () => {
+    if (!content || (typeof content === 'string' && content.trim() === '')) return
+
+    if (shouldRender) {
+      // Dismiss if already visible
+      handleMouseLeave()
+    } else {
+      updateTooltipPosition()
+      setShouldRender(true)
+      setTimeout(() => setIsVisible(true), 10)
+    }
+  }
+
+  // Dismiss tooltip on outside click (touch devices)
+  useEffect(() => {
+    if (!shouldRender) return
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (triggerRef.current && !triggerRef.current.contains(e.target as Node)) {
+        handleMouseLeave()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [shouldRender])
+
   return (
     <div
       ref={triggerRef}
@@ -186,6 +217,10 @@ const TooltipComponent = ({
       onMouseLeave={handleMouseLeave}
       onFocus={handleMouseEnter}
       onBlur={handleMouseLeave}
+      onClick={handleTouch}
+      onTouchStart={handleTouch}
+      tabIndex={0}
+      role="button"
     >
       {children}
       {tooltipContent}

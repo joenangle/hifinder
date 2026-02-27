@@ -30,7 +30,7 @@ export function ThemeToggle({ className = '', size = 'md' }: ThemeToggleProps) {
   if (!mounted) {
     return (
       <button 
-        className={`p-2 rounded-lg bg-surface-hover hover:bg-surface-elevated transition-colors ${className}`}
+        className={`p-2 min-w-[44px] min-h-[44px] rounded-lg bg-surface-hover hover:bg-surface-elevated transition-colors ${className}`}
         disabled
       >
         <div className={`${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} animate-pulse bg-text-tertiary rounded`} />
@@ -43,7 +43,7 @@ export function ThemeToggle({ className = '', size = 'md' }: ThemeToggleProps) {
   return (
     <button
       onClick={toggleTheme}
-      className={`p-2 rounded-lg bg-surface-hover hover:bg-surface-elevated transition-all duration-200 hover:scale-105 active:scale-95 ${className}`}
+      className={`p-2 min-w-[44px] min-h-[44px] rounded-lg bg-surface-hover hover:bg-surface-elevated transition-all duration-200 hover:scale-105 active:scale-95 ${className}`}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? (

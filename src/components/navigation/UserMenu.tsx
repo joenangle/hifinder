@@ -88,7 +88,7 @@ export function UserMenu() {
           className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border rounded-lg shadow-lg"
           style={{ 
             zIndex: 'var(--z-modal)',
-            top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 8 : 0,
+            top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + 8 : 0,
             right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0
           }}
         >
@@ -108,7 +108,7 @@ export function UserMenu() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex items-center gap-3 w-full text-left px-3 py-3 text-sm rounded transition-colors ${
                   pathname === '/dashboard'
                     ? 'text-primary bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'
@@ -120,7 +120,7 @@ export function UserMenu() {
               <Link
                 href="/gear"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex items-center gap-3 w-full text-left px-3 py-3 text-sm rounded transition-colors ${
                   pathname === '/gear'
                     ? 'text-primary bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'
@@ -132,7 +132,7 @@ export function UserMenu() {
               <Link
                 href="/wishlist"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex items-center gap-3 w-full text-left px-3 py-3 text-sm rounded transition-colors ${
                   pathname === '/wishlist'
                     ? 'text-primary bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'
@@ -144,7 +144,7 @@ export function UserMenu() {
               <Link
                 href="/alerts"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 w-full text-left px-3 py-2 text-sm rounded transition-colors ${
+                className={`flex items-center gap-3 w-full text-left px-3 py-3 text-sm rounded transition-colors ${
                   pathname === '/alerts'
                     ? 'text-primary bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'
@@ -165,7 +165,7 @@ export function UserMenu() {
                   setIsOpen(false)
                   signOut()
                 }}
-                className="flex items-center gap-3 w-full text-left px-3 py-2 text-sm text-secondary hover:text-primary hover:bg-surface-hover rounded transition-colors"
+                className="flex items-center gap-3 w-full text-left px-3 py-3 text-sm text-secondary hover:text-primary hover:bg-surface-hover rounded transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out

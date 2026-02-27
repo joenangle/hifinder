@@ -52,7 +52,7 @@ export function ComparisonBar({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300"
+      className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] border-t bg-surface-primary/95 dark:bg-surface-primary/95 backdrop-blur-lg shadow-lg transition-all duration-300 pb-[env(safe-area-inset-bottom)]"
       style={{
         maxHeight: isExpanded ? '50vh' : '80px',
         transform: 'translateY(0)'
@@ -85,12 +85,12 @@ export function ComparisonBar({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={onViewFullComparison}
             className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg transition-colors"
           >
-            View Full Comparison
+            <span className="sm:hidden">Compare</span><span className="hidden sm:inline">View Full Comparison</span>
           </button>
           <button
             onClick={onClearAll}

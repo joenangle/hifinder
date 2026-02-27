@@ -112,7 +112,7 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by brand or model name..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-secondary text-primary placeholder:text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border bg-secondary text-primary placeholder:text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent text-base sm:text-sm"
           />
           {loading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">

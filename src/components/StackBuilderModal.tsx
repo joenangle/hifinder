@@ -329,18 +329,36 @@ export function StackBuilderModal({
     }
   }
 
+  // Scroll lock + ESC key handler
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', handleEsc)
+
+    return () => {
+      document.body.style.overflow = 'unset'
+      document.removeEventListener('keydown', handleEsc)
+    }
+  }, [isOpen, onClose])
+
   if (!isOpen) return null
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-[10000] p-4"
+      className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-[var(--z-modal)] p-4"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.92)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       role="dialog"
       aria-modal="true"
       aria-label="Build Your Audio Stack"
     >
       <div
-        className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10001]"
+        className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative"
         style={{
           backgroundColor: 'var(--background-tertiary)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)',
@@ -576,15 +594,15 @@ export function StackBuilderModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center p-6 border-t border-border bg-surface-secondary">
+        <div className="flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 p-6 border-t border-border bg-surface-secondary">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-primary border border-border rounded-lg hover:bg-surface-hover transition-colors"
+            className="px-4 py-2 text-primary border border-border rounded-lg hover:bg-surface-hover transition-colors order-last sm:order-first"
           >
             Cancel
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => {
                 // Generate eBay search for to-purchase components only (exclude owned)

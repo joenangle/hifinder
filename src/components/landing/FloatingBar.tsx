@@ -18,7 +18,7 @@ export function FloatingBar() {
     <div
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 12px))',
         left: '50%',
         transform: `translateX(-50%) translateY(${pastHero ? '120%' : '0'})`,
         transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s',
@@ -46,8 +46,8 @@ export function FloatingBar() {
         aria-label="Scroll down"
         onClick={() => window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' })}
         style={{
-          width: 34,
-          height: 34,
+          width: 44,
+          height: 44,
           borderRadius: '50%',
           background: 'var(--background-secondary)',
           border: '1px solid var(--border-default)',

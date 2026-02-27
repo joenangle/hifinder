@@ -75,10 +75,10 @@ export function MobileMenu({ isOpen, onClose, buttonRef }: MobileMenuProps) {
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border rounded-lg shadow-lg md:hidden"
-      style={{ 
+      className="fixed w-56 bg-surface-elevated bg-opacity-95 backdrop-blur-lg border rounded-lg shadow-lg lg:hidden"
+      style={{
         zIndex: 'var(--z-modal)',
-        top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 8 : 0,
+        top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + 8 : 0,
         right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0
       }}
     >
@@ -94,7 +94,7 @@ export function MobileMenu({ isOpen, onClose, buttonRef }: MobileMenuProps) {
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
-                className={`block px-3 py-2 text-sm rounded transition-colors ${
+                className={`block px-3 py-3 text-sm rounded transition-colors ${
                   isActive
                     ? 'text-accent bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'

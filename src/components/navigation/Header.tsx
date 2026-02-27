@@ -51,7 +51,7 @@ export function Header({ initialSession }: HeaderProps) {
         }`}
         style={{ zIndex: 'var(--z-header)' }}
       >
-        <div className="max-w-7xl mx-auto" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Logo />
