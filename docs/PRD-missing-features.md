@@ -304,26 +304,26 @@ Reward: confetti animation or "Setup Complete" badge.
 
 ## Recommended Implementation Order
 
-### Sprint 1: Complete What's Started (1-2 days)
-- [ ] Fix depreciation calculation (1.3)
-- [ ] Implement alert history modal (1.5)
-- [ ] Add onboarding checklist for new users (2.4)
+### Sprint 1: Complete What's Started (1-2 days) ✅
+- [x] Fix depreciation calculation (1.3)
+- [x] Implement alert history modal (1.5)
+- [x] Add onboarding checklist for new users (2.4)
 
-### Sprint 2: Dashboard Comes Alive (2-3 days)
-- [ ] Build recent activity feed (1.1)
-- [ ] Saved recommendation sessions (1.4)
-- [ ] Wishlist ↔ marketplace auto-match (2.2)
+### Sprint 2: Dashboard Comes Alive (2-3 days) ✅
+- [x] Build recent activity feed (1.1)
+- [x] Saved recommendation sessions (1.4)
+- [x] Wishlist ↔ marketplace auto-match (2.2)
 
-### Sprint 3: Social & Sharing (3-4 days)
-- [ ] Social sharing (stack URLs, OG tags) (2.3)
-- [ ] User ratings on components (3.1)
-- [ ] Popular pairings data (3.2)
+### Sprint 3: Social & Sharing (3-4 days) ✅
+- [x] Social sharing (stack URLs, OG tags) (2.3) — *done: dynamic OG metadata, Web Share API, clipboard toast*
+- [x] User ratings on components (3.1) — *done: component_ratings table, StarRating component, community ratings section*
+- [x] Popular pairings data (3.2) — *done: RPC co-occurrence query, fallback suggestions, modal section*
 
 ### Sprint 4: Revenue & Growth (1 week)
-- [ ] Email notification infrastructure (2.1)
-- [ ] Buy now price comparison (4.1)
-- [ ] Gear upgrade advisor (4.3)
-- [ ] Deal alerts email (4.2)
+- [ ] Email notification infrastructure (2.1) — *deferred to dedicated sprint*
+- [x] Buy now price comparison (4.1) — *done: Amazon, eBay, B&H Photo, Drop links in modal*
+- [x] Gear upgrade advisor (4.3) — *done: 4 suggestion types, UpgradeAdvisor dashboard component*
+- [ ] Deal alerts email (4.2) — *blocked by email infra (2.1)*
 
 ### Sprint 5: Polish & Settings (1 week)
 - [ ] Account settings page (1.2)
