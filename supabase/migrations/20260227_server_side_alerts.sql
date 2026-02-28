@@ -1,39 +1,104 @@
 -- =============================================================
--- Server-Side Alert Matching: Schema Changes + Trigger Function
+-- Server-Side Alert Matching
+-- Creates tables, indexes, RLS, trigger function — single migration
 -- =============================================================
 
--- 1. Add email notification columns to price_alerts
-ALTER TABLE public.price_alerts
-  ADD COLUMN IF NOT EXISTS notification_frequency TEXT
-    CHECK (notification_frequency IN ('instant', 'digest', 'none'))
-    DEFAULT 'none',
-  ADD COLUMN IF NOT EXISTS email_enabled BOOLEAN DEFAULT false;
+-- 1. Create price_alerts table
+CREATE TABLE IF NOT EXISTS public.price_alerts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  component_id UUID REFERENCES public.components(id) ON DELETE CASCADE,
 
--- 2. Remove duplicate alert_history rows before adding unique constraint
--- The old client-side checkAlerts had no dedup and could insert duplicates on every visit
-DELETE FROM public.alert_history a
-USING public.alert_history b
-WHERE a.id > b.id
-  AND a.alert_id = b.alert_id
-  AND a.listing_url = b.listing_url;
+  -- Alert configuration
+  target_price DECIMAL(10, 2) NOT NULL,
+  alert_type TEXT CHECK (alert_type IN ('below', 'exact', 'range')) DEFAULT 'below',
+  price_range_min DECIMAL(10, 2),
+  price_range_max DECIMAL(10, 2),
 
--- 3. Add dedup constraint on alert_history (alert + listing URL = unique match)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'alert_history_unique_match'
-  ) THEN
-    ALTER TABLE public.alert_history
-      ADD CONSTRAINT alert_history_unique_match UNIQUE (alert_id, listing_url);
-  END IF;
-END $$;
+  -- Alert preferences
+  condition_preference TEXT[] DEFAULT ARRAY['new', 'used', 'refurbished', 'b-stock'],
+  marketplace_preference TEXT[] DEFAULT ARRAY['reddit', 'headfi', 'avexchange'],
 
--- 4. Partial index for unsent notifications (used by email dispatcher)
+  -- Custom item tracking (for items not in database)
+  custom_search_query TEXT,
+  custom_brand TEXT,
+  custom_model TEXT,
+
+  -- Alert status
+  is_active BOOLEAN DEFAULT true,
+  last_triggered_at TIMESTAMPTZ,
+  trigger_count INTEGER DEFAULT 0,
+
+  -- Email notification preferences
+  notification_frequency TEXT CHECK (notification_frequency IN ('instant', 'digest', 'none')) DEFAULT 'none',
+  email_enabled BOOLEAN DEFAULT false,
+
+  -- Metadata
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Create alert_history table
+CREATE TABLE IF NOT EXISTS public.alert_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  alert_id UUID REFERENCES public.price_alerts(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL,
+
+  -- Listing details
+  listing_title TEXT,
+  listing_price DECIMAL(10, 2),
+  listing_condition TEXT,
+  listing_url TEXT,
+  listing_source TEXT,
+  listing_date TIMESTAMPTZ,
+
+  -- Alert details
+  triggered_at TIMESTAMPTZ DEFAULT NOW(),
+  notification_sent BOOLEAN DEFAULT false,
+  notification_sent_at TIMESTAMPTZ,
+  user_viewed BOOLEAN DEFAULT false,
+  user_viewed_at TIMESTAMPTZ,
+
+  -- Dedup: one match per alert per listing URL
+  CONSTRAINT alert_history_unique_match UNIQUE (alert_id, listing_url)
+);
+
+-- 3. Indexes
+CREATE INDEX IF NOT EXISTS idx_price_alerts_user_id ON public.price_alerts(user_id);
+CREATE INDEX IF NOT EXISTS idx_price_alerts_component_id ON public.price_alerts(component_id);
+CREATE INDEX IF NOT EXISTS idx_price_alerts_active ON public.price_alerts(user_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_alert_history_alert_id ON public.alert_history(alert_id);
+CREATE INDEX IF NOT EXISTS idx_alert_history_user_id ON public.alert_history(user_id, user_viewed);
 CREATE INDEX IF NOT EXISTS idx_alert_history_unsent
   ON public.alert_history (notification_sent, triggered_at)
   WHERE notification_sent = false;
 
--- 5. Trigger function: match new/updated listings against active alerts
+-- 4. Row Level Security
+ALTER TABLE public.price_alerts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.alert_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own alerts" ON public.price_alerts
+  FOR SELECT USING (auth.uid()::TEXT = user_id OR user_id IS NOT NULL);
+
+CREATE POLICY "Users can insert own alerts" ON public.price_alerts
+  FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id OR user_id IS NOT NULL);
+
+CREATE POLICY "Users can update own alerts" ON public.price_alerts
+  FOR UPDATE USING (auth.uid()::TEXT = user_id OR user_id IS NOT NULL);
+
+CREATE POLICY "Users can delete own alerts" ON public.price_alerts
+  FOR DELETE USING (auth.uid()::TEXT = user_id OR user_id IS NOT NULL);
+
+CREATE POLICY "Users can view own alert history" ON public.alert_history
+  FOR SELECT USING (auth.uid()::TEXT = user_id OR user_id IS NOT NULL);
+
+-- 5. updated_at trigger
+CREATE TRIGGER update_price_alerts_updated_at
+  BEFORE UPDATE ON public.price_alerts
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- 6. Trigger function: match new/updated listings against active alerts
 CREATE OR REPLACE FUNCTION match_new_listing()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -123,7 +188,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 6. Create trigger (drop first to allow re-running)
+-- 7. Create trigger on used_listings
 DROP TRIGGER IF EXISTS trg_match_new_listing ON public.used_listings;
 CREATE TRIGGER trg_match_new_listing
   AFTER INSERT OR UPDATE ON public.used_listings
