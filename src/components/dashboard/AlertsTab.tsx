@@ -76,7 +76,9 @@ export function AlertsTab() {
     marketplace_preference: ['reddit', 'headfi', 'avexchange'],
     custom_search_query: '',
     custom_brand: '',
-    custom_model: ''
+    custom_model: '',
+    email_enabled: false,
+    notification_frequency: 'digest' as 'instant' | 'digest' | 'none',
   })
 
   const loadAlerts = useCallback(async () => {
@@ -127,7 +129,9 @@ export function AlertsTab() {
       target_price: parseFloat(alertForm.target_price),
       alert_type: alertForm.alert_type,
       condition_preference: alertForm.condition_preference,
-      marketplace_preference: alertForm.marketplace_preference
+      marketplace_preference: alertForm.marketplace_preference,
+      email_enabled: alertForm.email_enabled,
+      notification_frequency: alertForm.email_enabled ? alertForm.notification_frequency : 'none',
     }
 
     if (alertForm.alert_type === 'range') {
@@ -203,7 +207,9 @@ export function AlertsTab() {
       marketplace_preference: ['reddit', 'headfi', 'avexchange'],
       custom_search_query: '',
       custom_brand: '',
-      custom_model: ''
+      custom_model: '',
+      email_enabled: false,
+      notification_frequency: 'digest' as 'instant' | 'digest' | 'none',
     })
   }
 
@@ -369,6 +375,12 @@ export function AlertsTab() {
                           {alert.trigger_count > 0 && (
                             <span className="px-2 py-1 bg-green-500/20 text-green-500 text-xs rounded">
                               {alert.trigger_count} matches
+                            </span>
+                          )}
+                          {alert.email_enabled && (
+                            <span className="px-2 py-1 bg-blue-500/20 text-blue-500 text-xs rounded flex items-center gap-1">
+                              <Bell className="w-3 h-3" />
+                              {alert.notification_frequency === 'instant' ? 'Instant' : 'Digest'}
                             </span>
                           )}
                         </div>
@@ -775,6 +787,58 @@ export function AlertsTab() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Email Notifications */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Email Notifications
+                </label>
+                <div className="flex items-center gap-3 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setAlertForm({ ...alertForm, email_enabled: !alertForm.email_enabled })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      alertForm.email_enabled ? 'bg-accent' : 'bg-surface-secondary'
+                    }`}
+                    role="switch"
+                    aria-checked={alertForm.email_enabled}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        alertForm.email_enabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-muted">
+                    {alertForm.email_enabled ? 'Email alerts enabled' : 'Email alerts disabled'}
+                  </span>
+                </div>
+
+                {alertForm.email_enabled && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setAlertForm({ ...alertForm, notification_frequency: 'instant' })}
+                      className={`px-3 py-1 rounded text-sm ${
+                        alertForm.notification_frequency === 'instant'
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-surface-secondary text-muted'
+                      }`}
+                    >
+                      Instant
+                    </button>
+                    <button
+                      onClick={() => setAlertForm({ ...alertForm, notification_frequency: 'digest' })}
+                      className={`px-3 py-1 rounded text-sm ${
+                        alertForm.notification_frequency === 'digest'
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-surface-secondary text-muted'
+                      }`}
+                    >
+                      Digest (batched)
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3">
