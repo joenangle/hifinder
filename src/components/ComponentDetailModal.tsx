@@ -61,7 +61,9 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     reviews: { rating: number; review_text: string; created_at: string }[]
   } | null>(null)
   const [userRating, setUserRating] = useState(0)
+  const [reviewText, setReviewText] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [ratingError, setRatingError] = useState('')
   const [pairings, setPairings] = useState<{
     pairings: { component_id: number; name: string; brand: string; category: string; price_new: number; price_used_min: number; price_used_max: number }[];
     source: string;
@@ -108,18 +110,29 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
 
   const handleRatingSubmit = async (rating: number) => {
     setUserRating(rating)
+    setRatingError('')
     setSubmitting(true)
     try {
-      await fetch(`/api/components/${component.id}/ratings`, {
+      const res = await fetch(`/api/components/${component.id}/ratings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating }),
+        body: JSON.stringify({ rating, review_text: reviewText || undefined }),
       })
+      if (!res.ok) {
+        setUserRating(0)
+        setRatingError(res.status === 401 ? 'Sign in to rate' : 'Failed to save')
+        setSubmitting(false)
+        return
+      }
       // Refresh ratings
-      const res = await fetch(`/api/components/${component.id}/ratings`)
-      const data = await res.json()
+      const refreshRes = await fetch(`/api/components/${component.id}/ratings`)
+      const data = await refreshRes.json()
       setRatings(data)
-    } catch { /* silent fail */ }
+      setReviewText('')
+    } catch {
+      setUserRating(0)
+      setRatingError('Failed to save')
+    }
     setSubmitting(false)
   }
 
@@ -331,6 +344,17 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
                   rating={userRating}
                   onRate={handleRatingSubmit}
                   interactive={!submitting}
+                />
+                {ratingError && (
+                  <p className="text-xs text-red-500 mt-1">{ratingError}</p>
+                )}
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Short review (optional, 500 chars max)"
+                  maxLength={500}
+                  className="w-full mt-2 p-2 text-sm bg-surface border border-gray-200 dark:border-gray-700 rounded-lg resize-none text-primary placeholder:text-tertiary"
+                  rows={2}
                 />
               </div>
               {/* Recent reviews */}
