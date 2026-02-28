@@ -19,6 +19,8 @@ export interface PriceAlert {
   trigger_count: number
   created_at: string
   updated_at: string
+  notification_frequency?: 'instant' | 'digest' | 'none'
+  email_enabled?: boolean
   components?: {
     id: string
     name: string
