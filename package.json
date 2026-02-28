@@ -39,6 +39,7 @@
     "analyze:prices:full": "node scripts/analyze-price-trends.js --months=12"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.8",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.56.1",
     "framer-motion": "^12.34.3",
@@ -47,7 +48,9 @@
     "next-auth": "^4.24.13",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "recharts": "^3.7.0"
+    "react-email": "^5.2.9",
+    "recharts": "^3.7.0",
+    "resend": "^6.9.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
