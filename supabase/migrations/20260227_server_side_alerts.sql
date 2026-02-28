@@ -3,7 +3,7 @@
 -- =============================================================
 
 -- 1. Add email notification columns to price_alerts
-ALTER TABLE price_alerts
+ALTER TABLE public.price_alerts
   ADD COLUMN IF NOT EXISTS notification_frequency TEXT
     CHECK (notification_frequency IN ('instant', 'digest', 'none'))
     DEFAULT 'none',
@@ -11,8 +11,8 @@ ALTER TABLE price_alerts
 
 -- 2. Remove duplicate alert_history rows before adding unique constraint
 -- The old client-side checkAlerts had no dedup and could insert duplicates on every visit
-DELETE FROM alert_history a
-USING alert_history b
+DELETE FROM public.alert_history a
+USING public.alert_history b
 WHERE a.id > b.id
   AND a.alert_id = b.alert_id
   AND a.listing_url = b.listing_url;
@@ -23,14 +23,14 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint WHERE conname = 'alert_history_unique_match'
   ) THEN
-    ALTER TABLE alert_history
+    ALTER TABLE public.alert_history
       ADD CONSTRAINT alert_history_unique_match UNIQUE (alert_id, listing_url);
   END IF;
 END $$;
 
 -- 4. Partial index for unsent notifications (used by email dispatcher)
 CREATE INDEX IF NOT EXISTS idx_alert_history_unsent
-  ON alert_history (notification_sent, triggered_at)
+  ON public.alert_history (notification_sent, triggered_at)
   WHERE notification_sent = false;
 
 -- 5. Trigger function: match new/updated listings against active alerts
@@ -58,8 +58,8 @@ BEGIN
            pa.condition_preference, pa.marketplace_preference,
            pa.custom_search_query, pa.custom_brand, pa.custom_model,
            c.brand, c.name AS component_name
-    FROM price_alerts pa
-    LEFT JOIN components c ON pa.component_id = c.id
+    FROM public.price_alerts pa
+    LEFT JOIN public.components c ON pa.component_id = c.id
     WHERE pa.is_active = true
   LOOP
     -- 1. Keyword match
@@ -103,7 +103,7 @@ BEGIN
     THEN CONTINUE; END IF;
 
     -- 5. Insert match (ON CONFLICT handles dedup)
-    INSERT INTO alert_history (
+    INSERT INTO public.alert_history (
       alert_id, user_id, listing_title, listing_price,
       listing_condition, listing_url, listing_source, triggered_at
     ) VALUES (
@@ -113,7 +113,7 @@ BEGIN
 
     -- 6. Bump trigger count only if new row was inserted
     IF FOUND THEN
-      UPDATE price_alerts
+      UPDATE public.price_alerts
       SET trigger_count = trigger_count + 1, last_triggered_at = NOW()
       WHERE id = alert_rec.id;
     END IF;
@@ -124,7 +124,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 6. Create trigger (drop first to allow re-running)
-DROP TRIGGER IF EXISTS trg_match_new_listing ON used_listings;
+DROP TRIGGER IF EXISTS trg_match_new_listing ON public.used_listings;
 CREATE TRIGGER trg_match_new_listing
-  AFTER INSERT OR UPDATE ON used_listings
+  AFTER INSERT OR UPDATE ON public.used_listings
   FOR EACH ROW EXECUTE FUNCTION match_new_listing();
