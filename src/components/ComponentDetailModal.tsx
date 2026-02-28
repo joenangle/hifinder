@@ -1,7 +1,7 @@
 'use client'
 
 import { Component } from '@/types'
-import { X, Volume2, Cpu, Zap, TrendingUp, Star } from 'lucide-react'
+import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users } from 'lucide-react'
 import { StarRating } from './StarRating'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
@@ -62,6 +62,10 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
   } | null>(null)
   const [userRating, setUserRating] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+  const [pairings, setPairings] = useState<{
+    pairings: { component_id: number; name: string; brand: string; category: string; price_new: number; price_used_min: number; price_used_max: number }[];
+    source: string;
+  } | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -88,6 +92,16 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     fetch(`/api/components/${component.id}/ratings`)
       .then(res => res.json())
       .then(data => { if (!cancelled) setRatings(data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [isOpen, component.id])
+
+  useEffect(() => {
+    if (!isOpen) return
+    let cancelled = false
+    fetch(`/api/components/${component.id}/pairings`)
+      .then(res => res.json())
+      .then(data => { if (!cancelled) setPairings(data) })
       .catch(() => {})
     return () => { cancelled = true }
   }, [isOpen, component.id])
@@ -337,6 +351,33 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               )}
             </div>
           </div>
+
+          {/* Popular Pairings */}
+          {pairings && pairings.pairings.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-primary">
+                  {pairings.source === 'stacks' ? 'Often Paired With' : 'Suggested Pairings'}
+                </h3>
+              </div>
+              <div className="space-y-2">
+                {pairings.pairings.map(p => (
+                  <div key={p.component_id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                    <div>
+                      <span className="font-medium text-primary">{p.brand} {p.name}</span>
+                      <span className="ml-2 text-xs px-2 py-0.5 bg-accent/10 text-accent rounded-full">{p.category}</span>
+                    </div>
+                    <span className="text-sm text-secondary">
+                      {p.price_used_min && p.price_used_max
+                        ? `$${p.price_used_min}–$${p.price_used_max} used`
+                        : p.price_new ? `$${p.price_new} new` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
