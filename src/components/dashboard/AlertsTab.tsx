@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
-import { getUserAlerts, createAlert, updateAlert, deleteAlert, getAlertHistory, markAlertViewed, checkAlerts, PriceAlert, AlertHistory } from '@/lib/alerts'
+import { getUserAlerts, createAlert, updateAlert, deleteAlert, getAlertHistory, markAlertViewed, PriceAlert, AlertHistory } from '@/lib/alerts'
 import { supabase } from '@/lib/supabase'
 import { Component } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -99,7 +99,6 @@ export function AlertsTab() {
     if (session?.user?.id) {
       loadAlerts()
       loadHistory()
-      checkAlerts(session.user.id)
     }
   }, [session?.user?.id, loadAlerts, loadHistory])
 
