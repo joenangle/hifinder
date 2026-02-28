@@ -15,11 +15,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params
-    const componentId = parseInt(resolvedParams.id)
-
-    if (isNaN(componentId)) {
-      return NextResponse.json({ error: 'Invalid component ID' }, { status: 400 })
-    }
+    const componentId = resolvedParams.id
 
     // Try the RPC function first (stack-based pairings)
     try {

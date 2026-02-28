@@ -2,7 +2,7 @@
 create table if not exists component_ratings (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null,
-  component_id integer not null,
+  component_id uuid not null,
   rating smallint not null check (rating between 1 and 5),
   review_text text check (char_length(review_text) <= 500),
   created_at timestamptz default now(),

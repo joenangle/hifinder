@@ -9,11 +9,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params
-    const componentId = parseInt(resolvedParams.id)
-
-    if (isNaN(componentId)) {
-      return NextResponse.json({ error: 'Invalid component ID' }, { status: 400 })
-    }
+    const componentId = resolvedParams.id
 
     // Fetch all ratings for the component
     const { data: ratings, error } = await supabaseServer
@@ -83,11 +79,7 @@ export async function POST(
     }
 
     const resolvedParams = await params
-    const componentId = parseInt(resolvedParams.id)
-
-    if (isNaN(componentId)) {
-      return NextResponse.json({ error: 'Invalid component ID' }, { status: 400 })
-    }
+    const componentId = resolvedParams.id
 
     const body = await request.json()
     const { rating, review_text } = body

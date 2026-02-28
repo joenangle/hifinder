@@ -8,7 +8,7 @@ interface GearSuggestion {
   priority: 'high' | 'medium' | 'low'
   message: string
   currentItem?: { brand: string; name: string; price: number | null; category: string }
-  suggestedItems?: { id: number; brand: string; name: string; category: string; price_new: number | null; price_used_min: number | null; price_used_max: number | null }[]
+  suggestedItems?: { id: string; brand: string; name: string; category: string; price_new: number | null; price_used_min: number | null; price_used_max: number | null }[]
 }
 
 const typeIcons: Record<string, React.ReactNode> = {

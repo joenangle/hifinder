@@ -1,6 +1,6 @@
-create or replace function get_component_pairings(target_component_id integer, result_limit integer default 5)
+create or replace function get_component_pairings(target_component_id uuid, result_limit integer default 5)
 returns table(
-  component_id integer,
+  component_id uuid,
   name text,
   brand text,
   category text,
