@@ -1,4 +1,8 @@
 {
+  "crons": [{
+    "path": "/api/alerts/send-notifications",
+    "schedule": "*/5 * * * *"
+  }],
   "functions": {
     "pages/**": {
       "memory": 1024
