@@ -11,6 +11,7 @@ import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed'
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist'
 import { RecentSearches } from '@/components/dashboard/RecentSearches'
 import { WishlistMatches } from '@/components/dashboard/WishlistMatches'
+import { UpgradeAdvisor } from '@/components/dashboard/UpgradeAdvisor'
 
 // Tab type
 type DashboardTab = 'overview' | 'wishlist' | 'alerts'
@@ -307,6 +308,9 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
 
       {/* Wishlist items with available used listings */}
       <WishlistMatches setActiveTab={setActiveTab as (tab: string) => void} />
+
+      {/* Upgrade Suggestions */}
+      <UpgradeAdvisor />
 
       {/* Recent Searches — auto-saved from recommendations page */}
       <RecentSearches />
