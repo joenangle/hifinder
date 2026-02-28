@@ -1,10 +1,11 @@
 'use client'
 
 import { Component } from '@/types'
-import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users } from 'lucide-react'
+import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink } from 'lucide-react'
 import { StarRating } from './StarRating'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
+import { getRetailerLinks } from '@/lib/retailer-links'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -50,6 +51,14 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     component.name,
     component.brand
   )
+
+  const retailerLinks = getRetailerLinks({
+    id: component.id,
+    brand: component.brand,
+    name: component.name,
+    category: component.category,
+    amazon_url: component.amazon_url,
+  })
 
   // Fetch actual sales data for this component
   const [marketData, setMarketData] = useState<{
@@ -402,6 +411,33 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               </div>
             </div>
           )}
+
+          {/* Where to Buy */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-primary">Where to Buy</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {retailerLinks.map(link => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 p-3 bg-secondary rounded-lg hover:bg-tertiary transition-colors group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium text-primary text-sm">{link.name}</span>
+                    <span className="ml-1.5 text-xs text-secondary">
+                      {link.type === 'new' ? 'New' : link.type === 'used' ? 'Used' : 'New & Used'}
+                    </span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-tertiary group-hover:text-accent transition-colors flex-shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
