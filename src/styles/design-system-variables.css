@@ -249,7 +249,7 @@ body {
   background: var(--surface-card);
   border: 2px solid var(--border-default);
   border-radius: var(--radius-xl);
-  padding: var(--space-3);
+  padding: var(--space-4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
   cursor: pointer;

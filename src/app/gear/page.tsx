@@ -635,7 +635,7 @@ function GearContent() {
       {/* Main Content Area */}
       <div className="relative" style={{maxWidth: '1100px', margin: '0 auto', paddingLeft: '24px', paddingRight: '24px'}}>
         {/* Content Area - with padding from divider */}
-        <div className="pt-10 relative">
+        <div className="pt-6 relative">
         {/* Gear Display - Grid/List/Stacks */}
         {(() => {
           // Handle different view modes
@@ -998,7 +998,7 @@ function GearContent() {
                           </span>
                         )}
                       </h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {filteredAllGear.map(item => (
                           <div
                             key={item.id}
@@ -1078,7 +1078,7 @@ function GearContent() {
             </div>
           ) : (
             <div className={`${viewMode === 'grid' 
-              ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3' 
+              ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4'
               : 'space-y-2'
             }`}>
               {filteredGear.map(item => (
@@ -1123,16 +1123,17 @@ function GearContent() {
                       )}
                     </div>
 
-                    {/* Name and Price on same line */}
-                    <div className="flex items-baseline justify-between mb-1 gap-2">
-                      <h3 className="font-semibold text-lg text-primary truncate">
-                        {item.components?.brand || item.custom_brand} {item.components?.name || item.custom_name}
+                    {/* Brand, Model, and Price */}
+                    <div className="mb-1">
+                      <p className="text-xs font-medium text-secondary truncate">
+                        {item.components?.brand || item.custom_brand}
+                      </p>
+                      <h3 className="font-semibold text-sm text-primary truncate leading-snug">
+                        {item.components?.name || item.custom_name}
                       </h3>
                       {item.purchase_price && (
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-lg font-bold text-accent whitespace-nowrap">
-                            ${item.purchase_price}
-                          </div>
+                        <div className="text-base font-bold text-accent mt-0.5">
+                          ${item.purchase_price}
                         </div>
                       )}
                     </div>
@@ -1242,7 +1243,7 @@ function GearContent() {
 
         {/* My Stacks Drop Zone (visible in grid/list views) */}
         {viewMode !== 'stacks' && gear.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-12 pt-8 border-t border-[var(--border-subtle)]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <Layers className="w-5 h-5" />
@@ -1266,7 +1267,7 @@ function GearContent() {
                 )}
               </div>
             </div>
-            <div className={`grid gap-3 ${stacks.length > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}>
+            <div className={`grid gap-4 ${stacks.length > 0 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}>
               {/* Existing stacks as compact drop targets */}
               {stacks.map(stack => (
                 <div
