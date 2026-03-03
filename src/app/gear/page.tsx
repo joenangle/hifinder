@@ -614,13 +614,21 @@ function GearContent() {
       {/* Filters Section - sticky below header, full width */}
       <div className="sticky top-[64px] z-20 border-b shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
         <div style={{maxWidth: '1100px', margin: '0 auto', padding: '12px 24px'}}>
-          <GearFilters 
-            selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
-            onCategoryChange={(category) => {
+          <GearFilters
+            activeCategories={activeFilters}
+            onCategoryToggle={(category) => {
               if (category === 'all') {
                 setActiveFilters(new Set())
               } else {
-                setActiveFilters(new Set([category]))
+                setActiveFilters(prev => {
+                  const next = new Set(prev)
+                  if (next.has(category)) {
+                    next.delete(category)
+                  } else {
+                    next.add(category)
+                  }
+                  return next
+                })
               }
             }}
             categoryCounts={categoryCounts}
@@ -2314,7 +2322,7 @@ function GearContent() {
               <form onSubmit={(e) => { e.preventDefault(); handleEditStack() }}>
                 <div className="space-y-4">
                   <div>
-                    <label className="form-label" htmlFor="edit-stack-name">
+                    <label className="block text-sm font-medium text-primary mb-1.5" htmlFor="edit-stack-name">
                       Stack Name *
                     </label>
                     <input
@@ -2322,21 +2330,21 @@ function GearContent() {
                       type="text"
                       value={editStackName}
                       onChange={(e) => setEditStackName(e.target.value)}
-                      className="form-input"
+                      className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
                       placeholder="e.g., Desktop Setup, Portable Rig"
                       required
                       maxLength={100}
                     />
                   </div>
                   <div>
-                    <label className="form-label" htmlFor="edit-stack-description">
+                    <label className="block text-sm font-medium text-primary mb-1.5" htmlFor="edit-stack-description">
                       Description (Optional)
                     </label>
                     <textarea
                       id="edit-stack-description"
                       value={editStackDescription}
                       onChange={(e) => setEditStackDescription(e.target.value)}
-                      className="form-input"
+                      className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent resize-y"
                       placeholder="Describe this setup..."
                       rows={3}
                       maxLength={500}

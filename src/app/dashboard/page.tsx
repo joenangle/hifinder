@@ -48,7 +48,7 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-primary">
-      <div className="page-container py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="heading-1">Dashboard</h1>

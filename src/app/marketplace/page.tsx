@@ -276,7 +276,7 @@ function MarketplaceContent() {
 
   return (
     <div className="min-h-screen bg-primary">
-      <main className="page-container py-8 max-w-7xl">
+      <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-2">

@@ -19,8 +19,8 @@ const CATEGORY_ACTIVE: Record<string, string> = {
 }
 
 interface GearFiltersProps {
-  selectedCategory: CategoryFilter
-  onCategoryChange: (category: CategoryFilter) => void
+  activeCategories: Set<CategoryFilter>
+  onCategoryToggle: (category: CategoryFilter) => void
   categoryCounts: Record<CategoryFilter, number>
   // Actions
   onAddGear?: () => void
@@ -30,14 +30,15 @@ interface GearFiltersProps {
 }
 
 export function GearFilters({
-  selectedCategory,
-  onCategoryChange,
+  activeCategories,
+  onCategoryToggle,
   categoryCounts,
   onAddGear,
   onExport,
   viewMode,
   onViewModeChange
 }: GearFiltersProps) {
+  const allSelected = activeCategories.size === 0
   const filterCategories = [
     { id: 'headphones' as const, label: 'Headphones', icon: Headphones },
     { id: 'iems' as const, label: 'IEMs', icon: Headphones },
@@ -52,13 +53,13 @@ export function GearFilters({
         <div className="flex flex-wrap lg:flex-nowrap items-center gap-1.5 flex-1 min-h-[2.5rem]">
           {/* All Gear Pill */}
           <button
-            onClick={() => onCategoryChange('all')}
-            aria-pressed={selectedCategory === 'all'}
-            className={`${PILL_BASE} ${selectedCategory === 'all' ? CATEGORY_ACTIVE.all : PILL_INACTIVE}`}
+            onClick={() => onCategoryToggle('all')}
+            aria-pressed={allSelected}
+            className={`${PILL_BASE} ${allSelected ? CATEGORY_ACTIVE.all : PILL_INACTIVE}`}
           >
             All Gear
             {categoryCounts.all > 0 && (
-              <span className={`text-[10px] tabular-nums ${selectedCategory === 'all' ? 'opacity-80' : 'text-tertiary'}`}>
+              <span className={`text-[10px] tabular-nums ${allSelected ? 'opacity-80' : 'text-tertiary'}`}>
                 {categoryCounts.all}
               </span>
             )}
@@ -67,12 +68,12 @@ export function GearFilters({
           {filterCategories.map((category) => {
             const IconComponent = category.icon
             const count = categoryCounts[category.id] || 0
-            const isActive = selectedCategory === category.id
+            const isActive = activeCategories.has(category.id)
 
             return (
               <button
                 key={category.id}
-                onClick={() => onCategoryChange(category.id)}
+                onClick={() => onCategoryToggle(category.id)}
                 aria-pressed={isActive}
                 className={`${PILL_BASE} ${isActive ? CATEGORY_ACTIVE[category.id] : PILL_INACTIVE}`}
               >
