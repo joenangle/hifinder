@@ -114,18 +114,14 @@ export function ComparisonModal({ items, onClose }: ComparisonModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center backdrop-blur-sm bg-black/30"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center backdrop-blur-[8px] bg-black/45"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="comparison-modal-title"
     >
       <div
-        className="relative w-full sm:max-w-[95vw] sm:max-h-[90vh] max-h-full sm:rounded-lg rounded-none bg-surface-primary dark:bg-surface-primary shadow-2xl flex flex-col"
-        style={{
-          background: 'var(--surface-primary)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-        }}
+        className="relative w-full sm:max-w-[95vw] sm:max-h-[90vh] max-h-full rounded-xl bg-surface-primary dark:bg-surface-primary shadow-xl flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0">

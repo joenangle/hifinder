@@ -22,39 +22,18 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
   }
 
   return (
-    <div
-      style={{
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'var(--background-primary)',
-      }}
-    >
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 var(--space-6)' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: '56px',
-          }}
-        >
+    <div className="border-b border-subtle bg-primary">
+      <div className="max-w-[1100px] mx-auto px-6">
+        <div className="flex items-center justify-between h-14">
           {/* Left: Eyebrow + Title */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-            <p
-              style={{
-                fontSize: '0.8rem',
-                fontWeight: 500,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'var(--accent-primary)',
-                margin: 0,
-              }}
-            >
+          <div className="flex items-center gap-4">
+            <p className="text-xs font-medium tracking-widest uppercase text-accent m-0">
               My Gear
             </p>
           </div>
 
           {/* Desktop: Pipe-divided stats */}
-          <div className="hidden lg:flex" style={{ alignItems: 'center', gap: 0, fontSize: '0.8125rem' }}>
+          <div className="hidden lg:flex items-center text-[0.8125rem]">
             {[
               { label: 'Items', value: `${stats.totalItems}` },
               { label: 'Value', value: formatCurrency(stats.currentValue) },
@@ -65,26 +44,16 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
                 color: stats.depreciation >= 0 ? 'var(--error)' : 'var(--success)',
               },
             ].map((stat, i) => (
-              <span key={stat.label} style={{ display: 'flex', alignItems: 'center' }}>
+              <span key={stat.label} className="flex items-center">
                 {i > 0 && (
-                  <span
-                    style={{
-                      color: 'var(--text-tertiary)',
-                      margin: '0 var(--space-3)',
-                      opacity: 0.4,
-                    }}
-                  >
+                  <span className="text-tertiary mx-3 opacity-40">
                     |
                   </span>
                 )}
-                <span style={{ color: 'var(--text-secondary)' }}>{stat.label}</span>
+                <span className="text-secondary">{stat.label}</span>
                 <span
-                  style={{
-                    fontWeight: 600,
-                    color: stat.color || 'var(--text-primary)',
-                    letterSpacing: '-0.03em',
-                    marginLeft: 'var(--space-1)',
-                  }}
+                  className="font-semibold tracking-tight ml-1"
+                  style={stat.color ? { color: stat.color } : undefined}
                 >
                   {stat.value}
                 </span>
@@ -93,13 +62,10 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
           </div>
 
           {/* Mobile: Compressed stats */}
-          <div
-            className="flex lg:hidden"
-            style={{ alignItems: 'center', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}
-          >
+          <div className="flex lg:hidden items-center text-[0.8125rem] text-secondary">
             <span>{stats.totalItems} items</span>
-            <span style={{ margin: '0 6px', opacity: 0.4 }}>|</span>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
+            <span className="mx-1.5 opacity-40">|</span>
+            <span className="font-semibold text-primary tracking-tight">
               {formatCurrency(stats.currentValue)}
             </span>
           </div>

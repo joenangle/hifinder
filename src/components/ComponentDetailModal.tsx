@@ -347,7 +347,7 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
                 <p className="text-sm text-secondary">No ratings yet. Be the first!</p>
               )}
               {/* User rating input */}
-              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-2 border-t border-border">
                 <p className="text-sm text-secondary mb-2">Your rating:</p>
                 <StarRating
                   rating={userRating}
@@ -362,7 +362,7 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
                   onChange={(e) => setReviewText(e.target.value)}
                   placeholder="Short review (optional, 500 chars max)"
                   maxLength={500}
-                  className="w-full mt-2 p-2 text-sm bg-surface border border-gray-200 dark:border-gray-700 rounded-lg resize-none text-primary placeholder:text-tertiary"
+                  className="w-full mt-2 p-2 text-sm bg-surface border border-border rounded-lg resize-none text-primary placeholder:text-tertiary"
                   rows={2}
                 />
               </div>

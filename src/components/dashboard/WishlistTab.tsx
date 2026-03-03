@@ -75,7 +75,7 @@ export function WishlistTab() {
     return (
       <div className="text-center py-12">
         <Heart className="w-16 h-16 mx-auto mb-4 text-muted" />
-        <h2 className="text-xl font-semibold text-foreground mb-2">Your wishlist is empty</h2>
+        <h2 className="heading-3 mb-2">Your wishlist is empty</h2>
         <p className="text-muted mb-6">
           Start adding components from our recommendations or browse the used market
         </p>

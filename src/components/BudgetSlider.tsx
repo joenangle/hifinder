@@ -329,7 +329,7 @@ export function BudgetSlider({
               value={budgetInputValue}
               onChange={(e) => handleInputChange(e.target.value)}
               onBlur={handleInputBlur}
-              className="budget-number-input text-2xl font-bold bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 focus:ring-opacity-50 rounded px-1 w-24"
+              className="budget-number-input text-2xl font-bold bg-transparent border-none outline-none focus:ring-2 focus:ring-accent rounded px-1 w-24"
               style={{ color: currentTier.color }}
               min={minBudget}
               max={maxBudget}
@@ -562,7 +562,7 @@ export function BudgetSlider({
               setRangeMin(clampedMin)
               if (onRangeChange) onRangeChange(clampedMin, rangeMax)
             }}
-            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-blue-500"
+            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-accent"
             min={minBudget}
             max={maxBudget}
           />
@@ -576,7 +576,7 @@ export function BudgetSlider({
               setRangeMax(clampedMax)
               if (onRangeChange) onRangeChange(rangeMin, clampedMax)
             }}
-            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-blue-500"
+            className="w-20 px-2 py-1 border border-border rounded focus:outline-none focus:border-accent"
             min={minBudget}
             max={maxBudget}
           />

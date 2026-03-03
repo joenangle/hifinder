@@ -109,9 +109,6 @@ export function Modal({ isOpen, onClose, children, title, maxWidth = 'lg' }: Mod
             ref={modalRef}
             tabIndex={-1}
             className={`relative bg-surface-elevated rounded-xl border shadow-xl ${maxWidthClasses[maxWidth]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
-            style={{
-              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)'
-            }}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 5 }}
@@ -123,7 +120,7 @@ export function Modal({ isOpen, onClose, children, title, maxWidth = 'lg' }: Mod
                 <h2 className="text-lg font-semibold text-primary">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="p-2.5 hover:bg-secondary rounded-md transition-colors"
+                  className="p-2.5 hover:bg-secondary rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5 text-secondary" />
@@ -135,7 +132,7 @@ export function Modal({ isOpen, onClose, children, title, maxWidth = 'lg' }: Mod
             {!title && (
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                className="absolute top-4 right-4 z-10 p-2 bg-surface-elevated/90 hover:bg-surface-elevated text-secondary hover:text-primary rounded-full transition-colors shadow-sm border border-subtle"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />

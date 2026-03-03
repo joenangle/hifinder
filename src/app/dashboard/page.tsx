@@ -47,12 +47,12 @@ function DashboardContent() {
   if (!session) return null
 
   return (
-    <div className="min-h-screen bg-surface">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-primary">
+      <div className="page-container py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-          <p className="text-muted">Manage your gear collection, wishlist, and alerts</p>
+          <h1 className="heading-1">Dashboard</h1>
+          <p className="text-secondary">Manage your gear collection, wishlist, and alerts</p>
         </div>
 
         {/* Tabs */}
@@ -117,7 +117,7 @@ function TabButton({
       className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
         isActive
           ? 'border-accent text-accent'
-          : 'border-transparent text-muted hover:text-foreground hover:border-border'
+          : 'border-transparent text-secondary hover:text-primary hover:border-border'
       }`}
     >
       {icon}
@@ -189,8 +189,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-4">Welcome back, {session?.user?.name || 'User'}!</h2>
-        <p className="text-muted">Here&apos;s an overview of your audio gear ecosystem</p>
+        <h2 className="text-2xl font-bold text-primary mb-4">Welcome back, {session?.user?.name || 'User'}!</h2>
+        <p className="text-secondary">Here&apos;s an overview of your audio gear ecosystem</p>
       </div>
 
       {/* Quick Stats */}
@@ -201,8 +201,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted mb-1">Collection Items</p>
-              <p className="text-3xl font-bold text-foreground">{stats?.collection?.count || 0}</p>
+              <p className="text-sm text-secondary mb-1">Collection Items</p>
+              <p className="text-3xl font-bold text-primary">{stats?.collection?.count || 0}</p>
             </div>
             <Package className="w-8 h-8 text-accent" />
           </div>
@@ -218,8 +218,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted mb-1">Wishlist Items</p>
-              <p className="text-3xl font-bold text-foreground">{stats?.wishlist?.count || 0}</p>
+              <p className="text-sm text-secondary mb-1">Wishlist Items</p>
+              <p className="text-3xl font-bold text-primary">{stats?.wishlist?.count || 0}</p>
             </div>
             <Heart className="w-8 h-8 text-accent" />
           </div>
@@ -235,8 +235,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted mb-1">Active Alerts</p>
-              <p className="text-3xl font-bold text-foreground">{stats?.alerts?.activeCount || 0}</p>
+              <p className="text-sm text-secondary mb-1">Active Alerts</p>
+              <p className="text-3xl font-bold text-primary">{stats?.alerts?.activeCount || 0}</p>
               {stats?.alerts && stats.alerts.unreadMatches > 0 && (
                 <p className="text-xs text-accent mt-1">{stats.alerts.unreadMatches} new matches</p>
               )}
@@ -251,8 +251,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted mb-1">Collection Value</p>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="text-sm text-secondary mb-1">Collection Value</p>
+              <p className="text-3xl font-bold text-primary">
                 {stats?.collection?.totalValue ? formatCurrency(stats.collection.totalValue) : '$0'}
               </p>
               {stats?.collection?.depreciation !== undefined && stats.collection.depreciation !== 0 && (
@@ -268,15 +268,15 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
 
       {/* Quick Actions */}
       <div className="card p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/recommendations"
             className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center"
           >
             <Package className="w-6 h-6 mx-auto mb-2 text-accent" />
-            <p className="font-medium text-foreground">Find Recommendations</p>
-            <p className="text-sm text-muted">Discover new gear</p>
+            <p className="font-medium text-primary">Find Recommendations</p>
+            <p className="text-sm text-secondary">Discover new gear</p>
           </Link>
 
           <Link
@@ -284,8 +284,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
             className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center"
           >
             <Heart className="w-6 h-6 mx-auto mb-2 text-accent" />
-            <p className="font-medium text-foreground">Browse Used Market</p>
-            <p className="text-sm text-muted">Find deals</p>
+            <p className="font-medium text-primary">Browse Used Market</p>
+            <p className="text-sm text-secondary">Find deals</p>
           </Link>
 
           <Link
@@ -297,8 +297,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
             className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center cursor-pointer"
           >
             <Bell className="w-6 h-6 mx-auto mb-2 text-accent" />
-            <p className="font-medium text-foreground">Create Price Alert</p>
-            <p className="text-sm text-muted">Get notified</p>
+            <p className="font-medium text-primary">Create Price Alert</p>
+            <p className="text-sm text-secondary">Get notified</p>
           </Link>
         </div>
       </div>
@@ -317,7 +317,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
 
       {/* Recent Activity */}
       <div className="card p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
+        <h3 className="text-lg font-semibold text-primary mb-4">Recent Activity</h3>
         <RecentActivityFeed setActiveTab={setActiveTab as (tab: string) => void} />
       </div>
     </div>

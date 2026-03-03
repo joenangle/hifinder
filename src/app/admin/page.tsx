@@ -854,7 +854,7 @@ export default function AdminPage() {
             {/* Details Panel */}
             <div className="lg:col-span-1">
               {selectedCandidate && candidateDetails ? (
-                <div className="card p-6 sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+                <div className="card p-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   {/* Success/Error Messages */}
                   {successMessage && (
                     <div className="bg-green-900/20 border border-green-500 rounded p-3 mb-4">
@@ -1237,7 +1237,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               ) : (
-                <div className="card p-12 text-center sticky top-8">
+                <div className="card p-12 text-center sticky top-20">
                   <p className="text-tertiary">Select a candidate to view details</p>
                 </div>
               )}

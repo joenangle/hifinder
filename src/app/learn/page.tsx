@@ -331,7 +331,7 @@ const stats = {
 export default function LearnPage() {
   return (
     <main className="min-h-screen w-full bg-primary flex justify-center items-start px-4 sm:px-6 md:px-8 lg:px-12 py-8 overflow-x-hidden">
-      <div className="max-w-6xl w-full">
+      <div className="max-w-7xl w-full">
         {/* Hero Section — server rendered */}
         <section className="text-center mb-12">
           <div className="w-16 h-16 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-accent/20">

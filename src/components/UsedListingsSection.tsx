@@ -117,7 +117,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as typeof filter)}
-            className="bg-surface-card border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+            className="bg-surface-card border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent focus:border-transparent transition-colors"
           >
             <option value="all">All Sources</option>
             <option value="reddit">Reddit</option>
@@ -130,7 +130,7 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="bg-surface-card border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+            className="bg-surface-card border border-border rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-accent focus:border-transparent transition-colors"
           >
             <option value="newest">Newest First</option>
             <option value="price_low">Price: Low to High</option>

@@ -405,7 +405,7 @@ export default function FlaggedListingsTab() {
         {/* Right: Detail Panel */}
         <div className="lg:col-span-1">
           {selectedListing && selectedListingDetails ? (
-            <div className="card p-6 sticky top-8">
+            <div className="card p-6 sticky top-20">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-primary">
                   Listing Details
@@ -508,7 +508,7 @@ export default function FlaggedListingsTab() {
               </div>
             </div>
           ) : (
-            <div className="card p-12 text-center sticky top-8">
+            <div className="card p-12 text-center sticky top-20">
               <p className="text-tertiary">
                 Select a listing to view details
               </p>

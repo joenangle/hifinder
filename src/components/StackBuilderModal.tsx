@@ -574,7 +574,7 @@ export function StackBuilderModal({
                 type="text"
                 value={stackName}
                 onChange={(e) => setStackName(e.target.value)}
-                className="w-full px-3 py-2 border border-border bg-surface-secondary text-primary placeholder-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-border bg-surface-secondary text-primary placeholder-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                 placeholder="e.g., Desktop Listening Setup"
               />
             </div>
@@ -587,7 +587,7 @@ export function StackBuilderModal({
                 value={stackDescription}
                 onChange={(e) => setStackDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-border bg-surface-secondary text-primary placeholder-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-border bg-surface-secondary text-primary placeholder-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                 placeholder="Describe your stack, use cases, or notes..."
               />
             </div>

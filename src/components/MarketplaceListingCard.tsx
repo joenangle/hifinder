@@ -32,21 +32,21 @@ export function MarketplaceListingCard({
   
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'excellent': return 'text-green-800 bg-green-100'
-      case 'very_good': return 'text-blue-800 bg-blue-100'
-      case 'good': return 'text-yellow-900 bg-yellow-100'
-      case 'fair': return 'text-orange-800 bg-orange-100'
-      case 'parts_only': return 'text-red-800 bg-red-100'
+      case 'excellent': return 'text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-900/30'
+      case 'very_good': return 'text-blue-800 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/30'
+      case 'good': return 'text-yellow-900 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/30'
+      case 'fair': return 'text-orange-800 bg-orange-100 dark:text-orange-300 dark:bg-orange-900/30'
+      case 'parts_only': return 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-900/30'
       default: return 'text-secondary bg-surface-secondary'
     }
   }
 
   const getSourceDisplay = (source: string) => {
     const sourceMap: { [key: string]: { name: string; color: string; icon: string } } = {
-      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800 border-orange-200', icon: '🔥' },
-      'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🛒' },
-      'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: '🎧' },
-      'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800 border-green-200', icon: '👂' },
+      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800', icon: '🔥' },
+      'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800', icon: '🛒' },
+      'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800', icon: '🎧' },
+      'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', icon: '👂' },
       'manual': { name: 'Curated', color: 'bg-surface-secondary text-primary border-border', icon: '⭐' }
     }
     return sourceMap[source] || { name: source, color: 'bg-surface-secondary text-primary border-border', icon: '📦' }
@@ -135,7 +135,7 @@ export function MarketplaceListingCard({
           <div className="hidden sm:block w-24 flex-shrink-0">
             {showCondition && (
               <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
-                <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getConditionColor(listing.condition)}`}>
+                <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-medium ${getConditionColor(listing.condition)}`}>
                   {listing.condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
               </Tooltip>
@@ -147,7 +147,7 @@ export function MarketplaceListingCard({
             {listing.is_bundle && (
               <Tooltip content={`Bundle: ${listing.component_count || 2}+ items`}>
                 <span
-                  className="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+                  className="inline-flex items-center justify-center text-[10px] px-1.5 py-0.5 rounded font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800"
                   role="note"
                   aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
                   tabIndex={0}
@@ -173,7 +173,7 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Posted - always visible, responsive sizing */}
-          <div className={`w-12 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 font-medium' : 'text-muted'}`}>
+          <div className={`w-12 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-muted'}`}>
             {timeInfo.text}
           </div>
 
@@ -188,10 +188,10 @@ export function MarketplaceListingCard({
           {/* Deal - hide on small screens */}
           <div className="hidden md:block w-16 flex-shrink-0">
             {priceAnalysis.type !== 'fair' && (
-              <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800' :
-                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800' :
-                'bg-red-100 text-red-800'
+              <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
               }`}>
                 {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
               </span>
@@ -206,7 +206,7 @@ export function MarketplaceListingCard({
           {/* Action - always visible, responsive sizing */}
           <div className="w-10 sm:w-20 flex-shrink-0">
             {listing.url.includes('/sample') ? (
-              <div className="px-1.5 sm:px-3 py-1 bg-surface-secondary text-secondary rounded text-xs text-center cursor-not-allowed">
+              <div className="px-1.5 sm:px-3 py-1 bg-surface-secondary text-secondary rounded-lg text-xs text-center cursor-not-allowed">
                 Demo
               </div>
             ) : (
@@ -214,7 +214,7 @@ export function MarketplaceListingCard({
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 px-1.5 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
+                className="inline-flex items-center justify-center gap-1 px-1.5 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
                 aria-label={`View listing for ${listing.title} (opens in new tab)`}
               >
                 <span className="hidden sm:inline">View</span>
@@ -243,19 +243,19 @@ export function MarketplaceListingCard({
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1 mb-3">
-        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${sourceInfo.color}`}>
+        <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${sourceInfo.color}`}>
           {sourceInfo.name}
         </span>
         {showCondition && (
           <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
-            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getConditionColor(listing.condition)}`}>
+            <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${getConditionColor(listing.condition)}`}>
               Condition: {listing.condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </span>
           </Tooltip>
         )}
         {/* Reverb-specific: Accepts Offers badge */}
         {listing.source === 'reverb' && listing.accepts_offers && (
-          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+          <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
             💬 Offers
           </span>
         )}
@@ -263,7 +263,7 @@ export function MarketplaceListingCard({
         {listing.is_bundle && (
           <Tooltip content={`This listing contains ${listing.component_count || 2}+ items. Price shown is for the bundle.`}>
             <span
-              className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+              className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800"
               role="note"
               aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
               tabIndex={0}
@@ -294,12 +294,12 @@ export function MarketplaceListingCard({
         {/* Row 2: Age + Trades (only if trades > 0) */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1 flex-1">
-            <Clock className={`w-4 h-4 flex-shrink-0 ${timeInfo.urgent ? 'text-orange-500' : ''}`} />
-            <span className={timeInfo.urgent ? 'text-orange-600 font-medium' : ''}>{timeInfo.text}</span>
-            {timeInfo.urgent && <span className="text-xs text-orange-500 ml-1">🔥</span>}
+            <Clock className={`w-4 h-4 flex-shrink-0 ${timeInfo.urgent ? 'text-orange-500 dark:text-orange-400' : ''}`} />
+            <span className={timeInfo.urgent ? 'text-orange-600 dark:text-orange-400 font-medium' : ''}>{timeInfo.text}</span>
+            {timeInfo.urgent && <span className="text-xs text-orange-500 dark:text-orange-400 ml-1">🔥</span>}
           </div>
           {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
-            <div className="flex items-center gap-1 text-green-600 flex-1">
+            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 flex-1">
               <Star className="w-4 h-4 flex-shrink-0" />
               <span>{listing.seller_confirmed_trades} trades</span>
             </div>
@@ -310,9 +310,9 @@ export function MarketplaceListingCard({
       {/* Price Analysis Badge - Consolidated */}
       {priceAnalysis.type !== 'fair' && (
         <div className={`flex flex-wrap items-center gap-1 p-2 rounded text-xs font-medium mb-3 ${
-          priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200' :
-          priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-          priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200' :
+          priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' :
+          priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800' :
+          priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' :
           'bg-surface-secondary text-primary border border-border'
         }`}>
           {priceAnalysis.type === 'great-deal' || priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3.5 h-3.5" /> :
@@ -329,7 +329,7 @@ export function MarketplaceListingCard({
 
       {/* Price Warning */}
       {listing.price_warning && (
-        <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm mb-3">
+        <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-300 text-sm mb-3">
           <AlertTriangle className="w-4 h-4 inline mr-1" />
           <span className="text-xs">{listing.price_warning}</span>
         </div>
@@ -346,7 +346,7 @@ export function MarketplaceListingCard({
             </div>
           )}
           {listing.source === 'reverb' && listing.shipping_cost === 0 && (
-            <div className="text-xs text-green-600 font-medium">
+            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
               Free shipping
             </div>
           )}
@@ -355,7 +355,7 @@ export function MarketplaceListingCard({
 
         <div className="flex flex-row gap-2">
           {listing.url.includes('/sample') ? (
-            <div className="flex-1 px-3 py-2.5 bg-surface-secondary text-secondary rounded-md text-sm text-center cursor-not-allowed min-h-[44px] flex items-center justify-center">
+            <div className="flex-1 px-3 py-2.5 bg-surface-secondary text-secondary rounded-lg text-sm text-center cursor-not-allowed min-h-[44px] flex items-center justify-center">
               Demo Listing
             </div>
           ) : (
@@ -363,7 +363,7 @@ export function MarketplaceListingCard({
               href={listing.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2.5 bg-accent hover:bg-accent-hover text-accent-foreground rounded-md font-medium transition-colors text-sm min-h-[44px]"
+              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2.5 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors text-sm min-h-[44px]"
               aria-label={`View listing for ${listing.title} (opens in new tab)`}
             >
               <span>View Listing</span>
@@ -373,7 +373,7 @@ export function MarketplaceListingCard({
           {onViewDetails && (
             <button
               onClick={onViewDetails}
-              className="flex-1 px-3 py-2.5 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-md font-medium transition-colors text-sm min-h-[44px]"
+              className="flex-1 px-3 py-2.5 bg-surface-secondary hover:bg-surface-hover text-foreground rounded-lg font-medium transition-colors text-sm min-h-[44px]"
             >
               Details
             </button>

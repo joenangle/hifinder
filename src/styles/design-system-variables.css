@@ -226,7 +226,7 @@ body {
 .card {
   background: var(--surface-card);
   border: 1px solid var(--border-default);
-  border-radius: 14px; /* Slightly rounder than 12px */
+  border-radius: var(--radius-xl);
   padding: var(--space-5);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother easing */
   box-shadow: var(--shadow-sm);
