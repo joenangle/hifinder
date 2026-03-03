@@ -612,8 +612,8 @@ function GearContent() {
       />
 
       {/* Filters Section - sticky below header, full width */}
-      <div className="sticky top-[120px] z-20 border-b shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
-        <div style={{maxWidth: '1100px', margin: '0 auto', padding: '16px 24px'}}>
+      <div className="sticky top-[64px] z-20 border-b shadow-sm" style={{backgroundColor: 'var(--background-primary)'}}>
+        <div style={{maxWidth: '1100px', margin: '0 auto', padding: '12px 24px'}}>
           <GearFilters 
             selectedCategory={activeFilters.size === 0 ? 'all' : Array.from(activeFilters)[0]}
             onCategoryChange={(category) => {
@@ -1243,8 +1243,8 @@ function GearContent() {
 
         {/* My Stacks Drop Zone (visible in grid/list views) */}
         {viewMode !== 'stacks' && gear.length > 0 && (
-          <div className="mt-12 pt-8 border-t border-[var(--border-subtle)]">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                 <Layers className="w-5 h-5" />
                 My Stacks {stacks.length > 0 && `(${stacks.length})`}
@@ -1299,7 +1299,7 @@ function GearContent() {
 
               {/* New Stack drop zone */}
               <div
-                className={`p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center min-h-[100px] transition-[border-color,background-color] ${
+                className={`p-3 rounded-lg border-2 border-dashed flex flex-col items-center justify-center min-h-[72px] transition-[border-color,background-color] ${
                   dragOverStack === '__new__'
                     ? 'border-accent ring-2 ring-accent bg-accent/10'
                     : draggedGear

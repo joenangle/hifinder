@@ -25,9 +25,6 @@ export function GearPageHeader({ stats }: GearPageHeaderProps) {
     <div
       style={{
         borderBottom: '1px solid var(--border-subtle)',
-        position: 'sticky',
-        top: '64px',
-        zIndex: 10,
         background: 'var(--background-primary)',
       }}
     >
