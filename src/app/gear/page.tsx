@@ -641,7 +641,7 @@ function GearContent() {
       </div>
 
       {/* Main Content Area */}
-      <div className="relative" style={{maxWidth: '1100px', margin: '0 auto', paddingLeft: '24px', paddingRight: '24px'}}>
+      <div className="relative pb-16" style={{maxWidth: '1100px', margin: '0 auto', paddingLeft: '24px', paddingRight: '24px'}}>
         {/* Content Area - with padding from divider */}
         <div className="pt-6 relative">
         {/* Gear Display - Grid/List/Stacks */}
