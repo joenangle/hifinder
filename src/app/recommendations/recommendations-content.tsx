@@ -508,16 +508,18 @@ export function RecommendationsContent() {
 
     } catch (error) {
       console.error('Recommendations API error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations'
-      setError(`Unable to load recommendations: ${errorMessage}`)
-
-      // Fallback to empty state
-      setCans([])
-      setIems([])
-      setDacs([])
-      setAmps([])
-      setDacAmps([])
-      setShowAmplification(false)
+      // Only show error and clear results on foreground fetches — background
+      // re-fetches should silently fail and keep existing results visible
+      if (!background) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load recommendations'
+        setError(`Unable to load recommendations: ${errorMessage}`)
+        setCans([])
+        setIems([])
+        setDacs([])
+        setAmps([])
+        setDacAmps([])
+        setShowAmplification(false)
+      }
     } finally {
       if (!background) setLoading(false)
     }
@@ -1209,8 +1211,8 @@ export function RecommendationsContent() {
           />
         )}
 
-        {/* System Overview — visible from Stage 2+ */}
-        {stage >= 2 && (
+        {/* System Overview — visible once user has a selection (Stage 1+) */}
+        {stage >= 1 && (
         <div className="animate-fadeIn">
           <SelectedSystemSummary
             selectedHeadphones={selectedHeadphoneItems}
