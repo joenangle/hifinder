@@ -6,6 +6,18 @@ import { OverflowMenu } from '@/components/ui/OverflowMenu'
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
 type ViewMode = 'grid' | 'list' | 'stacks'
 
+const PILL_BASE = 'inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-xs border transition-[color,background-color,border-color] duration-150 cursor-pointer select-none'
+const PILL_INACTIVE = 'font-medium text-secondary bg-primary hover:border-subtle hover:text-primary'
+
+const CATEGORY_ACTIVE: Record<string, string> = {
+  all: 'border-accent text-accent bg-primary font-semibold',
+  headphones: 'border-violet-400 text-violet-700 bg-primary dark:text-violet-300 dark:border-violet-500 font-semibold',
+  iems: 'border-indigo-400 text-indigo-700 bg-primary dark:text-indigo-300 dark:border-indigo-500 font-semibold',
+  dacs: 'border-teal-400 text-teal-700 bg-primary dark:text-teal-300 dark:border-teal-500 font-semibold',
+  amps: 'border-amber-500 text-amber-700 bg-primary dark:text-amber-300 dark:border-amber-500 font-semibold',
+  combo: 'border-blue-400 text-blue-700 bg-primary dark:text-blue-300 dark:border-blue-500 font-semibold',
+}
+
 interface GearFiltersProps {
   selectedCategory: CategoryFilter
   onCategoryChange: (category: CategoryFilter) => void
@@ -37,19 +49,16 @@ export function GearFilters({
   return (
     <div className="flex items-center justify-between px-4 sm:px-0">
         {/* Left: Filter Pills including All Gear */}
-        <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 flex-1 min-h-[2.5rem]">
+        <div className="flex flex-wrap lg:flex-nowrap items-center gap-1.5 flex-1 min-h-[2.5rem]">
           {/* All Gear Pill */}
           <button
             onClick={() => onCategoryChange('all')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-            style={{
-              backgroundColor: selectedCategory === 'all' ? 'var(--accent-primary)' : 'var(--surface-hover)',
-              color: selectedCategory === 'all' ? 'white' : 'var(--text-secondary)',
-            }}
+            aria-pressed={selectedCategory === 'all'}
+            className={`${PILL_BASE} ${selectedCategory === 'all' ? CATEGORY_ACTIVE.all : PILL_INACTIVE}`}
           >
-            <span>All Gear</span>
+            All Gear
             {categoryCounts.all > 0 && (
-              <span className="ml-1 opacity-70">
+              <span className={`text-[10px] tabular-nums ${selectedCategory === 'all' ? 'opacity-80' : 'text-tertiary'}`}>
                 {categoryCounts.all}
               </span>
             )}
@@ -58,21 +67,19 @@ export function GearFilters({
           {filterCategories.map((category) => {
             const IconComponent = category.icon
             const count = categoryCounts[category.id] || 0
+            const isActive = selectedCategory === category.id
 
             return (
               <button
                 key={category.id}
                 onClick={() => onCategoryChange(category.id)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor: selectedCategory === category.id ? 'var(--accent-primary)' : 'var(--surface-hover)',
-                  color: selectedCategory === category.id ? 'white' : 'var(--text-secondary)'
-                }}
+                aria-pressed={isActive}
+                className={`${PILL_BASE} ${isActive ? CATEGORY_ACTIVE[category.id] : PILL_INACTIVE}`}
               >
                 {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
-                <span>{category.label}</span>
+                {category.label}
                 {count > 0 && (
-                  <span className="ml-1 opacity-70">
+                  <span className={`text-[10px] tabular-nums ${isActive ? 'opacity-80' : 'text-tertiary'}`}>
                     {count}
                   </span>
                 )}
