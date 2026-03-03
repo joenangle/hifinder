@@ -17,6 +17,7 @@ interface FilterCounts {
 }
 
 interface FiltersSectionProps {
+  stage?: 1 | 2
   typeFilters: string[]
   soundFilters: string[]
   wantRecommendationsFor: {
@@ -108,6 +109,7 @@ const EQUIP_ACTIVE: Record<string, string> = {
 }
 
 const FiltersSectionComponent = ({
+  stage = 2,
   typeFilters,
   soundFilters,
   wantRecommendationsFor,
@@ -140,7 +142,7 @@ const FiltersSectionComponent = ({
     <div className="mb-4 px-4 py-3 rounded-xl border bg-secondary">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
 
-        {/* Equipment group */}
+        {/* Type group (headphones / IEMs) */}
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
             Type
@@ -163,33 +165,37 @@ const FiltersSectionComponent = ({
             showTooltip={guidedModeEnabled}
             activeClass={EQUIP_ACTIVE.iems}
           />
-          <Pill
-            active={wantRecommendationsFor.dac}
-            onClick={() => onEquipmentToggle('dac')}
-            label="DACs"
-            count={filterCounts?.equipment.dacs}
-            tooltip={FILTER_TOOLTIPS.equipment.dacs.description}
-            showTooltip={guidedModeEnabled}
-            activeClass={EQUIP_ACTIVE.dac}
-          />
-          <Pill
-            active={wantRecommendationsFor.amp}
-            onClick={() => onEquipmentToggle('amp')}
-            label="Amps"
-            count={filterCounts?.equipment.amps}
-            tooltip={FILTER_TOOLTIPS.equipment.amps.description}
-            showTooltip={guidedModeEnabled}
-            activeClass={EQUIP_ACTIVE.amp}
-          />
-          <Pill
-            active={wantRecommendationsFor.combo}
-            onClick={() => onEquipmentToggle('combo')}
-            label="Combos"
-            count={filterCounts?.equipment.combos}
-            tooltip={FILTER_TOOLTIPS.equipment.combos.description}
-            showTooltip={guidedModeEnabled}
-            activeClass={EQUIP_ACTIVE.combo}
-          />
+          {stage >= 2 && (
+            <>
+              <Pill
+                active={wantRecommendationsFor.dac}
+                onClick={() => onEquipmentToggle('dac')}
+                label="DACs"
+                count={filterCounts?.equipment.dacs}
+                tooltip={FILTER_TOOLTIPS.equipment.dacs.description}
+                showTooltip={guidedModeEnabled}
+                activeClass={EQUIP_ACTIVE.dac}
+              />
+              <Pill
+                active={wantRecommendationsFor.amp}
+                onClick={() => onEquipmentToggle('amp')}
+                label="Amps"
+                count={filterCounts?.equipment.amps}
+                tooltip={FILTER_TOOLTIPS.equipment.amps.description}
+                showTooltip={guidedModeEnabled}
+                activeClass={EQUIP_ACTIVE.amp}
+              />
+              <Pill
+                active={wantRecommendationsFor.combo}
+                onClick={() => onEquipmentToggle('combo')}
+                label="Combos"
+                count={filterCounts?.equipment.combos}
+                tooltip={FILTER_TOOLTIPS.equipment.combos.description}
+                showTooltip={guidedModeEnabled}
+                activeClass={EQUIP_ACTIVE.combo}
+              />
+            </>
+          )}
         </div>
 
         {/* Divider */}
@@ -233,8 +239,8 @@ const FiltersSectionComponent = ({
         </div>
       </div>
 
-      {/* Budget allocation — below the filter row if active */}
-      {totalBudget && onBudgetAllocationChange && (
+      {/* Budget allocation — below the filter row if active (stage 2 only) */}
+      {stage >= 2 && totalBudget && onBudgetAllocationChange && (
         <div className="mt-3 pt-3 border-t">
           <BudgetAllocationControls
             totalBudget={totalBudget}

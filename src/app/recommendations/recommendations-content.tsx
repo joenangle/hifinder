@@ -9,20 +9,18 @@ import { BudgetSlider } from '@/components/BudgetSlider'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Tooltip } from '@/components/Tooltip'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
+import { useDisclosureStage } from '@/hooks/useDisclosureStage'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 import { HeadphoneCard } from '@/components/recommendations/HeadphoneCard'
 import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
-import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
+import { BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { X } from 'lucide-react'
 import { BatchPriceHistoryProvider } from '@/components/BatchPriceHistoryProvider'
 
 // Lazy load components only shown on user interaction for better code splitting
-const WelcomeBanner = dynamic(() => import('@/components/WelcomeBanner').then(mod => ({ default: mod.WelcomeBanner })), {
-  ssr: false
-})
 const StackBuilderModal = dynamic(() => import('@/components/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
   ssr: false
 })
@@ -67,14 +65,9 @@ interface AudioComponent extends Component {
 }
 
 export function RecommendationsContent() {
-  // Guided mode for first-time users
+  // Guided mode for tooltips
   const {
-    isFirstVisit,
-    showWelcome,
     guidedModeEnabled,
-    isLoaded: guidedModeLoaded,
-    dismissWelcome,
-    enableGuidedMode,
     toggleGuidedMode
   } = useGuidedMode()
 
@@ -146,6 +139,11 @@ export function RecommendationsContent() {
 
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Progressive disclosure — stage derived from selections + URL params
+  const { stage, advancedMode, setAdvancedMode, resetAdvancedMode } = useDisclosureStage({
+    selectedCans, selectedIems, selectedDacs, selectedAmps, selectedDacAmps, searchParams
+  })
 
   // Budget-focused flow detection (simplified preferences)
   const isBudgetFocused = searchParams.get('source') === 'quick-start' || (
@@ -1134,50 +1132,76 @@ export function RecommendationsContent() {
 
       <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-6 ${comparisonItems.length > 0 ? 'pb-28' : ''}`} style={{ width: '95%', maxWidth: '1400px' }}>
 
-       {/* Welcome banner for first-time visitors */}
-       {showWelcome && (
-         <WelcomeBanner
-           onDismiss={dismissWelcome}
-           onPickSound={() => {
-             setIsMultiSelectMode(true)
-             const soundEl = document.querySelector('[data-sound-filters]')
-             soundEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-           }}
-         />
+       {/* Slim welcome line at Stage 0 — replaced WelcomeBanner */}
+       {stage === 0 && (
+         <div className="flex items-center justify-between mb-4">
+           <p className="text-sm text-secondary">
+             Set your budget and pick a pair of headphones to get started.
+           </p>
+           <button
+             onClick={() => setAdvancedMode(true)}
+             className="text-xs text-accent hover:text-accent-secondary transition-colors whitespace-nowrap ml-4"
+           >
+             More options
+           </button>
+         </div>
        )}
 
-       {/* Compact Filters (includes budget allocation controls) */}
-        <FiltersSection
-          typeFilters={typeFilters}
-          soundFilters={soundFilters}
-          wantRecommendationsFor={wantRecommendationsFor}
-          guidedModeEnabled={guidedModeEnabled}
-          filterCounts={filterCounts || undefined}
-          resultCounts={{
-            cans: cans.length,
-            iems: iems.length,
-            dacs: dacs.length,
-            amps: amps.length,
-            combos: dacAmps.length
-          }}
-          onTypeFilterChange={handleTypeFilterChange}
-          onEquipmentToggle={handleEquipmentToggle}
-          onSoundFilterChange={handleSoundFilterChange}
-          expandAllExperts={expandAllExperts}
-          onToggleExpandExperts={isFirstVisit && showWelcome ? undefined : () => setExpandAllExperts(!expandAllExperts)}
-          onToggleGuidedMode={toggleGuidedMode}
-          isMultiSelectMode={isMultiSelectMode}
-          onToggleMultiSelect={handleToggleMultiSelect}
-          totalBudget={isFirstVisit && showWelcome ? undefined : debouncedBudget}
-          budgetAllocation={customBudgetAllocation}
-          autoBudgetAllocation={autoBudgetAllocation}
-          onBudgetAllocationChange={isFirstVisit && showWelcome ? undefined : handleBudgetAllocationChange}
-          budgetRangeMin={userPrefs.budgetRangeMin}
-          budgetRangeMax={userPrefs.budgetRangeMax}
-        />
+       {/* Compact Filters — visible from Stage 1+ */}
+       {stage >= 1 && (
+        <div className="animate-fadeIn">
+          <div className="flex items-center justify-between mb-1">
+            {stage < 2 && (
+              <button
+                onClick={() => setAdvancedMode(true)}
+                className="ml-auto text-xs text-accent hover:text-accent-secondary transition-colors"
+              >
+                More options
+              </button>
+            )}
+            {advancedMode && (
+              <button
+                onClick={() => resetAdvancedMode()}
+                className="ml-auto text-xs text-tertiary hover:text-primary transition-colors"
+              >
+                Simplify view
+              </button>
+            )}
+          </div>
+          <FiltersSection
+            stage={stage as 1 | 2}
+            typeFilters={typeFilters}
+            soundFilters={soundFilters}
+            wantRecommendationsFor={wantRecommendationsFor}
+            guidedModeEnabled={guidedModeEnabled}
+            filterCounts={filterCounts || undefined}
+            resultCounts={{
+              cans: cans.length,
+              iems: iems.length,
+              dacs: dacs.length,
+              amps: amps.length,
+              combos: dacAmps.length
+            }}
+            onTypeFilterChange={handleTypeFilterChange}
+            onEquipmentToggle={handleEquipmentToggle}
+            onSoundFilterChange={handleSoundFilterChange}
+            expandAllExperts={expandAllExperts}
+            onToggleExpandExperts={() => setExpandAllExperts(!expandAllExperts)}
+            onToggleGuidedMode={toggleGuidedMode}
+            isMultiSelectMode={isMultiSelectMode}
+            onToggleMultiSelect={handleToggleMultiSelect}
+            totalBudget={debouncedBudget}
+            budgetAllocation={customBudgetAllocation}
+            autoBudgetAllocation={autoBudgetAllocation}
+            onBudgetAllocationChange={handleBudgetAllocationChange}
+            budgetRangeMin={userPrefs.budgetRangeMin}
+            budgetRangeMax={userPrefs.budgetRangeMax}
+          />
+        </div>
+       )}
 
-        {/* Amplification Warning Banner for Beginners/Intermediates */}
-        {amplificationNeeds?.shouldShowWarning && (
+        {/* Amplification Warning Banner — visible from Stage 1+ */}
+        {stage >= 1 && amplificationNeeds?.shouldShowWarning && (
           <AmplificationWarningBanner
             selectedNeedAmp={amplificationNeeds.selectedNeedAmp}
             onAddAmplification={handleAddAmplification}
@@ -1185,33 +1209,37 @@ export function RecommendationsContent() {
           />
         )}
 
-        {/* System Overview */}
-        <SelectedSystemSummary
-          selectedHeadphones={selectedHeadphoneItems}
-          selectedDacs={selectedDacItems}
-          selectedAmps={selectedAmpItems}
-          selectedCombos={selectedDacAmpItems}
-          ownedHeadphones={ownedHeadphones}
-          ownedDacs={ownedDacs}
-          ownedAmps={ownedAmps}
-          ownedCombos={ownedCombos}
-          budget={budget}
-          remainingBudget={userPrefs.budget - totalSelectedPrice}
-          isStackComplete={isStackComplete}
-          onBuildStack={() => setShowStackBuilder(true)}
-          onShowMarketplace={() => setShowMarketplace(true)}
-          onAddOwnedGear={() => setShowOwnedGearModal(true)}
-          onRemoveOwnedGear={removeOwnedGear}
-          onRemoveItem={removeFromSelection}
-          onClearAll={() => {
-            setSelectedCans(new Map())
-            setSelectedIems(new Map())
-            setSelectedDacs(new Map())
-            setSelectedAmps(new Map())
-            setSelectedDacAmps(new Map())
-            setOwnedGear(new Map())
-          }}
-        />
+        {/* System Overview — visible from Stage 2+ */}
+        {stage >= 2 && (
+        <div className="animate-fadeIn">
+          <SelectedSystemSummary
+            selectedHeadphones={selectedHeadphoneItems}
+            selectedDacs={selectedDacItems}
+            selectedAmps={selectedAmpItems}
+            selectedCombos={selectedDacAmpItems}
+            ownedHeadphones={ownedHeadphones}
+            ownedDacs={ownedDacs}
+            ownedAmps={ownedAmps}
+            ownedCombos={ownedCombos}
+            budget={budget}
+            remainingBudget={userPrefs.budget - totalSelectedPrice}
+            isStackComplete={isStackComplete}
+            onBuildStack={() => setShowStackBuilder(true)}
+            onShowMarketplace={() => setShowMarketplace(true)}
+            onAddOwnedGear={() => setShowOwnedGearModal(true)}
+            onRemoveOwnedGear={removeOwnedGear}
+            onRemoveItem={removeFromSelection}
+            onClearAll={() => {
+              setSelectedCans(new Map())
+              setSelectedIems(new Map())
+              setSelectedDacs(new Map())
+              setSelectedAmps(new Map())
+              setSelectedDacAmps(new Map())
+              setOwnedGear(new Map())
+            }}
+          />
+        </div>
+        )}
 
         {/* Error Display */}
         {error && (
