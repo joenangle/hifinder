@@ -191,6 +191,14 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             exit={{ opacity: 0, scale: 0.97, y: 5 }}
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
           >
+            {/* Sticky close button — always visible even when scrolled */}
+            <button
+              onClick={onClose}
+              className="sticky top-2 float-right mr-2 mt-2 z-10 p-1.5 bg-primary/80 hover:bg-secondary backdrop-blur-sm border rounded-full transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-4 h-4 text-secondary" />
+            </button>
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b">
           <div>
