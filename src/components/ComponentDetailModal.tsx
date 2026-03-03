@@ -172,6 +172,7 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/50 backdrop-blur-[8px]"
+            onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
