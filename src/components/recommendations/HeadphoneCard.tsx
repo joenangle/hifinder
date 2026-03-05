@@ -1,6 +1,8 @@
 'use client'
 
 import { memo } from 'react'
+import Image from 'next/image'
+import { Headphones, Ear } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
@@ -11,6 +13,7 @@ interface AudioComponent {
   brand: string
   name: string
   category: string
+  image_url?: string | null
   price_new: number | null
   price_used_min: number | null
   price_used_max: number | null
@@ -140,9 +143,26 @@ const HeadphoneCardComponent = ({
           </div>
         )}
 
-        {/* Row 1: Name + price (pr-10 clears the selection button) */}
+        {/* Row 1: Image + Name + price (pr-10 clears the selection button) */}
         <div className="flex items-start justify-between gap-3 mb-2 pr-10">
-          <div className="min-w-0">
+          <div className="flex items-start gap-3 min-w-0">
+            {/* Product thumbnail */}
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden">
+              {headphone.image_url ? (
+                <Image
+                  src={headphone.image_url}
+                  alt={`${headphone.brand} ${headphone.name}`}
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              ) : isCans ? (
+                <Headphones className="w-5 h-5 text-tertiary" />
+              ) : (
+                <Ear className="w-5 h-5 text-tertiary" />
+              )}
+            </div>
+            <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3 className="font-semibold text-base text-primary leading-snug">
                 <span className="font-normal text-secondary">{headphone.brand} </span>
@@ -163,6 +183,7 @@ const HeadphoneCardComponent = ({
                 </svg>
               </a>
             )}
+          </div>
           </div>
         </div>
 

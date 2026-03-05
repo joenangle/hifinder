@@ -1,16 +1,21 @@
 'use client'
 
 import { memo } from 'react'
+import Image from 'next/image'
+import { Cable, Disc3, Combine } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
+
+const TYPE_ICON = { dac: Disc3, amp: Cable, combo: Combine } as const
 
 interface AudioComponent {
   id: string
   brand: string
   name: string
   category: string
+  image_url?: string | null
   price_new: number | null
   price_used_min: number | null
   price_used_max: number | null
@@ -120,9 +125,26 @@ const SignalGearCardComponent = ({
             </svg>
           )}
         </button>
-      {/* Row 1: Type label + name + price (pr-10 clears the selection button) */}
+      {/* Row 1: Type label + image + name + price (pr-10 clears the selection button) */}
       <div className="flex items-start justify-between gap-3 mb-2 pr-10">
-        <div className="min-w-0">
+        <div className="flex items-start gap-3 min-w-0">
+          {/* Product thumbnail */}
+          {(() => { const Icon = TYPE_ICON[type]; return (
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden">
+              {component.image_url ? (
+                <Image
+                  src={component.image_url}
+                  alt={`${component.brand} ${component.name}`}
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              ) : (
+                <Icon className="w-5 h-5 text-tertiary" />
+              )}
+            </div>
+          ); })()}
+          <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-tertiary">
               {TYPE_LABEL[type]}
@@ -148,6 +170,7 @@ const SignalGearCardComponent = ({
                 </svg>
               </a>
             )}
+          </div>
           </div>
         </div>
 

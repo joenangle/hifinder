@@ -1,7 +1,8 @@
 'use client'
 
 import { Component } from '@/types'
-import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
+import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink, Headphones } from 'lucide-react'
 import { StarRating } from './StarRating'
 import { AmplificationBadge } from './AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
@@ -200,8 +201,22 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               <X className="w-4 h-4 text-secondary" />
             </button>
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b">
-          <div>
+        <div className="flex items-start gap-4 p-6 border-b">
+          {/* Product image */}
+          <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
+            {component.image_url ? (
+              <Image
+                src={component.image_url}
+                alt={`${component.brand} ${component.name}`}
+                width={80}
+                height={80}
+                className="object-contain"
+              />
+            ) : (
+              <Headphones className="w-8 h-8 text-tertiary" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
             <h2 className="text-xl font-bold text-primary">
               {component.brand} {component.name}
             </h2>
@@ -209,13 +224,6 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               {component.category.charAt(0).toUpperCase() + component.category.slice(1)}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-secondary rounded-md transition-colors"
-            aria-label="Close modal"
-          >
-            <X className="w-5 h-5 text-secondary" />
-          </button>
         </div>
 
         {/* Content */}

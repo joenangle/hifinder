@@ -32,6 +32,7 @@ export interface Component {
   // Technical specification fields
   driver_type?: string | null;
   fit?: string | null;
+  image_url?: string | null;
   manufacturer_url?: string | null;
   source?: string | null;
   amazon_url: string | null;
