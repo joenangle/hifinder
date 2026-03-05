@@ -116,7 +116,7 @@ export function FeatureCards() {
 
               <h3
                 className="font-semibold mb-2"
-                style={{ fontSize: '1.0625rem', color: 'var(--text-primary)', lineHeight: 1.3 }}
+                style={{ fontSize: '1.0625rem', color: 'var(--text-primary)', lineHeight: 1.3, fontFamily: 'var(--font-display)' }}
               >
                 {f.title}
               </h3>

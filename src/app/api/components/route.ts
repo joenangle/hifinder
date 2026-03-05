@@ -11,9 +11,26 @@ export async function GET(request: NextRequest) {
     const headphone_type = searchParams.get('headphone_type')
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined
 
+    const ids = searchParams.get('ids')
     const brand = searchParams.get('brand')
     const brands_only = searchParams.get('brands_only') === 'true'
     const models_only = searchParams.get('models_only') === 'true'
+
+    // Fetch specific components by IDs (used by curated systems + share URLs)
+    if (ids) {
+      const idArray = ids.split(',').filter(Boolean)
+      const { data, error } = await supabaseServer
+        .from('components')
+        .select('*')
+        .in('id', idArray)
+
+      if (error) {
+        console.error('Database error:', error)
+        return NextResponse.json({ error: 'Database error' }, { status: 500 })
+      }
+
+      return NextResponse.json(data || [])
+    }
 
     if (brands_only) {
       let brandsQuery = supabaseServer

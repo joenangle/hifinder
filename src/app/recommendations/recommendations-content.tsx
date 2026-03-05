@@ -607,6 +607,46 @@ export function RecommendationsContent() {
     }
   }, [fetchRecommendations]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pre-load components from ?components= URL param (curated systems + share URLs)
+  const hasPreloaded = React.useRef(false)
+  useEffect(() => {
+    if (hasPreloaded.current) return
+    const componentsParam = searchParams.get('components')
+    if (!componentsParam) return
+    hasPreloaded.current = true
+
+    const ids = componentsParam.split(',').filter(Boolean)
+    if (ids.length === 0) return
+
+    fetch(`/api/components?ids=${ids.join(',')}`)
+      .then(res => res.json())
+      .then((data: AudioComponent[]) => {
+        if (!Array.isArray(data)) return
+        for (const c of data) {
+          // Ensure avgPrice exists (AudioComponent requires it)
+          const component = { ...c, avgPrice: c.avgPrice ?? c.price_new ?? 0 } as AudioComponent
+          switch (c.category) {
+            case 'cans':
+              setSelectedCans(prev => new Map(prev).set(c.id, component))
+              break
+            case 'iems':
+              setSelectedIems(prev => new Map(prev).set(c.id, component))
+              break
+            case 'dac':
+              setSelectedDacs(prev => new Map(prev).set(c.id, component))
+              break
+            case 'amp':
+              setSelectedAmps(prev => new Map(prev).set(c.id, component))
+              break
+            case 'dac_amp':
+              setSelectedDacAmps(prev => new Map(prev).set(c.id, component))
+              break
+          }
+        }
+      })
+      .catch(err => console.error('Failed to pre-load components:', err))
+  }, [searchParams])
+
   // Fetch filter counts when budget changes
   useEffect(() => {
     fetchFilterCounts()

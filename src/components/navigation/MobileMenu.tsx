@@ -11,7 +11,6 @@ const publicNavItems = [
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
-  { href: '/learn', label: 'Learn' },
 ]
 
 const authNavItems = [
@@ -21,7 +20,6 @@ const authNavItems = [
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/about', label: 'About' },
-  { href: '/learn', label: 'Learn' },
 ]
 
 interface MobileMenuProps {

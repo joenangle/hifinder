@@ -6,6 +6,7 @@ import { TrackableLink } from './landing/TrackableLink'
 import { FeatureCards } from './landing/FeatureCards'
 import { FloatingBar } from './landing/FloatingBar'
 import { ScrollToButton } from './landing/ScrollToButton'
+import { CuratedSystems } from './landing/CuratedSystems'
 
 async function getStats() {
   try {
@@ -118,12 +119,7 @@ export async function LandingPage() {
               >
                 Listen better.
                 <br />
-                <span
-                  style={{
-                    WebkitTextStroke: '2px var(--text-primary)',
-                    color: 'transparent',
-                  }}
-                >
+                <span style={{ color: 'var(--text-tertiary)' }}>
                   Spend smarter.
                 </span>
               </h1>
@@ -313,6 +309,11 @@ export async function LandingPage() {
       </Suspense>
 
       {/* ─────────────────────────────────────────
+          CURATED SYSTEMS — popular system showcase
+      ───────────────────────────────────────── */}
+      <CuratedSystems />
+
+      {/* ─────────────────────────────────────────
           HOW IT WORKS — 3-step inline row
       ───────────────────────────────────────── */}
       <section
@@ -377,7 +378,7 @@ export async function LandingPage() {
                 </span>
                 <h3
                   className="font-semibold mb-2"
-                  style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.3 }}
+                  style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.3, fontFamily: 'var(--font-display)' }}
                 >
                   {s.title}
                 </h3>
