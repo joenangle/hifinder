@@ -40,7 +40,11 @@
     "// Price trend analysis scripts": "",
     "analyze:prices": "node scripts/analyze-price-trends.js --months=6",
     "analyze:prices:dry-run": "node scripts/analyze-price-trends.js --dry-run --months=3",
-    "analyze:prices:full": "node scripts/analyze-price-trends.js --months=12"
+    "analyze:prices:full": "node scripts/analyze-price-trends.js --months=12",
+    "// Database scripts": "",
+    "db": "node scripts/run-sql.js",
+    "db:types": "supabase gen types --linked --lang=typescript > src/types/supabase.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@react-email/components": "^1.0.8",
@@ -74,6 +78,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "msw": "^2.12.10",
     "tailwindcss": "^4",

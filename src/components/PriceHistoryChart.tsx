@@ -12,6 +12,7 @@ interface Sale {
   date_sold: string
   source: string
   url: string
+  is_estimated?: boolean
 }
 
 interface PriceStats {
@@ -70,7 +71,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
   const sale = payload[0].payload
   return (
     <div className="bg-surface-elevated border border-border rounded-lg p-3 shadow-lg text-sm">
-      <div className="font-semibold text-foreground">{formatPrice(sale.price)}</div>
+      <div className="font-semibold text-foreground">{formatPrice(sale.price)}{sale.is_estimated && <span className="text-muted font-normal ml-1">(est.)</span>}</div>
       <div className="text-muted">
         {new Date(sale.date_sold).toLocaleDateString('en-US', {
           month: 'short', day: 'numeric', year: 'numeric'
@@ -136,20 +137,22 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
     )
   }
 
-  const chartData = data.sales.map(s => ({
+  const allChartData = data.sales.map(s => ({
     ...s,
     timestamp: new Date(s.date_sold).getTime(),
   }))
+  const confirmedData = allChartData.filter(d => !d.is_estimated)
+  const estimatedData = allChartData.filter(d => d.is_estimated)
 
   const stats = data.statistics!
-  const minDate = Math.min(...chartData.map(d => d.timestamp))
-  const maxDate = Math.max(...chartData.map(d => d.timestamp))
+  const minDate = Math.min(...allChartData.map(d => d.timestamp))
+  const maxDate = Math.max(...allChartData.map(d => d.timestamp))
   const priceMin = Math.floor(stats.min * 0.85)
   const priceMax = Math.ceil((priceNew && priceNew > stats.max ? priceNew : stats.max) * 1.1)
 
   // Generate tick values for X axis
   const ticks: number[] = []
-  const tickCount = Math.min(5, chartData.length)
+  const tickCount = Math.min(5, allChartData.length)
   for (let i = 0; i < tickCount; i++) {
     ticks.push(minDate + (maxDate - minDate) * (i / (tickCount - 1 || 1)))
   }
@@ -222,7 +225,7 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
               }}
             />
             <Scatter
-              data={chartData}
+              data={confirmedData}
               fill="#f59e0b"
               shape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
                 const { cx, cy, payload } = props
@@ -231,6 +234,18 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
                 return <circle cx={cx} cy={cy} r={5} fill={color} fillOpacity={0.8} stroke={color} strokeWidth={1} />
               }}
             />
+            {estimatedData.length > 0 && (
+              <Scatter
+                data={estimatedData}
+                fill="none"
+                shape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
+                  const { cx, cy, payload } = props
+                  if (!cx || !cy || !payload) return null
+                  const color = CONDITION_COLORS[payload.condition] || '#f59e0b'
+                  return <circle cx={cx} cy={cy} r={5} fill="none" fillOpacity={0.4} stroke={color} strokeWidth={1.5} strokeDasharray="3 2" />
+                }}
+              />
+            )}
           </ScatterChart>
         </ResponsiveContainer>
       </div>
@@ -239,7 +254,12 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
       <div className="grid grid-cols-4 gap-2 text-center">
         <div className="p-2 bg-surface-secondary rounded">
           <div className="text-xs text-muted">Sales</div>
-          <div className="text-sm font-semibold text-foreground">{stats.count}</div>
+          <div className="text-sm font-semibold text-foreground">
+            {confirmedData.length}
+            {estimatedData.length > 0 && (
+              <span className="text-muted font-normal text-xs"> +{estimatedData.length} est.</span>
+            )}
+          </div>
         </div>
         <div className="p-2 bg-surface-secondary rounded">
           <div className="text-xs text-muted">Low</div>
@@ -263,6 +283,10 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
             <span className="capitalize">{condition.replace('_', ' ')}</span>
           </div>
         ))}
+        <div className="flex items-center gap-1">
+          <span className="inline-block w-2 h-2 rounded-full border border-muted" style={{ backgroundColor: 'transparent' }} />
+          <span>Estimated</span>
+        </div>
       </div>
     </div>
   )

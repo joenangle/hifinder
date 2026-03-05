@@ -24,7 +24,7 @@ export async function GET(
     // Query sold listings
     const { data: sales, error } = await supabaseServer
       .from('used_listings')
-      .select('price, sale_price, condition, date_sold, source, url')
+      .select('price, sale_price, condition, date_sold, source, url, price_is_estimated')
       .eq('component_id', resolvedParams.id)
       .eq('status', 'sold')
       .gte('date_sold', dateThreshold)
@@ -71,7 +71,8 @@ export async function GET(
         condition: s.condition,
         date_sold: s.date_sold,
         source: s.source,
-        url: s.url
+        url: s.url,
+        is_estimated: s.price_is_estimated || false,
       }))
     }, {
       headers: { 'Cache-Control': 'public, max-age=86400, stale-while-revalidate=172800' }

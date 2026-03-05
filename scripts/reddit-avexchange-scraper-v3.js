@@ -277,6 +277,41 @@ function isSoldPost(postData) {
 }
 
 /**
+ * Extract the actual sold price from post body text.
+ * Returns { price, isEstimated } — if no explicit sold price found,
+ * falls back to askingPrice with isEstimated=true.
+ */
+function extractSoldPrice(selftext, askingPrice) {
+  if (!selftext || !askingPrice) {
+    return { price: askingPrice || null, isEstimated: true };
+  }
+
+  const text = selftext.toLowerCase();
+
+  // Patterns for explicit sold prices (order: most specific first)
+  const patterns = [
+    /sold\s+(?:to\s+\/?u\/\S+\s+)?for\s+\$(\d{1,5}(?:,\d{3})*)/i,
+    /sold\s+at\s+\$(\d{1,5}(?:,\d{3})*)/i,
+    /accepted\s+\$(\d{1,5}(?:,\d{3})*)/i,
+    /sold\s+\$(\d{1,5}(?:,\d{3})*)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const extracted = parseInt(match[1].replace(/,/g, ''), 10);
+      // Validate: must be 50%-120% of asking price
+      if (extracted >= askingPrice * 0.5 && extracted <= askingPrice * 1.2) {
+        return { price: extracted, isEstimated: false };
+      }
+    }
+  }
+
+  // No explicit sold price found — use asking price as estimate
+  return { price: askingPrice, isEstimated: true };
+}
+
+/**
  * Check if a price on a text line appears to be an MSRP/retail reference, not an asking price.
  * @param {string} line - The text line containing the price
  * @returns {boolean} - true if this appears to be an MSRP/retail price
@@ -562,7 +597,16 @@ function transformRedditPost(postData, matchResult) {
     seller_username: postData.author,
     condition: 'good',
     status: soldStatus ? 'sold' : 'available',
-    date_sold: soldStatus ? new Date(postData.created_utc * 1000).toISOString() : null,
+    ...(soldStatus ? (() => {
+      const { price: salePrice, isEstimated } = extractSoldPrice(
+        postData.selftext, price
+      );
+      return {
+        sale_price: salePrice,
+        date_sold: new Date(postData.created_utc * 1000).toISOString(),
+        price_is_estimated: isEstimated,
+      };
+    })() : { date_sold: null }),
     images: extractImages(postData),
     seller_confirmed_trades: null,
     price_warning: price ? null : 'Price not found in title',
@@ -617,7 +661,7 @@ async function scrapeReddit() {
     console.log('📦 Loading existing listing URLs...');
     const { data: existingRows, error: existingErr } = await supabase
       .from('used_listings')
-      .select('id, url, status')
+      .select('id, url, status, price, component_id')
       .eq('source', 'reddit_avexchange');
 
     // Map: url -> array of { id, status }
@@ -627,7 +671,7 @@ async function scrapeReddit() {
         if (!existingByUrl.has(row.url)) {
           existingByUrl.set(row.url, []);
         }
-        existingByUrl.get(row.url).push({ id: row.id, status: row.status });
+        existingByUrl.get(row.url).push({ id: row.id, status: row.status, price: row.price });
       }
       console.log(`📦 Loaded ${existingByUrl.size} existing listing URLs\n`);
     }
@@ -651,21 +695,26 @@ async function scrapeReddit() {
         const needsUpdate = existing?.filter(l => l.status !== 'sold') || [];
 
         if (needsUpdate.length > 0) {
-          const ids = needsUpdate.map(l => l.id);
-          const { error: updateErr } = await supabase
-            .from('used_listings')
-            .update({
-              status: 'sold',
-              date_sold: new Date().toISOString()
-            })
-            .in('id', ids);
+          for (const listing of needsUpdate) {
+            const { price: salePrice, isEstimated } = extractSoldPrice(
+              post.selftext, listing.price
+            );
+            const { error: updateErr } = await supabase
+              .from('used_listings')
+              .update({
+                status: 'sold',
+                date_sold: new Date().toISOString(),
+                sale_price: salePrice,
+                price_is_estimated: isEstimated,
+              })
+              .eq('id', listing.id);
 
-          if (!updateErr) {
-            stats.soldStatusUpdated += ids.length;
-            console.log(`🏷️  Marked ${ids.length} listing(s) as sold: ${post.title.substring(0, 50)}...`);
-          } else {
-            console.error(`  ❌ Failed to update sold status:`, updateErr.message);
+            if (updateErr) {
+              console.error(`  ❌ Failed to update sold status:`, updateErr.message);
+            }
           }
+          stats.soldStatusUpdated += needsUpdate.length;
+          console.log(`🏷️  Marked ${needsUpdate.length} listing(s) as sold: ${post.title.substring(0, 50)}...`);
         } else {
           stats.soldSkipped++;
         }
@@ -798,7 +847,18 @@ async function scrapeReddit() {
           seller_username: post.author,
           condition: 'good', // Default
           images: images,
+          // Sold data
           status: soldStatus ? 'sold' : 'available',
+          ...(soldStatus ? (() => {
+            const { price: salePrice, isEstimated } = extractSoldPrice(
+              post.selftext, priceInfo.individual_price
+            );
+            return {
+              sale_price: salePrice,
+              date_sold: new Date(post.created_utc * 1000).toISOString(),
+              price_is_estimated: isEstimated,
+            };
+          })() : {}),
           component_count: bundleMatches.length,
           seller_confirmed_trades: null,
           seller_feedback_score: null

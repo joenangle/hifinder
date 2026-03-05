@@ -29,6 +29,8 @@ export type AnalyticsEvent =
   | { name: 'education_clicked', properties?: { location?: string } }
   | { name: 'budget_quick_start_clicked', properties?: { budget_tier?: string, budget_amount?: number } }
   | { name: 'final_cta_clicked', properties?: { location?: string } }
+  | { name: 'email_subscribed', properties?: { source?: string } }
+  | { name: 'help_mailto_clicked', properties?: { location?: string } }
   | { name: 'curated_system_clicked', properties?: { system_name?: string, budget_tier?: number, category?: string } }
   
   // Dashboard

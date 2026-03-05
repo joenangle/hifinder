@@ -123,7 +123,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
   
-  // Use NextAuth's default pages for now
+  pages: {
+    signIn: '/auth/signin',
+  },
   
   // Security
   secret: (() => {
