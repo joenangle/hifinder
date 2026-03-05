@@ -106,8 +106,9 @@ export async function LandingPage() {
 
               {/* Headline */}
               <h1
-                className="font-bold"
                 style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
                   fontSize: 'clamp(2.75rem, 6vw, 5rem)',
                   lineHeight: 1.0,
                   letterSpacing: '-0.04em',
@@ -383,8 +384,9 @@ export async function LandingPage() {
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
           <div style={{ maxWidth: '640px' }}>
             <h2
-              className="font-bold"
               style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
                 fontSize: 'clamp(2rem, 4vw, 3.5rem)',
                 letterSpacing: '-0.04em',
                 lineHeight: 1.05,

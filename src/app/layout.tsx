@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Header } from "@/components/navigation/Header";
+import { Footer } from "@/components/navigation/Footer";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics as CustomAnalytics } from '@/components/Analytics';
 import { Analytics } from "@vercel/analytics/next";
@@ -14,7 +15,14 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: 'swap', // Show fallback font immediately, swap when Inter loads
+  display: 'swap',
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  weight: ["600", "700", "800"],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -81,7 +89,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased`}
+        className={`${inter.variable} ${plusJakartaSans.variable} font-sans antialiased`}
         style={{
           backgroundColor: 'var(--background-primary)',
           color: 'var(--text-primary)',
@@ -118,6 +126,7 @@ export default async function RootLayout({
           <main id="main-content" role="main" className="pb-[env(safe-area-inset-bottom)]">
             {children}
           </main>
+          <Footer />
         </AuthProvider>
         
         {/* Google Analytics */}
