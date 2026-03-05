@@ -309,11 +309,6 @@ export async function LandingPage() {
       </Suspense>
 
       {/* ─────────────────────────────────────────
-          CURATED SYSTEMS — popular system showcase
-      ───────────────────────────────────────── */}
-      <CuratedSystems />
-
-      {/* ─────────────────────────────────────────
           HOW IT WORKS — 3-step inline row
       ───────────────────────────────────────── */}
       <section
@@ -414,6 +409,11 @@ export async function LandingPage() {
 
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────
+          CURATED SYSTEMS — popular system showcase
+      ───────────────────────────────────────── */}
+      <CuratedSystems />
 
       {/* ─────────────────────────────────────────
           BOTTOM CTA — full bleed, editorial

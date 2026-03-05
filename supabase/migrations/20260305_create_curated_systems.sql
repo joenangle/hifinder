@@ -55,9 +55,9 @@ VALUES (
   'cans', 250,
   ARRAY[
     '5462054f-3459-4088-97b6-5d21c1b005bb'::uuid,  -- Sennheiser HD650/HD6XX
-    '5281fa68-ae02-4299-bec2-faa4ea3ffa7b'::uuid   -- Schiit Fulla 4
+    '71a454bc-7635-496d-8d35-6923becc86db'::uuid   -- Schiit Fulla E
   ],
-  'The HD6XX is the most recommended headphone in audiophile history — smooth, natural tonality with Crinacle A+ tone grade. The Fulla 4 provides clean power for the 300-ohm impedance. Iconic pairing.',
+  'The HD6XX is the most recommended headphone in audiophile history — smooth, natural tonality with Crinacle A+ tone grade. The Fulla E provides clean power for the 300-ohm impedance at a great price. Iconic pairing.',
   2
 );
 
@@ -84,10 +84,10 @@ VALUES (
   'cans', 1000,
   ARRAY[
     'c1d24ce4-99e2-473c-b403-0a64efceadf0'::uuid,  -- HiFiMAN Ananda
-    '0ace0ac2-4895-4481-a291-6ca68144835f'::uuid,  -- Schiit Modius
+    '1b749578-e5b2-459c-9095-8f5b1b00e921'::uuid,  -- Schiit Modi+
     '4f122532-f675-4046-b35b-e12bd79a00ec'::uuid   -- Schiit Asgard 3
   ],
-  'The Ananda earns an S- tone grade from Crinacle — approaching summit-fi for the price of a mid-fi headphone. The Schiit Modius/Asgard stack is a proven desktop separates combo with plenty of power.',
+  'The Ananda earns an S- tone grade from Crinacle — approaching summit-fi for the price of a mid-fi headphone. The Schiit Modi+/Asgard stack is a proven desktop separates combo with plenty of power.',
   4
 );
 
@@ -119,17 +119,17 @@ VALUES (
   2
 );
 
--- IEM: $500 — Tribrid Flagship
+-- IEM: $500 — Versatile Reference
 INSERT INTO curated_systems (name, description, category, budget_tier, component_ids, rationale, display_order)
 VALUES (
-  'Tribrid Flagship',
-  'Tribrid IEM with Crinacle S tone grade, paired with a quality dongle DAC',
+  'Versatile Reference',
+  'Acclaimed IEM with Bluetooth, balanced output, and parametric EQ',
   'iems', 500,
   ARRAY[
-    'af7fcf30-e7e0-48db-beea-2c40c46579b8'::uuid,  -- Thieaudio Oracle
-    'e01a658a-0c82-400d-9081-e3ab98babe66'::uuid   -- Moondrop Dawn Pro
+    'c73fd25e-9178-4135-b829-16f0af725b19'::uuid,  -- Moondrop Blessing 2
+    '7cdedeca-89cd-4670-ba7c-4d817f7045c7'::uuid   -- Qudelix 5K
   ],
-  'The Oracle is a tribrid IEM (BA + dynamic + EST drivers) that earns an S tone grade from Crinacle. The Moondrop Dawn Pro is a high-quality dongle DAC that provides cleaner power than the Apple dongle — a meaningful upgrade for IEMs this resolving.',
+  'The Blessing 2 is one of the most acclaimed IEMs in its class — Crinacle A- rank with A tone grade. The Qudelix 5K adds Bluetooth, balanced output, and parametric EQ for fine-tuning. Versatile enough for desktop and on the go.',
   3
 );
 
@@ -141,8 +141,8 @@ VALUES (
   'iems', 1000,
   ARRAY[
     '008f1cc8-5a5a-4f7d-8400-eddf069a8fed'::uuid,  -- Thieaudio Monarch Mk3
-    '7cdedeca-89cd-4670-ba7c-4d817f7045c7'::uuid   -- Qudelix 5K
+    'e01a658a-0c82-400d-9081-e3ab98babe66'::uuid   -- Moondrop Dawn Pro
   ],
-  'The Monarch Mk3 earns Crinacle''s highest tone grade (S+) and near-summit ranking (S-). The Qudelix 5K adds parametric EQ, balanced output, and Bluetooth. This is portable endgame.',
+  'The Monarch Mk3 earns Crinacle''s highest tone grade (S+) and near-summit ranking (S-). The Dawn Pro provides clean, transparent power that lets the Mk3 shine. This is portable endgame.',
   4
 );
