@@ -147,19 +147,19 @@ const HeadphoneCardComponent = ({
         <div className="flex items-start justify-between gap-3 mb-2 pr-10">
           <div className="flex items-start gap-3 min-w-0">
             {/* Product thumbnail */}
-            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden">
+            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
               {headphone.image_url ? (
                 <Image
                   src={headphone.image_url}
                   alt={`${headphone.brand} ${headphone.name}`}
-                  width={48}
-                  height={48}
+                  width={80}
+                  height={80}
                   className="object-contain"
                 />
               ) : isCans ? (
-                <Headphones className="w-5 h-5 text-tertiary" />
+                <Headphones className="w-8 h-8 text-tertiary" />
               ) : (
-                <Ear className="w-5 h-5 text-tertiary" />
+                <Ear className="w-8 h-8 text-tertiary" />
               )}
             </div>
             <div className="min-w-0">

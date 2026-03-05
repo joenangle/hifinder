@@ -130,17 +130,17 @@ const SignalGearCardComponent = ({
         <div className="flex items-start gap-3 min-w-0">
           {/* Product thumbnail */}
           {(() => { const Icon = TYPE_ICON[type]; return (
-            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden">
+            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
               {component.image_url ? (
                 <Image
                   src={component.image_url}
                   alt={`${component.brand} ${component.name}`}
-                  width={48}
-                  height={48}
+                  width={80}
+                  height={80}
                   className="object-contain"
                 />
               ) : (
-                <Icon className="w-5 h-5 text-tertiary" />
+                <Icon className="w-8 h-8 text-tertiary" />
               )}
             </div>
           ); })()}

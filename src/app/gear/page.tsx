@@ -1606,15 +1606,15 @@ function GearContent() {
             <div className="p-4 border-b flex items-center justify-between" 
                  style={{borderColor: 'var(--border-default)'}}>
               <div className="flex items-center gap-3">
-                {/* Small icon/image */}
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center"
+                {/* Product image */}
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden"
                      style={{backgroundColor: 'var(--background-secondary)'}}>
                   {selectedGear.components?.image_url ? (
                     <Image
                       src={selectedGear.components.image_url}
                       alt={selectedGear.components?.name || 'Gear item'}
-                      width={48}
-                      height={48}
+                      width={64}
+                      height={64}
                       className="object-contain"
                     />
                   ) : (

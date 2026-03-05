@@ -14,7 +14,7 @@ const PriceHistoryChart = dynamic(
   () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
   { ssr: false }
 )
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Fragment } from 'react'
 
 interface ComponentDetailModalProps {
   component: Component
@@ -26,6 +26,7 @@ interface ComponentDetailModalProps {
 
 export function ComponentDetailModal({ component, isOpen, onClose, isSelected, onToggleSelection }: ComponentDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
+  const [imageExpanded, setImageExpanded] = useState(false)
 
   // ESC to close + body scroll lock
   useEffect(() => {
@@ -202,18 +203,21 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             </button>
         {/* Header */}
         <div className="flex items-start gap-4 p-6 border-b">
-          {/* Product image */}
-          <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
+          {/* Product image — click to expand */}
+          <div
+            className={`flex-shrink-0 w-[120px] h-[120px] rounded-xl bg-secondary flex items-center justify-center overflow-hidden ${component.image_url ? 'cursor-zoom-in' : ''}`}
+            onClick={() => component.image_url && setImageExpanded(true)}
+          >
             {component.image_url ? (
               <Image
                 src={component.image_url}
                 alt={`${component.brand} ${component.name}`}
-                width={80}
-                height={80}
+                width={120}
+                height={120}
                 className="object-contain"
               />
             ) : (
-              <Headphones className="w-8 h-8 text-tertiary" />
+              <Headphones className="w-10 h-10 text-tertiary" />
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -225,6 +229,39 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             </p>
           </div>
         </div>
+
+        {/* Expanded image lightbox */}
+        <AnimatePresence>
+          {imageExpanded && component.image_url && (
+            <motion.div
+              className="fixed inset-0 flex items-center justify-center p-8"
+              style={{ zIndex: 'var(--z-popover, 50)' }}
+              onClick={() => setImageExpanded(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden />
+              <motion.div
+                className="relative max-w-[min(90vw,600px)] max-h-[80vh] cursor-zoom-out"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <Image
+                  src={component.image_url}
+                  alt={`${component.brand} ${component.name}`}
+                  width={600}
+                  height={600}
+                  className="object-contain rounded-xl"
+                  style={{ maxHeight: '80vh', width: 'auto' }}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Content */}
         <div className="p-6 space-y-6">
