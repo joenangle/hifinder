@@ -14,7 +14,7 @@ const PriceHistoryChart = dynamic(
   () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
   { ssr: false }
 )
-import { useState, useEffect, useRef, useCallback, Fragment } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface ComponentDetailModalProps {
   component: Component
