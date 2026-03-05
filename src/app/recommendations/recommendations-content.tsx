@@ -458,14 +458,16 @@ export function RecommendationsContent() {
         throw new Error('Invalid response format from recommendations API')
       }
       
-      // Set recommendations - API always returns separate cans and iems arrays
-      setCans(recommendations.cans || [])
-      setIems(recommendations.iems || [])
-      setDacs(recommendations.dacs || [])
+      // Preserve results for categories the API skipped (because they have active selections)
+      const skippedCategories = new Set(debouncedSelectedItems.map(item => item.category))
+
+      setCans(prev => recommendations.cans?.length > 0 || !skippedCategories.has('headphones') ? (recommendations.cans || []) : prev)
+      setIems(prev => recommendations.iems?.length > 0 || !skippedCategories.has('headphones') ? (recommendations.iems || []) : prev)
+      setDacs(prev => recommendations.dacs?.length > 0 || !skippedCategories.has('dac') ? (recommendations.dacs || []) : prev)
 
       setBudgetAllocation(recommendations.budgetAllocation || {})
-      setAmps(recommendations.amps || [])
-      setDacAmps(recommendations.combos || [])
+      setAmps(prev => recommendations.amps?.length > 0 || !skippedCategories.has('amp') ? (recommendations.amps || []) : prev)
+      setDacAmps(prev => recommendations.combos?.length > 0 || !skippedCategories.has('combo') ? (recommendations.combos || []) : prev)
       setShowAmplification(recommendations.needsAmplification || false)
 
       // Store server's automatic allocation for display (but don't auto-use it)
@@ -1231,6 +1233,7 @@ export function RecommendationsContent() {
             onAddOwnedGear={() => setShowOwnedGearModal(true)}
             onRemoveOwnedGear={removeOwnedGear}
             onRemoveItem={removeFromSelection}
+            onViewDetails={(item) => setDetailComponent(item as AudioComponent)}
             onClearAll={() => {
               setSelectedCans(new Map())
               setSelectedIems(new Map())

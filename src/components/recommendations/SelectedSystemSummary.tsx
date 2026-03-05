@@ -28,6 +28,7 @@ interface SelectedSystemSummaryProps {
   onAddOwnedGear?: () => void
   onRemoveOwnedGear?: (id: string) => void
   onRemoveItem: (id: string, category: string) => void
+  onViewDetails?: (item: AudioComponent) => void
   onClearAll: () => void
 }
 
@@ -64,6 +65,7 @@ const SelectedSystemSummaryComponent = ({
   onAddOwnedGear,
   onRemoveOwnedGear,
   onRemoveItem,
+  onViewDetails,
   onClearAll
 }: SelectedSystemSummaryProps) => {
   // Only count selected (not owned) toward budget
@@ -96,7 +98,7 @@ const SelectedSystemSummaryComponent = ({
 
   // Render a selected (new purchase) item — enters with slot-fill animation
   const SelectedItem = ({ item, color, onRemove }: { item: AudioComponent; color: string; onRemove: () => void }) => (
-    <div className="animate-slot-fill flex items-center gap-3 p-3 bg-surface-hover rounded-lg">
+    <div className="animate-slot-fill flex items-center gap-3 p-3 bg-surface-hover rounded-lg cursor-pointer hover:bg-surface-secondary transition-colors" onClick={() => onViewDetails?.(item)}>
       <div className={`w-2 h-2 ${color} rounded-full flex-shrink-0`} />
       <div className="min-w-0">
         <p className="font-medium text-sm text-primary truncate">
@@ -112,7 +114,7 @@ const SelectedSystemSummaryComponent = ({
 
   // Render an owned gear item (visually distinct — no price toward budget)
   const OwnedItem = ({ item, onRemove }: { item: AudioComponent; onRemove: () => void }) => (
-    <div className="animate-slot-fill flex items-center gap-3 p-3 rounded-lg border border-dashed bg-transparent">
+    <div className="animate-slot-fill flex items-center gap-3 p-3 rounded-lg border border-dashed bg-transparent cursor-pointer hover:bg-surface-hover transition-colors" onClick={() => onViewDetails?.(item)}>
       <div className="w-2 h-2 bg-text-tertiary rounded-full flex-shrink-0 opacity-50" />
       <div className="min-w-0">
         <p className="font-medium text-sm text-secondary truncate">

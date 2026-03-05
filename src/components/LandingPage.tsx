@@ -5,6 +5,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 import { TrackableLink } from './landing/TrackableLink'
 import { FeatureCards } from './landing/FeatureCards'
 import { FloatingBar } from './landing/FloatingBar'
+import { ScrollToButton } from './landing/ScrollToButton'
 
 async function getStats() {
   try {
@@ -99,7 +100,7 @@ export async function LandingPage() {
                   className="text-xs font-medium"
                   style={{ color: 'var(--text-secondary)', letterSpacing: '0.04em' }}
                 >
-                  Audio gear, simplified
+                  The free audio system builder
                 </span>
               </div>
 
@@ -148,20 +149,20 @@ export async function LandingPage() {
                   event={{ name: 'hero_cta_clicked', properties: { location: 'hero_primary' } }}
                   className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
                   style={{
-                    background: 'var(--text-primary)',
-                    color: 'var(--background-primary)',
+                    background: 'var(--accent-primary)',
+                    color: '#fff',
                     padding: '14px 24px',
                     borderRadius: '12px',
                     fontSize: '0.9375rem',
+                    boxShadow: 'rgba(var(--accent-primary-rgb), 0.3) 0px 4px 20px',
                   }}
                 >
                   Find my setup
                   <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
                 </TrackableLink>
-                <TrackableLink
-                  href="/learn"
-                  event={{ name: 'learn_clicked', properties: { location: 'hero_secondary' } }}
-                  className="inline-flex items-center gap-2 font-medium transition-colors duration-150"
+                <ScrollToButton
+                  targetId="how-it-works"
+                  className="inline-flex items-center gap-2 font-medium transition-colors duration-150 cursor-pointer"
                   style={{
                     color: 'var(--text-secondary)',
                     padding: '14px 24px',
@@ -171,8 +172,8 @@ export async function LandingPage() {
                     background: 'transparent',
                   }}
                 >
-                  Learn the basics
-                </TrackableLink>
+                  See how it works
+                </ScrollToButton>
               </div>
 
               {/* Stats — server-rendered with live data */}
@@ -315,11 +316,13 @@ export async function LandingPage() {
           HOW IT WORKS — 3-step inline row
       ───────────────────────────────────────── */}
       <section
+        id="how-it-works"
         style={{
           borderTop: '1px solid var(--border-subtle)',
           borderBottom: '1px solid var(--border-subtle)',
           padding: '80px 0',
           background: 'var(--background-secondary)',
+          scrollMarginTop: '80px',
         }}
       >
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
@@ -386,6 +389,26 @@ export async function LandingPage() {
                 </p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <TrackableLink
+              href="/recommendations"
+              event={{ name: 'how_it_works_clicked', properties: { location: 'how_it_works_cta' } }}
+              className="inline-flex items-center gap-2 font-semibold transition-colors duration-150 group"
+              style={{
+                background: 'var(--accent-primary)',
+                color: '#fff',
+                padding: '13px 24px',
+                borderRadius: '12px',
+                fontSize: '0.9375rem',
+                boxShadow: 'rgba(var(--accent-primary-rgb), 0.3) 0px 4px 20px',
+                textDecoration: 'none',
+              }}
+            >
+              Find my setup
+              <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
+            </TrackableLink>
           </div>
 
         </div>
