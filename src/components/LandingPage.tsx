@@ -261,32 +261,47 @@ export async function LandingPage() {
       </section>
 
       {/* ─────────────────────────────────────────
-          MARQUEE STRIP — thin social proof line
+          DATA SOURCES — credibility bar
       ───────────────────────────────────────── */}
       <div
         style={{
           borderBottom: '1px solid var(--border-subtle)',
           background: 'var(--background-secondary)',
-          padding: '14px 0',
+          padding: '16px 0',
           overflow: 'hidden',
         }}
       >
         <div
-          className="flex items-center gap-12 px-8"
-          style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', letterSpacing: '0.06em' }}
+          className="container mx-auto px-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-2"
+          style={{ maxWidth: '1100px' }}
         >
-          {['HEADPHONES', 'IEMS', 'DACS', 'AMPLIFIERS', 'CABLES', 'SOURCES', 'STACKS', 'USED MARKET'].map(
-            (t, i) => (
-              <span key={t} className="whitespace-nowrap flex items-center gap-12">
-                {i > 0 && (
-                  <span aria-hidden style={{ opacity: 0.35 }}>
-                    /
-                  </span>
-                )}
-                {t}
-              </span>
-            )
-          )}
+          <span
+            className="text-xs font-medium"
+            style={{ color: 'var(--text-tertiary)', letterSpacing: '0.04em' }}
+          >
+            Powered by data from
+          </span>
+          {[
+            { name: 'Crinacle', href: 'https://crinacle.com', desc: 'IEM & headphone rankings' },
+            { name: 'Audio Science Review', href: 'https://www.audiosciencereview.com', desc: 'DAC & amp measurements' },
+            { name: 'r/AVexchange', href: 'https://www.reddit.com/r/AVexchange/', desc: 'Used market pricing' },
+            { name: 'Reverb', href: 'https://reverb.com', desc: 'Used market pricing' },
+          ].map((source, i) => (
+            <a
+              key={source.name}
+              href={source.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap text-secondary hover:text-primary transition-colors duration-150"
+              style={{ fontSize: '0.8125rem' }}
+              title={source.desc}
+            >
+              {i > 0 && (
+                <span aria-hidden style={{ color: 'var(--border-default)', marginRight: '4px' }}>/</span>
+              )}
+              <span className="font-medium">{source.name}</span>
+            </a>
+          ))}
         </div>
       </div>
 
