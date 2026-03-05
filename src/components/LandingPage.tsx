@@ -376,12 +376,12 @@ export async function LandingPage() {
                 >
                   {s.step}
                 </span>
-                <h3
+                <h2
                   className="font-semibold mb-2"
                   style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.3, fontFamily: 'var(--font-display)' }}
                 >
                   {s.title}
-                </h3>
+                </h2>
                 <p
                   className="text-sm"
                   style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}

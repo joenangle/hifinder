@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   // Disable source maps in production for faster builds
   productionBrowserSourceMaps: false,
 
+  // Explicit gzip compression (default true, but being explicit for audit tools)
+  compress: true,
+
   // External packages for server components (scripts-only dependencies)
   serverExternalPackages: ['jsdom'],
 
@@ -29,6 +32,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       'lucide-react',
       '@supabase/supabase-js',
+      'framer-motion',
     ],
   },
 
