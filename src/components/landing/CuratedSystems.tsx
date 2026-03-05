@@ -79,7 +79,7 @@ export function CuratedSystems() {
   return (
     <section style={{ padding: '100px 0' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
           <p
             className="text-xs font-semibold"
             style={{
@@ -97,24 +97,24 @@ export function CuratedSystems() {
             style={{
               background: 'var(--background-secondary)',
               border: '1px solid var(--border-default)',
-              borderRadius: '10px',
-              padding: '3px',
+              borderRadius: '12px',
+              padding: '4px',
             }}
           >
             {([
-              { key: 'cans' as const, label: 'Over-ear', icon: <Headphones className="h-3.5 w-3.5" /> },
-              { key: 'iems' as const, label: 'In-ear', icon: <Ear className="h-3.5 w-3.5" /> },
+              { key: 'cans' as const, label: 'Over-ear headphones', icon: <Headphones className="h-4 w-4" /> },
+              { key: 'iems' as const, label: 'In-ear monitors', icon: <Ear className="h-4 w-4" /> },
             ]).map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium transition-all duration-150 cursor-pointer"
+                className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-150 cursor-pointer"
                 style={{
-                  padding: '7px 14px',
-                  borderRadius: '7px',
+                  padding: '10px 20px',
+                  borderRadius: '9px',
                   background: activeTab === tab.key ? 'var(--background-primary)' : 'transparent',
                   color: activeTab === tab.key ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                  boxShadow: activeTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
                   border: 'none',
                 }}
               >

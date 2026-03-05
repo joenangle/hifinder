@@ -68,7 +68,7 @@ VALUES (
   'Planar speed and detail with transparent electronics',
   'cans', 500,
   ARRAY[
-    'a5179a0e-af89-408e-b95e-0ef0af45de7f'::uuid,  -- HiFiMAN Sundara
+    '2c9584bb-8707-43a6-b3cd-db56cf6f6629'::uuid,  -- HiFiMAN Sundara
     'a51ded88-d49f-4f12-ac12-f01fc9c6c790'::uuid,  -- JDS Labs Atom DAC+
     '5bbdd531-2cd3-495c-8139-74ae2c4e1fc8'::uuid   -- JDS Labs Atom Amp+
   ],
@@ -123,13 +123,13 @@ VALUES (
 INSERT INTO curated_systems (name, description, category, budget_tier, component_ids, rationale, display_order)
 VALUES (
   'Tribrid Flagship',
-  'Tribrid IEM with Crinacle S tone grade, no amp needed',
+  'Tribrid IEM with Crinacle S tone grade, paired with a quality dongle DAC',
   'iems', 500,
   ARRAY[
     'af7fcf30-e7e0-48db-beea-2c40c46579b8'::uuid,  -- Thieaudio Oracle
-    '24e5990f-4979-43c3-9ec7-23fc239596c1'::uuid   -- Apple USB-C Dongle
+    'e01a658a-0c82-400d-9081-e3ab98babe66'::uuid   -- Moondrop Dawn Pro
   ],
-  'The Oracle is a tribrid IEM (BA + dynamic + EST drivers) that earns an S tone grade from Crinacle. IEMs this efficient run beautifully from the Apple dongle — put the money where it matters.',
+  'The Oracle is a tribrid IEM (BA + dynamic + EST drivers) that earns an S tone grade from Crinacle. The Moondrop Dawn Pro is a high-quality dongle DAC that provides cleaner power than the Apple dongle — a meaningful upgrade for IEMs this resolving.',
   3
 );
 

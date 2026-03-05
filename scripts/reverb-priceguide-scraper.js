@@ -54,6 +54,8 @@ const args = process.argv.slice(2);
 const limitArg = args.find(a => a.startsWith('--limit='));
 const LIMIT = limitArg ? parseInt(limitArg.split('=')[1]) : null;
 const DRY_RUN = args.includes('--dry-run');
+const filterArg = args.find(a => a.startsWith('--filter='));
+const FILTER = filterArg ? filterArg.split('=')[1].toLowerCase() : null;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -442,7 +444,14 @@ async function main() {
     process.exit(1);
   }
 
-  const toProcess = LIMIT ? components.slice(0, LIMIT) : components;
+  let filtered = components;
+  if (FILTER) {
+    filtered = components.filter(c =>
+      `${c.brand} ${c.name}`.toLowerCase().includes(FILTER)
+    );
+    console.log(`🔍 Filter "${FILTER}": ${filtered.length} match(es)\n`);
+  }
+  const toProcess = LIMIT ? filtered.slice(0, LIMIT) : filtered;
   console.log(`📋 Processing ${toProcess.length} of ${components.length} components\n`);
 
   const stats = {
