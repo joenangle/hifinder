@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('dotenv').config({ path: '.env.local' });
 
 /**
  * Populate Manufacturer URLs Script
