@@ -135,7 +135,7 @@ const HeadphoneCardComponent = ({
               alt={`${headphone.brand} ${headphone.name}`}
               width={160}
               height={160}
-              className="w-full h-full object-contain p-1"
+              className="w-full h-full object-contain p-1 rounded-md"
             />
           ) : isCans ? (
             <Headphones className="w-5 h-5 text-tertiary" />
@@ -195,11 +195,6 @@ const HeadphoneCardComponent = ({
               {headphone.crin_tech && (
                 <span className={`font-semibold tabular-nums ${gradeColor(headphone.crin_tech)}`}>
                   {headphone.crin_tech} <span className="font-normal text-tertiary text-xs">tech</span>
-                </span>
-              )}
-              {headphone.crin_rank && (
-                <span className="text-tertiary text-xs">
-                  #{headphone.crin_rank}
                 </span>
               )}
               {headphone.matchScore && (
