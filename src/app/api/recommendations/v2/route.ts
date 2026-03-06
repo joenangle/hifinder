@@ -4,6 +4,7 @@ import { assessAmplificationFromImpedance } from "@/lib/audio-calculations";
 import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
   calculateExpertScore,
+  calculateExpertConfidence,
   gradeToNumeric as gradeToNumeric10Scale,
   type ScoringComponent,
 } from "@/lib/crinacle-scoring";
@@ -43,6 +44,7 @@ interface RecommendationComponent {
   crin_rank?: string; // Letter grade: S+, S, S-, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F
   crin_value?: number;
   asr_sinad?: number;
+  is_tws?: boolean;
   // Amp specific
   power_output?: string;
   // Used listings
@@ -604,12 +606,22 @@ function filterAndScoreComponents(
       const technicalGradeNumeric = gradeToNumeric(component.crin_tech);
 
       // Calculate comprehensive expert score using new scoring system (0-10)
-      const expertScore = calculateExpertScore({
+      const scoringData = {
         crin_rank: component.crin_rank,
         crin_tone: component.crin_tone,
         crin_tech: component.crin_tech,
         crin_value: component.crin_value,
-      });
+      };
+      const rawExpertScore = calculateExpertScore(scoringData);
+
+      // Apply confidence penalty for headphones/IEMs with partial data
+      // (DACs/amps/combos have no Crinacle data, so skip — they all score 4.0 already)
+      const isHeadphone = component.category === "cans" || component.category === "iems";
+      const confidence = calculateExpertConfidence(scoringData);
+      // Only penalize partial data (confidence 0.5-0.9), not zero data (confidence 0)
+      const expertScore = isHeadphone && confidence > 0
+        ? rawExpertScore * confidence
+        : rawExpertScore;
 
       // Calculate power compatibility for amps
       let powerAdequacy = 0.5;
@@ -648,6 +660,9 @@ function filterAndScoreComponents(
       );
     })
     .filter((c) => {
+      // Exclude TWS earbuds from IEM results
+      if (c.is_tws) return false;
+
       // Driver type filtering for enthusiasts
       if (driverType && driverType !== "any" && c.driver_type) {
         if (c.driver_type.toLowerCase() !== driverType.toLowerCase()) {
@@ -668,22 +683,22 @@ function filterAndScoreComponents(
       return isInRange && hasReasonableRange;
     })
     .map((comp) => {
-      // V3.1 SCORING ALGORITHM
-      // Priority order: Performance (65%) > Sound Signature (25%) > Value (10%)
-      // Signature bonus multiplier: 1.2x when signature matches
+      // V3.3 SCORING ALGORITHM
+      // Priority order: Performance (55%) > Sound Signature (25%) > Value (10%) > Budget Proximity (10%)
+      // Additive signature bonus: +5pts when signature matches well (>0.35)
 
-      // 1. EXPERT PERFORMANCE SCORE (65% weight)
+      // 1. EXPERT PERFORMANCE SCORE (55% weight)
       // Uses Crinacle rank/tone/tech/value or ASR measurements
       const expertScoreValue =
         (comp as unknown as { expertScore?: number }).expertScore ?? 5.0; // 0-10 scale
       const expertScore = expertScoreValue / 10; // Normalize to 0-1
 
-      // 2. SOUND SIGNATURE MATCH (25% weight + 1.2x bonus multiplier)
+      // 2. SOUND SIGNATURE MATCH (25% weight + additive bonus)
       // User's preference alignment (neutral/warm/bright/fun)
       const signatureScore = comp.synergyScore || 0.25; // 0-0.5 range, default neutral
 
-      // Apply 1.2x bonus multiplier when signature score is high (>0.35 = good match)
-      const signatureBonus = signatureScore > 0.35 ? 1.2 : 1.0;
+      // Apply additive +5pt bonus when signature score is high (>0.35 = good match)
+      const signatureBonus = signatureScore > 0.35 ? 0.05 : 0;
 
       // 3. VALUE-FOR-MONEY SCORE (10% weight)
       // Reward under-budget items at same performance tier
@@ -701,18 +716,27 @@ function filterAndScoreComponents(
         valueScore = Math.max(0, 1 - overageRatio * 2);
       }
 
-      // 4. POWER ADEQUACY BONUS (for amps only, max +5%)
+      // 4. BUDGET PROXIMITY SCORE (10% weight)
+      // Gaussian curve: peaks at 1.0 when price == budget, decays as price diverges
+      // sigma = 15% of budget (68% of score retained within +/-15% of budget)
+      // Ensures $250 and $300 budgets recommend different price-appropriate products
+      const budgetDist = Math.abs(comp.avgPrice - budget) / budget;
+      const proximityScore = Math.exp(-budgetDist * budgetDist / (2 * 0.15 * 0.15));
+
+      // 5. POWER ADEQUACY BONUS (for amps only, max +5%)
       const powerBonus =
         comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
       // FINAL SCORE CALCULATION
-      // Expert: 65% + Signature: 25% + Value: 10% + Power bonus: 0-5%
-      // Then apply signature bonus multiplier (1.0x or 1.2x)
+      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10% + Power bonus: 0-5%
+      // Additive signature bonus: +5 points when signature matches well
       const rawScore =
-        (expertScore * 0.65 +
+        expertScore * 0.55 +
         signatureScore * 0.25 +
         valueScore * 0.10 +
-        powerBonus) * signatureBonus;
+        proximityScore * 0.10 +
+        powerBonus +
+        signatureBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)
       const matchScore = Math.min(1, rawScore);
@@ -723,6 +747,7 @@ function filterAndScoreComponents(
         valueScore: Math.round(valueScore * 100), // Value-for-money score (0-100)
         expertScoreDisplay: Math.round(expertScore * 100), // Expert quality score (0-100)
         signatureScoreDisplay: Math.round(signatureScore * 100), // Signature match score (0-100)
+        proximityScoreDisplay: Math.round(proximityScore * 100), // Budget proximity score (0-100)
       };
     })
     .sort((a, b) => b.matchScore - a.matchScore)

@@ -465,6 +465,7 @@ export type Database = {
           id: string
           image_url: string | null
           impedance: number | null
+          is_tws: boolean | null
           manufacturer_url: string | null
           name: string
           needs_amp: boolean | null
@@ -504,6 +505,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           impedance?: number | null
+          is_tws?: boolean | null
           manufacturer_url?: string | null
           name: string
           needs_amp?: boolean | null
@@ -543,6 +545,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           impedance?: number | null
+          is_tws?: boolean | null
           manufacturer_url?: string | null
           name?: string
           needs_amp?: boolean | null
@@ -629,6 +632,39 @@ export type Database = {
           name?: string
           rationale?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_subscribers: {
+        Row: {
+          confirmation_token: string | null
+          confirmed: boolean | null
+          confirmed_at: string | null
+          created_at: string | null
+          email: string
+          id: string
+          source: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          confirmation_token?: string | null
+          confirmed?: boolean | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          source: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          confirmation_token?: string | null
+          confirmed?: boolean | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          source?: string
+          unsubscribed_at?: string | null
         }
         Relationships: []
       }
@@ -1182,6 +1218,8 @@ export type Database = {
           is_bundle: boolean | null
           listing_type: string | null
           location: string | null
+          location_country: string | null
+          location_state: string | null
           manual_review_notes: string | null
           match_confidence: number | null
           matched_segment: string | null
@@ -1231,6 +1269,8 @@ export type Database = {
           is_bundle?: boolean | null
           listing_type?: string | null
           location?: string | null
+          location_country?: string | null
+          location_state?: string | null
           manual_review_notes?: string | null
           match_confidence?: number | null
           matched_segment?: string | null
@@ -1280,6 +1320,8 @@ export type Database = {
           is_bundle?: boolean | null
           listing_type?: string | null
           location?: string | null
+          location_country?: string | null
+          location_state?: string | null
           manual_review_notes?: string | null
           match_confidence?: number | null
           matched_segment?: string | null
@@ -1336,6 +1378,8 @@ export type Database = {
           images: string[] | null
           listing_type: string | null
           location: string
+          location_country: string | null
+          location_state: string | null
           original_created_at: string
           original_updated_at: string
           price: number
@@ -1366,6 +1410,8 @@ export type Database = {
           images?: string[] | null
           listing_type?: string | null
           location: string
+          location_country?: string | null
+          location_state?: string | null
           original_created_at: string
           original_updated_at: string
           price: number
@@ -1396,6 +1442,8 @@ export type Database = {
           images?: string[] | null
           listing_type?: string | null
           location?: string
+          location_country?: string | null
+          location_state?: string | null
           original_created_at?: string
           original_updated_at?: string
           price?: number
