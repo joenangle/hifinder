@@ -9,13 +9,16 @@
 const { chromium } = require('playwright');
 const path = require('path');
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
+const BASE_URL =
+  process.argv.find((a) => a.startsWith('--url='))?.split('=')[1] ||
+  process.env.BASE_URL ||
+  'http://localhost:3002';
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'images', 'screenshots');
 
 const PAGES = [
   {
     name: 'recommendations',
-    path: '/recommendations',
+    path: '/recommendations?b=300&want=headphones',
     waitFor: 'main',
   },
   {
@@ -24,8 +27,8 @@ const PAGES = [
     waitFor: 'main',
   },
   {
-    name: 'gear',
-    path: '/gear',
+    name: 'learn',
+    path: '/learn',
     waitFor: 'main',
   },
 ];
@@ -53,8 +56,19 @@ async function capture() {
       console.log(`    Warning: selector "${page.waitFor}" not found, capturing anyway`);
     }
 
-    // Let animations settle
-    await tab.waitForTimeout(1500);
+    // Wait for product images on recommendations page
+    if (page.name === 'recommendations') {
+      await tab.waitForSelector('img[alt]', { timeout: 15000 }).catch(() => {});
+    }
+
+    // Hide floating elements that pollute screenshots
+    await tab.addStyleTag({
+      content:
+        '[class*="FloatingBar"], [class*="floating-bar"], [class*="cookie"], [id*="intercom"] { display: none !important; }',
+    });
+
+    // Let animations and lazy images settle
+    await tab.waitForTimeout(2500);
 
     const outputPath = path.join(OUTPUT_DIR, `${page.name}.png`);
     await tab.screenshot({ path: outputPath, fullPage: false });

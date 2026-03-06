@@ -16,6 +16,7 @@ const features = [
       'Answer a few questions about how you listen and what you own. We surface gear that genuinely fits — ranked by measurements, synergy, and budget.',
     href: '/recommendations',
     tag: 'Most used',
+    preview: '/images/screenshots/recommendations.png',
   },
   {
     icon: <Layers className="h-5 w-5" />,
@@ -24,6 +25,7 @@ const features = [
       'Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.',
     href: '/gear?tab=stacks',
     tag: null,
+    preview: '/images/screenshots/stacks.png',
   },
   {
     icon: <ShoppingBag className="h-5 w-5" />,
@@ -41,6 +43,7 @@ const features = [
       "Not sure what a DAC does or why impedance matters? Our guides are written for people who want better sound — not audio engineers.",
     href: '/learn',
     tag: null,
+    preview: '/images/screenshots/learn.png',
   },
 ]
 
