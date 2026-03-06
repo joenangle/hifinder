@@ -5,21 +5,16 @@ import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
 const publicNavItems = [
-  { href: '/', label: 'Home' },
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/price-history', label: 'Price History' },
-  { href: '/about', label: 'About' },
 ]
 
 const authNavItems = [
-  { href: '/', label: 'Home' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/gear', label: 'My Gear' },
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/price-history', label: 'Price History' },
-  { href: '/about', label: 'About' },
 ]
 
 export function DesktopNav() {

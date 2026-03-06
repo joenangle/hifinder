@@ -370,7 +370,7 @@ export type Database = {
       }
       component_ratings: {
         Row: {
-          component_id: number
+          component_id: string
           created_at: string | null
           id: string
           rating: number
@@ -379,7 +379,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          component_id: number
+          component_id: string
           created_at?: string | null
           id?: string
           rating: number
@@ -388,7 +388,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          component_id?: number
+          component_id?: string
           created_at?: string | null
           id?: string
           rating?: number

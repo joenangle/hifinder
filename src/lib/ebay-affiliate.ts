@@ -16,6 +16,8 @@ interface ComponentSearchParams {
   category?: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable';
 }
 
+let ebayWarningLogged = false;
+
 /**
  * Generate eBay affiliate search link for a component
  */
@@ -25,8 +27,9 @@ export function generateEbayAffiliateLink(
 ): string {
   const campaignId = config?.campaignId || process.env.NEXT_PUBLIC_EBAY_CAMPAIGN_ID || '';
 
-  if (!campaignId) {
-    console.warn('⚠️ EBAY_CAMPAIGN_ID not set - returning non-affiliate link');
+  if (!campaignId && !ebayWarningLogged) {
+    console.warn('⚠️ EBAY_CAMPAIGN_ID not set - returning non-affiliate links');
+    ebayWarningLogged = true;
   }
 
   // Build search keywords

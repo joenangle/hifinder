@@ -34,6 +34,7 @@ function MarketplaceContent() {
   // UI state
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [showFilters, setShowFilters] = useState(false)
+  const [searchExpanded, setSearchExpanded] = useState(false)
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
@@ -46,6 +47,7 @@ function MarketplaceContent() {
   const [detectedState, setDetectedState] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('date_desc')
+  const [presetTick, setPresetTick] = useState(0) // bumped by presets to bypass price debounce
 
   // Modal state - Component details
   const [modalOpen, setModalOpen] = useState(false)
@@ -196,7 +198,7 @@ function MarketplaceContent() {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedState, selectedCountry])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedState, selectedCountry, dealQuality, presetTick])
 
   // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
@@ -253,6 +255,17 @@ function MarketplaceContent() {
     { value: 'reverb', label: 'Reverb' }
   ]
 
+  const modalElement = selectedComponent && (
+    <ComponentDetailModal
+      component={selectedComponent}
+      isOpen={modalOpen}
+      onClose={() => {
+        setModalOpen(false)
+        setSelectedComponent(null)
+      }}
+    />
+  )
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface">
@@ -267,6 +280,7 @@ function MarketplaceContent() {
             </div>
           </div>
         </div>
+        {modalElement}
       </div>
     )
   }
@@ -287,34 +301,31 @@ function MarketplaceContent() {
 
   return (
     <div className="min-h-screen bg-primary">
-      <main className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-4 mb-2">
+      <main className="container mx-auto px-4 py-4 sm:py-8">
+        {/* Header — hidden on mobile, nav hamburger is sufficient */}
+        <div className="hidden sm:block mb-4">
+          <div className="flex items-center gap-3">
             <Link href="/" className="text-secondary hover:text-primary transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <h1 className="heading-1">Used Market</h1>
           </div>
-          <p className="text-secondary">
-            Showing {listings.length} of {totalCount} used listings
-          </p>
         </div>
 
-        {/* Filter Presets */}
-        <div className="mb-4 flex flex-wrap gap-2">
+        {/* Filter Presets - toggleable, horizontal scroll on mobile, wrap on desktop */}
+        <div className="mb-2 sm:mb-3 flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible">
           {detectedState && (
             <button
               onClick={() => {
-                setSelectedState(detectedState)
-                setSelectedCountry('US')
-                setDealQuality([])
-                setPriceRange({ min: '', max: '' })
-                setSelectedCategories([])
-                setSelectedConditions([])
-                setSelectedSource('all')
+                if (selectedState === detectedState) {
+                  setSelectedState('all')
+                  setSelectedCountry('all')
+                } else {
+                  setSelectedState(detectedState)
+                  setSelectedCountry('US')
+                }
               }}
-              className={`px-3 py-2 border rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+              className={`shrink-0 px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-md text-sm transition-colors flex items-center gap-1.5 ${
                 selectedState === detectedState
                   ? 'bg-accent text-accent-foreground border-accent'
                   : 'bg-surface-elevated border-border hover:border-accent text-primary'
@@ -326,70 +337,163 @@ function MarketplaceContent() {
           )}
           <button
             onClick={() => {
-              setDealQuality(['great'])
-              setPriceRange({ min: '', max: '' })
-              setSelectedCategories([])
-              setSelectedConditions([])
-              setSelectedState('all')
-              setSelectedCountry('all')
-              setSelectedSource('all')
+              if (dealQuality.includes('great')) {
+                setDealQuality(dealQuality.filter(d => d !== 'great'))
+              } else {
+                setDealQuality([...dealQuality.filter(d => d !== 'great'), 'great'])
+              }
             }}
-            className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
+            className={`shrink-0 px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-md text-sm transition-colors ${
+              dealQuality.includes('great')
+                ? 'bg-accent text-accent-foreground border-accent'
+                : 'bg-surface-elevated border-border hover:border-accent text-primary'
+            }`}
           >
             🔥 Hot Deals
           </button>
           <button
             onClick={() => {
-              setPriceRange({ min: '', max: '200' })
-              setDealQuality([])
-              setSelectedCategories([])
-              setSelectedConditions([])
-              setSelectedState('all')
-              setSelectedCountry('all')
-              setSelectedSource('all')
+              if (priceRange.max === '200' && !priceRange.min) {
+                setPriceRange({ min: '', max: '' })
+              } else {
+                setPriceRange({ min: '', max: '200' })
+              }
+              setPresetTick(t => t + 1)
             }}
-            className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
+            className={`shrink-0 px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-md text-sm transition-colors ${
+              priceRange.max === '200' && !priceRange.min
+                ? 'bg-accent text-accent-foreground border-accent'
+                : 'bg-surface-elevated border-border hover:border-accent text-primary'
+            }`}
           >
             💰 Budget Picks
           </button>
           <button
             onClick={() => {
-              setPriceRange({ min: '1000', max: '' })
-              setDealQuality([])
-              setSelectedCategories([])
-              setSelectedConditions([])
-              setSelectedState('all')
-              setSelectedCountry('all')
-              setSelectedSource('all')
+              if (priceRange.min === '1000' && !priceRange.max) {
+                setPriceRange({ min: '', max: '' })
+              } else {
+                setPriceRange({ min: '1000', max: '' })
+              }
+              setPresetTick(t => t + 1)
             }}
-            className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
+            className={`shrink-0 px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-md text-sm transition-colors ${
+              priceRange.min === '1000' && !priceRange.max
+                ? 'bg-accent text-accent-foreground border-accent'
+                : 'bg-surface-elevated border-border hover:border-accent text-primary'
+            }`}
           >
             ✨ Summit-Fi
           </button>
           <button
             onClick={() => {
-              setSelectedCategories(['cans', 'iems'])
-              setDealQuality([])
-              setPriceRange({ min: '', max: '' })
-              setSelectedConditions([])
-              setSelectedState('all')
-              setSelectedCountry('all')
-              setSelectedSource('all')
+              const isActive = selectedCategories.includes('cans') && selectedCategories.includes('iems') && selectedCategories.length === 2
+              if (isActive) {
+                setSelectedCategories([])
+              } else {
+                setSelectedCategories(['cans', 'iems'])
+              }
             }}
-            className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
+            className={`shrink-0 px-2.5 py-1.5 sm:px-3 sm:py-2 border rounded-md text-sm transition-colors ${
+              selectedCategories.includes('cans') && selectedCategories.includes('iems') && selectedCategories.length === 2
+                ? 'bg-accent text-accent-foreground border-accent'
+                : 'bg-surface-elevated border-border hover:border-accent text-primary'
+            }`}
           >
             🎧 Listening Gear Only
           </button>
         </div>
 
         {/* Search and Filters Bar */}
-        <div className="bg-surface-elevated rounded-lg p-4 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-surface-elevated rounded-lg p-3 lg:p-4 mb-4 lg:mb-6">
+          {/* Mobile controls - single compact row */}
+          <div className="flex lg:hidden items-center gap-2">
+            {searchExpanded ? (
+              <div className="flex-1 relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+                <input
+                  ref={searchInputRef}
+                  autoFocus
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-9 py-2 bg-surface border border-border rounded-md text-sm text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                />
+                <button
+                  onClick={() => setSearchExpanded(false)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-secondary hover:text-primary"
+                  aria-label="Close search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setSearchExpanded(true)}
+                  className="relative p-2 rounded-md bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-4 h-4" />
+                  {searchQuery && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full" />
+                  )}
+                </button>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortBy)}
+                  className="flex-1 min-w-0 px-2 py-2 bg-surface border border-border rounded-md text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                >
+                  <option value="date_desc">Newest First</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                </select>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'grid'
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary'
+                    }`}
+                    aria-label="Grid view"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'list'
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary'
+                    }`}
+                    aria-label="List view"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`p-2 rounded-md transition-colors ${
+                    showFilters
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary'
+                  }`}
+                  aria-label="Filters"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Desktop controls - full layout */}
+          <div className="hidden lg:flex gap-4">
             {/* Search */}
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary" />
               <input
-                ref={searchInputRef}
                 type="text"
                 placeholder="Search headphones, brands, or descriptions..."
                 value={searchQuery}
@@ -397,9 +501,9 @@ function MarketplaceContent() {
                 className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-md text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
               />
             </div>
-            
+
             {/* Sort */}
-            <div className="lg:w-48">
+            <div className="w-48">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
@@ -858,6 +962,8 @@ function MarketplaceContent() {
                 setSearchQuery('')
                 setSelectedSource('all')
                 setSelectedConditions([])
+                setSelectedCategories([])
+                setDealQuality([])
                 setSelectedState('all')
                 setSelectedCountry('all')
                 setPriceRange({ min: '', max: '' })
@@ -870,18 +976,33 @@ function MarketplaceContent() {
         ) : (
           <>
             {viewMode === 'list' && (
-              <div className="sticky top-0 z-10 border-b-2 border-border bg-surface backdrop-blur-sm bg-opacity-95">
-                <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-muted uppercase tracking-wider">
+              <div className="sticky top-0 z-10 bg-surface backdrop-blur-sm bg-opacity-95">
+                <div className="flex items-center gap-3 px-3 py-1 border-b border-border text-[10px] text-muted">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-sm bg-green-500 dark:bg-green-400" />
+                    Great deal
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-sm bg-blue-500 dark:bg-blue-400" />
+                    Good deal
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-sm bg-red-400 dark:bg-red-500" />
+                    Overpriced
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 border-b-2 border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
                   <div className="flex-1 min-w-0">Item</div>
                   <div className="hidden sm:block w-20 flex-shrink-0">Source</div>
                   <div className="hidden sm:block w-16 flex-shrink-0">Cond.</div>
-                  <div className="hidden md:block w-28 flex-shrink-0">Seller</div>
+                  <div className="hidden md:block w-24 flex-shrink-0">Seller</div>
                   <div className="hidden lg:block w-16 flex-shrink-0">Loc.</div>
                   <div className="w-12 flex-shrink-0">Age</div>
                   <div className="w-16 flex-shrink-0 text-right">Price</div>
                   <div className="hidden md:block w-14 flex-shrink-0 text-right">MSRP</div>
+                  <div className="hidden lg:block w-20 flex-shrink-0 text-right">Market</div>
                   <div className="hidden sm:block w-10 flex-shrink-0 text-right">Deal</div>
-                  <div className="w-12 flex-shrink-0"></div>
+                  <div className="w-16 flex-shrink-0"></div>
                 </div>
               </div>
             )}
@@ -913,24 +1034,16 @@ function MarketplaceContent() {
                 </div>
               )}
               {!hasMore && listings.length > 0 && (
-                <p className="text-secondary">You&apos;ve reached the end of the listings</p>
+                <p className="text-secondary">
+                  Showing {listings.length} of {totalCount} listings &middot; You&apos;ve reached the end
+                </p>
               )}
             </div>
           </>
         )}
       </main>
 
-      {/* Component Detail Modal */}
-      {selectedComponent && (
-        <ComponentDetailModal
-          component={selectedComponent}
-          isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false)
-            setSelectedComponent(null)
-          }}
-        />
-      )}
+      {modalElement}
     </div>
   )
 }

@@ -202,13 +202,13 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
               <X className="w-4 h-4 text-secondary" />
             </button>
         {/* Header */}
-        <div className="flex items-start gap-4 p-6 border-b">
-          {/* Product image — click to expand */}
-          <div
-            className={`flex-shrink-0 w-[120px] h-[120px] rounded-xl bg-secondary flex items-center justify-center overflow-hidden ${component.image_url ? 'cursor-zoom-in' : ''}`}
-            onClick={() => component.image_url && setImageExpanded(true)}
-          >
-            {component.image_url ? (
+        <div className="flex items-start gap-3 sm:gap-4 p-4 sm:p-6 border-b">
+          {/* Product image — only render if image exists */}
+          {component.image_url && (
+            <div
+              className="flex-shrink-0 w-[120px] h-[120px] rounded-xl bg-secondary flex items-center justify-center overflow-hidden cursor-zoom-in"
+              onClick={() => setImageExpanded(true)}
+            >
               <Image
                 src={component.image_url}
                 alt={`${component.brand} ${component.name}`}
@@ -216,15 +216,13 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
                 height={120}
                 className="object-contain"
               />
-            ) : (
-              <Headphones className="w-10 h-10 text-tertiary" />
-            )}
-          </div>
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold text-primary">
+            <h2 className="text-lg sm:text-xl font-bold text-primary">
               {component.brand} {component.name}
             </h2>
-            <p className="text-secondary mt-1">
+            <p className="text-secondary text-sm mt-0.5">
               {component.category.charAt(0).toUpperCase() + component.category.slice(1)}
             </p>
           </div>
@@ -264,41 +262,39 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
         </AnimatePresence>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Price Range — enhanced with actual market data */}
-          <div className="p-4 bg-secondary rounded-lg space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-primary">
-                  {marketData ? 'Market Value' : 'Typical Used Price Range'}
-                </h3>
-                <p className="text-sm text-secondary">
-                  {marketData
-                    ? `Based on ${marketData.count} recent sale${marketData.count !== 1 ? 's' : ''}`
-                    : 'Based on recent marketplace data'}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold text-primary">
-                  {marketData ? (
-                    `${formatPrice(marketData.min)} - ${formatPrice(marketData.max)}`
-                  ) : component.price_used_min && component.price_used_max ? (
-                    `${formatPrice(component.price_used_min)} - ${formatPrice(component.price_used_max)}`
-                  ) : (
-                    'Price data unavailable'
-                  )}
-                </div>
-                {marketData && (
-                  <div className="text-sm text-secondary">
-                    Median: {formatPrice(marketData.median)}
-                  </div>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          {/* Price Range — compact layout */}
+          <div className="p-3 sm:p-4 bg-secondary rounded-lg">
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="font-semibold text-primary text-sm sm:text-base">
+                {marketData ? 'Market Value' : 'Used Price'}
+              </h3>
+              <span className="text-lg font-bold text-primary">
+                {marketData ? (
+                  `${formatPrice(marketData.min)}–${formatPrice(marketData.max)}`
+                ) : component.price_used_min && component.price_used_max ? (
+                  `${formatPrice(component.price_used_min)}–${formatPrice(component.price_used_max)}`
+                ) : (
+                  'N/A'
                 )}
-                {component.price_new && (
-                  <div className="text-sm text-secondary">
-                    New: {formatPrice(component.price_new)}
-                  </div>
-                )}
-              </div>
+              </span>
+            </div>
+            <div className="flex items-center gap-3 mt-1 text-xs sm:text-sm text-secondary">
+              {marketData ? (
+                <>
+                  <span>Median {formatPrice(marketData.median)}</span>
+                  <span className="text-border">·</span>
+                  <span>{marketData.count} sale{marketData.count !== 1 ? 's' : ''}</span>
+                </>
+              ) : (
+                <span>Based on recent marketplace data</span>
+              )}
+              {component.price_new && (
+                <>
+                  <span className="text-border">·</span>
+                  <span>New {formatPrice(component.price_new)}</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -495,7 +491,7 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t">
+        <div className="p-4 sm:p-6 border-t">
           {onToggleSelection ? (
             <div className="flex gap-3">
               <button

@@ -158,10 +158,22 @@ export function MarketplaceListingCard({
         <div className="flex items-center gap-2 px-3 py-1.5">
           {/* Item — name + source dot + bundle */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <span className="font-medium text-foreground truncate text-sm">
-              {component.name}
-            </span>
+            {onViewDetails ? (
+              <button
+                onClick={onViewDetails}
+                className="font-medium text-foreground hover:text-accent truncate text-sm text-left transition-colors"
+              >
+                {component.name}
+              </button>
+            ) : (
+              <span className="font-medium text-foreground truncate text-sm">
+                {component.name}
+              </span>
+            )}
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${sourceInfo.dotColor}`} />
+            {priceAnalysis.type === 'great-deal' && (
+              <span className="text-[11px] flex-shrink-0" aria-label="Great deal">🔥</span>
+            )}
             {listing.is_bundle && (
               <Tooltip content={`Bundle: ${listing.component_count || 2}+ items`}>
                 <span className="text-orange-600 dark:text-orange-400 text-[11px] flex-shrink-0">📦</span>
@@ -191,7 +203,7 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Seller + trades */}
-          <div className="hidden md:flex items-center w-28 flex-shrink-0 text-xs text-muted gap-1 truncate">
+          <div className="hidden md:flex items-center w-24 flex-shrink-0 text-xs text-muted gap-1 truncate">
             <span className="truncate">{listing.seller_username}</span>
             {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
               <span className="text-green-600 dark:text-green-400 flex-shrink-0">
@@ -224,6 +236,20 @@ export function MarketplaceListingCard({
             </span>
           </div>
 
+          {/* Market — median sale price + count */}
+          <div className="hidden lg:block w-20 flex-shrink-0 text-right">
+            {(() => {
+              const stats = getCachedPriceStats(component.id)
+              return stats ? (
+                <span className="text-xs text-muted tabular-nums">
+                  ${Math.round(stats.median)} <span className="text-tertiary">({stats.count})</span>
+                </span>
+              ) : (
+                <span className="text-xs text-muted">—</span>
+              )
+            })()}
+          </div>
+
           {/* Deal — text only, no background */}
           <div className="hidden sm:block w-10 flex-shrink-0 text-right">
             {hasDeal ? (
@@ -234,7 +260,7 @@ export function MarketplaceListingCard({
           </div>
 
           {/* Action */}
-          <div className="w-12 flex-shrink-0 text-right">
+          <div className="w-16 flex-shrink-0 text-right">
             {listing.url.includes('/sample') ? (
               <span className="text-xs text-muted">Demo</span>
             ) : (
@@ -242,7 +268,7 @@ export function MarketplaceListingCard({
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 text-xs text-accent hover:text-accent-hover font-medium transition-colors"
+                className="inline-flex items-center gap-0.5 px-2.5 py-1 text-xs font-medium bg-accent text-accent-foreground rounded-full hover:bg-accent-hover transition-colors"
                 aria-label={`View listing for ${listing.title} (opens in new tab)`}
               >
                 View <ExternalLink className="w-3 h-3" aria-hidden="true" />

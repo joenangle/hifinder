@@ -102,7 +102,7 @@ const HeadphoneCardComponent = ({
         <button
           type="button"
           aria-label={isSelected ? `Remove ${headphone.brand} ${headphone.name} from stack` : `Add ${headphone.brand} ${headphone.name} to stack`}
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow,opacity] duration-200 ${
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
             isSelected
               ? (isCans ? 'bg-violet-500 text-white' : 'bg-indigo-500 text-white')
               : isFirstCardHint

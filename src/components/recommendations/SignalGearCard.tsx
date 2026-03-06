@@ -105,7 +105,7 @@ const SignalGearCardComponent = ({
         <button
           type="button"
           aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,box-shadow,opacity] duration-200 ${
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
             isSelected
               ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
               : isFirstCardHint

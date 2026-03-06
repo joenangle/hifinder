@@ -111,17 +111,58 @@
   }
 }
 
-@keyframes hint-pulse {
+@keyframes hint-warmup {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb, 232, 90, 79), 0),
+                0 0 0 0 rgba(var(--accent-primary-rgb, 232, 90, 79), 0);
+  }
+  100% {
+    box-shadow: 0 0 8px 3px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.35),
+                0 0 2px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.2);
+  }
+}
+
+@keyframes hint-warmup-alt {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb, 232, 90, 79), 0),
+                0 0 0 0 rgba(var(--accent-primary-rgb, 232, 90, 79), 0);
+  }
+  100% {
+    box-shadow: 0 0 8px 3px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.35),
+                0 0 2px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.2);
+  }
+}
+
+@keyframes hint-idle {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb, 201, 66, 55), 0.4);
+    box-shadow: 0 0 8px 3px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.35),
+                0 0 2px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.2);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(var(--accent-primary-rgb, 201, 66, 55), 0);
+    box-shadow: 0 0 10px 4px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.3),
+                0 0 3px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.15);
+  }
+}
+
+@keyframes hint-idle-alt {
+  0%, 100% {
+    box-shadow: 0 0 8px 3px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.35),
+                0 0 2px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.2);
+  }
+  50% {
+    box-shadow: 0 0 10px 4px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.3),
+                0 0 3px 1px rgba(var(--accent-primary-rgb, 232, 90, 79), 0.15);
   }
 }
 
 .animate-hint-pulse {
-  animation: hint-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: hint-warmup 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             hint-idle 4s ease-in-out 1.5s infinite;
+}
+
+:root[data-theme="light"] .animate-hint-pulse {
+  animation: hint-warmup-alt 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             hint-idle-alt 4s ease-in-out 1.5s infinite;
 }
 
 /* ============================================
@@ -744,6 +785,10 @@ select.input {
     font-size: 0.8125rem;
   }
 }
+
+/* Scrollbar hide utility (horizontal scroll rows) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Opacity utilities for accent color */
 .text-accent\/70 {
