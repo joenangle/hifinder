@@ -6,7 +6,7 @@ import { getUserWishlist } from '@/lib/wishlist'
 import { WishlistItem } from '@/types/auth'
 import { Heart } from 'lucide-react'
 import { WishlistButton } from '@/components/WishlistButton'
-import { FindUsedButton } from '@/components/FindUsedButton'
+import { FindUsedButton } from '@/components/marketplace/FindUsedButton'
 import Link from 'next/link'
 
 export function WishlistTab() {

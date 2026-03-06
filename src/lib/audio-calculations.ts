@@ -1,23 +1,15 @@
 /**
  * Audio power calculation utilities for headphone amplification assessment
- * 
+ *
  * This module provides comprehensive power requirement calculations based on
  * impedance and sensitivity, replacing the oversimplified impedance-only approach.
- * 
+ *
  * Based on standard audio engineering formulas and real-world device capabilities.
  */
 
-export interface PowerRequirements {
-  powerNeeded_mW: number;
-  voltageNeeded_V: number;
-  currentNeeded_mA: number;
-  difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding';
-  phoneCompatible: boolean;
-  laptopCompatible: boolean;
-  portableAmpSufficient: boolean;
-  desktopAmpRecommended: boolean;
-  explanation: string;
-}
+import type { PowerRequirements } from '@/types/audio'
+
+export type { PowerRequirements } from '@/types/audio'
 
 /**
  * Calculate comprehensive power requirements for headphones/IEMs
@@ -339,6 +331,8 @@ export function matchAmplifiersToHeadphones(
     name: string;
     brand: string;
     power_output?: string; // e.g., "500mW @ 32Ω"
+    power_output_mw_32?: number | null;
+    power_output_mw_300?: number | null;
     price_used_min: number | null;
     price_used_max: number | null;
   }[]
@@ -360,9 +354,19 @@ export function matchAmplifiersToHeadphones(
   const powerNeeded = mostDemandingHeadphone?.powerRequirement?.powerNeeded_mW ?? 50;
 
   const results = amplifiers.map(amp => {
-    const parsedSpec = parsePowerSpec(amp.power_output);
     let powerAtHeadphoneZ: number;
     let specBased = false;
+
+    // Prefer structured numeric fields, fall back to string parsing
+    const structuredPower = targetImpedance >= 200
+      ? (amp.power_output_mw_300 ?? amp.power_output_mw_32)
+      : (amp.power_output_mw_32 ?? amp.power_output_mw_300);
+    const structuredRef = targetImpedance >= 200
+      ? (amp.power_output_mw_300 ? 300 : 32)
+      : (amp.power_output_mw_32 ? 32 : 300);
+    const parsedSpec = structuredPower
+      ? { power_mW: structuredPower, reference_impedance: structuredRef }
+      : parsePowerSpec(amp.power_output);
 
     if (parsedSpec) {
       // Full power matching with actual specs

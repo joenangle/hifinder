@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseServer
       .from('components')
-      .select('id, name, brand, category, price_new, price_used_min, price_used_max, impedance, sound_signature, needs_amp, fit')
+      .select('id, name, brand, category, price_new, price_used_min, price_used_max, impedance, sound_signature, needs_amp, fit, image_url, driver_type, asr_sinad, crin_rank, crin_tone, crin_tech')
 
     // Each word must appear in either brand or name
     for (const word of words) {

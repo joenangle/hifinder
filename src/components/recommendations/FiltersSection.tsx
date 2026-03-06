@@ -1,9 +1,9 @@
 'use client'
 
 import { memo } from 'react'
-import { Tooltip } from '@/components/Tooltip'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
-import { BudgetAllocationControls, BudgetAllocation } from '@/components/BudgetAllocationControls'
+import { BudgetAllocationControls, BudgetAllocation } from '@/components/budget/BudgetAllocationControls'
 
 interface FilterCounts {
   sound: Record<string, number>

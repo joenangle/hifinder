@@ -3,7 +3,7 @@
 import { memo } from 'react'
 import Image from 'next/image'
 import { Cable, Disc3, Combine } from 'lucide-react'
-import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
+import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
@@ -74,84 +74,87 @@ const SignalGearCardComponent = ({
   const powerMatch = component.powerMatchScore
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
 
-    const SELECTED_STYLE = {
-      dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-[0_0_0_3px_rgba(45,212,191,0.12),0_2px_8px_rgba(45,212,191,0.08)]',
-      amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-[0_0_0_3px_rgba(251,191,36,0.12),0_2px_8px_rgba(251,191,36,0.08)]',
-      combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-[0_0_0_3px_rgba(96,165,250,0.12),0_2px_8px_rgba(96,165,250,0.08)]',
-    }
-    const HOVER_STYLE = {
-      dac:   'hover:border-teal-300 hover:shadow-sm',
-      amp:   'hover:border-amber-300 hover:shadow-sm',
-      combo: 'hover:border-blue-300 hover:shadow-sm',
-    }
+  const SELECTED_STYLE = {
+    dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-[0_0_0_3px_rgba(45,212,191,0.12),0_2px_8px_rgba(45,212,191,0.08)]',
+    amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-[0_0_0_3px_rgba(251,191,36,0.12),0_2px_8px_rgba(251,191,36,0.08)]',
+    combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-[0_0_0_3px_rgba(96,165,250,0.12),0_2px_8px_rgba(96,165,250,0.08)]',
+  }
+  const HOVER_STYLE = {
+    dac:   'hover:border-teal-300 hover:shadow-sm',
+    amp:   'hover:border-amber-300 hover:shadow-sm',
+    combo: 'hover:border-blue-300 hover:shadow-sm',
+  }
 
-    const SELECTED_COLOR = { dac: 'bg-teal-500', amp: 'bg-amber-500', combo: 'bg-blue-500' }
+  const SELECTED_COLOR = { dac: 'bg-teal-500', amp: 'bg-amber-500', combo: 'bg-blue-500' }
 
-    return (
-      <div
-        role="article"
-        aria-label={`${component.brand} ${component.name}`}
-        tabIndex={0}
-        title="View details"
-        className={`card-interactive group relative rounded-xl border cursor-pointer px-4 py-3 ${
+  return (
+    <div
+      role="article"
+      aria-label={`${component.brand} ${component.name}`}
+      tabIndex={0}
+      title="View details"
+      className={`card-interactive group relative rounded-xl border cursor-pointer px-3 py-2.5 ${
+        isSelected
+          ? SELECTED_STYLE[type]
+          : `bg-surface-card ${HOVER_STYLE[type]}`
+      }`}
+      onClick={() => onViewDetails?.(component.id)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(component.id) } }}
+    >
+      {/* Selection button — top right */}
+      <button
+        type="button"
+        aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
+        className={`absolute top-2.5 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
           isSelected
-            ? SELECTED_STYLE[type]
-            : `bg-surface-card ${HOVER_STYLE[type]}`
+            ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
+            : isFirstCardHint
+            ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
+            : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'
         }`}
-        onClick={() => onViewDetails?.(component.id)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(component.id) } }}
+        onClick={(e) => { e.stopPropagation(); onToggleSelection(component.id) }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onToggleSelection(component.id) } }}
       >
-        {/* Selection button */}
-        <button
-          type="button"
-          aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
-            isSelected
-              ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
-              : isFirstCardHint
-              ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
-              : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'
-          }`}
-          onClick={(e) => { e.stopPropagation(); onToggleSelection(component.id) }}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onToggleSelection(component.id) } }}
-        >
-          {isSelected ? (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
-            </svg>
-          )}
-        </button>
-      {/* Row 1: Type label + image + name + price (pr-10 clears the selection button) */}
-      <div className="flex items-start justify-between gap-3 mb-2 pr-10">
-        <div className="flex items-start gap-3 min-w-0">
-          {/* Product thumbnail */}
-          {(() => { const Icon = TYPE_ICON[type]; return (
-            <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
-              {component.image_url ? (
-                <Image
-                  src={component.image_url}
-                  alt={`${component.brand} ${component.name}`}
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                />
-              ) : (
+        {isSelected ? (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+          </svg>
+        )}
+      </button>
+
+      {/* Horizontal layout: image left, info right */}
+      <div className="flex items-start gap-3 pr-10">
+        {/* Product image — natural aspect ratio */}
+        {(() => { const Icon = TYPE_ICON[type]; return (
+          <div className="flex-shrink-0 w-20 sm:w-24 rounded-lg bg-secondary flex items-center justify-center overflow-hidden self-start">
+            {component.image_url ? (
+              <Image
+                src={component.image_url}
+                alt={`${component.brand} ${component.name}`}
+                width={96}
+                height={96}
+                className="w-full h-auto object-contain max-h-28 min-h-12"
+              />
+            ) : (
+              <div className="py-4">
                 <Icon className="w-8 h-8 text-tertiary" />
-              )}
-            </div>
-          ); })()}
-          <div className="min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
+              </div>
+            )}
+          </div>
+        ); })()}
+
+        {/* Info column */}
+        <div className="flex-1 min-w-0">
+          {/* Row 1: Type label + name */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-tertiary">
               {TYPE_LABEL[type]}
             </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <h3 className="font-semibold text-base text-primary leading-snug">
+            <h3 className="font-semibold text-base text-primary leading-snug truncate">
               <span className="font-normal text-secondary">{component.brand} </span>
               {component.name}
             </h3>
@@ -171,92 +174,94 @@ const SignalGearCardComponent = ({
               </a>
             )}
           </div>
-          </div>
-        </div>
 
-        <div className="text-right flex-shrink-0">
-          <div className="text-base font-bold text-primary tabular-nums">
-            {fmt(component.price_used_min || 0)}–{fmt(component.price_used_max || 0)}
-          </div>
-          <div className="text-[10px] text-tertiary leading-none mt-0.5">used est.</div>
-          <PriceHistoryBadge componentId={component.id} />
-          <PriceTrendIndicator componentId={component.id} />
-        </div>
-      </div>
+          {/* Row 2: Measurements + compatibility */}
+          {(hasMeasurements || powerMatch !== undefined) && (
+            <div className="flex flex-wrap items-center gap-2 mt-0.5 text-sm">
+              {component.asr_sinad && (
+                <span className="text-secondary tabular-nums">
+                  SINAD <span className="font-semibold text-primary">{component.asr_sinad}</span>
+                  <span className="text-xs text-tertiary ml-1">
+                    {component.asr_sinad >= 120 ? 'excellent' : component.asr_sinad >= 110 ? 'very good' : component.asr_sinad >= 100 ? 'good' : 'fair'}
+                  </span>
+                </span>
+              )}
+              {(component.power_output || component.power_output_mw) && (
+                <span className="text-secondary">
+                  <span className="font-semibold text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
+                </span>
+              )}
+              {powerMatch !== undefined && (
+                <span className={`text-xs font-medium ${
+                  powerMatch >= 0.9 ? 'text-emerald-600 dark:text-emerald-400' :
+                  powerMatch >= 0.6 ? 'text-amber-600 dark:text-amber-400' :
+                  'text-red-600 dark:text-red-400'
+                }`}>
+                  {powerMatch >= 0.9 ? 'Excellent pairing' : powerMatch >= 0.6 ? 'Adequate' : 'May struggle'}
+                </span>
+              )}
+            </div>
+          )}
 
-      {/* Row 2: Key measurements + compatibility */}
-      {(hasMeasurements || powerMatch !== undefined) && (
-        <div className="flex flex-wrap items-center gap-3 mb-2 text-sm">
-          {component.asr_sinad && (
-            <span className="text-secondary tabular-nums">
-              SINAD <span className="font-semibold text-primary">{component.asr_sinad}</span>
-              <span className="text-xs text-tertiary ml-1">
-                {component.asr_sinad >= 120 ? 'excellent' : component.asr_sinad >= 110 ? 'very good' : component.asr_sinad >= 100 ? 'good' : 'fair'}
+          {/* Row 3: Price + MSRP */}
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <span className="text-sm font-bold text-primary tabular-nums">
+              {fmt(component.price_used_min || 0)}–{fmt(component.price_used_max || 0)}
+            </span>
+            <span className="text-[10px] text-tertiary">used est.</span>
+            {component.price_new && (
+              <span className="text-xs text-tertiary">
+                MSRP {fmt(component.price_new)}
               </span>
-            </span>
+            )}
+            <PriceHistoryBadge componentId={component.id} />
+            <PriceTrendIndicator componentId={component.id} />
+          </div>
+
+          {/* Row 4: I/O pills */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-secondary">
+            {inputs.slice(0, 3).map(i => (
+              <span key={i} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
+                {i}
+              </span>
+            ))}
+            {outputs.slice(0, 2).map(o => (
+              <span key={o} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
+                {o} out
+              </span>
+            ))}
+          </div>
+
+          {/* Why recommended */}
+          {component.why_recommended && (
+            <p className="mt-1 text-xs text-tertiary leading-snug line-clamp-2">
+              {component.why_recommended}
+            </p>
           )}
-          {(component.power_output || component.power_output_mw) && (
-            <span className="text-secondary">
-              <span className="font-semibold text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
-            </span>
-          )}
-          {powerMatch !== undefined && (
-            <span className={`text-xs font-medium ${
-              powerMatch >= 0.9 ? 'text-emerald-600 dark:text-emerald-400' :
-              powerMatch >= 0.6 ? 'text-amber-600 dark:text-amber-400' :
-              'text-red-600 dark:text-red-400'
-            }`}>
-              {powerMatch >= 0.9 ? 'Excellent pairing' : powerMatch >= 0.6 ? 'Adequate' : 'May struggle'}
-            </span>
-          )}
-        </div>
-      )}
 
-      {/* Row 3: Attribute pills */}
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-secondary">
-        {inputs.slice(0, 3).map(i => (
-          <span key={i} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
-            {i}
-          </span>
-        ))}
-        {outputs.slice(0, 2).map(o => (
-          <span key={o} className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
-            {o} out
-          </span>
-        ))}
-        {component.price_new && (
-          <span className="text-tertiary ml-auto">
-            MSRP {fmt(component.price_new)}
-          </span>
-        )}
-      </div>
+          {/* Expert quote (inline) */}
+          <ExpertAnalysisPanel component={component} inline forceExpanded={expandAllExperts} />
 
-      {/* Why recommended — subtle, below pills */}
-      {component.why_recommended && (
-        <p className="mt-2 text-xs text-tertiary leading-snug line-clamp-2">
-          {component.why_recommended}
-        </p>
-      )}
-
-      <ExpertAnalysisPanel component={component} forceExpanded={expandAllExperts} />
-
-      {/* Action row */}
-      <div className="mt-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
-          <button
-            onClick={() => onFindUsed(component.id, `${component.brand} ${component.name}`)}
-            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
-          >
-            {component.usedListingsCount} used listing{component.usedListingsCount !== 1 ? 's' : ''}
-            <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-        <div className="ml-auto flex items-center gap-1">
-          <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
+          {/* Actions */}
+          <div className="mt-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
+              <button
+                onClick={() => onFindUsed(component.id, `${component.brand} ${component.name}`)}
+                className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
+              >
+                {component.usedListingsCount} used listing{component.usedListingsCount !== 1 ? 's' : ''}
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+            <div className="ml-auto flex items-center gap-1">
+              <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
+            </div>
+          </div>
         </div>
       </div>
+
       {isFirstCardHint && !isSelected && (
         <p className="text-xs text-accent text-center mt-2 animate-fadeIn">Tap card for details · <strong>+</strong> to add to stack</p>
       )}

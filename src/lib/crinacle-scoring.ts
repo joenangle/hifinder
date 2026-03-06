@@ -60,16 +60,9 @@ export function gradeToNumeric(grade?: string | null): number {
   return gradeMap[normalized] ?? 5.0; // Default to C if grade not recognized
 }
 
-/**
- * Component interface for expert scoring
- * Matches the structure from database queries
- */
-export interface ScoringComponent {
-  crin_rank?: string | null;
-  crin_tone?: string | null;
-  crin_tech?: string | null;
-  crin_value?: number | null;
-}
+import type { ScoringComponent } from '@/types/audio'
+
+export type { ScoringComponent } from '@/types/audio'
 
 /**
  * Calculate comprehensive expert score using Crinacle data
@@ -107,6 +100,26 @@ export function calculateExpertScore(component: ScoringComponent): number {
     valueScore * 0.20;  // 20% value proposition
 
   return expertScore;
+}
+
+/**
+ * Convert SINAD measurement (dB) to a 0-10 quality score
+ *
+ * SINAD range in practice: ~60 dB (poor) to ~125 dB (state of the art)
+ * Uses a slightly compressed scale so mid-range DACs/amps still score reasonably.
+ *
+ * Reference points:
+ * - 60 dB  → 3.0 (poor, audible distortion)
+ * - 80 dB  → 4.9 (mediocre)
+ * - 98 dB  → 6.6 (good, exceeds 16-bit CD)
+ * - 110 dB → 7.7 (very good)
+ * - 120 dB → 8.6 (excellent)
+ * - 130 dB → 9.5 (state of the art)
+ */
+export function sinadToScore(sinad: number | null | undefined): number {
+  if (sinad == null) return 5.0; // Default C grade
+  const clamped = Math.max(60, Math.min(130, sinad));
+  return 3.0 + ((clamped - 60) / 70) * 6.5;
 }
 
 /**

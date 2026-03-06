@@ -1,18 +1,5 @@
 import { generateEbayAffiliateLink, generateTrackingId } from './ebay-affiliate'
-
-interface RetailerLink {
-  name: string
-  url: string
-  type: 'new' | 'used' | 'both'
-}
-
-interface ComponentInfo {
-  id: string
-  brand: string
-  name: string
-  category: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable'
-  amazon_url: string | null
-}
+import type { RetailerLink, ComponentInfo } from '@/types/marketplace'
 
 export function getRetailerLinks(component: ComponentInfo): RetailerLink[] {
   const links: RetailerLink[] = []
@@ -56,4 +43,4 @@ export function getRetailerLinks(component: ComponentInfo): RetailerLink[] {
   return links
 }
 
-export type { RetailerLink, ComponentInfo }
+export type { RetailerLink, ComponentInfo } from '@/types/marketplace'

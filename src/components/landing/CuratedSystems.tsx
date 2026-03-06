@@ -42,7 +42,7 @@ export function CuratedSystems() {
 
   if (loading) {
     return (
-      <section style={{ padding: '100px 0' }}>
+      <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
           <p
             className="text-xs font-semibold mb-6"
@@ -77,7 +77,7 @@ export function CuratedSystems() {
   if (systems.length === 0) return null
 
   return (
-    <section style={{ padding: '100px 0' }}>
+    <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
           <p

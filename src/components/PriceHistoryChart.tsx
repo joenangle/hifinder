@@ -178,8 +178,8 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
 
       {/* Chart */}
       <div className="bg-surface-secondary rounded-lg p-3">
-        <ResponsiveContainer width="100%" height={200}>
-          <ScatterChart margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+        <ResponsiveContainer width="100%" height={280}>
+          <ScatterChart margin={{ top: 10, right: 15, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border, #333)" />
             <XAxis
               type="number"
@@ -199,7 +199,7 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
               stroke="var(--color-border, #333)"
               width={55}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'var(--color-muted, #888)' }} isAnimationActive={false} />
             {priceNew && (
               <ReferenceLine
                 y={priceNew}
@@ -207,9 +207,10 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
                 strokeDasharray="6 3"
                 label={{
                   value: `MSRP ${formatPrice(priceNew)}`,
-                  position: 'right',
+                  position: 'insideTopRight',
                   fontSize: 11,
-                  fill: '#6366f1'
+                  fill: '#6366f1',
+                  offset: 4,
                 }}
               />
             )}
@@ -219,9 +220,10 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
               strokeDasharray="3 3"
               label={{
                 value: `Median ${formatPrice(stats.median)}`,
-                position: 'left',
+                position: 'insideTopLeft',
                 fontSize: 11,
-                fill: '#22c55e'
+                fill: '#22c55e',
+                offset: 4,
               }}
             />
             <Scatter
@@ -229,9 +231,25 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
               fill="#f59e0b"
               shape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
                 const { cx, cy, payload } = props
-                if (!cx || !cy || !payload) return null
+                if (cx == null || cy == null || !payload) return null
                 const color = CONDITION_COLORS[payload.condition] || '#f59e0b'
-                return <circle cx={cx} cy={cy} r={5} fill={color} fillOpacity={0.8} stroke={color} strokeWidth={1} />
+                return (
+                  <g style={{ cursor: 'pointer' }}>
+                    <circle cx={cx} cy={cy} r={12} fill="transparent" />
+                    <circle cx={cx} cy={cy} r={5} fill={color} fillOpacity={0.8} stroke={color} strokeWidth={1} />
+                  </g>
+                )
+              }}
+              activeShape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
+                const { cx, cy, payload } = props
+                if (cx == null || cy == null || !payload) return null
+                const color = CONDITION_COLORS[payload.condition] || '#f59e0b'
+                return (
+                  <g>
+                    <circle cx={cx} cy={cy} r={9} fill={color} fillOpacity={0.2} />
+                    <circle cx={cx} cy={cy} r={5} fill={color} fillOpacity={1} stroke="white" strokeWidth={1.5} />
+                  </g>
+                )
               }}
             />
             {estimatedData.length > 0 && (
@@ -240,9 +258,25 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
                 fill="none"
                 shape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
                   const { cx, cy, payload } = props
-                  if (!cx || !cy || !payload) return null
+                  if (cx == null || cy == null || !payload) return null
                   const color = CONDITION_COLORS[payload.condition] || '#f59e0b'
-                  return <circle cx={cx} cy={cy} r={5} fill="none" fillOpacity={0.4} stroke={color} strokeWidth={1.5} strokeDasharray="3 2" />
+                  return (
+                    <g style={{ cursor: 'pointer' }}>
+                      <circle cx={cx} cy={cy} r={12} fill="transparent" />
+                      <circle cx={cx} cy={cy} r={5} fill="none" fillOpacity={0.4} stroke={color} strokeWidth={1.5} strokeDasharray="3 2" />
+                    </g>
+                  )
+                }}
+                activeShape={(props: { cx?: number; cy?: number; payload?: Sale & { timestamp: number } }) => {
+                  const { cx, cy, payload } = props
+                  if (cx == null || cy == null || !payload) return null
+                  const color = CONDITION_COLORS[payload.condition] || '#f59e0b'
+                  return (
+                    <g>
+                      <circle cx={cx} cy={cy} r={9} fill={color} fillOpacity={0.15} />
+                      <circle cx={cx} cy={cy} r={5} fill="none" stroke={color} strokeWidth={2} strokeDasharray="3 2" />
+                    </g>
+                  )
                 }}
               />
             )}

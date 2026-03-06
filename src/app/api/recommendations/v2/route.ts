@@ -6,6 +6,7 @@ import {
   calculateExpertScore,
   calculateExpertConfidence,
   gradeToNumeric as gradeToNumeric10Scale,
+  sinadToScore,
   type ScoringComponent,
 } from "@/lib/crinacle-scoring";
 import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
@@ -606,22 +607,31 @@ function filterAndScoreComponents(
       const technicalGradeNumeric = gradeToNumeric(component.crin_tech);
 
       // Calculate comprehensive expert score using new scoring system (0-10)
-      const scoringData = {
+      const scoringData: ScoringComponent = {
         crin_rank: component.crin_rank,
         crin_tone: component.crin_tone,
         crin_tech: component.crin_tech,
         crin_value: component.crin_value,
+        asr_sinad: (component as { asr_sinad?: number }).asr_sinad,
       };
       const rawExpertScore = calculateExpertScore(scoringData);
 
-      // Apply confidence penalty for headphones/IEMs with partial data
-      // (DACs/amps/combos have no Crinacle data, so skip — they all score 4.0 already)
       const isHeadphone = component.category === "cans" || component.category === "iems";
+      const isElectronics = component.category === "dac" || component.category === "amp" || component.category === "dac_amp";
       const confidence = calculateExpertConfidence(scoringData);
-      // Only penalize partial data (confidence 0.5-0.9), not zero data (confidence 0)
-      const expertScore = isHeadphone && confidence > 0
-        ? rawExpertScore * confidence
-        : rawExpertScore;
+
+      let expertScore: number;
+      if (isHeadphone && confidence > 0) {
+        // Apply confidence penalty for headphones/IEMs with partial Crinacle data
+        expertScore = rawExpertScore * confidence;
+      } else if (isElectronics && scoringData.asr_sinad != null) {
+        // For electronics with SINAD data: use SINAD as quality signal
+        // SINAD is the primary objective measurement for DACs/amps
+        expertScore = sinadToScore(scoringData.asr_sinad);
+      } else {
+        // Default: use raw expert score (5.0 for components with no data)
+        expertScore = rawExpertScore;
+      }
 
       // Calculate power compatibility for amps
       let powerAdequacy = 0.5;

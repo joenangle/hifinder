@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { Modal } from '@/components/Modal'
+import { Modal } from '@/components/ui/Modal'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Search } from 'lucide-react'
 

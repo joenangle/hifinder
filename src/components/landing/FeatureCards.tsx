@@ -46,9 +46,10 @@ const cardStyle = {
   background: 'var(--background-secondary)',
   border: '1px solid var(--border-subtle)',
   borderRadius: '16px',
-  padding: '32px',
+  padding: 'clamp(20px, 4vw, 32px)',
   transition: 'border-color 0.15s, box-shadow 0.15s',
   textDecoration: 'none' as const,
+  minWidth: 0,
 }
 
 function handleCardHover(e: React.MouseEvent, enter: boolean) {
@@ -141,7 +142,7 @@ export function FeatureCards() {
   const [stackExpanded, setStackExpanded] = useState(false)
 
   return (
-    <section style={{ padding: '100px 0' }}>
+    <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
         <h2
           className="text-xs font-semibold mb-6"
@@ -155,7 +156,7 @@ export function FeatureCards() {
           What HiFinder does
         </h2>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-6 overflow-hidden">
           {features.map((f) => {
             const isStackBuilder = f.title === 'Stack Builder'
 

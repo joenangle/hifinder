@@ -5,16 +5,7 @@
  * Compliant with eBay API License Agreement - no data scraping/storage
  */
 
-interface EbayAffiliateConfig {
-  campaignId?: string;
-  customId?: string; // Optional tracking parameter
-}
-
-interface ComponentSearchParams {
-  brand: string;
-  name: string;
-  category?: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable';
-}
+import type { EbayAffiliateConfig, ComponentSearchParams } from '@/types/marketplace'
 
 let ebayWarningLogged = false;
 
@@ -172,4 +163,4 @@ export function generateTrackingId(
  */
 
 // Export types for use in components
-export type { ComponentSearchParams, EbayAffiliateConfig };
+export type { ComponentSearchParams, EbayAffiliateConfig } from '@/types/marketplace';

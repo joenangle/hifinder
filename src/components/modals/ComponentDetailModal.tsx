@@ -3,15 +3,15 @@
 import { Component } from '@/types'
 import Image from 'next/image'
 import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink, Headphones } from 'lucide-react'
-import { StarRating } from './StarRating'
-import { AmplificationBadge } from './AmplificationIndicator'
+import { StarRating } from '../ui/StarRating'
+import { AmplificationBadge } from '../ui/AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
 import { getRetailerLinks } from '@/lib/retailer-links'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const PriceHistoryChart = dynamic(
-  () => import('./PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
+  () => import('../PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
   { ssr: false }
 )
 import { useState, useEffect, useRef, useCallback } from 'react'

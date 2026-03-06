@@ -3,9 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Search, ExternalLink, TrendingUp } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, Search, ExternalLink, TrendingUp, Headphones, Ear, Cpu } from 'lucide-react'
 import { PriceHistoryChart } from '@/components/PriceHistoryChart'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { Component } from '@/types'
+
+const FEATURED_SLUG = 'sennheiser-hd650'
 
 interface SoldListing {
   price: number
@@ -68,24 +72,28 @@ export function PriceHistoryContent() {
   const [soldSort, setSoldSort] = useState<'date' | 'price_asc' | 'price_desc'>('date')
   const [activeListingsCount, setActiveListingsCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isFeatured, setIsFeatured] = useState(false)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
-  // Load component from URL param on mount
+  // Load component from URL param on mount, or show featured example
   useEffect(() => {
     const modelParam = searchParams.get('model')
-    if (modelParam) {
-      // Search for component by slug-like param
-      fetch(`/api/components/search?q=${encodeURIComponent(modelParam.replace(/-/g, ' '))}&limit=1`)
-        .then(r => r.json())
-        .then(data => {
-          if (data.length > 0) {
-            selectComponent(data[0])
+    const slug = modelParam || FEATURED_SLUG
+    const featured = !modelParam
+
+    fetch(`/api/components/search?q=${encodeURIComponent(slug.replace(/-/g, ' '))}&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.length > 0) {
+          if (featured) {
+            setIsFeatured(true)
           }
-        })
-        .catch(() => {})
-    }
+          selectComponent(data[0], featured)
+        }
+      })
+      .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -123,16 +131,21 @@ export function PriceHistoryContent() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  function selectComponent(component: Component) {
+  function selectComponent(component: Component, skipUrl = false) {
     setSelectedComponent(component)
     setQuery(`${component.brand} ${component.name}`)
     setShowSuggestions(false)
     setPriceData(null)
     setLoading(true)
+    if (!skipUrl) {
+      setIsFeatured(false)
+    }
 
-    // Update URL
-    const slug = `${component.brand}-${component.name}`.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-    router.replace(`/price-history?model=${slug}`, { scroll: false })
+    // Update URL (skip for featured example)
+    if (!skipUrl) {
+      const slug = `${component.brand}-${component.name}`.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      router.replace(`/price-history?model=${slug}`, { scroll: false })
+    }
 
     // Fetch price history
     fetch(`/api/components/${component.id}/price-history?days=365`)
@@ -193,7 +206,15 @@ export function PriceHistoryContent() {
                   setPriceData(null)
                 }
               }}
-              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              onFocus={() => {
+                if (selectedComponent) {
+                  setQuery('')
+                  setSelectedComponent(null)
+                  setPriceData(null)
+                } else if (suggestions.length > 0) {
+                  setShowSuggestions(true)
+                }
+              }}
               className="w-full pl-12 pr-4 py-3 bg-surface-elevated border border-border rounded-lg text-primary text-lg placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
             />
           </div>
@@ -223,22 +244,77 @@ export function PriceHistoryContent() {
         {/* Selected Component Content */}
         {selectedComponent && (
           <div className="space-y-6">
+            {/* Featured banner */}
+            {isFeatured && (
+              <div className="text-sm text-muted flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4" />
+                Featured example — search above to look up any component
+              </div>
+            )}
+
             {/* Component Header */}
             <div className="bg-surface-elevated rounded-lg p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-primary">
-                    {selectedComponent.brand} {selectedComponent.name}
-                  </h2>
-                  <span className="text-sm text-muted">{categoryLabel(selectedComponent.category)}</span>
-                </div>
-                <div className="text-right">
-                  {selectedComponent.price_new && (
-                    <div>
-                      <span className="text-xs text-muted">MSRP</span>
-                      <div className="text-lg font-semibold text-primary">{formatPrice(selectedComponent.price_new)}</div>
+              <div className="flex items-start gap-4">
+                {/* Product image */}
+                <div className="flex-shrink-0 w-20 rounded-lg bg-surface-secondary flex items-center justify-center overflow-hidden self-start">
+                  {selectedComponent.image_url ? (
+                    <Image
+                      src={selectedComponent.image_url}
+                      alt={`${selectedComponent.brand} ${selectedComponent.name}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-auto object-contain max-h-24 min-h-10"
+                    />
+                  ) : ['cans'].includes(selectedComponent.category) ? (
+                    <div className="py-4">
+                      <Headphones className="w-8 h-8 text-tertiary" />
+                    </div>
+                  ) : ['iems'].includes(selectedComponent.category) ? (
+                    <div className="py-4">
+                      <Ear className="w-8 h-8 text-tertiary" />
+                    </div>
+                  ) : (
+                    <div className="py-4">
+                      <Cpu className="w-8 h-8 text-tertiary" />
                     </div>
                   )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-primary">
+                        {selectedComponent.brand} {selectedComponent.name}
+                      </h2>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted">{categoryLabel(selectedComponent.category)}</span>
+                        {selectedComponent.driver_type && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted">{selectedComponent.driver_type}</span>
+                        )}
+                        {selectedComponent.fit && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted capitalize">{selectedComponent.fit.replace('_', '-')}</span>
+                        )}
+                        {selectedComponent.sound_signature && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted capitalize">{selectedComponent.sound_signature}</span>
+                        )}
+                        {selectedComponent.impedance && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted">{selectedComponent.impedance} &#8486;</span>
+                        )}
+                        {selectedComponent.crin_tone && selectedComponent.crin_tech && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-secondary text-muted">Crin: {selectedComponent.crin_tone}/{selectedComponent.crin_tech}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      {selectedComponent.price_new && (
+                        <div>
+                          <span className="text-xs text-muted">MSRP</span>
+                          <div className="text-lg font-semibold text-primary">{formatPrice(selectedComponent.price_new)}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -351,7 +427,7 @@ export function PriceHistoryContent() {
                             {sourceLabel(sale.source)}
                           </td>
                           <td className="px-6 py-3 text-right">
-                            {sale.url && (
+                            {sale.url && sale.url.startsWith('http') ? (
                               <a
                                 href={sale.url}
                                 target="_blank"
@@ -360,7 +436,11 @@ export function PriceHistoryContent() {
                               >
                                 <ExternalLink className="w-4 h-4 inline" />
                               </a>
-                            )}
+                            ) : sale.url && !sale.url.startsWith('http') ? (
+                              <Tooltip content="Sold listing from Reverb Price Guide — no public link available">
+                                <ExternalLink className="w-4 h-4 inline text-muted/40 cursor-help" />
+                              </Tooltip>
+                            ) : null}
                           </td>
                         </tr>
                       ))}
@@ -384,7 +464,7 @@ export function PriceHistoryContent() {
           </div>
         )}
 
-        {/* Initial empty state */}
+        {/* Initial empty state (shown briefly before featured example loads) */}
         {!selectedComponent && !loading && (
           <div className="text-center py-16">
             <TrendingUp className="w-12 h-12 text-muted mx-auto mb-4" />

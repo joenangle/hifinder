@@ -2,13 +2,14 @@ import Image from 'next/image'
 import { Suspense } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { supabaseServer } from '@/lib/supabase-server'
-import { TrackableLink } from './landing/TrackableLink'
-import { FeatureCards } from './landing/FeatureCards'
-import { FloatingBar } from './landing/FloatingBar'
-import { ScrollToButton } from './landing/ScrollToButton'
-import { CuratedSystems } from './landing/CuratedSystems'
-import { EmailCaptureForm } from './landing/EmailCaptureForm'
-import { TrackableAnchor } from './landing/TrackableAnchor'
+import { BrowserFrame } from './BrowserFrame'
+import { TrackableLink } from './TrackableLink'
+import { FeatureCards } from './FeatureCards'
+import { FloatingBar } from './FloatingBar'
+import { ScrollToButton } from './ScrollToButton'
+import { CuratedSystems } from './CuratedSystems'
+import { EmailCaptureForm } from './EmailCaptureForm'
+import { TrackableAnchor } from './TrackableAnchor'
 
 async function getStats() {
   try {
@@ -204,55 +205,20 @@ export async function LandingPage() {
               </div>
             </div>
 
-            {/* ── Right image ── */}
-            <div className="hidden lg:block relative">
-              {/* Accent square behind */}
-              <div
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  top: '12%',
-                  right: '-8%',
-                  width: '80%',
-                  height: '80%',
-                  borderRadius: '24px',
-                  background: 'rgba(var(--accent-primary-rgb), 0.08)',
-                  border: '1px solid rgba(var(--accent-primary-rgb), 0.15)',
-                }}
-              />
-              <div
-                className="relative rounded-2xl overflow-hidden"
-                style={{
-                  boxShadow: '0 40px 80px -20px rgba(0,0,0,0.22), 0 0 0 1px var(--border-subtle)',
-                }}
-              >
+            {/* ── Right: product screenshot ── */}
+            <div className="hidden lg:block">
+              <BrowserFrame url="hifinder.app/recommendations">
                 <Image
-                  src="/images/hero-headphones.webp"
-                  alt="Premium audio headphones"
-                  width={880}
-                  height={580}
-                  sizes="(max-width: 1023px) 0px, 440px"
-                  className="w-full h-auto object-cover"
+                  src="/images/screenshots/recommendations.png"
+                  alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                  width={2560}
+                  height={1600}
+                  sizes="(max-width: 1023px) 0px, 540px"
+                  className="w-full h-auto"
                   priority
                   style={{ display: 'block' }}
                 />
-              </div>
-              {/* Photo credit */}
-              <p
-                className="text-xs mt-2 text-right"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
-                Photo:{' '}
-                <a
-                  href="https://www.flickr.com/photos/fourfridays/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: 'var(--text-tertiary)' }}
-                  className="hover:underline"
-                >
-                  Umair Abassi
-                </a>
-              </p>
+              </BrowserFrame>
             </div>
 
           </div>
@@ -271,7 +237,7 @@ export async function LandingPage() {
         }}
       >
         <div
-          className="container mx-auto px-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-2"
+          className="container mx-auto px-6 flex flex-col items-center justify-center gap-y-2 sm:flex-row sm:gap-x-10"
           style={{ maxWidth: '1100px' }}
         >
           <span
@@ -280,27 +246,29 @@ export async function LandingPage() {
           >
             Powered by data from
           </span>
-          {[
-            { name: 'Crinacle', href: 'https://crinacle.com', desc: 'IEM & headphone rankings' },
-            { name: 'Audio Science Review', href: 'https://www.audiosciencereview.com', desc: 'DAC & amp measurements' },
-            { name: 'r/AVexchange', href: 'https://www.reddit.com/r/AVexchange/', desc: 'Used market pricing' },
-            { name: 'Reverb', href: 'https://reverb.com', desc: 'Used market pricing' },
-          ].map((source, i) => (
-            <a
-              key={source.name}
-              href={source.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 whitespace-nowrap text-secondary hover:text-primary transition-colors duration-150"
-              style={{ fontSize: '0.8125rem' }}
-              title={source.desc}
-            >
-              {i > 0 && (
-                <span aria-hidden style={{ color: 'var(--border-default)', marginRight: '4px' }}>/</span>
-              )}
-              <span className="font-medium">{source.name}</span>
-            </a>
-          ))}
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 sm:contents">
+            {[
+              { name: 'Crinacle', href: 'https://crinacle.com', desc: 'IEM & headphone rankings' },
+              { name: 'Audio Science Review', href: 'https://www.audiosciencereview.com', desc: 'DAC & amp measurements' },
+              { name: 'r/AVexchange', href: 'https://www.reddit.com/r/AVexchange/', desc: 'Used market pricing' },
+              { name: 'Reverb', href: 'https://reverb.com', desc: 'Used market pricing' },
+            ].map((source, i) => (
+              <a
+                key={source.name}
+                href={source.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 whitespace-nowrap text-secondary hover:text-primary transition-colors duration-150"
+                style={{ fontSize: '0.8125rem' }}
+                title={source.desc}
+              >
+                {i > 0 && (
+                  <span aria-hidden className="hidden sm:inline" style={{ color: 'var(--border-default)', marginRight: '4px' }}>/</span>
+                )}
+                <span className="font-medium">{source.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -319,7 +287,7 @@ export async function LandingPage() {
         style={{
           borderTop: '1px solid var(--border-subtle)',
           borderBottom: '1px solid var(--border-subtle)',
-          padding: '80px 0',
+          padding: 'clamp(48px, 7vw, 80px) 0',
           background: 'var(--background-secondary)',
           scrollMarginTop: '80px',
         }}
@@ -358,11 +326,11 @@ export async function LandingPage() {
             ].map((s, i) => (
               <div
                 key={s.step}
-                style={{
-                  padding: '0 40px 0 0',
-                  borderLeft: i > 0 ? '1px solid var(--border-subtle)' : 'none',
-                  paddingLeft: i > 0 ? '40px' : '0',
-                }}
+                className={
+                  i > 0
+                    ? 'border-t border-[var(--border-subtle)] pt-6 mt-6 sm:border-t-0 sm:pt-0 sm:mt-0 sm:border-l sm:pl-10 sm:pr-10'
+                    : 'sm:pr-10'
+                }
               >
                 <span
                   className="font-bold block mb-4"
@@ -422,7 +390,7 @@ export async function LandingPage() {
       {/* ─────────────────────────────────────────
           BOTTOM CTA — full bleed, editorial
       ───────────────────────────────────────── */}
-      <section style={{ padding: '120px 0' }}>
+      <section style={{ padding: 'clamp(64px, 10vw, 120px) 0' }}>
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
           <div style={{ maxWidth: '640px' }}>
             <h2

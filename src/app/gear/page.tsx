@@ -24,7 +24,7 @@ import { GearPageHeader } from '@/components/gear/GearPageHeader'
 import { GearFilters } from '@/components/gear/GearFilters'
 import { BrandCombobox } from '@/components/gear/BrandCombobox'
 import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon, getCategoryLabel, getCategoryColor, getCategoryEmoji } from '@/lib/gear-utils'
-import { StackItemDetailModal } from '@/components/StackItemDetailModal'
+import { StackItemDetailModal } from '@/components/modals/StackItemDetailModal'
 
 type ViewMode = 'grid' | 'list' | 'stacks'
 

@@ -10,20 +10,9 @@
  * - True bundle value vs individual component pricing
  */
 
-export interface BundleItem {
-  type: 'component' | 'accessory' | 'unknown';
-  name: string;
-  isMainItem: boolean;
-}
+import type { BundleItem, BundleAnalysis } from '@/types/marketplace'
 
-export interface BundleAnalysis {
-  isBundle: boolean;
-  items: BundleItem[];
-  mainItems: BundleItem[];
-  accessories: BundleItem[];
-  bundleIndicators: string[];
-  confidence: number; // 0-100
-}
+export type { BundleItem, BundleAnalysis } from '@/types/marketplace'
 
 /**
  * Common accessory keywords that indicate bundle items but not main components

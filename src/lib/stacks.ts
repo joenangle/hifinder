@@ -1,68 +1,10 @@
 import { supabase } from './supabase'
-import { UserGearItem } from './gear'
-import { Component } from '@/types'
+import type { UserGearItem, UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
 
-export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general'
-
-export interface UserStack {
-  id: string
-  user_id: string
-  name: string
-  description?: string
-  purpose?: StackPurpose
-  is_primary?: boolean
-  created_at: string
-  updated_at: string
-  stack_components?: StackComponent[]
-}
-
-export interface StackComponent {
-  id: string
-  stack_id: string
-  user_gear_id: string | null
-  component_id?: string | null
-  position: number
-  created_at: string
-  user_gear?: UserGearItem | null
-  components?: Partial<Component> | null  // Direct component reference (recommendation stacks)
-}
+export type { UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
 
 export interface StackWithGear extends UserStack {
   stack_components: StackComponent[]
-}
-
-// Normalized data from either user_gear→components or direct components path
-export interface StackComponentData {
-  id: string
-  brand: string
-  name: string
-  category: string
-  price_new: number | null
-  price_used_min: number | null
-  price_used_max: number | null
-  sound_signature: string | null
-  impedance: number | null
-  needs_amp: boolean
-  amplification_difficulty?: string | null
-  purchase_price: number | null
-  image_url: string | null
-  amazon_url: string | null
-  // Expert data
-  crin_tone: string | null
-  crin_tech: string | null
-  crin_rank: number | null
-  crin_value: number | null
-  crin_signature: string | null
-  asr_sinad: number | null
-  driver_type: string | null
-  fit: string | null
-  why_recommended: string
-  // Source tracking
-  source: 'gear' | 'recommendation'
-  // Original references for deletion
-  user_gear_id: string | null
-  component_id: string | null
-  stack_component_id: string
 }
 
 // Normalize stack component data from either path
@@ -299,13 +241,6 @@ export async function reorderStackComponents(
   }
 }
 
-export interface CompatibilityWarning {
-  type: 'impedance' | 'power' | 'category' | 'connectivity'
-  severity: 'warning' | 'error'
-  message: string
-  components: string[]
-}
-
 export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarning[] {
   const warnings: CompatibilityWarning[] = []
   const normalizedComponents = stack.stack_components.map(sc => ({
@@ -348,15 +283,6 @@ export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarn
   }
 
   return warnings
-}
-
-export interface StackTemplate {
-  id: string
-  name: string
-  description: string
-  budgetRange: { min: number; max: number }
-  categories: string[]
-  icon: string
 }
 
 export const stackTemplates: StackTemplate[] = [

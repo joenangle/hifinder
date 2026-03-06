@@ -3,10 +3,9 @@
  * Parses freeform location text into structured state/country fields.
  */
 
-export interface NormalizedLocation {
-  state: string | null   // US state or Canadian province code (e.g., "CA", "ON")
-  country: string | null // ISO 3166-1 alpha-2 (e.g., "US", "CA", "GB")
-}
+import type { NormalizedLocation } from '@/types/marketplace'
+
+export type { NormalizedLocation } from '@/types/marketplace'
 
 // US state codes
 const US_STATES = new Set([

@@ -1,52 +1,7 @@
 import { supabase } from './supabase'
+import type { PriceAlert, AlertHistory } from '@/types/marketplace'
 
-export interface PriceAlert {
-  id: string
-  user_id: string
-  component_id?: string
-  target_price: number
-  alert_type: 'below' | 'exact' | 'range'
-  price_range_min?: number
-  price_range_max?: number
-  condition_preference: string[]
-  marketplace_preference: string[]
-  custom_search_query?: string
-  custom_brand?: string
-  custom_model?: string
-  is_active: boolean
-  last_triggered_at?: string
-  trigger_count: number
-  created_at: string
-  updated_at: string
-  notification_frequency?: 'instant' | 'digest' | 'none'
-  email_enabled?: boolean
-  components?: {
-    id: string
-    name: string
-    brand: string
-    category: string
-    type?: string
-    image_url?: string
-    price_new?: number
-    price_used_min?: number
-    price_used_max?: number
-  }
-}
-
-export interface AlertHistory {
-  id: string
-  alert_id: string
-  user_id: string
-  listing_title: string
-  listing_price: number
-  listing_condition: string
-  listing_url: string
-  listing_source: string
-  listing_date: string
-  triggered_at: string
-  notification_sent: boolean
-  user_viewed: boolean
-}
+export type { PriceAlert, AlertHistory } from '@/types/marketplace'
 
 export async function getUserAlerts(userId: string): Promise<PriceAlert[]> {
   const { data, error } = await supabase

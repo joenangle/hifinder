@@ -6,7 +6,7 @@ import type { Session } from 'next-auth'
 import { Logo } from './Logo'
 import { DesktopNav } from './DesktopNav'
 import { ThemeToggle } from './ThemeToggle'
-import { AuthButton } from '../AuthButton'
+import { AuthButton } from '../auth/AuthButton'
 import { UserMenu } from './UserMenu'
 import { MobileMenuButton } from './MobileMenuButton'
 import { MobileMenu } from './MobileMenu'
@@ -51,7 +51,7 @@ export function Header({ initialSession }: HeaderProps) {
         }`}
         style={{ zIndex: 'var(--z-header)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Logo />

@@ -1,12 +1,9 @@
+import type { SavedSearch } from '@/types/analytics'
+
+export type { SavedSearch } from '@/types/analytics'
+
 const STORAGE_KEY = 'hifinder_recent_searches'
 const MAX_SAVED = 5
-
-export interface SavedSearch {
-  url: string
-  budget: number
-  filters: string  // human-readable summary
-  timestamp: number
-}
 
 export function getSavedSearches(): SavedSearch[] {
   try {

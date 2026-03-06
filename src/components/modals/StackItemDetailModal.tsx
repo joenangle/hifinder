@@ -1,7 +1,7 @@
 'use client'
 
-import { Modal } from '@/components/Modal'
-import { ExpertAnalysisPanel } from '@/components/ExpertAnalysisPanel'
+import { Modal } from '@/components/ui/Modal'
+import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { StackComponentData } from '@/lib/stacks'
 import { getCategoryLabel, getCategoryColor } from '@/lib/gear-utils'
 import { ExternalLink } from 'lucide-react'

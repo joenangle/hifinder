@@ -5,10 +5,9 @@
  * Used by both recommendations API and filter counts API to ensure consistency.
  */
 
-export interface BudgetRange {
-  min: number
-  max: number
-}
+import type { BudgetRange } from '@/types/audio'
+
+export type { BudgetRange } from '@/types/audio'
 
 /**
  * V3: Calculate budget range with user parameter support and smooth transitions.

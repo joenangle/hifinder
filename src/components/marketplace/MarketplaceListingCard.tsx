@@ -2,9 +2,9 @@
 
 import { Component, UsedListing } from '@/types'
 import { Clock, MapPin, User, Star, AlertTriangle, TrendingDown, TrendingUp, ExternalLink, Award } from 'lucide-react'
-import { AmplificationBadge } from './AmplificationIndicator'
+import { AmplificationBadge } from '../ui/AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
-import { Tooltip } from './Tooltip'
+import { Tooltip } from '../ui/Tooltip'
 import { PriceHistoryBadge, getCachedPriceStats } from '@/components/recommendations/PriceHistoryBadge'
 
 interface MarketplaceListingCardProps {

@@ -5,9 +5,9 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
-import { BudgetSlider } from '@/components/BudgetSlider'
+import { BudgetSlider } from '@/components/budget/BudgetSlider'
 import { useDebounce } from '@/hooks/useDebounce'
-import { Tooltip } from '@/components/Tooltip'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { useDisclosureStage } from '@/hooks/useDisclosureStage'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
@@ -16,29 +16,29 @@ import { SignalGearCard } from '@/components/recommendations/SignalGearCard'
 import { SelectedSystemSummary } from '@/components/recommendations/SelectedSystemSummary'
 import { FiltersSection } from '@/components/recommendations/FiltersSection'
 import { AmplificationWarningBanner } from '@/components/recommendations/AmplificationWarningBanner'
-import { BudgetAllocation } from '@/components/BudgetAllocationControls'
+import { BudgetAllocation } from '@/components/budget/BudgetAllocationControls'
 import { X } from 'lucide-react'
-import { BatchPriceHistoryProvider } from '@/components/BatchPriceHistoryProvider'
+import { BatchPriceHistoryProvider } from '@/components/providers/BatchPriceHistoryProvider'
 import { useQueryStates } from 'nuqs'
 import { PREF_DEFAULTS, recommendationParams, parseLegacyParams } from '@/lib/url-params'
 
 // Lazy load components only shown on user interaction for better code splitting
-const StackBuilderModal = dynamic(() => import('@/components/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
+const StackBuilderModal = dynamic(() => import('@/components/modals/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
   ssr: false
 })
-const ComparisonBar = dynamic(() => import('@/components/ComparisonBar').then(mod => ({ default: mod.ComparisonBar })), {
+const ComparisonBar = dynamic(() => import('@/components/comparison/ComparisonBar').then(mod => ({ default: mod.ComparisonBar })), {
   ssr: false
 })
-const ComparisonModal = dynamic(() => import('@/components/ComparisonModal').then(mod => ({ default: mod.ComparisonModal })), {
+const ComparisonModal = dynamic(() => import('@/components/modals/ComparisonModal').then(mod => ({ default: mod.ComparisonModal })), {
   ssr: false
 })
-const UsedListingsSection = dynamic(() => import('@/components/UsedListingsSection').then(mod => ({ default: mod.UsedListingsSection })), {
+const UsedListingsSection = dynamic(() => import('@/components/marketplace/UsedListingsSection').then(mod => ({ default: mod.UsedListingsSection })), {
   ssr: false
 })
 const OwnedGearModal = dynamic(() => import('@/components/recommendations/OwnedGearModal').then(mod => ({ default: mod.OwnedGearModal })), {
   ssr: false
 })
-const ComponentDetailModal = dynamic(() => import('@/components/ComponentDetailModal').then(mod => ({ default: mod.ComponentDetailModal })), {
+const ComponentDetailModal = dynamic(() => import('@/components/modals/ComponentDetailModal').then(mod => ({ default: mod.ComponentDetailModal })), {
   ssr: false
 })
 

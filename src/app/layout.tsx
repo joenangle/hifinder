@@ -4,7 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { AuthProvider } from "@/components/AuthProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { Footer } from "@/components/navigation/Footer";
 import { GoogleAnalytics } from '@next/third-parties/google';

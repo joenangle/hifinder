@@ -470,6 +470,8 @@ export type Database = {
           name: string
           needs_amp: boolean | null
           power_output: string | null
+          power_output_mw_300: number | null
+          power_output_mw_32: number | null
           power_required_mw: number | null
           price_new: number | null
           price_used_max: number | null
@@ -510,6 +512,8 @@ export type Database = {
           name: string
           needs_amp?: boolean | null
           power_output?: string | null
+          power_output_mw_300?: number | null
+          power_output_mw_32?: number | null
           power_required_mw?: number | null
           price_new?: number | null
           price_used_max?: number | null
@@ -550,6 +554,8 @@ export type Database = {
           name?: string
           needs_amp?: boolean | null
           power_output?: string | null
+          power_output_mw_300?: number | null
+          power_output_mw_32?: number | null
           power_required_mw?: number | null
           price_new?: number | null
           price_used_max?: number | null

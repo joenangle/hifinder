@@ -1,44 +1,8 @@
 import { supabase } from './supabase'
 import { supabaseServer } from './supabase-server'
-// import { UpgradeSuggestion } from '@/types/auth' // Unused
+import type { UserGearItem, GearSuggestion } from '@/types/gear'
 
-export interface UserGearItem {
-  id: string
-  user_id: string
-  component_id?: string
-  purchase_date?: string
-  purchase_price?: number
-  purchase_location?: string
-  condition?: 'new' | 'used' | 'refurbished' | 'b-stock'
-  custom_name?: string
-  custom_brand?: string
-  custom_category?: string
-  serial_number?: string
-  is_active: boolean
-  is_loaned: boolean
-  loaned_to?: string
-  loaned_date?: string
-  notes?: string
-  created_at: string
-  updated_at: string
-  components?: {
-    id: string
-    name: string
-    brand: string
-    category: string
-    price_new?: number
-    price_used_min?: number
-    price_used_max?: number
-    budget_tier?: string
-    sound_signature?: string
-    use_cases?: string[]
-    impedance?: number
-    needs_amp?: boolean
-    amazon_url?: string
-    why_recommended?: string
-    image_url?: string
-  }
-}
+export type { UserGearItem, GearSuggestion } from '@/types/gear'
 
 export async function getUserGear(userId: string): Promise<UserGearItem[]> {
   const { data, error } = await supabase
@@ -200,14 +164,6 @@ export async function calculateCollectionValue(gear: UserGearItem[]): Promise<{
     depreciation: totalPaid - currentValue,
     byCategory
   }
-}
-
-export interface GearSuggestion {
-  type: 'missing_amp' | 'missing_dac' | 'tier_upgrade' | 'bottleneck'
-  priority: 'high' | 'medium' | 'low'
-  message: string
-  currentItem?: { brand: string; name: string; price: number | null; category: string }
-  suggestedItems?: { id: string; brand: string; name: string; category: string; price_new: number | null; price_used_min: number | null; price_used_max: number | null }[]
 }
 
 export async function getUpgradeSuggestions(

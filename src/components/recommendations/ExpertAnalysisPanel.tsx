@@ -14,6 +14,7 @@ interface ExpertAnalysisProps {
     crin_value?: number | null
   }
   forceExpanded?: boolean
+  inline?: boolean
 }
 
 function generateExpertBlurb(component: ExpertAnalysisProps['component']): string {
@@ -96,7 +97,7 @@ export function CompactExpertBadge({ component }: { component: ExpertAnalysisPro
   )
 }
 
-export function ExpertAnalysisPanel({ component, forceExpanded = false }: ExpertAnalysisProps) {
+export function ExpertAnalysisPanel({ component, forceExpanded = false, inline = false }: ExpertAnalysisProps) {
   // Start collapsed by default, but can be overridden by forceExpanded
   const [isExpanded, setIsExpanded] = useState(false)
   // Track whether user has explicitly overridden the forceExpanded state
@@ -122,6 +123,25 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false }: Expert
 
   if (!hasExpertData) {
     return null
+  }
+
+  // Inline mode: compact always-visible quote, no toggle
+  if (inline) {
+    const quote = component.crin_comments || generateExpertBlurb(component)
+    return (
+      <div className="mt-1 flex items-start gap-1.5 text-xs text-tertiary" onClick={(e) => e.stopPropagation()}>
+        {component.crin_value && (
+          <span className="flex-shrink-0 flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'}>★</span>
+            ))}
+          </span>
+        )}
+        <p className="italic line-clamp-1 sm:line-clamp-2 leading-snug min-w-0">
+          {component.crin_comments ? `"${quote}"` : quote}
+        </p>
+      </div>
+    )
   }
 
   const blurb = generateExpertBlurb(component)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { ComparisonTable } from './ComparisonTable'
+import { ComparisonTable } from '../comparison/ComparisonTable'
 
 interface ComparisonItem {
   id: string

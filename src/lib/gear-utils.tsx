@@ -1,7 +1,8 @@
-import { UserGearItem } from '@/lib/gear'
+import type { UserGearItem } from '@/types/gear'
+import type { CategoryFilter } from '@/types/gear'
 import { Headphones, Cpu, Speaker, Cable } from 'lucide-react'
 
-export type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
+export type { CategoryFilter } from '@/types/gear'
 
 // Helper function to get the category of a gear item
 export function getGearCategory(item: UserGearItem): CategoryFilter {
