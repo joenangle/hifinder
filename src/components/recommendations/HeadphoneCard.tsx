@@ -123,26 +123,24 @@ const HeadphoneCardComponent = ({
         )}
       </button>
 
-      {/* Horizontal layout: image left, info right */}
-      <div className="flex items-start gap-3 pr-10">
-        {/* Product image — natural aspect ratio */}
-        <div className="flex-shrink-0 w-20 sm:w-24 rounded-lg bg-secondary flex items-center justify-center overflow-hidden self-start">
+      {/* Horizontal layout: image left (1/3), info right (2/3) */}
+      <div className="flex items-stretch gap-3 pr-10">
+        {/* Product image — 1/3 width when image exists, narrow icon strip when not */}
+        <div className={`flex-shrink-0 rounded-lg bg-secondary flex items-center justify-center overflow-hidden ${
+          headphone.image_url ? 'w-1/4 sm:w-1/3' : 'w-8'
+        }`}>
           {headphone.image_url ? (
             <Image
               src={headphone.image_url}
               alt={`${headphone.brand} ${headphone.name}`}
-              width={96}
-              height={96}
-              className="w-full h-auto object-contain max-h-28 min-h-12"
+              width={160}
+              height={160}
+              className="w-full h-full object-contain p-1"
             />
           ) : isCans ? (
-            <div className="py-4">
-              <Headphones className="w-8 h-8 text-tertiary" />
-            </div>
+            <Headphones className="w-5 h-5 text-tertiary" />
           ) : (
-            <div className="py-4">
-              <Ear className="w-8 h-8 text-tertiary" />
-            </div>
+            <Ear className="w-5 h-5 text-tertiary" />
           )}
         </div>
 

@@ -215,16 +215,12 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
           {items.some(i => i.crin_rank) && renderRow('Rank', (item) => (
             item.crin_rank ? `#${item.crin_rank}` : 'N/A'
           ))}
-          {items.some(i => i.crin_value) && renderRow('Value Rating', (item) => (
-            item.crin_value ? (
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className={i < item.crin_value! ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'}>
-                    ★
-                  </span>
-                ))}
-                <span className="ml-1 text-xs">({item.crin_value}/5)</span>
-              </div>
+          {items.some(i => i.crin_value && i.crin_value > 0) && renderRow('Value Rating', (item) => (
+            item.crin_value && item.crin_value > 0 ? (
+              <span className="font-medium">
+                {item.crin_value >= 4 ? 'Excellent' : item.crin_value >= 3 ? 'Good' : 'Fair'}
+                <span className="ml-1 text-xs font-normal text-tertiary">({item.crin_value}/5)</span>
+              </span>
             ) : 'N/A'
           ))}
 

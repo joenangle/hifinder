@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { UserGearItem, UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
+import type { UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
 
 export type { UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
 

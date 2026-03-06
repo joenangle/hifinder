@@ -1,14 +1,4 @@
 id,brand,name,category,manufacturer_url
-70d8f0f8-8802-4fc9-a783-d5f7b4c7d3b4,"FiR","M4",iems,
-36add296-1f0d-4be4-9a9f-05b27909d70c,"FiR","M5",iems,
-77db7fed-ed59-4f3e-86a1-fb6a0fe80ff2,"Custom Art","FIBAE 7",iems,
-804c224c-ee9d-4d38-81d7-61d0ef20907a,"Campfire","Andromeda (2020)",iems,
-d9a1f184-7f27-43c4-80fa-725c2db1f86e,"Oriolus","Percivali",iems,
-af68feb6-9712-44a0-8a6b-5e45b27f4443,"Dita","Dream",iems,
-b1c07228-9755-427a-b2a0-1316c62c3d4e,"AKG","K701",cans,https://www.akg.com/Headphones/k701.html
-72f0ea53-6a65-4a8a-b486-47dc93c15ac8,"Audio Technica","ATH-M70x",cans,
-bd53718a-7081-4cc9-8724-9906eb8c4888,"qdc","Anole V14",iems,
-b2ba8acb-5b21-4e09-9cee-07a1d010ceb0,"64 Audio","A/U12t",iems,
-7967ef2e-6b3a-4a02-a7e2-875551795b36,"Jomo","Trinity Brass",iems,
-18eeb00c-c6a2-4224-b36e-6f1ff3bd34ee,"Final","Audio D8000",iems,
-9f91ca11-6771-4515-a689-0c06cc35e3f7,"Audeze","LCD-XC",cans,
+324ae6f2-ad54-4ee8-9a99-fb657df578dd,"Enleum","AMP-23R",amp,
+a9fb8052-10c2-4649-a427-866f4e6e2a97,"Zidoo","EverSolo Z8",dac_amp,
+91dc072f-8ed2-4c0b-a595-8629ce27b81f,"iFi","NEO iDSD 2",dac_amp,

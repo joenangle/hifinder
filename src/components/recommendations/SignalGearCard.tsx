@@ -126,23 +126,23 @@ const SignalGearCardComponent = ({
         )}
       </button>
 
-      {/* Horizontal layout: image left, info right */}
-      <div className="flex items-start gap-3 pr-10">
-        {/* Product image — natural aspect ratio */}
+      {/* Horizontal layout: image left (1/3), info right (2/3) */}
+      <div className="flex items-stretch gap-3 pr-10">
+        {/* Product image — 1/3 width when image exists, narrow icon strip when not */}
         {(() => { const Icon = TYPE_ICON[type]; return (
-          <div className="flex-shrink-0 w-20 sm:w-24 rounded-lg bg-secondary flex items-center justify-center overflow-hidden self-start">
+          <div className={`flex-shrink-0 rounded-lg bg-secondary flex items-center justify-center overflow-hidden ${
+            component.image_url ? 'w-1/4 sm:w-1/3' : 'w-8'
+          }`}>
             {component.image_url ? (
               <Image
                 src={component.image_url}
                 alt={`${component.brand} ${component.name}`}
-                width={96}
-                height={96}
-                className="w-full h-auto object-contain max-h-28 min-h-12"
+                width={160}
+                height={160}
+                className="w-full h-full object-contain p-1"
               />
             ) : (
-              <div className="py-4">
-                <Icon className="w-8 h-8 text-tertiary" />
-              </div>
+              <Icon className="w-5 h-5 text-tertiary" />
             )}
           </div>
         ); })()}

@@ -17,6 +17,10 @@ interface ExpertAnalysisProps {
   inline?: boolean
 }
 
+function valueLabel(v: number): string {
+  return v >= 4 ? 'Excellent value' : v >= 3 ? 'Good value' : 'Fair value'
+}
+
 function generateExpertBlurb(component: ExpertAnalysisProps['component']): string {
   const parts: string[] = []
 
@@ -39,10 +43,8 @@ function generateExpertBlurb(component: ExpertAnalysisProps['component']): strin
   }
 
   // Add value assessment
-  if (component.crin_value) {
-    const valueText = component.crin_value >= 4 ? 'excellent value' :
-                     component.crin_value >= 3 ? 'good value' : 'fair value'
-    parts.push(`${valueText} (${component.crin_value}/5)`)
+  if (component.crin_value && component.crin_value > 0) {
+    parts.push(`${valueLabel(component.crin_value).toLowerCase()} (${component.crin_value}/5)`)
   }
 
   // Add technical details
@@ -130,11 +132,9 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
     const quote = component.crin_comments || generateExpertBlurb(component)
     return (
       <div className="mt-1 flex items-start gap-1.5 text-xs text-tertiary" onClick={(e) => e.stopPropagation()}>
-        {component.crin_value && (
-          <span className="flex-shrink-0 flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'}>★</span>
-            ))}
+        {component.crin_value != null && component.crin_value > 0 && (
+          <span className="flex-shrink-0 text-[11px] px-1.5 py-0.5 rounded-full border border-subtle bg-secondary text-secondary">
+            {valueLabel(component.crin_value).toLowerCase()}
           </span>
         )}
         <p className="italic line-clamp-1 sm:line-clamp-2 leading-snug min-w-0">
@@ -169,23 +169,12 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
 
       {expanded && (
         <div className="mt-2 text-xs text-primary leading-relaxed space-y-3">
-          {/* Value Rating with Visual Stars */}
-          {component.crin_value && (
+          {/* Value Rating */}
+          {component.crin_value != null && component.crin_value > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-tertiary">Value:</span>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={i < component.crin_value! ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <span className="text-tertiary text-[10px]">
-                ({component.crin_value}/5)
-              </span>
+              <span className="font-medium text-primary">{valueLabel(component.crin_value)}</span>
+              <span className="text-tertiary text-[10px]">({component.crin_value}/5)</span>
             </div>
           )}
 

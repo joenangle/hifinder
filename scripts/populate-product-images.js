@@ -94,7 +94,7 @@ function saveState(state) {
 function fetchUrl(url, options = {}) {
   return new Promise((resolve, reject) => {
     const proto = url.startsWith('https') ? https : http;
-    const defaultHeaders = { 'User-Agent': 'HiFinder-ImageBot/1.0' };
+    const defaultHeaders = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' };
     const { headers: customHeaders, ...restOptions } = options;
     const req = proto.get(url, { timeout: 15000, headers: { ...defaultHeaders, ...customHeaders }, ...restOptions }, (res) => {
       // Follow redirects (up to 3)
@@ -253,7 +253,7 @@ async function tier2DuckDuckGo(component, retries = 2) {
       });
       const results = JSON.parse(imgRes.buffer.toString('utf-8')).results || [];
 
-      if (results.length === 0) return null;
+      if (results.length === 0) return [];
 
       // Prefer larger images that look like product photos
       const candidates = results.slice(0, 10).filter(r => r.image && isProductImageUrl(r.image));
@@ -264,10 +264,10 @@ async function tier2DuckDuckGo(component, retries = 2) {
           const bSize = (b.width || 0) * (b.height || 0);
           return bSize - aSize;
         });
-        return candidates[0].image;
+        return candidates.map(c => c.image);
       }
-      // Fallback to first result
-      return results[0].image || null;
+      // Fallback to all results
+      return results.slice(0, 5).map(r => r.image).filter(Boolean);
     } catch (err) {
       if (attempt < retries) {
         const backoff = (attempt + 1) * 5000;
@@ -279,7 +279,7 @@ async function tier2DuckDuckGo(component, retries = 2) {
     }
   }
 
-  return null;
+  return [];
 }
 
 // ---------------------------------------------------------------------------
@@ -460,11 +460,13 @@ async function main() {
     }
 
     // Tier 2: DuckDuckGo image search (if Tier 1 failed)
+    let tier2Candidates = [];
     if (!imageUrl && !TIER1_ONLY) {
       console.log('  Tier 2: Searching DuckDuckGo...');
-      imageUrl = await tier2DuckDuckGo(component);
-      if (imageUrl) {
-        console.log(`  Tier 2 found: ${imageUrl.substring(0, 80)}...`);
+      tier2Candidates = await tier2DuckDuckGo(component);
+      if (tier2Candidates.length > 0) {
+        imageUrl = tier2Candidates[0];
+        console.log(`  Tier 2 found: ${imageUrl.substring(0, 80)}... (${tier2Candidates.length} candidates)`);
         results.tier2Success++;
       } else {
         console.log('  Tier 2: No image found');
@@ -472,32 +474,44 @@ async function main() {
       }
     }
 
-    // Process and upload
-    if (imageUrl && EXECUTE) {
-      try {
-        const publicUrl = await processAndUpload(imageUrl, component);
-        console.log(`  Uploaded: ${publicUrl}`);
+    // Process and upload — try multiple candidates on failure
+    const allCandidates = imageUrl ? [imageUrl, ...tier2Candidates.slice(1)] : [];
+    let uploaded = false;
 
-        // Update database
-        const { error: updateError } = await supabase
-          .from('components')
-          .update({ image_url: publicUrl })
-          .eq('id', component.id);
+    if (allCandidates.length > 0 && EXECUTE) {
+      for (let ci = 0; ci < allCandidates.length; ci++) {
+        const candidateUrl = allCandidates[ci];
+        try {
+          const publicUrl = await processAndUpload(candidateUrl, component);
+          console.log(`  Uploaded: ${publicUrl}`);
 
-        if (updateError) {
-          console.log(`  DB update error: ${updateError.message}`);
-          results.errors++;
+          // Update database
+          const { error: updateError } = await supabase
+            .from('components')
+            .update({ image_url: publicUrl })
+            .eq('id', component.id);
+
+          if (updateError) {
+            console.log(`  DB update error: ${updateError.message}`);
+            results.errors++;
+          }
+
+          state.processed[component.id] = { url: publicUrl, tier: 'tier1-or-2' };
+          uploaded = true;
+          break;
+        } catch (err) {
+          if (ci < allCandidates.length - 1) {
+            console.log(`  Candidate ${ci + 1} failed (${err.message}), trying next...`);
+          } else {
+            console.log(`  All ${allCandidates.length} candidates failed: ${err.message}`);
+            results.errors++;
+          }
         }
-
-        state.processed[component.id] = { url: publicUrl, tier: imageUrl === publicUrl ? 'upload' : 'tier1-or-2' };
-      } catch (err) {
-        console.log(`  Processing error: ${err.message}`);
-        results.errors++;
-        missingProducts.push(component);
       }
-    } else if (imageUrl && !EXECUTE) {
-      console.log(`  [DRY RUN] Would download and upload: ${imageUrl.substring(0, 80)}...`);
-      state.processed[component.id] = { url: imageUrl, tier: 'dry-run' };
+      if (!uploaded) missingProducts.push(component);
+    } else if (allCandidates.length > 0 && !EXECUTE) {
+      console.log(`  [DRY RUN] Would download and upload: ${allCandidates[0].substring(0, 80)}...`);
+      state.processed[component.id] = { url: allCandidates[0], tier: 'dry-run' };
     } else {
       // No image found from any tier
       missingProducts.push(component);
