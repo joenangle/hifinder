@@ -25,9 +25,9 @@ const AmplificationWarningBannerComponent = ({
   }
 
   return (
-    <div className="flex items-center gap-3 py-3 px-4 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-950/40 rounded-r" style={{ marginBottom: '12px' }}>
+    <div className="flex items-center gap-3 py-3 px-4 border-l-4 border-amber-500 bg-amber-100 dark:bg-amber-950/40 rounded-r" style={{ marginBottom: '12px' }}>
       <span className="text-lg flex-shrink-0">⚡</span>
-      <span className="text-sm font-medium text-amber-900 dark:text-amber-200 flex-1" style={{ color: 'var(--text-primary)' }}>
+      <span className="text-sm font-medium text-amber-900 dark:text-amber-200 flex-1">
         Some recommendations benefit from external amplification
       </span>
       <button

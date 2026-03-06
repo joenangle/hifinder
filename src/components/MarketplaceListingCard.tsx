@@ -32,24 +32,24 @@ export function MarketplaceListingCard({
   
   const getConditionColor = (condition: string) => {
     switch (condition) {
-      case 'excellent': return 'text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-900/30'
-      case 'very_good': return 'text-blue-800 bg-blue-100 dark:text-blue-300 dark:bg-blue-900/30'
-      case 'good': return 'text-yellow-900 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/30'
-      case 'fair': return 'text-orange-800 bg-orange-100 dark:text-orange-300 dark:bg-orange-900/30'
-      case 'parts_only': return 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-900/30'
+      case 'excellent': return 'text-green-800 bg-green-200 dark:text-green-300 dark:bg-green-900/30'
+      case 'very_good': return 'text-blue-800 bg-blue-200 dark:text-blue-300 dark:bg-blue-900/30'
+      case 'good': return 'text-yellow-900 bg-yellow-200 dark:text-yellow-300 dark:bg-yellow-900/30'
+      case 'fair': return 'text-orange-800 bg-orange-200 dark:text-orange-300 dark:bg-orange-900/30'
+      case 'parts_only': return 'text-red-800 bg-red-200 dark:text-red-300 dark:bg-red-900/30'
       default: return 'text-secondary bg-surface-secondary'
     }
   }
 
   const getSourceDisplay = (source: string) => {
-    const sourceMap: { [key: string]: { name: string; color: string; icon: string } } = {
-      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800', icon: '🔥' },
-      'ebay': { name: 'eBay', color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800', icon: '🛒' },
-      'head_fi': { name: 'Head-Fi', color: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800', icon: '🎧' },
-      'reverb': { name: 'Reverb', color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', icon: '👂' },
-      'manual': { name: 'Curated', color: 'bg-surface-secondary text-primary border-border', icon: '⭐' }
+    const sourceMap: { [key: string]: { name: string; color: string; dotColor: string; icon: string } } = {
+      'reddit_avexchange': { name: 'r/AVexchange', color: 'bg-orange-200 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800', dotColor: 'bg-orange-500', icon: '🔥' },
+      'ebay': { name: 'eBay', color: 'bg-blue-200 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800', dotColor: 'bg-blue-500', icon: '🛒' },
+      'head_fi': { name: 'Head-Fi', color: 'bg-purple-200 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800', dotColor: 'bg-purple-500', icon: '🎧' },
+      'reverb': { name: 'Reverb', color: 'bg-green-200 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800', dotColor: 'bg-green-500', icon: '👂' },
+      'manual': { name: 'Curated', color: 'bg-surface-secondary text-primary border-border', dotColor: 'bg-gray-400', icon: '⭐' }
     }
-    return sourceMap[source] || { name: source, color: 'bg-surface-secondary text-primary border-border', icon: '📦' }
+    return sourceMap[source] || { name: source, color: 'bg-surface-secondary text-primary border-border', dotColor: 'bg-gray-400', icon: '📦' }
   }
 
   const timeAgo = (dateString: string) => {
@@ -120,105 +120,132 @@ export function MarketplaceListingCard({
   const showCondition = listing.source === 'reverb' ||
     (listing.source === 'reddit_avexchange' && listing.condition !== 'good')
 
+  const getDealColor = () => {
+    if (priceAnalysis.type === 'great-deal') return 'text-green-700 dark:text-green-400'
+    if (priceAnalysis.type === 'good-deal') return 'text-blue-700 dark:text-blue-400'
+    if (priceAnalysis.type === 'overpriced') return 'text-red-600 dark:text-red-400'
+    return ''
+  }
+
+  const getDealBarColor = () => {
+    if (priceAnalysis.type === 'great-deal') return 'bg-green-500 dark:bg-green-400'
+    if (priceAnalysis.type === 'good-deal') return 'bg-blue-500 dark:bg-blue-400'
+    if (priceAnalysis.type === 'overpriced') return 'bg-red-400 dark:bg-red-500'
+    return ''
+  }
+
+  const getConditionTextColor = (condition: string) => {
+    switch (condition) {
+      case 'excellent': return 'text-green-700 dark:text-green-400'
+      case 'very_good': return 'text-blue-700 dark:text-blue-400'
+      case 'good': return 'text-yellow-700 dark:text-yellow-400'
+      case 'fair': return 'text-orange-700 dark:text-orange-400'
+      case 'parts_only': return 'text-red-700 dark:text-red-400'
+      default: return 'text-muted'
+    }
+  }
+
+  const hasDeal = priceAnalysis.type !== 'fair' && priceAnalysis.type !== 'neutral'
+
   if (viewMode === 'list') {
     return (
-      <div className="bg-surface-elevated border-b border-border hover:bg-surface-hover transition-colors">
-        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2">
-          {/* Item - flex-1, truncates on small screens */}
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-foreground truncate text-sm sm:text-base">
-              {component.brand} {component.name}
-            </div>
-          </div>
+      <div className="relative border-b border-border hover:bg-surface-hover transition-colors">
+        {/* Deal indicator bar — left edge, centered vertically */}
+        {hasDeal && (
+          <div className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r ${getDealBarColor()}`} />
+        )}
 
-          {/* Condition - hide on mobile */}
-          <div className="hidden sm:block w-24 flex-shrink-0">
-            {showCondition && (
-              <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller in post'}>
-                <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-medium ${getConditionColor(listing.condition)}`}>
-                  {listing.condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </span>
-              </Tooltip>
-            )}
-          </div>
-
-          {/* Bundle badge - hide on mobile */}
-          <div className="hidden md:block w-20 flex-shrink-0">
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          {/* Item — name + source dot + bundle */}
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <span className="font-medium text-foreground truncate text-sm">
+              {component.name}
+            </span>
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${sourceInfo.dotColor}`} />
             {listing.is_bundle && (
               <Tooltip content={`Bundle: ${listing.component_count || 2}+ items`}>
-                <span
-                  className="inline-flex items-center justify-center text-[10px] px-1.5 py-0.5 rounded font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800"
-                  role="note"
-                  aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
-                  tabIndex={0}
-                >
-                  📦 {listing.component_count || 2}+
-                </span>
+                <span className="text-orange-600 dark:text-orange-400 text-[11px] flex-shrink-0">📦</span>
               </Tooltip>
             )}
           </div>
 
-          {/* Location / Seller - hide on mobile */}
-          <div className="hidden lg:block w-48 flex-shrink-0">
-            <div className="flex flex-col gap-0.5 text-xs text-muted">
-              <div className="flex items-center gap-1 truncate">
-                <MapPin className="w-3 h-3 flex-shrink-0" />
-                <span className="truncate">{listing.location}</span>
-              </div>
-              <div className="flex items-center gap-1 truncate">
-                <User className="w-3 h-3 flex-shrink-0" />
-                <span className="truncate">{listing.seller_username}</span>
-              </div>
-            </div>
+          {/* Source */}
+          <div className="hidden sm:block w-20 flex-shrink-0 text-xs text-muted truncate">
+            {sourceInfo.name}
           </div>
 
-          {/* Posted - always visible, responsive sizing */}
-          <div className={`w-12 sm:w-20 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-muted'}`}>
-            {timeInfo.text}
+          {/* Condition — text only, no background */}
+          <div className="hidden sm:block w-16 flex-shrink-0">
+            {showCondition ? (
+              <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller'}>
+                <span className={`text-xs font-medium ${getConditionTextColor(listing.condition)}`}>
+                  {listing.condition === 'very_good' ? 'VG' :
+                   listing.condition === 'excellent' ? 'Exc' :
+                   listing.condition === 'parts_only' ? 'Parts' :
+                   listing.condition.charAt(0).toUpperCase() + listing.condition.slice(1)}
+                </span>
+              </Tooltip>
+            ) : (
+              <span className="text-xs text-muted">—</span>
+            )}
           </div>
 
-          {/* Price - always visible, responsive sizing */}
-          <div className="w-16 sm:w-24 flex-shrink-0 text-right">
-            <div className="text-sm sm:text-lg font-bold text-foreground">
-              {formatPrice(listing.price)}
-            </div>
-            <PriceHistoryBadge componentId={component.id} />
-          </div>
-
-          {/* Deal - hide on small screens */}
-          <div className="hidden md:block w-16 flex-shrink-0">
-            {priceAnalysis.type !== 'fair' && (
-              <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-              }`}>
-                {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
+          {/* Seller + trades */}
+          <div className="hidden md:flex items-center w-28 flex-shrink-0 text-xs text-muted gap-1 truncate">
+            <span className="truncate">{listing.seller_username}</span>
+            {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
+              <span className="text-green-600 dark:text-green-400 flex-shrink-0">
+                ({listing.seller_confirmed_trades})
               </span>
             )}
           </div>
 
-          {/* MSRP - hide on small screens */}
-          <div className="hidden md:block w-20 flex-shrink-0 text-right text-base sm:text-lg font-bold text-foreground">
-            {component.price_new ? formatPrice(component.price_new) : '—'}
+          {/* Location */}
+          <div className="hidden lg:block w-16 flex-shrink-0 text-xs text-muted truncate">
+            {listing.location}
           </div>
 
-          {/* Action - always visible, responsive sizing */}
-          <div className="w-10 sm:w-20 flex-shrink-0">
+          {/* Age */}
+          <div className={`w-12 flex-shrink-0 text-xs ${timeInfo.urgent ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-muted'}`}>
+            {timeInfo.text}
+          </div>
+
+          {/* Price */}
+          <div className="w-16 flex-shrink-0 text-right tabular-nums">
+            <span className="text-sm font-bold text-foreground">
+              {formatPrice(listing.price)}
+            </span>
+          </div>
+
+          {/* MSRP */}
+          <div className="hidden md:block w-14 flex-shrink-0 text-right tabular-nums">
+            <span className="text-xs text-muted line-through">
+              {component.price_new ? formatPrice(component.price_new) : '—'}
+            </span>
+          </div>
+
+          {/* Deal — text only, no background */}
+          <div className="hidden sm:block w-10 flex-shrink-0 text-right">
+            {hasDeal ? (
+              <span className={`text-xs font-semibold tabular-nums ${getDealColor()}`}>
+                {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
+              </span>
+            ) : null}
+          </div>
+
+          {/* Action */}
+          <div className="w-12 flex-shrink-0 text-right">
             {listing.url.includes('/sample') ? (
-              <div className="px-1.5 sm:px-3 py-1 bg-surface-secondary text-secondary rounded-lg text-xs text-center cursor-not-allowed">
-                Demo
-              </div>
+              <span className="text-xs text-muted">Demo</span>
             ) : (
               <a
                 href={listing.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 px-1.5 sm:px-3 py-1.5 sm:py-1 bg-accent hover:bg-accent-hover text-accent-foreground rounded-lg font-medium transition-colors text-xs w-full min-h-[44px] sm:min-h-0"
+                className="inline-flex items-center gap-0.5 text-xs text-accent hover:text-accent-hover font-medium transition-colors"
                 aria-label={`View listing for ${listing.title} (opens in new tab)`}
               >
-                <span className="hidden sm:inline">View</span>
-                <ExternalLink className="w-4 h-4 sm:w-3 sm:h-3" aria-hidden="true" />
+                View <ExternalLink className="w-3 h-3" aria-hidden="true" />
               </a>
             )}
           </div>
@@ -255,7 +282,7 @@ export function MarketplaceListingCard({
         )}
         {/* Reverb-specific: Accepts Offers badge */}
         {listing.source === 'reverb' && listing.accepts_offers && (
-          <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+          <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-blue-200 text-blue-800 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
             💬 Offers
           </span>
         )}
@@ -263,7 +290,7 @@ export function MarketplaceListingCard({
         {listing.is_bundle && (
           <Tooltip content={`This listing contains ${listing.component_count || 2}+ items. Price shown is for the bundle.`}>
             <span
-              className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800"
+              className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-orange-200 text-orange-800 border border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800"
               role="note"
               aria-label={`Bundle listing with ${listing.component_count || 2} or more items`}
               tabIndex={0}
@@ -310,9 +337,9 @@ export function MarketplaceListingCard({
       {/* Price Analysis Badge - Consolidated */}
       {priceAnalysis.type !== 'fair' && (
         <div className={`flex flex-wrap items-center gap-1 p-2 rounded text-xs font-medium mb-3 ${
-          priceAnalysis.type === 'great-deal' ? 'bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' :
-          priceAnalysis.type === 'good-deal' ? 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800' :
-          priceAnalysis.type === 'overpriced' ? 'bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' :
+          priceAnalysis.type === 'great-deal' ? 'bg-green-200 text-green-800 border border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' :
+          priceAnalysis.type === 'good-deal' ? 'bg-blue-200 text-blue-800 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800' :
+          priceAnalysis.type === 'overpriced' ? 'bg-red-200 text-red-800 border border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' :
           'bg-surface-secondary text-primary border border-border'
         }`}>
           {priceAnalysis.type === 'great-deal' || priceAnalysis.type === 'good-deal' ? <TrendingDown className="w-3.5 h-3.5" /> :
@@ -329,7 +356,7 @@ export function MarketplaceListingCard({
 
       {/* Price Warning */}
       {listing.price_warning && (
-        <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-300 text-sm mb-3">
+        <div className="p-2 bg-yellow-200 border border-yellow-300 rounded text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-300 text-sm mb-3">
           <AlertTriangle className="w-4 h-4 inline mr-1" />
           <span className="text-xs">{listing.price_warning}</span>
         </div>

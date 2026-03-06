@@ -870,52 +870,18 @@ function MarketplaceContent() {
         ) : (
           <>
             {viewMode === 'list' && (
-              <div className="bg-surface-elevated border-b-2 border-border mb-0 overflow-x-auto">
-                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2">
-                  {/* Component Info */}
-                  <div className="flex-1 min-w-0">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Item</span>
-                  </div>
-
-                  {/* Condition - hide on mobile */}
-                  <div className="hidden sm:block w-24">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Condition</span>
-                  </div>
-
-                  {/* Bundle - hide on small screens */}
-                  <div className="hidden md:block w-20">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Bundle</span>
-                  </div>
-
-                  {/* Location & Seller - hide on mobile */}
-                  <div className="hidden lg:block w-48">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Location / Seller</span>
-                  </div>
-
-                  {/* Time - always visible */}
-                  <div className="w-12 sm:w-20 flex-shrink-0">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Posted</span>
-                  </div>
-
-                  {/* Price - always visible */}
-                  <div className="w-16 sm:w-24 flex-shrink-0 text-right">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Price</span>
-                  </div>
-
-                  {/* Price Analysis - hide on small screens */}
-                  <div className="hidden md:block w-16 flex-shrink-0">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Deal</span>
-                  </div>
-
-                  {/* MSRP - hide on small screens */}
-                  <div className="hidden md:block w-20 flex-shrink-0 text-right">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">MSRP</span>
-                  </div>
-
-                  {/* Action - always visible */}
-                  <div className="w-10 sm:w-20 flex-shrink-0">
-                    <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Action</span>
-                  </div>
+              <div className="sticky top-0 z-10 border-b-2 border-border bg-surface backdrop-blur-sm bg-opacity-95">
+                <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-muted uppercase tracking-wider">
+                  <div className="flex-1 min-w-0">Item</div>
+                  <div className="hidden sm:block w-20 flex-shrink-0">Source</div>
+                  <div className="hidden sm:block w-16 flex-shrink-0">Cond.</div>
+                  <div className="hidden md:block w-28 flex-shrink-0">Seller</div>
+                  <div className="hidden lg:block w-16 flex-shrink-0">Loc.</div>
+                  <div className="w-12 flex-shrink-0">Age</div>
+                  <div className="w-16 flex-shrink-0 text-right">Price</div>
+                  <div className="hidden md:block w-14 flex-shrink-0 text-right">MSRP</div>
+                  <div className="hidden sm:block w-10 flex-shrink-0 text-right">Deal</div>
+                  <div className="w-12 flex-shrink-0"></div>
                 </div>
               </div>
             )}

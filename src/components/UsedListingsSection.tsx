@@ -158,25 +158,33 @@ export function UsedListingsSection({ component, listings }: UsedListingsSection
         </div>
       )}
 
-      {/* Safety Warning */}
-      <div className="border-l-4 border-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-r mb-6">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              <div className="w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">!</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium mb-1">Safety First</p>
-              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                Always use PayPal Goods & Services for buyer protection. Verify seller reputation and ask for additional photos before purchasing.
-              </p>
-            </div>
-          </div>
+      {/* Safety Warning — compact one-liner */}
+      <div className="border-l-4 border-yellow-500 bg-yellow-200 dark:bg-yellow-900/30 py-2 px-3 rounded-r mb-4 flex items-center justify-between gap-2">
+        <p className="text-yellow-900 dark:text-yellow-100 text-xs sm:text-sm">
+          <span className="font-semibold">⚠ Safety:</span> Use PayPal Goods &amp; Services for buyer protection. Verify seller reputation.
+        </p>
       </div>
 
+      {/* Table header for list view */}
+      {viewMode === 'list' && (
+        <div className="sticky top-0 z-10 border-b-2 border-border bg-surface backdrop-blur-sm bg-opacity-95">
+          <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-muted uppercase tracking-wider">
+            <div className="flex-1 min-w-0">Item</div>
+            <div className="hidden sm:block w-20 flex-shrink-0">Source</div>
+            <div className="hidden sm:block w-16 flex-shrink-0">Cond.</div>
+            <div className="hidden md:block w-28 flex-shrink-0">Seller</div>
+            <div className="hidden lg:block w-16 flex-shrink-0">Loc.</div>
+            <div className="w-12 flex-shrink-0">Age</div>
+            <div className="w-16 flex-shrink-0 text-right">Price</div>
+            <div className="hidden md:block w-14 flex-shrink-0 text-right">MSRP</div>
+            <div className="hidden sm:block w-10 flex-shrink-0 text-right">Deal</div>
+            <div className="w-12 flex-shrink-0"></div>
+          </div>
+        </div>
+      )}
+
       {/* Listings */}
-      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
+      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : ''}>
         {filteredListings.map(listing => (
           <MarketplaceListingCard
             key={listing.id}
