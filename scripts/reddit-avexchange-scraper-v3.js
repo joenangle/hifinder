@@ -13,6 +13,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { findComponentMatch, isAccessoryOnly, detectMultipleComponents, extractSanitizedText } = require('./component-matcher-enhanced');
+const { normalizeLocation: normalizeLocationStructured } = require('./location-normalizer');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
 const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
 const fs = require('fs');
@@ -586,6 +587,7 @@ function transformRedditPost(postData, matchResult) {
   const bundleInfo = detectMultipleComponents(postData.title);
   const soldStatus = isSoldPost(postData);
 
+  const normalizedLoc = normalizeLocationStructured(location);
   return {
     component_id: component.id,
     title: postData.title,
@@ -593,6 +595,8 @@ function transformRedditPost(postData, matchResult) {
     url: `https://www.reddit.com${postData.permalink}`,
     source: 'reddit_avexchange',
     location: location,
+    location_state: normalizedLoc.state,
+    location_country: normalizedLoc.country,
     date_posted: new Date(postData.created_utc * 1000).toISOString(),
     seller_username: postData.author,
     condition: 'good',
@@ -787,6 +791,7 @@ async function scrapeReddit() {
       // Extract common data once
       const totalPrice = extractPrice(post.title, post.selftext);
       const location = extractLocation(post.title);
+      const normalizedLoc = normalizeLocationStructured(location);
       const images = extractImages(post);
       const soldStatus = isSoldPost(post);
 
@@ -843,6 +848,8 @@ async function scrapeReddit() {
           url: `https://www.reddit.com${post.permalink}`,
           source: 'reddit_avexchange',
           location: location,
+          location_state: normalizedLoc.state,
+          location_country: normalizedLoc.country,
           date_posted: new Date(post.created_utc * 1000).toISOString(),
           seller_username: post.author,
           condition: 'good', // Default

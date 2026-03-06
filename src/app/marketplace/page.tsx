@@ -1,13 +1,15 @@
 'use client'
 
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
-// import { useSession } from 'next-auth/react' // Unused
+import { useSession } from 'next-auth/react'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
-import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List } from 'lucide-react'
+import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, MapPin, Bell } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
 import { FilterButton } from '@/components/FilterButton'
+import { US_STATES_LIST, COUNTRIES_LIST } from '@/lib/location-normalizer'
+import { createAlert } from '@/lib/alerts'
 import { X } from 'lucide-react'
 
 // Extended listing with component info for display
@@ -19,8 +21,10 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function MarketplaceContent() {
+  const { data: session } = useSession()
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
+  const [alertSaved, setAlertSaved] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
@@ -37,7 +41,9 @@ function MarketplaceContent() {
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [dealQuality, setDealQuality] = useState<string[]>([]) // 'great', 'good', 'hideOverpriced'
-  const [selectedRegion, setSelectedRegion] = useState<string>('all')
+  const [selectedState, setSelectedState] = useState<string>('all')
+  const [selectedCountry, setSelectedCountry] = useState<string>('all')
+  const [detectedState, setDetectedState] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState<SortBy>('date_desc')
 
@@ -92,6 +98,14 @@ function MarketplaceContent() {
         params.append('search', searchQuery.trim())
       }
 
+      if (selectedState && selectedState !== 'all') {
+        params.append('state', selectedState)
+      }
+
+      if (selectedCountry && selectedCountry !== 'all') {
+        params.append('country', selectedCountry)
+      }
+
       const response = await fetch(`/api/used-listings?${params.toString()}`)
 
       if (!response.ok) {
@@ -119,27 +133,6 @@ function MarketplaceContent() {
             normalize(listing.component?.name || '').includes(normalizedQuery) ||
             normalize(listing.title || '').includes(normalizedQuery)
           )
-        })
-      }
-
-      // Region filter (kept client-side — location data is freeform text, hard to filter in SQL)
-      if (selectedRegion !== 'all') {
-        filteredData = filteredData.filter(listing => {
-          const location = listing.location.toLowerCase()
-          switch (selectedRegion) {
-            case 'us':
-              return location.includes('us') || location.includes('usa') || /\b[A-Z]{2}\b/.test(listing.location)
-            case 'canada':
-              return location.includes('canada') || location.includes('ca')
-            case 'eu':
-              return location.includes('uk') || location.includes('europe') || location.includes('germany') ||
-                     location.includes('france') || location.includes('spain') || location.includes('italy')
-            case 'asia':
-              return location.includes('japan') || location.includes('singapore') || location.includes('korea') ||
-                     location.includes('china') || location.includes('hong kong')
-            default:
-              return true
-          }
         })
       }
 
@@ -178,14 +171,32 @@ function MarketplaceContent() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedRegion, dealQuality])
+  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedState, selectedCountry, dealQuality])
+
+  // IP geolocation — detect user's state on mount
+  useEffect(() => {
+    const cached = sessionStorage.getItem('hf_detected_state')
+    if (cached) {
+      setDetectedState(cached)
+      return
+    }
+    fetch('http://ip-api.com/json/?fields=regionName,countryCode,region')
+      .then(r => r.json())
+      .then(data => {
+        if (data.countryCode === 'US' && data.region) {
+          setDetectedState(data.region)
+          sessionStorage.setItem('hf_detected_state', data.region)
+        }
+      })
+      .catch(() => {}) // Silently fail — geolocation is optional
+  }, [])
 
   // Initial load - non-debounced filters (dropdowns, checkboxes)
   useEffect(() => {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions, selectedCategories])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedState, selectedCountry])
 
   // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
@@ -292,13 +303,35 @@ function MarketplaceContent() {
 
         {/* Filter Presets */}
         <div className="mb-4 flex flex-wrap gap-2">
+          {detectedState && (
+            <button
+              onClick={() => {
+                setSelectedState(detectedState)
+                setSelectedCountry('US')
+                setDealQuality([])
+                setPriceRange({ min: '', max: '' })
+                setSelectedCategories([])
+                setSelectedConditions([])
+                setSelectedSource('all')
+              }}
+              className={`px-3 py-2 border rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+                selectedState === detectedState
+                  ? 'bg-accent text-accent-foreground border-accent'
+                  : 'bg-surface-elevated border-border hover:border-accent text-primary'
+              }`}
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              Near Me ({detectedState})
+            </button>
+          )}
           <button
             onClick={() => {
               setDealQuality(['great'])
               setPriceRange({ min: '', max: '' })
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedRegion('all')
+              setSelectedState('all')
+              setSelectedCountry('all')
               setSelectedSource('all')
             }}
             className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
@@ -311,7 +344,8 @@ function MarketplaceContent() {
               setDealQuality([])
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedRegion('all')
+              setSelectedState('all')
+              setSelectedCountry('all')
               setSelectedSource('all')
             }}
             className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
@@ -324,7 +358,8 @@ function MarketplaceContent() {
               setDealQuality([])
               setSelectedCategories([])
               setSelectedConditions([])
-              setSelectedRegion('all')
+              setSelectedState('all')
+              setSelectedCountry('all')
               setSelectedSource('all')
             }}
             className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
@@ -337,7 +372,8 @@ function MarketplaceContent() {
               setDealQuality([])
               setPriceRange({ min: '', max: '' })
               setSelectedConditions([])
-              setSelectedRegion('all')
+              setSelectedState('all')
+              setSelectedCountry('all')
               setSelectedSource('all')
             }}
             className="px-3 py-2 bg-surface-elevated border border-border hover:border-accent rounded-md text-sm text-primary transition-colors"
@@ -551,21 +587,57 @@ function MarketplaceContent() {
                   </select>
                 </div>
 
-                {/* Region Filter */}
+                {/* Country Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Region</label>
+                  <label className="block text-sm font-medium text-primary mb-1.5">Country</label>
                   <select
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    value={selectedCountry}
+                    onChange={(e) => {
+                      setSelectedCountry(e.target.value)
+                      if (e.target.value !== 'US') setSelectedState('all')
+                    }}
                     className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                   >
-                    <option value="all">All Regions</option>
-                    <option value="us">🇺🇸 United States</option>
-                    <option value="canada">🇨🇦 Canada</option>
-                    <option value="eu">🇪🇺 Europe</option>
-                    <option value="asia">🌏 Asia</option>
+                    <option value="all">All Countries</option>
+                    {COUNTRIES_LIST.map(c => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
+
+                {/* State Filter (US only) */}
+                {(selectedCountry === 'all' || selectedCountry === 'US') && (
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-1.5">
+                      State
+                      {detectedState && selectedState === 'all' && (
+                        <button
+                          onClick={() => {
+                            setSelectedState(detectedState)
+                            setSelectedCountry('US')
+                          }}
+                          className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 text-accent text-xs rounded-full hover:bg-accent/20 transition-colors"
+                        >
+                          <MapPin className="w-3 h-3" />
+                          Near me ({detectedState})
+                        </button>
+                      )}
+                    </label>
+                    <select
+                      value={selectedState}
+                      onChange={(e) => {
+                        setSelectedState(e.target.value)
+                        if (e.target.value !== 'all') setSelectedCountry('US')
+                      }}
+                      className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                    >
+                      <option value="all">All States</option>
+                      {US_STATES_LIST.map(s => (
+                        <option key={s.code} value={s.code}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Condition Filter */}
                 <div>
@@ -619,24 +691,63 @@ function MarketplaceContent() {
         </div>
 
         {/* Active Filters Summary */}
-        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedRegion !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
+        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedState !== 'all' || selectedCountry !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
           <div className="bg-surface-elevated rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-primary">Active Filters</h3>
-              <button
-                onClick={() => {
-                  setSelectedCategories([])
-                  setDealQuality([])
-                  setSelectedConditions([])
-                  setSelectedSource('all')
-                  setSelectedRegion('all')
-                  setSearchQuery('')
-                  setPriceRange({ min: '', max: '' })
-                }}
-                className="text-xs text-accent hover:text-accent-hover transition-colors"
-              >
-                Clear All
-              </button>
+              <div className="flex items-center gap-3">
+                {session?.user ? (
+                  <button
+                    onClick={async () => {
+                      const userId = (session.user as { id?: string })?.id
+                      if (!userId) return
+                      const result = await createAlert(userId, {
+                        custom_search_query: searchQuery || undefined,
+                        target_price: priceRange.max ? parseFloat(priceRange.max) : 9999,
+                        alert_type: priceRange.max ? 'below' : 'below',
+                        price_range_min: priceRange.min ? parseFloat(priceRange.min) : undefined,
+                        price_range_max: priceRange.max ? parseFloat(priceRange.max) : undefined,
+                        condition_preference: selectedConditions.length > 0 ? selectedConditions : ['excellent', 'very_good', 'good', 'fair'],
+                        marketplace_preference: selectedSource !== 'all' ? [selectedSource] : ['reddit_avexchange', 'reverb'],
+                        notification_frequency: 'digest',
+                        email_enabled: true,
+                      })
+                      if (result) {
+                        setAlertSaved(true)
+                        setTimeout(() => setAlertSaved(false), 3000)
+                      }
+                    }}
+                    disabled={alertSaved}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-xs rounded-md hover:bg-accent/20 transition-colors disabled:opacity-50"
+                  >
+                    <Bell className="w-3 h-3" />
+                    {alertSaved ? 'Alert Saved!' : 'Save as Alert'}
+                  </button>
+                ) : (
+                  <Link
+                    href="/api/auth/signin"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-xs rounded-md hover:bg-accent/20 transition-colors"
+                  >
+                    <Bell className="w-3 h-3" />
+                    Sign in to save alerts
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedCategories([])
+                    setDealQuality([])
+                    setSelectedConditions([])
+                    setSelectedSource('all')
+                    setSelectedState('all')
+                    setSelectedCountry('all')
+                    setSearchQuery('')
+                    setPriceRange({ min: '', max: '' })
+                  }}
+                  className="text-xs text-accent hover:text-accent-hover transition-colors"
+                >
+                  Clear All
+                </button>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {searchQuery && (
@@ -700,14 +811,22 @@ function MarketplaceContent() {
                   </button>
                 </span>
               )}
-              {selectedRegion !== 'all' && (
+              {selectedCountry !== 'all' && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  Region: {selectedRegion === 'us' ? '🇺🇸 US' :
-                           selectedRegion === 'canada' ? '🇨🇦 Canada' :
-                           selectedRegion === 'eu' ? '🇪🇺 Europe' :
-                           selectedRegion === 'asia' ? '🌏 Asia' : selectedRegion}
+                  {COUNTRIES_LIST.find(c => c.code === selectedCountry)?.name || selectedCountry}
                   <button
-                    onClick={() => setSelectedRegion('all')}
+                    onClick={() => { setSelectedCountry('all'); setSelectedState('all') }}
+                    className="hover:text-accent"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {selectedState !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
+                  {US_STATES_LIST.find(s => s.code === selectedState)?.name || selectedState}
+                  <button
+                    onClick={() => setSelectedState('all')}
                     className="hover:text-accent"
                   >
                     <X className="w-3 h-3" />
@@ -739,6 +858,8 @@ function MarketplaceContent() {
                 setSearchQuery('')
                 setSelectedSource('all')
                 setSelectedConditions([])
+                setSelectedState('all')
+                setSelectedCountry('all')
                 setPriceRange({ min: '', max: '' })
               }}
               className="button button-secondary"

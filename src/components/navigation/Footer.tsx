@@ -3,6 +3,7 @@ import Link from 'next/link'
 const productLinks = [
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Used Market' },
+  { href: '/price-history', label: 'Price History' },
   { href: '/learn', label: 'Learn' },
 ]
 

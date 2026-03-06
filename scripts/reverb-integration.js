@@ -6,6 +6,7 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
+const { normalizeLocation: normalizeLocationStructured } = require('./location-normalizer');
 
 // Shared utilities
 const { mapCondition } = require('./shared/condition-mapper');
@@ -296,12 +297,15 @@ function transformReverbListing(listing, component) {
     location = `${listing.seller.location.region}, ${listing.seller.location.country_code}`;
   }
   
+  const normalizedLoc = normalizeLocationStructured(location, 'reverb');
   return {
     component_id: component.id,
     title: listing.title || 'Reverb Listing',
     price: price,
     condition: condition,
     location: location,
+    location_state: normalizedLoc.state,
+    location_country: normalizedLoc.country,
     source: 'reverb',
     url: listing._links?.web?.href || `https://reverb.com/item/${listing.id}`,
     date_posted: listing.created_at || new Date().toISOString(),

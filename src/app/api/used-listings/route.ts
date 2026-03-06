@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     const conditions = searchParams.get('conditions') // Comma-separated conditions
     const categories = searchParams.get('categories') // Comma-separated categories (cans, iems, dac, amp, dac_amp)
     const search = searchParams.get('search') // Search query for brand/model/title
+    const state = searchParams.get('state') // US state or CA province code
+    const country = searchParams.get('country') // ISO 3166-1 alpha-2 country code
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit
@@ -23,7 +25,8 @@ export async function GET(request: NextRequest) {
       .from('used_listings')
       .select(`
         id, component_id, title, price, condition, date_posted, date_sold,
-        source, url, status, location, seller_username, seller_confirmed_trades,
+        source, url, status, location, location_state, location_country,
+        seller_username, seller_confirmed_trades,
         is_bundle, component_count, shipping_cost, accepts_offers, sale_price,
         price_warning,
         component:components(id, brand, name, category, price_new, price_used_min, price_used_max)
@@ -71,6 +74,14 @@ export async function GET(request: NextRequest) {
     // Search by title (server-side text search)
     if (search) {
       query = query.ilike('title', `%${search}%`)
+    }
+
+    // Filter by location
+    if (state) {
+      query = query.eq('location_state', state.toUpperCase())
+    }
+    if (country) {
+      query = query.eq('location_country', country.toUpperCase())
     }
 
     // Apply sorting

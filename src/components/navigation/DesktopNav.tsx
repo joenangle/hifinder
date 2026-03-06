@@ -8,6 +8,7 @@ const publicNavItems = [
   { href: '/', label: 'Home' },
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
+  { href: '/price-history', label: 'Price History' },
   { href: '/about', label: 'About' },
 ]
 
@@ -17,6 +18,7 @@ const authNavItems = [
   { href: '/gear', label: 'My Gear' },
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/marketplace', label: 'Marketplace' },
+  { href: '/price-history', label: 'Price History' },
   { href: '/about', label: 'About' },
 ]
 

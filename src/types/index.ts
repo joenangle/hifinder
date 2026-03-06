@@ -59,6 +59,8 @@ export interface UsedListing {
   price_is_estimated?: boolean;
   condition: 'excellent' | 'very_good' | 'good' | 'fair' | 'parts_only';
   location: string;
+  location_state?: string | null;
+  location_country?: string | null;
   source: 'reddit_avexchange' | 'ebay' | 'head_fi' | 'usaudiomart' | 'reverb' | 'manual';
   url: string;
   date_posted: string;
