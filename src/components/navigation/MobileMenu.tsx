@@ -92,9 +92,10 @@ export function MobileMenu({ isOpen, onClose, buttonRef }: MobileMenuProps) {
                 onClick={onClose}
                 className={`block px-3 py-3 text-sm rounded transition-colors ${
                   isActive
-                    ? 'text-accent bg-surface-hover'
+                    ? 'bg-surface-hover'
                     : 'text-secondary hover:text-primary hover:bg-surface-hover'
                 }`}
+                style={isActive ? { color: 'var(--accent-secondary)' } : undefined}
               >
                 {item.label}
               </Link>

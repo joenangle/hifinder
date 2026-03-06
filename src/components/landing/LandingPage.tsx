@@ -8,8 +8,7 @@ import { FeatureCards } from './FeatureCards'
 import { FloatingBar } from './FloatingBar'
 import { ScrollToButton } from './ScrollToButton'
 import { CuratedSystems } from './CuratedSystems'
-import { EmailCaptureForm } from './EmailCaptureForm'
-import { TrackableAnchor } from './TrackableAnchor'
+import { CollapsibleEmailSignup } from './CollapsibleEmailSignup'
 
 async function getStats() {
   try {
@@ -96,7 +95,7 @@ export async function LandingPage() {
                     width: 6,
                     height: 6,
                     borderRadius: '50%',
-                    background: 'var(--accent-primary)',
+                    background: 'var(--accent-secondary)',
                     display: 'inline-block',
                     flexShrink: 0,
                   }}
@@ -295,12 +294,12 @@ export async function LandingPage() {
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
 
           <h2
-            className="text-xs font-semibold mb-10"
+            className="font-semibold mb-10"
             style={{
-              color: 'var(--accent-primary)',
+              color: 'var(--accent-secondary)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              fontSize: '0.75rem',
+              fontSize: '1rem',
             }}
           >
             How it works
@@ -438,41 +437,7 @@ export async function LandingPage() {
               <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
             </TrackableLink>
 
-            <Suspense>
-              <div
-                style={{
-                  marginTop: '2rem',
-                  paddingTop: '1.5rem',
-                  borderTop: '1px solid var(--border-subtle)',
-                  maxWidth: '420px',
-                }}
-              >
-                <p
-                  className="text-sm mb-3"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  Not ready yet? Get weekly gear picks in your inbox.
-                </p>
-                <EmailCaptureForm
-                  source="bottom_cta_newsletter"
-                  buttonText="Subscribe"
-                  compact
-                />
-                <TrackableAnchor
-                  href="mailto:hello@hifinder.app?subject=Help%20choosing%20audio%20gear"
-                  event={{ name: 'help_mailto_clicked', properties: { location: 'bottom_cta' } }}
-                  className="text-sm hover:underline"
-                  style={{
-                    color: 'var(--text-tertiary)',
-                    marginTop: '12px',
-                    display: 'inline-block',
-                    textUnderlineOffset: '3px',
-                  }}
-                >
-                  Or email us — we&apos;re happy to help
-                </TrackableAnchor>
-              </div>
-            </Suspense>
+            <CollapsibleEmailSignup />
           </div>
         </div>
       </section>

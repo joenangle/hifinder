@@ -35,13 +35,17 @@ export function DesktopNav() {
             href={item.href}
             className={`text-sm font-medium transition-colors relative py-2 px-1 ${
               isActive
-                ? 'text-accent'
+                ? ''
                 : 'text-secondary hover:text-primary'
             }`}
+            style={isActive ? { color: 'var(--accent-secondary)' } : undefined}
           >
             {item.label}
             {isActive && (
-              <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-accent rounded-full" />
+              <span
+                className="absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full"
+                style={{ background: 'var(--accent-secondary)' }}
+              />
             )}
           </Link>
         )
