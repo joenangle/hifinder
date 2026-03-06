@@ -9,9 +9,18 @@ export function FloatingBar() {
   const [pastHero, setPastHero] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setPastHero(window.scrollY > window.innerHeight * 0.6)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const sentinel = document.getElementById('hero-sentinel')
+    if (!sentinel) {
+      // fallback: if no sentinel element, hide immediately
+      setPastHero(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setPastHero(!entry.isIntersecting),
+      { threshold: 0.4 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
   }, [])
 
   return (

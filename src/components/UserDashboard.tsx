@@ -61,8 +61,7 @@ export function UserDashboard() {
       }
     }
 
-    const timer = setTimeout(loadUserData, 100)
-    return () => clearTimeout(timer)
+    loadUserData()
   }, [session?.user?.id, session?.user?.email])
 
   const hasGear = gear.length > 0

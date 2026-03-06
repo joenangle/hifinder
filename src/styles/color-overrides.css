@@ -25,8 +25,8 @@
 
   /* Card borders */
   --rec-card-border: #dee2e6; /* Default border */
-  --rec-card-border-hover: #e85a4f; /* Hover border (accent) */
-  --rec-card-border-selected: #e85a4f; /* Selected border */
+  --rec-card-border-hover: #c94237; /* Hover border (accent) */
+  --rec-card-border-selected: #c94237; /* Selected border */
 
   /* Card text */
   --rec-card-text-primary: #212529; /* Headings, important text */
@@ -35,7 +35,7 @@
 
   /* === CHAMPION BADGES === */
 
-  --rec-badge-technical-bg: #e85a4f; /* "🏆 Top Tech" badge background */
+  --rec-badge-technical-bg: #c94237; /* "🏆 Top Tech" badge background */
   --rec-badge-technical-text: #ffffff; /* "🏆 Top Tech" badge text */
 
   --rec-badge-tone-bg: #f57c00; /* "👂 Best Match" badge background */
@@ -74,7 +74,7 @@
   /* === TEXT CONTRAST === */
 
   --rec-text-muted: #4f4f4f; /* Muted text (specs, details) */
-  --rec-text-link: #e85a4f; /* Links and clickable text */
+  --rec-text-link: #c94237; /* Links and clickable text */
   --rec-text-link-hover: #d84315; /* Link hover state */
 
   /* === AMPLIFICATION WARNINGS === */
@@ -121,8 +121,8 @@
 
   /* Card borders */
   --rec-card-border: #2c3038; /* Default border */
-  --rec-card-border-hover: #e85a4f; /* Hover border (accent) */
-  --rec-card-border-selected: #e85a4f; /* Selected border */
+  --rec-card-border-hover: #c94237; /* Hover border (accent) */
+  --rec-card-border-selected: #c94237; /* Selected border */
 
   /* Card text */
   --rec-card-text-primary: #f8f9fa; /* Headings, important text */
@@ -170,7 +170,7 @@
   /* === TEXT CONTRAST === */
 
   --rec-text-muted: #9ca3af; /* Lighter muted text for dark mode */
-  --rec-text-link: #e85a4f; /* Keep accent color */
+  --rec-text-link: #c94237; /* Keep accent color */
   --rec-text-link-hover: #ff7043; /* Brighter hover in dark mode */
 
   /* === AMPLIFICATION WARNINGS === */

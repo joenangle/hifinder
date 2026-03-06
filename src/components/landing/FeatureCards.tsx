@@ -143,16 +143,17 @@ export function FeatureCards() {
   return (
     <section style={{ padding: '100px 0' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
-        <p
+        <h2
           className="text-xs font-semibold mb-6"
           style={{
             color: 'var(--accent-primary)',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
+            fontSize: '0.75rem',
           }}
         >
           What HiFinder does
-        </p>
+        </h2>
 
         <div className="grid lg:grid-cols-2 gap-6">
           {features.map((f) => {

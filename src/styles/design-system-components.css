@@ -113,10 +113,10 @@
 
 @keyframes hint-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb, 232, 90, 79), 0.4);
+    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb, 201, 66, 55), 0.4);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(var(--accent-primary-rgb, 232, 90, 79), 0);
+    box-shadow: 0 0 0 6px rgba(var(--accent-primary-rgb, 201, 66, 55), 0);
   }
 }
 
@@ -558,7 +558,7 @@ select.input {
   --sound-neutral: #6c757d;
   --sound-warm: #f57c00;
   --sound-bright: #ffb74d;
-  --sound-fun: #e85a4f;
+  --sound-fun: #c94237;
   --category-cans: var(--accent-primary);
   --category-iems: #7c4dff;
   --category-dac: #00acc1;
@@ -747,19 +747,19 @@ select.input {
 
 /* Opacity utilities for accent color */
 .text-accent\/70 {
-  color: rgba(232, 90, 79, 0.7);
+  color: rgba(201, 66, 55, 0.7);
 }
 .text-accent\/60 {
-  color: rgba(232, 90, 79, 0.6);
+  color: rgba(201, 66, 55, 0.6);
 }
 .bg-accent\/10 {
-  background: rgba(232, 90, 79, 0.1);
+  background: rgba(201, 66, 55, 0.1);
 }
 .bg-accent\/5 {
-  background: rgba(232, 90, 79, 0.05);
+  background: rgba(201, 66, 55, 0.05);
 }
 .border-accent\/20 {
-  border-color: rgba(232, 90, 79, 0.2);
+  border-color: rgba(201, 66, 55, 0.2);
 }
 /* Removed .text-accent-muted (unused) - use text-accent/70 instead */
 

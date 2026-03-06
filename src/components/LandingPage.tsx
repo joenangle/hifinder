@@ -37,6 +37,7 @@ export async function LandingPage() {
           Server-rendered: zero JS needed for first paint
       ───────────────────────────────────────── */}
       <section
+        id="hero-sentinel"
         style={{
           minHeight: 'calc(100vh - 64px)',
           display: 'flex',
@@ -325,16 +326,17 @@ export async function LandingPage() {
       >
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
 
-          <p
+          <h2
             className="text-xs font-semibold mb-10"
             style={{
               color: 'var(--accent-primary)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
+              fontSize: '0.75rem',
             }}
           >
             How it works
-          </p>
+          </h2>
 
           <div className="grid sm:grid-cols-3 gap-0">
             {[

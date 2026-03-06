@@ -1,8 +1,8 @@
-/* HiFinder Design System v1.1
+/* HiFinder Design System v1.2
  * Core CSS Variables and Design Tokens
- * 
+ *
  * Recent Updates:
- * - Accent color toned down to #E85A4F (subtle orange-red)
+ * - Accent color darkened to #C94237 for WCAG AA contrast (4.86:1 on white)
  * - Tagline updated to "Your Audio Gear Guide"
  * - Consistent 4px tight spacing throughout
  * - Card-based layout system for all major content
@@ -28,10 +28,10 @@
   --text-tertiary: #2d3136;
   --text-inverse: #ffffff;
 
-  --accent-primary: #e85a4f; /* Toned down orange-red */
-  --accent-primary-rgb: 232, 90, 79; /* RGB for opacity support */
-  --accent-hover: #d84315;
-  --accent-active: #bf360c;
+  --accent-primary: #c94237; /* WCAG AA: 4.86:1 on white */
+  --accent-primary-rgb: 201, 66, 55; /* RGB for opacity support */
+  --accent-hover: #b5372d; /* Darkened hover for contrast */
+  --accent-active: #a02e24;
   --accent-subtle: #fff3e0;
   --background-secondary-rgb: 248, 249, 250; /* RGB for opacity support */
 
@@ -63,10 +63,10 @@
   --text-tertiary: #8b9199; /* Improved contrast: 6.3:1 on #0a0b0d */
   --text-inverse: #0a0b0d;
 
-  --accent-primary: #e85a4f;
-  --accent-primary-rgb: 232, 90, 79; /* RGB for opacity support */
-  --accent-hover: #ff7043;
-  --accent-active: #d84315;
+  --accent-primary: #c94237; /* WCAG AA: 4.86:1 on white, 4.05:1 on #0a0b0d */
+  --accent-primary-rgb: 201, 66, 55; /* RGB for opacity support */
+  --accent-hover: #e0655b; /* Brighter hover in dark mode */
+  --accent-active: #b5372d;
   --accent-subtle: #3d2822;
   --background-secondary-rgb: 19, 21, 26; /* RGB for opacity support */
 
