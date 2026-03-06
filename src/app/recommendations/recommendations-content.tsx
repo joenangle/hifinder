@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { BudgetSlider } from '@/components/BudgetSlider'
@@ -19,6 +19,8 @@ import { AmplificationWarningBanner } from '@/components/recommendations/Amplifi
 import { BudgetAllocation } from '@/components/BudgetAllocationControls'
 import { X } from 'lucide-react'
 import { BatchPriceHistoryProvider } from '@/components/BatchPriceHistoryProvider'
+import { useQueryStates } from 'nuqs'
+import { PREF_DEFAULTS, recommendationParams, parseLegacyParams } from '@/lib/url-params'
 
 // Lazy load components only shown on user interaction for better code splitting
 const StackBuilderModal = dynamic(() => import('@/components/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
@@ -153,88 +155,49 @@ export function RecommendationsContent() {
   )
 
   // SIMPLIFIED STATE MANAGEMENT - Single source of truth pattern
+  // URL params parsed via nuqs with type-safe defaults
 
-  // Default values — used for parsing and for stripping defaults from URL
-  const PREF_DEFAULTS = useMemo(() => ({
-    budget: 250,
-    budgetRangeMin: 20,
-    budgetRangeMax: 10,
-    headphoneType: 'both',
-    wantRecommendationsFor: { headphones: true, dac: false, amp: false, combo: false },
-    existingGear: { headphones: false, dac: false, amp: false, combo: false, specificModels: { headphones: '', dac: '', amp: '', combo: '' } },
-    usage: 'music',
-    usageRanking: [] as string[],
-    excludedUsages: [] as string[],
-    soundSignature: 'any'
-  }), [])
+  // nuqs reads URL params with type-safe parsing and defaults
+  const [nuqsParams, setNuqsParams] = useQueryStates(recommendationParams, {
+    history: 'push',
+    scroll: false,
+  })
 
-  // Helper: read a param with short name fallback to legacy long name
-  const getParam = useCallback((short: string, long: string) => {
-    return searchParams.get(short) ?? searchParams.get(long)
-  }, [searchParams])
-
-  // Parse URL parameters - recompute when URL changes
-  // Supports compact params (b, type, want, gear, use, ranked, exclude) with legacy fallback
-  const initialPrefs = useMemo(() => {
-    // Parse wantRecommendationsFor: compact "want=headphones,combo" or legacy JSON
-    let wantRecsRaw = PREF_DEFAULTS.wantRecommendationsFor
-    const wantCompact = searchParams.get('want')
-    const wantLegacy = searchParams.get('wantRecommendationsFor')
-    if (wantCompact) {
-      const keys = wantCompact.split(',')
-      wantRecsRaw = { headphones: keys.includes('headphones'), dac: keys.includes('dac'), amp: keys.includes('amp'), combo: keys.includes('combo') }
-    } else if (wantLegacy) {
-      try { wantRecsRaw = JSON.parse(wantLegacy) } catch { /* use default */ }
-    }
-
-    // Parse existingGear: compact "gear=headphones,dac" + "gearModels=headphones:HD650" or legacy JSON
-    let existingGearRaw = PREF_DEFAULTS.existingGear
-    const gearCompact = searchParams.get('gear')
-    const gearLegacy = searchParams.get('existingGear')
-    if (gearCompact) {
-      const keys = gearCompact.split(',')
-      const models = { headphones: '', dac: '', amp: '', combo: '' }
-      const gearModelsParam = searchParams.get('gearModels')
-      if (gearModelsParam) {
-        gearModelsParam.split(',').forEach(entry => {
-          const [k, v] = entry.split(':')
-          if (k && v && k in models) models[k as keyof typeof models] = v
-        })
+  // One-time legacy URL migration (budget→b, headphoneType→type, etc.)
+  const pathname = usePathname()
+  useEffect(() => {
+    const legacy = parseLegacyParams(new URLSearchParams(window.location.search))
+    if (legacy) {
+      const params = new URLSearchParams(window.location.search)
+      // Remove legacy keys, add compact keys
+      for (const [key, val] of Object.entries(legacy)) {
+        params.set(key, val)
       }
-      existingGearRaw = {
-        headphones: keys.includes('headphones'), dac: keys.includes('dac'),
-        amp: keys.includes('amp'), combo: keys.includes('combo'),
-        specificModels: models
+      // Remove legacy param names
+      for (const name of ['budget', 'headphoneType', 'usage', 'wantRecommendationsFor', 'existingGear', 'usageRanking', 'excludedUsages', 'sound']) {
+        params.delete(name)
       }
-    } else if (gearLegacy) {
-      try { existingGearRaw = JSON.parse(gearLegacy) } catch { /* use default */ }
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Run once on mount
 
-    // Parse arrays: compact comma-separated or legacy JSON
-    const parseArray = (short: string, long: string): string[] => {
-      const compact = searchParams.get(short)
-      if (compact) return compact.split(',').filter(Boolean)
-      const legacy = searchParams.get(long)
-      if (legacy) { try { return JSON.parse(legacy) } catch { return [] } }
-      return []
-    }
-
-    return {
-      budget: parseInt(getParam('b', 'budget') || String(PREF_DEFAULTS.budget)),
-      budgetRangeMin: parseInt(searchParams.get('budgetRangeMin') || String(PREF_DEFAULTS.budgetRangeMin)),
-      budgetRangeMax: parseInt(searchParams.get('budgetRangeMax') || String(PREF_DEFAULTS.budgetRangeMax)),
-      headphoneType: getParam('type', 'headphoneType') || PREF_DEFAULTS.headphoneType,
-      wantRecommendationsFor: wantRecsRaw,
-      existingGear: existingGearRaw,
-      usage: getParam('use', 'usage') || PREF_DEFAULTS.usage,
-      usageRanking: parseArray('ranked', 'usageRanking'),
-      excludedUsages: parseArray('exclude', 'excludedUsages'),
-      soundSignature: searchParams.get('soundSignature') || PREF_DEFAULTS.soundSignature
-    }
-  }, [searchParams, PREF_DEFAULTS, getParam]) // Re-parse when URL changes
-
-  // URL is the single source of truth - use initialPrefs directly
-  const userPrefs = initialPrefs
+  // Map nuqs state to the userPrefs shape expected by downstream code
+  const userPrefs = useMemo(() => ({
+    budget: nuqsParams.b,
+    budgetRangeMin: nuqsParams.budgetRangeMin,
+    budgetRangeMax: nuqsParams.budgetRangeMax,
+    headphoneType: nuqsParams.type,
+    wantRecommendationsFor: nuqsParams.want,
+    existingGear: {
+      ...nuqsParams.gear,
+      specificModels: nuqsParams.gearModels,
+    },
+    usage: nuqsParams.use,
+    usageRanking: nuqsParams.ranked,
+    excludedUsages: nuqsParams.exclude,
+    soundSignature: nuqsParams.soundSignature,
+  }), [nuqsParams])
 
   // Simple debouncing for API calls - debounce budget only
   const debouncedBudget = useDebounce(userPrefs.budget, 300)
@@ -291,45 +254,30 @@ export function RecommendationsContent() {
   const budget = userPrefs.budget // For UI display (immediate)
   // debouncedBudget used for API calls (300ms delay)
 
-  // Update URL directly - URL is single source of truth
-  // Uses compact param names and comma-separated lists to keep URLs short
+  // Update URL via nuqs — handles serialization, default stripping, and URL push
   const updateURL = useCallback((updates: Partial<typeof userPrefs>) => {
-    const merged = { ...userPrefs, ...updates }
-    const params = new URLSearchParams()
-
-    // Simple values — omit if default
-    if (merged.budget !== PREF_DEFAULTS.budget) params.set('b', merged.budget.toString())
-    if (merged.budgetRangeMin !== PREF_DEFAULTS.budgetRangeMin) params.set('budgetRangeMin', merged.budgetRangeMin.toString())
-    if (merged.budgetRangeMax !== PREF_DEFAULTS.budgetRangeMax) params.set('budgetRangeMax', merged.budgetRangeMax.toString())
-    if (merged.headphoneType !== PREF_DEFAULTS.headphoneType) params.set('type', merged.headphoneType)
-    if (merged.usage !== PREF_DEFAULTS.usage) params.set('use', merged.usage)
-
-    // wantRecommendationsFor → comma-separated truthy keys
-    const wantKeys = Object.entries(merged.wantRecommendationsFor).filter(([, v]) => v).map(([k]) => k)
-    const defaultWantKeys = Object.entries(PREF_DEFAULTS.wantRecommendationsFor).filter(([, v]) => v).map(([k]) => k)
-    if (JSON.stringify(wantKeys) !== JSON.stringify(defaultWantKeys)) params.set('want', wantKeys.join(','))
-
-    // existingGear → comma-separated truthy keys + gearModels for specific models
-    const gearKeys = ['headphones', 'dac', 'amp', 'combo'].filter(k => merged.existingGear[k as keyof typeof merged.existingGear])
-    if (gearKeys.length > 0) params.set('gear', gearKeys.join(','))
-    const models = merged.existingGear.specificModels || { headphones: '', dac: '', amp: '', combo: '' }
-    const modelEntries = Object.entries(models).filter(([, v]) => v).map(([k, v]) => `${k}:${v}`)
-    if (modelEntries.length > 0) params.set('gearModels', modelEntries.join(','))
-
-    // Arrays → comma-separated
-    if (merged.usageRanking.length > 0) params.set('ranked', merged.usageRanking.join(','))
-    if (merged.excludedUsages.length > 0) params.set('exclude', merged.excludedUsages.join(','))
-
-    // Preserve non-pref params (source, headphoneTypes, soundSignatures)
-    const preserve = ['source', 'headphoneTypes', 'soundSignatures']
-    preserve.forEach(key => {
-      const val = searchParams.get(key)
-      if (val) params.set(key, val)
-    })
-
-    const qs = params.toString()
-    router.push(qs ? `/recommendations?${qs}` : '/recommendations', { scroll: false })
-  }, [router, searchParams, userPrefs, PREF_DEFAULTS])
+    const nuqsUpdates: Record<string, unknown> = {}
+    if ('budget' in updates) nuqsUpdates.b = updates.budget
+    if ('budgetRangeMin' in updates) nuqsUpdates.budgetRangeMin = updates.budgetRangeMin
+    if ('budgetRangeMax' in updates) nuqsUpdates.budgetRangeMax = updates.budgetRangeMax
+    if ('headphoneType' in updates) nuqsUpdates.type = updates.headphoneType
+    if ('usage' in updates) nuqsUpdates.use = updates.usage
+    if ('usageRanking' in updates) nuqsUpdates.ranked = updates.usageRanking
+    if ('excludedUsages' in updates) nuqsUpdates.exclude = updates.excludedUsages
+    if ('soundSignature' in updates) nuqsUpdates.soundSignature = updates.soundSignature
+    if ('wantRecommendationsFor' in updates) nuqsUpdates.want = updates.wantRecommendationsFor
+    if ('existingGear' in updates) {
+      const gear = updates.existingGear as typeof userPrefs.existingGear
+      nuqsUpdates.gear = {
+        headphones: gear.headphones,
+        dac: gear.dac,
+        amp: gear.amp,
+        combo: gear.combo,
+      }
+      if (gear.specificModels) nuqsUpdates.gearModels = gear.specificModels
+    }
+    setNuqsParams(nuqsUpdates)
+  }, [setNuqsParams])
 
   // Browse mode removed - no handler needed
 

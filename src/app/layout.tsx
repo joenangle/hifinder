@@ -11,6 +11,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics as CustomAnalytics } from '@/components/Analytics';
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { NuqsAdapter } from 'nuqs/adapters/next';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -95,6 +96,7 @@ export default async function RootLayout({
           color: 'var(--text-primary)',
         }}
       >
+        <NuqsAdapter>
         <AuthProvider session={session}>
           <Script
             id="theme-script"
@@ -128,7 +130,8 @@ export default async function RootLayout({
           </main>
           <Footer />
         </AuthProvider>
-        
+        </NuqsAdapter>
+
         {/* Google Analytics */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
