@@ -839,7 +839,7 @@ function MarketplaceContent() {
                   <div className="w-16 flex-shrink-0 text-right">Price</div>
                   <div className="hidden md:block w-14 flex-shrink-0 text-right">MSRP</div>
                   <div className="hidden lg:block w-20 flex-shrink-0 text-right">Market</div>
-                  <div className="hidden sm:block w-10 flex-shrink-0 text-right">Deal</div>
+                  <div className="hidden sm:block w-10 flex-shrink-0 text-right cursor-help" title="How this listing compares to the median used sale price for this product">vs Mkt</div>
                   <div className="w-16 flex-shrink-0"></div>
                 </div>
               </div>

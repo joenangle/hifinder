@@ -231,7 +231,7 @@ export function MarketplaceListingCard({
 
           {/* MSRP */}
           <div className="hidden md:block w-14 flex-shrink-0 text-right tabular-nums">
-            <span className="text-xs text-muted line-through">
+            <span className="text-xs text-muted">
               {component.price_new ? formatPrice(component.price_new) : '—'}
             </span>
           </div>
@@ -250,7 +250,7 @@ export function MarketplaceListingCard({
             })()}
           </div>
 
-          {/* Deal — text only, no background */}
+          {/* Deal — vs used market median */}
           <div className="hidden sm:block w-10 flex-shrink-0 text-right">
             {hasDeal ? (
               <span className={`text-xs font-semibold tabular-nums ${getDealColor()}`}>
