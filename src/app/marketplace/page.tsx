@@ -1,15 +1,13 @@
 'use client'
 
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
-import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, MapPin, Bell } from 'lucide-react'
+import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, MapPin } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/ComponentDetailModal'
 import { FilterButton } from '@/components/FilterButton'
 import { US_STATES_LIST, COUNTRIES_LIST } from '@/lib/location-normalizer'
-import { createAlert } from '@/lib/alerts'
 import { X } from 'lucide-react'
 
 // Extended listing with component info for display
@@ -21,10 +19,8 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function MarketplaceContent() {
-  const { data: session } = useSession()
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
-  const [alertSaved, setAlertSaved] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
@@ -313,7 +309,7 @@ function MarketplaceContent() {
         </div>
 
         {/* Filter Presets - toggleable, horizontal scroll on mobile, wrap on desktop */}
-        <div className="mb-2 sm:mb-3 flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible">
+        <div className="mb-1.5 sm:mb-3 flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible">
           {detectedState && (
             <button
               onClick={() => {
@@ -405,7 +401,7 @@ function MarketplaceContent() {
         </div>
 
         {/* Search and Filters Bar */}
-        <div className="bg-surface-elevated rounded-lg p-3 lg:p-4 mb-4 lg:mb-6">
+        <div className="bg-surface-elevated rounded-lg p-2.5 lg:p-4 mb-2 lg:mb-6">
           {/* Mobile controls - single compact row */}
           <div className="flex lg:hidden items-center gap-2">
             {searchExpanded ? (
@@ -793,164 +789,6 @@ function MarketplaceContent() {
             </div>
           )}
         </div>
-
-        {/* Active Filters Summary */}
-        {(selectedCategories.length > 0 || dealQuality.length > 0 || selectedConditions.length > 0 || selectedSource !== 'all' || selectedState !== 'all' || selectedCountry !== 'all' || searchQuery || priceRange.min || priceRange.max) && (
-          <div className="bg-surface-elevated rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-primary">Active Filters</h3>
-              <div className="flex items-center gap-3">
-                {session?.user ? (
-                  <button
-                    onClick={async () => {
-                      const userId = (session.user as { id?: string })?.id
-                      if (!userId) return
-                      const result = await createAlert(userId, {
-                        custom_search_query: searchQuery || undefined,
-                        target_price: priceRange.max ? parseFloat(priceRange.max) : 9999,
-                        alert_type: priceRange.max ? 'below' : 'below',
-                        price_range_min: priceRange.min ? parseFloat(priceRange.min) : undefined,
-                        price_range_max: priceRange.max ? parseFloat(priceRange.max) : undefined,
-                        condition_preference: selectedConditions.length > 0 ? selectedConditions : ['excellent', 'very_good', 'good', 'fair'],
-                        marketplace_preference: selectedSource !== 'all' ? [selectedSource] : ['reddit_avexchange', 'reverb'],
-                        notification_frequency: 'digest',
-                        email_enabled: true,
-                      })
-                      if (result) {
-                        setAlertSaved(true)
-                        setTimeout(() => setAlertSaved(false), 3000)
-                      }
-                    }}
-                    disabled={alertSaved}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-xs rounded-md hover:bg-accent/20 transition-colors disabled:opacity-50"
-                  >
-                    <Bell className="w-3 h-3" />
-                    {alertSaved ? 'Alert Saved!' : 'Save as Alert'}
-                  </button>
-                ) : (
-                  <Link
-                    href="/api/auth/signin"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-xs rounded-md hover:bg-accent/20 transition-colors"
-                  >
-                    <Bell className="w-3 h-3" />
-                    Sign in to save alerts
-                  </Link>
-                )}
-                <button
-                  onClick={() => {
-                    setSelectedCategories([])
-                    setDealQuality([])
-                    setSelectedConditions([])
-                    setSelectedSource('all')
-                    setSelectedState('all')
-                    setSelectedCountry('all')
-                    setSearchQuery('')
-                    setPriceRange({ min: '', max: '' })
-                  }}
-                  className="text-xs text-accent hover:text-accent-hover transition-colors"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {searchQuery && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  Search: {searchQuery}
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedCategories.map(cat => (
-                <span key={cat} className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  {cat === 'cans' ? '🎧 Headphones' :
-                   cat === 'iems' ? '👂 IEMs' :
-                   cat === 'dac' ? '🔄 DACs' :
-                   cat === 'amp' ? '⚡ Amps' :
-                   cat === 'dac_amp' ? '🎛️ Combos' : cat}
-                  <button
-                    onClick={() => setSelectedCategories(selectedCategories.filter(c => c !== cat))}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-              {dealQuality.map(deal => (
-                <span key={deal} className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  {deal === 'great' ? '🔥 Great Deals' :
-                   deal === 'good' ? '👍 Good Deals' :
-                   deal === 'hideOverpriced' ? '🚫 Hide Overpriced' : deal}
-                  <button
-                    onClick={() => setDealQuality(dealQuality.filter(d => d !== deal))}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-              {selectedConditions.map(cond => (
-                <span key={cond} className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary capitalize">
-                  {cond.replace('_', ' ')}
-                  <button
-                    onClick={() => setSelectedConditions(selectedConditions.filter(c => c !== cond))}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-              {selectedSource !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  Source: {sourceOptions.find(o => o.value === selectedSource)?.label}
-                  <button
-                    onClick={() => setSelectedSource('all')}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedCountry !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  {COUNTRIES_LIST.find(c => c.code === selectedCountry)?.name || selectedCountry}
-                  <button
-                    onClick={() => { setSelectedCountry('all'); setSelectedState('all') }}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {selectedState !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  {US_STATES_LIST.find(s => s.code === selectedState)?.name || selectedState}
-                  <button
-                    onClick={() => setSelectedState('all')}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {(priceRange.min || priceRange.max) && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary">
-                  Price: ${priceRange.min || '0'} - ${priceRange.max || '∞'}
-                  <button
-                    onClick={() => setPriceRange({ min: '', max: '' })}
-                    className="hover:text-accent"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Listings Grid/List */}
         {listings.length === 0 && !loading ? (
