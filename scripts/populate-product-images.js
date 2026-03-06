@@ -38,6 +38,9 @@ const REPROCESS = args.includes('--reprocess');
 const BRAND_FILTER = args.includes('--brand')
   ? args[args.indexOf('--brand') + 1]
   : null;
+const CATEGORY_FILTER = args.includes('--category')
+  ? args[args.indexOf('--category') + 1]
+  : null;
 const LIMIT = args.includes('--limit')
   ? parseInt(args[args.indexOf('--limit') + 1], 10)
   : Infinity;
@@ -402,6 +405,11 @@ async function main() {
 
   if (BRAND_FILTER) {
     query = query.ilike('brand', BRAND_FILTER);
+  }
+
+  if (CATEGORY_FILTER) {
+    const cats = CATEGORY_FILTER.split(',');
+    query = query.in('category', cats);
   }
 
   const { data: components, error } = await query;

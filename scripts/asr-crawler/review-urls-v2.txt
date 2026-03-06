@@ -1,0 +1,36 @@
+# ASR Review URLs v2 - Verified review threads for SINAD extraction
+# Format: URL | db_brand | db_name | db_category
+
+# DACs
+https://www.audiosciencereview.com/forum/index.php?threads/topping-d90se-review-balanced-dac.24235/ | Topping | D90SE | dac
+https://www.audiosciencereview.com/forum/index.php?threads/topping-d90-iii-sabre-dac-review.51493/ | Topping | D90 III Sabre | dac
+https://www.audiosciencereview.com/forum/index.php?threads/measurements-of-topping-d70s-dual-4497-dac.18660/ | Topping | D70s | dac
+https://www.audiosciencereview.com/forum/index.php?threads/denafrips-ares-ii-usb-r2r-dac-review.11166/ | Denafrips | Ares II | dac
+https://www.audiosciencereview.com/forum/index.php?threads/gustard-x18-review-stereo-dac.28988/ | Gustard | X18 | dac
+https://www.audiosciencereview.com/forum/index.php?threads/loxjie-d50-review-stereo-dac.19528/ | Loxjie | D50 | dac
+https://www.audiosciencereview.com/forum/index.php?threads/measurements-of-musician-pegasus-r2r-dac.18786/ | Musician | Pegasus II | dac
+https://www.audiosciencereview.com/forum/index.php?threads/measurements-and-review-of-schiit-yggdrasil-dac.2358/ | Schiit | Yggdrasil | dac
+https://www.audiosciencereview.com/forum/index.php?threads/review-and-measurements-of-schiit-bifrost-dac.7206/ | Schiit | Bifrost 2 | dac
+https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-atom-dac-review.14002/ | JDS Labs | Atom DAC 2 | dac
+https://www.audiosciencereview.com/forum/index.php?threads/weiss-dac501-streamer-and-dac-review.48377/ | Weiss | DAC501 | dac
+https://www.audiosciencereview.com/forum/index.php?threads/review-and-measurements-of-mytek-brooklyn-dac.1828/ | Mytek | Brooklyn DAC+ | dac
+
+# Amps
+https://www.audiosciencereview.com/forum/index.php?threads/schiit-magni-3-and-heresy-headphone-amp-reviews.10311/ | Schiit | Magni 3+ | amp
+https://www.audiosciencereview.com/forum/index.php?threads/review-and-measurements-of-schiit-valhalla-2-headphone-amp.8357/ | Schiit | Valhalla 2 | amp
+https://www.audiosciencereview.com/forum/index.php?threads/rupert-neve-rnhp-headphone-amp-review.12040/ | Rupert Neve Designs | RNHP | amp
+https://www.audiosciencereview.com/forum/index.php?threads/burson-soloist-3xp-review-headphone-amp.34353/ | Burson | Soloist 3X GT | amp
+https://www.audiosciencereview.com/forum/index.php?threads/spl-phonitor-x-updated-review-dac-headphone-amp.27479/ | SPL | Phonitor SE | amp
+https://www.audiosciencereview.com/forum/index.php?threads/review-and-measurements-of-violectric-hpa-v281-hp-amp.9331/ | Violectric | V280 | amp
+
+# DAC/Amp Combos
+https://www.audiosciencereview.com/forum/index.php?threads/topping-dx5-review-dac-hp-amp.32179/ | Topping | DX5 | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/chord-mojo-2-review-portable-dac-hp-amp.34160/ | Chord | Mojo 2 | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/fiio-btr7-review-portable-dac-hp-amp.36620/ | FiiO | BTR7 | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/ifi-hip-dac-review-dac-headphone-amp.25150/ | iFi | Hip DAC | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/ifi-zen-dac-and-headphone-amp-review.9885/ | iFi | Zen DAC V3 | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-element-iii-review-dac-amp.30485/ | JDS Labs | Element III | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/jds-labs-element-iv-dac-hp-amp-with-eq-review.59002/ | JDS Labs | Element IV | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/rme-adi-2-pro-fs-r-black-edition-review-studio-dac.14203/ | RME | ADI-2 Pro FS R | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/hidizs-s9-pro-measurements-dac-dongle.34082/ | Hidizs | S9 Pro | dac_amp
+https://www.audiosciencereview.com/forum/index.php?threads/woo-audio-wa7-wa7tp-dac-and-headphone-amp-review.7028/ | Woo Audio | WA7 Fireflies | dac_amp
