@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useSession, signIn } from 'next-auth/react'
 import { trackEvent } from '@/lib/analytics'
@@ -31,6 +32,7 @@ const features = [
       'Browse aggregated listings from communities and resellers. Save searches, track price history, get alerts when something you want drops.',
     href: '/marketplace',
     tag: null,
+    preview: '/images/screenshots/marketplace.png',
   },
   {
     icon: <BookOpen className="h-5 w-5" />,
@@ -88,7 +90,7 @@ function StackBuilderPreview() {
               padding: '6px 0',
             }}
           >
-            <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />
+            <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--success)' }} />
             {item}
           </li>
         ))}
@@ -145,12 +147,12 @@ export function FeatureCards() {
     <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
         <h2
-          className="text-xs font-semibold mb-6"
+          className="font-semibold mb-6"
           style={{
-            color: 'var(--accent-primary)',
+            color: 'var(--accent-secondary)',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            fontSize: '0.75rem',
+            fontSize: '1rem',
           }}
         >
           What HiFinder does
@@ -189,8 +191,8 @@ export function FeatureCards() {
                     <span
                       className="text-xs font-medium"
                       style={{
-                        background: 'rgba(var(--accent-primary-rgb), 0.1)',
-                        color: 'var(--accent-primary)',
+                        background: 'rgba(var(--accent-secondary-rgb), 0.1)',
+                        color: 'var(--accent-secondary)',
                         padding: '4px 10px',
                         borderRadius: '999px',
                       }}
@@ -280,8 +282,8 @@ export function FeatureCards() {
                     <span
                       className="text-xs font-medium"
                       style={{
-                        background: 'rgba(var(--accent-primary-rgb), 0.1)',
-                        color: 'var(--accent-primary)',
+                        background: 'rgba(var(--accent-secondary-rgb), 0.1)',
+                        color: 'var(--accent-secondary)',
                         padding: '4px 10px',
                         borderRadius: '999px',
                       }}
@@ -303,6 +305,26 @@ export function FeatureCards() {
                 >
                   {f.description}
                 </p>
+
+                {f.preview && (
+                  <div
+                    className="mt-4 overflow-hidden"
+                    style={{
+                      borderRadius: 8,
+                      border: '1px solid var(--border-subtle)',
+                      maxHeight: 140,
+                    }}
+                  >
+                    <Image
+                      src={f.preview}
+                      alt={`${f.title} preview`}
+                      width={1280}
+                      height={800}
+                      className="w-full h-auto"
+                      style={{ objectFit: 'cover', objectPosition: 'top', display: 'block' }}
+                    />
+                  </div>
+                )}
 
                 <div
                   className="flex items-center gap-1 mt-6 text-sm font-medium"
@@ -354,8 +376,8 @@ export function FeatureCards() {
                 <span
                   className="text-xs font-medium"
                   style={{
-                    background: 'rgba(var(--accent-primary-rgb), 0.1)',
-                    color: 'var(--accent-primary)',
+                    background: 'rgba(var(--accent-secondary-rgb), 0.1)',
+                    color: 'var(--accent-secondary)',
                     padding: '4px 10px',
                     borderRadius: '999px',
                   }}

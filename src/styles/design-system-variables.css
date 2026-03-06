@@ -28,11 +28,13 @@
   --text-tertiary: #2d3136;
   --text-inverse: #ffffff;
 
-  --accent-primary: #c94237; /* WCAG AA: 4.86:1 on white */
-  --accent-primary-rgb: 201, 66, 55; /* RGB for opacity support */
-  --accent-hover: #b5372d; /* Darkened hover for contrast */
-  --accent-active: #a02e24;
+  --accent-primary: #cc4e25; /* Warm orange-red — CTAs only. WCAG AA: 4.48:1 on white */
+  --accent-primary-rgb: 204, 78, 37; /* RGB for opacity support */
+  --accent-hover: #b5431e; /* Darkened hover — 5.55:1 */
+  --accent-active: #9e3a19; /* Active state — 6.83:1 */
   --accent-subtle: #fff3e0;
+  --accent-secondary: #e27d08; /* Warm tube-glow amber — labels, badges, logo */
+  --accent-secondary-rgb: 226, 125, 8; /* RGB for opacity support */
   --background-secondary-rgb: 248, 249, 250; /* RGB for opacity support */
 
   --success: #2e7d32;
@@ -63,11 +65,13 @@
   --text-tertiary: #8b9199; /* Improved contrast: 6.3:1 on #0a0b0d */
   --text-inverse: #0a0b0d;
 
-  --accent-primary: #c94237; /* WCAG AA: 4.86:1 on white, 4.05:1 on #0a0b0d */
-  --accent-primary-rgb: 201, 66, 55; /* RGB for opacity support */
-  --accent-hover: #e0655b; /* Brighter hover in dark mode */
-  --accent-active: #b5372d;
-  --accent-subtle: #3d2822;
+  --accent-primary: #cc4e25; /* Warm orange-red CTAs */
+  --accent-primary-rgb: 204, 78, 37; /* RGB for opacity support */
+  --accent-hover: #e06a42; /* Brighter hover in dark mode */
+  --accent-active: #b5431e;
+  --accent-subtle: #3d2518;
+  --accent-secondary: #e27d08; /* Same tube-glow amber — 6.72:1 on dark bg */
+  --accent-secondary-rgb: 226, 125, 8; /* RGB for opacity support */
   --background-secondary-rgb: 19, 21, 26; /* RGB for opacity support */
 
   --success: #4caf50;

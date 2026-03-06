@@ -61,7 +61,7 @@ export function EmailCaptureForm({
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          color: 'var(--accent-primary)',
+          color: 'var(--success)',
           fontSize: compact ? '14px' : '15px',
           fontWeight: 500,
         }}
@@ -139,7 +139,7 @@ export function EmailCaptureForm({
             position: 'absolute',
             marginTop: compact ? '42px' : '48px',
             fontSize: '13px',
-            color: 'var(--accent-primary)',
+            color: 'var(--error)',
           }}
         >
           {errorMessage}

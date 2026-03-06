@@ -42,7 +42,7 @@ export function Footer() {
               style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}
             >
               <span className="text-xl" aria-hidden>🎧</span>
-              <span style={{ color: 'var(--accent-primary)' }}>HiFinder</span>
+              <span style={{ color: 'var(--accent-secondary)' }}>HiFinder</span>
             </Link>
             <p
               className="text-sm mt-3"

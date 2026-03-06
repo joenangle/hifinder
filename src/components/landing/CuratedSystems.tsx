@@ -42,14 +42,15 @@ export function CuratedSystems() {
 
   if (loading) {
     return (
-      <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
+      <section style={{ padding: 'clamp(48px, 8vw, 100px) 0', background: 'var(--background-secondary)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
           <p
-            className="text-xs font-semibold mb-6"
+            className="font-semibold mb-6"
             style={{
-              color: 'var(--accent-primary)',
+              color: 'var(--accent-secondary)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
+              fontSize: '1rem',
             }}
           >
             Popular systems
@@ -77,15 +78,16 @@ export function CuratedSystems() {
   if (systems.length === 0) return null
 
   return (
-    <section style={{ padding: 'clamp(48px, 8vw, 100px) 0' }}>
+    <section style={{ padding: 'clamp(48px, 8vw, 100px) 0', background: 'var(--background-secondary)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div className="container mx-auto px-6" style={{ maxWidth: '1100px' }}>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
           <p
-            className="text-xs font-semibold"
+            className="font-semibold"
             style={{
-              color: 'var(--accent-primary)',
+              color: 'var(--accent-secondary)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
+              fontSize: '1rem',
             }}
           >
             Popular systems
@@ -171,8 +173,8 @@ export function CuratedSystems() {
                   className="text-xs font-semibold"
                   style={{
                     display: 'inline-block',
-                    background: 'rgba(var(--accent-primary-rgb), 0.1)',
-                    color: 'var(--accent-primary)',
+                    background: 'rgba(var(--accent-secondary-rgb), 0.1)',
+                    color: 'var(--accent-secondary)',
                     padding: '3px 10px',
                     borderRadius: '999px',
                     marginBottom: '14px',

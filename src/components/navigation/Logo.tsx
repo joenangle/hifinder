@@ -12,7 +12,7 @@ export function Logo({ className = '' }: LogoProps) {
       style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}
     >
       <span className="text-2xl">🎧</span>
-      <span className="text-accent">
+      <span style={{ color: 'var(--accent-secondary)' }}>
         HiFinder
       </span>
     </Link>
