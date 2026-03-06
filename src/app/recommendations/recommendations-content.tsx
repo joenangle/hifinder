@@ -1330,7 +1330,7 @@ export function RecommendationsContent() {
                 {displayCans.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
                   const showHint = !firstCardHintShown && !hasEverSelected
                   if (showHint) firstCardHintShown = true
 
@@ -1385,7 +1385,7 @@ export function RecommendationsContent() {
                 {displayIems.map((headphone) => {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
-                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 4)
+                  const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
                   const showHint = !firstCardHintShown && !hasEverSelected
                   if (showHint) firstCardHintShown = true
 

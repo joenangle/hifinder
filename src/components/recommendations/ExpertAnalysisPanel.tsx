@@ -17,8 +17,9 @@ interface ExpertAnalysisProps {
   inline?: boolean
 }
 
+// Crinacle value scale: ★ Worth the price, ★★ Redefines bracket, ★★★ Worth the blind buy
 function valueLabel(v: number): string {
-  return v >= 4 ? 'Excellent value' : v >= 3 ? 'Good value' : 'Fair value'
+  return v >= 3 ? 'Worth the blind buy' : v >= 2 ? 'Redefines the bracket' : 'Worth the price'
 }
 
 function generateExpertBlurb(component: ExpertAnalysisProps['component']): string {
@@ -44,7 +45,7 @@ function generateExpertBlurb(component: ExpertAnalysisProps['component']): strin
 
   // Add value assessment
   if (component.crin_value && component.crin_value > 0) {
-    parts.push(`${valueLabel(component.crin_value).toLowerCase()} (${component.crin_value}/5)`)
+    parts.push(`${valueLabel(component.crin_value).toLowerCase()} (${component.crin_value}/3)`)
   }
 
   // Add technical details
@@ -132,11 +133,6 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
     const quote = component.crin_comments || generateExpertBlurb(component)
     return (
       <div className="mt-1 flex items-start gap-1.5 text-xs text-tertiary" onClick={(e) => e.stopPropagation()}>
-        {component.crin_value != null && component.crin_value > 0 && (
-          <span className="flex-shrink-0 text-[11px] px-1.5 py-0.5 rounded-full border border-subtle bg-secondary text-secondary">
-            {valueLabel(component.crin_value).toLowerCase()}
-          </span>
-        )}
         <p className="italic line-clamp-1 sm:line-clamp-2 leading-snug min-w-0">
           {component.crin_comments ? `"${quote}"` : quote}
         </p>
@@ -174,7 +170,7 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
             <div className="flex items-center gap-2">
               <span className="text-tertiary">Value:</span>
               <span className="font-medium text-primary">{valueLabel(component.crin_value)}</span>
-              <span className="text-tertiary text-[10px]">({component.crin_value}/5)</span>
+              <span className="text-tertiary text-[10px]">({component.crin_value}/3)</span>
             </div>
           )}
 

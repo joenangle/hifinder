@@ -218,8 +218,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
           {items.some(i => i.crin_value && i.crin_value > 0) && renderRow('Value Rating', (item) => (
             item.crin_value && item.crin_value > 0 ? (
               <span className="font-medium">
-                {item.crin_value >= 4 ? 'Excellent' : item.crin_value >= 3 ? 'Good' : 'Fair'}
-                <span className="ml-1 text-xs font-normal text-tertiary">({item.crin_value}/5)</span>
+                {item.crin_value >= 3 ? 'Worth the blind buy' : item.crin_value >= 2 ? 'Redefines bracket' : 'Worth the price'}
+                <span className="ml-1 text-xs font-normal text-tertiary">({item.crin_value}/3)</span>
               </span>
             ) : 'N/A'
           ))}
