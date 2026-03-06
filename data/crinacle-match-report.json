@@ -1,0 +1,2463 @@
+{
+  "scraped_at": "2026-03-06T22:47:36.073Z",
+  "iem": {
+    "catalog_total": 452,
+    "unique_models": 450,
+    "db_matches": 118,
+    "db_total": 375,
+    "matches": [
+      {
+        "catalog": "64 Audio Nio",
+        "db_id": "5eec6ea2-3505-420e-b250-6e2067834281",
+        "db_name": "64 Audio Nio",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "64 Audio U4s",
+        "db_id": "1e232018-c6fb-4667-8032-a157f177b16f",
+        "db_name": "64 Audio U4S",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz x Crinacle Salnotes Dioko",
+        "db_id": "fb637028-e4d7-42ff-ba4a-39e5dfb19ace",
+        "db_name": "7Hz Dioko",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz Timeless",
+        "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+        "db_name": "7Hz Timeless",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz Timeless AE",
+        "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+        "db_name": "7Hz Timeless",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz Timeless 2",
+        "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+        "db_name": "7Hz Timeless",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz Salnotes Zero",
+        "db_id": "7b4b40d6-9bb4-44b5-b597-42ac930a0db1",
+        "db_name": "7Hz Salnotes Zero",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "7Hz x Crinacle Zero:2",
+        "db_id": "7b4b40d6-9bb4-44b5-b597-42ac930a0db1",
+        "db_name": "7Hz Salnotes Zero",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Apple AirPods Pro 2 (ANC)",
+        "db_id": "1a9f3ff5-e240-4ece-bce9-6cfbea2d5d4a",
+        "db_name": "Apple AirPods Pro 2",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Apple AirPods Pro 3 (ANC)",
+        "db_id": "2b570426-b91d-4153-8793-f0129045587d",
+        "db_name": "Apple AirPods Pro",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Audiosense AQ3",
+        "db_id": "b93dadcc-38d8-4b04-9f03-aa7e377da9f9",
+        "db_name": "Audiosense AQ3",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Aune Jasper",
+        "db_id": "dd2fc7f8-ba9a-4db6-8d41-59369647f1c9",
+        "db_name": "Aune Jasper",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "CrinEar Project Meta",
+        "db_id": "db56ba09-a97e-4af3-a911-12598b5ea18d",
+        "db_name": "CrinEar Meta",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU DK-3001 Pro",
+        "db_id": "270b4ee9-ae75-45ee-b5b7-cc3e845dcbf6",
+        "db_name": "DUNU DK-3001 Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "DUNU DK-4001",
+        "db_id": "53a72c78-14b1-44b4-acd0-4aafa67911b2",
+        "db_name": "DUNU DK-4001",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU EST 112",
+        "db_id": "0cedc049-d22e-435c-b2f9-5386f273a89e",
+        "db_name": "DUNU EST 112",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU SA6 (Mk1)",
+        "db_id": "bb64aca4-1f91-4ee5-9257-5c0fea82d282",
+        "db_name": "DUNU SA6",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU SA6 Mk2",
+        "db_id": "bb64aca4-1f91-4ee5-9257-5c0fea82d282",
+        "db_name": "DUNU SA6",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU Titan S",
+        "db_id": "69fc5f5d-793e-4d4c-979c-3d5045dbc574",
+        "db_name": "DUNU Titan S",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "DUNU Zen",
+        "db_id": "d4255d02-1687-40a6-84d8-583c2650fd3c",
+        "db_name": "DUNU Zen Pro",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Elysian Annihilator (2021)",
+        "db_id": "6e9cef12-c8bd-48df-b78a-ca901c6dcd0e",
+        "db_name": "Elysian Annihilator (2021)",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Elysian Diva",
+        "db_id": "3a1326ae-3d0f-41ab-97f4-3eb9cdc24cde",
+        "db_name": "Elysian Diva",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Elysian Pilgrim",
+        "db_id": "343b5915-89d6-45df-a95d-2d6d8d5284a5",
+        "db_name": "Elysian Pilgrim",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Elysian X",
+        "db_id": "093d160c-5f38-4981-aa4c-a4fc31b87738",
+        "db_name": "Elysian X",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "FATfreq Reference Pro SE",
+        "db_id": "53b779d8-b4f0-4c5a-b7e5-6386785a4003",
+        "db_name": "Fatfreq Reference Pro",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "FATfreq Maestro Mini",
+        "db_id": "b1b3001a-b1b8-42d8-98e2-b23dd379f2b0",
+        "db_name": "FatFreq Maestro Mini",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "FiiO FH9",
+        "db_id": "5610c4d2-4f89-4969-ae96-fcae1b397b9d",
+        "db_name": "FiiO FH9",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Itsfit R3",
+        "db_id": "e033927e-0c5a-4c41-a363-e0dca7274e4c",
+        "db_name": "Itsfit R3",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "JVC x Drop HA-FDX1",
+        "db_id": "3d0df0e5-28be-4ae2-a38b-21d432c77d47",
+        "db_name": "Drop x JVC HA-FDX1",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kiwi Ears Astral",
+        "db_id": "0b8c48a0-e27a-4483-9a2f-87a4826981a9",
+        "db_name": "Kiwi Ears Astral",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kiwi Ears Orchestra Lite",
+        "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+        "db_name": "Kiwi Ears Orchestra",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kiwi Ears Orchestra",
+        "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+        "db_name": "Kiwi Ears Orchestra",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kiwi Ears Orchestra 2",
+        "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+        "db_name": "Kiwi Ears Orchestra",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kiwi Ears x HBB Punch",
+        "db_id": "f608a01f-b5dd-42a3-808a-d76fd8c4efa7",
+        "db_name": "Kiwi Ears HBB PUNCH",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Letshuoer Cadenza 12",
+        "db_id": "b8678d9d-56d5-4328-a98e-7a0183d2953e",
+        "db_name": "LETSHUOER Cadenza 12",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Letshuoer Mystic 8",
+        "db_id": "18edc7dc-a3fb-4edb-8579-36b9c7740937",
+        "db_name": "LETSHUOER MYSTIC 8",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Letshuoer S12",
+        "db_id": "a9e3f05e-69fb-4083-9803-422ede6d0e1d",
+        "db_name": "Letshuoer S12 Pro",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Letshuoer S12 Pro",
+        "db_id": "a9e3f05e-69fb-4083-9803-422ede6d0e1d",
+        "db_name": "Letshuoer S12 Pro",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Aria",
+        "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+        "db_name": "Moondrop Aria",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Moondrop Aria 2",
+        "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+        "db_name": "Moondrop Aria",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Moondrop Aria Snow Edition",
+        "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+        "db_name": "Moondrop Aria",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Moondrop Blessing (Original)",
+        "db_id": "c73fd25e-9178-4135-b829-16f0af725b19",
+        "db_name": "Moondrop Blessing 2",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Moondrop Blessing 2",
+        "db_id": "c73fd25e-9178-4135-b829-16f0af725b19",
+        "db_name": "Moondrop Blessing 2",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Moondrop Chu",
+        "db_id": "97c25261-9d99-4c52-b3aa-58aacedfbd8b",
+        "db_name": "Moondrop Chu",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Moondrop Chu 2 DSP",
+        "db_id": "97c25261-9d99-4c52-b3aa-58aacedfbd8b",
+        "db_name": "Moondrop Chu",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Moondrop Chu 2",
+        "db_id": "86172299-fa19-4199-8ad7-ca2d286b393d",
+        "db_name": "Moondrop CHU 2",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Illumination",
+        "db_id": "dd1c1f8b-83ac-45f8-a707-eaddc1e4eef6",
+        "db_name": "Moondrop Illumination",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Kanas Pro",
+        "db_id": "de316d59-bf8d-418e-aea9-b20de1d3139d",
+        "db_name": "Moondrop Kanas Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Kato",
+        "db_id": "f8fb4802-9d56-48a4-a876-3f6162e43b71",
+        "db_name": "Moondrop Kato",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Moondrop KXXS",
+        "db_id": "30457e89-84a6-45c9-9c68-06ef6e13dd3c",
+        "db_name": "Moondrop KXXS",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Moondrop S8",
+        "db_id": "05f5dcea-4c93-487b-b781-6debc44d8ca5",
+        "db_name": "Moondrop S8",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Solis 2",
+        "db_id": "4e4f3ea9-94dd-4906-b393-15320770bd11",
+        "db_name": "Moondrop Solis",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Moondrop Variations",
+        "db_id": "0835b769-4175-4596-88c9-f429e43fbce6",
+        "db_name": "Moondrop Variations",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Nothing Ear (1)",
+        "db_id": "c86c7237-474e-4edc-b5e8-dc018d1ed8d1",
+        "db_name": "Nothing Ear (2)",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Prisma Azul",
+        "db_id": "0db95f0f-4466-4480-b9db-9a5523c0af75",
+        "db_name": "Prisma Azul",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Samsung Galaxy Buds2 Pro",
+        "db_id": "ea3264f4-1f67-4516-89cf-bc957db15f5e",
+        "db_name": "Samsung Galaxy Buds2 Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Samsung Galaxy Buds3 Pro",
+        "db_id": "44f86ecb-3fad-452e-95b0-8036bd051ce9",
+        "db_name": "Samsung Galaxy Buds",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "See Audio x Crinacle Yume:Midnight",
+        "db_id": "54b480ee-bbdc-4bae-9d05-640784e279db",
+        "db_name": "See Audio Yume",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser IE300",
+        "db_id": "174fde26-7797-4790-bc05-811c6e58d0a4",
+        "db_name": "Sennheiser IE300",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser IE600",
+        "db_id": "06928a19-d702-47a9-a327-bacaf56aba3a",
+        "db_name": "Sennheiser IE600",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Shanling ME700 Lite",
+        "db_id": "43fb26ed-a00e-44af-b1c1-b6e0eebbd68e",
+        "db_name": "Shanling ME700 Lite",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Shozy Neo BG",
+        "db_id": "1682b6a9-dbc4-4d92-9667-e9a591f43c3e",
+        "db_name": "Shozy & Neo BG",
+        "score": 0.9,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Shuoer EJ07M",
+        "db_id": "adadc6e7-dd47-4d48-9629-6f12ccc1b5ce",
+        "db_name": "LETSHUOER EJ07",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EA1000",
+        "db_id": "a30f7509-c4e2-43aa-a3b2-627eeea0d014",
+        "db_name": "Simgot EA1000 Fermat",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EA500",
+        "db_id": "f1fea1d6-2dee-44d2-8902-97a865d35dc0",
+        "db_name": "Simgot EA500LM",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EA500LM",
+        "db_id": "f1fea1d6-2dee-44d2-8902-97a865d35dc0",
+        "db_name": "Simgot EA500LM",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EM6L",
+        "db_id": "6e11b830-594f-4a4e-be7e-2d521cbdc0ff",
+        "db_name": "Simgot EM6L Phoenix",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EW200",
+        "db_id": "ba1b6956-4a3c-4460-864e-67e969da4351",
+        "db_name": "Simgot EW200",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EW300",
+        "db_id": "830632f6-e512-4505-97b8-df98b38ad403",
+        "db_name": "SIMGOT EW300",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Simgot EW300 DSP",
+        "db_id": "830632f6-e512-4505-97b8-df98b38ad403",
+        "db_name": "SIMGOT EW300",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Softears RS10",
+        "db_id": "489ce849-2393-429a-9879-204f2b7857d8",
+        "db_name": "Softears RS10",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Softears RSV",
+        "db_id": "0282821c-f784-4763-b9da-495787cbdd72",
+        "db_name": "Softears RSV",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Softears RSV MK2",
+        "db_id": "0282821c-f784-4763-b9da-495787cbdd72",
+        "db_name": "Softears RSV",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Softears Studio 4",
+        "db_id": "fceb45a0-dd73-42d2-8639-a0bc9dcef2a5",
+        "db_name": "Softears Studio 4",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Softears Turii",
+        "db_id": "ec4680ee-463a-4c91-b1cf-21d9189ba244",
+        "db_name": "Softears Turii",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Softears Twilight",
+        "db_id": "e1b94716-9d97-4ebf-aff2-245152831151",
+        "db_name": "Softears Twilight",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Softears Volume",
+        "db_id": "dd4d9ca4-a9d6-4985-b01c-d14fd721f2f2",
+        "db_name": "Softears Volume",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Softears Volume S",
+        "db_id": "dd4d9ca4-a9d6-4985-b01c-d14fd721f2f2",
+        "db_name": "Softears Volume",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Sony MH755",
+        "db_id": "fe832aaa-f998-43cc-b3b6-ae9eeaa55434",
+        "db_name": "Sony MH755",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony AS800",
+        "db_id": "ed3223a8-14cd-421b-a8c6-37230bc7ed0c",
+        "db_name": "Sony MDR-AS800AP",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Sony IER-M9",
+        "db_id": "970517f6-0a6a-4955-9be9-9c7b5bf711e4",
+        "db_name": "Sony IER-M9",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony IER-Z1R",
+        "db_id": "ad63b238-c4e5-4af1-bb2d-0f3272713fe6",
+        "db_name": "Sony IER-Z1R",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Subtonic Storm",
+        "db_id": "76625cc8-5022-4aa4-aeb4-1d61ed953b72",
+        "db_name": "Subtonic SUBTONIC STORM",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Symphonium Audio x Elise Helios SE",
+        "db_id": "17a83cca-a080-4f1b-9051-93d9ffba45a7",
+        "db_name": "Symphonium Helios",
+        "score": 0.9,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Tanchjim New HANA (2021)",
+        "db_id": "5ed73b8f-c259-4f73-b496-716265a6652c",
+        "db_name": "Tanchjim New Hana (2021)",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Tanchjim Oxygen",
+        "db_id": "54a8d13a-b740-48d8-9839-84c5e1544800",
+        "db_name": "Tanchjim Oxygen",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Tanchjim Prism",
+        "db_id": "6a27d594-78e7-42c6-8edb-44abae6e2314",
+        "db_name": "Tanchjim Prism",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Tangzu Zetian Wu",
+        "db_id": "a264f780-1b0d-42f9-aedf-dc21cdc3e2c4",
+        "db_name": "Tangzu Zetian Wu",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Tangzu Zetian Wu Heyday",
+        "db_id": "a264f780-1b0d-42f9-aedf-dc21cdc3e2c4",
+        "db_name": "Tangzu Zetian Wu",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 3.3
+      },
+      {
+        "catalog": "Thieaudio Hype 4",
+        "db_id": "fb1bac5d-e1ed-4928-8ce4-26d118aed047",
+        "db_name": "Thieaudio HYPE 4",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Hype 4 MK2",
+        "db_id": "fb1bac5d-e1ed-4928-8ce4-26d118aed047",
+        "db_name": "Thieaudio HYPE 4",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Legacy 5 (L5)",
+        "db_id": "5c2cced9-2d73-4eb3-9ec8-e61bf88c3921",
+        "db_name": "Thieaudio ThieAudio Legacy 5 (L5)",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Monarch Mk2",
+        "db_id": "3e0a5cee-0adb-477d-b9ec-b0312c1d3d66",
+        "db_name": "Thieaudio ThieAudio Monarch Mk2",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Monarch Mk3",
+        "db_id": "008f1cc8-5a5a-4f7d-8400-eddf069a8fed",
+        "db_name": "Thieaudio Monarch Mk3",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4.3
+      },
+      {
+        "catalog": "Thieaudio Monarch Mk4",
+        "db_id": "eb92b26b-450d-412b-b543-5c76d29954a6",
+        "db_name": "Thieaudio Monarch MK4",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Oracle (Mk1)",
+        "db_id": "af7fcf30-e7e0-48db-beea-2c40c46579b8",
+        "db_name": "Thieaudio Oracle",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Thieaudio Prestige",
+        "db_id": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+        "db_name": "Thieaudio Prestige LTD",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Prestige LTD",
+        "db_id": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+        "db_name": "Thieaudio Prestige LTD",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio Valhalla",
+        "db_id": "cf2a2c98-1a23-4341-bba6-07adcfc65d29",
+        "db_name": "Thieaudio Valhalla",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Thieaudio V16 Divinity",
+        "db_id": "bd628e09-4ee1-4b8d-a6df-936fd744d14b",
+        "db_name": "ThieAudio V16 Divinity",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Tin T3",
+        "db_id": "ee9478b2-c0fb-47fc-aaf6-23aedf73d497",
+        "db_name": "Tin HiFi T3 Plus",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Tin T4",
+        "db_id": "58acb281-8b5b-4fb4-b4a0-d0f3bc3497f6",
+        "db_name": "Tin HiFi T4",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "TRI Starlight",
+        "db_id": "c38c7ac3-1448-4340-b896-ccd88320f972",
+        "db_name": "TRI Starlight",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "TRI Starshine",
+        "db_id": "22006dfe-f03f-48fd-beda-811b0b30742c",
+        "db_name": "TRI Starshine",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Truthear Hexa",
+        "db_id": "f2ff87b0-d073-4891-b5cb-566ca2f63286",
+        "db_name": "Truthear HEXA",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Truthear Hola",
+        "db_id": "0fe44b07-8282-49ff-b3e4-fa517617ae9c",
+        "db_name": "Truthear Hola",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Truthear Nova",
+        "db_id": "cc8ff815-a1a8-4204-a4e7-a6a18b70bf51",
+        "db_name": "Truthear NOVA",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Unique Melody Mini MEST",
+        "db_id": "c6d19dac-0f83-4c77-9df8-50671cdc6a08",
+        "db_name": "Unique Melody MEST",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Veedix Diamond String",
+        "db_id": "f47d14b5-3e55-4820-bac8-3cf2de1377a4",
+        "db_name": "Veedix Diamond String",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "XENNS Mangird Tea (1)",
+        "db_id": "2e286ebc-ad01-451d-b763-f37176aa02be",
+        "db_name": "XENNS Mangird Tea 2",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "XENNS Mangird Tea 2",
+        "db_id": "2e286ebc-ad01-451d-b763-f37176aa02be",
+        "db_name": "XENNS Mangird Tea 2",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "XENNS Tea Pro",
+        "db_id": "f3d410ba-1654-488f-8039-12e9458ca038",
+        "db_name": "XENNS Tea Pro",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "XENNS Tea Pro SE",
+        "db_id": "f3d410ba-1654-488f-8039-12e9458ca038",
+        "db_name": "XENNS Tea Pro",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "XENNS UP",
+        "db_id": "7691e995-cc1d-4a2e-b1f5-a52c3ba34bbb",
+        "db_name": "XENNS UP",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "ZiiGaat Arcanis",
+        "db_id": "29d1d6e9-58a6-499d-b04f-8ec9eafd5801",
+        "db_name": "ZIIGAAT Arcanis",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZiiGaat Luna",
+        "db_id": "8eee81df-3e36-49af-9c76-83b8856531ac",
+        "db_name": "ZIIGAAT Luna",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZiiGaat Odyssey",
+        "db_id": "2c47ffc6-72ff-41d4-9b3a-ae1f01270558",
+        "db_name": "ZIIGAAT Odyssey",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZiiGaat x Hangout.Audio Odyssey 2",
+        "db_id": "2c47ffc6-72ff-41d4-9b3a-ae1f01270558",
+        "db_name": "ZIIGAAT Odyssey",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      }
+    ],
+    "unmatched_count": 332,
+    "unmatched_sample": [
+      {
+        "brand": "634ears",
+        "model": "Loak2 TS Closed",
+        "variant": null,
+        "full": "634ears Loak2 TS Closed",
+        "variants": []
+      },
+      {
+        "brand": "64 Audio",
+        "model": "Volur",
+        "variant": null,
+        "full": "64 Audio Volur",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Aero",
+        "variant": null,
+        "full": "7Hz Aero",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Aurora",
+        "variant": null,
+        "full": "7Hz Aurora",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "x Crinacle Divine",
+        "variant": null,
+        "full": "7Hz x Crinacle Divine",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "x Crinacle Diablo",
+        "variant": null,
+        "full": "7Hz x Crinacle Diablo",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Elua",
+        "variant": null,
+        "full": "7Hz Elua",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Elua Ultra",
+        "variant": null,
+        "full": "7Hz Elua Ultra",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Eternal",
+        "variant": null,
+        "full": "7Hz Eternal",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Five",
+        "variant": null,
+        "full": "7Hz Five",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "G1",
+        "variant": null,
+        "full": "7Hz G1",
+        "variants": []
+      },
+      {
+        "brand": "7Hz",
+        "model": "Sonus",
+        "variant": null,
+        "full": "7Hz Sonus",
+        "variants": []
+      },
+      {
+        "brand": "7th Acoustics",
+        "model": "Supernova",
+        "variant": null,
+        "full": "7th Acoustics Supernova",
+        "variants": []
+      },
+      {
+        "brand": "7th Acoustics",
+        "model": "Asteria",
+        "variant": null,
+        "full": "7th Acoustics Asteria",
+        "variants": []
+      },
+      {
+        "brand": "A&D",
+        "model": "KS3",
+        "variant": null,
+        "full": "A&D KS3",
+        "variants": []
+      },
+      {
+        "brand": "Acoustune",
+        "model": "HS2000",
+        "variant": null,
+        "full": "Acoustune HS2000",
+        "variants": []
+      },
+      {
+        "brand": "Advanced (ADV.)",
+        "model": "Sleeper",
+        "variant": null,
+        "full": "Advanced (ADV.) Sleeper",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "iSINE 10",
+        "variant": null,
+        "full": "Audeze iSINE 10",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "DAWN-X",
+        "variant": null,
+        "full": "AFUL DAWN-X",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "Explorer",
+        "variant": null,
+        "full": "AFUL Explorer",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "Performer 5",
+        "variant": null,
+        "full": "AFUL Performer 5",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "Performer 5+2",
+        "variant": null,
+        "full": "AFUL Performer 5+2",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "Performer 8",
+        "variant": null,
+        "full": "AFUL Performer 8",
+        "variants": []
+      },
+      {
+        "brand": "AFUL",
+        "model": "Performer 8S",
+        "variant": null,
+        "full": "AFUL Performer 8S",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K3003",
+        "variant": null,
+        "full": "AKG K3003",
+        "variants": []
+      },
+      {
+        "brand": "Ambient Dynamics",
+        "model": "AD-006 \"Lyndale\"",
+        "variant": null,
+        "full": "Ambient Dynamics AD-006 \"Lyndale\"",
+        "variants": []
+      },
+      {
+        "brand": "Arpegear",
+        "model": "Hane",
+        "variant": null,
+        "full": "Arpegear Hane",
+        "variants": []
+      },
+      {
+        "brand": "Audiosense",
+        "model": "AQ4",
+        "variant": null,
+        "full": "Audiosense AQ4",
+        "variants": []
+      },
+      {
+        "brand": "Audiosense",
+        "model": "AQ7",
+        "variant": null,
+        "full": "Audiosense AQ7",
+        "variants": []
+      },
+      {
+        "brand": "Audiosense",
+        "model": "DT100",
+        "variant": null,
+        "full": "Audiosense DT100",
+        "variants": []
+      }
+    ]
+  },
+  "headphones": {
+    "catalog_total": 292,
+    "unique_models": 291,
+    "db_matches": 134,
+    "db_total": 167,
+    "matches": [
+      {
+        "catalog": "1MORE MK801",
+        "db_id": "27b24104-e3f3-4674-a039-d80fbd7f017d",
+        "db_name": "1MORE MK801",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Abyss Diana Phi",
+        "db_id": "ad2bbca4-4e99-4ac5-92bf-b3a39770e0e9",
+        "db_name": "Abyss Diana Phi",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Abyss Diana V2",
+        "db_id": "ede7c5c5-9842-47b0-8263-afe351764cbf",
+        "db_name": "Abyss Diana V2",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Abyss AB-1266 Phi CC",
+        "db_id": "8451175e-81e4-4f6d-8cb8-74b4561b7034",
+        "db_name": "Abyss AB-1266 Phi CC",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K240 Studio",
+        "db_id": "b91759bc-a75f-4119-9dd4-f0d4d428c8b0",
+        "db_name": "AKG K240 Studio",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K371",
+        "db_id": "5b20a0e7-8e8f-4de4-9ba4-0daaf1afc8b3",
+        "db_name": "AKG K371",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K612 Pro",
+        "db_id": "a2db8443-d9a6-4745-8b81-cd7ad50f9dec",
+        "db_name": "AKG K612 Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2
+      },
+      {
+        "catalog": "AKG x Drop K7XX",
+        "db_id": "a4f91603-d7ec-4662-bf40-9ef81071aa71",
+        "db_name": "Massdrop x AKG K7XX",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K701",
+        "db_id": "b1c07228-9755-427a-b2a0-1316c62c3d4e",
+        "db_name": "AKG K701",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K702",
+        "db_id": "c3e6a49e-0d08-4eb5-ae4f-818cc402748e",
+        "db_name": "AKG K702",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "AKG K712 Pro",
+        "db_id": "9a3a27c7-7881-430f-83be-7b6f7c5a7acf",
+        "db_name": "AKG K712 Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Apple AirPods Max",
+        "db_id": "b6567cb6-5054-45de-bc46-ad9825ff96b9",
+        "db_name": "Apple AirPods Max",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ASTRO A40 TR",
+        "db_id": "350147f7-d608-4478-a3fa-749804450e23",
+        "db_name": "ASTRO A40 TR",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-2 (Rosewood)",
+        "db_id": "8d725692-460c-438b-9edc-6ceea369272a",
+        "db_name": "Audeze LCD-2 Closed-back",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-2 Closed Back",
+        "db_id": "8d725692-460c-438b-9edc-6ceea369272a",
+        "db_name": "Audeze LCD-2 Closed-back",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-2 Classic",
+        "db_id": "eaa05830-4e6d-4900-b813-747353e4abf6",
+        "db_name": "Audeze LCD-2 Classic",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1.7
+      },
+      {
+        "catalog": "Audeze LCD-4",
+        "db_id": "dd0060b6-1193-4031-ac40-68a5d6b487eb",
+        "db_name": "Audeze LCD-4",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-24",
+        "db_id": "25e95a19-9be5-49e5-86bc-3a8e0d251046",
+        "db_name": "Audeze LCD-24",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-MX4",
+        "db_id": "44e66cbf-3bdf-420f-a303-4da5cb29c469",
+        "db_name": "Audeze LCD-MX4",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1
+      },
+      {
+        "catalog": "Audeze LCD-X",
+        "db_id": "77aee8ac-524e-4496-90a7-2daa63674d14",
+        "db_name": "Audeze LCD-X",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1
+      },
+      {
+        "catalog": "Audeze LCD-XC",
+        "db_id": "9f91ca11-6771-4515-a689-0c06cc35e3f7",
+        "db_name": "Audeze LCD-XC",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze LCD-GX",
+        "db_id": "c049aca0-e994-4847-94de-e15086db2ad6",
+        "db_name": "Audeze LCD-GX",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audeze MM-500",
+        "db_id": "f6dfb8ca-5237-4b64-a173-8a0f7f5befb5",
+        "db_name": "Audeze MM-500",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-AD700X",
+        "db_id": "3845f0f8-52eb-401d-880f-d14a3e62dbbf",
+        "db_name": "Audio-Technica ATH-AD700X",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-AD900X",
+        "db_id": "45eaa5de-499a-4232-8382-9522a4f7b914",
+        "db_name": "Audio-Technica ATH-AD900X",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-AD1000X",
+        "db_id": "8f9611eb-7e3f-4355-a87d-c8b2b4d9b28e",
+        "db_name": "Audio-Technica ATH-AD1000X",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-ADX5000",
+        "db_id": "e5b0afb6-111c-4dc3-a5d8-3a1ec07cc9fd",
+        "db_name": "Audio Technica ATH-ADX5000",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-M40x",
+        "db_id": "cad8f199-37fd-49a4-b136-c9672048cd72",
+        "db_name": "Audio Technica ATH-M40x",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-M50x",
+        "db_id": "b78b3ff4-7740-48ed-9ab6-79e374ec5960",
+        "db_name": "Audio-Technica ATH-M50x",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-M50xBT",
+        "db_id": "3ce9ccbb-d0a7-4b69-8897-48fcb0433890",
+        "db_name": "Audio-Technica ATH-M50xBT2",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-M70x",
+        "db_id": "72f0ea53-6a65-4a8a-b486-47dc93c15ac8",
+        "db_name": "Audio Technica ATH-M70x",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Audio Technica ATH-R70x",
+        "db_id": "f7512e23-534e-4f82-8bf6-8cb01fed8886",
+        "db_name": "Audio Technica ATH-R70x",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Aurorus Borealis",
+        "db_id": "623a38a5-2969-40b8-bb3a-cd0c4b1d1763",
+        "db_name": "Aurorus Borealis",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Beyerdynamic DT880 Pro (32Ω)",
+        "db_id": "491b8708-f63f-47d5-96f7-2f0b14f61527",
+        "db_name": "Beyerdynamic DT880 Pro",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Beyerdynamic DT990 Pro (250Ω)",
+        "db_id": "bf8344c1-6461-414d-9bfe-8a375c0d206b",
+        "db_name": "Beyerdynamic DT990 Pro",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Beyerdynamic TYGR 300 R",
+        "db_id": "6e6b574f-6f7b-4a54-affa-382bd3911623",
+        "db_name": "Beyerdynamic TYGR 300 R",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Beyerdynamic T5p (1st Gen)",
+        "db_id": "a51d08ac-ec0e-4a9a-90f2-92f53cc04d1a",
+        "db_name": "Beyerdynamic T5p (1st Gen)",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Beyerdynamic T5 (3rd Gen)",
+        "db_id": "a51d08ac-ec0e-4a9a-90f2-92f53cc04d1a",
+        "db_name": "Beyerdynamic T5p (1st Gen)",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Beyerdynamic T70",
+        "db_id": "d62ebe3b-1764-4eb8-ba16-d3e5ee26c24c",
+        "db_name": "Beyerdynamic T70",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "BLON B20",
+        "db_id": "04f59f8d-23b1-441f-855d-97c7d61e42fd",
+        "db_name": "BLON B20",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Denon AH-D5000",
+        "db_id": "3af5b88f-c26c-4d0b-b8ad-8342ac185637",
+        "db_name": "Denon AH-D5000",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "Denon AH-D5200",
+        "db_id": "0315ed54-f169-4b40-99c7-0a41584278a7",
+        "db_name": "Denon AH-D5200",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "E-MU Walnut",
+        "db_id": "c3c1d1a2-fb65-48fb-b46c-a3a4c926628a",
+        "db_name": "E-MU Walnut",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "E-MU Teak",
+        "db_id": "e32f955c-948d-461b-98f6-143de3ca5bd7",
+        "db_name": "E-MU Teak",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ES Lab ES-1a",
+        "db_id": "4fd536b7-be09-4e84-ad8c-aeaa8fda88a8",
+        "db_name": "ES Lab ES-1a",
+        "score": 0.9,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Final Audio D8000 Pro",
+        "db_id": "ef85dd6a-504a-4e7a-9039-e9062913b7d7",
+        "db_name": "Final D8000 Pro",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Elear",
+        "db_id": "3597ee45-a9e2-424c-a7ba-76d81153e51f",
+        "db_name": "Focal Elear",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Celestee",
+        "db_id": "81b533ea-cdd4-4497-8300-9414a62c51a0",
+        "db_name": "Focal Celestee",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Clear",
+        "db_id": "0325b526-3d74-4de5-9e23-791ca707ecae",
+        "db_name": "Focal Clear",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "Focal Clear Mg",
+        "db_id": "ecdc268d-0af9-4758-8a79-937329145580",
+        "db_name": "Focal Clear Mg",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Radiance",
+        "db_id": "6968f0f5-0fdd-467c-8521-a365869ed7df",
+        "db_name": "Focal Radiance",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Stellia",
+        "db_id": "567a4fd4-0ab1-49c3-8e18-238cdc204436",
+        "db_name": "Focal Stellia",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Focal Utopia",
+        "db_id": "34bd2c89-b903-40cd-8246-fa913804ab97",
+        "db_name": "Focal Utopia",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Fostex TH7",
+        "db_id": "75ecf5f5-877d-4fd8-827e-c406b2f6e777",
+        "db_name": "Fostex TH7",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Fostex TH610",
+        "db_id": "8b0e226e-9bcc-40a5-8dda-38c412d42fac",
+        "db_name": "Fostex TH610",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Fostex TH900",
+        "db_id": "5342aca7-d4ea-4d92-8491-75c8684b3927",
+        "db_name": "Fostex TH900",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1.3
+      },
+      {
+        "catalog": "Fostex TH909",
+        "db_id": "f274d544-b338-4ebe-b3a7-6b1945e86212",
+        "db_name": "Fostex TH909",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Fostex TR80",
+        "db_id": "d11b741c-2723-4a81-a7bc-a76d2b54a870",
+        "db_name": "Fostex TR80",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "HarmonicDyne Helios",
+        "db_id": "fd8daf38-e882-4ee4-a861-f82a2b6a463b",
+        "db_name": "HarmonicDyne Helios",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "HarmonicDyne Zeus",
+        "db_id": "8b628bb2-84c3-45a2-b7c7-b80743382fa8",
+        "db_name": "HarmonicDyne Zeus",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Hifiman Deva",
+        "db_id": "e6db9a80-8004-47c5-a226-290ce1a23198",
+        "db_name": "Hifiman Deva",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Hifiman Deva Pro",
+        "db_id": "1c3b78ad-cbfe-479f-abed-0a6ff67c0dfe",
+        "db_name": "Hifiman Deva Pro",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman Sundara",
+        "db_id": "2c9584bb-8707-43a6-b3cd-db56cf6f6629",
+        "db_name": "HiFiMAN Sundara",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Hifiman Ananda",
+        "db_id": "c1d24ce4-99e2-473c-b403-0a64efceadf0",
+        "db_name": "HiFiMAN Ananda",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman Arya",
+        "db_id": "d05261b9-e608-43c4-a9e5-bd176c216dc4",
+        "db_name": "Hifiman Arya",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Hifiman Arya Stealth",
+        "db_id": "1e01183e-dc0e-4a7a-8849-79e78bf1c7a6",
+        "db_name": "HiFiMAN Arya Stealth",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman Susvara",
+        "db_id": "ffce27b9-22d0-49ca-93c4-187b2e7d61cd",
+        "db_name": "HiFiMAN Susvara",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Hifiman HE400i",
+        "db_id": "8cc36400-1e4c-4bcd-abd5-362638d77399",
+        "db_name": "Hifiman HE400i (2020)",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Hifiman HE400se",
+        "db_id": "fbd9a887-c0a2-4bc9-a25e-a2a258261736",
+        "db_name": "HiFiMAN HE400se",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE5 (re-issue)",
+        "db_id": "5f149044-82d1-4f8a-aadc-70751219bc00",
+        "db_name": "Hifiman HE5",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Hifiman HE5se",
+        "db_id": "67b7712b-9f5b-4bc1-9109-082896965838",
+        "db_name": "Hifiman HE5SE",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE500 (FocusPad-A)",
+        "db_id": "58719c89-611e-4dac-a2ef-c9cfcd4260c6",
+        "db_name": "Hifiman HE500",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE560 (V1)",
+        "db_id": "a32ce203-5dc8-4721-bfe1-5b0590ca8b63",
+        "db_name": "Hifiman HE560",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE6 (6-screw) (Velour pads)",
+        "db_id": "ae33756d-1377-4c8d-a24f-09b8ea39d847",
+        "db_name": "Hifiman HE6",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE6se",
+        "db_id": "f1292f73-306b-4d1e-a983-626da308c035",
+        "db_name": "Hifiman HE6se",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE6se V2",
+        "db_id": "ae33756d-1377-4c8d-a24f-09b8ea39d847",
+        "db_name": "Hifiman HE6",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman Edition X V2",
+        "db_id": "8d837fa2-026d-4656-93e1-8dfbe773ebb4",
+        "db_name": "Hifiman Edition X V2",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Hifiman HE1000 V2",
+        "db_id": "db826d38-75bb-4d21-9a60-6441942edf32",
+        "db_name": "Hifiman HE1000",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman HE1000se",
+        "db_id": "0e4b1033-14a6-48f1-92b2-bf1a43e8e3f9",
+        "db_name": "Hifiman HE1000se",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Hifiman Jade II",
+        "db_id": "41b2a0e2-aca3-471f-a35e-03f83a10eb95",
+        "db_name": "Hifiman Jade II",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Hifiman Shangri-La Jr",
+        "db_id": "d650d20f-6ea9-4dac-b49a-4fd6c8be702e",
+        "db_name": "Hifiman Shangri-La Jr",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Kennerton Thror (Bog Oak)",
+        "db_id": "726bfcc5-38f7-4115-acff-d7fc4c201f32",
+        "db_name": "Kennerton Thror",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Koss KSC75",
+        "db_id": "aac356c1-7efe-4e4b-aa68-78dbbf7ebfe5",
+        "db_name": "Koss KSC75",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Meze 99 Classic",
+        "db_id": "5a6c4291-f8b8-42c0-9437-0fe714d151fe",
+        "db_name": "Meze 99 Classics",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Meze Empyrean",
+        "db_id": "e58b72ad-22b1-441b-8407-bdf415deba90",
+        "db_name": "Meze Empyrean",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Moondrop Void",
+        "db_id": "8f1e5613-98c8-4d31-9c06-6e7aff0094a4",
+        "db_name": "Moondrop Void",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Moondrop Para",
+        "db_id": "3dc6d9cb-7ca3-47cf-9d20-51edeaab931b",
+        "db_name": "Moondrop Para",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "MrSpeakers Ether C",
+        "db_id": "85128d58-d3b8-463d-8c25-4386c5942840",
+        "db_name": "MrSpeakers Ether C",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Nectar Hive",
+        "db_id": "f0e5c4fd-0e58-4874-8eb8-68d80ab98a1b",
+        "db_name": "Nectar Hive",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Neumann NDH 20",
+        "db_id": "1ee222ab-ce3a-484a-bff6-8e3da366f9e9",
+        "db_name": "Neumann NDH 20",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Philips SHP9500",
+        "db_id": "8ae6e5df-ea0e-456f-ae80-0ecd0afe6cdd",
+        "db_name": "Philips SHP9500",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "RAAL-requisite SR1a",
+        "db_id": "b7c4337e-1c27-434e-9b89-628311bce911",
+        "db_name": "RAAL-requisite SR1a",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Rosson RAD-0",
+        "db_id": "4c59c9d0-b1b6-454d-aece-d7534c51825d",
+        "db_name": "Rosson RAD-0",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1.7
+      },
+      {
+        "catalog": "Sendy Aiva",
+        "db_id": "458c49f0-27e7-4203-881a-c8a7dae08195",
+        "db_name": "Sendy Aiva",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD25 Plus",
+        "db_id": "0680178a-b3c4-40f8-a1fd-7bfd44eed24e",
+        "db_name": "Sennheiser HD25 Plus",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD579",
+        "db_id": "26a76c2f-b346-4fd9-a7fb-eaf991c6643b",
+        "db_name": "Sennheiser HD579",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Sennheiser x Drop HD58X Jubilee",
+        "db_id": "e2ba508e-d587-42d0-aca7-389fbbe6cb25",
+        "db_name": "Sennheiser HD58X",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD599",
+        "db_id": "8e69b204-44b5-4e1e-ae91-0dab55d9007a",
+        "db_name": "Sennheiser HD599",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD600",
+        "db_id": "4972cb2d-4330-4d80-9f7b-2b2d366a07ec",
+        "db_name": "Sennheiser HD600",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD650/HD6XX",
+        "db_id": "5462054f-3459-4088-97b6-5d21c1b005bb",
+        "db_name": "Sennheiser HD650/HD6XX",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HD660S",
+        "db_id": "13cbf74a-babd-44e1-a9f4-dd7ad9c47542",
+        "db_name": "Sennheiser HD660S",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Sennheiser HD800",
+        "db_id": "40e687b1-8bbe-4cca-aa23-76baba0d1987",
+        "db_name": "Sennheiser HD800",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3.7
+      },
+      {
+        "catalog": "Sennheiser HD800S",
+        "db_id": "8dae1357-6036-4937-b366-5607f4bd3fcf",
+        "db_name": "Sennheiser HD800S",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser HE-1",
+        "db_id": "ad1e09e7-7017-4b28-81aa-ab75556261ff",
+        "db_name": "Sennheiser HE-1",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sennheiser Momentum 3 Wireless",
+        "db_id": "6d675320-1bfc-405e-afac-b4351961676b",
+        "db_name": "Sennheiser Momentum 3 Wireless",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Shure SRH440",
+        "db_id": "148a0bc9-c47d-4a96-8df7-d489da731a76",
+        "db_name": "Shure SRH440",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 4
+      },
+      {
+        "catalog": "Shure SRH840",
+        "db_id": "8216194f-aae8-4d3c-88e5-45e041ab75db",
+        "db_name": "Shure SRH840",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Shure SRH1540",
+        "db_id": "b0307f7b-c008-46d9-b8ec-998f00cebbbc",
+        "db_name": "Shure SRH1540",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sivga Phoenix",
+        "db_id": "776219b0-386b-4856-b4e8-8650250cd8b4",
+        "db_name": "Sivga Phoenix",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 3
+      },
+      {
+        "catalog": "Sony MDR-1AM2",
+        "db_id": "f9e84df0-ad35-43da-8ffd-a88338fcbae2",
+        "db_name": "Sony MDR-1AM2",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony MDR-CD380",
+        "db_id": "c33a3371-7c68-4014-a244-bca2c17d4e23",
+        "db_name": "Sony MDR-CD380",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony MDR-MA900",
+        "db_id": "12b91bc5-be4a-45e8-b691-e44e950c7fea",
+        "db_name": "Sony MDR-MA900",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2
+      },
+      {
+        "catalog": "Sony MDR-SA5000 (AliExpress replacement pads)",
+        "db_id": "b9ad9b2e-8370-4fe9-91d6-c5621ef7ac91",
+        "db_name": "Sony MDR-SA5000",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony MDR-V6",
+        "db_id": "b9ad9b2e-8370-4fe9-91d6-c5621ef7ac91",
+        "db_name": "Sony MDR-SA5000",
+        "score": 0.9,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Sony MDR-Z1R",
+        "db_id": "6c7f14df-7f46-4cff-9beb-7e0747230131",
+        "db_name": "Sony MDR-Z1R",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 1.7
+      },
+      {
+        "catalog": "Stax SR-40",
+        "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+        "db_name": "Stax SR-404",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-X Mk2",
+        "db_id": "a7dc421a-7560-465d-868d-6be7dae27d3a",
+        "db_name": "Stax SR-X9000",
+        "score": 0.9,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-404",
+        "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+        "db_name": "Stax SR-404",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-404 Limited",
+        "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+        "db_name": "Stax SR-404",
+        "score": 0.95,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-4070",
+        "db_id": "a8f7c978-e779-4f5d-811d-9c6350a376e0",
+        "db_name": "Stax SR-4070",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-507",
+        "db_id": "faaf965e-2115-49f9-aef2-554660e8e83c",
+        "db_name": "Stax SR-507",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.7
+      },
+      {
+        "catalog": "Stax SR-Lambda Pro",
+        "db_id": "7dfd521f-f69d-44ae-a439-fe3ae735695f",
+        "db_name": "Stax SR-Lambda Pro",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-L300",
+        "db_id": "7e5c3d33-b3a0-421c-a364-c84c994e7cd1",
+        "db_name": "Stax SR-L300",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2.3
+      },
+      {
+        "catalog": "Stax SR-L300 Limited",
+        "db_id": "7c7e7f35-a46e-4905-ab14-eef52fb64b7f",
+        "db_name": "Stax SR-L300 Limited",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": 2
+      },
+      {
+        "catalog": "Stax SR-L500",
+        "db_id": "9837fdee-c73c-4015-9cfd-bf9d8ca156c7",
+        "db_name": "Stax SR-L500 Mk2",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-L700",
+        "db_id": "b3778a60-ee56-405b-85c2-c4322fb25d9e",
+        "db_name": "Stax SR-L700",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-007 Mk2.5",
+        "db_id": "c923c25c-4e08-47ad-b7b8-e80e38be6297",
+        "db_name": "Stax SR-007 Mk2",
+        "score": 0.95,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-009",
+        "db_id": "e8f74c2b-c04f-4b10-8ffb-b319c5e3e10d",
+        "db_name": "Stax SR-009",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Stax SR-009S",
+        "db_id": "2dc73559-7989-4f40-a08a-8cf78654c432",
+        "db_name": "Stax SR-009S",
+        "score": 1,
+        "has_grades": false,
+        "expert_grade": null
+      },
+      {
+        "catalog": "Timsok TS-1024",
+        "db_id": "62266c99-b1f2-48b4-97a9-e0f3ceb07380",
+        "db_name": "Timsok TS-1024",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZMF Aeolus (Perforated suede Universe pads)",
+        "db_id": "b23d062d-be5b-4b30-ae0f-94609e74d077",
+        "db_name": "ZMF Aeolus",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZMF Auteur (Perforated lambskin Auteur pads)",
+        "db_id": "68b30fb9-eb77-4b13-9b68-926589dddfbf",
+        "db_name": "ZMF Auteur",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZMF Verite",
+        "db_id": "0ea08f2c-75f1-4e88-be4f-1b011547f942",
+        "db_name": "ZMF Verite",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      },
+      {
+        "catalog": "ZMF Verite Closed",
+        "db_id": "b3697df0-7a51-4d59-9e3c-4a7d915cc1e7",
+        "db_name": "ZMF Verite Closed",
+        "score": 1,
+        "has_grades": true,
+        "expert_grade": null
+      }
+    ],
+    "unmatched_count": 157,
+    "unmatched_sample": [
+      {
+        "brand": "Abyss",
+        "model": "AmB-1266 Phi",
+        "variant": null,
+        "full": "Abyss AmB-1266 Phi",
+        "variants": []
+      },
+      {
+        "brand": "Acoustic Research",
+        "model": "AR-H1",
+        "variant": null,
+        "full": "Acoustic Research AR-H1",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K52",
+        "variant": null,
+        "full": "AKG K52",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K72",
+        "variant": null,
+        "full": "AKG K72",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K92",
+        "variant": null,
+        "full": "AKG K92",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K812",
+        "variant": null,
+        "full": "AKG K812",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "K872 Pro",
+        "variant": null,
+        "full": "AKG K872 Pro",
+        "variants": []
+      },
+      {
+        "brand": "AKG",
+        "model": "N700NC M2",
+        "variant": null,
+        "full": "AKG N700NC M2",
+        "variants": []
+      },
+      {
+        "brand": "Altiat",
+        "model": "Cal.1H",
+        "variant": null,
+        "full": "Altiat Cal.1H",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "CRBN",
+        "variant": null,
+        "full": "Audeze CRBN",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "LCD-1",
+        "variant": null,
+        "full": "Audeze LCD-1",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "LCD-2.2",
+        "variant": "(Pre-Fazor)",
+        "full": "Audeze LCD-2.2 (Pre-Fazor)",
+        "variants": [
+          "(Pre-Fazor)"
+        ]
+      },
+      {
+        "brand": "Audeze",
+        "model": "LCD-3",
+        "variant": null,
+        "full": "Audeze LCD-3",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "LCD-5",
+        "variant": null,
+        "full": "Audeze LCD-5",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "LCD-R",
+        "variant": null,
+        "full": "Audeze LCD-R",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "Mobius",
+        "variant": null,
+        "full": "Audeze Mobius",
+        "variants": []
+      },
+      {
+        "brand": "Audeze",
+        "model": "Sine DX",
+        "variant": null,
+        "full": "Audeze Sine DX",
+        "variants": []
+      },
+      {
+        "brand": "AudioQuest",
+        "model": "NightHawk",
+        "variant": null,
+        "full": "AudioQuest NightHawk",
+        "variants": []
+      },
+      {
+        "brand": "AudioQuest",
+        "model": "NightOwl",
+        "variant": null,
+        "full": "AudioQuest NightOwl",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-A900X",
+        "variant": null,
+        "full": "Audio Technica ATH-A900X",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-A990Z",
+        "variant": null,
+        "full": "Audio Technica ATH-A990Z",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-A1000Z",
+        "variant": null,
+        "full": "Audio Technica ATH-A1000Z",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-A2000X",
+        "variant": null,
+        "full": "Audio Technica ATH-A2000X",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-A2000Z",
+        "variant": null,
+        "full": "Audio Technica ATH-A2000Z",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-AD500X",
+        "variant": null,
+        "full": "Audio Technica ATH-AD500X",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-AD2000",
+        "variant": null,
+        "full": "Audio Technica ATH-AD2000",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-AWAS",
+        "variant": null,
+        "full": "Audio Technica ATH-AWAS",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-AWKT",
+        "variant": null,
+        "full": "Audio Technica ATH-AWKT",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-G1",
+        "variant": null,
+        "full": "Audio Technica ATH-G1",
+        "variants": []
+      },
+      {
+        "brand": "Audio Technica",
+        "model": "ATH-EW9",
+        "variant": null,
+        "full": "Audio Technica ATH-EW9",
+        "variants": []
+      }
+    ]
+  }
+}

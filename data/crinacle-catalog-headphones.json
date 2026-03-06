@@ -1,0 +1,2094 @@
+[
+  {
+    "brand": "1MORE",
+    "model": "MK801",
+    "variant": null,
+    "full": "1MORE MK801",
+    "variants": []
+  },
+  {
+    "brand": "Abyss",
+    "model": "Diana Phi",
+    "variant": null,
+    "full": "Abyss Diana Phi",
+    "variants": []
+  },
+  {
+    "brand": "Abyss",
+    "model": "Diana V2",
+    "variant": null,
+    "full": "Abyss Diana V2",
+    "variants": []
+  },
+  {
+    "brand": "Abyss",
+    "model": "AmB-1266 Phi",
+    "variant": null,
+    "full": "Abyss AmB-1266 Phi",
+    "variants": []
+  },
+  {
+    "brand": "Abyss",
+    "model": "AB-1266 Phi CC",
+    "variant": null,
+    "full": "Abyss AB-1266 Phi CC",
+    "variants": []
+  },
+  {
+    "brand": "Acoustic Research",
+    "model": "AR-H1",
+    "variant": null,
+    "full": "Acoustic Research AR-H1",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K52",
+    "variant": null,
+    "full": "AKG K52",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K72",
+    "variant": null,
+    "full": "AKG K72",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K92",
+    "variant": null,
+    "full": "AKG K92",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K240 Studio",
+    "variant": null,
+    "full": "AKG K240 Studio",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K371",
+    "variant": null,
+    "full": "AKG K371",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K612 Pro",
+    "variant": null,
+    "full": "AKG K612 Pro",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "x Drop K7XX",
+    "variant": null,
+    "full": "AKG x Drop K7XX",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K701",
+    "variant": null,
+    "full": "AKG K701",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K702",
+    "variant": null,
+    "full": "AKG K702",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K712 Pro",
+    "variant": null,
+    "full": "AKG K712 Pro",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K812",
+    "variant": null,
+    "full": "AKG K812",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "K872 Pro",
+    "variant": null,
+    "full": "AKG K872 Pro",
+    "variants": []
+  },
+  {
+    "brand": "AKG",
+    "model": "N700NC M2",
+    "variant": null,
+    "full": "AKG N700NC M2",
+    "variants": []
+  },
+  {
+    "brand": "Altiat",
+    "model": "Cal.1H",
+    "variant": null,
+    "full": "Altiat Cal.1H",
+    "variants": []
+  },
+  {
+    "brand": "Apple",
+    "model": "AirPods Max",
+    "variant": null,
+    "full": "Apple AirPods Max",
+    "variants": []
+  },
+  {
+    "brand": "ASTRO",
+    "model": "A40 TR",
+    "variant": null,
+    "full": "ASTRO A40 TR",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "CRBN",
+    "variant": null,
+    "full": "Audeze CRBN",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-1",
+    "variant": null,
+    "full": "Audeze LCD-1",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-2.2",
+    "variant": "(Pre-Fazor)",
+    "full": "Audeze LCD-2.2 (Pre-Fazor)",
+    "variants": [
+      "(Pre-Fazor)"
+    ]
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-2",
+    "variant": "(Rosewood)",
+    "full": "Audeze LCD-2 (Rosewood)",
+    "variants": [
+      "(Rosewood)"
+    ]
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-2 Closed Back",
+    "variant": null,
+    "full": "Audeze LCD-2 Closed Back",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-2 Classic",
+    "variant": null,
+    "full": "Audeze LCD-2 Classic",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-3",
+    "variant": null,
+    "full": "Audeze LCD-3",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-4",
+    "variant": null,
+    "full": "Audeze LCD-4",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-5",
+    "variant": null,
+    "full": "Audeze LCD-5",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-24",
+    "variant": null,
+    "full": "Audeze LCD-24",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-MX4",
+    "variant": null,
+    "full": "Audeze LCD-MX4",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-R",
+    "variant": null,
+    "full": "Audeze LCD-R",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-X",
+    "variant": null,
+    "full": "Audeze LCD-X",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-XC",
+    "variant": null,
+    "full": "Audeze LCD-XC",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "LCD-GX",
+    "variant": null,
+    "full": "Audeze LCD-GX",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "MM-500",
+    "variant": null,
+    "full": "Audeze MM-500",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "Mobius",
+    "variant": null,
+    "full": "Audeze Mobius",
+    "variants": []
+  },
+  {
+    "brand": "Audeze",
+    "model": "Sine DX",
+    "variant": null,
+    "full": "Audeze Sine DX",
+    "variants": []
+  },
+  {
+    "brand": "AudioQuest",
+    "model": "NightHawk",
+    "variant": null,
+    "full": "AudioQuest NightHawk",
+    "variants": []
+  },
+  {
+    "brand": "AudioQuest",
+    "model": "NightOwl",
+    "variant": null,
+    "full": "AudioQuest NightOwl",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-A900X",
+    "variant": null,
+    "full": "Audio Technica ATH-A900X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-A990Z",
+    "variant": null,
+    "full": "Audio Technica ATH-A990Z",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-A1000Z",
+    "variant": null,
+    "full": "Audio Technica ATH-A1000Z",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-A2000X",
+    "variant": null,
+    "full": "Audio Technica ATH-A2000X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-A2000Z",
+    "variant": null,
+    "full": "Audio Technica ATH-A2000Z",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AD500X",
+    "variant": null,
+    "full": "Audio Technica ATH-AD500X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AD700X",
+    "variant": null,
+    "full": "Audio Technica ATH-AD700X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AD900X",
+    "variant": null,
+    "full": "Audio Technica ATH-AD900X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AD1000X",
+    "variant": null,
+    "full": "Audio Technica ATH-AD1000X",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AD2000",
+    "variant": null,
+    "full": "Audio Technica ATH-AD2000",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-ADX5000",
+    "variant": null,
+    "full": "Audio Technica ATH-ADX5000",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AWAS",
+    "variant": null,
+    "full": "Audio Technica ATH-AWAS",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-AWKT",
+    "variant": null,
+    "full": "Audio Technica ATH-AWKT",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-G1",
+    "variant": null,
+    "full": "Audio Technica ATH-G1",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-EW9",
+    "variant": null,
+    "full": "Audio Technica ATH-EW9",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-L5000",
+    "variant": null,
+    "full": "Audio Technica ATH-L5000",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-M40x",
+    "variant": null,
+    "full": "Audio Technica ATH-M40x",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-M50x",
+    "variant": null,
+    "full": "Audio Technica ATH-M50x",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-M50xBT",
+    "variant": null,
+    "full": "Audio Technica ATH-M50xBT",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-M70x",
+    "variant": null,
+    "full": "Audio Technica ATH-M70x",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-MSR7b",
+    "variant": null,
+    "full": "Audio Technica ATH-MSR7b",
+    "variants": []
+  },
+  {
+    "brand": "Audio Technica",
+    "model": "ATH-R70x",
+    "variant": null,
+    "full": "Audio Technica ATH-R70x",
+    "variants": []
+  },
+  {
+    "brand": "Aurorus",
+    "model": "Australis",
+    "variant": null,
+    "full": "Aurorus Australis",
+    "variants": []
+  },
+  {
+    "brand": "Aurorus",
+    "model": "Borealis",
+    "variant": null,
+    "full": "Aurorus Borealis",
+    "variants": []
+  },
+  {
+    "brand": "B&O",
+    "model": "BeoPlay H7",
+    "variant": null,
+    "full": "B&O BeoPlay H7",
+    "variants": []
+  },
+  {
+    "brand": "B&W",
+    "model": "PX",
+    "variant": null,
+    "full": "B&W PX",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "Amiron Home",
+    "variant": null,
+    "full": "Beyerdynamic Amiron Home",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "Aventho Wireless",
+    "variant": null,
+    "full": "Beyerdynamic Aventho Wireless",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT1350",
+    "variant": null,
+    "full": "Beyerdynamic DT1350",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT250",
+    "variant": "(80Ω)",
+    "full": "Beyerdynamic DT250 (80Ω)",
+    "variants": [
+      "(80Ω)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT770 Pro",
+    "variant": null,
+    "full": "Beyerdynamic DT770 Pro",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT860",
+    "variant": null,
+    "full": "Beyerdynamic DT860",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT880 Pro",
+    "variant": "(32Ω)",
+    "full": "Beyerdynamic DT880 Pro (32Ω)",
+    "variants": [
+      "(32Ω)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT990 Pro",
+    "variant": "(250Ω)",
+    "full": "Beyerdynamic DT990 Pro (250Ω)",
+    "variants": [
+      "(250Ω)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT1770 Pro",
+    "variant": "(Velour pads)",
+    "full": "Beyerdynamic DT1770 Pro (Velour pads)",
+    "variants": [
+      "(Velour pads)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "DT1990 Pro",
+    "variant": null,
+    "full": "Beyerdynamic DT1990 Pro",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "TYGR 300 R",
+    "variant": null,
+    "full": "Beyerdynamic TYGR 300 R",
+    "variants": []
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "T1",
+    "variant": "(3rd Gen)",
+    "full": "Beyerdynamic T1 (3rd Gen)",
+    "variants": [
+      "(3rd Gen)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "T5p",
+    "variant": "(1st Gen)",
+    "full": "Beyerdynamic T5p (1st Gen)",
+    "variants": [
+      "(1st Gen)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "T5",
+    "variant": "(3rd Gen)",
+    "full": "Beyerdynamic T5 (3rd Gen)",
+    "variants": [
+      "(3rd Gen)"
+    ]
+  },
+  {
+    "brand": "Beyerdynamic",
+    "model": "T70",
+    "variant": null,
+    "full": "Beyerdynamic T70",
+    "variants": []
+  },
+  {
+    "brand": "BLON",
+    "model": "B20",
+    "variant": null,
+    "full": "BLON B20",
+    "variants": []
+  },
+  {
+    "brand": "BLON",
+    "model": "B60",
+    "variant": null,
+    "full": "BLON B60",
+    "variants": []
+  },
+  {
+    "brand": "Bose",
+    "model": "QuietComfort 35 II",
+    "variant": "(QC35)",
+    "full": "Bose QuietComfort 35 II (QC35)",
+    "variants": [
+      "(QC35)"
+    ]
+  },
+  {
+    "brand": "Bose",
+    "model": "Noise Cancelling Headphones 700",
+    "variant": null,
+    "full": "Bose Noise Cancelling Headphones 700",
+    "variants": []
+  },
+  {
+    "brand": "Campfire",
+    "model": "Cascade",
+    "variant": null,
+    "full": "Campfire Cascade",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Aeon 2 Closed",
+    "variant": null,
+    "full": "DCA Aeon 2 Closed",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Aeon 2 Open",
+    "variant": null,
+    "full": "DCA Aeon 2 Open",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Aeon 2 Noire",
+    "variant": null,
+    "full": "DCA Aeon 2 Noire",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Ether 2",
+    "variant": null,
+    "full": "DCA Ether 2",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Ether Flow 1.1",
+    "variant": null,
+    "full": "DCA Ether Flow 1.1",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Ether C Flow 1.1",
+    "variant": null,
+    "full": "DCA Ether C Flow 1.1",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Voce",
+    "variant": null,
+    "full": "DCA Voce",
+    "variants": []
+  },
+  {
+    "brand": "DCA",
+    "model": "Stealth",
+    "variant": null,
+    "full": "DCA Stealth",
+    "variants": []
+  },
+  {
+    "brand": "Denon",
+    "model": "AH-D5000",
+    "variant": null,
+    "full": "Denon AH-D5000",
+    "variants": []
+  },
+  {
+    "brand": "Denon",
+    "model": "AH-D5200",
+    "variant": null,
+    "full": "Denon AH-D5200",
+    "variants": []
+  },
+  {
+    "brand": "Denon",
+    "model": "AH-D7200",
+    "variant": null,
+    "full": "Denon AH-D7200",
+    "variants": []
+  },
+  {
+    "brand": "Denon",
+    "model": "AH-D9200",
+    "variant": null,
+    "full": "Denon AH-D9200",
+    "variants": []
+  },
+  {
+    "brand": "Drop",
+    "model": "x THX Panda",
+    "variant": null,
+    "full": "Drop x THX Panda",
+    "variants": []
+  },
+  {
+    "brand": "Dyson",
+    "model": "Zone",
+    "variant": null,
+    "full": "Dyson Zone",
+    "variants": []
+  },
+  {
+    "brand": "E-MU",
+    "model": "Walnut",
+    "variant": null,
+    "full": "E-MU Walnut",
+    "variants": []
+  },
+  {
+    "brand": "E-MU",
+    "model": "Teak",
+    "variant": null,
+    "full": "E-MU Teak",
+    "variants": []
+  },
+  {
+    "brand": "EKSA",
+    "model": "E900 Pro",
+    "variant": null,
+    "full": "EKSA E900 Pro",
+    "variants": []
+  },
+  {
+    "brand": "ES Lab",
+    "model": "ES-1a",
+    "variant": null,
+    "full": "ES Lab ES-1a",
+    "variants": []
+  },
+  {
+    "brand": "FiiO",
+    "model": "EH3",
+    "variant": null,
+    "full": "FiiO EH3",
+    "variants": []
+  },
+  {
+    "brand": "Final",
+    "model": "Audio D8000",
+    "variant": null,
+    "full": "Final Audio D8000",
+    "variants": []
+  },
+  {
+    "brand": "Final",
+    "model": "Audio D8000 Pro",
+    "variant": null,
+    "full": "Final Audio D8000 Pro",
+    "variants": []
+  },
+  {
+    "brand": "Final",
+    "model": "Audio Sonorous VIII",
+    "variant": null,
+    "full": "Final Audio Sonorous VIII",
+    "variants": []
+  },
+  {
+    "brand": "Final",
+    "model": "Audio Sonorous X",
+    "variant": null,
+    "full": "Final Audio Sonorous X",
+    "variants": []
+  },
+  {
+    "brand": "Fischer",
+    "model": "Oldskool RPM 33 1/3",
+    "variant": "(ZnC Limited Edition)",
+    "full": "Fischer Oldskool RPM 33 1/3 (ZnC Limited Edition)",
+    "variants": [
+      "(ZnC Limited Edition)"
+    ]
+  },
+  {
+    "brand": "Focal",
+    "model": "Listen Professional",
+    "variant": null,
+    "full": "Focal Listen Professional",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Elear",
+    "variant": null,
+    "full": "Focal Elear",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Celestee",
+    "variant": null,
+    "full": "Focal Celestee",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Clear",
+    "variant": null,
+    "full": "Focal Clear",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Clear Mg",
+    "variant": null,
+    "full": "Focal Clear Mg",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Radiance",
+    "variant": null,
+    "full": "Focal Radiance",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Stellia",
+    "variant": null,
+    "full": "Focal Stellia",
+    "variants": []
+  },
+  {
+    "brand": "Focal",
+    "model": "Utopia",
+    "variant": null,
+    "full": "Focal Utopia",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "T50RP Mk3",
+    "variant": null,
+    "full": "Fostex T50RP Mk3",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "TH7",
+    "variant": null,
+    "full": "Fostex TH7",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "TH500",
+    "variant": "(Worn pads)",
+    "full": "Fostex TH500 (Worn pads)",
+    "variants": [
+      "(Worn pads)"
+    ]
+  },
+  {
+    "brand": "Fostex",
+    "model": "TH610",
+    "variant": null,
+    "full": "Fostex TH610",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "TH900",
+    "variant": null,
+    "full": "Fostex TH900",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "TH909",
+    "variant": null,
+    "full": "Fostex TH909",
+    "variants": []
+  },
+  {
+    "brand": "Fostex",
+    "model": "TR80",
+    "variant": null,
+    "full": "Fostex TR80",
+    "variants": []
+  },
+  {
+    "brand": "Gold Planar",
+    "model": "GL850",
+    "variant": null,
+    "full": "Gold Planar GL850",
+    "variants": []
+  },
+  {
+    "brand": "Gold Planar",
+    "model": "GL2000",
+    "variant": "(single-sided)",
+    "full": "Gold Planar GL2000 (single-sided)",
+    "variants": [
+      "(single-sided)",
+      "(double-sided)"
+    ]
+  },
+  {
+    "brand": "Grado",
+    "model": "GW100",
+    "variant": null,
+    "full": "Grado GW100",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "The Hemp Headphone",
+    "variant": null,
+    "full": "Grado The Hemp Headphone",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "SR60e",
+    "variant": null,
+    "full": "Grado SR60e",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "SR80e",
+    "variant": null,
+    "full": "Grado SR80e",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "SR125e",
+    "variant": null,
+    "full": "Grado SR125e",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "SR325e",
+    "variant": null,
+    "full": "Grado SR325e",
+    "variants": []
+  },
+  {
+    "brand": "Grado",
+    "model": "PS500e",
+    "variant": null,
+    "full": "Grado PS500e",
+    "variants": []
+  },
+  {
+    "brand": "Harman Kardon",
+    "model": "FLY ANC",
+    "variant": null,
+    "full": "Harman Kardon FLY ANC",
+    "variants": []
+  },
+  {
+    "brand": "HarmonicDyne",
+    "model": "Helios",
+    "variant": null,
+    "full": "HarmonicDyne Helios",
+    "variants": []
+  },
+  {
+    "brand": "HarmonicDyne",
+    "model": "Zeus",
+    "variant": null,
+    "full": "HarmonicDyne Zeus",
+    "variants": []
+  },
+  {
+    "brand": "HarmonicDyne",
+    "model": "Poseidon",
+    "variant": null,
+    "full": "HarmonicDyne Poseidon",
+    "variants": []
+  },
+  {
+    "brand": "HarmonicDyne",
+    "model": "G200",
+    "variant": null,
+    "full": "HarmonicDyne G200",
+    "variants": []
+  },
+  {
+    "brand": "HEDD",
+    "model": "HEDDphone",
+    "variant": null,
+    "full": "HEDD HEDDphone",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Deva",
+    "variant": null,
+    "full": "Hifiman Deva",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Deva Pro",
+    "variant": null,
+    "full": "Hifiman Deva Pro",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Sundara",
+    "variant": null,
+    "full": "Hifiman Sundara",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Ananda",
+    "variant": null,
+    "full": "Hifiman Ananda",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Arya",
+    "variant": null,
+    "full": "Hifiman Arya",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Arya Stealth",
+    "variant": null,
+    "full": "Hifiman Arya Stealth",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Susvara",
+    "variant": null,
+    "full": "Hifiman Susvara",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE400i",
+    "variant": null,
+    "full": "Hifiman HE400i",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE400se",
+    "variant": null,
+    "full": "Hifiman HE400se",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "x Drop HE-X4",
+    "variant": null,
+    "full": "Hifiman x Drop HE-X4",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE5",
+    "variant": "(re-issue)",
+    "full": "Hifiman HE5 (re-issue)",
+    "variants": [
+      "(re-issue)"
+    ]
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE5se",
+    "variant": null,
+    "full": "Hifiman HE5se",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE500",
+    "variant": "(FocusPad-A)",
+    "full": "Hifiman HE500 (FocusPad-A)",
+    "variants": [
+      "(FocusPad-A)"
+    ]
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE560",
+    "variant": "(V1)",
+    "full": "Hifiman HE560 (V1)",
+    "variants": [
+      "(V1)"
+    ]
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE6",
+    "variant": "(6-screw) (Velour pads)",
+    "full": "Hifiman HE6 (6-screw) (Velour pads)",
+    "variants": [
+      "(6-screw) (Velour pads)"
+    ]
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE6se",
+    "variant": null,
+    "full": "Hifiman HE6se",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE6se V2",
+    "variant": null,
+    "full": "Hifiman HE6se V2",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Edition X V2",
+    "variant": null,
+    "full": "Hifiman Edition X V2",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE1000 V2",
+    "variant": null,
+    "full": "Hifiman HE1000 V2",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "HE1000se",
+    "variant": null,
+    "full": "Hifiman HE1000se",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Jade II",
+    "variant": null,
+    "full": "Hifiman Jade II",
+    "variants": []
+  },
+  {
+    "brand": "Hifiman",
+    "model": "Shangri-La Jr",
+    "variant": null,
+    "full": "Hifiman Shangri-La Jr",
+    "variants": []
+  },
+  {
+    "brand": "iBasso",
+    "model": "SR1",
+    "variant": null,
+    "full": "iBasso SR1",
+    "variants": []
+  },
+  {
+    "brand": "iBasso",
+    "model": "SR2",
+    "variant": null,
+    "full": "iBasso SR2",
+    "variants": []
+  },
+  {
+    "brand": "Kennerton",
+    "model": "Thror",
+    "variant": "(Bog Oak)",
+    "full": "Kennerton Thror (Bog Oak)",
+    "variants": [
+      "(Bog Oak)"
+    ]
+  },
+  {
+    "brand": "Kennerton",
+    "model": "Odin",
+    "variant": "(Bog Oak)",
+    "full": "Kennerton Odin (Bog Oak)",
+    "variants": [
+      "(Bog Oak)"
+    ]
+  },
+  {
+    "brand": "Klipsch",
+    "model": "Heritage HP-3",
+    "variant": null,
+    "full": "Klipsch Heritage HP-3",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "x Drop ESP/95X",
+    "variant": null,
+    "full": "Koss x Drop ESP/95X",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "KSC75",
+    "variant": null,
+    "full": "Koss KSC75",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "KPH30i",
+    "variant": null,
+    "full": "Koss KPH30i",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "KPH40",
+    "variant": null,
+    "full": "Koss KPH40",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "Portapro",
+    "variant": null,
+    "full": "Koss Portapro",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "PRO DJ100",
+    "variant": null,
+    "full": "Koss PRO DJ100",
+    "variants": []
+  },
+  {
+    "brand": "Koss",
+    "model": "SP540",
+    "variant": null,
+    "full": "Koss SP540",
+    "variants": []
+  },
+  {
+    "brand": "LB-acoustics",
+    "model": "MYSPHERE 3.2",
+    "variant": null,
+    "full": "LB-acoustics MYSPHERE 3.2",
+    "variants": []
+  },
+  {
+    "brand": "Little Dot",
+    "model": "GYFU",
+    "variant": null,
+    "full": "Little Dot GYFU",
+    "variants": []
+  },
+  {
+    "brand": "Logitech",
+    "model": "G431",
+    "variant": null,
+    "full": "Logitech G431",
+    "variants": []
+  },
+  {
+    "brand": "Logitech",
+    "model": "G933s",
+    "variant": null,
+    "full": "Logitech G933s",
+    "variants": []
+  },
+  {
+    "brand": "Logitech",
+    "model": "G PRO X",
+    "variant": null,
+    "full": "Logitech G PRO X",
+    "variants": []
+  },
+  {
+    "brand": "M&D",
+    "model": "MH40",
+    "variant": null,
+    "full": "M&D MH40",
+    "variants": []
+  },
+  {
+    "brand": "Meze",
+    "model": "99 Classic",
+    "variant": null,
+    "full": "Meze 99 Classic",
+    "variants": []
+  },
+  {
+    "brand": "Meze",
+    "model": "99 Neo",
+    "variant": null,
+    "full": "Meze 99 Neo",
+    "variants": []
+  },
+  {
+    "brand": "Meze",
+    "model": "Liric",
+    "variant": null,
+    "full": "Meze Liric",
+    "variants": []
+  },
+  {
+    "brand": "Meze",
+    "model": "Empyrean",
+    "variant": null,
+    "full": "Meze Empyrean",
+    "variants": []
+  },
+  {
+    "brand": "Meze",
+    "model": "Elite",
+    "variant": null,
+    "full": "Meze Elite",
+    "variants": []
+  },
+  {
+    "brand": "Montblanc",
+    "model": "MB 01",
+    "variant": null,
+    "full": "Montblanc MB 01",
+    "variants": []
+  },
+  {
+    "brand": "Moondrop",
+    "model": "Void",
+    "variant": null,
+    "full": "Moondrop Void",
+    "variants": []
+  },
+  {
+    "brand": "Moondrop",
+    "model": "Para",
+    "variant": null,
+    "full": "Moondrop Para",
+    "variants": []
+  },
+  {
+    "brand": "Moondrop",
+    "model": "Venus",
+    "variant": null,
+    "full": "Moondrop Venus",
+    "variants": []
+  },
+  {
+    "brand": "MrSpeakers",
+    "model": "Aeon Flow Closed",
+    "variant": null,
+    "full": "MrSpeakers Aeon Flow Closed",
+    "variants": []
+  },
+  {
+    "brand": "MrSpeakers",
+    "model": "Aeon Flow Open",
+    "variant": null,
+    "full": "MrSpeakers Aeon Flow Open",
+    "variants": []
+  },
+  {
+    "brand": "MrSpeakers",
+    "model": "Ether C",
+    "variant": null,
+    "full": "MrSpeakers Ether C",
+    "variants": []
+  },
+  {
+    "brand": "Nan-6",
+    "model": "Nan-6",
+    "variant": null,
+    "full": "Nan-6 Nan-6",
+    "variants": []
+  },
+  {
+    "brand": "Nectar",
+    "model": "Hive",
+    "variant": null,
+    "full": "Nectar Hive",
+    "variants": []
+  },
+  {
+    "brand": "Neumann",
+    "model": "NDH 20",
+    "variant": null,
+    "full": "Neumann NDH 20",
+    "variants": []
+  },
+  {
+    "brand": "Oppo",
+    "model": "PM-3",
+    "variant": null,
+    "full": "Oppo PM-3",
+    "variants": []
+  },
+  {
+    "brand": "Ovidius",
+    "model": "TX-901 \"Combat Armour\"",
+    "variant": null,
+    "full": "Ovidius TX-901 \"Combat Armour\"",
+    "variants": []
+  },
+  {
+    "brand": "Philips",
+    "model": "SHP9500",
+    "variant": null,
+    "full": "Philips SHP9500",
+    "variants": []
+  },
+  {
+    "brand": "Pioneer",
+    "model": "Monitor 10",
+    "variant": null,
+    "full": "Pioneer Monitor 10",
+    "variants": []
+  },
+  {
+    "brand": "Pioneer",
+    "model": "SE-2P",
+    "variant": null,
+    "full": "Pioneer SE-2P",
+    "variants": []
+  },
+  {
+    "brand": "Pioneer",
+    "model": "SE-Master1",
+    "variant": null,
+    "full": "Pioneer SE-Master1",
+    "variants": []
+  },
+  {
+    "brand": "Precide",
+    "model": "ERGO 2",
+    "variant": null,
+    "full": "Precide ERGO 2",
+    "variants": []
+  },
+  {
+    "brand": "Quad",
+    "model": "ERA-1",
+    "variant": null,
+    "full": "Quad ERA-1",
+    "variants": []
+  },
+  {
+    "brand": "RAAL-requisite",
+    "model": "SR1a",
+    "variant": null,
+    "full": "RAAL-requisite SR1a",
+    "variants": []
+  },
+  {
+    "brand": "Razer",
+    "model": "Barracuda X",
+    "variant": null,
+    "full": "Razer Barracuda X",
+    "variants": []
+  },
+  {
+    "brand": "Razer",
+    "model": "Blackshark V2 X",
+    "variant": null,
+    "full": "Razer Blackshark V2 X",
+    "variants": []
+  },
+  {
+    "brand": "Razer",
+    "model": "Blackshark V2 Pro",
+    "variant": null,
+    "full": "Razer Blackshark V2 Pro",
+    "variants": []
+  },
+  {
+    "brand": "Razer",
+    "model": "Kraken V3 Pro",
+    "variant": null,
+    "full": "Razer Kraken V3 Pro",
+    "variants": []
+  },
+  {
+    "brand": "Rosson",
+    "model": "RAD-0",
+    "variant": null,
+    "full": "Rosson RAD-0",
+    "variants": []
+  },
+  {
+    "brand": "Sansui",
+    "model": "SS-10",
+    "variant": null,
+    "full": "Sansui SS-10",
+    "variants": []
+  },
+  {
+    "brand": "Sendy",
+    "model": "Aiva",
+    "variant": null,
+    "full": "Sendy Aiva",
+    "variants": []
+  },
+  {
+    "brand": "Sendy",
+    "model": "Peacock",
+    "variant": null,
+    "full": "Sendy Peacock",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "Amperior",
+    "variant": null,
+    "full": "Sennheiser Amperior",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD25 Aluminium",
+    "variant": null,
+    "full": "Sennheiser HD25 Aluminium",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD25 Plus",
+    "variant": null,
+    "full": "Sennheiser HD25 Plus",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD250 BT",
+    "variant": null,
+    "full": "Sennheiser HD250 BT",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD400S",
+    "variant": null,
+    "full": "Sennheiser HD400S",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD505",
+    "variant": null,
+    "full": "Sennheiser HD505",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD559",
+    "variant": null,
+    "full": "Sennheiser HD559",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD560S",
+    "variant": null,
+    "full": "Sennheiser HD560S",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD579",
+    "variant": null,
+    "full": "Sennheiser HD579",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD580",
+    "variant": null,
+    "full": "Sennheiser HD580",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "x Drop HD58X Jubilee",
+    "variant": null,
+    "full": "Sennheiser x Drop HD58X Jubilee",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD599",
+    "variant": null,
+    "full": "Sennheiser HD599",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD600",
+    "variant": null,
+    "full": "Sennheiser HD600",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD620S",
+    "variant": null,
+    "full": "Sennheiser HD620S",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD650/HD6XX",
+    "variant": null,
+    "full": "Sennheiser HD650/HD6XX",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD660S",
+    "variant": null,
+    "full": "Sennheiser HD660S",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD800",
+    "variant": null,
+    "full": "Sennheiser HD800",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD800S",
+    "variant": null,
+    "full": "Sennheiser HD800S",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "x Drop HD8XX",
+    "variant": null,
+    "full": "Sennheiser x Drop HD8XX",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HD820",
+    "variant": null,
+    "full": "Sennheiser HD820",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "HE-1",
+    "variant": null,
+    "full": "Sennheiser HE-1",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "Momentum 2.0 Wireless",
+    "variant": null,
+    "full": "Sennheiser Momentum 2.0 Wireless",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "Momentum 3 Wireless",
+    "variant": null,
+    "full": "Sennheiser Momentum 3 Wireless",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "Momentum 4 Wireless",
+    "variant": null,
+    "full": "Sennheiser Momentum 4 Wireless",
+    "variants": []
+  },
+  {
+    "brand": "Sennheiser",
+    "model": "x Drop PC38X",
+    "variant": null,
+    "full": "Sennheiser x Drop PC38X",
+    "variants": []
+  },
+  {
+    "brand": "Shure",
+    "model": "Aonic 50",
+    "variant": null,
+    "full": "Shure Aonic 50",
+    "variants": []
+  },
+  {
+    "brand": "Shure",
+    "model": "SRH240A",
+    "variant": null,
+    "full": "Shure SRH240A",
+    "variants": []
+  },
+  {
+    "brand": "Shure",
+    "model": "SRH440",
+    "variant": null,
+    "full": "Shure SRH440",
+    "variants": []
+  },
+  {
+    "brand": "Shure",
+    "model": "SRH840",
+    "variant": null,
+    "full": "Shure SRH840",
+    "variants": []
+  },
+  {
+    "brand": "Shure",
+    "model": "SRH1540",
+    "variant": null,
+    "full": "Shure SRH1540",
+    "variants": []
+  },
+  {
+    "brand": "Sivga",
+    "model": "Phoenix",
+    "variant": null,
+    "full": "Sivga Phoenix",
+    "variants": []
+  },
+  {
+    "brand": "Sivga",
+    "model": "SV021",
+    "variant": null,
+    "full": "Sivga SV021",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-1AM2",
+    "variant": null,
+    "full": "Sony MDR-1AM2",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-7510",
+    "variant": null,
+    "full": "Sony MDR-7510",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-CD380",
+    "variant": null,
+    "full": "Sony MDR-CD380",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-CD900ST",
+    "variant": null,
+    "full": "Sony MDR-CD900ST",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-M1ST",
+    "variant": null,
+    "full": "Sony MDR-M1ST",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-MA900",
+    "variant": null,
+    "full": "Sony MDR-MA900",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-SA5000",
+    "variant": "(AliExpress replacement pads)",
+    "full": "Sony MDR-SA5000 (AliExpress replacement pads)",
+    "variants": [
+      "(AliExpress replacement pads)"
+    ]
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-V6",
+    "variant": null,
+    "full": "Sony MDR-V6",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-Z1R",
+    "variant": null,
+    "full": "Sony MDR-Z1R",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "MDR-Z7M2",
+    "variant": null,
+    "full": "Sony MDR-Z7M2",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "WH-1000XM4",
+    "variant": null,
+    "full": "Sony WH-1000XM4",
+    "variants": []
+  },
+  {
+    "brand": "Sony",
+    "model": "WH-1000XM5",
+    "variant": "(ANC)",
+    "full": "Sony WH-1000XM5 (ANC)",
+    "variants": [
+      "(ANC)"
+    ]
+  },
+  {
+    "brand": "Sony",
+    "model": "WH-1000XM6",
+    "variant": null,
+    "full": "Sony WH-1000XM6",
+    "variants": []
+  },
+  {
+    "brand": "Spirit Torino",
+    "model": "Radiante",
+    "variant": null,
+    "full": "Spirit Torino Radiante",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-3",
+    "variant": null,
+    "full": "Stax SR-3",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-40",
+    "variant": null,
+    "full": "Stax SR-40",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-84",
+    "variant": null,
+    "full": "Stax SR-84",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-X Mk2",
+    "variant": null,
+    "full": "Stax SR-X Mk2",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-404",
+    "variant": null,
+    "full": "Stax SR-404",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-404 Limited",
+    "variant": null,
+    "full": "Stax SR-404 Limited",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-4070",
+    "variant": null,
+    "full": "Stax SR-4070",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-507",
+    "variant": null,
+    "full": "Stax SR-507",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-Lambda Pro",
+    "variant": null,
+    "full": "Stax SR-Lambda Pro",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-L300",
+    "variant": null,
+    "full": "Stax SR-L300",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-L300 Limited",
+    "variant": null,
+    "full": "Stax SR-L300 Limited",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-L500",
+    "variant": null,
+    "full": "Stax SR-L500",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-L700",
+    "variant": null,
+    "full": "Stax SR-L700",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-007 Mk2.5",
+    "variant": null,
+    "full": "Stax SR-007 Mk2.5",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-009",
+    "variant": null,
+    "full": "Stax SR-009",
+    "variants": []
+  },
+  {
+    "brand": "Stax",
+    "model": "SR-009S",
+    "variant": null,
+    "full": "Stax SR-009S",
+    "variants": []
+  },
+  {
+    "brand": "ThieAudio",
+    "model": "Wraith",
+    "variant": null,
+    "full": "ThieAudio Wraith",
+    "variants": []
+  },
+  {
+    "brand": "Timsok",
+    "model": "TS-1024",
+    "variant": null,
+    "full": "Timsok TS-1024",
+    "variants": []
+  },
+  {
+    "brand": "Tripowin",
+    "model": "H1",
+    "variant": null,
+    "full": "Tripowin H1",
+    "variants": []
+  },
+  {
+    "brand": "V-MODA",
+    "model": "Crossfade 2 Wireless",
+    "variant": null,
+    "full": "V-MODA Crossfade 2 Wireless",
+    "variants": []
+  },
+  {
+    "brand": "V-MODA",
+    "model": "Crossfade LP2",
+    "variant": null,
+    "full": "V-MODA Crossfade LP2",
+    "variants": []
+  },
+  {
+    "brand": "Warwick Acoustics",
+    "model": "Sonoma Model One",
+    "variant": "(M1)",
+    "full": "Warwick Acoustics Sonoma Model One (M1)",
+    "variants": [
+      "(M1)"
+    ]
+  },
+  {
+    "brand": "Yamaha",
+    "model": "HP-50S",
+    "variant": null,
+    "full": "Yamaha HP-50S",
+    "variants": []
+  },
+  {
+    "brand": "Yamaha",
+    "model": "HP-300",
+    "variant": null,
+    "full": "Yamaha HP-300",
+    "variants": []
+  },
+  {
+    "brand": "ZMF",
+    "model": "Aeolus",
+    "variant": "(Perforated suede Universe pads)",
+    "full": "ZMF Aeolus (Perforated suede Universe pads)",
+    "variants": [
+      "(Perforated suede Universe pads)"
+    ]
+  },
+  {
+    "brand": "ZMF",
+    "model": "Atticus",
+    "variant": "(Suede Eikon pads)",
+    "full": "ZMF Atticus (Suede Eikon pads)",
+    "variants": [
+      "(Suede Eikon pads)"
+    ]
+  },
+  {
+    "brand": "ZMF",
+    "model": "Auteur",
+    "variant": "(Perforated lambskin Auteur pads)",
+    "full": "ZMF Auteur (Perforated lambskin Auteur pads)",
+    "variants": [
+      "(Perforated lambskin Auteur pads)"
+    ]
+  },
+  {
+    "brand": "ZMF",
+    "model": "Eikon",
+    "variant": "(Lambskin Eikon pads)",
+    "full": "ZMF Eikon (Lambskin Eikon pads)",
+    "variants": [
+      "(Lambskin Eikon pads)"
+    ]
+  },
+  {
+    "brand": "ZMF",
+    "model": "Atrium",
+    "variant": "(Perforated lambskin BE2 pads)",
+    "full": "ZMF Atrium (Perforated lambskin BE2 pads)",
+    "variants": [
+      "(Perforated lambskin BE2 pads)"
+    ]
+  },
+  {
+    "brand": "ZMF",
+    "model": "Verite",
+    "variant": null,
+    "full": "ZMF Verite",
+    "variants": []
+  },
+  {
+    "brand": "ZMF",
+    "model": "Verite Closed",
+    "variant": null,
+    "full": "ZMF Verite Closed",
+    "variants": []
+  }
+]
