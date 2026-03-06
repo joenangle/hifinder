@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
-import { ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, MapPin } from 'lucide-react'
+import { Search, SlidersHorizontal, Grid3X3, List, MapPin } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/marketplace/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/modals/ComponentDetailModal'
 import { FilterButton } from '@/components/ui/FilterButton'
@@ -298,18 +298,8 @@ function MarketplaceContent() {
   return (
     <div className="min-h-screen bg-primary">
       <main className="container mx-auto px-4 py-4 sm:py-8">
-        {/* Header — hidden on mobile, nav hamburger is sufficient */}
-        <div className="hidden sm:block mb-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-secondary hover:text-primary transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="heading-1">Used Market</h1>
-          </div>
-        </div>
-
-        {/* Filter Presets - toggleable, horizontal scroll on mobile, wrap on desktop */}
-        <div className="mb-1.5 sm:mb-3 flex gap-2 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-visible">
+        {/* Filter Presets - horizontal scroll on mobile */}
+        <div className="lg:hidden mb-1.5 flex gap-2 overflow-x-auto scrollbar-hide">
           {detectedState && (
             <button
               onClick={() => {
@@ -484,69 +474,159 @@ function MarketplaceContent() {
             )}
           </div>
 
-          {/* Desktop controls - full layout */}
-          <div className="hidden lg:flex gap-4">
+          {/* Desktop controls - single row: presets + search + sort + view + filters */}
+          <div className="hidden lg:flex items-center gap-2">
+            {/* Preset pills */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {detectedState && (
+                <button
+                  onClick={() => {
+                    if (selectedState === detectedState) {
+                      setSelectedState('all')
+                      setSelectedCountry('all')
+                    } else {
+                      setSelectedState(detectedState)
+                      setSelectedCountry('US')
+                    }
+                  }}
+                  className={`shrink-0 px-2.5 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+                    selectedState === detectedState
+                      ? 'bg-accent text-accent-foreground border-accent'
+                      : 'bg-surface border-border hover:border-accent text-primary'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  Near Me ({detectedState})
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (dealQuality.includes('great')) {
+                    setDealQuality(dealQuality.filter(d => d !== 'great'))
+                  } else {
+                    setDealQuality([...dealQuality.filter(d => d !== 'great'), 'great'])
+                  }
+                }}
+                className={`shrink-0 px-2.5 py-1.5 border rounded-md text-sm transition-colors ${
+                  dealQuality.includes('great')
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-surface border-border hover:border-accent text-primary'
+                }`}
+              >
+                🔥 Hot Deals
+              </button>
+              <button
+                onClick={() => {
+                  if (priceRange.max === '200' && !priceRange.min) {
+                    setPriceRange({ min: '', max: '' })
+                  } else {
+                    setPriceRange({ min: '', max: '200' })
+                  }
+                  setPresetTick(t => t + 1)
+                }}
+                className={`shrink-0 px-2.5 py-1.5 border rounded-md text-sm transition-colors ${
+                  priceRange.max === '200' && !priceRange.min
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-surface border-border hover:border-accent text-primary'
+                }`}
+              >
+                💰 Budget Picks
+              </button>
+              <button
+                onClick={() => {
+                  if (priceRange.min === '1000' && !priceRange.max) {
+                    setPriceRange({ min: '', max: '' })
+                  } else {
+                    setPriceRange({ min: '1000', max: '' })
+                  }
+                  setPresetTick(t => t + 1)
+                }}
+                className={`shrink-0 px-2.5 py-1.5 border rounded-md text-sm transition-colors ${
+                  priceRange.min === '1000' && !priceRange.max
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-surface border-border hover:border-accent text-primary'
+                }`}
+              >
+                ✨ Summit-Fi
+              </button>
+              <button
+                onClick={() => {
+                  const isActive = selectedCategories.includes('cans') && selectedCategories.includes('iems') && selectedCategories.length === 2
+                  if (isActive) {
+                    setSelectedCategories([])
+                  } else {
+                    setSelectedCategories(['cans', 'iems'])
+                  }
+                }}
+                className={`shrink-0 px-2.5 py-1.5 border rounded-md text-sm transition-colors ${
+                  selectedCategories.includes('cans') && selectedCategories.includes('iems') && selectedCategories.length === 2
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-surface border-border hover:border-accent text-primary'
+                }`}
+              >
+                🎧 Listening Gear Only
+              </button>
+            </div>
+
             {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary" />
+            <div className="flex-1 min-w-[180px] relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary" />
               <input
                 type="text"
-                placeholder="Search headphones, brands, or descriptions..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-md text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                className="w-full pl-9 pr-3 py-1.5 bg-surface border border-border rounded-md text-sm text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
               />
             </div>
 
             {/* Sort */}
-            <div className="w-48">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortBy)}
-                className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              >
-                <option value="date_desc">Newest First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-              </select>
-            </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              className="shrink-0 px-2.5 py-1.5 bg-surface border border-border rounded-md text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+            >
+              <option value="date_desc">Newest First</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+            </select>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors ${
                   viewMode === 'grid'
                     ? 'bg-accent text-accent-foreground'
                     : 'bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary'
                 }`}
                 aria-label="Grid view"
               >
-                <Grid3X3 className="w-5 h-5" />
+                <Grid3X3 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors ${
                   viewMode === 'list'
                     ? 'bg-accent text-accent-foreground'
                     : 'bg-surface border border-border hover:bg-surface-secondary text-secondary hover:text-primary'
                 }`}
                 aria-label="List view"
               >
-                <List className="w-5 h-5" />
+                <List className="w-4 h-4" />
               </button>
             </div>
 
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
                 showFilters
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-surface border border-border hover:bg-surface-secondary text-primary'
               }`}
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className="w-4 h-4" />
               Filters
             </button>
           </div>
@@ -815,31 +895,30 @@ function MarketplaceContent() {
           <>
             {viewMode === 'list' && (
               <div className="sticky top-0 z-10 bg-surface backdrop-blur-sm bg-opacity-95">
-                <div className="flex items-center gap-3 px-3 py-1 border-b border-border text-[10px] text-muted">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-sm bg-green-500 dark:bg-green-400" />
-                    Great deal
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-sm bg-blue-500 dark:bg-blue-400" />
-                    Good deal
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-sm bg-red-400 dark:bg-red-500" />
-                    Overpriced
-                  </span>
-                </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 border-b-2 border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
-                  <div className="flex-1 min-w-0">Item</div>
+                  <div className="flex-1 min-w-0 flex items-center gap-3">
+                    Item
+                    <span className="hidden sm:inline-flex items-center gap-3 font-normal normal-case tracking-normal text-xs text-muted">
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-sm bg-green-500 dark:bg-green-400" />
+                        Great deal
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-sm bg-blue-500 dark:bg-blue-400" />
+                        Good deal
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-sm bg-red-400 dark:bg-red-500" />
+                        Overpriced
+                      </span>
+                    </span>
+                  </div>
                   <div className="hidden sm:block w-20 flex-shrink-0">Source</div>
-                  <div className="hidden sm:block w-16 flex-shrink-0">Cond.</div>
-                  <div className="hidden md:block w-24 flex-shrink-0">Seller</div>
+                  <div className="hidden md:block w-28 flex-shrink-0">Notes</div>
                   <div className="hidden lg:block w-16 flex-shrink-0">Loc.</div>
                   <div className="w-12 flex-shrink-0">Age</div>
                   <div className="w-16 flex-shrink-0 text-right">Price</div>
                   <div className="hidden md:block w-14 flex-shrink-0 text-right">MSRP</div>
-                  <div className="hidden lg:block w-20 flex-shrink-0 text-right">Market</div>
-                  <div className="hidden sm:block w-10 flex-shrink-0 text-right cursor-help" title="How this listing compares to the median used sale price for this product">vs Mkt</div>
                   <div className="w-16 flex-shrink-0"></div>
                 </div>
               </div>

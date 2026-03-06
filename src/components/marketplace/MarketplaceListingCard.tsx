@@ -115,8 +115,8 @@ export function MarketplaceListingCard({
   const timeInfo = timeAgo(listing.date_posted)
   const priceAnalysis = getPriceAnalysis(listing.price)
 
-  // Only show condition badge if explicitly stated or from Reverb
-  // Reverb provides structured condition data, Reddit defaults to "good" if not mentioned
+  // Only show condition when it's real data — Reverb provides structured condition,
+  // Reddit defaults to "good" when not mentioned so we only show non-default values
   const showCondition = listing.source === 'reverb' ||
     (listing.source === 'reddit_avexchange' && listing.condition !== 'good')
 
@@ -156,18 +156,18 @@ export function MarketplaceListingCard({
         )}
 
         <div className="flex items-center gap-2 px-3 py-1.5">
-          {/* Item — name + source dot + bundle */}
+          {/* Item — brand + name + source dot + bundle */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             {onViewDetails ? (
               <button
                 onClick={onViewDetails}
                 className="font-medium text-foreground hover:text-accent truncate text-sm text-left transition-colors"
               >
-                {component.name}
+                <span className="hidden lg:inline text-muted font-normal">{component.brand} </span>{component.name}
               </button>
             ) : (
               <span className="font-medium text-foreground truncate text-sm">
-                {component.name}
+                <span className="hidden lg:inline text-muted font-normal">{component.brand} </span>{component.name}
               </span>
             )}
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${sourceInfo.dotColor}`} />
@@ -186,29 +186,28 @@ export function MarketplaceListingCard({
             {sourceInfo.name}
           </div>
 
-          {/* Condition — text only, no background */}
-          <div className="hidden sm:block w-16 flex-shrink-0">
-            {showCondition ? (
+          {/* Notes — surfaces noteworthy info only when relevant */}
+          <div className="hidden md:flex items-center gap-1 w-28 flex-shrink-0 flex-wrap">
+            {showCondition && (
               <Tooltip content={listing.source === 'reverb' ? 'Condition verified by Reverb' : 'Condition stated by seller'}>
-                <span className={`text-xs font-medium ${getConditionTextColor(listing.condition)}`}>
-                  {listing.condition === 'very_good' ? 'VG' :
-                   listing.condition === 'excellent' ? 'Exc' :
-                   listing.condition === 'parts_only' ? 'Parts' :
+                <span className={`text-[11px] font-medium ${getConditionTextColor(listing.condition)}`}>
+                  {listing.condition === 'very_good' ? 'Very Good' :
+                   listing.condition === 'excellent' ? 'Excellent' :
+                   listing.condition === 'parts_only' ? 'Parts Only' :
                    listing.condition.charAt(0).toUpperCase() + listing.condition.slice(1)}
                 </span>
               </Tooltip>
-            ) : (
-              <span className="text-xs text-muted">—</span>
             )}
-          </div>
-
-          {/* Seller + trades */}
-          <div className="hidden md:flex items-center w-24 flex-shrink-0 text-xs text-muted gap-1 truncate">
-            <span className="truncate">{listing.seller_username}</span>
-            {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades > 0 && (
-              <span className="text-green-600 dark:text-green-400 flex-shrink-0">
-                ({listing.seller_confirmed_trades})
-              </span>
+            {listing.is_bundle && (
+              <span className="text-[11px] text-orange-600 dark:text-orange-400 font-medium">Bundle</span>
+            )}
+            {listing.source === 'reverb' && listing.accepts_offers && (
+              <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">Offers</span>
+            )}
+            {listing.seller_confirmed_trades != null && listing.seller_confirmed_trades >= 25 && (
+              <Tooltip content={`${listing.seller_confirmed_trades} confirmed trades`}>
+                <span className="text-[11px] text-green-600 dark:text-green-400 font-medium">⭐ {listing.seller_confirmed_trades}</span>
+              </Tooltip>
             )}
           </div>
 
@@ -236,28 +235,6 @@ export function MarketplaceListingCard({
             </span>
           </div>
 
-          {/* Market — median sale price + count */}
-          <div className="hidden lg:block w-20 flex-shrink-0 text-right">
-            {(() => {
-              const stats = getCachedPriceStats(component.id)
-              return stats ? (
-                <span className="text-xs text-muted tabular-nums">
-                  ${Math.round(stats.median)} <span className="text-tertiary">({stats.count})</span>
-                </span>
-              ) : (
-                <span className="text-xs text-muted">—</span>
-              )
-            })()}
-          </div>
-
-          {/* Deal — vs used market median */}
-          <div className="hidden sm:block w-10 flex-shrink-0 text-right">
-            {hasDeal ? (
-              <span className={`text-xs font-semibold tabular-nums ${getDealColor()}`}>
-                {priceAnalysis.percentage > 0 ? '+' : ''}{priceAnalysis.percentage}%
-              </span>
-            ) : null}
-          </div>
 
           {/* Action */}
           <div className="w-16 flex-shrink-0 text-right">

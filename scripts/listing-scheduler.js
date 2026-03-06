@@ -68,8 +68,21 @@ async function runListingAggregation() {
     console.log('\n📦 Phase 5: Archiving old listings...');
     stats.archived = await archiveOldListings();
 
-    // Phase 6: Update statistics
-    console.log('\n📊 Phase 6: Updating statistics...');
+    // Phase 6: Aggregate market prices from sold data
+    console.log('\n💰 Phase 6: Aggregating market prices...');
+    try {
+      const { execSync } = require('child_process');
+      const { resolve } = require('path');
+      execSync(`node ${resolve(__dirname, 'aggregate-market-prices.js')} --execute`, {
+        stdio: 'inherit'
+      });
+      console.log('Market price aggregation completed');
+    } catch (error) {
+      console.error('Market price aggregation failed:', error.message);
+    }
+
+    // Phase 7: Update statistics
+    console.log('\n📊 Phase 7: Updating statistics...');
     await updateAggregationStats(stats);
 
     const duration = Date.now() - startTime;
