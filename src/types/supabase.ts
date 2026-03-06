@@ -459,9 +459,12 @@ export type Database = {
           crin_tech: string | null
           crin_tone: string | null
           crin_value: number | null
+          derived_signature: string | null
+          derived_signature_detail: string | null
           driver_type: string | null
           expert_grade_numeric: number | null
           fit: string | null
+          fr_data: Json | null
           id: string
           image_url: string | null
           impedance: number | null
@@ -501,9 +504,12 @@ export type Database = {
           crin_tech?: string | null
           crin_tone?: string | null
           crin_value?: number | null
+          derived_signature?: string | null
+          derived_signature_detail?: string | null
           driver_type?: string | null
           expert_grade_numeric?: number | null
           fit?: string | null
+          fr_data?: Json | null
           id?: string
           image_url?: string | null
           impedance?: number | null
@@ -543,9 +549,12 @@ export type Database = {
           crin_tech?: string | null
           crin_tone?: string | null
           crin_value?: number | null
+          derived_signature?: string | null
+          derived_signature_detail?: string | null
           driver_type?: string | null
           expert_grade_numeric?: number | null
           fit?: string | null
+          fr_data?: Json | null
           id?: string
           image_url?: string | null
           impedance?: number | null
