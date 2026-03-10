@@ -13,7 +13,7 @@ interface ComparisonItem {
   price_used_max?: number | null
   matchScore?: number
   crinacle_sound_signature?: string | null
-  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | null
+  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | 'v-shaped' | 'dark' | null
   crin_tone?: string | null
   crin_tech?: string | null
   crin_rank?: number | null
@@ -24,6 +24,7 @@ interface ComparisonItem {
   asr_sinad?: number | null
   power_output_mw?: number
   thd_n?: number
+  fr_data?: Record<string, unknown> | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
     explanation: string

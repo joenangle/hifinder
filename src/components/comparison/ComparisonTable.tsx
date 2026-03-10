@@ -1,5 +1,13 @@
 'use client'
 
+import dynamic from 'next/dynamic'
+import { parseFRData, COMPARISON_COLORS } from '@/lib/fr-utils'
+
+const FRChart = dynamic(
+  () => import('../FRChart').then(mod => ({ default: mod.FRChart })),
+  { ssr: false }
+)
+
 interface ComparisonItem {
   id: string
   brand: string
@@ -10,7 +18,7 @@ interface ComparisonItem {
   price_used_max?: number | null
   matchScore?: number
   crinacle_sound_signature?: string | null
-  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | null
+  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | 'v-shaped' | 'dark' | null
   crin_tone?: string | null
   crin_tech?: string | null
   crin_rank?: number | null
@@ -21,6 +29,7 @@ interface ComparisonItem {
   asr_sinad?: number | null
   power_output_mw?: number
   thd_n?: number
+  fr_data?: Record<string, unknown> | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
     explanation: string
@@ -277,6 +286,38 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
           ))}
         </tbody>
       </table>
+
+      {(() => {
+        const itemsWithFR = items
+          .map((item, i) => ({ item, frData: parseFRData(item.fr_data), index: i }))
+          .filter((x): x is { item: typeof items[number]; frData: NonNullable<ReturnType<typeof parseFRData>>; index: number } => x.frData !== null)
+
+        if (itemsWithFR.length < 2) return null
+
+        return (
+          <div className="mt-6">
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
+              Frequency Response Comparison
+            </h3>
+            <div className="bg-surface-secondary rounded-lg p-4">
+              <FRChart
+                mode="comparison"
+                curves={itemsWithFR.map(({ item, frData, index }) => ({
+                  name: `${item.brand} ${item.name}`,
+                  color: COMPARISON_COLORS[index % COMPARISON_COLORS.length],
+                  points: frData.points,
+                }))}
+                showBands
+              />
+            </div>
+            {itemsWithFR.length < items.length && (
+              <p className="text-xs text-muted mt-2">
+                FR data available for {itemsWithFR.length} of {items.length} items
+              </p>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }

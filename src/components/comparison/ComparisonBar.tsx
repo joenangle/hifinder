@@ -11,7 +11,8 @@ interface ComparisonItem {
   crin_tech?: string | null
   crin_rank?: number | null
   matchScore?: number
-  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | null
+  sound_signature?: 'neutral' | 'warm' | 'bright' | 'fun' | 'v-shaped' | 'dark' | null
+  fr_data?: Record<string, unknown> | null
 }
 
 interface ComparisonBarProps {

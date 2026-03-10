@@ -101,6 +101,7 @@ export interface StackComponentData {
   crin_value: number | null
   crin_signature: string | null
   asr_sinad: number | null
+  fr_data?: Record<string, unknown> | null
   driver_type: string | null
   fit: string | null
   why_recommended: string
