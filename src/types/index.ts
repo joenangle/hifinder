@@ -7,7 +7,7 @@ export interface Component {
   price_used_min: number | null;
   price_used_max: number | null;
   budget_tier: 'entry' | 'mid' | 'high';
-  sound_signature: 'warm' | 'neutral' | 'bright' | 'fun' | null;
+  sound_signature: 'warm' | 'neutral' | 'bright' | 'fun' | 'v-shaped' | 'dark' | null;
   use_cases: string[];
   impedance: number | null;
   needs_amp: boolean;
@@ -29,6 +29,10 @@ export interface Component {
   crin_value?: number | null;
   crin_signature?: string | null;
   crinacle_sound_signature?: string | null; // Legacy field name
+  // FR-derived fields
+  derived_signature?: 'warm' | 'neutral' | 'bright' | 'fun' | 'v-shaped' | 'dark' | null;
+  derived_signature_detail?: string | null;
+  fr_data?: Record<string, unknown> | null;
   // Technical specification fields
   driver_type?: string | null;
   fit?: string | null;
