@@ -1,6 +1,7 @@
 'use client'
 
-import { Suspense, useEffect, useState, useRef, useCallback } from 'react'
+import { Suspense, useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Component, UsedListing } from '@/types'
 import Link from 'next/link'
 import { Search, SlidersHorizontal, Grid3X3, List, MapPin } from 'lucide-react'
@@ -19,6 +20,11 @@ type ViewMode = 'grid' | 'list'
 type SortBy = 'date_desc' | 'price_asc' | 'price_desc'
 
 function MarketplaceContent() {
+  const urlParams = useSearchParams()
+  const initialSearch = useMemo(() => urlParams.get('search') || '', []) // eslint-disable-line react-hooks/exhaustive-deps
+  const initialComponentId = useMemo(() => urlParams.get('component_id') || '', []) // eslint-disable-line react-hooks/exhaustive-deps
+  const initialComponentName = useMemo(() => urlParams.get('name') || '', []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const [listings, setListings] = useState<ListingWithComponent[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -30,10 +36,12 @@ function MarketplaceContent() {
   // UI state
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchExpanded, setSearchExpanded] = useState(false)
+  const [searchExpanded, setSearchExpanded] = useState(!!initialSearch)
 
-  // Filter state
-  const [searchQuery, setSearchQuery] = useState('')
+  // Filter state — component_id is an exact filter (from recommendation cards)
+  const [filteredComponentId, setFilteredComponentId] = useState(initialComponentId)
+  const [filteredComponentName, setFilteredComponentName] = useState(initialComponentName)
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [selectedSource, setSelectedSource] = useState<string>('all')
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -70,6 +78,11 @@ function MarketplaceContent() {
         limit: '50', // Load 50 at a time
         sort: sortBy
       })
+
+      // Exact component filter (from recommendation card links)
+      if (filteredComponentId) {
+        params.append('component_id', filteredComponentId)
+      }
 
       if (selectedSource && selectedSource !== 'all') {
         params.append('source', selectedSource)
@@ -169,7 +182,7 @@ function MarketplaceContent() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedState, selectedCountry, dealQuality])
+  }, [sortBy, selectedSource, selectedConditions, searchQuery, priceRange, selectedCategories, selectedState, selectedCountry, dealQuality, filteredComponentId])
 
   // IP geolocation — detect user's state on mount
   useEffect(() => {
@@ -194,7 +207,7 @@ function MarketplaceContent() {
     setPage(1)
     fetchUsedListings(1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedState, selectedCountry, dealQuality, presetTick])
+  }, [sortBy, selectedSource, selectedConditions, selectedCategories, selectedState, selectedCountry, dealQuality, presetTick, filteredComponentId])
 
   // Search with debounce (text input - 800ms to let user finish typing model names)
   useEffect(() => {
@@ -389,6 +402,28 @@ function MarketplaceContent() {
             🎧 Listening Gear Only
           </button>
         </div>
+
+        {/* Component filter chip — shown when navigating from a recommendation card */}
+        {filteredComponentId && filteredComponentName && (
+          <div className="flex items-center gap-2 mb-2 lg:mb-3 px-1">
+            <span className="text-sm text-secondary">Showing listings for</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-accent/10 text-accent border border-accent/20">
+              {filteredComponentName}
+              <button
+                onClick={() => {
+                  setFilteredComponentId('')
+                  setFilteredComponentName('')
+                  // Clear URL params without full reload
+                  window.history.replaceState({}, '', '/marketplace')
+                }}
+                className="ml-0.5 p-0.5 rounded-full hover:bg-accent/20 transition-colors"
+                aria-label="Clear component filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Search and Filters Bar */}
         <div className="bg-surface-elevated rounded-lg p-2.5 lg:p-4 mb-2 lg:mb-6">

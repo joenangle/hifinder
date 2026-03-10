@@ -936,7 +936,7 @@ export function RecommendationsContent() {
     })
   }, [wantRecommendationsFor, updateURL])
 
-  const handleSoundFilterChange = useCallback((filter: 'neutral' | 'warm' | 'bright' | 'fun') => {
+  const handleSoundFilterChange = useCallback((filter: 'neutral' | 'warm' | 'bright' | 'fun' | 'v-shaped' | 'dark') => {
     if (isMultiSelectMode) {
       // Multi-select behavior: toggle (checkbox-style)
       setSoundFilters(prev => {
@@ -975,14 +975,6 @@ export function RecommendationsContent() {
   const handleBudgetAllocationChange = useCallback((allocation: BudgetAllocation) => {
     setCustomBudgetAllocation(allocation)
   }, [])
-
-  // Handle "Find Used" button click
-  const handleFindUsed = useCallback((componentId: string, componentName: string) => {
-    // Open used market section
-    setShowMarketplace(true)
-    // Set focused component to filter listings
-    setFocusedComponentId(componentId)
-  }, [usedListings])
 
   // Handle "View Details" button click on cards
   const handleViewDetails = useCallback((id: string) => {
@@ -1343,7 +1335,6 @@ export function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
-                      onFindUsed={handleFindUsed}
                       onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
                       isFirstCardHint={showHint}
@@ -1398,7 +1389,7 @@ export function RecommendationsContent() {
                       isTechnicalChamp={isTechnicalChamp}
                       isToneChamp={isToneChamp}
                       isBudgetChamp={isBudgetChamp}
-                      onFindUsed={handleFindUsed}
+
                       onViewDetails={handleViewDetails}
                       expandAllExperts={expandAllExperts}
                       isFirstCardHint={showHint}
@@ -1452,7 +1443,7 @@ export function RecommendationsContent() {
                               isSelected={selectedDacs.has(dac.id)}
                               onToggleSelection={toggleDacSelection}
                               type="dac"
-                              onFindUsed={handleFindUsed}
+        
                               onViewDetails={handleViewDetails}
                               expandAllExperts={expandAllExperts}
                               isFirstCardHint={showHint}
@@ -1511,7 +1502,7 @@ export function RecommendationsContent() {
                         isSelected={selectedAmps.has(amp.id)}
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
-                        onFindUsed={handleFindUsed}
+  
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
@@ -1570,7 +1561,7 @@ export function RecommendationsContent() {
                         isSelected={selectedDacAmps.has(combo.id)}
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
-                        onFindUsed={handleFindUsed}
+  
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
@@ -1779,8 +1770,13 @@ export function RecommendationsContent() {
                 <label className="block text-sm font-medium text-primary mb-3">
                   Sound Signature
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['any', 'warm', 'neutral', 'bright'].map((sig) => (
+                <div className="grid grid-cols-3 md:grid-cols-3 gap-3">
+                  {['any', 'neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark'].map((sig) => {
+                    const labels: Record<string, string> = {
+                      any: 'Any', neutral: 'Neutral', warm: 'Warm',
+                      bright: 'Bright', fun: 'Fun', 'v-shaped': 'V-Shaped', dark: 'Dark',
+                    }
+                    return (
                     <button
                       key={sig}
                       onClick={() => updateURL({ soundSignature: sig })}
@@ -1788,9 +1784,9 @@ export function RecommendationsContent() {
                         userPrefs.soundSignature === sig ? 'card-interactive-selected' : ''
                       }`}
                     >
-                      {sig.charAt(0).toUpperCase() + sig.slice(1)}
+                      {labels[sig]}
                     </button>
-                  ))}
+                  )})}
                 </div>
               </div>
 

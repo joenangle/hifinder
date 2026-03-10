@@ -13,29 +13,29 @@
    ============================================ */
 
 :root {
-  /* Light Mode Palette */
-  --background-primary: #ffffff;
-  --background-secondary: #f8f9fa;
-  --background-tertiary: #f1f3f5;
-  --surface-card: #ffffff;
+  /* Light Mode Palette — neutrals warm-tinted toward brand hue */
+  --background-primary: #fefefe;
+  --background-secondary: #f9f8f6;
+  --background-tertiary: #f2f0ed;
+  --surface-card: #fefefe;
   --surface-elevated: #ffffff;
-  --surface-hover: #f8f9fa;
-  --border-default: #dee2e6;
-  --border-subtle: #e9ecef;
+  --surface-hover: #f9f8f6;
+  --border-default: #dcd9d5;
+  --border-subtle: #e8e5e1;
 
   --text-primary: #212529;
-  --text-secondary: #2b2e31;
-  --text-tertiary: #2d3136;
+  --text-secondary: #495057; /* Mid-gray — clear step down from primary. 7.08:1 on white */
+  --text-tertiary: #6c757d; /* Supporting/metadata gray. 5.74:1 on white */
   --text-inverse: #ffffff;
 
   --accent-primary: #cc4e25; /* Warm orange-red — CTAs only. WCAG AA: 4.48:1 on white */
   --accent-primary-rgb: 204, 78, 37; /* RGB for opacity support */
   --accent-hover: #b5431e; /* Darkened hover — 5.55:1 */
   --accent-active: #9e3a19; /* Active state — 6.83:1 */
-  --accent-subtle: #fff3e0;
+  --accent-subtle: #fef3e2;
   --accent-secondary: #e27d08; /* Warm tube-glow amber — labels, badges, logo */
   --accent-secondary-rgb: 226, 125, 8; /* RGB for opacity support */
-  --background-secondary-rgb: 248, 249, 250; /* RGB for opacity support */
+  --background-secondary-rgb: 249, 248, 246; /* RGB for opacity support */
 
   --success: #2e7d32;
   --warning: #f57c00;

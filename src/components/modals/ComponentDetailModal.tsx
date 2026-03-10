@@ -14,6 +14,11 @@ const PriceHistoryChart = dynamic(
   () => import('../PriceHistoryChart').then(mod => ({ default: mod.PriceHistoryChart })),
   { ssr: false }
 )
+const FRChart = dynamic(
+  () => import('../FRChart').then(mod => ({ default: mod.FRChart })),
+  { ssr: false }
+)
+import { parseFRData } from '@/lib/fr-utils'
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface ComponentDetailModalProps {
@@ -27,6 +32,7 @@ interface ComponentDetailModalProps {
 export function ComponentDetailModal({ component, isOpen, onClose, isSelected, onToggleSelection }: ComponentDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [imageExpanded, setImageExpanded] = useState(false)
+  const frData = parseFRData(component.fr_data as Record<string, unknown> | null)
 
   // ESC to close + body scroll lock
   useEffect(() => {
@@ -353,30 +359,45 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             </div>
           </div>
 
-          {/* Sound Characteristics */}
-          {component.sound_signature && (
+          {/* Sound Characteristics — FR chart + signature merged */}
+          {(component.sound_signature || frData) && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Volume2 className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-primary">Sound Signature</h3>
+                <h3 className="font-semibold text-primary">Sound Character</h3>
+                {component.sound_signature && (
+                  <span className="ml-auto text-xs px-2.5 py-1 rounded-full border border-subtle bg-secondary font-medium text-secondary capitalize">
+                    {component.sound_signature.replace('_', ' ')}
+                  </span>
+                )}
               </div>
-              <div className="p-4 bg-secondary rounded-lg">
-                <div className="font-medium text-primary capitalize mb-2">
-                  {component.sound_signature.replace('_', ' ')}
+              {frData && (
+                <FRChart
+                  mode="detail"
+                  curves={[{ name: component.name, color: 'var(--color-accent, #8b5cf6)', points: frData.points }]}
+                  showBands
+                  source={frData.source}
+                />
+              )}
+              {component.sound_signature && !frData && (
+                <div className="p-4 bg-secondary rounded-lg">
+                  <div className="font-medium text-primary capitalize mb-2">
+                    {component.sound_signature.replace('_', ' ')}
+                  </div>
+                  {component.sound_signature === 'neutral' && (
+                    <p className="text-sm text-secondary">Balanced sound with accurate reproduction across all frequencies</p>
+                  )}
+                  {component.sound_signature === 'warm' && (
+                    <p className="text-sm text-secondary">Emphasized bass and lower midrange with smooth, relaxed treble</p>
+                  )}
+                  {component.sound_signature === 'bright' && (
+                    <p className="text-sm text-secondary">Emphasized treble and upper midrange for detail and clarity</p>
+                  )}
+                  {component.sound_signature === 'fun' && (
+                    <p className="text-sm text-secondary">Lively and engaging sound with enhanced dynamics</p>
+                  )}
                 </div>
-                {component.sound_signature === 'neutral' && (
-                  <p className="text-sm text-secondary">Balanced sound with accurate reproduction across all frequencies</p>
-                )}
-                {component.sound_signature === 'warm' && (
-                  <p className="text-sm text-secondary">Emphasized bass and lower midrange with smooth, relaxed treble</p>
-                )}
-                {component.sound_signature === 'bright' && (
-                  <p className="text-sm text-secondary">Emphasized treble and upper midrange for detail and clarity</p>
-                )}
-                {component.sound_signature === 'fun' && (
-                  <p className="text-sm text-secondary">Lively and engaging sound with enhanced dynamics</p>
-                )}
-              </div>
+              )}
             </div>
           )}
 

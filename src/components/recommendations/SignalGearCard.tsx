@@ -40,7 +40,6 @@ interface SignalGearCardProps {
   isSelected: boolean
   onToggleSelection: (id: string) => void
   type: 'dac' | 'amp' | 'combo'
-  onFindUsed?: (componentId: string, componentName: string) => void
   onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
   isFirstCardHint?: boolean
@@ -59,7 +58,6 @@ const SignalGearCardComponent = ({
   isSelected,
   onToggleSelection,
   type,
-  onFindUsed,
   onViewDetails,
   expandAllExperts = false,
   isFirstCardHint = false
@@ -243,19 +241,20 @@ const SignalGearCardComponent = ({
           <ExpertAnalysisPanel component={component} inline forceExpanded={expandAllExperts} />
 
           {/* Actions */}
-          <div className="mt-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            {onFindUsed && (component.usedListingsCount ?? 0) > 0 && (
-              <button
-                onClick={() => onFindUsed(component.id, `${component.brand} ${component.name}`)}
+          <div className="mt-1.5 flex items-center gap-2">
+            {(component.usedListingsCount ?? 0) > 0 && (
+              <a
+                href={`/marketplace?component_id=${component.id}&name=${encodeURIComponent(`${component.brand} ${component.name}`)}`}
+                onClick={(e) => e.stopPropagation()}
                 className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
               >
                 {component.usedListingsCount} used listing{component.usedListingsCount !== 1 ? 's' : ''}
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             )}
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
             </div>
           </div>

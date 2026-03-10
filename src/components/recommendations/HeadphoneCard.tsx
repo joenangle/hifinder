@@ -5,8 +5,6 @@ import Image from 'next/image'
 import { Headphones, Ear } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
-import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
-import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
 
 interface AudioComponent {
   id: string
@@ -43,7 +41,6 @@ interface HeadphoneCardProps {
   isTechnicalChamp: boolean
   isToneChamp: boolean
   isBudgetChamp: boolean
-  onFindUsed?: (componentId: string, componentName: string) => void
   onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
   isFirstCardHint?: boolean
@@ -67,7 +64,6 @@ const HeadphoneCardComponent = ({
   isTechnicalChamp,
   isToneChamp,
   isBudgetChamp,
-  onFindUsed,
   onViewDetails,
   expandAllExperts = false,
   isFirstCardHint = false
@@ -146,7 +142,7 @@ const HeadphoneCardComponent = ({
 
         {/* Info column */}
         <div className="flex-1 min-w-0">
-          {/* Row 1: Champion badges + name */}
+          {/* Row 1: Badges + name + match% */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {isTechnicalChamp && (
               <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500 text-white dark:bg-amber-600">
@@ -167,25 +163,15 @@ const HeadphoneCardComponent = ({
               <span className="font-normal text-secondary">{headphone.brand} </span>
               {headphone.name}
             </h3>
-            {headphone.manufacturer_url && (
-              <a
-                href={headphone.manufacturer_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex-shrink-0 text-tertiary hover:text-accent transition-colors"
-                title="Manufacturer page"
-                aria-label={`${headphone.brand} ${headphone.name} manufacturer page (opens in new tab)`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+            {headphone.matchScore && (
+              <span className="ml-auto flex-shrink-0 text-sm font-semibold text-accent tabular-nums">
+                {headphone.matchScore}%
+              </span>
             )}
           </div>
 
-          {/* Row 2: Grades + rank + match% */}
-          {(hasGrades || headphone.matchScore) && (
+          {/* Row 2: Grades */}
+          {hasGrades && (
             <div className="flex items-center gap-2 mt-0.5 text-sm">
               {headphone.crin_tone && (
                 <span className={`font-semibold tabular-nums ${gradeColor(headphone.crin_tone)}`}>
@@ -197,39 +183,26 @@ const HeadphoneCardComponent = ({
                   {headphone.crin_tech} <span className="font-normal text-tertiary text-xs">tech</span>
                 </span>
               )}
-              {headphone.matchScore && (
-                <span className="ml-auto text-xs text-tertiary tabular-nums">
-                  {headphone.matchScore}% match
-                </span>
-              )}
             </div>
           )}
 
-          {/* Row 3: Price + MSRP */}
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
+          {/* Row 3: Price */}
+          <div className="flex items-center gap-2 mt-1">
             <span className="text-sm font-bold text-primary tabular-nums">
               {fmt(headphone.price_used_min || 0)}–{fmt(headphone.price_used_max || 0)}
             </span>
-            <span className="text-[10px] text-tertiary">used est.</span>
             {headphone.price_new && (
               <span className="text-xs text-tertiary">
                 MSRP {fmt(headphone.price_new)}
               </span>
             )}
-            <PriceHistoryBadge componentId={headphone.id} />
-            <PriceTrendIndicator componentId={headphone.id} />
           </div>
 
-          {/* Row 4: Attribute pills */}
+          {/* Row 4: Key attributes */}
           <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-secondary">
             {soundSig && soundSig !== 'neutral' && (
               <span className="px-2 py-0.5 rounded-full border border-subtle bg-secondary capitalize">
                 {soundSig}
-              </span>
-            )}
-            {headphone.impedance && (
-              <span className="px-2 py-0.5 rounded-full border border-subtle bg-secondary">
-                {headphone.impedance}Ω
               </span>
             )}
             {headphone.fit && headphone.category !== 'iems' && (
@@ -237,14 +210,12 @@ const HeadphoneCardComponent = ({
                 {headphone.fit}
               </span>
             )}
-            {ampDifficulty && ampDifficulty !== 'unknown' && (
+            {ampDifficulty && ampDifficulty !== 'unknown' && ampDifficulty !== 'easy' && (
               <span className={`px-2 py-0.5 rounded-full border text-xs ${
-                ampDifficulty === 'easy' ? 'border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400' :
                 ampDifficulty === 'moderate' ? 'border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400' :
                 'border-red-200 dark:border-red-900 text-red-700 dark:text-red-400'
               }`}>
-                {ampDifficulty === 'easy' ? 'easy to drive' :
-                 ampDifficulty === 'moderate' ? 'moderate power' :
+                {ampDifficulty === 'moderate' ? 'moderate power' :
                  ampDifficulty === 'demanding' ? 'needs amp' : 'needs powerful amp'}
               </span>
             )}
@@ -254,19 +225,20 @@ const HeadphoneCardComponent = ({
           <ExpertAnalysisPanel component={headphone} inline forceExpanded={expandAllExperts} />
 
           {/* Row 6: Actions */}
-          <div className="mt-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            {onFindUsed && (headphone.usedListingsCount ?? 0) > 0 && (
-              <button
-                onClick={() => onFindUsed(headphone.id, `${headphone.brand} ${headphone.name}`)}
+          <div className="mt-1.5 flex items-center gap-2">
+            {(headphone.usedListingsCount ?? 0) > 0 && (
+              <a
+                href={`/marketplace?component_id=${headphone.id}&name=${encodeURIComponent(`${headphone.brand} ${headphone.name}`)}`}
+                onClick={(e) => e.stopPropagation()}
                 className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-1"
               >
                 {headphone.usedListingsCount} used listing{headphone.usedListingsCount !== 1 ? 's' : ''}
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
             )}
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
             </div>
           </div>

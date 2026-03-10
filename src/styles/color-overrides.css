@@ -19,19 +19,19 @@
   /* === RECOMMENDATION CARDS === */
 
   /* Card backgrounds */
-  --rec-card-bg: #ffffff; /* Default card background */
-  --rec-card-bg-hover: #f8f9fa; /* Hover state */
-  --rec-card-bg-selected: #130c9a; /* Selected state - KNOWN ISSUE: Too light, low contrast */
+  --rec-card-bg: #fefefe; /* Default card background */
+  --rec-card-bg-hover: #f9f8f6; /* Hover state — warm-tinted */
+  --rec-card-bg-selected: #fef6f0; /* Selected state — warm peach tint */
 
   /* Card borders */
-  --rec-card-border: #dee2e6; /* Default border */
+  --rec-card-border: #dcd9d5; /* Default border — warm-tinted */
   --rec-card-border-hover: #c94237; /* Hover border (accent) */
   --rec-card-border-selected: #c94237; /* Selected border */
 
   /* Card text */
   --rec-card-text-primary: #212529; /* Headings, important text */
-  --rec-card-text-secondary: #202020; /* KNOWN ISSUE: Can be low contrast */
-  --rec-card-text-tertiary: #555555; /* Least important text */
+  --rec-card-text-secondary: #495057; /* Mid-gray — matches design system */
+  --rec-card-text-tertiary: #6c757d; /* Supporting/metadata — matches design system */
 
   /* === CHAMPION BADGES === */
 
@@ -90,11 +90,11 @@
   /* === BROWSE MODE SELECTOR === */
   /* "Show me top picks", "Let me explore", "Full control mode" */
 
-  --browse-mode-border-inactive: #dee2e6; /* Inactive mode border */
+  --browse-mode-border-inactive: #dcd9d5; /* Inactive mode border — warm-tinted */
   --browse-mode-border-hover: #fcd8ac; /* Hover border (light orange) */
   --browse-mode-border-active: #ea580c; /* Active mode border (orange) */
 
-  --browse-mode-bg-inactive: #ffffff; /* Inactive mode background */
+  --browse-mode-bg-inactive: #fefefe; /* Inactive mode background */
   --browse-mode-bg-active: #fff7ed; /* Active mode background (light orange) */
 
   --browse-mode-icon-inactive: #6c757d; /* Inactive icon color (gray) */

@@ -132,7 +132,7 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
   if (inline) {
     const quote = component.crin_comments || generateExpertBlurb(component)
     return (
-      <div className="mt-1 flex items-start gap-1.5 text-xs text-tertiary" onClick={(e) => e.stopPropagation()}>
+      <div className="mt-1 flex items-start gap-1.5 text-xs text-tertiary">
         <p className="italic line-clamp-1 sm:line-clamp-2 leading-snug min-w-0">
           {component.crin_comments ? `"${quote}"` : quote}
         </p>
