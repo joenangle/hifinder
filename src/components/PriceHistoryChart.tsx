@@ -89,6 +89,7 @@ export function PriceHistoryChart({ componentId, priceNew, onDataLoad }: PriceHi
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [days, setDays] = useState(90)
+  const [hasEverHadData, setHasEverHadData] = useState(false)
 
   useEffect(() => {
     async function fetchPriceHistory() {
@@ -99,14 +100,17 @@ export function PriceHistoryChart({ componentId, priceNew, onDataLoad }: PriceHi
         if (res.ok) {
           const json = await res.json()
           setData(json)
-          onDataLoad?.(json?.sales?.length > 0)
-        } else {
+          const hasData = json?.sales?.length > 0
+          if (hasData) setHasEverHadData(true)
+          // Only report false on initial load, not when switching timeframes
+          onDataLoad?.(hasData || hasEverHadData)
+        } else if (!hasEverHadData) {
           onDataLoad?.(false)
         }
       } catch (err) {
         console.error('Failed to fetch price history:', err)
         setError('Failed to load price history')
-        onDataLoad?.(false)
+        if (!hasEverHadData) onDataLoad?.(false)
       } finally {
         setLoading(false)
       }
@@ -122,8 +126,33 @@ export function PriceHistoryChart({ componentId, priceNew, onDataLoad }: PriceHi
     )
   }
 
-  if (error || !data || !data.sales.length) {
+  if (error || !data) {
     return null
+  }
+
+  if (!data.sales.length) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 justify-end">
+          {[30, 90, 180, 365].map(d => (
+            <button
+              key={d}
+              onClick={() => setDays(d)}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                days === d
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-surface-secondary text-muted hover:text-foreground'
+              }`}
+            >
+              {d <= 90 ? `${d}d` : d === 180 ? '6mo' : '1yr'}
+            </button>
+          ))}
+        </div>
+        <div className="text-sm text-muted text-center py-6">
+          No sales found in the last {days <= 90 ? `${days} days` : days === 180 ? '6 months' : 'year'}
+        </div>
+      </div>
+    )
   }
 
   const allChartData = data.sales.map(s => ({
