@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate sound signature
-    const validSoundSignatures = ['any', 'neutral', 'warm', 'bright', 'fun', 'balanced']
+    const validSoundSignatures = ['any', 'neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark', 'balanced']
     if (!validSoundSignatures.includes(soundSignature)) {
       return NextResponse.json(
         { error: `Invalid sound signature. Must be one of: ${validSoundSignatures.join(', ')}` },

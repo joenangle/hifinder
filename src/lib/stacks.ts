@@ -32,6 +32,7 @@ export function getStackComponentData(sc: StackComponent): StackComponentData {
     crin_value: comp?.crin_value || null,
     crin_signature: comp?.crin_signature || null,
     asr_sinad: comp?.asr_sinad || null,
+    fr_data: comp?.fr_data || null,
     driver_type: comp?.driver_type || null,
     fit: comp?.fit || null,
     why_recommended: comp?.why_recommended || '',
@@ -58,7 +59,7 @@ const STACK_COMPONENT_SELECT = `
         budget_tier, sound_signature, use_cases, impedance, needs_amp,
         amplification_difficulty, amazon_url, why_recommended, image_url,
         crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
-        asr_sinad, driver_type, fit
+        asr_sinad, fr_data, driver_type, fit
       )
     ),
     components!stack_components_component_id_fkey (
@@ -66,7 +67,7 @@ const STACK_COMPONENT_SELECT = `
       budget_tier, sound_signature, use_cases, impedance, needs_amp,
       amplification_difficulty, amazon_url, why_recommended, image_url,
       crin_tone, crin_tech, crin_rank, crin_value, crin_signature,
-      asr_sinad, driver_type, fit
+      asr_sinad, fr_data, driver_type, fit
     )
   )
 `

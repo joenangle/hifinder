@@ -53,6 +53,16 @@ export const FILTER_TOOLTIPS = {
       title: 'V-Shaped / Fun',
       description: 'Boosted bass & treble',
       details: 'Exciting, energetic sound. Perfect for EDM, gaming, movies, and when you want extra impact. Count shows total available options - we display the top-rated matches.'
+    },
+    'v-shaped': {
+      title: 'V-Shaped',
+      description: 'Strong bass & treble boost',
+      details: 'Pronounced bass and treble with recessed midrange. More extreme than "Fun" — great for bass-heavy music and cinematic experiences.'
+    },
+    dark: {
+      title: 'Dark',
+      description: 'Subdued treble, relaxed tone',
+      details: 'Rolled-off treble with a laid-back presentation. Fatigue-free for long sessions. Pairs well with acoustic and vocal music.'
     }
   },
 

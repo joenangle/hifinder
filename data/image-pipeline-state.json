@@ -1,0 +1,511 @@
+{
+  "processed": {
+    "0991a9dd-3dcc-4869-979a-2c238f8b7f69": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/moondrop-crescent.webp",
+      "tier": "tier1-or-2"
+    },
+    "b8702180-860c-4ea7-9eca-b42972f9a358": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dunu-talos.webp",
+      "tier": "tier1-or-2"
+    },
+    "40e687b1-8bbe-4cca-aa23-76baba0d1987": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd800.webp",
+      "tier": "tier1-or-2"
+    },
+    "85aba749-936c-46ff-8571-0aba36a46ad6": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/vision-ears-ve8.webp",
+      "tier": "tier1-or-2"
+    },
+    "776219b0-386b-4856-b4e8-8650250cd8b4": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sivga-phoenix.webp",
+      "tier": "tier1-or-2"
+    },
+    "70d8f0f8-8802-4fc9-a783-d5f7b4c7d3b4": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fir-m4.webp",
+      "tier": "tier1-or-2"
+    },
+    "36add296-1f0d-4be4-9a9f-05b27909d70c": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fir-m5.webp",
+      "tier": "tier1-or-2"
+    },
+    "77db7fed-ed59-4f3e-86a1-fb6a0fe80ff2": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/custom-art-fibae-7.webp",
+      "tier": "tier1-or-2"
+    },
+    "804c224c-ee9d-4d38-81d7-61d0ef20907a": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/campfire-andromeda-2020.webp",
+      "tier": "tier1-or-2"
+    },
+    "d9a1f184-7f27-43c4-80fa-725c2db1f86e": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/oriolus-percivali.webp",
+      "tier": "tier1-or-2"
+    },
+    "af68feb6-9712-44a0-8a6b-5e45b27f4443": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dita-dream.webp",
+      "tier": "tier1-or-2"
+    },
+    "b1c07228-9755-427a-b2a0-1316c62c3d4e": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k701.webp",
+      "tier": "tier1-or-2"
+    },
+    "72f0ea53-6a65-4a8a-b486-47dc93c15ac8": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-m70x.webp",
+      "tier": "tier1-or-2"
+    },
+    "bd53718a-7081-4cc9-8724-9906eb8c4888": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/qdc-anole-v14.webp",
+      "tier": "tier1-or-2"
+    },
+    "18eeb00c-c6a2-4224-b36e-6f1ff3bd34ee": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/final-audio-d8000.webp",
+      "tier": "tier1-or-2"
+    },
+    "5ccd4315-91c1-4d24-992f-9c67b015dc25": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-ie800.webp",
+      "tier": "tier1-or-2"
+    },
+    "567a4fd4-0ab1-49c3-8e18-238cdc204436": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-stellia.webp",
+      "tier": "tier1-or-2"
+    },
+    "48bfaf0f-5e47-4670-90ca-84077f2ba6b3": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/noble-katana.webp",
+      "tier": "tier1-or-2"
+    },
+    "b3583059-0ded-4c83-b896-ad3f1875cc38": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/64-audio-n8.webp",
+      "tier": "tier1-or-2"
+    },
+    "ef85dd6a-504a-4e7a-9039-e9062913b7d7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/final-d8000-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "46d8f829-930b-47f5-a4d2-d45b80f5a7ea": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fir-m3.webp",
+      "tier": "tier1-or-2"
+    },
+    "9f91ca11-6771-4515-a689-0c06cc35e3f7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audeze-lcd-xc.webp",
+      "tier": "tier1-or-2"
+    },
+    "7e5c3d33-b3a0-421c-a364-c84c994e7cd1": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-l300.webp",
+      "tier": "tier1-or-2"
+    },
+    "3af5b88f-c26c-4d0b-b8ad-8342ac185637": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/denon-ah-d5000.webp",
+      "tier": "tier1-or-2"
+    },
+    "0325b526-3d74-4de5-9e23-791ca707ecae": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-clear.webp",
+      "tier": "tier1-or-2"
+    },
+    "0dc77d24-be32-42d3-9ef5-5c128deba554": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-clear-og.webp",
+      "tier": "tier1-or-2"
+    },
+    "a2db8443-d9a6-4745-8b81-cd7ad50f9dec": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k612-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "5342aca7-d4ea-4d92-8491-75c8684b3927": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fostex-th900.webp",
+      "tier": "tier1-or-2"
+    },
+    "412ab561-ae4d-49f1-a72d-bfbee8e5ba55": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/timsok-ts-316.webp",
+      "tier": "tier1-or-2"
+    },
+    "6c247f9f-b761-4087-9ba6-eee1ec99e920": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k240-mkii.webp",
+      "tier": "tier1-or-2"
+    },
+    "8ae6e5df-ea0e-456f-ae80-0ecd0afe6cdd": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/philips-shp9500.webp",
+      "tier": "tier1-or-2"
+    },
+    "b9d508c4-705c-407c-9789-6afcc959097d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/superlux-hd681-evo.webp",
+      "tier": "tier1-or-2"
+    },
+    "0627f246-cdfd-464f-8ff5-18c42ba9d8a6": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/creative-aurvana-live-se.webp",
+      "tier": "tier1-or-2"
+    },
+    "223a9c8f-3d3d-4eef-b7f7-a32b74b5b2b3": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k361.webp",
+      "tier": "tier1-or-2"
+    },
+    "ba1b6956-4a3c-4460-864e-67e969da4351": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-ew200.webp",
+      "tier": "tier1-or-2"
+    },
+    "86172299-fa19-4199-8ad7-ca2d286b393d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/moondrop-chu-2.webp",
+      "tier": "tier1-or-2"
+    },
+    "7b4b40d6-9bb4-44b5-b597-42ac930a0db1": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/7hz-salnotes-zero.webp",
+      "tier": "tier1-or-2"
+    },
+    "830632f6-e512-4505-97b8-df98b38ad403": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-ew300.webp",
+      "tier": "tier1-or-2"
+    },
+    "ab86cdf1-6f95-435f-bfdb-e4dddf1edb3d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/tangzu-waner.webp",
+      "tier": "tier1-or-2"
+    },
+    "c6454111-ffc4-423c-82da-d8f355e95bc9": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/truthear-zero-red.webp",
+      "tier": "tier1-or-2"
+    },
+    "fb637028-e4d7-42ff-ba4a-39e5dfb19ace": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/7hz-dioko.webp",
+      "tier": "tier1-or-2"
+    },
+    "76033b18-615f-4645-a36d-36df237f5a60": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/samson-sr850.webp",
+      "tier": "tier1-or-2"
+    },
+    "b91759bc-a75f-4119-9dd4-f0d4d428c8b0": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k240-studio.webp",
+      "tier": "tier1-or-2"
+    },
+    "f9c918dc-f452-42e9-af56-15e7cfc827a0": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-mdr-7506.webp",
+      "tier": "tier1-or-2"
+    },
+    "557b8890-351c-4aff-9c4e-5d74610d6f42": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-m60x.webp",
+      "tier": "tier1-or-2"
+    },
+    "11f8bb53-3473-48aa-ab62-a4bf34c50a17": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/thieaudio-ghost.webp",
+      "tier": "tier1-or-2"
+    },
+    "491b8708-f63f-47d5-96f7-2f0b14f61527": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt880-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "009031d0-1a96-4e51-ae11-f9789d4b92cd": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/drop-x-sennheiser-hd-6xx.webp",
+      "tier": "tier1-or-2"
+    },
+    "3b043d51-7bc6-4648-a3a1-94c8952bc2b3": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt-770-pro-x-limited.webp",
+      "tier": "tier1-or-2"
+    },
+    "1c3b78ad-cbfe-479f-abed-0a6ff67c0dfe": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-deva-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "daf77a14-9adf-4cfc-b299-f2572d8f442a": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/grado-sr80x.webp",
+      "tier": "tier1-or-2"
+    },
+    "4626b446-f712-42ab-a2f0-0af08ecef3fc": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/philips-x2hr.webp",
+      "tier": "tier1-or-2"
+    },
+    "fbd9a887-c0a2-4bc9-a25e-a2a258261736": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he400se.webp",
+      "tier": "tier1-or-2"
+    },
+    "ce9feecc-66ae-4544-8463-faa2c3cfc0c8": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-supermix4.webp",
+      "tier": "tier1-or-2"
+    },
+    "f1fea1d6-2dee-44d2-8902-97a865d35dc0": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-ea500lm.webp",
+      "tier": "tier1-or-2"
+    },
+    "6e11b830-594f-4a4e-be7e-2d521cbdc0ff": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-em6l-phoenix.webp",
+      "tier": "tier1-or-2"
+    },
+    "db56ba09-a97e-4af3-a911-12598b5ea18d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/crinear-meta.webp",
+      "tier": "tier1-or-2"
+    },
+    "3845f0f8-52eb-401d-880f-d14a3e62dbbf": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-ad700x.webp",
+      "tier": "tier1-or-2"
+    },
+    "45eaa5de-499a-4232-8382-9522a4f7b914": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-ad900x.webp",
+      "tier": "tier1-or-2"
+    },
+    "43fc6989-3b72-4abc-97c1-b3ad99a21b9f": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt880-600.webp",
+      "tier": "tier1-or-2"
+    },
+    "e2ba508e-d587-42d0-aca7-389fbbe6cb25": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd58x.webp",
+      "tier": "tier1-or-2"
+    },
+    "a30f7509-c4e2-43aa-a3b2-627eeea0d014": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/simgot-ea1000-fermat.webp",
+      "tier": "tier1-or-2"
+    },
+    "a9e3f05e-69fb-4083-9803-422ede6d0e1d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/letshuoer-s12-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "cc8ff815-a1a8-4204-a4e7-a6a18b70bf51": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/truthear-nova.webp",
+      "tier": "tier1-or-2"
+    },
+    "2c47ffc6-72ff-41d4-9b3a-ae1f01270558": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/ziigaat-odyssey.webp",
+      "tier": "tier1-or-2"
+    },
+    "3ce9ccbb-d0a7-4b69-8897-48fcb0433890": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-m50xbt2.webp",
+      "tier": "tier1-or-2"
+    },
+    "6f4e9530-451b-4728-8904-50d8d3802a5b": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-edition-xs.webp",
+      "tier": "tier1-or-2"
+    },
+    "b78b3ff4-7740-48ed-9ab6-79e374ec5960": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-m50x.webp",
+      "tier": "tier1-or-2"
+    },
+    "bf8344c1-6461-414d-9bfe-8a375c0d206b": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt990-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "e8b99236-b8a4-4bd9-83fc-808423a5561c": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt-770-pro-80.webp",
+      "tier": "tier1-or-2"
+    },
+    "1682b6a9-dbc4-4d92-9667-e9a591f43c3e": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/shozy-neo-bg.webp",
+      "tier": "tier1-or-2"
+    },
+    "8b0c5c07-7864-4243-b186-6cd410e965db": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd-620s.webp",
+      "tier": "tier1-or-2"
+    },
+    "fceb45a0-dd73-42d2-8639-a0bc9dcef2a5": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/softears-studio-4.webp",
+      "tier": "tier1-or-2"
+    },
+    "8f9611eb-7e3f-4355-a87d-c8b2b4d9b28e": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audio-technica-ath-ad1000x.webp",
+      "tier": "tier1-or-2"
+    },
+    "29d1d6e9-58a6-499d-b04f-8ec9eafd5801": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/ziigaat-arcanis.webp",
+      "tier": "tier1-or-2"
+    },
+    "5a6c4291-f8b8-42c0-9437-0fe714d151fe": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/meze-99-classics.webp",
+      "tier": "tier1-or-2"
+    },
+    "469992b1-78d4-4a37-9a2a-a3ac0e42c061": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/grado-sr325x.webp",
+      "tier": "tier1-or-2"
+    },
+    "0b8c48a0-e27a-4483-9a2f-87a4826981a9": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/kiwi-ears-astral.webp",
+      "tier": "tier1-or-2"
+    },
+    "f3d410ba-1654-488f-8039-12e9458ca038": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/xenns-tea-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "f608a01f-b5dd-42a3-808a-d76fd8c4efa7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/kiwi-ears-hbb-punch.webp",
+      "tier": "tier1-or-2"
+    },
+    "343b5915-89d6-45df-a95d-2d6d8d5284a5": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/elysian-pilgrim.webp",
+      "tier": "tier1-or-2"
+    },
+    "4972cb2d-4330-4d80-9f7b-2b2d366a07ec": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd600.webp",
+      "tier": "tier1-or-2"
+    },
+    "4ef5474b-2f40-4188-b89a-6212a874f5ce": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/austrian-audio-hi-x55.webp",
+      "tier": "tier1-or-2"
+    },
+    "6971fbca-1681-4ed3-afaf-a0326e842e3d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt-700-pro-x.webp",
+      "tier": "tier1-or-2"
+    },
+    "8eee81df-3e36-49af-9c76-83b8856531ac": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/ziigaat-luna.webp",
+      "tier": "tier1-or-2"
+    },
+    "f8ffc3ea-4340-46e8-aea5-a2e551f065da": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd650.webp",
+      "tier": "tier1-or-2"
+    },
+    "fb1bac5d-e1ed-4928-8ce4-26d118aed047": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/thieaudio-hype-4.webp",
+      "tier": "tier1-or-2"
+    },
+    "aa27e4dc-13b0-4099-83de-61d4114c6ec7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/qdc-anole-vx.webp",
+      "tier": "tier1-or-2"
+    },
+    "9a38f7b1-ab80-438f-9e90-8ff0ea82a3f2": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-z1r.webp",
+      "tier": "tier1-or-2"
+    },
+    "0bdcf201-997f-44de-ac04-c5005102890b": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fatfreq-grand-maestro.webp",
+      "tier": "tier1-or-2"
+    },
+    "18edc7dc-a3fb-4edb-8579-36b9c7740937": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/letshuoer-mystic-8.webp",
+      "tier": "tier1-or-2"
+    },
+    "dcc34852-ffbf-44aa-a462-6863ef489e20": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/yanyin-carmen.webp",
+      "tier": "tier1-or-2"
+    },
+    "ede7c5c5-9842-47b0-8263-afe351764cbf": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/abyss-diana-v2.webp",
+      "tier": "tier1-or-2"
+    },
+    "f7294875-5e74-496f-a9e0-0f5b76b9913f": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/abyss-ab-1266-phi-tc.webp",
+      "tier": "tier1-or-2"
+    },
+    "e8f74c2b-c04f-4b10-8ffb-b319c5e3e10d": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-009.webp",
+      "tier": "tier1-or-2"
+    },
+    "2dc73559-7989-4f40-a08a-8cf78654c432": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-009s.webp",
+      "tier": "tier1-or-2"
+    },
+    "1e01183e-dc0e-4a7a-8849-79e78bf1c7a6": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-arya-stealth.webp",
+      "tier": "tier1-or-2"
+    },
+    "6bbbf2db-e8ef-4394-97e5-488bc9e9e511": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-utopia-2022.webp",
+      "tier": "tier1-or-2"
+    },
+    "8dae1357-6036-4937-b366-5607f4bd3fcf": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd800s.webp",
+      "tier": "tier1-or-2"
+    },
+    "1e232018-c6fb-4667-8032-a157f177b16f": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/64-audio-u4s.webp",
+      "tier": "tier1-or-2"
+    },
+    "9837fdee-c73c-4015-9cfd-bf9d8ca156c7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-l500-mk2.webp",
+      "tier": "tier1-or-2"
+    },
+    "ad2bbca4-4e99-4ac5-92bf-b3a39770e0e9": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/abyss-diana-phi.webp",
+      "tier": "tier1-or-2"
+    },
+    "484494a1-a9ed-414c-81ed-f9be94773c71": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd-660s2.webp",
+      "tier": "tier1-or-2"
+    },
+    "08f0cee4-aa47-4e24-aa09-1192e012f1be": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-arya-organic.webp",
+      "tier": "tier1-or-2"
+    },
+    "d7ab7821-664a-4ea4-b413-5a3e6e41cf7c": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he-r10d.webp",
+      "tier": "tier1-or-2"
+    },
+    "f6dfb8ca-5237-4b64-a173-8a0f7f5befb5": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audeze-mm-500.webp",
+      "tier": "tier1-or-2"
+    },
+    "db3f5232-35c2-4e95-a9c4-cf1e02790c09": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dan-clark-audio-aeon-2-noire.webp",
+      "tier": "tier1-or-2"
+    },
+    "81b533ea-cdd4-4497-8300-9414a62c51a0": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-celestee.webp",
+      "tier": "tier1-or-2"
+    },
+    "5e5ec4ee-6802-4ba5-8c77-662c4f6818bd": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/meze-109-pro.webp",
+      "tier": "tier1-or-2"
+    },
+    "c39598d6-940e-4b90-849b-23a2e7096007": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dan-clark-audio-stealth.webp",
+      "tier": "tier1-or-2"
+    },
+    "4e8c96ca-7e97-4d55-81f4-7fd7e9f814d0": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/zmf-caldera.webp",
+      "tier": "tier1-or-2"
+    },
+    "25a7295a-7eb7-4d95-9331-19ad470c59ff": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dan-clark-audio-ether-2.webp",
+      "tier": "tier1-or-2"
+    },
+    "cb639889-a6f6-4996-b92f-b19abb7a8722": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dan-clark-audio-expanse.webp",
+      "tier": "tier1-or-2"
+    },
+    "f1d27dcd-bc76-44e9-94ae-0c558e0de5eb": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/64-audio-u12t.webp",
+      "tier": "tier1-or-2"
+    },
+    "eaa80014-cf74-4fa2-a12f-4684d1e14e3f": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/thieaudio-prestige-ltd.webp",
+      "tier": "tier1-or-2"
+    },
+    "21bd5ba3-7fb0-4bd0-bbf6-f1790af7a329": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/symphonium-crimson.webp",
+      "tier": "tier1-or-2"
+    },
+    "84bcf00a-9692-4ae8-8ca4-5002356db243": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/campfire-audio-mammoth.webp",
+      "tier": "tier1-or-2"
+    },
+    "b8678d9d-56d5-4328-a98e-7a0183d2953e": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/letshuoer-cadenza-12.webp",
+      "tier": "tier1-or-2"
+    },
+    "c923c25c-4e08-47ad-b7b8-e80e38be6297": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-007-mk2.webp",
+      "tier": "tier1-or-2"
+    },
+    "0fa12d93-2029-4b00-889e-25cb068cd1e7": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-007a.webp",
+      "tier": "tier1-or-2"
+    },
+    "a7dc421a-7560-465d-868d-6be7dae27d3a": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-x9000.webp",
+      "tier": "tier1-or-2"
+    },
+    "76625cc8-5022-4aa4-aeb4-1d61ed953b72": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/subtonic-subtonic-storm.webp",
+      "tier": "tier1-or-2"
+    },
+    "6142efec-f1cf-48fb-901e-12be758d48ee": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-elex.webp",
+      "tier": "tier1-or-2"
+    },
+    "25e95a19-9be5-49e5-86bc-3a8e0d251046": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audeze-lcd-24.webp",
+      "tier": "tier1-or-2"
+    },
+    "cf2a2c98-1a23-4341-bba6-07adcfc65d29": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/thieaudio-valhalla.webp",
+      "tier": "tier1-or-2"
+    },
+    "db826d38-75bb-4d21-9a60-6441942edf32": {
+      "url": "https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he1000.webp",
+      "tier": "tier1-or-2"
+    }
+  },
+  "tier1Failures": [],
+  "cseQueriesUsedToday": 0,
+  "lastCseDate": null
+}

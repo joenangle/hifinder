@@ -37,7 +37,7 @@ interface FiltersSectionProps {
   }
   onTypeFilterChange: (filter: 'cans' | 'iems') => void
   onEquipmentToggle: (type: 'dac' | 'amp' | 'combo') => void
-  onSoundFilterChange: (filter: 'neutral' | 'warm' | 'bright' | 'fun') => void
+  onSoundFilterChange: (filter: 'neutral' | 'warm' | 'bright' | 'fun' | 'v-shaped' | 'dark') => void
   expandAllExperts?: boolean
   onToggleExpandExperts?: () => void
   onToggleGuidedMode?: () => void
@@ -98,6 +98,8 @@ const SOUND_ACTIVE: Record<string, string> = {
   warm: 'border-amber-400 text-amber-700 bg-primary dark:text-amber-300 dark:border-amber-500',
   bright: 'border-sky-400 text-sky-700 bg-primary dark:text-sky-300 dark:border-sky-500',
   fun: 'border-pink-400 text-pink-700 bg-primary dark:text-pink-300 dark:border-pink-500',
+  'v-shaped': 'border-rose-400 text-rose-700 bg-primary dark:text-rose-300 dark:border-rose-500',
+  dark: 'border-stone-400 text-stone-700 bg-primary dark:text-stone-300 dark:border-stone-500',
 }
 
 const EQUIP_ACTIVE: Record<string, string> = {
@@ -206,18 +208,22 @@ const FiltersSectionComponent = ({
           <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
             Sound
           </span>
-          {(['neutral', 'warm', 'bright', 'fun'] as const).map(sig => (
-            <Pill
+          {(['neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark'] as const).map(sig => {
+            const labels: Record<string, string> = {
+              neutral: 'Neutral', warm: 'Warm', bright: 'Bright',
+              fun: 'Fun', 'v-shaped': 'V-Shaped', dark: 'Dark',
+            }
+            return (<Pill
               key={sig}
               active={soundFilters.includes(sig)}
               onClick={() => onSoundFilterChange(sig)}
-              label={sig === 'fun' ? 'V-Shaped' : sig.charAt(0).toUpperCase() + sig.slice(1)}
+              label={labels[sig]}
               count={filterCounts?.sound[sig]}
               tooltip={FILTER_TOOLTIPS.sound[sig]?.description}
               showTooltip={guidedModeEnabled}
               activeClass={SOUND_ACTIVE[sig]}
-            />
-          ))}
+            />)
+          })}
         </div>
 
         {/* Right side: result count + utility toggles */}

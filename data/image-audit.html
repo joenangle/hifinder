@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HiFinder Image Audit (70 of 704, 10%)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a1a; color: #e0e0e0; padding: 24px; }
+  h1 { margin-bottom: 8px; font-size: 20px; }
+  .stats { color: #888; margin-bottom: 24px; font-size: 14px; }
+  h2 { margin: 24px 0 12px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.1em; color: #888; border-bottom: 1px solid #333; padding-bottom: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .card { background: #252525; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+  .card:hover { border-color: #555; }
+  .card img { width: 100%; height: 160px; object-fit: contain; background: #2a2a2a; padding: 8px; }
+  .card .info { padding: 8px 10px; }
+  .card .name { font-size: 13px; font-weight: 600; }
+  .card .brand { font-size: 12px; color: #888; }
+  .card .price { font-size: 11px; color: #666; margin-top: 2px; }
+  .card .flag { display: none; }
+  .card.flagged { border-color: #e53e3e; }
+  .card.flagged .flag { display: block; color: #e53e3e; font-size: 11px; font-weight: 600; margin-top: 4px; }
+  .controls { position: sticky; top: 0; background: #1a1a1a; padding: 8px 0 16px; z-index: 10; display: flex; gap: 12px; align-items: center; }
+  button { padding: 6px 14px; border-radius: 6px; border: 1px solid #444; background: #333; color: #e0e0e0; cursor: pointer; font-size: 13px; }
+  button:hover { background: #444; }
+  .count { font-size: 13px; color: #888; }
+</style>
+</head>
+<body>
+<h1>Image Audit</h1>
+<div class="stats">70 random samples from 704 total (10%) &mdash; click any card to flag it as wrong</div>
+<div class="controls">
+  <button onclick="document.querySelectorAll('.card.flagged').forEach(c=>{c.scrollIntoView();return})">Jump to flagged</button>
+  <button onclick="copyFlagged()">Copy flagged names</button>
+  <span class="count" id="flagCount">0 flagged</span>
+</div>
+
+<h2>dac_amp (1)</h2>
+<div class="grid">
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/ifi-gryphon.webp" alt="iFi Gryphon" loading="lazy">
+    <div class="info">
+      <div class="name">Gryphon</div>
+      <div class="brand">iFi</div>
+      <div class="price">$599</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+</div>
+
+<h2>dac (2)</h2>
+<div class="grid">
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/schiit-bifrost-2.webp" alt="Schiit Bifrost 2" loading="lazy">
+    <div class="info">
+      <div class="name">Bifrost 2</div>
+      <div class="brand">Schiit</div>
+      <div class="price">$799</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/smsl-raw-pro-dac1.webp" alt="SMSL RAW Pro-DAC1" loading="lazy">
+    <div class="info">
+      <div class="name">RAW Pro-DAC1</div>
+      <div class="brand">SMSL</div>
+      <div class="price">$699</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+</div>
+
+<h2>iems (38)</h2>
+<div class="grid">
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/meze-rai-penta.webp" alt="Meze Rai Penta" loading="lazy">
+    <div class="info">
+      <div class="name">Rai Penta</div>
+      <div class="brand">Meze</div>
+      <div class="price">$1100</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/campfire-audio-mammoth.webp" alt="Campfire Audio Mammoth" loading="lazy">
+    <div class="info">
+      <div class="name">Mammoth</div>
+      <div class="brand">Campfire Audio</div>
+      <div class="price">$549</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/moondrop-aria.webp" alt="Moondrop Aria" loading="lazy">
+    <div class="info">
+      <div class="name">Aria</div>
+      <div class="brand">Moondrop</div>
+      <div class="price">$79</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fitear-mh334.webp" alt="FitEar MH334" loading="lazy">
+    <div class="info">
+      <div class="name">MH334</div>
+      <div class="brand">FitEar</div>
+      <div class="price">$1900</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/etymotic-er4pt.webp" alt="Etymotic ER4PT" loading="lazy">
+    <div class="info">
+      <div class="name">ER4PT</div>
+      <div class="brand">Etymotic</div>
+      <div class="price">$200</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fiio-fh5.webp" alt="FiiO FH5" loading="lazy">
+    <div class="info">
+      <div class="name">FH5</div>
+      <div class="brand">FiiO</div>
+      <div class="price">$260</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dunu-dk-2001.webp" alt="DUNU DK-2001" loading="lazy">
+    <div class="info">
+      <div class="name">DK-2001</div>
+      <div class="brand">DUNU</div>
+      <div class="price">$270</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dunu-luna.webp" alt="DUNU Luna" loading="lazy">
+    <div class="info">
+      <div class="name">Luna</div>
+      <div class="brand">DUNU</div>
+      <div class="price">$1700</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/acoustune-hs1697.webp" alt="Acoustune HS1697" loading="lazy">
+    <div class="info">
+      <div class="name">HS1697</div>
+      <div class="brand">Acoustune</div>
+      <div class="price">$1150</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/unique-melody-miracle-v2.webp" alt="Unique Melody Miracle V2" loading="lazy">
+    <div class="info">
+      <div class="name">Miracle V2</div>
+      <div class="brand">Unique Melody</div>
+      <div class="price">$1050</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/arc-mira.webp" alt="ARC Mira" loading="lazy">
+    <div class="info">
+      <div class="name">Mira</div>
+      <div class="brand">ARC</div>
+      <div class="price">$410</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/unique-melody-macbeth.webp" alt="Unique Melody MacBeth" loading="lazy">
+    <div class="info">
+      <div class="name">MacBeth</div>
+      <div class="brand">Unique Melody</div>
+      <div class="price">$600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/tangzu-zetian-wu.webp" alt="Tangzu Zetian Wu" loading="lazy">
+    <div class="info">
+      <div class="name">Zetian Wu</div>
+      <div class="brand">Tangzu</div>
+      <div class="price">$150</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-mdr-ex800st-mdr7550.webp" alt="Sony MDR-EX800ST/MDR7550" loading="lazy">
+    <div class="info">
+      <div class="name">MDR-EX800ST/MDR7550</div>
+      <div class="brand">Sony</div>
+      <div class="price">$350</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fiio-fd7.webp" alt="FiiO FD7" loading="lazy">
+    <div class="info">
+      <div class="name">FD7</div>
+      <div class="brand">FiiO</div>
+      <div class="price">$600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fatfreq-maestro-se.webp" alt="FatFreq Maestro SE" loading="lazy">
+    <div class="info">
+      <div class="name">Maestro SE</div>
+      <div class="brand">FatFreq</div>
+      <div class="price">$1900</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/oriveti-oh500.webp" alt="Oriveti OH500" loading="lazy">
+    <div class="info">
+      <div class="name">OH500</div>
+      <div class="brand">Oriveti</div>
+      <div class="price">$500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/empire-ears-hero.webp" alt="Empire Ears Hero" loading="lazy">
+    <div class="info">
+      <div class="name">Hero</div>
+      <div class="brand">Empire Ears</div>
+      <div class="price">$1350</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/aune-jasper.webp" alt="Aune Jasper" loading="lazy">
+    <div class="info">
+      <div class="name">Jasper</div>
+      <div class="brand">Aune</div>
+      <div class="price">$300</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-ier-m9.webp" alt="Sony IER-M9" loading="lazy">
+    <div class="info">
+      <div class="name">IER-M9</div>
+      <div class="brand">Sony</div>
+      <div class="price">$1000</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/final-audio-b3.webp" alt="Final Audio B3" loading="lazy">
+    <div class="info">
+      <div class="name">Audio B3</div>
+      <div class="brand">Final</div>
+      <div class="price">$500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-ier-z1r.webp" alt="Sony IER-Z1R" loading="lazy">
+    <div class="info">
+      <div class="name">IER-Z1R</div>
+      <div class="brand">Sony</div>
+      <div class="price">$1700</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/64-audio-n8.webp" alt="64 Audio N8" loading="lazy">
+    <div class="info">
+      <div class="name">N8</div>
+      <div class="brand">64 Audio</div>
+      <div class="price">$1700</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/moondrop-kanas-pro.webp" alt="Moondrop Kanas Pro" loading="lazy">
+    <div class="info">
+      <div class="name">Kanas Pro</div>
+      <div class="brand">Moondrop</div>
+      <div class="price">$180</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fiio-fa9.webp" alt="FiiO FA9" loading="lazy">
+    <div class="info">
+      <div class="name">FA9</div>
+      <div class="brand">FiiO</div>
+      <div class="price">$450</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/noble-kublai-khan.webp" alt="Noble Kublai Khan" loading="lazy">
+    <div class="info">
+      <div class="name">Kublai Khan</div>
+      <div class="brand">Noble</div>
+      <div class="price">$2600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/dunu-est-112.webp" alt="DUNU EST 112" loading="lazy">
+    <div class="info">
+      <div class="name">EST 112</div>
+      <div class="brand">DUNU</div>
+      <div class="price">$490</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/empire-ears-valkyrie-mk2.webp" alt="Empire Ears Valkyrie Mk2" loading="lazy">
+    <div class="info">
+      <div class="name">Valkyrie Mk2</div>
+      <div class="brand">Empire Ears</div>
+      <div class="price">$1600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/softears-studio-4.webp" alt="Softears Studio 4" loading="lazy">
+    <div class="info">
+      <div class="name">Studio 4</div>
+      <div class="brand">Softears</div>
+      <div class="price">$449</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/kiwi-ears-hbb-punch.webp" alt="Kiwi Ears HBB PUNCH" loading="lazy">
+    <div class="info">
+      <div class="name">HBB PUNCH</div>
+      <div class="brand">Kiwi Ears</div>
+      <div class="price">$449</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sony-ier-m7.webp" alt="Sony IER-M7" loading="lazy">
+    <div class="info">
+      <div class="name">IER-M7</div>
+      <div class="brand">Sony</div>
+      <div class="price">$500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fearless-s8z.webp" alt="Fearless S8Z" loading="lazy">
+    <div class="info">
+      <div class="name">S8Z</div>
+      <div class="brand">Fearless</div>
+      <div class="price">$590</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audeze-euclid.webp" alt="Audeze Euclid" loading="lazy">
+    <div class="info">
+      <div class="name">Euclid</div>
+      <div class="brand">Audeze</div>
+      <div class="price">$1300</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/fearless-s8f-s8pro.webp" alt="Fearless S8F/S8Pro" loading="lazy">
+    <div class="info">
+      <div class="name">S8F/S8Pro</div>
+      <div class="brand">Fearless</div>
+      <div class="price">$490</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/jvc-ha-fw10000.webp" alt="JVC HA-FW10000" loading="lazy">
+    <div class="info">
+      <div class="name">HA-FW10000</div>
+      <div class="brand">JVC</div>
+      <div class="price">$2200</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/rhapsodio-solar.webp" alt="Rhapsodio Solar" loading="lazy">
+    <div class="info">
+      <div class="name">Solar</div>
+      <div class="brand">Rhapsodio</div>
+      <div class="price">$1550</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/nostalgia-benbulbin.webp" alt="Nostalgia Benbulbin" loading="lazy">
+    <div class="info">
+      <div class="name">Benbulbin</div>
+      <div class="brand">Nostalgia</div>
+      <div class="price">$900</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-ie400-pro.webp" alt="Sennheiser IE400 Pro" loading="lazy">
+    <div class="info">
+      <div class="name">IE400 Pro</div>
+      <div class="brand">Sennheiser</div>
+      <div class="price">$350</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+</div>
+
+<h2>amp (4)</h2>
+<div class="grid">
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/monoprice-monolith-887.webp" alt="Monoprice Monolith 887" loading="lazy">
+    <div class="info">
+      <div class="name">Monolith 887</div>
+      <div class="brand">Monoprice</div>
+      <div class="price">$500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/schiit-magni-3.webp" alt="Schiit Magni 3+" loading="lazy">
+    <div class="info">
+      <div class="name">Magni 3+</div>
+      <div class="brand">Schiit</div>
+      <div class="price">$99</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/headamp-gs-x-mini.webp" alt="HeadAmp GS-X mini" loading="lazy">
+    <div class="info">
+      <div class="name">GS-X mini</div>
+      <div class="brand">HeadAmp</div>
+      <div class="price">$1795</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/singxer-sa-1.webp" alt="Singxer SA-1" loading="lazy">
+    <div class="info">
+      <div class="name">SA-1</div>
+      <div class="brand">Singxer</div>
+      <div class="price">$599</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+</div>
+
+<h2>cans (25)</h2>
+<div class="grid">
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/zmf-aeolus.webp" alt="ZMF Aeolus" loading="lazy">
+    <div class="info">
+      <div class="name">Aeolus</div>
+      <div class="brand">ZMF</div>
+      <div class="price">$1199</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he1000se.webp" alt="Hifiman HE1000se" loading="lazy">
+    <div class="info">
+      <div class="name">HE1000se</div>
+      <div class="brand">Hifiman</div>
+      <div class="price">$3500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-susvara.webp" alt="HiFiMAN Susvara" loading="lazy">
+    <div class="info">
+      <div class="name">Susvara</div>
+      <div class="brand">HiFiMAN</div>
+      <div class="price">$6000</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/kennerton-thror.webp" alt="Kennerton Thror" loading="lazy">
+    <div class="info">
+      <div class="name">Thror</div>
+      <div class="brand">Kennerton</div>
+      <div class="price">$3600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-utopia.webp" alt="Focal Utopia" loading="lazy">
+    <div class="info">
+      <div class="name">Utopia</div>
+      <div class="brand">Focal</div>
+      <div class="price">$4999</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/abyss-ab-1266-phi-tc.webp" alt="Abyss AB-1266 Phi TC" loading="lazy">
+    <div class="info">
+      <div class="name">AB-1266 Phi TC</div>
+      <div class="brand">Abyss</div>
+      <div class="price">$5999</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/meze-empyrean.webp" alt="Meze Empyrean" loading="lazy">
+    <div class="info">
+      <div class="name">Empyrean</div>
+      <div class="brand">Meze</div>
+      <div class="price">$2999</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/raal-requisite-sr1a.webp" alt="RAAL-requisite SR1a" loading="lazy">
+    <div class="info">
+      <div class="name">SR1a</div>
+      <div class="brand">RAAL-requisite</div>
+      <div class="price">$4000</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/abyss-diana-phi.webp" alt="Abyss Diana Phi" loading="lazy">
+    <div class="info">
+      <div class="name">Diana Phi</div>
+      <div class="brand">Abyss</div>
+      <div class="price">$3999</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/akg-k371.webp" alt="AKG K371" loading="lazy">
+    <div class="info">
+      <div class="name">K371</div>
+      <div class="brand">AKG</div>
+      <div class="price">$150</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-arya-organic.webp" alt="Hifiman Arya Organic" loading="lazy">
+    <div class="info">
+      <div class="name">Arya Organic</div>
+      <div class="brand">Hifiman</div>
+      <div class="price">$1299</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-stellia.webp" alt="Focal Stellia" loading="lazy">
+    <div class="info">
+      <div class="name">Stellia</div>
+      <div class="brand">Focal</div>
+      <div class="price">$2999</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-lambda-pro.webp" alt="Stax SR-Lambda Pro" loading="lazy">
+    <div class="info">
+      <div class="name">SR-Lambda Pro</div>
+      <div class="brand">Stax</div>
+      <div class="price">$700</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he5.webp" alt="Hifiman HE5" loading="lazy">
+    <div class="info">
+      <div class="name">HE5</div>
+      <div class="brand">Hifiman</div>
+      <div class="price">$600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sennheiser-hd800s.webp" alt="Sennheiser HD800S" loading="lazy">
+    <div class="info">
+      <div class="name">HD800S</div>
+      <div class="brand">Sennheiser</div>
+      <div class="price">$1699</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-jade-ii.webp" alt="Hifiman Jade II" loading="lazy">
+    <div class="info">
+      <div class="name">Jade II</div>
+      <div class="brand">Hifiman</div>
+      <div class="price">$2500</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/focal-clear-og.webp" alt="Focal Clear OG" loading="lazy">
+    <div class="info">
+      <div class="name">Clear OG</div>
+      <div class="brand">Focal</div>
+      <div class="price">$1499</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/audeze-lcd-2-closed-back.webp" alt="Audeze LCD-2 Closed-back" loading="lazy">
+    <div class="info">
+      <div class="name">LCD-2 Closed-back</div>
+      <div class="brand">Audeze</div>
+      <div class="price">$900</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/zmf-caldera.webp" alt="ZMF Caldera" loading="lazy">
+    <div class="info">
+      <div class="name">Caldera</div>
+      <div class="brand">ZMF</div>
+      <div class="price">$3499</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/hifiman-he-r10d.webp" alt="Hifiman HE-R10D" loading="lazy">
+    <div class="info">
+      <div class="name">HE-R10D</div>
+      <div class="brand">Hifiman</div>
+      <div class="price">$1299</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-t5p-1st-gen.webp" alt="Beyerdynamic T5p (1st Gen)" loading="lazy">
+    <div class="info">
+      <div class="name">T5p (1st Gen)</div>
+      <div class="brand">Beyerdynamic</div>
+      <div class="price">$750</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-dt-1990-pro.webp" alt="Beyerdynamic DT 1990 Pro" loading="lazy">
+    <div class="info">
+      <div class="name">DT 1990 Pro</div>
+      <div class="brand">Beyerdynamic</div>
+      <div class="price">$599</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/beyerdynamic-t70.webp" alt="Beyerdynamic T70" loading="lazy">
+    <div class="info">
+      <div class="name">T70</div>
+      <div class="brand">Beyerdynamic</div>
+      <div class="price">$600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/stax-sr-007a.webp" alt="Stax SR-007A" loading="lazy">
+    <div class="info">
+      <div class="name">SR-007A</div>
+      <div class="brand">Stax</div>
+      <div class="price">$2399</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('flagged'); updateCount()">
+    <img src="https://dqvuvieggqltkznluvol.supabase.co/storage/v1/object/public/product-images/sendy-aiva.webp" alt="Sendy Aiva" loading="lazy">
+    <div class="info">
+      <div class="name">Aiva</div>
+      <div class="brand">Sendy</div>
+      <div class="price">$600</div>
+      <div class="flag">FLAGGED</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function updateCount() {
+  const n = document.querySelectorAll('.card.flagged').length;
+  document.getElementById('flagCount').textContent = n + ' flagged';
+}
+function copyFlagged() {
+  const names = [...document.querySelectorAll('.card.flagged .name')].map(el => el.textContent);
+  navigator.clipboard.writeText(names.join('\n'));
+  alert('Copied ' + names.length + ' flagged items');
+}
+</script>
+</body>
+</html>

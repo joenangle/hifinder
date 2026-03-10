@@ -468,6 +468,8 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 <option value="warm">Warm</option>
                 <option value="bright">Bright</option>
                 <option value="fun">Fun (V-shaped)</option>
+                <option value="v-shaped">V-Shaped</option>
+                <option value="dark">Dark</option>
               </select>
             </div>
 

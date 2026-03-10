@@ -5,6 +5,13 @@ import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysis
 import { StackComponentData } from '@/lib/stacks'
 import { getCategoryLabel, getCategoryColor } from '@/lib/gear-utils'
 import { ExternalLink } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { parseFRData } from '@/lib/fr-utils'
+
+const FRChart = dynamic(
+  () => import('../FRChart').then(mod => ({ default: mod.FRChart })),
+  { ssr: false }
+)
 
 interface StackItemDetailModalProps {
   isOpen: boolean
@@ -62,6 +69,7 @@ function SinadRating({ sinad }: { sinad: number }) {
 export function StackItemDetailModal({ isOpen, onClose, data }: StackItemDetailModalProps) {
   if (!data) return null
 
+  const frData = parseFRData(data.fr_data as Record<string, unknown> | null)
   const catColor = getCategoryColor(data.category)
   const hasExpertData = !!(data.crin_tone || data.crin_tech || data.crin_rank || data.crin_value || data.crin_signature)
   const hasSpecs = !!(data.impedance || data.driver_type || data.fit || data.amplification_difficulty)
@@ -162,6 +170,19 @@ export function StackItemDetailModal({ isOpen, onClose, data }: StackItemDetailM
               <div className="text-xs text-muted">SINAD</div>
               <div><SinadRating sinad={data.asr_sinad} /></div>
             </div>
+          </div>
+        )}
+
+        {/* Frequency Response */}
+        {frData && (
+          <div>
+            <h3 className="text-sm font-semibold text-muted mb-3">Frequency Response</h3>
+            <FRChart
+              mode="detail"
+              curves={[{ name: `${data.brand} ${data.name}`, color: 'var(--color-accent, #8b5cf6)', points: frData.points }]}
+              showBands
+              source={frData.source}
+            />
           </div>
         )}
 

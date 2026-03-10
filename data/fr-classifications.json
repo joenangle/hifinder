@@ -1,0 +1,6050 @@
+[
+  {
+    "db_id": "27b24104-e3f3-4674-a039-d80fbd7f017d",
+    "name": "1MORE MK801",
+    "file": "1MORE_MK801.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.8,
+      "bass": 0.78,
+      "low_mids": -0.86,
+      "mids": -0.55,
+      "upper_mids": -0.42,
+      "treble": -1.46,
+      "air": -4.49
+    },
+    "composite_metrics": {
+      "bassElev": -0.01,
+      "upperEnergy": -0.94,
+      "trebleElev": -2.98,
+      "midScoop": 0.23
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5eec6ea2-3505-420e-b250-6e2067834281",
+    "name": "64 Audio Nio",
+    "file": "64_Audio_Nio.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 4.4,
+      "bass": 3.25,
+      "low_mids": 1.32,
+      "mids": 0.19,
+      "upper_mids": -0.3,
+      "treble": 0.47,
+      "air": 0.6
+    },
+    "composite_metrics": {
+      "bassElev": 3.82,
+      "upperEnergy": 0.08,
+      "trebleElev": 0.53,
+      "midScoop": 1.19
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "1e232018-c6fb-4667-8032-a157f177b16f",
+    "name": "64 Audio U4S",
+    "file": "64_Audio_U4s.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.5,
+      "bass": 0.63,
+      "low_mids": -0.41,
+      "mids": 0.41,
+      "upper_mids": -0.49,
+      "treble": -0.45,
+      "air": 1.05
+    },
+    "composite_metrics": {
+      "bassElev": 0.57,
+      "upperEnergy": -0.47,
+      "trebleElev": 0.3,
+      "midScoop": 0.05
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "7b4b40d6-9bb4-44b5-b597-42ac930a0db1",
+    "name": "7Hz Salnotes Zero",
+    "file": "7Hz_Salnotes_Zero.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.7,
+      "bass": -1.59,
+      "low_mids": -0.75,
+      "mids": -0.01,
+      "upper_mids": 0.32,
+      "treble": -1.18,
+      "air": 1.35
+    },
+    "composite_metrics": {
+      "bassElev": -1.64,
+      "upperEnergy": -0.43,
+      "trebleElev": 0.09,
+      "midScoop": -0.65
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+    "name": "7Hz Timeless",
+    "file": "7Hz_Timeless.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.56,
+      "bass": 1.3,
+      "low_mids": 0.28,
+      "mids": 0.41,
+      "upper_mids": -0.35,
+      "treble": 1.16,
+      "air": 0.9
+    },
+    "composite_metrics": {
+      "bassElev": 1.43,
+      "upperEnergy": 0.41,
+      "trebleElev": 1.03,
+      "midScoop": 0.57
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+    "name": "7Hz Timeless",
+    "file": "7Hz_Timeless_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.48,
+      "bass": 0.91,
+      "low_mids": 0.26,
+      "mids": 0.45,
+      "upper_mids": -0.78,
+      "treble": 1,
+      "air": 1.92
+    },
+    "composite_metrics": {
+      "bassElev": 1.7,
+      "upperEnergy": 0.11,
+      "trebleElev": 1.46,
+      "midScoop": 0.55
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c0f888d7-df19-4315-8217-cce8eff6e6d1",
+    "name": "7Hz Timeless",
+    "file": "7Hz_Timeless_AE.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.53,
+      "bass": 1.8,
+      "low_mids": 0.88,
+      "mids": 0.45,
+      "upper_mids": 0.14,
+      "treble": 1.16,
+      "air": 2.15
+    },
+    "composite_metrics": {
+      "bassElev": 2.17,
+      "upperEnergy": 0.65,
+      "trebleElev": 1.66,
+      "midScoop": 0.75
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "fb637028-e4d7-42ff-ba4a-39e5dfb19ace",
+    "name": "7Hz Dioko",
+    "file": "7Hz_x_Crinacle_Salnotes_Dioko.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.29,
+      "bass": -2.61,
+      "low_mids": -1.16,
+      "mids": -0.03,
+      "upper_mids": -2.31,
+      "treble": 2.17,
+      "air": 5.09
+    },
+    "composite_metrics": {
+      "bassElev": -2.45,
+      "upperEnergy": -0.07,
+      "trebleElev": 3.63,
+      "midScoop": -0.66
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "7b4b40d6-9bb4-44b5-b597-42ac930a0db1",
+    "name": "7Hz Salnotes Zero",
+    "file": "7Hz_x_Crinacle_Zero_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.89,
+      "bass": 0.32,
+      "low_mids": 0.15,
+      "mids": -0.11,
+      "upper_mids": -0.13,
+      "treble": -0.83,
+      "air": -3.05
+    },
+    "composite_metrics": {
+      "bassElev": 1.11,
+      "upperEnergy": -0.48,
+      "trebleElev": -1.94,
+      "midScoop": 0.29
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b91759bc-a75f-4119-9dd4-f0d4d428c8b0",
+    "name": "AKG K240 Studio",
+    "file": "AKG_K240_Studio.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -9.68,
+      "bass": -3.27,
+      "low_mids": 0.09,
+      "mids": -1.76,
+      "upper_mids": -2.44,
+      "treble": 0.36,
+      "air": -5.52
+    },
+    "composite_metrics": {
+      "bassElev": -6.47,
+      "upperEnergy": -1.04,
+      "trebleElev": -2.58,
+      "midScoop": -2.92
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "5b20a0e7-8e8f-4de4-9ba4-0daaf1afc8b3",
+    "name": "AKG K371",
+    "file": "AKG_K371.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 4.75,
+      "bass": 0.83,
+      "low_mids": -0.66,
+      "mids": 0.38,
+      "upper_mids": -1.53,
+      "treble": -0.48,
+      "air": -5.72
+    },
+    "composite_metrics": {
+      "bassElev": 2.79,
+      "upperEnergy": -1.01,
+      "trebleElev": -3.1,
+      "midScoop": 1.03
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "a2db8443-d9a6-4745-8b81-cd7ad50f9dec",
+    "name": "AKG K612 Pro",
+    "file": "AKG_K612_Pro.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.95,
+      "bass": 1.14,
+      "low_mids": 1.96,
+      "mids": 1.02,
+      "upper_mids": 4.46,
+      "treble": 3.21,
+      "air": 0.04
+    },
+    "composite_metrics": {
+      "bassElev": 1.05,
+      "upperEnergy": 3.84,
+      "trebleElev": 1.63,
+      "midScoop": 0.95
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, sibilant-prone, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b1c07228-9755-427a-b2a0-1316c62c3d4e",
+    "name": "AKG K701",
+    "file": "AKG_K701.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.3,
+      "bass": 0.77,
+      "low_mids": 2.03,
+      "mids": 0.42,
+      "upper_mids": 3.22,
+      "treble": 3.29,
+      "air": 0.95
+    },
+    "composite_metrics": {
+      "bassElev": 0.24,
+      "upperEnergy": 3.26,
+      "trebleElev": 2.12,
+      "midScoop": 0.52
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "c3e6a49e-0d08-4eb5-ae4f-818cc402748e",
+    "name": "AKG K702",
+    "file": "AKG_K702.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.59,
+      "bass": 0.69,
+      "low_mids": 1.42,
+      "mids": 1.21,
+      "upper_mids": 4.39,
+      "treble": 2.51,
+      "air": 1.01
+    },
+    "composite_metrics": {
+      "bassElev": 0.05,
+      "upperEnergy": 3.45,
+      "trebleElev": 1.76,
+      "midScoop": 0.44
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "9a3a27c7-7881-430f-83be-7b6f7c5a7acf",
+    "name": "AKG K712 Pro",
+    "file": "AKG_K712_Pro.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.17,
+      "bass": 1.37,
+      "low_mids": 2.79,
+      "mids": -0.68,
+      "upper_mids": 1.82,
+      "treble": 2.81,
+      "air": 0.29
+    },
+    "composite_metrics": {
+      "bassElev": 0.77,
+      "upperEnergy": 2.31,
+      "trebleElev": 1.55,
+      "midScoop": 0.48
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "a4f91603-d7ec-4662-bf40-9ef81071aa71",
+    "name": "Massdrop x AKG K7XX",
+    "file": "AKG_x_Drop_K7XX.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 4.02,
+      "bass": 3.34,
+      "low_mids": 3.41,
+      "mids": -0.68,
+      "upper_mids": -0.4,
+      "treble": 1.11,
+      "air": -2.26
+    },
+    "composite_metrics": {
+      "bassElev": 3.68,
+      "upperEnergy": 0.36,
+      "trebleElev": -0.57,
+      "midScoop": 0.65
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, bass-boosted, treble-rolled",
+    "confidence": "high"
+  },
+  {
+    "db_id": "350147f7-d608-4478-a3fa-749804450e23",
+    "name": "ASTRO A40 TR",
+    "file": "ASTRO_A40_TR.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.82,
+      "bass": 1.56,
+      "low_mids": 1.55,
+      "mids": 0.4,
+      "upper_mids": -0.66,
+      "treble": -1.58,
+      "air": -4.72
+    },
+    "composite_metrics": {
+      "bassElev": 1.19,
+      "upperEnergy": -1.12,
+      "trebleElev": -3.15,
+      "midScoop": -0.94
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8451175e-81e4-4f6d-8cb8-74b4561b7034",
+    "name": "Abyss AB-1266 Phi CC",
+    "file": "Abyss_AB_1266_Phi_CC.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.44,
+      "bass": -2.3,
+      "low_mids": -1.01,
+      "mids": -0.12,
+      "upper_mids": -4.27,
+      "treble": -5.56,
+      "air": 5.59
+    },
+    "composite_metrics": {
+      "bassElev": -1.37,
+      "upperEnergy": -4.92,
+      "trebleElev": 0.01,
+      "midScoop": -2.58
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ad2bbca4-4e99-4ac5-92bf-b3a39770e0e9",
+    "name": "Abyss Diana Phi",
+    "file": "Abyss_Diana_Phi.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.26,
+      "bass": -1.77,
+      "low_mids": -1.12,
+      "mids": 1.14,
+      "upper_mids": -2.05,
+      "treble": -2.21,
+      "air": 1.2
+    },
+    "composite_metrics": {
+      "bassElev": -1.01,
+      "upperEnergy": -2.13,
+      "trebleElev": -0.5,
+      "midScoop": -1.58
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ede7c5c5-9842-47b0-8263-afe351764cbf",
+    "name": "Abyss Diana V2",
+    "file": "Abyss_Diana_V2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.02,
+      "bass": -1.76,
+      "low_mids": -0.66,
+      "mids": 0.55,
+      "upper_mids": -3.96,
+      "treble": -3.45,
+      "air": -0.25
+    },
+    "composite_metrics": {
+      "bassElev": -1.39,
+      "upperEnergy": -3.7,
+      "trebleElev": -1.85,
+      "midScoop": -2.49
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b6567cb6-5054-45de-bc46-ad9825ff96b9",
+    "name": "Apple AirPods Max",
+    "file": "Apple_AirPods_Max.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 8.84,
+      "bass": 1.58,
+      "low_mids": -0.16,
+      "mids": -0.24,
+      "upper_mids": -2.81,
+      "treble": -2.97,
+      "air": 1.33
+    },
+    "composite_metrics": {
+      "bassElev": 5.21,
+      "upperEnergy": -2.89,
+      "trebleElev": -0.82,
+      "midScoop": 1.36
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm V-shape",
+    "confidence": "high"
+  },
+  {
+    "db_id": "1a9f3ff5-e240-4ece-bce9-6cfbea2d5d4a",
+    "name": "Apple AirPods Pro 2",
+    "file": "Apple_AirPods_Pro_2__ANC_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.34,
+      "bass": -1.25,
+      "low_mids": 0.96,
+      "mids": -1.74,
+      "upper_mids": -4.59,
+      "treble": -2.18,
+      "air": -3.45
+    },
+    "composite_metrics": {
+      "bassElev": -1.29,
+      "upperEnergy": -3.38,
+      "trebleElev": -2.82,
+      "midScoop": -1.95
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "2b570426-b91d-4153-8793-f0129045587d",
+    "name": "Apple AirPods Pro",
+    "file": "Apple_AirPods_Pro_3__ANC_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.68,
+      "bass": -0.53,
+      "low_mids": 1.29,
+      "mids": -1.57,
+      "upper_mids": -2.73,
+      "treble": 1.31,
+      "air": -5.33
+    },
+    "composite_metrics": {
+      "bassElev": 0.58,
+      "upperEnergy": -0.71,
+      "trebleElev": -2.01,
+      "midScoop": 0.07
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "25e95a19-9be5-49e5-86bc-3a8e0d251046",
+    "name": "Audeze LCD-24",
+    "file": "Audeze_LCD_24.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.63,
+      "bass": -2.21,
+      "low_mids": -1.24,
+      "mids": -0.65,
+      "upper_mids": -5.41,
+      "treble": -1.59,
+      "air": -2.1
+    },
+    "composite_metrics": {
+      "bassElev": -1.92,
+      "upperEnergy": -3.5,
+      "trebleElev": -1.84,
+      "midScoop": -1.77
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "eaa05830-4e6d-4900-b813-747353e4abf6",
+    "name": "Audeze LCD-2 Classic",
+    "file": "Audeze_LCD_2_Classic.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.51,
+      "bass": -2.57,
+      "low_mids": -0.86,
+      "mids": -0.86,
+      "upper_mids": -4.84,
+      "treble": -6.07,
+      "air": -3.15
+    },
+    "composite_metrics": {
+      "bassElev": -2.54,
+      "upperEnergy": -5.46,
+      "trebleElev": -4.61,
+      "midScoop": -3.14
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "8d725692-460c-438b-9edc-6ceea369272a",
+    "name": "Audeze LCD-2 Closed-back",
+    "file": "Audeze_LCD_2_Closed_Back.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.02,
+      "bass": 0.43,
+      "low_mids": -1.34,
+      "mids": 1.2,
+      "upper_mids": -0.25,
+      "treble": 0.28,
+      "air": 2.16
+    },
+    "composite_metrics": {
+      "bassElev": 0.72,
+      "upperEnergy": 0.01,
+      "trebleElev": 1.22,
+      "midScoop": 0.44
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8d725692-460c-438b-9edc-6ceea369272a",
+    "name": "Audeze LCD-2 Closed-back",
+    "file": "Audeze_LCD_2__Rosewood_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.74,
+      "bass": -2.32,
+      "low_mids": -0.7,
+      "mids": -1.02,
+      "upper_mids": -5.19,
+      "treble": -4.72,
+      "air": -1.1
+    },
+    "composite_metrics": {
+      "bassElev": -2.53,
+      "upperEnergy": -4.96,
+      "trebleElev": -2.91,
+      "midScoop": -2.88
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "dd0060b6-1193-4031-ac40-68a5d6b487eb",
+    "name": "Audeze LCD-4",
+    "file": "Audeze_LCD_4.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.7,
+      "bass": -2.15,
+      "low_mids": -0.99,
+      "mids": -0.75,
+      "upper_mids": -6.41,
+      "treble": -5.69,
+      "air": -0.17
+    },
+    "composite_metrics": {
+      "bassElev": -1.93,
+      "upperEnergy": -6.05,
+      "trebleElev": -2.93,
+      "midScoop": -3.11
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "c049aca0-e994-4847-94de-e15086db2ad6",
+    "name": "Audeze LCD-GX",
+    "file": "Audeze_LCD_GX.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.39,
+      "bass": -1.84,
+      "low_mids": -0.54,
+      "mids": -0.84,
+      "upper_mids": -4.68,
+      "treble": -4.92,
+      "air": -1.36
+    },
+    "composite_metrics": {
+      "bassElev": -2.12,
+      "upperEnergy": -4.8,
+      "trebleElev": -3.14,
+      "midScoop": -2.77
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "44e66cbf-3bdf-420f-a303-4da5cb29c469",
+    "name": "Audeze LCD-MX4",
+    "file": "Audeze_LCD_MX4.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.49,
+      "bass": -2.94,
+      "low_mids": -1.41,
+      "mids": -0.89,
+      "upper_mids": -6.09,
+      "treble": -6.86,
+      "air": -1.51
+    },
+    "composite_metrics": {
+      "bassElev": -2.71,
+      "upperEnergy": -6.47,
+      "trebleElev": -4.18,
+      "midScoop": -3.44
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "77aee8ac-524e-4496-90a7-2daa63674d14",
+    "name": "Audeze LCD-X",
+    "file": "Audeze_LCD_X.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.61,
+      "bass": -1.32,
+      "low_mids": -0.05,
+      "mids": -1.1,
+      "upper_mids": -5.32,
+      "treble": -2.32,
+      "air": 0.73
+    },
+    "composite_metrics": {
+      "bassElev": -1.47,
+      "upperEnergy": -3.82,
+      "trebleElev": -0.79,
+      "midScoop": -2.07
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "9f91ca11-6771-4515-a689-0c06cc35e3f7",
+    "name": "Audeze LCD-XC",
+    "file": "Audeze_LCD_XC.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.1,
+      "bass": 3.3,
+      "low_mids": 0.26,
+      "mids": 2.35,
+      "upper_mids": 1.35,
+      "treble": 0.98,
+      "air": 5.82
+    },
+    "composite_metrics": {
+      "bassElev": 3.2,
+      "upperEnergy": 1.16,
+      "trebleElev": 3.4,
+      "midScoop": 0.88
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f6dfb8ca-5237-4b64-a173-8a0f7f5befb5",
+    "name": "Audeze MM-500",
+    "file": "Audeze_MM_500.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.88,
+      "bass": -1.51,
+      "low_mids": -0.63,
+      "mids": -0.15,
+      "upper_mids": -1.12,
+      "treble": -4.74,
+      "air": -1.84
+    },
+    "composite_metrics": {
+      "bassElev": -1.19,
+      "upperEnergy": -2.93,
+      "trebleElev": -3.29,
+      "midScoop": -1.67
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8f9611eb-7e3f-4355-a87d-c8b2b4d9b28e",
+    "name": "Audio-Technica ATH-AD1000X",
+    "file": "Audio_Technica_ATH_AD1000X.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.57,
+      "bass": -1.18,
+      "low_mids": 0.37,
+      "mids": -0.24,
+      "upper_mids": -2.65,
+      "treble": -2.26,
+      "air": -4.92
+    },
+    "composite_metrics": {
+      "bassElev": -1.88,
+      "upperEnergy": -2.46,
+      "trebleElev": -3.59,
+      "midScoop": -2.23
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "3845f0f8-52eb-401d-880f-d14a3e62dbbf",
+    "name": "Audio-Technica ATH-AD700X",
+    "file": "Audio_Technica_ATH_AD700X.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -6.47,
+      "bass": -1.54,
+      "low_mids": -0.14,
+      "mids": -0.26,
+      "upper_mids": -5.64,
+      "treble": -6.45,
+      "air": -1.25
+    },
+    "composite_metrics": {
+      "bassElev": -4,
+      "upperEnergy": -6.04,
+      "trebleElev": -3.85,
+      "midScoop": -4.82
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "45eaa5de-499a-4232-8382-9522a4f7b914",
+    "name": "Audio-Technica ATH-AD900X",
+    "file": "Audio_Technica_ATH_AD900X.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -5.36,
+      "bass": -1.24,
+      "low_mids": 0,
+      "mids": 0.27,
+      "upper_mids": -4.06,
+      "treble": -5.48,
+      "air": -3.11
+    },
+    "composite_metrics": {
+      "bassElev": -3.3,
+      "upperEnergy": -4.77,
+      "trebleElev": -4.3,
+      "midScoop": -4.17
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "e5b0afb6-111c-4dc3-a5d8-3a1ec07cc9fd",
+    "name": "Audio Technica ATH-ADX5000",
+    "file": "Audio_Technica_ATH_ADX5000.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.27,
+      "bass": 2.84,
+      "low_mids": 0.79,
+      "mids": 0.77,
+      "upper_mids": 1.98,
+      "treble": 2.55,
+      "air": 4.84
+    },
+    "composite_metrics": {
+      "bassElev": 2.06,
+      "upperEnergy": 2.27,
+      "trebleElev": 3.69,
+      "midScoop": 1.38
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted",
+    "confidence": "low"
+  },
+  {
+    "db_id": "cad8f199-37fd-49a4-b136-c9672048cd72",
+    "name": "Audio Technica ATH-M40x",
+    "file": "Audio_Technica_ATH_M40x.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.25,
+      "bass": 4.01,
+      "low_mids": 0.08,
+      "mids": 1.36,
+      "upper_mids": 1.98,
+      "treble": 3.78,
+      "air": 4.78
+    },
+    "composite_metrics": {
+      "bassElev": 3.63,
+      "upperEnergy": 2.88,
+      "trebleElev": 4.28,
+      "midScoop": 2.53
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "b78b3ff4-7740-48ed-9ab6-79e374ec5960",
+    "name": "Audio-Technica ATH-M50x",
+    "file": "Audio_Technica_ATH_M50x.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 4.22,
+      "bass": 2.91,
+      "low_mids": -1.99,
+      "mids": -0.13,
+      "upper_mids": -0.33,
+      "treble": -1.66,
+      "air": 0.35
+    },
+    "composite_metrics": {
+      "bassElev": 3.57,
+      "upperEnergy": -1,
+      "trebleElev": -0.65,
+      "midScoop": 2.35
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm V-shape",
+    "confidence": "high"
+  },
+  {
+    "db_id": "3ce9ccbb-d0a7-4b69-8897-48fcb0433890",
+    "name": "Audio-Technica ATH-M50xBT2",
+    "file": "Audio_Technica_ATH_M50xBT.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 7.14,
+      "bass": 7.36,
+      "low_mids": 1.04,
+      "mids": 2.19,
+      "upper_mids": 5.38,
+      "treble": 4.28,
+      "air": 4.42
+    },
+    "composite_metrics": {
+      "bassElev": 7.25,
+      "upperEnergy": 4.83,
+      "trebleElev": 4.35,
+      "midScoop": 4.43
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "72f0ea53-6a65-4a8a-b486-47dc93c15ac8",
+    "name": "Audio Technica ATH-M70x",
+    "file": "Audio_Technica_ATH_M70x.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.99,
+      "bass": 3.45,
+      "low_mids": 2.24,
+      "mids": 1.44,
+      "upper_mids": 5.49,
+      "treble": 5.46,
+      "air": -0.46
+    },
+    "composite_metrics": {
+      "bassElev": 3.22,
+      "upperEnergy": 5.48,
+      "trebleElev": 2.5,
+      "midScoop": 2.51
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "f7512e23-534e-4f82-8bf6-8cb01fed8886",
+    "name": "Audio Technica ATH-R70x",
+    "file": "Audio_Technica_ATH_R70x.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.26,
+      "bass": 1.36,
+      "low_mids": 0.92,
+      "mids": 0.42,
+      "upper_mids": 0.36,
+      "treble": -0.46,
+      "air": -1.93
+    },
+    "composite_metrics": {
+      "bassElev": 0.81,
+      "upperEnergy": -0.05,
+      "trebleElev": -1.2,
+      "midScoop": -0.29
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b93dadcc-38d8-4b04-9f03-aa7e377da9f9",
+    "name": "Audiosense AQ3",
+    "file": "Audiosense_AQ3.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.46,
+      "bass": 0.47,
+      "low_mids": 1.2,
+      "mids": -1.28,
+      "upper_mids": -0.65,
+      "treble": -0.93,
+      "air": 1.43
+    },
+    "composite_metrics": {
+      "bassElev": 0.97,
+      "upperEnergy": -0.79,
+      "trebleElev": 0.25,
+      "midScoop": 0.13
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "dd2fc7f8-ba9a-4db6-8d41-59369647f1c9",
+    "name": "Aune Jasper",
+    "file": "Aune_Jasper.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.17,
+      "bass": 1.44,
+      "low_mids": 0.9,
+      "mids": 0.44,
+      "upper_mids": 2.93,
+      "treble": -0.34,
+      "air": 1.01
+    },
+    "composite_metrics": {
+      "bassElev": 0.8,
+      "upperEnergy": 1.3,
+      "trebleElev": 0.34,
+      "midScoop": 0.38
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "623a38a5-2969-40b8-bb3a-cd0c4b1d1763",
+    "name": "Aurorus Borealis",
+    "file": "Aurorus_Borealis.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.16,
+      "bass": -0.9,
+      "low_mids": -1.21,
+      "mids": 0.19,
+      "upper_mids": -1.44,
+      "treble": -3.87,
+      "air": -7.06
+    },
+    "composite_metrics": {
+      "bassElev": -1.03,
+      "upperEnergy": -2.65,
+      "trebleElev": -5.46,
+      "midScoop": -1.33
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "04f59f8d-23b1-441f-855d-97c7d61e42fd",
+    "name": "BLON B20",
+    "file": "BLON_B20.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.92,
+      "bass": -0.44,
+      "low_mids": 0.03,
+      "mids": 0.15,
+      "upper_mids": 0.12,
+      "treble": -3,
+      "air": -0.79
+    },
+    "composite_metrics": {
+      "bassElev": 0.24,
+      "upperEnergy": -1.44,
+      "trebleElev": -1.9,
+      "midScoop": -0.69
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "491b8708-f63f-47d5-96f7-2f0b14f61527",
+    "name": "Beyerdynamic DT880 Pro",
+    "file": "Beyerdynamic_DT880_Pro__32__.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.34,
+      "bass": 0.8,
+      "low_mids": 1.59,
+      "mids": -0.47,
+      "upper_mids": -0.12,
+      "treble": 2.77,
+      "air": -0.46
+    },
+    "composite_metrics": {
+      "bassElev": 0.57,
+      "upperEnergy": 1.33,
+      "trebleElev": 1.15,
+      "midScoop": 0.39
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bf8344c1-6461-414d-9bfe-8a375c0d206b",
+    "name": "Beyerdynamic DT990 Pro",
+    "file": "Beyerdynamic_DT990_Pro__250__.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.99,
+      "bass": 3.07,
+      "low_mids": 0.67,
+      "mids": 0.91,
+      "upper_mids": 1.3,
+      "treble": 4.78,
+      "air": 3.84
+    },
+    "composite_metrics": {
+      "bassElev": 3.03,
+      "upperEnergy": 3.04,
+      "trebleElev": 4.31,
+      "midScoop": 2.24
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a51d08ac-ec0e-4a9a-90f2-92f53cc04d1a",
+    "name": "Beyerdynamic T5p (1st Gen)",
+    "file": "Beyerdynamic_T5__3rd_Gen_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 5.17,
+      "bass": 5.86,
+      "low_mids": -1.98,
+      "mids": -0.6,
+      "upper_mids": -4.9,
+      "treble": -0.61,
+      "air": -8.98
+    },
+    "composite_metrics": {
+      "bassElev": 5.52,
+      "upperEnergy": -2.76,
+      "trebleElev": -4.8,
+      "midScoop": 2.67
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark, bassy",
+    "confidence": "high"
+  },
+  {
+    "db_id": "a51d08ac-ec0e-4a9a-90f2-92f53cc04d1a",
+    "name": "Beyerdynamic T5p (1st Gen)",
+    "file": "Beyerdynamic_T5p__1st_Gen_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.72,
+      "bass": 5.8,
+      "low_mids": 1.06,
+      "mids": 1.23,
+      "upper_mids": 2.37,
+      "treble": 1.05,
+      "air": 0.15
+    },
+    "composite_metrics": {
+      "bassElev": 4.26,
+      "upperEnergy": 1.71,
+      "trebleElev": 0.6,
+      "midScoop": 1.84
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted, sibilant-prone, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "d62ebe3b-1764-4eb8-ba16-d3e5ee26c24c",
+    "name": "Beyerdynamic T70",
+    "file": "Beyerdynamic_T70.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.64,
+      "bass": -0.23,
+      "low_mids": -0.79,
+      "mids": 0.1,
+      "upper_mids": 0.43,
+      "treble": 4.11,
+      "air": -0.11
+    },
+    "composite_metrics": {
+      "bassElev": 0.2,
+      "upperEnergy": 2.27,
+      "trebleElev": 2,
+      "midScoop": 1.58
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "6e6b574f-6f7b-4a54-affa-382bd3911623",
+    "name": "Beyerdynamic TYGR 300 R",
+    "file": "Beyerdynamic_TYGR_300_R.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 4.71,
+      "bass": 3.9,
+      "low_mids": 2.64,
+      "mids": 0.74,
+      "upper_mids": 2.08,
+      "treble": 5.33,
+      "air": 6.43
+    },
+    "composite_metrics": {
+      "bassElev": 4.3,
+      "upperEnergy": 3.7,
+      "trebleElev": 5.88,
+      "midScoop": 2.31
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "db56ba09-a97e-4af3-a911-12598b5ea18d",
+    "name": "CrinEar Meta",
+    "file": "CrinEar_Project_Meta.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.45,
+      "bass": -2.07,
+      "low_mids": -0.38,
+      "mids": -0.91,
+      "upper_mids": -1.13,
+      "treble": -0.82,
+      "air": -3.77
+    },
+    "composite_metrics": {
+      "bassElev": -0.81,
+      "upperEnergy": -0.98,
+      "trebleElev": -2.3,
+      "midScoop": -0.24
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "270b4ee9-ae75-45ee-b5b7-cc3e845dcbf6",
+    "name": "DUNU DK-3001 Pro",
+    "file": "DUNU_DK_3001_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.96,
+      "bass": 0.35,
+      "low_mids": 1.1,
+      "mids": -0.29,
+      "upper_mids": -3,
+      "treble": 0.49,
+      "air": -10.53
+    },
+    "composite_metrics": {
+      "bassElev": -1.31,
+      "upperEnergy": -1.26,
+      "trebleElev": -5.02,
+      "midScoop": -1.69
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "53a72c78-14b1-44b4-acd0-4aafa67911b2",
+    "name": "DUNU DK-4001",
+    "file": "DUNU_DK_4001.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.69,
+      "bass": -1.72,
+      "low_mids": -1.58,
+      "mids": 0.21,
+      "upper_mids": -5.76,
+      "treble": 0.72,
+      "air": -13.84
+    },
+    "composite_metrics": {
+      "bassElev": -2.2,
+      "upperEnergy": -2.52,
+      "trebleElev": -6.56,
+      "midScoop": -1.68
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "0cedc049-d22e-435c-b2f9-5386f273a89e",
+    "name": "DUNU EST 112",
+    "file": "DUNU_EST_112.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.11,
+      "bass": 0.32,
+      "low_mids": 0.62,
+      "mids": -0.02,
+      "upper_mids": -0.93,
+      "treble": -0.31,
+      "air": -5.57
+    },
+    "composite_metrics": {
+      "bassElev": -0.9,
+      "upperEnergy": -0.62,
+      "trebleElev": -2.94,
+      "midScoop": -1.06
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bb64aca4-1f91-4ee5-9257-5c0fea82d282",
+    "name": "DUNU SA6",
+    "file": "DUNU_SA6_Mk2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.63,
+      "bass": -1.14,
+      "low_mids": -1.2,
+      "mids": -0.22,
+      "upper_mids": -3.7,
+      "treble": -4.54,
+      "air": 2.71
+    },
+    "composite_metrics": {
+      "bassElev": -1.88,
+      "upperEnergy": -4.12,
+      "trebleElev": -0.91,
+      "midScoop": -2.29
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bb64aca4-1f91-4ee5-9257-5c0fea82d282",
+    "name": "DUNU SA6",
+    "file": "DUNU_SA6__Mk1_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -3.75,
+      "bass": -2.55,
+      "low_mids": -1.96,
+      "mids": 0.17,
+      "upper_mids": -1.63,
+      "treble": -0.79,
+      "air": -0.93
+    },
+    "composite_metrics": {
+      "bassElev": -3.15,
+      "upperEnergy": -1.21,
+      "trebleElev": -0.86,
+      "midScoop": -1.29
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "69fc5f5d-793e-4d4c-979c-3d5045dbc574",
+    "name": "DUNU Titan S",
+    "file": "DUNU_Titan_S.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.92,
+      "bass": -0.91,
+      "low_mids": -0.22,
+      "mids": 0.28,
+      "upper_mids": 1.32,
+      "treble": -2.38,
+      "air": -1.84
+    },
+    "composite_metrics": {
+      "bassElev": -1.41,
+      "upperEnergy": -0.53,
+      "trebleElev": -2.11,
+      "midScoop": -1
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "d4255d02-1687-40a6-84d8-583c2650fd3c",
+    "name": "DUNU Zen Pro",
+    "file": "DUNU_Zen.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.18,
+      "bass": 0.9,
+      "low_mids": 0.49,
+      "mids": 0.79,
+      "upper_mids": 2.11,
+      "treble": 0.63,
+      "air": -13.86
+    },
+    "composite_metrics": {
+      "bassElev": -0.14,
+      "upperEnergy": 1.37,
+      "trebleElev": -6.61,
+      "midScoop": -0.03
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "3af5b88f-c26c-4d0b-b8ad-8342ac185637",
+    "name": "Denon AH-D5000",
+    "file": "Denon_AH_D5000.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 8.17,
+      "bass": 4.44,
+      "low_mids": 1.66,
+      "mids": 0.72,
+      "upper_mids": -0.94,
+      "treble": 2.32,
+      "air": 3.12
+    },
+    "composite_metrics": {
+      "bassElev": 6.3,
+      "upperEnergy": 0.69,
+      "trebleElev": 2.72,
+      "midScoop": 2.31
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0315ed54-f169-4b40-99c7-0a41584278a7",
+    "name": "Denon AH-D5200",
+    "file": "Denon_AH_D5200.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 5.26,
+      "bass": 3.14,
+      "low_mids": 0.29,
+      "mids": -0.18,
+      "upper_mids": 0.16,
+      "treble": 0.17,
+      "air": -1.29
+    },
+    "composite_metrics": {
+      "bassElev": 4.2,
+      "upperEnergy": 0.17,
+      "trebleElev": -0.56,
+      "midScoop": 2.13
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm V-shape",
+    "confidence": "high"
+  },
+  {
+    "db_id": "4fd536b7-be09-4e84-ad8c-aeaa8fda88a8",
+    "name": "ES Lab ES-1a",
+    "file": "ES_Lab_ES_1a.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.19,
+      "bass": -3.1,
+      "low_mids": -1.78,
+      "mids": 0.27,
+      "upper_mids": -0.51,
+      "treble": -5.27,
+      "air": 1.59
+    },
+    "composite_metrics": {
+      "bassElev": -3.14,
+      "upperEnergy": -2.89,
+      "trebleElev": -1.84,
+      "midScoop": -2.26
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "e32f955c-948d-461b-98f6-143de3ca5bd7",
+    "name": "E-MU Teak",
+    "file": "E_MU_Teak.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.35,
+      "bass": 1.86,
+      "low_mids": -0.9,
+      "mids": 0.14,
+      "upper_mids": -0.46,
+      "treble": -1.33,
+      "air": 1.46
+    },
+    "composite_metrics": {
+      "bassElev": 2.6,
+      "upperEnergy": -0.9,
+      "trebleElev": 0.07,
+      "midScoop": 1.23
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c3c1d1a2-fb65-48fb-b46c-a3a4c926628a",
+    "name": "E-MU Walnut",
+    "file": "E_MU_Walnut.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.65,
+      "bass": 1.81,
+      "low_mids": 0.04,
+      "mids": -0.14,
+      "upper_mids": -1.72,
+      "treble": -2.11,
+      "air": -0.02
+    },
+    "composite_metrics": {
+      "bassElev": 2.23,
+      "upperEnergy": -1.91,
+      "trebleElev": -1.06,
+      "midScoop": 0.21
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "6e9cef12-c8bd-48df-b78a-ca901c6dcd0e",
+    "name": "Elysian Annihilator (2021)",
+    "file": "Elysian_Annihilator__2021_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.25,
+      "bass": 1.65,
+      "low_mids": -0.39,
+      "mids": 0.52,
+      "upper_mids": 1.68,
+      "treble": 1.34,
+      "air": 7.75
+    },
+    "composite_metrics": {
+      "bassElev": 1.45,
+      "upperEnergy": 1.51,
+      "trebleElev": 4.55,
+      "midScoop": 1.41
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape",
+    "confidence": "low"
+  },
+  {
+    "db_id": "3a1326ae-3d0f-41ab-97f4-3eb9cdc24cde",
+    "name": "Elysian Diva",
+    "file": "Elysian_Diva.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -3.92,
+      "bass": -2.14,
+      "low_mids": -0.06,
+      "mids": 0.33,
+      "upper_mids": 0.36,
+      "treble": -2.4,
+      "air": -4.39
+    },
+    "composite_metrics": {
+      "bassElev": -3.03,
+      "upperEnergy": -1.02,
+      "trebleElev": -3.39,
+      "midScoop": -2.16
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "343b5915-89d6-45df-a95d-2d6d8d5284a5",
+    "name": "Elysian Pilgrim",
+    "file": "Elysian_Pilgrim.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.47,
+      "bass": -1.88,
+      "low_mids": -1.16,
+      "mids": 0.37,
+      "upper_mids": -0.21,
+      "treble": 0.55,
+      "air": -1.44
+    },
+    "composite_metrics": {
+      "bassElev": -0.7,
+      "upperEnergy": 0.17,
+      "trebleElev": -0.44,
+      "midScoop": 0.13
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "093d160c-5f38-4981-aa4c-a4fc31b87738",
+    "name": "Elysian X",
+    "file": "Elysian_X.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.55,
+      "bass": -0.51,
+      "low_mids": -0.13,
+      "mids": 1.81,
+      "upper_mids": 1.43,
+      "treble": -1.76,
+      "air": 4.04
+    },
+    "composite_metrics": {
+      "bassElev": 0.02,
+      "upperEnergy": -0.17,
+      "trebleElev": 1.14,
+      "midScoop": -0.91
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "b1b3001a-b1b8-42d8-98e2-b23dd379f2b0",
+    "name": "FatFreq Maestro Mini",
+    "file": "FATfreq_Maestro_Mini.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 5.22,
+      "bass": 1.26,
+      "low_mids": -0.65,
+      "mids": -0.54,
+      "upper_mids": 1.24,
+      "treble": 2.72,
+      "air": 2.87
+    },
+    "composite_metrics": {
+      "bassElev": 3.24,
+      "upperEnergy": 1.98,
+      "trebleElev": 2.8,
+      "midScoop": 3.21
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "53b779d8-b4f0-4c5a-b7e5-6386785a4003",
+    "name": "Fatfreq Reference Pro",
+    "file": "FATfreq_Reference_Pro_SE.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -6.52,
+      "bass": -2.02,
+      "low_mids": 0.9,
+      "mids": 0.65,
+      "upper_mids": 1.93,
+      "treble": -1.21,
+      "air": -10.32
+    },
+    "composite_metrics": {
+      "bassElev": -4.27,
+      "upperEnergy": 0.36,
+      "trebleElev": -5.77,
+      "midScoop": -2.73
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5610c4d2-4f89-4969-ae96-fcae1b397b9d",
+    "name": "FiiO FH9",
+    "file": "FiiO_FH9.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.35,
+      "bass": 3.08,
+      "low_mids": 2.04,
+      "mids": -0.65,
+      "upper_mids": 1.47,
+      "treble": -0.28,
+      "air": 1.63
+    },
+    "composite_metrics": {
+      "bassElev": 1.71,
+      "upperEnergy": 0.6,
+      "trebleElev": 0.67,
+      "midScoop": 0.46
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ef85dd6a-504a-4e7a-9039-e9062913b7d7",
+    "name": "Final D8000 Pro",
+    "file": "Final_Audio_D8000_Pro.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.29,
+      "bass": -0.33,
+      "low_mids": -0.42,
+      "mids": 0.75,
+      "upper_mids": -1.77,
+      "treble": 3.97,
+      "air": 2.49
+    },
+    "composite_metrics": {
+      "bassElev": -0.31,
+      "upperEnergy": 1.1,
+      "trebleElev": 3.23,
+      "midScoop": 0.23
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "81b533ea-cdd4-4497-8300-9414a62c51a0",
+    "name": "Focal Celestee",
+    "file": "Focal_Celestee.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.92,
+      "bass": -0.21,
+      "low_mids": -2.17,
+      "mids": 0.52,
+      "upper_mids": -2.52,
+      "treble": -4.98,
+      "air": -2
+    },
+    "composite_metrics": {
+      "bassElev": 0.86,
+      "upperEnergy": -3.75,
+      "trebleElev": -3.49,
+      "midScoop": -0.62
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "0325b526-3d74-4de5-9e23-791ca707ecae",
+    "name": "Focal Clear",
+    "file": "Focal_Clear.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.05,
+      "bass": -0.03,
+      "low_mids": -0.15,
+      "mids": 1.06,
+      "upper_mids": -0.64,
+      "treble": -2.45,
+      "air": -2.84
+    },
+    "composite_metrics": {
+      "bassElev": -0.04,
+      "upperEnergy": -1.54,
+      "trebleElev": -2.64,
+      "midScoop": -1.25
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "ecdc268d-0af9-4758-8a79-937329145580",
+    "name": "Focal Clear Mg",
+    "file": "Focal_Clear_Mg.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.7,
+      "bass": -0.04,
+      "low_mids": -0.21,
+      "mids": 0.59,
+      "upper_mids": -3.61,
+      "treble": -7.19,
+      "air": -2.72
+    },
+    "composite_metrics": {
+      "bassElev": 0.33,
+      "upperEnergy": -5.4,
+      "trebleElev": -4.95,
+      "midScoop": -2.73
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "3597ee45-a9e2-424c-a7ba-76d81153e51f",
+    "name": "Focal Elear",
+    "file": "Focal_Elear.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.55,
+      "bass": 0.3,
+      "low_mids": 0.36,
+      "mids": 0.58,
+      "upper_mids": -1.94,
+      "treble": -3.81,
+      "air": -0.9
+    },
+    "composite_metrics": {
+      "bassElev": 0.42,
+      "upperEnergy": -2.88,
+      "trebleElev": -2.35,
+      "midScoop": -1.69
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "6968f0f5-0fdd-467c-8521-a365869ed7df",
+    "name": "Focal Radiance",
+    "file": "Focal_Radiance.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 5.48,
+      "bass": 2.71,
+      "low_mids": -0.98,
+      "mids": 0.51,
+      "upper_mids": 0.06,
+      "treble": -0.99,
+      "air": 0.99
+    },
+    "composite_metrics": {
+      "bassElev": 4.1,
+      "upperEnergy": -0.47,
+      "trebleElev": 0,
+      "midScoop": 2.05
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm V-shape",
+    "confidence": "high"
+  },
+  {
+    "db_id": "567a4fd4-0ab1-49c3-8e18-238cdc204436",
+    "name": "Focal Stellia",
+    "file": "Focal_Stellia.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.77,
+      "bass": 2.39,
+      "low_mids": -1.99,
+      "mids": 1.06,
+      "upper_mids": -1.65,
+      "treble": -3.1,
+      "air": -2.99
+    },
+    "composite_metrics": {
+      "bassElev": 3.08,
+      "upperEnergy": -2.38,
+      "trebleElev": -3.05,
+      "midScoop": 0.82
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark, bassy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "34bd2c89-b903-40cd-8246-fa913804ab97",
+    "name": "Focal Utopia",
+    "file": "Focal_Utopia.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.93,
+      "bass": -0.03,
+      "low_mids": 0.25,
+      "mids": 0.11,
+      "upper_mids": -0.67,
+      "treble": -2.15,
+      "air": -1.44
+    },
+    "composite_metrics": {
+      "bassElev": -0.48,
+      "upperEnergy": -1.41,
+      "trebleElev": -1.8,
+      "midScoop": -1.12
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8b0e226e-9bcc-40a5-8dda-38c412d42fac",
+    "name": "Fostex TH610",
+    "file": "Fostex_TH610.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.13,
+      "bass": 2.23,
+      "low_mids": 1.61,
+      "mids": -0.14,
+      "upper_mids": -0.77,
+      "treble": 1.4,
+      "air": 1.68
+    },
+    "composite_metrics": {
+      "bassElev": 2.68,
+      "upperEnergy": 0.31,
+      "trebleElev": 1.54,
+      "midScoop": 0.76
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "75ecf5f5-877d-4fd8-827e-c406b2f6e777",
+    "name": "Fostex TH7",
+    "file": "Fostex_TH7.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.6,
+      "bass": -1.12,
+      "low_mids": -0.54,
+      "mids": -0.67,
+      "upper_mids": -2.87,
+      "treble": -1.04,
+      "air": -3.91
+    },
+    "composite_metrics": {
+      "bassElev": -2.36,
+      "upperEnergy": -1.95,
+      "trebleElev": -2.47,
+      "midScoop": -1.55
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5342aca7-d4ea-4d92-8491-75c8684b3927",
+    "name": "Fostex TH900",
+    "file": "Fostex_TH900.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 10.36,
+      "bass": 7.23,
+      "low_mids": 2.36,
+      "mids": 0.36,
+      "upper_mids": 0.9,
+      "treble": 4.22,
+      "air": 5
+    },
+    "composite_metrics": {
+      "bassElev": 8.79,
+      "upperEnergy": 2.56,
+      "trebleElev": 4.61,
+      "midScoop": 4.32
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "f274d544-b338-4ebe-b3a7-6b1945e86212",
+    "name": "Fostex TH909",
+    "file": "Fostex_TH909.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 6.48,
+      "bass": 3.18,
+      "low_mids": 2.9,
+      "mids": -0.73,
+      "upper_mids": 0.84,
+      "treble": 0.53,
+      "air": 2.89
+    },
+    "composite_metrics": {
+      "bassElev": 4.83,
+      "upperEnergy": 0.68,
+      "trebleElev": 1.71,
+      "midScoop": 1.67
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "d11b741c-2723-4a81-a7bc-a76d2b54a870",
+    "name": "Fostex TR80",
+    "file": "Fostex_TR80.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.38,
+      "bass": 5.2,
+      "low_mids": 1.49,
+      "mids": 0.51,
+      "upper_mids": 1.33,
+      "treble": 2.02,
+      "air": 0.96
+    },
+    "composite_metrics": {
+      "bassElev": 3.29,
+      "upperEnergy": 1.67,
+      "trebleElev": 1.49,
+      "midScoop": 1.49
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted",
+    "confidence": "low"
+  },
+  {
+    "db_id": "fd8daf38-e882-4ee4-a861-f82a2b6a463b",
+    "name": "HarmonicDyne Helios",
+    "file": "HarmonicDyne_Helios.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.68,
+      "bass": 3.88,
+      "low_mids": 3.02,
+      "mids": -0.03,
+      "upper_mids": 3.6,
+      "treble": 4.19,
+      "air": 3.59
+    },
+    "composite_metrics": {
+      "bassElev": 1.6,
+      "upperEnergy": 3.89,
+      "trebleElev": 3.89,
+      "midScoop": 1.26
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8b628bb2-84c3-45a2-b7c7-b80743382fa8",
+    "name": "HarmonicDyne Zeus",
+    "file": "HarmonicDyne_Zeus.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.54,
+      "bass": 4.29,
+      "low_mids": 3.58,
+      "mids": -1.21,
+      "upper_mids": 0,
+      "treble": 0.68,
+      "air": 0.64
+    },
+    "composite_metrics": {
+      "bassElev": 2.41,
+      "upperEnergy": 0.34,
+      "trebleElev": 0.66,
+      "midScoop": 0.19
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, mid-forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c1d24ce4-99e2-473c-b403-0a64efceadf0",
+    "name": "HiFiMAN Ananda",
+    "file": "Hifiman_Ananda.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.75,
+      "bass": 0.01,
+      "low_mids": 0.53,
+      "mids": -1,
+      "upper_mids": 2.03,
+      "treble": 1.47,
+      "air": 2.99
+    },
+    "composite_metrics": {
+      "bassElev": -0.87,
+      "upperEnergy": 1.75,
+      "trebleElev": 2.23,
+      "midScoop": 0.67
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "d05261b9-e608-43c4-a9e5-bd176c216dc4",
+    "name": "Hifiman Arya",
+    "file": "Hifiman_Arya.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.88,
+      "bass": -0.04,
+      "low_mids": -0.13,
+      "mids": -0.69,
+      "upper_mids": 3,
+      "treble": 2.59,
+      "air": 1.54
+    },
+    "composite_metrics": {
+      "bassElev": 0.42,
+      "upperEnergy": 2.79,
+      "trebleElev": 2.06,
+      "midScoop": 2.01
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "high"
+  },
+  {
+    "db_id": "1e01183e-dc0e-4a7a-8849-79e78bf1c7a6",
+    "name": "HiFiMAN Arya Stealth",
+    "file": "Hifiman_Arya_Stealth.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.74,
+      "bass": 0.71,
+      "low_mids": 0.53,
+      "mids": -0.58,
+      "upper_mids": 2.84,
+      "treble": 2.83,
+      "air": 5.34
+    },
+    "composite_metrics": {
+      "bassElev": 1.23,
+      "upperEnergy": 2.84,
+      "trebleElev": 4.09,
+      "midScoop": 2.06
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "e6db9a80-8004-47c5-a226-290ce1a23198",
+    "name": "Hifiman Deva",
+    "file": "Hifiman_Deva.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.73,
+      "bass": -0.85,
+      "low_mids": 0.16,
+      "mids": -0.04,
+      "upper_mids": -0.08,
+      "treble": -1.7,
+      "air": -3.29
+    },
+    "composite_metrics": {
+      "bassElev": -1.29,
+      "upperEnergy": -0.89,
+      "trebleElev": -2.5,
+      "midScoop": -1.15
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "1c3b78ad-cbfe-479f-abed-0a6ff67c0dfe",
+    "name": "Hifiman Deva Pro",
+    "file": "Hifiman_Deva_Pro.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.98,
+      "bass": -0.72,
+      "low_mids": -0.75,
+      "mids": 0.04,
+      "upper_mids": -1.22,
+      "treble": -2.91,
+      "air": -3.79
+    },
+    "composite_metrics": {
+      "bassElev": -1.85,
+      "upperEnergy": -2.07,
+      "trebleElev": -3.35,
+      "midScoop": -1.6
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8d837fa2-026d-4656-93e1-8dfbe773ebb4",
+    "name": "Hifiman Edition X V2",
+    "file": "Hifiman_Edition_X_V2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.06,
+      "bass": -0.17,
+      "low_mids": 1.03,
+      "mids": -1.28,
+      "upper_mids": 0.38,
+      "treble": -0.91,
+      "air": -1.54
+    },
+    "composite_metrics": {
+      "bassElev": -0.05,
+      "upperEnergy": -0.26,
+      "trebleElev": -1.22,
+      "midScoop": -0.03
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "db826d38-75bb-4d21-9a60-6441942edf32",
+    "name": "Hifiman HE1000",
+    "file": "Hifiman_HE1000_V2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.45,
+      "bass": 0.65,
+      "low_mids": 0.76,
+      "mids": -0.63,
+      "upper_mids": 2.01,
+      "treble": 1.35,
+      "air": 0.27
+    },
+    "composite_metrics": {
+      "bassElev": 2.05,
+      "upperEnergy": 1.68,
+      "trebleElev": 0.81,
+      "midScoop": 1.8
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted, sibilant-prone",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "0e4b1033-14a6-48f1-92b2-bf1a43e8e3f9",
+    "name": "Hifiman HE1000se",
+    "file": "Hifiman_HE1000se.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.65,
+      "bass": 0.48,
+      "low_mids": 0.77,
+      "mids": -0.99,
+      "upper_mids": 2.61,
+      "treble": 2.23,
+      "air": 3.8
+    },
+    "composite_metrics": {
+      "bassElev": 1.06,
+      "upperEnergy": 2.42,
+      "trebleElev": 3.01,
+      "midScoop": 1.85
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8cc36400-1e4c-4bcd-abd5-362638d77399",
+    "name": "Hifiman HE400i (2020)",
+    "file": "Hifiman_HE400i.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.75,
+      "bass": 0.05,
+      "low_mids": 0.87,
+      "mids": -0.83,
+      "upper_mids": -0.52,
+      "treble": 1.52,
+      "air": 0.48
+    },
+    "composite_metrics": {
+      "bassElev": -0.35,
+      "upperEnergy": 0.5,
+      "trebleElev": 1,
+      "midScoop": 0.06
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "fbd9a887-c0a2-4bc9-a25e-a2a258261736",
+    "name": "HiFiMAN HE400se",
+    "file": "Hifiman_HE400se.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.2,
+      "bass": -1.41,
+      "low_mids": -0.77,
+      "mids": -1.25,
+      "upper_mids": -0.44,
+      "treble": 0.66,
+      "air": 0.09
+    },
+    "composite_metrics": {
+      "bassElev": -2.3,
+      "upperEnergy": 0.11,
+      "trebleElev": 0.37,
+      "midScoop": -0.09
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "58719c89-611e-4dac-a2ef-c9cfcd4260c6",
+    "name": "Hifiman HE500",
+    "file": "Hifiman_HE500__FocusPad_A_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.46,
+      "bass": -1.01,
+      "low_mids": 0.21,
+      "mids": -0.71,
+      "upper_mids": -1.46,
+      "treble": -3.84,
+      "air": -0.49
+    },
+    "composite_metrics": {
+      "bassElev": -0.28,
+      "upperEnergy": -2.65,
+      "trebleElev": -2.16,
+      "midScoop": -1.21
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a32ce203-5dc8-4721-bfe1-5b0590ca8b63",
+    "name": "Hifiman HE560",
+    "file": "Hifiman_HE560__V1_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.48,
+      "bass": 0.57,
+      "low_mids": 1.35,
+      "mids": -0.83,
+      "upper_mids": 3.1,
+      "treble": 1.07,
+      "air": 1.23
+    },
+    "composite_metrics": {
+      "bassElev": 1.53,
+      "upperEnergy": 2.08,
+      "trebleElev": 1.15,
+      "midScoop": 1.55
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "5f149044-82d1-4f8a-aadc-70751219bc00",
+    "name": "Hifiman HE5",
+    "file": "Hifiman_HE5__re_issue_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.92,
+      "bass": -0.38,
+      "low_mids": 1.55,
+      "mids": -1.86,
+      "upper_mids": 1.32,
+      "treble": 2.79,
+      "air": 4.41
+    },
+    "composite_metrics": {
+      "bassElev": 0.27,
+      "upperEnergy": 2.06,
+      "trebleElev": 3.6,
+      "midScoop": 1.31
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "67b7712b-9f5b-4bc1-9109-082896965838",
+    "name": "Hifiman HE5SE",
+    "file": "Hifiman_HE5se.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.27,
+      "bass": -1.61,
+      "low_mids": -0.53,
+      "mids": -2.74,
+      "upper_mids": 1.4,
+      "treble": 0.94,
+      "air": 1.39
+    },
+    "composite_metrics": {
+      "bassElev": -2.44,
+      "upperEnergy": 1.17,
+      "trebleElev": 1.16,
+      "midScoop": 1
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ae33756d-1377-4c8d-a24f-09b8ea39d847",
+    "name": "Hifiman HE6",
+    "file": "Hifiman_HE6__6_screw___Velour_pads_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.24,
+      "bass": -0.9,
+      "low_mids": -0.64,
+      "mids": 0.1,
+      "upper_mids": 1.52,
+      "treble": 0.55,
+      "air": 1.64
+    },
+    "composite_metrics": {
+      "bassElev": -0.33,
+      "upperEnergy": 1.03,
+      "trebleElev": 1.1,
+      "midScoop": 0.63
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f1292f73-306b-4d1e-a983-626da308c035",
+    "name": "Hifiman HE6se",
+    "file": "Hifiman_HE6se.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.16,
+      "bass": -1.49,
+      "low_mids": -0.14,
+      "mids": -2.06,
+      "upper_mids": 1.48,
+      "treble": 0.86,
+      "air": -1.05
+    },
+    "composite_metrics": {
+      "bassElev": -0.83,
+      "upperEnergy": 1.17,
+      "trebleElev": -0.1,
+      "midScoop": 1.27
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ae33756d-1377-4c8d-a24f-09b8ea39d847",
+    "name": "Hifiman HE6",
+    "file": "Hifiman_HE6se_V2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.06,
+      "bass": -2.48,
+      "low_mids": -1.21,
+      "mids": -2.19,
+      "upper_mids": 1.41,
+      "treble": -0.21,
+      "air": -0.38
+    },
+    "composite_metrics": {
+      "bassElev": -2.27,
+      "upperEnergy": 0.6,
+      "trebleElev": -0.29,
+      "midScoop": 0.87
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "41b2a0e2-aca3-471f-a35e-03f83a10eb95",
+    "name": "Hifiman Jade II",
+    "file": "Hifiman_Jade_II.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.76,
+      "bass": -0.95,
+      "low_mids": -0.46,
+      "mids": -0.73,
+      "upper_mids": 2.35,
+      "treble": -2.05,
+      "air": -1.42
+    },
+    "composite_metrics": {
+      "bassElev": -1.86,
+      "upperEnergy": 0.15,
+      "trebleElev": -1.74,
+      "midScoop": -0.26
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "d650d20f-6ea9-4dac-b49a-4fd6c8be702e",
+    "name": "Hifiman Shangri-La Jr",
+    "file": "Hifiman_Shangri_La_Jr.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.6,
+      "bass": -1.13,
+      "low_mids": -0.19,
+      "mids": -0.65,
+      "upper_mids": 2.1,
+      "treble": -0.1,
+      "air": 0.4
+    },
+    "composite_metrics": {
+      "bassElev": -0.86,
+      "upperEnergy": 1,
+      "trebleElev": 0.15,
+      "midScoop": 0.49
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward",
+    "confidence": "low"
+  },
+  {
+    "db_id": "2c9584bb-8707-43a6-b3cd-db56cf6f6629",
+    "name": "HiFiMAN Sundara",
+    "file": "Hifiman_Sundara.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.31,
+      "bass": -0.22,
+      "low_mids": 0.14,
+      "mids": -0.3,
+      "upper_mids": 0.28,
+      "treble": -0.05,
+      "air": -0.36
+    },
+    "composite_metrics": {
+      "bassElev": -0.76,
+      "upperEnergy": 0.11,
+      "trebleElev": -0.21,
+      "midScoop": -0.24
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ffce27b9-22d0-49ca-93c4-187b2e7d61cd",
+    "name": "HiFiMAN Susvara",
+    "file": "Hifiman_Susvara.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.44,
+      "bass": -0.72,
+      "low_mids": 0.1,
+      "mids": -0.66,
+      "upper_mids": 0.01,
+      "treble": 0.54,
+      "air": 0.47
+    },
+    "composite_metrics": {
+      "bassElev": -0.14,
+      "upperEnergy": 0.28,
+      "trebleElev": 0.5,
+      "midScoop": 0.35
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral (near-median)",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "e033927e-0c5a-4c41-a363-e0dca7274e4c",
+    "name": "Itsfit R3",
+    "file": "Itsfit_R3.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -8.63,
+      "bass": -3.3,
+      "low_mids": 0.58,
+      "mids": -1.61,
+      "upper_mids": -7.59,
+      "treble": -7.57,
+      "air": -10.07
+    },
+    "composite_metrics": {
+      "bassElev": -5.96,
+      "upperEnergy": -7.58,
+      "trebleElev": -8.82,
+      "midScoop": -6.26
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "3d0df0e5-28be-4ae2-a38b-21d432c77d47",
+    "name": "Drop x JVC HA-FDX1",
+    "file": "JVC_x_Drop_HA_FDX1.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.96,
+      "bass": -0.12,
+      "low_mids": -0.52,
+      "mids": 0.16,
+      "upper_mids": 2.41,
+      "treble": 1.44,
+      "air": 1.33
+    },
+    "composite_metrics": {
+      "bassElev": -0.54,
+      "upperEnergy": 1.92,
+      "trebleElev": 1.38,
+      "midScoop": 0.88
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "726bfcc5-38f7-4115-acff-d7fc4c201f32",
+    "name": "Kennerton Thror",
+    "file": "Kennerton_Thror__Bog_Oak_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.63,
+      "bass": -1.14,
+      "low_mids": -0.28,
+      "mids": -1.3,
+      "upper_mids": -0.72,
+      "treble": -4.18,
+      "air": -1.63
+    },
+    "composite_metrics": {
+      "bassElev": -2.38,
+      "upperEnergy": -2.45,
+      "trebleElev": -2.91,
+      "midScoop": -1.63
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "0b8c48a0-e27a-4483-9a2f-87a4826981a9",
+    "name": "Kiwi Ears Astral",
+    "file": "Kiwi_Ears_Astral.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.54,
+      "bass": -0.83,
+      "low_mids": -0.28,
+      "mids": -0.28,
+      "upper_mids": -1,
+      "treble": -1.24,
+      "air": 0.96
+    },
+    "composite_metrics": {
+      "bassElev": 0.36,
+      "upperEnergy": -1.12,
+      "trebleElev": -0.14,
+      "midScoop": -0.1
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+    "name": "Kiwi Ears Orchestra",
+    "file": "Kiwi_Ears_Orchestra.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -5.62,
+      "bass": -2.88,
+      "low_mids": -0.49,
+      "mids": -0.39,
+      "upper_mids": -2.45,
+      "treble": 1.46,
+      "air": -0.01
+    },
+    "composite_metrics": {
+      "bassElev": -4.25,
+      "upperEnergy": -0.5,
+      "trebleElev": 0.72,
+      "midScoop": -1.94
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+    "name": "Kiwi Ears Orchestra",
+    "file": "Kiwi_Ears_Orchestra_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.02,
+      "bass": -1.38,
+      "low_mids": -1.58,
+      "mids": 0.21,
+      "upper_mids": -0.86,
+      "treble": -4.09,
+      "air": -1.06
+    },
+    "composite_metrics": {
+      "bassElev": -1.7,
+      "upperEnergy": -2.47,
+      "trebleElev": -2.57,
+      "midScoop": -1.4
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "17e2db1d-42cc-4fe4-8681-33737c673601",
+    "name": "Kiwi Ears Orchestra",
+    "file": "Kiwi_Ears_Orchestra_Lite.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -4.66,
+      "bass": -2.39,
+      "low_mids": -1.95,
+      "mids": 0.11,
+      "upper_mids": -1.41,
+      "treble": -1.9,
+      "air": -5.82
+    },
+    "composite_metrics": {
+      "bassElev": -3.53,
+      "upperEnergy": -1.65,
+      "trebleElev": -3.86,
+      "midScoop": -1.67
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "f608a01f-b5dd-42a3-808a-d76fd8c4efa7",
+    "name": "Kiwi Ears HBB PUNCH",
+    "file": "Kiwi_Ears_x_HBB_Punch.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 5.84,
+      "bass": 2.51,
+      "low_mids": 0.33,
+      "mids": -0.51,
+      "upper_mids": -0.08,
+      "treble": -0.13,
+      "air": -1.19
+    },
+    "composite_metrics": {
+      "bassElev": 4.18,
+      "upperEnergy": -0.1,
+      "trebleElev": -0.66,
+      "midScoop": 2.13
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm V-shape",
+    "confidence": "high"
+  },
+  {
+    "db_id": "aac356c1-7efe-4e4b-aa68-78dbbf7ebfe5",
+    "name": "Koss KSC75",
+    "file": "Koss_KSC75.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -12.2,
+      "bass": 0.72,
+      "low_mids": 1.48,
+      "mids": 0.81,
+      "upper_mids": 4.5,
+      "treble": 4.12,
+      "air": 2.21
+    },
+    "composite_metrics": {
+      "bassElev": -5.74,
+      "upperEnergy": 4.31,
+      "trebleElev": 3.17,
+      "midScoop": -1.86
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "b8678d9d-56d5-4328-a98e-7a0183d2953e",
+    "name": "LETSHUOER Cadenza 12",
+    "file": "Letshuoer_Cadenza_12.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.94,
+      "bass": -0.81,
+      "low_mids": 0.39,
+      "mids": -0.39,
+      "upper_mids": -0.77,
+      "treble": -0.88,
+      "air": -1.24
+    },
+    "composite_metrics": {
+      "bassElev": -0.87,
+      "upperEnergy": -0.83,
+      "trebleElev": -1.06,
+      "midScoop": -0.85
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "18edc7dc-a3fb-4edb-8579-36b9c7740937",
+    "name": "LETSHUOER MYSTIC 8",
+    "file": "Letshuoer_Mystic_8.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2,
+      "bass": -2.2,
+      "low_mids": -0.27,
+      "mids": -0.07,
+      "upper_mids": -0.4,
+      "treble": -0.53,
+      "air": -3.85
+    },
+    "composite_metrics": {
+      "bassElev": -2.1,
+      "upperEnergy": -0.46,
+      "trebleElev": -2.19,
+      "midScoop": -1.11
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a9e3f05e-69fb-4083-9803-422ede6d0e1d",
+    "name": "Letshuoer S12 Pro",
+    "file": "Letshuoer_S12.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.89,
+      "bass": 2,
+      "low_mids": 0.84,
+      "mids": 0.37,
+      "upper_mids": 0.75,
+      "treble": 4.05,
+      "air": 2.99
+    },
+    "composite_metrics": {
+      "bassElev": 1.95,
+      "upperEnergy": 2.4,
+      "trebleElev": 3.52,
+      "midScoop": 1.57
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "a9e3f05e-69fb-4083-9803-422ede6d0e1d",
+    "name": "Letshuoer S12 Pro",
+    "file": "Letshuoer_S12_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.1,
+      "bass": 2,
+      "low_mids": 0.75,
+      "mids": 0.31,
+      "upper_mids": -0.89,
+      "treble": 3.88,
+      "air": 5.24
+    },
+    "composite_metrics": {
+      "bassElev": 2.05,
+      "upperEnergy": 1.5,
+      "trebleElev": 4.56,
+      "midScoop": 1.24
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5a6c4291-f8b8-42c0-9437-0fe714d151fe",
+    "name": "Meze 99 Classics",
+    "file": "Meze_99_Classic.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 10.02,
+      "bass": 7.93,
+      "low_mids": 1.94,
+      "mids": -0.51,
+      "upper_mids": -2.04,
+      "treble": 3.48,
+      "air": -0.8
+    },
+    "composite_metrics": {
+      "bassElev": 8.98,
+      "upperEnergy": 0.72,
+      "trebleElev": 1.34,
+      "midScoop": 4.13
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "e58b72ad-22b1-441b-8407-bdf415deba90",
+    "name": "Meze Empyrean",
+    "file": "Meze_Empyrean.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.04,
+      "bass": 1.84,
+      "low_mids": 1.81,
+      "mids": -0.91,
+      "upper_mids": -1.87,
+      "treble": -5.14,
+      "air": 0.7
+    },
+    "composite_metrics": {
+      "bassElev": 1.94,
+      "upperEnergy": -3.5,
+      "trebleElev": -2.22,
+      "midScoop": -1.23
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+    "name": "Moondrop Aria",
+    "file": "Moondrop_Aria.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.46,
+      "bass": 0.71,
+      "low_mids": -0.03,
+      "mids": 0.29,
+      "upper_mids": 0.6,
+      "treble": -1.01,
+      "air": 2.46
+    },
+    "composite_metrics": {
+      "bassElev": 0.58,
+      "upperEnergy": -0.2,
+      "trebleElev": 0.73,
+      "midScoop": 0.06
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+    "name": "Moondrop Aria",
+    "file": "Moondrop_Aria_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.28,
+      "bass": 2.33,
+      "low_mids": 1.19,
+      "mids": 0.24,
+      "upper_mids": 0.78,
+      "treble": -0.91,
+      "air": 0
+    },
+    "composite_metrics": {
+      "bassElev": 1.81,
+      "upperEnergy": -0.06,
+      "trebleElev": -0.45,
+      "midScoop": 0.16
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, bass-boosted",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "d2d0df43-1ada-41f4-8192-ccc49bad3da1",
+    "name": "Moondrop Aria",
+    "file": "Moondrop_Aria_Snow_Edition.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.77,
+      "bass": 0.5,
+      "low_mids": 0.13,
+      "mids": 0.37,
+      "upper_mids": 1.54,
+      "treble": -0.57,
+      "air": 0.81
+    },
+    "composite_metrics": {
+      "bassElev": -0.14,
+      "upperEnergy": 0.48,
+      "trebleElev": 0.12,
+      "midScoop": -0.08
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "c73fd25e-9178-4135-b829-16f0af725b19",
+    "name": "Moondrop Blessing 2",
+    "file": "Moondrop_Blessing_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.63,
+      "bass": -1.27,
+      "low_mids": -0.4,
+      "mids": 0.43,
+      "upper_mids": 1.91,
+      "treble": 3.9,
+      "air": 1.72
+    },
+    "composite_metrics": {
+      "bassElev": -1.95,
+      "upperEnergy": 2.9,
+      "trebleElev": 2.81,
+      "midScoop": 0.46
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "high"
+  },
+  {
+    "db_id": "c73fd25e-9178-4135-b829-16f0af725b19",
+    "name": "Moondrop Blessing 2",
+    "file": "Moondrop_Blessing__Original_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -5.37,
+      "bass": -3.02,
+      "low_mids": -0.49,
+      "mids": 0.04,
+      "upper_mids": 0.97,
+      "treble": 0.03,
+      "air": -2.92
+    },
+    "composite_metrics": {
+      "bassElev": -4.19,
+      "upperEnergy": 0.5,
+      "trebleElev": -1.44,
+      "midScoop": -1.62
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "97c25261-9d99-4c52-b3aa-58aacedfbd8b",
+    "name": "Moondrop Chu",
+    "file": "Moondrop_Chu.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.96,
+      "bass": -1.75,
+      "low_mids": -0.85,
+      "mids": 0.01,
+      "upper_mids": 1.04,
+      "treble": 1.86,
+      "air": 1.11
+    },
+    "composite_metrics": {
+      "bassElev": -1.86,
+      "upperEnergy": 1.45,
+      "trebleElev": 1.49,
+      "midScoop": 0.22
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "86172299-fa19-4199-8ad7-ca2d286b393d",
+    "name": "Moondrop CHU 2",
+    "file": "Moondrop_Chu_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 3.03,
+      "bass": 2.04,
+      "low_mids": 0.95,
+      "mids": 0.11,
+      "upper_mids": 2.11,
+      "treble": 1.12,
+      "air": 1.54
+    },
+    "composite_metrics": {
+      "bassElev": 2.53,
+      "upperEnergy": 1.61,
+      "trebleElev": 1.33,
+      "midScoop": 1.54
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted, sibilant-prone",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "97c25261-9d99-4c52-b3aa-58aacedfbd8b",
+    "name": "Moondrop Chu",
+    "file": "Moondrop_Chu_2_DSP.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.04,
+      "bass": 1.93,
+      "low_mids": 0.49,
+      "mids": -0.05,
+      "upper_mids": 0.74,
+      "treble": -0.55,
+      "air": 1.21
+    },
+    "composite_metrics": {
+      "bassElev": 1.98,
+      "upperEnergy": 0.1,
+      "trebleElev": 0.33,
+      "midScoop": 0.82
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "dd1c1f8b-83ac-45f8-a707-eaddc1e4eef6",
+    "name": "Moondrop Illumination",
+    "file": "Moondrop_Illumination.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.89,
+      "bass": 0.91,
+      "low_mids": 1.46,
+      "mids": 0.23,
+      "upper_mids": 2.6,
+      "treble": 0.14,
+      "air": -5.84
+    },
+    "composite_metrics": {
+      "bassElev": -0.49,
+      "upperEnergy": 1.37,
+      "trebleElev": -2.85,
+      "midScoop": -0.4
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "30457e89-84a6-45c9-9c68-06ef6e13dd3c",
+    "name": "Moondrop KXXS",
+    "file": "Moondrop_KXXS.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.57,
+      "bass": 1.35,
+      "low_mids": 0.73,
+      "mids": 0.55,
+      "upper_mids": 1.67,
+      "treble": -1.28,
+      "air": -3.52
+    },
+    "composite_metrics": {
+      "bassElev": 0.96,
+      "upperEnergy": 0.2,
+      "trebleElev": -2.4,
+      "midScoop": -0.06
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "de316d59-bf8d-418e-aea9-b20de1d3139d",
+    "name": "Moondrop Kanas Pro",
+    "file": "Moondrop_Kanas_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.54,
+      "bass": 1.35,
+      "low_mids": 0.58,
+      "mids": 0.23,
+      "upper_mids": 0.8,
+      "treble": -2.78,
+      "air": -2.26
+    },
+    "composite_metrics": {
+      "bassElev": 1.45,
+      "upperEnergy": -0.99,
+      "trebleElev": -2.52,
+      "midScoop": -0.17
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f8fb4802-9d56-48a4-a876-3f6162e43b71",
+    "name": "Moondrop Kato",
+    "file": "Moondrop_Kato.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.13,
+      "bass": 1.33,
+      "low_mids": 0.17,
+      "mids": 0.23,
+      "upper_mids": 1.14,
+      "treble": -0.49,
+      "air": -1.94
+    },
+    "composite_metrics": {
+      "bassElev": 0.6,
+      "upperEnergy": 0.32,
+      "trebleElev": -1.21,
+      "midScoop": 0.26
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "3dc6d9cb-7ca3-47cf-9d20-51edeaab931b",
+    "name": "Moondrop Para",
+    "file": "Moondrop_Para.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.53,
+      "bass": -0.11,
+      "low_mids": 0.89,
+      "mids": -0.07,
+      "upper_mids": 2.65,
+      "treble": 2.08,
+      "air": 2.12
+    },
+    "composite_metrics": {
+      "bassElev": -0.32,
+      "upperEnergy": 2.37,
+      "trebleElev": 2.1,
+      "midScoop": 0.61
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "05f5dcea-4c93-487b-b781-6debc44d8ca5",
+    "name": "Moondrop S8",
+    "file": "Moondrop_S8.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.83,
+      "bass": -1.88,
+      "low_mids": -1.23,
+      "mids": 0.36,
+      "upper_mids": 1.63,
+      "treble": -0.21,
+      "air": 4.71
+    },
+    "composite_metrics": {
+      "bassElev": -2.35,
+      "upperEnergy": 0.71,
+      "trebleElev": 2.25,
+      "midScoop": -0.39
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "4e4f3ea9-94dd-4906-b393-15320770bd11",
+    "name": "Moondrop Solis",
+    "file": "Moondrop_Solis_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.68,
+      "bass": -0.87,
+      "low_mids": -0.1,
+      "mids": -0.23,
+      "upper_mids": 0.89,
+      "treble": 0.88,
+      "air": -1.7
+    },
+    "composite_metrics": {
+      "bassElev": -0.78,
+      "upperEnergy": 0.88,
+      "trebleElev": -0.41,
+      "midScoop": 0.22
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0835b769-4175-4596-88c9-f429e43fbce6",
+    "name": "Moondrop Variations",
+    "file": "Moondrop_Variations.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.55,
+      "bass": -0.65,
+      "low_mids": -1.79,
+      "mids": 0.31,
+      "upper_mids": 1.32,
+      "treble": 0.49,
+      "air": 1.49
+    },
+    "composite_metrics": {
+      "bassElev": 0.45,
+      "upperEnergy": 0.9,
+      "trebleElev": 0.99,
+      "midScoop": 1.42
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8f1e5613-98c8-4d31-9c06-6e7aff0094a4",
+    "name": "Moondrop Void",
+    "file": "Moondrop_Void.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.71,
+      "bass": 2.47,
+      "low_mids": 1.98,
+      "mids": -0.2,
+      "upper_mids": -0.12,
+      "treble": -2.3,
+      "air": -0.28
+    },
+    "composite_metrics": {
+      "bassElev": 2.09,
+      "upperEnergy": -1.21,
+      "trebleElev": -1.29,
+      "midScoop": -0.45
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, bass-boosted",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "85128d58-d3b8-463d-8c25-4386c5942840",
+    "name": "MrSpeakers Ether C",
+    "file": "MrSpeakers_Ether_C.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.46,
+      "bass": -3.85,
+      "low_mids": -0.17,
+      "mids": 0.69,
+      "upper_mids": 4.28,
+      "treble": 0.53,
+      "air": -2.45
+    },
+    "composite_metrics": {
+      "bassElev": -2.16,
+      "upperEnergy": 2.41,
+      "trebleElev": -0.96,
+      "midScoop": -0.13
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, treble-rolled",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "f0e5c4fd-0e58-4874-8eb8-68d80ab98a1b",
+    "name": "Nectar Hive",
+    "file": "Nectar_Hive.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.4,
+      "bass": -2.17,
+      "low_mids": -1.39,
+      "mids": -0.22,
+      "upper_mids": 0.06,
+      "treble": 1.27,
+      "air": -4.1
+    },
+    "composite_metrics": {
+      "bassElev": -1.29,
+      "upperEnergy": 0.66,
+      "trebleElev": -1.42,
+      "midScoop": 0.49
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "1ee222ab-ce3a-484a-bff6-8e3da366f9e9",
+    "name": "Neumann NDH 20",
+    "file": "Neumann_NDH_20.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 5.35,
+      "bass": 1.22,
+      "low_mids": 0.02,
+      "mids": -1.06,
+      "upper_mids": -0.57,
+      "treble": -2.04,
+      "air": -5.15
+    },
+    "composite_metrics": {
+      "bassElev": 3.28,
+      "upperEnergy": -1.3,
+      "trebleElev": -3.59,
+      "midScoop": 1.51
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "c86c7237-474e-4edc-b5e8-dc018d1ed8d1",
+    "name": "Nothing Ear (2)",
+    "file": "Nothing_Ear__1_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 5.61,
+      "bass": 3.53,
+      "low_mids": 3.35,
+      "mids": -1.99,
+      "upper_mids": 1.81,
+      "treble": 2.96,
+      "air": 5.86
+    },
+    "composite_metrics": {
+      "bassElev": 4.57,
+      "upperEnergy": 2.38,
+      "trebleElev": 4.41,
+      "midScoop": 2.8
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8ae6e5df-ea0e-456f-ae80-0ecd0afe6cdd",
+    "name": "Philips SHP9500",
+    "file": "Philips_SHP9500.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -5.75,
+      "bass": -1.83,
+      "low_mids": -0.98,
+      "mids": 0.26,
+      "upper_mids": 1.07,
+      "treble": 3.19,
+      "air": -0.66
+    },
+    "composite_metrics": {
+      "bassElev": -3.79,
+      "upperEnergy": 2.13,
+      "trebleElev": 1.26,
+      "midScoop": -0.47
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "0db95f0f-4466-4480-b9db-9a5523c0af75",
+    "name": "Prisma Azul",
+    "file": "Prisma_Azul.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -7.33,
+      "bass": -2.78,
+      "low_mids": 0.05,
+      "mids": 0.09,
+      "upper_mids": -1.33,
+      "treble": -0.27,
+      "air": 3.27
+    },
+    "composite_metrics": {
+      "bassElev": -5.06,
+      "upperEnergy": -0.8,
+      "trebleElev": 1.5,
+      "midScoop": -3
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b7c4337e-1c27-434e-9b89-628311bce911",
+    "name": "RAAL-requisite SR1a",
+    "file": "RAAL_requisite_SR1a.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.7,
+      "bass": 0.29,
+      "low_mids": 0.47,
+      "mids": 1.54,
+      "upper_mids": 1.72,
+      "treble": 1.64,
+      "air": -5.5
+    },
+    "composite_metrics": {
+      "bassElev": -0.7,
+      "upperEnergy": 1.68,
+      "trebleElev": -1.93,
+      "midScoop": -0.52
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, treble-rolled, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "4c59c9d0-b1b6-454d-aece-d7534c51825d",
+    "name": "Rosson RAD-0",
+    "file": "Rosson_RAD_0.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.69,
+      "bass": -1.58,
+      "low_mids": -0.49,
+      "mids": -1.09,
+      "upper_mids": -6.34,
+      "treble": -5.91,
+      "air": -4.72
+    },
+    "composite_metrics": {
+      "bassElev": -1.64,
+      "upperEnergy": -6.12,
+      "trebleElev": -5.31,
+      "midScoop": -3.09
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "ea3264f4-1f67-4516-89cf-bc957db15f5e",
+    "name": "Samsung Galaxy Buds2 Pro",
+    "file": "Samsung_Galaxy_Buds2_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 4.02,
+      "bass": 2.35,
+      "low_mids": -0.1,
+      "mids": -0.27,
+      "upper_mids": 2.26,
+      "treble": -0.35,
+      "air": 3.83
+    },
+    "composite_metrics": {
+      "bassElev": 3.18,
+      "upperEnergy": 0.95,
+      "trebleElev": 1.74,
+      "midScoop": 2.26
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "44f86ecb-3fad-452e-95b0-8036bd051ce9",
+    "name": "Samsung Galaxy Buds",
+    "file": "Samsung_Galaxy_Buds3_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 5.16,
+      "bass": 4.36,
+      "low_mids": 1.66,
+      "mids": 0.36,
+      "upper_mids": 1.52,
+      "treble": 3.16,
+      "air": 1.42
+    },
+    "composite_metrics": {
+      "bassElev": 4.76,
+      "upperEnergy": 2.34,
+      "trebleElev": 2.29,
+      "midScoop": 2.54
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "54b480ee-bbdc-4bae-9d05-640784e279db",
+    "name": "See Audio Yume",
+    "file": "See_Audio_x_Crinacle_Yume_Midnight.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.75,
+      "bass": -1.16,
+      "low_mids": -0.43,
+      "mids": -0.29,
+      "upper_mids": -0.72,
+      "treble": 1.46,
+      "air": -0.65
+    },
+    "composite_metrics": {
+      "bassElev": -0.21,
+      "upperEnergy": 0.37,
+      "trebleElev": 0.4,
+      "midScoop": 0.44
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "458c49f0-27e7-4203-881a-c8a7dae08195",
+    "name": "Sendy Aiva",
+    "file": "Sendy_Aiva.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.73,
+      "bass": -1.81,
+      "low_mids": -0.62,
+      "mids": -0.79,
+      "upper_mids": -3.74,
+      "treble": -4.06,
+      "air": 0.73
+    },
+    "composite_metrics": {
+      "bassElev": -1.27,
+      "upperEnergy": -3.9,
+      "trebleElev": -1.67,
+      "midScoop": -1.88
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0680178a-b3c4-40f8-a1fd-7bfd44eed24e",
+    "name": "Sennheiser HD25 Plus",
+    "file": "Sennheiser_HD25_Plus.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.88,
+      "bass": 2.97,
+      "low_mids": -0.64,
+      "mids": 1.06,
+      "upper_mids": 2.02,
+      "treble": 1.72,
+      "air": -8.37
+    },
+    "composite_metrics": {
+      "bassElev": 2.43,
+      "upperEnergy": 1.87,
+      "trebleElev": -3.33,
+      "midScoop": 1.94
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted, treble-rolled, sibilant-prone",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "26a76c2f-b346-4fd9-a7fb-eaf991c6643b",
+    "name": "Sennheiser HD579",
+    "file": "Sennheiser_HD579.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.01,
+      "bass": 2.16,
+      "low_mids": 2.29,
+      "mids": -0.8,
+      "upper_mids": 2.54,
+      "treble": 0.03,
+      "air": -1.51
+    },
+    "composite_metrics": {
+      "bassElev": 1.08,
+      "upperEnergy": 1.28,
+      "trebleElev": -0.74,
+      "midScoop": 0.44
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "8e69b204-44b5-4e1e-ae91-0dab55d9007a",
+    "name": "Sennheiser HD599",
+    "file": "Sennheiser_HD599.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.97,
+      "bass": 1.73,
+      "low_mids": 2.12,
+      "mids": -0.61,
+      "upper_mids": 1.76,
+      "treble": -0.46,
+      "air": -2.16
+    },
+    "composite_metrics": {
+      "bassElev": 0.38,
+      "upperEnergy": 0.65,
+      "trebleElev": -1.31,
+      "midScoop": -0.24
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "4972cb2d-4330-4d80-9f7b-2b2d366a07ec",
+    "name": "Sennheiser HD600",
+    "file": "Sennheiser_HD600.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.63,
+      "bass": -0.08,
+      "low_mids": 0.15,
+      "mids": 0.99,
+      "upper_mids": 2.45,
+      "treble": -1.45,
+      "air": 0.24
+    },
+    "composite_metrics": {
+      "bassElev": -0.85,
+      "upperEnergy": 0.5,
+      "trebleElev": -0.6,
+      "midScoop": -0.75
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5462054f-3459-4088-97b6-5d21c1b005bb",
+    "name": "Sennheiser HD650/HD6XX",
+    "file": "Sennheiser_HD650_HD6XX.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.59,
+      "bass": 1.36,
+      "low_mids": 0.77,
+      "mids": 0.55,
+      "upper_mids": 2.21,
+      "treble": -1.08,
+      "air": -0.31
+    },
+    "composite_metrics": {
+      "bassElev": 0.98,
+      "upperEnergy": 0.56,
+      "trebleElev": -0.7,
+      "midScoop": 0.11
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "13cbf74a-babd-44e1-a9f4-dd7ad9c47542",
+    "name": "Sennheiser HD660S",
+    "file": "Sennheiser_HD660S.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -4.89,
+      "bass": -1.27,
+      "low_mids": 0.37,
+      "mids": 0.53,
+      "upper_mids": -0.84,
+      "treble": -4.97,
+      "air": -4.16
+    },
+    "composite_metrics": {
+      "bassElev": -3.08,
+      "upperEnergy": -2.9,
+      "trebleElev": -4.56,
+      "midScoop": -3.44
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "40e687b1-8bbe-4cca-aa23-76baba0d1987",
+    "name": "Sennheiser HD800",
+    "file": "Sennheiser_HD800.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.24,
+      "bass": -0.15,
+      "low_mids": 0.83,
+      "mids": -0.54,
+      "upper_mids": 0.27,
+      "treble": 3.1,
+      "air": 1.45
+    },
+    "composite_metrics": {
+      "bassElev": 0.04,
+      "upperEnergy": 1.69,
+      "trebleElev": 2.27,
+      "midScoop": 0.72
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8dae1357-6036-4937-b366-5607f4bd3fcf",
+    "name": "Sennheiser HD800S",
+    "file": "Sennheiser_HD800S.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.96,
+      "bass": -0.91,
+      "low_mids": 0.53,
+      "mids": -0.43,
+      "upper_mids": 0.52,
+      "treble": 3.01,
+      "air": 3.56
+    },
+    "composite_metrics": {
+      "bassElev": -1.44,
+      "upperEnergy": 1.76,
+      "trebleElev": 3.28,
+      "midScoop": 0.11
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "ad1e09e7-7017-4b28-81aa-ab75556261ff",
+    "name": "Sennheiser HE-1",
+    "file": "Sennheiser_HE_1.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.1,
+      "bass": 0.35,
+      "low_mids": -0.26,
+      "mids": -0.74,
+      "upper_mids": 0.54,
+      "treble": 0.52,
+      "air": 2.86
+    },
+    "composite_metrics": {
+      "bassElev": 1.72,
+      "upperEnergy": 0.53,
+      "trebleElev": 1.69,
+      "midScoop": 1.63
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "174fde26-7797-4790-bc05-811c6e58d0a4",
+    "name": "Sennheiser IE300",
+    "file": "Sennheiser_IE300.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.88,
+      "bass": 2.43,
+      "low_mids": 1.2,
+      "mids": -0.66,
+      "upper_mids": -4.58,
+      "treble": 3.54,
+      "air": 4.31
+    },
+    "composite_metrics": {
+      "bassElev": 2.65,
+      "upperEnergy": -0.52,
+      "trebleElev": 3.93,
+      "midScoop": 0.8
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "06928a19-d702-47a9-a327-bacaf56aba3a",
+    "name": "Sennheiser IE600",
+    "file": "Sennheiser_IE600.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.88,
+      "bass": 0.03,
+      "low_mids": -0.69,
+      "mids": 0.34,
+      "upper_mids": -1.66,
+      "treble": 1.55,
+      "air": 4.43
+    },
+    "composite_metrics": {
+      "bassElev": 0.46,
+      "upperEnergy": -0.05,
+      "trebleElev": 2.99,
+      "midScoop": 0.38
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "6d675320-1bfc-405e-afac-b4351961676b",
+    "name": "Sennheiser Momentum 3 Wireless",
+    "file": "Sennheiser_Momentum_3_Wireless.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 9.1,
+      "bass": 5.87,
+      "low_mids": 1.41,
+      "mids": 1.05,
+      "upper_mids": 4.26,
+      "treble": 6,
+      "air": 5.82
+    },
+    "composite_metrics": {
+      "bassElev": 7.49,
+      "upperEnergy": 5.13,
+      "trebleElev": 5.91,
+      "midScoop": 5.08
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "e2ba508e-d587-42d0-aca7-389fbbe6cb25",
+    "name": "Sennheiser HD58X",
+    "file": "Sennheiser_x_Drop_HD58X_Jubilee.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.05,
+      "bass": 0.41,
+      "low_mids": 0.54,
+      "mids": 0.25,
+      "upper_mids": -1.09,
+      "treble": -0.66,
+      "air": -0.56
+    },
+    "composite_metrics": {
+      "bassElev": -0.32,
+      "upperEnergy": -0.87,
+      "trebleElev": -0.61,
+      "midScoop": -0.99
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "43fb26ed-a00e-44af-b1c1-b6e0eebbd68e",
+    "name": "Shanling ME700 Lite",
+    "file": "Shanling_ME700_Lite.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -5.53,
+      "bass": -3.41,
+      "low_mids": -3.26,
+      "mids": 0.67,
+      "upper_mids": -0.35,
+      "treble": -0.51,
+      "air": -7.08
+    },
+    "composite_metrics": {
+      "bassElev": -4.47,
+      "upperEnergy": -0.43,
+      "trebleElev": -3.8,
+      "midScoop": -1.16
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "1682b6a9-dbc4-4d92-9667-e9a591f43c3e",
+    "name": "Shozy & Neo BG",
+    "file": "Shozy_Neo_BG.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -4.87,
+      "bass": -0.03,
+      "low_mids": 1.41,
+      "mids": 0.47,
+      "upper_mids": -3.59,
+      "treble": 2.27,
+      "air": -0.54
+    },
+    "composite_metrics": {
+      "bassElev": -2.45,
+      "upperEnergy": -0.66,
+      "trebleElev": 0.87,
+      "midScoop": -2.49
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "adadc6e7-dd47-4d48-9629-6f12ccc1b5ce",
+    "name": "LETSHUOER EJ07",
+    "file": "Shuoer_EJ07M.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.15,
+      "bass": -0.83,
+      "low_mids": -0.39,
+      "mids": 0.03,
+      "upper_mids": -0.76,
+      "treble": -3.19,
+      "air": -2.77
+    },
+    "composite_metrics": {
+      "bassElev": -0.34,
+      "upperEnergy": -1.97,
+      "trebleElev": -2.98,
+      "midScoop": -0.98
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "b0307f7b-c008-46d9-b8ec-998f00cebbbc",
+    "name": "Shure SRH1540",
+    "file": "Shure_SRH1540.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 5,
+      "bass": 6.63,
+      "low_mids": 1.56,
+      "mids": 0.78,
+      "upper_mids": 3.46,
+      "treble": 1.76,
+      "air": -1.56
+    },
+    "composite_metrics": {
+      "bassElev": 5.82,
+      "upperEnergy": 2.61,
+      "trebleElev": 0.1,
+      "midScoop": 3.04
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone, mid-forward",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "148a0bc9-c47d-4a96-8df7-d489da731a76",
+    "name": "Shure SRH440",
+    "file": "Shure_SRH440.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 3.61,
+      "bass": 2.66,
+      "low_mids": -0.11,
+      "mids": 0.54,
+      "upper_mids": 1.29,
+      "treble": 4.32,
+      "air": -1.9
+    },
+    "composite_metrics": {
+      "bassElev": 3.14,
+      "upperEnergy": 2.81,
+      "trebleElev": 1.21,
+      "midScoop": 2.76
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8216194f-aae8-4d3c-88e5-45e041ab75db",
+    "name": "Shure SRH840",
+    "file": "Shure_SRH840.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.26,
+      "bass": 3.35,
+      "low_mids": -0.32,
+      "mids": 0.61,
+      "upper_mids": 2.93,
+      "treble": 5.4,
+      "air": 0.26
+    },
+    "composite_metrics": {
+      "bassElev": 2.31,
+      "upperEnergy": 4.17,
+      "trebleElev": 2.83,
+      "midScoop": 3.09
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a30f7509-c4e2-43aa-a3b2-627eeea0d014",
+    "name": "Simgot EA1000 Fermat",
+    "file": "Simgot_EA1000.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.95,
+      "bass": 1.64,
+      "low_mids": 0.67,
+      "mids": 0.25,
+      "upper_mids": 1.72,
+      "treble": 1.28,
+      "air": 1.25
+    },
+    "composite_metrics": {
+      "bassElev": 1.29,
+      "upperEnergy": 1.5,
+      "trebleElev": 1.27,
+      "midScoop": 0.93
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f1fea1d6-2dee-44d2-8902-97a865d35dc0",
+    "name": "Simgot EA500LM",
+    "file": "Simgot_EA500.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.29,
+      "bass": 1.8,
+      "low_mids": 0.96,
+      "mids": 0.27,
+      "upper_mids": 1.26,
+      "treble": 1.08,
+      "air": 2.99
+    },
+    "composite_metrics": {
+      "bassElev": 1.05,
+      "upperEnergy": 1.17,
+      "trebleElev": 2.03,
+      "midScoop": 0.49
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f1fea1d6-2dee-44d2-8902-97a865d35dc0",
+    "name": "Simgot EA500LM",
+    "file": "Simgot_EA500LM.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.99,
+      "bass": 1.63,
+      "low_mids": 0.52,
+      "mids": 0.27,
+      "upper_mids": 2.49,
+      "treble": 3.12,
+      "air": 1.63
+    },
+    "composite_metrics": {
+      "bassElev": 1.81,
+      "upperEnergy": 2.8,
+      "trebleElev": 2.37,
+      "midScoop": 1.92
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "6e11b830-594f-4a4e-be7e-2d521cbdc0ff",
+    "name": "Simgot EM6L Phoenix",
+    "file": "Simgot_EM6L.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.31,
+      "bass": -0.43,
+      "low_mids": 0.14,
+      "mids": -0.33,
+      "upper_mids": 1.65,
+      "treble": 2.16,
+      "air": 2.28
+    },
+    "composite_metrics": {
+      "bassElev": -0.06,
+      "upperEnergy": 1.91,
+      "trebleElev": 2.22,
+      "midScoop": 1.01
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "ba1b6956-4a3c-4460-864e-67e969da4351",
+    "name": "Simgot EW200",
+    "file": "Simgot_EW200.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.84,
+      "bass": 1.21,
+      "low_mids": 0.33,
+      "mids": 0.26,
+      "upper_mids": 2.25,
+      "treble": 1.64,
+      "air": 1.75
+    },
+    "composite_metrics": {
+      "bassElev": 1.52,
+      "upperEnergy": 1.94,
+      "trebleElev": 1.69,
+      "midScoop": 1.44
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun V-shape, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "830632f6-e512-4505-97b8-df98b38ad403",
+    "name": "SIMGOT EW300",
+    "file": "Simgot_EW300.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 3.67,
+      "bass": 2.87,
+      "low_mids": 1.31,
+      "mids": -0.31,
+      "upper_mids": -0.17,
+      "treble": 1.31,
+      "air": 0.52
+    },
+    "composite_metrics": {
+      "bassElev": 3.27,
+      "upperEnergy": 0.57,
+      "trebleElev": 0.91,
+      "midScoop": 1.42
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "830632f6-e512-4505-97b8-df98b38ad403",
+    "name": "SIMGOT EW300",
+    "file": "Simgot_EW300_DSP.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.62,
+      "bass": 0.81,
+      "low_mids": -0.34,
+      "mids": -0.27,
+      "upper_mids": 0.14,
+      "treble": -1.39,
+      "air": 2.31
+    },
+    "composite_metrics": {
+      "bassElev": 1.72,
+      "upperEnergy": -0.62,
+      "trebleElev": 0.46,
+      "midScoop": 0.85
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "776219b0-386b-4856-b4e8-8650250cd8b4",
+    "name": "Sivga Phoenix",
+    "file": "Sivga_Phoenix.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.41,
+      "bass": 1.65,
+      "low_mids": 2.21,
+      "mids": -0.9,
+      "upper_mids": -0.55,
+      "treble": -0.4,
+      "air": -2.67
+    },
+    "composite_metrics": {
+      "bassElev": 2.03,
+      "upperEnergy": -0.48,
+      "trebleElev": -1.54,
+      "midScoop": 0.12
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, treble-rolled",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "489ce849-2393-429a-9879-204f2b7857d8",
+    "name": "Softears RS10",
+    "file": "Softears_RS10.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.34,
+      "bass": -1.26,
+      "low_mids": -1.27,
+      "mids": -0.08,
+      "upper_mids": 1.55,
+      "treble": 0.25,
+      "air": -1.15
+    },
+    "composite_metrics": {
+      "bassElev": -1.8,
+      "upperEnergy": 0.9,
+      "trebleElev": -0.45,
+      "midScoop": 0.23
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0282821c-f784-4763-b9da-495787cbdd72",
+    "name": "Softears RSV",
+    "file": "Softears_RSV.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -3.6,
+      "bass": -2.2,
+      "low_mids": -0.73,
+      "mids": -0.79,
+      "upper_mids": -0.89,
+      "treble": -0.35,
+      "air": -1.27
+    },
+    "composite_metrics": {
+      "bassElev": -2.9,
+      "upperEnergy": -0.62,
+      "trebleElev": -0.81,
+      "midScoop": -1
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0282821c-f784-4763-b9da-495787cbdd72",
+    "name": "Softears RSV",
+    "file": "Softears_RSV_MK2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.47,
+      "bass": 1.9,
+      "low_mids": 0.08,
+      "mids": -0.71,
+      "upper_mids": -1.23,
+      "treble": -0.53,
+      "air": -2.03
+    },
+    "composite_metrics": {
+      "bassElev": 1.18,
+      "upperEnergy": -0.88,
+      "trebleElev": -1.28,
+      "midScoop": 0.46
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "fceb45a0-dd73-42d2-8639-a0bc9dcef2a5",
+    "name": "Softears Studio 4",
+    "file": "Softears_Studio_4.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -4.05,
+      "bass": -3.25,
+      "low_mids": -0.94,
+      "mids": -0.31,
+      "upper_mids": -0.4,
+      "treble": -1.23,
+      "air": 2.44
+    },
+    "composite_metrics": {
+      "bassElev": -3.65,
+      "upperEnergy": -0.82,
+      "trebleElev": 0.6,
+      "midScoop": -1.61
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ec4680ee-463a-4c91-b1cf-21d9189ba244",
+    "name": "Softears Turii",
+    "file": "Softears_Turii.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.53,
+      "bass": 2.29,
+      "low_mids": 2.08,
+      "mids": 0.07,
+      "upper_mids": 1.7,
+      "treble": 4.25,
+      "air": 0.64
+    },
+    "composite_metrics": {
+      "bassElev": 0.88,
+      "upperEnergy": 2.98,
+      "trebleElev": 2.44,
+      "midScoop": 0.85
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, mid-forward",
+    "confidence": "high"
+  },
+  {
+    "db_id": "e1b94716-9d97-4ebf-aff2-245152831151",
+    "name": "Softears Twilight",
+    "file": "Softears_Twilight.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.52,
+      "bass": 3.36,
+      "low_mids": 3.25,
+      "mids": -0.34,
+      "upper_mids": 0.38,
+      "treble": 0.2,
+      "air": -3.04
+    },
+    "composite_metrics": {
+      "bassElev": 1.94,
+      "upperEnergy": 0.29,
+      "trebleElev": -1.42,
+      "midScoop": -0.34
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, bass-boosted, treble-rolled",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "dd4d9ca4-a9d6-4985-b01c-d14fd721f2f2",
+    "name": "Softears Volume",
+    "file": "Softears_Volume.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.09,
+      "bass": -0.89,
+      "low_mids": 0.14,
+      "mids": -0.36,
+      "upper_mids": 1.38,
+      "treble": 0.39,
+      "air": -3.79
+    },
+    "composite_metrics": {
+      "bassElev": -0.99,
+      "upperEnergy": 0.88,
+      "trebleElev": -1.7,
+      "midScoop": 0.05
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "dd4d9ca4-a9d6-4985-b01c-d14fd721f2f2",
+    "name": "Softears Volume",
+    "file": "Softears_Volume_S.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.35,
+      "bass": 1.16,
+      "low_mids": 0.61,
+      "mids": -0.08,
+      "upper_mids": -0.02,
+      "treble": -2,
+      "air": -3.15
+    },
+    "composite_metrics": {
+      "bassElev": 0.75,
+      "upperEnergy": -1.01,
+      "trebleElev": -2.58,
+      "midScoop": -0.39
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "ed3223a8-14cd-421b-a8c6-37230bc7ed0c",
+    "name": "Sony MDR-AS800AP",
+    "file": "Sony_AS800.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.1,
+      "bass": 1.1,
+      "low_mids": 0.55,
+      "mids": 0.07,
+      "upper_mids": -0.43,
+      "treble": -0.03,
+      "air": -4.72
+    },
+    "composite_metrics": {
+      "bassElev": 0.5,
+      "upperEnergy": -0.23,
+      "trebleElev": -2.37,
+      "midScoop": -0.17
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "970517f6-0a6a-4955-9be9-9c7b5bf711e4",
+    "name": "Sony IER-M9",
+    "file": "Sony_IER_M9.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.02,
+      "bass": 0.86,
+      "low_mids": 0.66,
+      "mids": -0.79,
+      "upper_mids": -3.73,
+      "treble": -3.86,
+      "air": 0.44
+    },
+    "composite_metrics": {
+      "bassElev": -0.58,
+      "upperEnergy": -3.8,
+      "trebleElev": -1.71,
+      "midScoop": -2.13
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ad63b238-c4e5-4af1-bb2d-0f3272713fe6",
+    "name": "Sony IER-Z1R",
+    "file": "Sony_IER_Z1R.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.81,
+      "bass": 1.75,
+      "low_mids": -0.34,
+      "mids": -0.06,
+      "upper_mids": -1.49,
+      "treble": 2.33,
+      "air": 2.56
+    },
+    "composite_metrics": {
+      "bassElev": 1.28,
+      "upperEnergy": 0.42,
+      "trebleElev": 2.45,
+      "midScoop": 1.05
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f9e84df0-ad35-43da-8ffd-a88338fcbae2",
+    "name": "Sony MDR-1AM2",
+    "file": "Sony_MDR_1AM2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 8.32,
+      "bass": 6.53,
+      "low_mids": 0.78,
+      "mids": 0.27,
+      "upper_mids": 0.94,
+      "treble": 5.36,
+      "air": 1.21
+    },
+    "composite_metrics": {
+      "bassElev": 7.43,
+      "upperEnergy": 3.15,
+      "trebleElev": 3.28,
+      "midScoop": 4.77
+    },
+    "derived_signature": "v-shaped",
+    "derived_signature_detail": "V-shaped, bass-heavy",
+    "confidence": "high"
+  },
+  {
+    "db_id": "c33a3371-7c68-4014-a244-bca2c17d4e23",
+    "name": "Sony MDR-CD380",
+    "file": "Sony_MDR_CD380.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.2,
+      "bass": -1.2,
+      "low_mids": -0.48,
+      "mids": 1.69,
+      "upper_mids": 4.84,
+      "treble": 2.07,
+      "air": -6.27
+    },
+    "composite_metrics": {
+      "bassElev": -2.2,
+      "upperEnergy": 3.46,
+      "trebleElev": -2.1,
+      "midScoop": 0.02
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, treble-rolled",
+    "confidence": "high"
+  },
+  {
+    "db_id": "12b91bc5-be4a-45e8-b691-e44e950c7fea",
+    "name": "Sony MDR-MA900",
+    "file": "Sony_MDR_MA900.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -6.5,
+      "bass": 0.82,
+      "low_mids": -0.17,
+      "mids": -0.5,
+      "upper_mids": 0.1,
+      "treble": 1.08,
+      "air": -7.79
+    },
+    "composite_metrics": {
+      "bassElev": -2.84,
+      "upperEnergy": 0.59,
+      "trebleElev": -3.36,
+      "midScoop": -0.79
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b9ad9b2e-8370-4fe9-91d6-c5621ef7ac91",
+    "name": "Sony MDR-SA5000",
+    "file": "Sony_MDR_SA5000__AliExpress_replacement_pads_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.84,
+      "bass": 0.57,
+      "low_mids": 0.15,
+      "mids": -1.11,
+      "upper_mids": -0.27,
+      "treble": 0.31,
+      "air": 0.66
+    },
+    "composite_metrics": {
+      "bassElev": -1.64,
+      "upperEnergy": 0.02,
+      "trebleElev": 0.48,
+      "midScoop": -0.33
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b9ad9b2e-8370-4fe9-91d6-c5621ef7ac91",
+    "name": "Sony MDR-SA5000",
+    "file": "Sony_MDR_V6.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.31,
+      "bass": -0.66,
+      "low_mids": -2.14,
+      "mids": 1.3,
+      "upper_mids": 4.21,
+      "treble": 4.59,
+      "air": -4.26
+    },
+    "composite_metrics": {
+      "bassElev": 0.82,
+      "upperEnergy": 4.4,
+      "trebleElev": 0.17,
+      "midScoop": 3.03
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, forward, treble-rolled",
+    "confidence": "high"
+  },
+  {
+    "db_id": "6c7f14df-7f46-4cff-9beb-7e0747230131",
+    "name": "Sony MDR-Z1R",
+    "file": "Sony_MDR_Z1R.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 4.06,
+      "bass": 2.61,
+      "low_mids": 1.5,
+      "mids": -0.14,
+      "upper_mids": -1.77,
+      "treble": -0.53,
+      "air": -2.63
+    },
+    "composite_metrics": {
+      "bassElev": 3.33,
+      "upperEnergy": -1.15,
+      "trebleElev": -1.58,
+      "midScoop": 0.41
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm, bass-boosted, treble-rolled",
+    "confidence": "high"
+  },
+  {
+    "db_id": "fe832aaa-f998-43cc-b3b6-ae9eeaa55434",
+    "name": "Sony MH755",
+    "file": "Sony_MH755.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 3.48,
+      "bass": 1.89,
+      "low_mids": 0.94,
+      "mids": -0.25,
+      "upper_mids": 1.71,
+      "treble": 1.9,
+      "air": -0.06
+    },
+    "composite_metrics": {
+      "bassElev": 2.68,
+      "upperEnergy": 1.8,
+      "trebleElev": 0.92,
+      "midScoop": 1.9
+    },
+    "derived_signature": "fun",
+    "derived_signature_detail": "Fun, bass-boosted",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "c923c25c-4e08-47ad-b7b8-e80e38be6297",
+    "name": "Stax SR-007 Mk2",
+    "file": "Stax_SR_007_Mk2_5.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.25,
+      "bass": -0.8,
+      "low_mids": -0.12,
+      "mids": -0.49,
+      "upper_mids": -2.85,
+      "treble": -6.01,
+      "air": 0.65
+    },
+    "composite_metrics": {
+      "bassElev": -1.52,
+      "upperEnergy": -4.43,
+      "trebleElev": -2.68,
+      "midScoop": -2.67
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "e8f74c2b-c04f-4b10-8ffb-b319c5e3e10d",
+    "name": "Stax SR-009",
+    "file": "Stax_SR_009.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.73,
+      "bass": -2.48,
+      "low_mids": -1.18,
+      "mids": 1.14,
+      "upper_mids": 0.12,
+      "treble": -3.24,
+      "air": -0.33
+    },
+    "composite_metrics": {
+      "bassElev": -2.6,
+      "upperEnergy": -1.56,
+      "trebleElev": -1.79,
+      "midScoop": -2.06
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "2dc73559-7989-4f40-a08a-8cf78654c432",
+    "name": "Stax SR-009S",
+    "file": "Stax_SR_009S.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.7,
+      "bass": -2.85,
+      "low_mids": -1.52,
+      "mids": 1.09,
+      "upper_mids": -0.58,
+      "treble": -2.1,
+      "air": 0.47
+    },
+    "composite_metrics": {
+      "bassElev": -3.28,
+      "upperEnergy": -1.34,
+      "trebleElev": -0.82,
+      "midScoop": -2.09
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+    "name": "Stax SR-404",
+    "file": "Stax_SR_40.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -16.14,
+      "bass": -2.8,
+      "low_mids": 0.92,
+      "mids": 0.89,
+      "upper_mids": -2.05,
+      "treble": -1.01,
+      "air": -3.07
+    },
+    "composite_metrics": {
+      "bassElev": -9.47,
+      "upperEnergy": -1.53,
+      "trebleElev": -2.04,
+      "midScoop": -6.41
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+    "name": "Stax SR-404",
+    "file": "Stax_SR_404.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.88,
+      "bass": -2,
+      "low_mids": -1.12,
+      "mids": 1.66,
+      "upper_mids": 0.19,
+      "treble": -2.39,
+      "air": -0.61
+    },
+    "composite_metrics": {
+      "bassElev": -1.44,
+      "upperEnergy": -1.1,
+      "trebleElev": -1.5,
+      "midScoop": -1.54
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bb72ed1f-eb89-476e-891c-8e4dfe22382e",
+    "name": "Stax SR-404",
+    "file": "Stax_SR_404_Limited.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.75,
+      "bass": -2.11,
+      "low_mids": -1.18,
+      "mids": 1.82,
+      "upper_mids": -0.44,
+      "treble": -1.55,
+      "air": 0.11
+    },
+    "composite_metrics": {
+      "bassElev": -1.43,
+      "upperEnergy": -1,
+      "trebleElev": -0.72,
+      "midScoop": -1.53
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a8f7c978-e779-4f5d-811d-9c6350a376e0",
+    "name": "Stax SR-4070",
+    "file": "Stax_SR_4070.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.79,
+      "bass": 0.35,
+      "low_mids": 0.32,
+      "mids": 1.6,
+      "upper_mids": 4.22,
+      "treble": -0.47,
+      "air": 1.48
+    },
+    "composite_metrics": {
+      "bassElev": 1.07,
+      "upperEnergy": 1.87,
+      "trebleElev": 0.5,
+      "midScoop": 0.51
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "faaf965e-2115-49f9-aef2-554660e8e83c",
+    "name": "Stax SR-507",
+    "file": "Stax_SR_507.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.98,
+      "bass": -1.89,
+      "low_mids": -1.26,
+      "mids": 1.97,
+      "upper_mids": -0.6,
+      "treble": -0.56,
+      "air": -0.08
+    },
+    "composite_metrics": {
+      "bassElev": -1.43,
+      "upperEnergy": -0.58,
+      "trebleElev": -0.32,
+      "midScoop": -1.37
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "7e5c3d33-b3a0-421c-a364-c84c994e7cd1",
+    "name": "Stax SR-L300",
+    "file": "Stax_SR_L300.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.34,
+      "bass": -0.65,
+      "low_mids": -0.89,
+      "mids": 0.64,
+      "upper_mids": -0.38,
+      "treble": 0.98,
+      "air": 0.44
+    },
+    "composite_metrics": {
+      "bassElev": -1.49,
+      "upperEnergy": 0.3,
+      "trebleElev": 0.71,
+      "midScoop": -0.47
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "7c7e7f35-a46e-4905-ab14-eef52fb64b7f",
+    "name": "Stax SR-L300 Limited",
+    "file": "Stax_SR_L300_Limited.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.47,
+      "bass": -2.46,
+      "low_mids": -1.95,
+      "mids": 0.7,
+      "upper_mids": -4.15,
+      "treble": -0.64,
+      "air": -0.22
+    },
+    "composite_metrics": {
+      "bassElev": -1.97,
+      "upperEnergy": -2.39,
+      "trebleElev": -0.43,
+      "midScoop": -1.55
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "9837fdee-c73c-4015-9cfd-bf9d8ca156c7",
+    "name": "Stax SR-L500 Mk2",
+    "file": "Stax_SR_L500.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.91,
+      "bass": -2.02,
+      "low_mids": -1.73,
+      "mids": 0.89,
+      "upper_mids": -3.03,
+      "treble": -0.51,
+      "air": 1.8
+    },
+    "composite_metrics": {
+      "bassElev": -1.97,
+      "upperEnergy": -1.77,
+      "trebleElev": 0.64,
+      "midScoop": -1.45
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b3778a60-ee56-405b-85c2-c4322fb25d9e",
+    "name": "Stax SR-L700",
+    "file": "Stax_SR_L700.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -3.05,
+      "bass": -1.72,
+      "low_mids": -1.86,
+      "mids": 0.74,
+      "upper_mids": -3.78,
+      "treble": -0.73,
+      "air": 0.97
+    },
+    "composite_metrics": {
+      "bassElev": -2.38,
+      "upperEnergy": -2.25,
+      "trebleElev": 0.12,
+      "midScoop": -1.76
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "7dfd521f-f69d-44ae-a439-fe3ae735695f",
+    "name": "Stax SR-Lambda Pro",
+    "file": "Stax_SR_Lambda_Pro.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -0.63,
+      "bass": -2.06,
+      "low_mids": -1.12,
+      "mids": 1.14,
+      "upper_mids": -0.97,
+      "treble": 0.35,
+      "air": 3.43
+    },
+    "composite_metrics": {
+      "bassElev": -1.34,
+      "upperEnergy": -0.31,
+      "trebleElev": 1.89,
+      "midScoop": -0.84
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a7dc421a-7560-465d-868d-6be7dae27d3a",
+    "name": "Stax SR-X9000",
+    "file": "Stax_SR_X_Mk2.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -17.83,
+      "bass": -3.56,
+      "low_mids": -0.57,
+      "mids": -0.35,
+      "upper_mids": 1.52,
+      "treble": -0.18,
+      "air": -1.12
+    },
+    "composite_metrics": {
+      "bassElev": -10.7,
+      "upperEnergy": 0.67,
+      "trebleElev": -0.65,
+      "midScoop": -4.55
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "76625cc8-5022-4aa4-aeb4-1d61ed953b72",
+    "name": "Subtonic SUBTONIC STORM",
+    "file": "Subtonic_Storm.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.56,
+      "bass": -1.07,
+      "low_mids": -0.4,
+      "mids": -0.92,
+      "upper_mids": -2.23,
+      "treble": -1.65,
+      "air": 1.18
+    },
+    "composite_metrics": {
+      "bassElev": -0.82,
+      "upperEnergy": -1.94,
+      "trebleElev": -0.23,
+      "midScoop": -0.72
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "17a83cca-a080-4f1b-9051-93d9ffba45a7",
+    "name": "Symphonium Helios",
+    "file": "Symphonium_Audio_x_Elise_Helios_SE.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.46,
+      "bass": -3.22,
+      "low_mids": -2.47,
+      "mids": -0.15,
+      "upper_mids": -2.08,
+      "treble": -2.34,
+      "air": -3.67
+    },
+    "composite_metrics": {
+      "bassElev": -2.34,
+      "upperEnergy": -2.21,
+      "trebleElev": -3,
+      "midScoop": -0.96
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "c38c7ac3-1448-4340-b896-ccd88320f972",
+    "name": "TRI Starlight",
+    "file": "TRI_Starlight.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.47,
+      "bass": -0.71,
+      "low_mids": -0.6,
+      "mids": 0.48,
+      "upper_mids": -0.2,
+      "treble": 2.16,
+      "air": 11.04
+    },
+    "composite_metrics": {
+      "bassElev": -1.09,
+      "upperEnergy": 0.98,
+      "trebleElev": 6.6,
+      "midScoop": 0.01
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "22006dfe-f03f-48fd-beda-811b0b30742c",
+    "name": "TRI Starshine",
+    "file": "TRI_Starshine.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -4.99,
+      "bass": -0.37,
+      "low_mids": 1.75,
+      "mids": -0.99,
+      "upper_mids": -0.85,
+      "treble": 3.13,
+      "air": 11.21
+    },
+    "composite_metrics": {
+      "bassElev": -2.68,
+      "upperEnergy": 1.14,
+      "trebleElev": 7.17,
+      "midScoop": -1.15
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5ed73b8f-c259-4f73-b496-716265a6652c",
+    "name": "Tanchjim New Hana (2021)",
+    "file": "Tanchjim_New_HANA__2021_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.99,
+      "bass": 1.89,
+      "low_mids": 0.28,
+      "mids": 0.51,
+      "upper_mids": 1.76,
+      "treble": -0.74,
+      "air": -0.12
+    },
+    "composite_metrics": {
+      "bassElev": 1.94,
+      "upperEnergy": 0.51,
+      "trebleElev": -0.43,
+      "midScoop": 0.82
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "54a8d13a-b740-48d8-9839-84c5e1544800",
+    "name": "Tanchjim Oxygen",
+    "file": "Tanchjim_Oxygen.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.36,
+      "bass": 0.6,
+      "low_mids": -0.37,
+      "mids": 0.28,
+      "upper_mids": 1.2,
+      "treble": 0.91,
+      "air": 1.61
+    },
+    "composite_metrics": {
+      "bassElev": 0.12,
+      "upperEnergy": 1.05,
+      "trebleElev": 1.26,
+      "midScoop": 0.63
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "6a27d594-78e7-42c6-8edb-44abae6e2314",
+    "name": "Tanchjim Prism",
+    "file": "Tanchjim_Prism.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.72,
+      "bass": 0.52,
+      "low_mids": -0.16,
+      "mids": 0.39,
+      "upper_mids": 2.64,
+      "treble": -1.62,
+      "air": -0.2
+    },
+    "composite_metrics": {
+      "bassElev": 0.62,
+      "upperEnergy": 0.51,
+      "trebleElev": -0.91,
+      "midScoop": 0.45
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, sibilant-prone",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a264f780-1b0d-42f9-aedf-dc21cdc3e2c4",
+    "name": "Tangzu Zetian Wu",
+    "file": "Tangzu_Zetian_Wu.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.09,
+      "bass": 0.2,
+      "low_mids": -0.03,
+      "mids": 0.31,
+      "upper_mids": 0.6,
+      "treble": 0.45,
+      "air": 2.73
+    },
+    "composite_metrics": {
+      "bassElev": 1.14,
+      "upperEnergy": 0.52,
+      "trebleElev": 1.59,
+      "midScoop": 0.69
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "a264f780-1b0d-42f9-aedf-dc21cdc3e2c4",
+    "name": "Tangzu Zetian Wu",
+    "file": "Tangzu_Zetian_Wu_Heyday.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.12,
+      "bass": -2.19,
+      "low_mids": -0.88,
+      "mids": 0.28,
+      "upper_mids": -0.91,
+      "treble": 0.67,
+      "air": 1.27
+    },
+    "composite_metrics": {
+      "bassElev": -2.16,
+      "upperEnergy": -0.12,
+      "trebleElev": 0.97,
+      "midScoop": -0.84
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "fb1bac5d-e1ed-4928-8ce4-26d118aed047",
+    "name": "Thieaudio HYPE 4",
+    "file": "Thieaudio_Hype_4.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.31,
+      "bass": 1.21,
+      "low_mids": 0.15,
+      "mids": -0.25,
+      "upper_mids": 0.17,
+      "treble": 0.08,
+      "air": 2.82
+    },
+    "composite_metrics": {
+      "bassElev": 1.76,
+      "upperEnergy": 0.13,
+      "trebleElev": 1.45,
+      "midScoop": 1
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "fb1bac5d-e1ed-4928-8ce4-26d118aed047",
+    "name": "Thieaudio HYPE 4",
+    "file": "Thieaudio_Hype_4_MK2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.52,
+      "bass": -1.87,
+      "low_mids": 0.27,
+      "mids": -0.49,
+      "upper_mids": -0.44,
+      "treble": 1.39,
+      "air": 2.82
+    },
+    "composite_metrics": {
+      "bassElev": -0.68,
+      "upperEnergy": 0.48,
+      "trebleElev": 2.11,
+      "midScoop": 0.01
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "5c2cced9-2d73-4eb3-9ec8-e61bf88c3921",
+    "name": "Thieaudio ThieAudio Legacy 5 (L5)",
+    "file": "Thieaudio_Legacy_5__L5_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -6.04,
+      "bass": -4.33,
+      "low_mids": -2.49,
+      "mids": -0.38,
+      "upper_mids": -3.88,
+      "treble": -1.63,
+      "air": -9.33
+    },
+    "composite_metrics": {
+      "bassElev": -5.19,
+      "upperEnergy": -2.76,
+      "trebleElev": -5.48,
+      "midScoop": -2.54
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "3e0a5cee-0adb-477d-b9ec-b0312c1d3d66",
+    "name": "Thieaudio ThieAudio Monarch Mk2",
+    "file": "Thieaudio_Monarch_Mk2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.26,
+      "bass": -0.36,
+      "low_mids": -0.4,
+      "mids": -0.42,
+      "upper_mids": -0.24,
+      "treble": 0.59,
+      "air": 0.32
+    },
+    "composite_metrics": {
+      "bassElev": -0.05,
+      "upperEnergy": 0.18,
+      "trebleElev": 0.45,
+      "midScoop": 0.47
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral (near-median)",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "008f1cc8-5a5a-4f7d-8400-eddf069a8fed",
+    "name": "Thieaudio Monarch Mk3",
+    "file": "Thieaudio_Monarch_Mk3.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.97,
+      "bass": -0.22,
+      "low_mids": -1.48,
+      "mids": -0.05,
+      "upper_mids": 0.45,
+      "treble": 2.25,
+      "air": 5.42
+    },
+    "composite_metrics": {
+      "bassElev": 0.38,
+      "upperEnergy": 1.35,
+      "trebleElev": 3.84,
+      "midScoop": 1.63
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright and airy",
+    "confidence": "low"
+  },
+  {
+    "db_id": "eb92b26b-450d-412b-b543-5c76d29954a6",
+    "name": "Thieaudio Monarch MK4",
+    "file": "Thieaudio_Monarch_Mk4.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.77,
+      "bass": -0.83,
+      "low_mids": -0.29,
+      "mids": -0.24,
+      "upper_mids": 0.68,
+      "treble": 0.11,
+      "air": 2.53
+    },
+    "composite_metrics": {
+      "bassElev": -0.03,
+      "upperEnergy": 0.39,
+      "trebleElev": 1.32,
+      "midScoop": 0.45
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "af7fcf30-e7e0-48db-beea-2c40c46579b8",
+    "name": "Thieaudio Oracle",
+    "file": "Thieaudio_Oracle__Mk1_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.83,
+      "bass": -0.95,
+      "low_mids": -0.65,
+      "mids": -0.59,
+      "upper_mids": -2.07,
+      "treble": -1.47,
+      "air": 2.92
+    },
+    "composite_metrics": {
+      "bassElev": -1.39,
+      "upperEnergy": -1.77,
+      "trebleElev": 0.72,
+      "midScoop": -0.96
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+    "name": "Thieaudio Prestige LTD",
+    "file": "Thieaudio_Prestige.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.21,
+      "bass": 0.27,
+      "low_mids": -0.96,
+      "mids": -0.49,
+      "upper_mids": -1.07,
+      "treble": 1.13,
+      "air": 7.62
+    },
+    "composite_metrics": {
+      "bassElev": 0.24,
+      "upperEnergy": 0.03,
+      "trebleElev": 4.38,
+      "midScoop": 0.86
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "eaa80014-cf74-4fa2-a12f-4684d1e14e3f",
+    "name": "Thieaudio Prestige LTD",
+    "file": "Thieaudio_Prestige_LTD.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.68,
+      "bass": 0.75,
+      "low_mids": -0.05,
+      "mids": -0.33,
+      "upper_mids": -0.58,
+      "treble": 0.24,
+      "air": 1.39
+    },
+    "composite_metrics": {
+      "bassElev": 0.72,
+      "upperEnergy": -0.17,
+      "trebleElev": 0.82,
+      "midScoop": 0.46
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "bd628e09-4ee1-4b8d-a6df-936fd744d14b",
+    "name": "ThieAudio V16 Divinity",
+    "file": "Thieaudio_V16_Divinity.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.07,
+      "bass": 0.43,
+      "low_mids": -0.77,
+      "mids": -0.01,
+      "upper_mids": -0.65,
+      "treble": -0.54,
+      "air": -5.74
+    },
+    "composite_metrics": {
+      "bassElev": -0.32,
+      "upperEnergy": -0.59,
+      "trebleElev": -3.14,
+      "midScoop": -0.07
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "cf2a2c98-1a23-4341-bba6-07adcfc65d29",
+    "name": "Thieaudio Valhalla",
+    "file": "Thieaudio_Valhalla.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 2.18,
+      "bass": 0.81,
+      "low_mids": 0.65,
+      "mids": 0.22,
+      "upper_mids": -0.42,
+      "treble": -0.46,
+      "air": 2.91
+    },
+    "composite_metrics": {
+      "bassElev": 1.5,
+      "upperEnergy": -0.44,
+      "trebleElev": 1.22,
+      "midScoop": 0.09
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "62266c99-b1f2-48b4-97a9-e0f3ceb07380",
+    "name": "Timsok TS-1024",
+    "file": "Timsok_TS_1024.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 1.37,
+      "bass": 1.36,
+      "low_mids": 1.31,
+      "mids": -1.46,
+      "upper_mids": -3.87,
+      "treble": -0.27,
+      "air": 0.02
+    },
+    "composite_metrics": {
+      "bassElev": 1.37,
+      "upperEnergy": -2.07,
+      "trebleElev": -0.12,
+      "midScoop": -0.27
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm",
+    "confidence": "low"
+  },
+  {
+    "db_id": "ee9478b2-c0fb-47fc-aaf6-23aedf73d497",
+    "name": "Tin HiFi T3 Plus",
+    "file": "Tin_T3.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.89,
+      "bass": 0.48,
+      "low_mids": 1.77,
+      "mids": -0.8,
+      "upper_mids": -3.33,
+      "treble": 2.33,
+      "air": -5.67
+    },
+    "composite_metrics": {
+      "bassElev": -1.2,
+      "upperEnergy": -0.5,
+      "trebleElev": -1.67,
+      "midScoop": -1.34
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "58acb281-8b5b-4fb4-b4a0-d0f3bc3497f6",
+    "name": "Tin HiFi T4",
+    "file": "Tin_T4.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.08,
+      "bass": 0.16,
+      "low_mids": -0.84,
+      "mids": 0.71,
+      "upper_mids": 0.35,
+      "treble": 4.08,
+      "air": -3.9
+    },
+    "composite_metrics": {
+      "bassElev": 0.04,
+      "upperEnergy": 2.21,
+      "trebleElev": 0.09,
+      "midScoop": 1.2
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, treble-rolled",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "f2ff87b0-d073-4891-b5cb-566ca2f63286",
+    "name": "Truthear HEXA",
+    "file": "Truthear_Hexa.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -2.88,
+      "bass": -2.54,
+      "low_mids": -0.21,
+      "mids": -0.17,
+      "upper_mids": -0.39,
+      "treble": -0.29,
+      "air": -0.56
+    },
+    "composite_metrics": {
+      "bassElev": -2.71,
+      "upperEnergy": -0.34,
+      "trebleElev": -0.43,
+      "midScoop": -1.34
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "0fe44b07-8282-49ff-b3e4-fa517617ae9c",
+    "name": "Truthear Hola",
+    "file": "Truthear_Hola.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.01,
+      "bass": -0.8,
+      "low_mids": -0.2,
+      "mids": -0.08,
+      "upper_mids": -0.42,
+      "treble": -2.97,
+      "air": -1.65
+    },
+    "composite_metrics": {
+      "bassElev": -0.4,
+      "upperEnergy": -1.69,
+      "trebleElev": -2.31,
+      "midScoop": -0.91
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "cc8ff815-a1a8-4204-a4e7-a6a18b70bf51",
+    "name": "Truthear NOVA",
+    "file": "Truthear_Nova.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.66,
+      "bass": -1.31,
+      "low_mids": -1.23,
+      "mids": 0.11,
+      "upper_mids": 1.13,
+      "treble": 0.5,
+      "air": -1.57
+    },
+    "composite_metrics": {
+      "bassElev": -0.32,
+      "upperEnergy": 0.81,
+      "trebleElev": -0.53,
+      "midScoop": 0.81
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Bright neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "c6d19dac-0f83-4c77-9df8-50671cdc6a08",
+    "name": "Unique Melody MEST",
+    "file": "Unique_Melody_Mini_MEST.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.05,
+      "bass": 1.99,
+      "low_mids": 1.52,
+      "mids": -0.61,
+      "upper_mids": -2.57,
+      "treble": 4.75,
+      "air": -6.68
+    },
+    "composite_metrics": {
+      "bassElev": 0.97,
+      "upperEnergy": 1.09,
+      "trebleElev": -0.97,
+      "midScoop": 0.57
+    },
+    "derived_signature": "bright",
+    "derived_signature_detail": "Bright, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "f47d14b5-3e55-4820-bac8-3cf2de1377a4",
+    "name": "Veedix Diamond String",
+    "file": "Veedix_Diamond_String.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.26,
+      "bass": 0.09,
+      "low_mids": 0.54,
+      "mids": -0.54,
+      "upper_mids": 0.68,
+      "treble": -0.23,
+      "air": 2.4
+    },
+    "composite_metrics": {
+      "bassElev": 0.17,
+      "upperEnergy": 0.23,
+      "trebleElev": 1.08,
+      "midScoop": 0.2
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "2e286ebc-ad01-451d-b763-f37176aa02be",
+    "name": "XENNS Mangird Tea 2",
+    "file": "XENNS_Mangird_Tea_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.39,
+      "bass": -0.76,
+      "low_mids": -0.55,
+      "mids": 0.21,
+      "upper_mids": -1.62,
+      "treble": -3.79,
+      "air": -5.97
+    },
+    "composite_metrics": {
+      "bassElev": -0.57,
+      "upperEnergy": -2.71,
+      "trebleElev": -4.88,
+      "midScoop": -1.47
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "2e286ebc-ad01-451d-b763-f37176aa02be",
+    "name": "XENNS Mangird Tea 2",
+    "file": "XENNS_Mangird_Tea__1_.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -5.87,
+      "bass": -4.8,
+      "low_mids": -2.05,
+      "mids": -0.67,
+      "upper_mids": -3.73,
+      "treble": -5.46,
+      "air": -6.98
+    },
+    "composite_metrics": {
+      "bassElev": -5.34,
+      "upperEnergy": -4.59,
+      "trebleElev": -6.22,
+      "midScoop": -3.61
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "high"
+  },
+  {
+    "db_id": "f3d410ba-1654-488f-8039-12e9458ca038",
+    "name": "XENNS Tea Pro",
+    "file": "XENNS_Tea_Pro.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 3.25,
+      "bass": 1.58,
+      "low_mids": 0.34,
+      "mids": -0.16,
+      "upper_mids": -0.16,
+      "treble": -0.4,
+      "air": -1.22
+    },
+    "composite_metrics": {
+      "bassElev": 2.41,
+      "upperEnergy": -0.28,
+      "trebleElev": -0.81,
+      "midScoop": 0.98
+    },
+    "derived_signature": "warm",
+    "derived_signature_detail": "Warm",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "f3d410ba-1654-488f-8039-12e9458ca038",
+    "name": "XENNS Tea Pro",
+    "file": "XENNS_Tea_Pro_SE.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 1.75,
+      "bass": -0.94,
+      "low_mids": -0.29,
+      "mids": -0.1,
+      "upper_mids": -0.42,
+      "treble": 0.26,
+      "air": 0.18
+    },
+    "composite_metrics": {
+      "bassElev": 0.41,
+      "upperEnergy": -0.08,
+      "trebleElev": 0.22,
+      "midScoop": 0.35
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "7691e995-cc1d-4a2e-b1f5-a52c3ba34bbb",
+    "name": "XENNS UP",
+    "file": "XENNS_UP.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.94,
+      "bass": 0.82,
+      "low_mids": -0.15,
+      "mids": 0.23,
+      "upper_mids": -0.14,
+      "treble": -0.57,
+      "air": -3.88
+    },
+    "composite_metrics": {
+      "bassElev": 0.88,
+      "upperEnergy": -0.36,
+      "trebleElev": -2.22,
+      "midScoop": 0.22
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Warm neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b23d062d-be5b-4b30-ae0f-94609e74d077",
+    "name": "ZMF Aeolus",
+    "file": "ZMF_Aeolus__Perforated_suede_Universe_pads_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -2.33,
+      "bass": -2.67,
+      "low_mids": -1.85,
+      "mids": -0.66,
+      "upper_mids": -2.26,
+      "treble": -0.95,
+      "air": -2.95
+    },
+    "composite_metrics": {
+      "bassElev": -2.5,
+      "upperEnergy": -1.6,
+      "trebleElev": -1.95,
+      "midScoop": -0.8
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral, treble-rolled",
+    "confidence": "low"
+  },
+  {
+    "db_id": "68b30fb9-eb77-4b13-9b68-926589dddfbf",
+    "name": "ZMF Auteur",
+    "file": "ZMF_Auteur__Perforated_lambskin_Auteur_pads_.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 0.18,
+      "bass": -0.48,
+      "low_mids": -0.41,
+      "mids": 0.76,
+      "upper_mids": 0.9,
+      "treble": -0.18,
+      "air": -1.23
+    },
+    "composite_metrics": {
+      "bassElev": -0.15,
+      "upperEnergy": 0.36,
+      "trebleElev": -0.7,
+      "midScoop": -0.07
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "0ea08f2c-75f1-4e88-be4f-1b011547f942",
+    "name": "ZMF Verite",
+    "file": "ZMF_Verite.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": -1.52,
+      "bass": -1.1,
+      "low_mids": 0.18,
+      "mids": -1.11,
+      "upper_mids": -4.33,
+      "treble": -3.58,
+      "air": -0.86
+    },
+    "composite_metrics": {
+      "bassElev": -1.31,
+      "upperEnergy": -3.95,
+      "trebleElev": -2.22,
+      "midScoop": -2.17
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "low"
+  },
+  {
+    "db_id": "b3697df0-7a51-4d59-9e3c-4a7d915cc1e7",
+    "name": "ZMF Verite Closed",
+    "file": "ZMF_Verite_Closed.json",
+    "category": "headphones",
+    "band_deviations": {
+      "sub_bass": 2.27,
+      "bass": 1.98,
+      "low_mids": 0.42,
+      "mids": -0.89,
+      "upper_mids": -2.57,
+      "treble": -1.33,
+      "air": -4.14
+    },
+    "composite_metrics": {
+      "bassElev": 2.13,
+      "upperEnergy": -1.95,
+      "trebleElev": -2.74,
+      "midScoop": 0.32
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "29d1d6e9-58a6-499d-b04f-8ec9eafd5801",
+    "name": "ZIIGAAT Arcanis",
+    "file": "ZiiGaat_Arcanis.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.78,
+      "bass": -2.9,
+      "low_mids": -1.16,
+      "mids": 0.23,
+      "upper_mids": -2.34,
+      "treble": -2.52,
+      "air": -2.87
+    },
+    "composite_metrics": {
+      "bassElev": -2.34,
+      "upperEnergy": -2.43,
+      "trebleElev": -2.7,
+      "midScoop": -1.92
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "8eee81df-3e36-49af-9c76-83b8856531ac",
+    "name": "ZIIGAAT Luna",
+    "file": "ZiiGaat_Luna.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -1.67,
+      "bass": -0.47,
+      "low_mids": -0.72,
+      "mids": 0.11,
+      "upper_mids": -0.77,
+      "treble": 1.21,
+      "air": 4.15
+    },
+    "composite_metrics": {
+      "bassElev": -1.07,
+      "upperEnergy": 0.22,
+      "trebleElev": 2.68,
+      "midScoop": -0.12
+    },
+    "derived_signature": "neutral",
+    "derived_signature_detail": "Neutral",
+    "confidence": "low"
+  },
+  {
+    "db_id": "2c47ffc6-72ff-41d4-9b3a-ae1f01270558",
+    "name": "ZIIGAAT Odyssey",
+    "file": "ZiiGaat_Odyssey.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": 0.03,
+      "bass": -0.53,
+      "low_mids": 0.06,
+      "mids": -1.14,
+      "upper_mids": -2.04,
+      "treble": -0.66,
+      "air": -6.18
+    },
+    "composite_metrics": {
+      "bassElev": -0.25,
+      "upperEnergy": -1.35,
+      "trebleElev": -3.42,
+      "midScoop": -0.26
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  },
+  {
+    "db_id": "2c47ffc6-72ff-41d4-9b3a-ae1f01270558",
+    "name": "ZIIGAAT Odyssey",
+    "file": "ZiiGaat_x_Hangout_Audio_Odyssey_2.json",
+    "category": "iem",
+    "band_deviations": {
+      "sub_bass": -0.24,
+      "bass": -1.68,
+      "low_mids": -0.06,
+      "mids": -1.06,
+      "upper_mids": -1.65,
+      "treble": -2.02,
+      "air": -3.11
+    },
+    "composite_metrics": {
+      "bassElev": -0.96,
+      "upperEnergy": -1.84,
+      "trebleElev": -2.57,
+      "midScoop": -0.84
+    },
+    "derived_signature": "dark",
+    "derived_signature_detail": "Dark",
+    "confidence": "medium"
+  }
+]

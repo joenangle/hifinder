@@ -138,6 +138,8 @@ function calculateSynergyScore(
   const comp = component as {
     sound_signature?: string;
     crin_signature?: string;
+    derived_signature?: string;
+    derived_signature_detail?: string;
   };
 
   // Sound signature matching only - usage matching removed
@@ -152,34 +154,41 @@ function calculateSynergyScore(
     const effectiveSignature = soundSig !== "any" ? soundSig : "neutral";
 
     // Component 1: Sound Signature Match (max 50% weight - INCREASED)
+    // Use derived_signature as fallback when sound_signature is null
+    const effectiveComponentSig = comp.sound_signature || comp.derived_signature;
     let soundScore = 0;
-    if (comp.sound_signature && effectiveSignature !== "any") {
-      if (comp.sound_signature === effectiveSignature) {
-        soundScore = 0.35; // Perfect basic match (was 0.20)
+    if (effectiveComponentSig && effectiveSignature !== "any") {
+      if (effectiveComponentSig === effectiveSignature) {
+        soundScore = 0.35; // Perfect basic match
       } else if (
         effectiveSignature === "neutral" &&
-        comp.sound_signature === "balanced"
+        effectiveComponentSig === "balanced"
       ) {
-        soundScore = 0.28; // Close match (was 0.16)
+        soundScore = 0.28; // Close match
       } else if (
-        (effectiveSignature === "warm" && comp.sound_signature === "neutral") ||
-        (effectiveSignature === "bright" && comp.sound_signature === "neutral")
+        (effectiveSignature === "warm" && effectiveComponentSig === "neutral") ||
+        (effectiveSignature === "bright" && effectiveComponentSig === "neutral") ||
+        (effectiveSignature === "v-shaped" && effectiveComponentSig === "fun") ||
+        (effectiveSignature === "fun" && effectiveComponentSig === "v-shaped") ||
+        (effectiveSignature === "dark" && effectiveComponentSig === "warm") ||
+        (effectiveSignature === "warm" && effectiveComponentSig === "dark")
       ) {
-        soundScore = 0.2; // Compatible match (was 0.12)
+        soundScore = 0.2; // Compatible match
       } else {
-        soundScore = 0.08; // Has signature but doesn't match (was 0.05)
+        soundScore = 0.08; // Has signature but doesn't match
       }
     } else {
-      soundScore = 0.15; // No signature = neutral baseline (was 0.10)
+      soundScore = 0.15; // No signature = neutral baseline
     }
 
-    // Detailed Crinacle signature adds to sound score
-    if (comp.crin_signature && effectiveSignature !== "any") {
+    // Detailed signature adds to sound score (Crinacle or FR-derived)
+    const detailedSig = comp.crin_signature || comp.derived_signature_detail;
+    if (detailedSig && effectiveSignature !== "any") {
       const detailedMatch = getDetailedSignatureMatch(
-        comp.crin_signature,
+        detailedSig,
         effectiveSignature
       );
-      soundScore += detailedMatch * 0.15; // Up to +15% for detailed match (was 0.10)
+      soundScore += detailedMatch * 0.15; // Up to +15% for detailed match
     }
 
     // Keep the best score from any matched signature (OR logic)
@@ -233,10 +242,42 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
       "Mild V-shape": 0.85,
       "Neutral with bass boost": 0.7,
       "Mid-centric": 0.3,
+      "Fun V-shape": 1.0,
+      "Fun, bass-boosted": 0.95,
+    },
+    "v-shaped": {
+      "V-shaped": 1.0,
+      "V-shaped, bass-heavy": 0.95,
+      "Mild V-shape": 0.85,
+      "Warm V-shape": 0.8,
+      "U-shaped": 0.9,
+      "Fun V-shape": 0.85,
+      "Fun, bass-boosted": 0.8,
+    },
+    dark: {
+      Dark: 1.0,
+      "Dark, bassy": 0.95,
+      "Dark neutral": 0.9,
+      "Warm, smooth": 0.85,
+      "Warm neutral": 0.7,
+      Warm: 0.65,
     },
   };
 
-  return exactMatches[userPref]?.[crinSig] || 0;
+  // Also try partial matching for FR-derived detail strings
+  const score = exactMatches[userPref]?.[crinSig];
+  if (score) return score;
+
+  // Partial match: check if the detail string contains keywords
+  const sigLower = crinSig.toLowerCase();
+  if (userPref === "v-shaped" && sigLower.includes("v-shape")) return 0.8;
+  if (userPref === "dark" && sigLower.includes("dark")) return 0.8;
+  if (userPref === "warm" && sigLower.includes("warm")) return 0.7;
+  if (userPref === "bright" && sigLower.includes("bright")) return 0.7;
+  if (userPref === "fun" && (sigLower.includes("fun") || sigLower.includes("v-shape"))) return 0.7;
+  if (userPref === "neutral" && sigLower.includes("neutral")) return 0.7;
+
+  return 0;
 }
 
 // Helper: Check if components are available in a budget range (single category)

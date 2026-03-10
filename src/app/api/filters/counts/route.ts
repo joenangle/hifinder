@@ -212,11 +212,11 @@ export async function GET(request: NextRequest) {
     const allCategories = [...new Set(categoriesToFetch.map(c => c.category))]
     const { data: componentsData } = await supabase
       .from('components')
-      .select('category, sound_signature, price_used_min, price_used_max')
+      .select('category, sound_signature, derived_signature, price_used_min, price_used_max')
       .in('category', allCategories)
 
     // Count in-memory (still faster than multiple round trips)
-    const soundSignatures = ['neutral', 'warm', 'bright', 'fun']
+    const soundSignatures = ['neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark']
     const soundCounts: Record<string, number> = {}
     let cansCount = 0
     let iemsCount = 0
@@ -246,14 +246,16 @@ export async function GET(request: NextRequest) {
       else if (comp.category === 'dac_amp') combosCount++
 
       // Count for sound signatures (headphones only)
-      if ((comp.category === 'cans' || comp.category === 'iems') && comp.sound_signature) {
+      // Use derived_signature as fallback when sound_signature is null
+      const effectiveSig = comp.sound_signature || comp.derived_signature
+      if ((comp.category === 'cans' || comp.category === 'iems') && effectiveSig) {
         // Apply equipment filter if set
         if (activeEquipment.length > 0) {
           if (activeEquipment.includes(comp.category)) {
-            soundCounts[comp.sound_signature] = (soundCounts[comp.sound_signature] || 0) + 1
+            soundCounts[effectiveSig] = (soundCounts[effectiveSig] || 0) + 1
           }
         } else {
-          soundCounts[comp.sound_signature] = (soundCounts[comp.sound_signature] || 0) + 1
+          soundCounts[effectiveSig] = (soundCounts[effectiveSig] || 0) + 1
         }
       }
     })
