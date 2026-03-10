@@ -32,6 +32,7 @@ interface PriceHistoryData {
 interface PriceHistoryChartProps {
   componentId: string
   priceNew: number | null
+  onDataLoad?: (hasData: boolean) => void
 }
 
 const CONDITION_COLORS: Record<string, string> = {
@@ -83,7 +84,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
   )
 }
 
-export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ componentId, priceNew, onDataLoad }: PriceHistoryChartProps) {
   const [data, setData] = useState<PriceHistoryData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -98,10 +99,14 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
         if (res.ok) {
           const json = await res.json()
           setData(json)
+          onDataLoad?.(json?.sales?.length > 0)
+        } else {
+          onDataLoad?.(false)
         }
       } catch (err) {
         console.error('Failed to fetch price history:', err)
         setError('Failed to load price history')
+        onDataLoad?.(false)
       } finally {
         setLoading(false)
       }
@@ -111,30 +116,14 @@ export function PriceHistoryChart({ componentId, priceNew }: PriceHistoryChartPr
 
   if (loading) {
     return (
-      <div className="p-4 bg-surface-secondary rounded-lg">
-        <div className="h-48 flex items-center justify-center text-muted text-sm">
-          Loading price history...
-        </div>
+      <div className="h-8 flex items-center text-muted text-sm">
+        Loading price history...
       </div>
     )
   }
 
-  if (error) {
-    return (
-      <div className="text-sm text-tertiary text-center py-4">
-        {error}
-      </div>
-    )
-  }
-
-  if (!data || !data.sales.length) {
-    return (
-      <div className="p-4 bg-surface-secondary rounded-lg">
-        <div className="h-24 flex items-center justify-center text-muted text-sm">
-          No sold price data available yet
-        </div>
-      </div>
-    )
+  if (error || !data || !data.sales.length) {
+    return null
   }
 
   const allChartData = data.sales.map(s => ({

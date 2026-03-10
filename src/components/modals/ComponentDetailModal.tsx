@@ -81,6 +81,8 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
   const [reviewText, setReviewText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [ratingError, setRatingError] = useState('')
+  const [hasPriceHistory, setHasPriceHistory] = useState(false)
+
   const [pairings, setPairings] = useState<{
     pairings: { component_id: number; name: string; brand: string; category: string; price_new: number; price_used_min: number; price_used_max: number }[];
     source: string;
@@ -304,15 +306,18 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             </div>
           </div>
 
-          {/* Price History Chart */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-accent" />
-              <h3 className="font-semibold text-primary">Sold Price History</h3>
-            </div>
+          {/* Price History Chart — only shows section header when data exists */}
+          <div className={hasPriceHistory ? 'space-y-3' : ''}>
+            {hasPriceHistory && (
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-primary">Sold Price History</h3>
+              </div>
+            )}
             <PriceHistoryChart
               componentId={component.id}
               priceNew={component.price_new}
+              onDataLoad={setHasPriceHistory}
             />
           </div>
 

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { Suspense } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { supabaseServer } from '@/lib/supabase-server'
@@ -206,18 +207,20 @@ export async function LandingPage() {
 
             {/* ── Right: product screenshot ── */}
             <div className="hidden lg:block">
-              <BrowserFrame url="hifinder.app/recommendations">
-                <Image
-                  src="/images/screenshots/recommendations.png"
-                  alt="HiFinder recommendation engine showing matched headphones and audio equipment"
-                  width={2560}
-                  height={1600}
-                  sizes="(max-width: 1023px) 0px, 540px"
-                  className="w-full h-auto"
-                  priority
-                  style={{ display: 'block' }}
-                />
-              </BrowserFrame>
+              <Link href="/recommendations" className="block cursor-pointer">
+                <BrowserFrame url="hifinder.app/recommendations">
+                  <Image
+                    src="/images/screenshots/recommendations.png"
+                    alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                    width={2560}
+                    height={1600}
+                    sizes="(max-width: 1023px) 0px, 540px"
+                    className="w-full h-auto"
+                    priority
+                    style={{ display: 'block' }}
+                  />
+                </BrowserFrame>
+              </Link>
             </div>
 
           </div>
