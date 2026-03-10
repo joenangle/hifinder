@@ -30,6 +30,8 @@ const HEADERS = {
   'User-Agent': 'HiFinder-PriceGuide/1.0',
 };
 const RATE_LIMIT_MS = 1000; // 1s between API calls
+const FETCH_TIMEOUT_MS = 30000; // 30s per request
+const MAX_RETRIES = 3;
 
 // Brand aliases for matching (shared with reverb-integration.js)
 const BRAND_ALIASES = {
@@ -64,25 +66,47 @@ function sleep(ms) {
 }
 
 /**
- * Fetch from Reverb API with error handling and rate-limit awareness
+ * Fetch from Reverb API with timeout, retry, and exponential backoff
  */
 async function reverbFetch(path) {
   const url = `${REVERB_API}${path}`;
-  const response = await fetch(url, { headers: HEADERS });
 
-  if (!response.ok) {
-    if (response.status === 429) {
-      console.warn('  ⚠️ Rate limited — waiting 10s');
-      await sleep(10000);
-      // Retry once
-      const retry = await fetch(url, { headers: HEADERS });
-      if (!retry.ok) throw new Error(`HTTP ${retry.status} on retry: ${url}`);
-      return retry.json();
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, { headers: HEADERS, signal: controller.signal });
+      clearTimeout(timer);
+
+      if (response.status === 429) {
+        const wait = Math.min(10000 * Math.pow(2, attempt), 60000);
+        console.warn(`  ⚠️ Rate limited — waiting ${wait / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES + 1})`);
+        await sleep(wait);
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${url}`);
+      }
+
+      return response.json();
+    } catch (err) {
+      clearTimeout(timer);
+      const isRetryable = err.name === 'AbortError' || err.code === 'ECONNRESET' ||
+        err.code === 'ETIMEDOUT' || err.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+        err.message.includes('fetch failed');
+
+      if (isRetryable && attempt < MAX_RETRIES) {
+        const wait = Math.min(5000 * Math.pow(2, attempt), 30000);
+        console.warn(`  ⚠️ ${err.name === 'AbortError' ? 'Timeout' : err.code || err.message} — retrying in ${wait / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES + 1})`);
+        await sleep(wait);
+        continue;
+      }
+      throw err;
     }
-    throw new Error(`HTTP ${response.status}: ${url}`);
   }
-
-  return response.json();
+  throw new Error(`Failed after ${MAX_RETRIES + 1} attempts: ${url}`);
 }
 
 /**

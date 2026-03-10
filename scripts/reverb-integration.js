@@ -16,7 +16,7 @@ const { saveListing, supabase } = require('./shared/database');
 // Reverb API configuration
 const REVERB_CONFIG = {
   apiUrl: 'https://reverb.com/api',
-  
+
   // Authentication - Reverb requires API key
   headers: {
     'Accept': 'application/hal+json',
@@ -24,13 +24,13 @@ const REVERB_CONFIG = {
     'Authorization': `Bearer ${process.env.REVERB_API_TOKEN}`, // Set in environment
     'User-Agent': 'HiFinder-UsedListingAggregator/1.0'
   },
-  
+
   // Search parameters optimized for headphones/audio gear
   searchParams: {
     per_page: 50, // Max results per request
     page: 1,
     item_region: 'US', // Focus on US listings
-    condition: ['mint', 'excellent', 'very-good', 'good', 'fair'], 
+    condition: ['mint', 'excellent', 'very-good', 'good', 'fair'],
     category: 'pro-audio-equipment', // Main category for headphones on Reverb
     subcategory: 'headphones', // More specific
     price_min: 25, // Filter out obvious junk
@@ -38,10 +38,50 @@ const REVERB_CONFIG = {
     handmade: false, // Focus on commercial products
     sort: 'created_at' // Newest first
   },
-  
+
   maxPages: 2, // Limit API calls
-  rateLimit: 1000 // 1 second between calls
+  rateLimit: 1000, // 1 second between calls
+  fetchTimeout: 30000, // 30s per request
+  maxRetries: 3,
 };
+
+/**
+ * Fetch with timeout and retry (exponential backoff)
+ */
+async function fetchWithRetry(url, options = {}, retries = REVERB_CONFIG.maxRetries) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REVERB_CONFIG.fetchTimeout);
+
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timer);
+
+      if (response.status === 429) {
+        const wait = Math.min(10000 * Math.pow(2, attempt), 60000);
+        console.warn(`  ⚠️ Rate limited — waiting ${wait / 1000}s (attempt ${attempt + 1}/${retries + 1})`);
+        await new Promise(resolve => setTimeout(resolve, wait));
+        continue;
+      }
+
+      return response;
+    } catch (err) {
+      clearTimeout(timer);
+      const isRetryable = err.name === 'AbortError' || err.code === 'ECONNRESET' ||
+        err.code === 'ETIMEDOUT' || err.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+        err.message.includes('fetch failed');
+
+      if (isRetryable && attempt < retries) {
+        const wait = Math.min(5000 * Math.pow(2, attempt), 30000);
+        console.warn(`  ⚠️ ${err.name === 'AbortError' ? 'Timeout' : err.code || err.message} — retrying in ${wait / 1000}s (attempt ${attempt + 1}/${retries + 1})`);
+        await new Promise(resolve => setTimeout(resolve, wait));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error(`Failed after ${retries + 1} attempts: ${url}`);
+}
 
 /**
  * Build Reverb search query
@@ -80,18 +120,14 @@ async function searchReverbForComponent(component) {
     const url = `${REVERB_CONFIG.apiUrl}/listings?${params}`;
     
     console.log(`📡 Fetching: ${url}`);
-    
-    const response = await fetch(url, {
+
+    const response = await fetchWithRetry(url, {
       headers: REVERB_CONFIG.headers
     });
-    
+
     if (!response.ok) {
       if (response.status === 401) {
         console.error('❌ Unauthorized - check REVERB_API_TOKEN');
-        return [];
-      } else if (response.status === 429) {
-        console.warn('⚠️ Rate limited by Reverb API - waiting...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
         return [];
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -469,9 +505,9 @@ async function getReverbApiStatus() {
   }
   
   try {
-    const response = await fetch(`${REVERB_CONFIG.apiUrl}/my/account`, {
+    const response = await fetchWithRetry(`${REVERB_CONFIG.apiUrl}/my/account`, {
       headers: REVERB_CONFIG.headers
-    });
+    }, 1);
     
     if (response.ok) {
       const data = await response.json();
