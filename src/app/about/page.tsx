@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { Heart } from 'lucide-react'
+
+const donateUrl = process.env.NEXT_PUBLIC_DONATE_URL
 
 export default function AboutPage() {
   return (
@@ -251,6 +254,38 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* Support the Project */}
+        {donateUrl && (
+          <section className="mb-12">
+            <div className="card p-8">
+              <div className="flex items-start gap-4 mb-4">
+                <span className="text-4xl">❤️</span>
+                <div>
+                  <h2 className="heading-2 mb-4">Support the Project</h2>
+                  <div className="space-y-4 text-secondary">
+                    <p>
+                      HiFinder is free and always will be. If it&apos;s helped you find the right gear or save money
+                      on the used market, consider supporting the project. Donations help cover hosting, data
+                      enrichment, and ongoing development.
+                    </p>
+                    <div className="mt-6">
+                      <a
+                        href={donateUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="button button-secondary inline-flex items-center gap-2"
+                      >
+                        <Heart className="w-4 h-4" />
+                        <span>Support HiFinder</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
         <section className="text-center mb-8">

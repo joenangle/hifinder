@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { Heart } from 'lucide-react'
+
+const donateUrl = process.env.NEXT_PUBLIC_DONATE_URL
 
 const productLinks = [
   { href: '/recommendations', label: 'Recommendations' },
@@ -11,6 +14,7 @@ const companyLinks = [
   { href: '/about', label: 'About' },
   { href: 'https://github.com/joenangle/hifinder', label: 'GitHub', external: true },
   { href: 'mailto:hello@hifinder.app', label: 'Contact', external: true },
+  ...(donateUrl ? [{ href: donateUrl, label: 'Support', external: true }] : []),
 ]
 
 const footerLinkClass = 'text-sm transition-colors duration-150 text-secondary hover:text-primary'
@@ -101,7 +105,14 @@ export function Footer() {
                       rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                       className={footerLinkClass}
                     >
-                      {link.label}
+                      {link.label === 'Support' ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          {link.label}
+                          <Heart className="w-3 h-3" />
+                        </span>
+                      ) : (
+                        link.label
+                      )}
                     </a>
                   ) : (
                     <Link href={link.href} className={footerLinkClass}>
