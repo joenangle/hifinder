@@ -170,9 +170,13 @@ export function MarketplaceListingCard({
                 <span className="hidden lg:inline text-muted font-normal">{component.brand} </span>{component.name}
               </span>
             )}
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${sourceInfo.dotColor}`} />
+            <Tooltip content={sourceInfo.name}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${sourceInfo.dotColor}`} />
+            </Tooltip>
             {priceAnalysis.type === 'great-deal' && (
-              <span className="text-[11px] flex-shrink-0" aria-label="Great deal">🔥</span>
+              <Tooltip content="Great deal — 25%+ below market price">
+                <span className="text-[11px] flex-shrink-0" aria-label="Great deal">🔥</span>
+              </Tooltip>
             )}
             {listing.is_bundle && (
               <Tooltip content={`Bundle: ${listing.component_count || 2}+ items`}>
