@@ -257,7 +257,7 @@ function MarketplaceContent() {
   }, [hasMore, loading, loadingMore, page, fetchUsedListings])
 
   // Get unique filter options (simplified - we'll fetch these from API in future)
-  const conditionOptions = ['excellent', 'very_good', 'good', 'fair', 'parts_only']
+
   const sourceOptions = [
     { value: 'all', label: 'All Sources' },
     { value: 'reddit_avexchange', label: 'r/AVexchange' },
@@ -787,6 +787,78 @@ function MarketplaceContent() {
                 </div>
               </div>
 
+              {/* Condition Filter */}
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">Condition</label>
+                <div className="flex flex-wrap gap-1.5">
+                  <FilterButton
+                    active={selectedConditions.includes('excellent')}
+                    onClick={() => {
+                      if (selectedConditions.includes('excellent')) {
+                        setSelectedConditions(selectedConditions.filter(c => c !== 'excellent'))
+                      } else {
+                        setSelectedConditions([...selectedConditions, 'excellent'])
+                      }
+                    }}
+                    icon="✨"
+                    label="Excellent"
+                    activeClass="bg-green-100 text-green-800 border-green-300"
+                  />
+                  <FilterButton
+                    active={selectedConditions.includes('very_good')}
+                    onClick={() => {
+                      if (selectedConditions.includes('very_good')) {
+                        setSelectedConditions(selectedConditions.filter(c => c !== 'very_good'))
+                      } else {
+                        setSelectedConditions([...selectedConditions, 'very_good'])
+                      }
+                    }}
+                    icon="👍"
+                    label="Very Good"
+                    activeClass="bg-blue-100 text-blue-800 border-blue-300"
+                  />
+                  <FilterButton
+                    active={selectedConditions.includes('good')}
+                    onClick={() => {
+                      if (selectedConditions.includes('good')) {
+                        setSelectedConditions(selectedConditions.filter(c => c !== 'good'))
+                      } else {
+                        setSelectedConditions([...selectedConditions, 'good'])
+                      }
+                    }}
+                    icon="👌"
+                    label="Good"
+                    activeClass="bg-amber-100 text-amber-800 border-amber-300"
+                  />
+                  <FilterButton
+                    active={selectedConditions.includes('fair')}
+                    onClick={() => {
+                      if (selectedConditions.includes('fair')) {
+                        setSelectedConditions(selectedConditions.filter(c => c !== 'fair'))
+                      } else {
+                        setSelectedConditions([...selectedConditions, 'fair'])
+                      }
+                    }}
+                    icon="⚠️"
+                    label="Fair"
+                    activeClass="bg-orange-100 text-orange-800 border-orange-300"
+                  />
+                  <FilterButton
+                    active={selectedConditions.includes('parts_only')}
+                    onClick={() => {
+                      if (selectedConditions.includes('parts_only')) {
+                        setSelectedConditions(selectedConditions.filter(c => c !== 'parts_only'))
+                      } else {
+                        setSelectedConditions([...selectedConditions, 'parts_only'])
+                      }
+                    }}
+                    icon="🔧"
+                    label="Parts Only"
+                    activeClass="bg-red-100 text-red-800 border-red-300"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Source Filter */}
                 <div>
@@ -854,51 +926,25 @@ function MarketplaceContent() {
                   </div>
                 )}
 
-                {/* Condition Filter */}
+                {/* Price Range */}
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Condition</label>
-                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                    {conditionOptions.map(condition => (
-                      <label key={condition} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedConditions.includes(condition)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedConditions([...selectedConditions, condition])
-                            } else {
-                              setSelectedConditions(selectedConditions.filter(c => c !== condition))
-                            }
-                          }}
-                          className="mr-2 rounded border-border text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm text-primary capitalize">
-                          {condition.replace('_', ' ')}
-                        </span>
-                      </label>
-                    ))}
+                  <label className="block text-sm font-medium text-primary mb-1.5">Price Range</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={priceRange.min}
+                      onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
+                      className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={priceRange.max}
+                      onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
+                      className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
                   </div>
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Price Range</label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
-                    className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
-                    className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
                 </div>
               </div>
             </div>
