@@ -666,12 +666,12 @@ function MarketplaceContent() {
             </button>
           </div>
 
-          {/* Expanded Filters */}
+          {/* Expanded Filters — compact 2-row layout */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-border space-y-3">
-              {/* Category Filters */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Category</label>
+            <div className="mt-3 pt-3 border-t border-border space-y-2">
+              {/* Row 1: Category + Deal Quality */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <span className="text-[11px] font-semibold text-muted uppercase tracking-wider shrink-0">Category</span>
                 <div className="flex flex-wrap gap-1.5">
                   <FilterButton
                     active={selectedCategories.includes('cans')}
@@ -739,11 +739,8 @@ function MarketplaceContent() {
                     activeClass="bg-teal-100 text-teal-800 border-teal-300"
                   />
                 </div>
-              </div>
-
-              {/* Deal Quality Filters */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Deal Quality</label>
+                <span className="hidden sm:block w-px h-5 bg-border shrink-0" />
+                <span className="text-[11px] font-semibold text-muted uppercase tracking-wider shrink-0">Deals</span>
                 <div className="flex flex-wrap gap-1.5">
                   <FilterButton
                     active={dealQuality.includes('great')}
@@ -755,7 +752,7 @@ function MarketplaceContent() {
                       }
                     }}
                     icon="🔥"
-                    label="Great Deals (>25% off)"
+                    label="Great (>25% off)"
                     activeClass="bg-green-100 text-green-800 border-green-300"
                   />
                   <FilterButton
@@ -768,7 +765,7 @@ function MarketplaceContent() {
                       }
                     }}
                     icon="👍"
-                    label="Good Deals (10-25% off)"
+                    label="Good (10-25% off)"
                     activeClass="bg-blue-100 text-blue-800 border-blue-300"
                   />
                   <FilterButton
@@ -787,9 +784,9 @@ function MarketplaceContent() {
                 </div>
               </div>
 
-              {/* Condition Filter */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Condition</label>
+              {/* Row 2: Condition + Source/Location dropdowns + Price */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <span className="text-[11px] font-semibold text-muted uppercase tracking-wider shrink-0">Condition</span>
                 <div className="flex flex-wrap gap-1.5">
                   <FilterButton
                     active={selectedConditions.includes('excellent')}
@@ -857,94 +854,64 @@ function MarketplaceContent() {
                     activeClass="bg-red-100 text-red-800 border-red-300"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {/* Source Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Source</label>
+                <span className="hidden sm:block w-px h-5 bg-border shrink-0" />
+                <div className="flex flex-wrap items-center gap-1.5">
                   <select
                     value={selectedSource}
                     onChange={(e) => setSelectedSource(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     {sourceOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                   </select>
-                </div>
-
-                {/* Country Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Country</label>
                   <select
                     value={selectedCountry}
                     onChange={(e) => {
                       setSelectedCountry(e.target.value)
                       if (e.target.value !== 'US') setSelectedState('all')
                     }}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="all">All Countries</option>
                     {COUNTRIES_LIST.map(c => (
                       <option key={c.code} value={c.code}>{c.name}</option>
                     ))}
                   </select>
-                </div>
-
-                {/* State Filter (US only) */}
-                {(selectedCountry === 'all' || selectedCountry === 'US') && (
-                  <div>
-                    <label className="block text-sm font-medium text-primary mb-1.5">
-                      State
-                      {detectedState && selectedState === 'all' && (
-                        <button
-                          onClick={() => {
-                            setSelectedState(detectedState)
-                            setSelectedCountry('US')
-                          }}
-                          className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 text-accent text-xs rounded-full hover:bg-accent/20 transition-colors"
-                        >
-                          <MapPin className="w-3 h-3" />
-                          Near me ({detectedState})
-                        </button>
-                      )}
-                    </label>
+                  {(selectedCountry === 'all' || selectedCountry === 'US') && (
                     <select
                       value={selectedState}
                       onChange={(e) => {
                         setSelectedState(e.target.value)
                         if (e.target.value !== 'all') setSelectedCountry('US')
                       }}
-                      className="w-full px-3 py-2 bg-surface border border-border rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                      className="px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary focus:outline-none focus:ring-1 focus:ring-accent"
                     >
                       <option value="all">All States</option>
                       {US_STATES_LIST.map(s => (
                         <option key={s.code} value={s.code}>{s.name}</option>
                       ))}
                     </select>
-                  </div>
-                )}
-
-                {/* Price Range */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Price Range</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={priceRange.min}
-                      onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
-                      className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={priceRange.max}
-                      onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
-                      className="flex-1 px-3 py-2 bg-surface border border-border rounded text-sm text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
-                    />
-                  </div>
+                  )}
+                </div>
+                <span className="hidden sm:block w-px h-5 bg-border shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-muted uppercase tracking-wider shrink-0">Price</span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
+                    className="w-[72px] px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                  <span className="text-muted text-xs">–</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
+                    className="w-[72px] px-2 py-1 bg-surface border border-border rounded-md text-xs text-primary placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
                 </div>
               </div>
             </div>
