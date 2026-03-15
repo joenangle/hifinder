@@ -56,8 +56,10 @@ const args = process.argv.slice(2);
 const limitArg = args.find(a => a.startsWith('--limit='));
 const LIMIT = limitArg ? parseInt(limitArg.split('=')[1]) : null;
 const DRY_RUN = args.includes('--dry-run');
+const FULL_RUN = args.includes('--full');
 const filterArg = args.find(a => a.startsWith('--filter='));
 const FILTER = filterArg ? filterArg.split('=')[1].toLowerCase() : null;
+const SKIP_RECENT_DAYS = 7; // Skip components synced within this many days
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -444,7 +446,7 @@ async function processComponent(component, stats) {
 
 async function main() {
   console.log('🎸 Reverb Price Guide Scraper');
-  console.log(`   Mode: ${DRY_RUN ? 'DRY RUN (no DB writes)' : 'LIVE'}`);
+  console.log(`   Mode: ${DRY_RUN ? 'DRY RUN (no DB writes)' : FULL_RUN ? 'FULL (all components)' : 'INCREMENTAL (skip recent)'}`);
   if (LIMIT) console.log(`   Limit: ${LIMIT} components`);
   console.log();
 
@@ -475,6 +477,23 @@ async function main() {
     );
     console.log(`🔍 Filter "${FILTER}": ${filtered.length} match(es)\n`);
   }
+
+  // Skip components that were recently synced (unless --full is passed)
+  if (!FULL_RUN && !DRY_RUN && !FILTER) {
+    const cutoff = new Date(Date.now() - SKIP_RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const { data: recentMappings } = await supabase
+      .from('reverb_priceguide_mappings')
+      .select('component_id')
+      .gte('last_synced_at', cutoff);
+
+    if (recentMappings && recentMappings.length > 0) {
+      const recentIds = new Set(recentMappings.map(m => m.component_id));
+      const before = filtered.length;
+      filtered = filtered.filter(c => !recentIds.has(c.id));
+      console.log(`⏩ Skipping ${before - filtered.length} components synced in last ${SKIP_RECENT_DAYS} days (use --full to override)\n`);
+    }
+  }
+
   const toProcess = LIMIT ? filtered.slice(0, LIMIT) : filtered;
   console.log(`📋 Processing ${toProcess.length} of ${components.length} components\n`);
 

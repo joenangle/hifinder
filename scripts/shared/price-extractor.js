@@ -150,16 +150,16 @@ function validatePriceReasonable(price, expectedMin, expectedMax) {
 function parseReverbPrice(priceObject) {
   if (!priceObject) return null;
 
-  // Reverb provides amount in dollars with cents
+  // Reverb provides amount in dollars with cents — round to integer for DB
   if (priceObject.amount) {
-    return parseFloat(priceObject.amount);
+    return Math.round(parseFloat(priceObject.amount));
   }
 
   // Fallback: parse display string
   if (priceObject.display) {
     const match = priceObject.display.match(/[\d,]+\.?\d*/);
     if (match) {
-      return parseFloat(match[0].replace(/,/g, ''));
+      return Math.round(parseFloat(match[0].replace(/,/g, '')));
     }
   }
 
