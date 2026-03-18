@@ -29,9 +29,10 @@ const HEADERS = {
   'Authorization': `Bearer ${process.env.REVERB_API_TOKEN}`,
   'User-Agent': 'HiFinder-PriceGuide/1.0',
 };
-const RATE_LIMIT_MS = 1000; // 1s between API calls
+const RATE_LIMIT_MS = 500; // 500ms between API calls within a batch
 const FETCH_TIMEOUT_MS = 30000; // 30s per request
 const MAX_RETRIES = 3;
+const CONCURRENCY = 5; // Process N components in parallel
 
 // Brand aliases for matching (shared with reverb-integration.js)
 const BRAND_ALIASES = {
@@ -506,17 +507,21 @@ async function main() {
     errors: 0,
   };
 
-  for (const [index, component] of toProcess.entries()) {
-    console.log(`[${index + 1}/${toProcess.length}] ${component.brand} ${component.name}`);
-
-    try {
-      await processComponent(component, stats);
-    } catch (err) {
-      console.error(`  ❌ ${err.message}`);
-      stats.errors++;
-    }
-
-    // Rate limit between components
+  // Process in parallel batches for speed
+  for (let i = 0; i < toProcess.length; i += CONCURRENCY) {
+    const batch = toProcess.slice(i, i + CONCURRENCY);
+    const promises = batch.map(async (component, j) => {
+      const idx = i + j + 1;
+      console.log(`[${idx}/${toProcess.length}] ${component.brand} ${component.name}`);
+      try {
+        await processComponent(component, stats);
+      } catch (err) {
+        console.error(`  ❌ [${component.brand} ${component.name}] ${err.message}`);
+        stats.errors++;
+      }
+    });
+    await Promise.all(promises);
+    // Brief pause between batches to avoid rate limiting
     await sleep(RATE_LIMIT_MS);
   }
 
