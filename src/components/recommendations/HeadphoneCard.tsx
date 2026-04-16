@@ -27,6 +27,7 @@ interface AudioComponent {
   crin_tone?: string | null
   crin_tech?: string | null
   crin_rank?: number | null
+  why_recommended?: string | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
     explanation: string
@@ -221,7 +222,14 @@ const HeadphoneCardComponent = ({
             )}
           </div>
 
-          {/* Row 5: Expert quote (always visible, inline) */}
+          {/* Row 5: Why recommended (Crinacle-sourced editorial reason) */}
+          {headphone.why_recommended && (
+            <p className="mt-1 text-xs text-tertiary leading-snug line-clamp-2">
+              {headphone.why_recommended}
+            </p>
+          )}
+
+          {/* Row 6: Expert quote (always visible, inline) */}
           <ExpertAnalysisPanel component={headphone} inline forceExpanded={expandAllExperts} />
 
           {/* Row 6: Actions */}
