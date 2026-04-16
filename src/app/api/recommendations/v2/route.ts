@@ -801,7 +801,15 @@ function filterAndScoreComponents(
         proximityScoreDisplay: Math.round(proximityScore * 100), // Budget proximity score (0-100)
       };
     })
-    .sort((a, b) => b.matchScore - a.matchScore)
+    .sort((a, b) => {
+      // Deterministic tie-breakers: matchScore → expertScoreDisplay → valueScore →
+      // avgPrice (cheaper first) → id (stable final fallback)
+      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+      if (b.expertScoreDisplay !== a.expertScoreDisplay) return b.expertScoreDisplay - a.expertScoreDisplay;
+      if (b.valueScore !== a.valueScore) return b.valueScore - a.valueScore;
+      if (a.avgPrice !== b.avgPrice) return a.avgPrice - b.avgPrice;
+      return a.id.localeCompare(b.id);
+    })
     .slice(0, maxOptions);
 }
 
@@ -908,7 +916,19 @@ export async function GET(request: NextRequest) {
       soundSignatures: req.soundSignatures,
       headphoneType: req.headphoneType,
       wantRecommendationsFor: req.wantRecommendationsFor,
-      selectedItems: selectedItemsForCache.map(i => i.id).sort(),
+      selectedItems: selectedItemsForCache.map(i => i.id),
+      // v3.3: include every input that affects scoring so different users
+      // don't collide on the same cache entry (see cache-recommendations.ts)
+      budgetRangeMin: req.budgetRangeMin,
+      budgetRangeMax: req.budgetRangeMax,
+      driverType: req.driverType,
+      usageRanking: req.usageRanking,
+      usage: req.usage,
+      excludedUsages: req.excludedUsages,
+      connectivity: req.connectivity,
+      existingHeadphones: req.existingHeadphones,
+      existingGear: req.existingGear,
+      customBudgetAllocation: customBudgetAllocation,
     });
 
     // Wrap recommendation generation in cache
