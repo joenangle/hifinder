@@ -53,7 +53,7 @@ export function RecommendationsChatbot({
     {
       id: '1',
       role: 'assistant',
-      content: `I've found ${initialRecommendations.length} recommendations based on your preferences. How can I help refine these results?`,
+      content: `${initialRecommendations.length} matches based on your preferences. Need help narrowing it down?`,
       timestamp: new Date(),
       suggestions: [
         "Show me the best value options",
@@ -64,7 +64,6 @@ export function RecommendationsChatbot({
     }
   ])
   const [input, setInput] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -87,27 +86,21 @@ export function RecommendationsChatbot({
 
     setMessages(prev => [...prev, userMessage])
     setInput('')
-    setIsTyping(true)
 
-    // Simulate AI processing
-    setTimeout(() => {
-      const assistantResponse = processUserQuery(input, initialRecommendations, userPreferences)
+    const assistantResponse = processUserQuery(input, initialRecommendations, userPreferences)
 
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: assistantResponse.message,
-        timestamp: new Date(),
-        suggestions: assistantResponse.suggestions,
-        componentUpdate: assistantResponse.update
-      }])
+    setMessages(prev => [...prev, {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: assistantResponse.message,
+      timestamp: new Date(),
+      suggestions: assistantResponse.suggestions,
+      componentUpdate: assistantResponse.update
+    }])
 
-      if (assistantResponse.update) {
-        onUpdateRecommendations(assistantResponse.update)
-      }
-
-      setIsTyping(false)
-    }, 1000)
+    if (assistantResponse.update) {
+      onUpdateRecommendations(assistantResponse.update)
+    }
   }
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -189,19 +182,6 @@ export function RecommendationsChatbot({
               </div>
             ))}
 
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-surface-elevated rounded-lg p-3">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-text-tertiary rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-text-tertiary rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-text-tertiary rounded-full animate-bounce delay-200" />
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div ref={messagesEndRef} />
           </div>
 
@@ -257,7 +237,7 @@ function processUserQuery(query: string, recommendations: Component[], preferenc
   // Value-focused queries
   if (lowerQuery.includes('value') || lowerQuery.includes('bang for buck')) {
     return {
-      message: "I'll prioritize options with the best price-to-performance ratio. These models offer excellent sound quality for their price point.",
+      message: "Sorting by price-to-performance. These punch above their weight.",
       suggestions: [
         "Tell me about the top pick",
         "What makes these good value?",
@@ -273,7 +253,7 @@ function processUserQuery(query: string, recommendations: Component[], preferenc
   // Bass preference
   if (lowerQuery.includes('bass') || lowerQuery.includes('low end')) {
     return {
-      message: "For enhanced bass response, I'm highlighting warm and fun-tuned options. These will give you that satisfying low-end impact.",
+      message: "Filtering for warm and fun-tuned options — more low-end impact.",
       suggestions: [
         "Which has the deepest bass?",
         "Any basshead recommendations?",
@@ -289,7 +269,7 @@ function processUserQuery(query: string, recommendations: Component[], preferenc
   // Portability
   if (lowerQuery.includes('portable') || lowerQuery.includes('travel')) {
     return {
-      message: "For portability, I'm focusing on IEMs and compact gear. These are perfect for on-the-go listening.",
+      message: "Filtering for IEMs and compact gear — better for on-the-go.",
       suggestions: [
         "Best wireless options?",
         "Need a case recommendation",
@@ -306,7 +286,7 @@ function processUserQuery(query: string, recommendations: Component[], preferenc
   if (lowerQuery.includes('explain') || lowerQuery.includes('why') || lowerQuery.includes('tell me about')) {
     const topRec = recommendations[0]
     return {
-      message: `The ${topRec?.name || 'top recommendation'} stands out because of its excellent tonal balance and technical performance. It matches your ${preferences.soundSignature} preference while staying within your $${preferences.budget} budget. The build quality is exceptional for this price range.`,
+      message: `The ${topRec?.name || 'top pick'} scores well here — solid tonal balance, good technical performance, and it fits your ${preferences.soundSignature} preference within $${preferences.budget}.`,
       suggestions: [
         "What are the alternatives?",
         "Any downsides to this?",
@@ -318,7 +298,7 @@ function processUserQuery(query: string, recommendations: Component[], preferenc
 
   // Default response
   return {
-    message: "I can help you refine these recommendations based on specific features, use cases, or preferences. What aspect is most important to you?",
+    message: "I can help narrow things down — what matters most? Sound, comfort, portability, value?",
     suggestions: [
       "Focus on comfort",
       "Need amplification advice",
