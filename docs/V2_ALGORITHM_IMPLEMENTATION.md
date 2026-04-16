@@ -1,7 +1,9 @@
 # V2.0 Performance-Tier Algorithm Implementation
 
+> **⚠️ SUPERSEDED.** This document describes the v2.0 algorithm (78% performance / 22% signature). The engine has since evolved to v3.3 with a 55/25/10/10 weight split plus additive bonuses. Current source of truth is `filterAndScoreComponents` in `src/app/api/recommendations/v2/route.ts`. Kept for historical context only — do not use the weights below as a reference.
+
 **Date:** October 22, 2024
-**Status:** ✅ **COMPLETE AND TESTED**
+**Status:** ✅ **COMPLETE AND TESTED** (superseded by v3.3)
 
 ---
 

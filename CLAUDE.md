@@ -1,5 +1,20 @@
 # Claude Code Notes for HiFinder
 
+## Recommendation Scoring
+
+**Source of truth:** `filterAndScoreComponents` in `src/app/api/recommendations/v2/route.ts` (currently v3.3).
+
+Per-component final score (0–1, capped after bonuses):
+
+- **55%** expert performance score (Crinacle rank/tone/tech/value for cans/iems, ASR SINAD for DACs/amps)
+- **25%** sound-signature match (0.25 baseline for signal gear)
+- **10%** value score (`Math.max(0.5, avgPrice / budget)` when under budget; sharp penalty over)
+- **10%** budget-proximity score (Gaussian, σ = 15% of budget)
+- **+0.05** additive signature bonus when signature match > 0.35
+- **+0 to +0.05** power-adequacy bonus for amps only
+
+Older 78/22 documentation in `docs/V2_ALGORITHM_IMPLEMENTATION.md` describes the v2.0 algorithm that was superseded.
+
 ## Tech Stack
 - Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS v4
 - Supabase (database + auth), Framer Motion, Recharts, Lucide icons
@@ -53,7 +68,10 @@ SINAD values live in measurement dashboard **images**, not page text. OCR workfl
 ```bash
 npm run db "SELECT ..."                           # Direct SQL queries
 npm run db:types                                  # Regenerate Supabase TS types
-npm run scrape:reddit                             # V3 Reddit scraper
+npm run scrape:reddit                             # V3 Reddit scraper (r/AVexchange listings)
+npm run scrape:social                             # Reddit social mentions (r/headphones etc.)
+npm run scrape:social:phase1                      # Phase 1 only (post discovery)
+npm run scrape:social:phase2                      # Phase 2 only (comment scanning)
 npm run scrape:images:execute                     # Product image pipeline (DuckDuckGo)
 npm run scrape:images:execute -- --category dac,amp,dac_amp  # Electronics only
 npm run build:analyze                             # CSS size monitoring
