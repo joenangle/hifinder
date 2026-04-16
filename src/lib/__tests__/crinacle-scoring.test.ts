@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   gradeToNumeric,
   calculateExpertScore,
-  hasExpertData,
   calculateExpertConfidence,
   type ScoringComponent,
 } from '../crinacle-scoring'
@@ -176,46 +175,6 @@ describe('calculateExpertScore', () => {
         }
       }
     }
-  })
-})
-
-// ─── hasExpertData ──────────────────────────────────────────────────────────
-
-describe('hasExpertData', () => {
-  it('returns false when no data present', () => {
-    expect(hasExpertData({})).toBe(false)
-  })
-
-  it('returns false when all fields are null', () => {
-    expect(
-      hasExpertData({
-        crin_rank: null,
-        crin_tone: null,
-        crin_tech: null,
-        crin_value: null,
-      })
-    ).toBe(false)
-  })
-
-  it('returns true when rank is present', () => {
-    expect(hasExpertData({ crin_rank: 'A' })).toBe(true)
-  })
-
-  it('returns true when tone is present', () => {
-    expect(hasExpertData({ crin_tone: 'B+' })).toBe(true)
-  })
-
-  it('returns true when tech is present', () => {
-    expect(hasExpertData({ crin_tech: 'S-' })).toBe(true)
-  })
-
-  it('returns false when value is 0 (falsy)', () => {
-    // 0 is falsy in JS, so hasExpertData treats it as absent
-    expect(hasExpertData({ crin_value: 0 })).toBe(false)
-  })
-
-  it('returns true when value is non-zero', () => {
-    expect(hasExpertData({ crin_value: 3 })).toBe(true)
   })
 })
 

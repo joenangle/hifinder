@@ -1,13 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculatePowerRequirements,
-  convertSensitivity,
   assessAmplificationFromImpedance,
   parsePowerSpec,
   calculatePowerAtImpedance,
-  matchAmplifiersToHeadphones,
   estimatePowerFromImpedance,
-  type PowerRequirements,
 } from '../audio-calculations'
 
 // ─── calculatePowerRequirements ─────────────────────────────────────────────
@@ -92,43 +89,6 @@ describe('calculatePowerRequirements', () => {
   it('explanation mentions power for very demanding headphones', () => {
     const result = calculatePowerRequirements(60, 80)
     expect(result.explanation).toContain('mW')
-  })
-})
-
-// ─── convertSensitivity ─────────────────────────────────────────────────────
-
-describe('convertSensitivity', () => {
-  it('returns same value when fromType === toType', () => {
-    expect(convertSensitivity(100, 'dB/mW', 'dB/mW', 32)).toBe(100)
-    expect(convertSensitivity(100, 'dB/V', 'dB/V', 32)).toBe(100)
-  })
-
-  it('converts dB/V to dB/mW correctly', () => {
-    // dB/V to dB/mW: subtract 10*log10(Z/1000)
-    // For 32Ω: 10*log10(32/1000) = 10*log10(0.032) ≈ -14.95
-    // So 100 dB/V - (-14.95) = 114.95 dB/mW
-    const result = convertSensitivity(100, 'dB/V', 'dB/mW', 32)
-    expect(result).toBeCloseTo(114.95, 1)
-  })
-
-  it('converts dB/mW to dB/V correctly', () => {
-    // Inverse of above
-    const result = convertSensitivity(114.95, 'dB/mW', 'dB/V', 32)
-    expect(result).toBeCloseTo(100, 1)
-  })
-
-  it('round-trips correctly', () => {
-    const original = 105
-    const impedance = 300
-    const asDbV = convertSensitivity(original, 'dB/mW', 'dB/V', impedance)
-    const backToDbMw = convertSensitivity(asDbV, 'dB/V', 'dB/mW', impedance)
-    expect(backToDbMw).toBeCloseTo(original, 10)
-  })
-
-  it('higher impedance increases dB/mW relative to dB/V', () => {
-    const lowZ = convertSensitivity(100, 'dB/V', 'dB/mW', 32)
-    const highZ = convertSensitivity(100, 'dB/V', 'dB/mW', 300)
-    expect(highZ).toBeLessThan(lowZ) // Higher Z → less power for same voltage
   })
 })
 
@@ -293,89 +253,6 @@ describe('calculatePowerAtImpedance', () => {
     const withDefault = calculatePowerAtImpedance(500, 32, 32)
     const withExplicit = calculatePowerAtImpedance(500, 32, 32, 500)
     expect(withDefault).toBeCloseTo(withExplicit, 5)
-  })
-})
-
-// ─── matchAmplifiersToHeadphones ────────────────────────────────────────────
-
-describe('matchAmplifiersToHeadphones', () => {
-  const headphones = [
-    { impedance: 300, powerRequirement: { powerNeeded_mW: 20 } as PowerRequirements },
-  ]
-
-  const amplifiers = [
-    {
-      id: 'amp1',
-      name: 'Powerful Amp',
-      brand: 'BrandA',
-      power_output: '2W @ 32Ω',
-      price_used_min: 200,
-      price_used_max: 300,
-    },
-    {
-      id: 'amp2',
-      name: 'Weak Amp',
-      brand: 'BrandB',
-      power_output: '50mW @ 32Ω',
-      price_used_min: 50,
-      price_used_max: 80,
-    },
-  ]
-
-  it('returns results for all amplifiers', () => {
-    const results = matchAmplifiersToHeadphones(headphones, amplifiers)
-    expect(results).toHaveLength(2)
-  })
-
-  it('sorts by suitability (best first)', () => {
-    const results = matchAmplifiersToHeadphones(headphones, amplifiers)
-    expect(results[0].amplifier.id).toBe('amp1')
-    expect(results[1].amplifier.id).toBe('amp2')
-  })
-
-  it('gives higher compatibility score to more powerful amp', () => {
-    const results = matchAmplifiersToHeadphones(headphones, amplifiers)
-    expect(results[0].compatibilityScore).toBeGreaterThanOrEqual(results[1].compatibilityScore)
-  })
-
-  it('caps compatibility score at 1.0', () => {
-    const results = matchAmplifiersToHeadphones(headphones, amplifiers)
-    expect(results[0].compatibilityScore).toBeLessThanOrEqual(1)
-  })
-
-  it('falls back to price-tier estimation without power_output', () => {
-    const ampsNoSpec = [
-      {
-        id: 'amp3',
-        name: 'No Spec Amp',
-        brand: 'BrandC',
-        power_output: undefined,
-        price_used_min: 400,
-        price_used_max: 600,
-      },
-    ]
-    const results = matchAmplifiersToHeadphones(headphones, ampsNoSpec)
-    expect(results[0].powerAtHeadphoneZ).toBe(500) // $500 avg → 500mW estimate (>$300 tier)
-    expect(results[0].explanation).toContain('Estimated')
-  })
-
-  it('provides explanations for all results', () => {
-    const results = matchAmplifiersToHeadphones(headphones, amplifiers)
-    results.forEach((r) => {
-      expect(r.explanation).toBeTruthy()
-    })
-  })
-
-  it('uses most demanding headphone for matching', () => {
-    const multiHeadphones = [
-      { impedance: 32, powerRequirement: { powerNeeded_mW: 5 } as PowerRequirements },
-      { impedance: 300, powerRequirement: { powerNeeded_mW: 200 } as PowerRequirements },
-    ]
-    const results = matchAmplifiersToHeadphones(multiHeadphones, amplifiers)
-    // The 300Ω headphone needs 200mW — that's what scoring should be based on
-    // The weaker amp at 300Ω: V=sqrt(0.05*32)=1.265V, P at 300Ω: 1.265²/300 = 5.3mW
-    // 5.3/200 = 0.027 compatibility
-    expect(results.find((r) => r.amplifier.id === 'amp2')!.compatibilityScore).toBeLessThan(0.1)
   })
 })
 

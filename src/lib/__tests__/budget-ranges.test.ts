@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBudgetRange, legacyBudgetRange } from '../budget-ranges'
+import { calculateBudgetRange } from '../budget-ranges'
 
 // ─── User-specified ranges ──────────────────────────────────────────────────
 
@@ -127,20 +127,3 @@ describe('calculateBudgetRange for signal gear', () => {
   })
 })
 
-// ─── legacyBudgetRange ──────────────────────────────────────────────────────
-
-describe('legacyBudgetRange', () => {
-  it('ignores old percentage parameters and uses progressive defaults', () => {
-    const legacy = legacyBudgetRange(500, 20, 10)
-    const progressive = calculateBudgetRange(500)
-    expect(legacy.min).toBe(progressive.min)
-    expect(legacy.max).toBe(progressive.max)
-  })
-
-  it('passes isSignalGear through', () => {
-    const legacy = legacyBudgetRange(200, 20, 10, true)
-    const progressive = calculateBudgetRange(200, undefined, undefined, true)
-    expect(legacy.min).toBe(progressive.min)
-    expect(legacy.max).toBe(progressive.max)
-  })
-})
