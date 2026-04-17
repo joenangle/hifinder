@@ -1044,10 +1044,27 @@ export async function GET(request: NextRequest) {
         requestedCategories.push("dac_amp");
       }
 
-      // Fetch components
+      // Fetch components — explicit column list (NOT select('*')) to avoid
+      // shipping fr_data (8KB/card) and technical_specs (JSONB, unused).
+      // Detail modals fetch FR data on-demand via /api/components/[id].
+      // See docs/RECOMMENDATION_PERF_PLAN.md §1.1 for context.
       const { data: allComponentsData, error } = await supabaseServer
         .from("components")
-        .select("*")
+        .select(`
+          id, name, brand, category,
+          price_new, price_used_min, price_used_max, budget_tier,
+          sound_signature, derived_signature, derived_signature_detail,
+          use_cases, impedance, needs_amp, is_tws,
+          amazon_url, manufacturer_url, asr_review_url, image_url,
+          why_recommended,
+          power_required_mw, voltage_required_v, amplification_difficulty,
+          sensitivity_db_mw, sensitivity_db_v,
+          power_output, power_output_mw_32, power_output_mw_300,
+          crin_rank, crin_tone, crin_tech, crin_value, crin_comments, crin_signature,
+          driver_type, fit,
+          expert_grade_numeric, asr_sinad,
+          source, created_at, updated_at
+        `)
         .in("category", requestedCategories)
         .order("price_used_min");
 
