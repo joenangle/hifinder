@@ -16,6 +16,14 @@ const { findComponentMatch, isAccessoryOnly, detectMultipleComponents, extractSa
 const { normalizeLocation: normalizeLocationStructured } = require('./location-normalizer');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
 const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
+const {
+  getRedditAccessToken: getRedditAccessTokenShared,
+  fetchWithRetry: fetchWithRetryShared,
+  acquireLock: acquireLockShared,
+  releaseLock: releaseLockShared,
+  elapsed,
+  msLabel,
+} = require('./reddit-api');
 const fs = require('fs');
 const path = require('path');
 
@@ -49,8 +57,7 @@ const REDDIT_CONFIG = {
   retryBaseDelay: 10000
 };
 
-let accessToken = null;
-let tokenExpiry = null;
+// Token caching lives in ./reddit-api (shared across scrapers in-process).
 
 // Statistics tracking
 const stats = {
@@ -84,121 +91,31 @@ const timings = {
   rateLimitWaitMs: 0,
 };
 
-function elapsed(timing) {
-  return ((timing.end - timing.start) / 1000).toFixed(2);
-}
+// Backward-compatible wrappers that keep call sites unchanged while delegating
+// the real work to ./reddit-api (shared with other scrapers).
 
-function msLabel(ms) {
-  if (ms >= 60000) return `${(ms / 60000).toFixed(1)}m`;
-  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
-  return `${Math.round(ms)}ms`;
-}
-
-/**
- * Acquire lock
- */
 function acquireLock() {
-  if (fs.existsSync(LOCK_FILE)) {
-    const lockData = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'));
-    const lockAge = Date.now() - lockData.timestamp;
-
-    if (lockAge < 2 * 60 * 60 * 1000) {
-      console.error(`❌ Another scraper is running (PID: ${lockData.pid})`);
-      return false;
-    }
-
-    console.log(`⚠️  Stale lock found, removing...`);
-    fs.unlinkSync(LOCK_FILE);
-  }
-
-  fs.writeFileSync(LOCK_FILE, JSON.stringify({
-    pid: process.pid,
-    timestamp: Date.now(),
-    startedAt: new Date().toISOString()
-  }));
-
-  console.log(`🔒 Lock acquired`);
-  return true;
+  return acquireLockShared(LOCK_FILE);
 }
 
-/**
- * Release lock
- */
 function releaseLock() {
-  if (fs.existsSync(LOCK_FILE)) {
-    fs.unlinkSync(LOCK_FILE);
-    console.log(`🔓 Lock released`);
-  }
+  return releaseLockShared(LOCK_FILE);
 }
 
-/**
- * Get Reddit OAuth token
- */
 async function getRedditAccessToken() {
-  // Check if we have a valid cached token
-  if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
-    return accessToken;
-  }
-
-  const credentials = Buffer.from(
-    `${REDDIT_CONFIG.clientId}:${REDDIT_CONFIG.clientSecret}`
-  ).toString('base64');
-
-  try {
-    const response = await fetch('https://www.reddit.com/api/v1/access_token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': REDDIT_CONFIG.userAgent
-      },
-      body: 'grant_type=client_credentials'
-    });
-
-    if (!response.ok) {
-      throw new Error(`OAuth failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    accessToken = data.access_token;
-    tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000; // Refresh 1 min early
-
-    console.log(`✅ Reddit OAuth token acquired`);
-    return accessToken;
-
-  } catch (error) {
-    console.error(`❌ OAuth error:`, error.message);
-    return null;
-  }
+  return getRedditAccessTokenShared({
+    clientId: REDDIT_CONFIG.clientId,
+    clientSecret: REDDIT_CONFIG.clientSecret,
+    userAgent: REDDIT_CONFIG.userAgent,
+  });
 }
 
-/**
- * Fetch with retry logic for rate limiting
- */
-async function fetchWithRetry(url, options, retries = 0) {
-  try {
-    const response = await fetch(url, options);
-
-    if (response.status === 429 && retries < REDDIT_CONFIG.maxRetries) {
-      const delay = REDDIT_CONFIG.retryBaseDelay * Math.pow(2, retries);
-      timings.rateLimit429Count++;
-      timings.rateLimitWaitMs += delay;
-      console.log(`⚠️  Rate limited, waiting ${delay/1000}s... (retry ${retries + 1}/${REDDIT_CONFIG.maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return fetchWithRetry(url, options, retries + 1);
-    }
-
-    return response;
-
-  } catch (error) {
-    if (retries < REDDIT_CONFIG.maxRetries) {
-      const delay = REDDIT_CONFIG.retryBaseDelay;
-      console.log(`⚠️  Fetch error, retrying in ${delay/1000}s...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return fetchWithRetry(url, options, retries + 1);
-    }
-    throw error;
-  }
+async function fetchWithRetry(url, options) {
+  return fetchWithRetryShared(url, options, {
+    maxRetries: REDDIT_CONFIG.maxRetries,
+    retryBaseDelay: REDDIT_CONFIG.retryBaseDelay,
+    timings,
+  });
 }
 
 /**
@@ -830,11 +747,17 @@ async function scrapeReddit() {
           priceInfo = { individual_price: perComponentPrice || totalPrice, bundle_total_price: null };
         }
 
+        // Flag demo/open-box/sample listings so the rec engine can skip them
+        // without a costly ILIKE scan (see migrations/add-is-sample-column.sql).
+        const listingUrl = `https://www.reddit.com${post.permalink}`;
+        const isSample = /sample|demo/i.test(listingUrl) || /sample|demo/i.test(post.title);
+
         const listing = {
           component_id: match.component.id,
           title: post.title,
           price: priceInfo.individual_price || null,
           price_is_estimated: priceInfo.price_is_estimated || false,
+          is_sample: isSample,
 
           // Bundle metadata
           is_bundle: bundleMatches.length > 1,
@@ -845,7 +768,7 @@ async function scrapeReddit() {
           matched_segment: match.segment,
 
           // Common data
-          url: `https://www.reddit.com${post.permalink}`,
+          url: listingUrl,
           source: 'reddit_avexchange',
           location: location,
           location_state: normalizedLoc.state,
