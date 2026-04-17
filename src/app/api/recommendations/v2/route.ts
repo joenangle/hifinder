@@ -1240,9 +1240,26 @@ export async function GET(request: NextRequest) {
       return results;
     }); // End of getCached wrapper
 
+    // Conditional CDN cache: anonymous canonical queries can be served from
+    // the Vercel edge; anything with user-specific inputs stays origin-only.
+    // Rationale: unstable_cache is per-worker on serverless, so cold-worker
+    // hit-rate at low traffic is ~0%. CDN caching lets a whole region share
+    // the same pre-computed payload. See docs/RECOMMENDATION_PERF_PLAN.md §1.4.
+    const hasPersonalization =
+      (req.existingHeadphones && req.existingHeadphones !== '') ||
+      (req.optimizeAroundHeadphones && req.optimizeAroundHeadphones !== '') ||
+      (req.existingGear && Object.keys(req.existingGear).length > 0) ||
+      customBudgetAllocation !== null ||
+      selectedItemsForCache.length > 0;
+
+    const cacheControl = hasPersonalization
+      ? 'no-store, no-cache, must-revalidate'
+      : 'public, s-maxage=300, stale-while-revalidate=600';
+
     return NextResponse.json(results, {
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Cache-Control': cacheControl,
+        'Vary': 'Accept-Encoding',
       }
     });
   } catch (error) {
