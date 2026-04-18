@@ -2,6 +2,20 @@
 
 import { memo } from 'react'
 
+function EmptySlot({ label, icon }: { label: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed bg-transparent">
+      <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-tertiary flex-shrink-0">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-tertiary">{label}</p>
+        <p className="text-[11px] text-tertiary opacity-70">Click a card below to add</p>
+      </div>
+    </div>
+  )
+}
+
 interface AudioComponent {
   id: string
   name: string
@@ -128,17 +142,6 @@ const SelectedSystemSummaryComponent = ({
 
   // --- Empty-state scaffold: always visible so users understand the mental model ---
   if (!hasItems) {
-    const EmptySlot = ({ label, icon }: { label: string; icon: React.ReactNode }) => (
-      <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed bg-transparent">
-        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-tertiary flex-shrink-0">
-          {icon}
-        </div>
-        <div>
-          <p className="text-sm font-medium text-tertiary">{label}</p>
-          <p className="text-[11px] text-tertiary opacity-70">Click a card below to add</p>
-        </div>
-      </div>
-    )
 
     return (
       <div className="card p-5 mb-8 border border-dashed bg-transparent">
