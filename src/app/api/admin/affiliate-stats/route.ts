@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { supabaseServer as supabase } from '@/lib/supabase-server'
 
 // Admin auth check
 async function isAdmin(request: NextRequest): Promise<boolean> {
@@ -42,6 +37,7 @@ export async function GET(request: NextRequest) {
       .select('*')
       .gte('clicked_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
       .order('clicked_at', { ascending: false })
+      .limit(5000)
 
     if (platform) {
       clickQuery = clickQuery.eq('platform', platform)
@@ -57,6 +53,7 @@ export async function GET(request: NextRequest) {
       .select('*')
       .gte('transaction_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
       .order('transaction_date', { ascending: false })
+      .limit(5000)
 
     if (platform) {
       revenueQuery = revenueQuery.eq('platform', platform)

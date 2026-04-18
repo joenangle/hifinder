@@ -126,7 +126,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/api/auth/signin')
-    } else if (status === 'authenticated' && session?.user?.email !== 'joenangle@gmail.com') {
+    } else if (status === 'authenticated' && !(session as { isAdmin?: boolean })?.isAdmin) {
       router.push('/')
     }
   }, [status, session, router])
@@ -477,7 +477,7 @@ export default function AdminPage() {
     )
   }
 
-  if (status !== 'authenticated' || session?.user?.email !== 'joenangle@gmail.com') {
+  if (status !== 'authenticated' || !(session as { isAdmin?: boolean })?.isAdmin) {
     return null
   }
 

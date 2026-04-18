@@ -1,6 +1,11 @@
-import { NextAuthOptions } from 'next-auth'
+import { NextAuthOptions, Session } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 import GoogleProvider from 'next-auth/providers/google'
 import { createClient } from '@supabase/supabase-js'
+
+export interface AdminSession extends Session {
+  isAdmin: boolean
+}
 
 // Dynamic URL detection for deployments (reserved for future use)
 // function getBaseUrl() {
@@ -101,9 +106,11 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name
         token.picture = user.image
       }
+      // Compute admin flag from server-only env var
+      token.isAdmin = token.email === process.env.ADMIN_EMAIL
       return token
     },
-    
+
     async session({ session, token }) {
       // Send properties to the client
       if (session.user) {
@@ -111,6 +118,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email as string
         session.user.name = token.name as string
         session.user.image = token.picture as string
+        ;(session as AdminSession).isAdmin = token.isAdmin as boolean
       }
       return session
     },
@@ -138,4 +146,13 @@ export const authOptions: NextAuthOptions = {
   
   // Debug mode in development
   debug: process.env.NODE_ENV === 'development',
+}
+
+/**
+ * Server-side admin check. Returns the session if the user is admin, null otherwise.
+ */
+export async function requireAdmin(): Promise<AdminSession | null> {
+  const session = await getServerSession(authOptions) as AdminSession | null
+  if (!session?.isAdmin) return null
+  return session
 }

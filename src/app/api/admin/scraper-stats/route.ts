@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 
 export async function GET() {
   try {
-    // Protect endpoint - only allow joenangle@gmail.com
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user?.email !== 'joenangle@gmail.com') {
+    // Protect endpoint
+    const session = await requireAdmin()
+    if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access only' },
         { status: 401 }
