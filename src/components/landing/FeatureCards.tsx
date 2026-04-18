@@ -13,10 +13,10 @@ const features = [
     icon: <SlidersHorizontal className="h-5 w-5" />,
     title: 'Smart Recommendations',
     description:
-      'Answer a few questions about how you listen and what you own. We surface gear that genuinely fits — ranked by measurements, synergy, and budget.',
+      'Answer a few questions about how you listen and what you own. HiFinder surfaces gear that genuinely fits — ranked by measurements, synergy, and budget.',
     href: '/recommendations',
     tag: 'Most used',
-    preview: '/images/screenshots/recommendations.png',
+    preview: '/images/screenshots/recommendations.webp',
   },
   {
     icon: <Layers className="h-5 w-5" />,
@@ -25,7 +25,7 @@ const features = [
       'Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.',
     href: '/gear?tab=stacks',
     tag: null,
-    preview: '/images/screenshots/stacks.png',
+    preview: '/images/screenshots/stacks.webp',
   },
   {
     icon: <ShoppingBag className="h-5 w-5" />,
@@ -34,16 +34,16 @@ const features = [
       'Browse aggregated listings from communities and resellers. Save searches, track price history, get alerts when something you want drops.',
     href: '/marketplace',
     tag: null,
-    preview: '/images/screenshots/marketplace.png',
+    preview: '/images/screenshots/marketplace.webp',
   },
   {
     icon: <BookOpen className="h-5 w-5" />,
     title: 'Learn the Basics',
     description:
-      "Not sure what a DAC does or why impedance matters? Our guides are written for people who want better sound — not audio engineers.",
+      "Not sure what a DAC does or why impedance matters? These guides are written for people who want better sound — not audio engineers.",
     href: '/learn',
     tag: null,
-    preview: '/images/screenshots/learn.png',
+    preview: '/images/screenshots/learn.webp',
   },
 ]
 
