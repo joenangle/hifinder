@@ -28,10 +28,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "HiFinder - Audio System Builder",
-  description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+  description: "Find headphones, IEMs, DACs, and amps matched to your budget and how you listen. Free, no account required.",
   keywords: "audio, headphones, DAC, amplifier, IEM, recommendations, gear management, hifi, audiophile",
-  authors: [{ name: "HiFinder" }],
-  creator: "HiFinder",
+  authors: [{ name: "Joe Nangle", url: "https://joenangle.com" }],
+  creator: "Joe Nangle",
   publisher: "HiFinder",
   metadataBase: new URL('https://hifinder.app'),
   verification: {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "HiFinder - Audio System Builder",
-    description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+    description: "Find headphones, IEMs, DACs, and amps matched to your budget and how you listen. Free, no account required.",
     url: 'https://hifinder.app',
     siteName: 'HiFinder',
     type: 'website',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "HiFinder - Audio System Builder",
-    description: "Build your perfect audio system with personalized recommendations based on your budget, preferences, and existing gear.",
+    description: "Find headphones, IEMs, DACs, and amps matched to your budget and how you listen. Free, no account required.",
   },
   robots: {
     index: true,
@@ -85,9 +85,30 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to external font services */}
+        {/* Preconnect hints — establishes DNS + TLS early for external
+            origins hit on the critical path. Saves 100-300ms on cold
+            page loads. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Supabase: auth + client-side queries (dashboard, gear, alerts,
+            wishlist, activity feed) + image CDN origin */}
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link
+            rel="preconnect"
+            href={new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin}
+            crossOrigin="anonymous"
+          />
+        )}
+        {/* Vercel Speed Insights / Analytics */}
+        <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+        <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
+        {/* Google Analytics — only matters if GA is configured */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+            <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+          </>
+        )}
       </head>
       <body
         className={`${inter.variable} ${plusJakartaSans.variable} font-sans antialiased`}
