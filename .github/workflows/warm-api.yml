@@ -1,0 +1,68 @@
+name: Warm Recommendations API
+
+# Keeps the Vercel lambda + pg pool hot and refreshes the CDN cache for
+# a handful of popular canonical queries. Addresses the "deep cold" 3s
+# latency that shows up when a request lands on an idle lambda.
+# See docs/RECOMMENDATION_PERF_PLAN.md §2.2.
+
+on:
+  schedule:
+    # Every 5 minutes — fits inside the s-maxage=300 TTL so each run
+    # refreshes the edge entry AND warms origin via SWR.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Warm canonical recommendation queries
+        env:
+          BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS_TOKEN }}
+        run: |
+          set -u
+
+          # Build the list of canonical URLs to warm. Each covers a popular
+          # query pattern. Keep this small — runtime is ~N * 500ms.
+          BASE_PARAMS='soundSignatures=%5B%22neutral%22%5D&wantRecommendationsFor=%7B%22headphones%22%3Atrue%7D&usageRanking=%5B%22Music%22%5D'
+          URLS=(
+            "budget=300&headphoneType=cans&${BASE_PARAMS}"
+            "budget=500&headphoneType=cans&${BASE_PARAMS}"
+            "budget=1000&headphoneType=cans&${BASE_PARAMS}"
+            "budget=300&headphoneType=iems&${BASE_PARAMS}"
+            "budget=500&headphoneType=both&${BASE_PARAMS}"
+          )
+
+          warm_host() {
+            local host="$1"
+            local auth_header="$2"
+            local total=0
+            for params in "${URLS[@]}"; do
+              local url="https://${host}/api/recommendations/v2?${params}"
+              local start=$(date +%s%N)
+              local status
+              if [ -n "$auth_header" ]; then
+                status=$(curl -sS -o /dev/null -w "%{http_code}" -H "$auth_header" --max-time 20 "$url" || echo "000")
+              else
+                status=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo "000")
+              fi
+              local end=$(date +%s%N)
+              local ms=$(( (end - start) / 1000000 ))
+              total=$(( total + ms ))
+              echo "  [${host}] ${status} ${ms}ms  ${params:0:60}..."
+            done
+            echo "  total: ${total}ms across ${#URLS[@]} URLs"
+          }
+
+          echo "=== Warming staging.hifinder.app ==="
+          if [ -n "${BYPASS:-}" ]; then
+            warm_host "staging.hifinder.app" "x-vercel-protection-bypass: ${BYPASS}"
+          else
+            echo "  skipped — VERCEL_PROTECTION_BYPASS_TOKEN secret not set"
+          fi
+
+          echo ""
+          echo "=== Warming hifinder.app (prod) ==="
+          warm_host "hifinder.app" ""
