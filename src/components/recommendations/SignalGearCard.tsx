@@ -72,18 +72,8 @@ const SignalGearCardComponent = ({
   const powerMatch = component.powerMatchScore
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
 
-  const SELECTED_STYLE = {
-    dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-[0_0_0_3px_rgba(45,212,191,0.12),0_2px_8px_rgba(45,212,191,0.08)]',
-    amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-[0_0_0_3px_rgba(251,191,36,0.12),0_2px_8px_rgba(251,191,36,0.08)]',
-    combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-[0_0_0_3px_rgba(96,165,250,0.12),0_2px_8px_rgba(96,165,250,0.08)]',
-  }
-  const HOVER_STYLE = {
-    dac:   'hover:border-teal-300 hover:shadow-sm',
-    amp:   'hover:border-amber-300 hover:shadow-sm',
-    combo: 'hover:border-blue-300 hover:shadow-sm',
-  }
-
-  const SELECTED_COLOR = { dac: 'bg-teal-500', amp: 'bg-amber-500', combo: 'bg-blue-500' }
+  const SELECTED_STYLE = 'border-accent bg-accent/5 dark:bg-accent/10 shadow-[0_0_0_3px_rgba(204,78,37,0.12),0_2px_8px_rgba(204,78,37,0.10)]'
+  const HOVER_STYLE = 'hover:border-accent/20 hover:shadow-sm'
 
   return (
     <div
@@ -93,8 +83,8 @@ const SignalGearCardComponent = ({
       title="View details"
       className={`card-interactive group relative rounded-xl border cursor-pointer px-3 py-2.5 ${
         isSelected
-          ? SELECTED_STYLE[type]
-          : `bg-surface-card ${HOVER_STYLE[type]}`
+          ? SELECTED_STYLE
+          : `bg-surface-card ${HOVER_STYLE}`
       }`}
       onClick={() => onViewDetails?.(component.id)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(component.id) } }}
@@ -105,7 +95,7 @@ const SignalGearCardComponent = ({
         aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
         className={`absolute top-2.5 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
           isSelected
-            ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
+            ? 'bg-accent text-white hover:bg-accent-hover'
             : isFirstCardHint
             ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
             : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'

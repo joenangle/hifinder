@@ -20,15 +20,17 @@ export default function MissingHeadphoneHandler({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
+  const [status, setStatus] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
 
   const handleSubmitRequest = async () => {
     if (!userEmail.trim()) {
-      alert('Please provide an email for follow-up')
+      setStatus({ type: 'error', text: 'Please provide an email so I can follow up when this gets added.' })
       return
     }
 
     setIsSubmitting(true)
-    
+    setStatus(null)
+
     try {
       // Store the missing headphone request
       const supabase = createClient(
@@ -49,16 +51,15 @@ export default function MissingHeadphoneHandler({
 
       if (error) {
         console.error('Error submitting request:', error)
-        alert('Failed to submit request. Please try again.')
+        setStatus({ type: 'error', text: 'Couldn\'t submit your request — please try again in a moment.' })
         return
       }
 
-      alert('Thank you! We\'ll research and add this headphone to our database. You\'ll receive an email when it\'s available.')
-      onCancel?.()
-      
+      setStatus({ type: 'success', text: 'Thanks! I\'ll research this and email you when it\'s available.' })
+
     } catch (err) {
       console.error('Submission error:', err)
-      alert('Failed to submit request. Please try again.')
+      setStatus({ type: 'error', text: 'Couldn\'t submit your request — please try again in a moment.' })
     } finally {
       setIsSubmitting(false)
     }
@@ -74,7 +75,7 @@ export default function MissingHeadphoneHandler({
         </div>
         <h3 className="text-lg font-semibold text-foreground">Headphone Not Found</h3>
         <p className="text-muted">
-          We don&apos;t have <span className="font-medium">{brand} {model}</span> in our database yet.
+          <span className="font-medium">{brand} {model}</span> isn&apos;t in the database yet.
         </p>
       </div>
 
@@ -116,8 +117,8 @@ export default function MissingHeadphoneHandler({
             <div className="text-sm text-accent">
               <p className="font-medium">What happens next?</p>
               <ul className="mt-1 space-y-1 text-accent">
-                <li>• We&apos;ll research this headphone&apos;s specifications and pricing</li>
-                <li>• Add it to our database with accurate information</li>
+                <li>• I&apos;ll research this headphone&apos;s specs and pricing</li>
+                <li>• Add it to the database with accurate info</li>
                 <li>• Email you when it&apos;s available in recommendations</li>
               </ul>
             </div>
@@ -125,21 +126,36 @@ export default function MissingHeadphoneHandler({
         </div>
       </div>
 
+      {status && (
+        <div
+          role={status.type === 'error' ? 'alert' : 'status'}
+          className={`text-sm rounded-md p-3 ${
+            status.type === 'error'
+              ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
+              : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
+          }`}
+        >
+          {status.text}
+        </div>
+      )}
+
       <div className="flex gap-3 pt-2">
         <button
           onClick={onCancel}
           className="flex-1 px-4 py-2 text-muted hover:text-foreground border border-border rounded-md transition-colors"
           disabled={isSubmitting}
         >
-          Skip for now
+          {status?.type === 'success' ? 'Close' : 'Skip for now'}
         </button>
-        <button
-          onClick={handleSubmitRequest}
-          disabled={isSubmitting}
-          className="flex-1 bg-accent hover:bg-accent-hover text-accent-foreground px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? 'Submitting...' : 'Request Addition'}
-        </button>
+        {status?.type !== 'success' && (
+          <button
+            onClick={handleSubmitRequest}
+            disabled={isSubmitting}
+            className="flex-1 bg-accent hover:bg-accent-hover text-accent-foreground px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? 'Submitting…' : 'Request Addition'}
+          </button>
+        )}
       </div>
     </div>
   )

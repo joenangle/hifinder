@@ -1228,8 +1228,23 @@ export function RecommendationsContent() {
 
         {/* Error Display */}
         {error && (
-          <div className="card p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 mb-6">
-            <p className="text-red-800 dark:text-red-200 font-medium">⚠️ {error}</p>
+          <div
+            role="alert"
+            className="card p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 mb-6 flex items-start gap-3"
+          >
+            <div className="flex-1">
+              <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
+              <p className="text-xs text-red-700/80 dark:text-red-300/80 mt-1">
+                The request failed. Try again or adjust your filters.
+              </p>
+            </div>
+            <button
+              onClick={() => fetchRecommendations()}
+              disabled={loading}
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? 'Retrying…' : 'Try again'}
+            </button>
           </div>
         )}
 
@@ -1693,7 +1708,7 @@ export function RecommendationsContent() {
       {/* Preferences Adjustment Modal */}
       {showPreferencesModal && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-[8px] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-[#1c1612]/55 backdrop-blur-[8px] flex items-center justify-center p-4"
           style={{ zIndex: 'var(--z-modal, 40)' }}
           role="dialog"
           aria-modal="true"

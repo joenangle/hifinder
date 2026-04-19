@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Quote } from 'lucide-react'
 
 interface ExpertAnalysisProps {
   component: {
@@ -178,8 +179,9 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
 
           {/* Show original comments if available */}
           {component.crin_comments && (
-            <div className="bg-surface-hover p-2 rounded text-xs italic border-l-2 border-accent">
-              <strong>Crinacle:</strong> &ldquo;{component.crin_comments}&rdquo;
+            <div className="flex items-start gap-2 bg-surface-hover p-2 rounded text-xs italic">
+              <Quote className="w-3.5 h-3.5 text-tertiary shrink-0 mt-0.5" aria-hidden="true" />
+              <p><strong>Crinacle:</strong> &ldquo;{component.crin_comments}&rdquo;</p>
             </div>
           )}
         </div>

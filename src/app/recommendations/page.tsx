@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
+import { Loader2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { RecommendationsContent } from './recommendations-content'
 
@@ -83,7 +84,7 @@ export default function RecommendationsPage() {
       fallback={
         <div className="page-container">
           <div className="text-center mt-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+            <Loader2 className="animate-spin h-12 w-12 text-accent mx-auto" aria-label="Loading recommendations" />
           </div>
         </div>
       }
