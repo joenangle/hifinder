@@ -80,6 +80,45 @@ describe('deriveReasonChips', () => {
     expect(chips[0].label).toBe('Top-tier expert grade')
   })
 
+  it('surfaces a "trending down" chip for medium/high-confidence downtrends', () => {
+    const chips = deriveReasonChips({
+      priceTrendDirection: 'down',
+      priceTrendConfidence: 'medium',
+      priceTrendPercentage: -5.2,
+    })
+    expect(chips[0].label).toBe('Used prices trending down')
+    expect(chips[0].tone).toBe('trend')
+    expect(chips[0].tooltip).toContain('5.2')
+  })
+
+  it('ignores low-confidence trends (too noisy — 1-2 sold listings)', () => {
+    expect(
+      deriveReasonChips({
+        priceTrendDirection: 'down',
+        priceTrendConfidence: 'low',
+        priceTrendPercentage: -15,
+      })
+    ).toEqual([])
+  })
+
+  it('shows "trending up" with appropriate copy', () => {
+    const chips = deriveReasonChips({
+      priceTrendDirection: 'up',
+      priceTrendConfidence: 'high',
+      priceTrendPercentage: 8,
+    })
+    expect(chips[0].label).toBe('Used prices trending up')
+  })
+
+  it('does not emit a trend chip for stable', () => {
+    expect(
+      deriveReasonChips({
+        priceTrendDirection: 'stable',
+        priceTrendConfidence: 'high',
+      })
+    ).toEqual([])
+  })
+
   it('surfaces a Limited data caution chip when hasThinExpertData is true', () => {
     const chips = deriveReasonChips({ hasThinExpertData: true })
     expect(chips.some(c => c.label === 'Limited data' && c.tone === 'caution')).toBe(true)

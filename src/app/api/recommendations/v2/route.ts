@@ -802,9 +802,23 @@ function filterAndScoreComponents(
       // 0 listings: 0, 1: +0.5%, 2: +1.0%, ..., 6+: +3.0% (capped)
       const liquidityBonus = Math.min(0.03, (comp.usedListingsCount || 0) * 0.005);
 
+      // 7. PRICE-TREND BONUS/PENALTY (range −1% to +2%)
+      // Rewards items whose used-market price is trending DOWN (good time to
+      // buy) and mildly penalizes items trending UP (scarcity/popularity,
+      // harder to find a deal). Skips low-confidence trends entirely since
+      // those are based on 1-2 sold listings and too noisy to trust.
+      const trendDir = (comp as { priceTrendDirection?: string | null }).priceTrendDirection;
+      const trendConf = (comp as { priceTrendConfidence?: string | null }).priceTrendConfidence;
+      let trendBonus = 0;
+      if (trendConf && trendConf !== 'low') {
+        if (trendDir === 'down') trendBonus = 0.02;
+        else if (trendDir === 'up') trendBonus = -0.01;
+      }
+
       // FINAL SCORE CALCULATION
       // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10%
-      // Additive bonuses: signature +0-5%, power (amps) +0-5%, liquidity +0-3%
+      // Additive bonuses: signature +0-5%, power (amps) +0-5%, liquidity
+      // +0-3%, price-trend −1% to +2%
       const rawScore =
         expertScore * 0.55 +
         signatureScore * 0.25 +
@@ -812,7 +826,8 @@ function filterAndScoreComponents(
         proximityScore * 0.10 +
         powerBonus +
         signatureBonus +
-        liquidityBonus;
+        liquidityBonus +
+        trendBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)
       const matchScore = Math.min(1, rawScore);
@@ -825,6 +840,7 @@ function filterAndScoreComponents(
         signatureScoreDisplay: Math.round(signatureScore * 100), // Signature match score (0-100)
         proximityScoreDisplay: Math.round(proximityScore * 100), // Budget proximity score (0-100)
         liquidityBonusDisplay: Math.round(liquidityBonus * 100), // Used-market bonus (0-3)
+        trendBonusDisplay: Math.round(trendBonus * 100), // Price-trend bonus (−1 to +2)
       };
     })
     .sort((a, b) => {
@@ -1096,27 +1112,58 @@ export async function GET(request: NextRequest) {
 
       if (error) throw error;
 
-      // Fetch active used listings counts using optimized database function
+      // Fetch active used listings counts + latest price-trend row per component
+      // in parallel (both use the same componentIds).
       const componentIds = allComponentsData?.map((c) => c.id) || [];
-      // Use database function for efficient aggregated query (filters sample/demo in SQL)
-      const { data: listingCountsData, error: listingsError } = await supabaseServer
-        .rpc('get_active_listing_counts', { component_ids: componentIds });
 
-      if (listingsError) {
-        console.error('❌ DEBUG: Error fetching listings:', listingsError);
+      const [listingCountsResult, trendsResult] = await Promise.all([
+        supabaseServer.rpc('get_active_listing_counts', { component_ids: componentIds }),
+        supabaseServer
+          .from('price_trends')
+          .select('component_id, trend_direction, trend_percentage, confidence_score, discount_factor, period_start')
+          .in('component_id', componentIds)
+          .order('period_start', { ascending: false }),
+      ]);
+
+      if (listingCountsResult.error) {
+        console.error('❌ DEBUG: Error fetching listings:', listingCountsResult.error);
+      }
+      if (trendsResult.error) {
+        console.error('❌ DEBUG: Error fetching trends:', trendsResult.error);
       }
 
       // Build count map from aggregated results
       const countMap = new Map<string, number>();
-      listingCountsData?.forEach((item: { component_id: string; listing_count: number }) => {
+      listingCountsResult.data?.forEach((item: { component_id: string; listing_count: number }) => {
         countMap.set(item.component_id, item.listing_count);
       });
 
-      // Transform data to add used listings count
-      const transformedComponents = allComponentsData?.map((comp) => ({
-        ...comp,
-        usedListingsCount: countMap.get(comp.id) || 0,
-      }));
+      // Latest trend row per component (trends are sorted desc by period_start,
+      // so the first row we see is the most recent).
+      type PriceTrendRow = {
+        component_id: string;
+        trend_direction: string | null;
+        trend_percentage: number | null;
+        confidence_score: string | null;
+        discount_factor: number | null;
+        period_start: string | null;
+      };
+      const trendMap = new Map<string, PriceTrendRow>();
+      (trendsResult.data as PriceTrendRow[] | null)?.forEach((row) => {
+        if (!trendMap.has(row.component_id)) trendMap.set(row.component_id, row);
+      });
+
+      // Transform data to add used listings count + trend info
+      const transformedComponents = allComponentsData?.map((comp) => {
+        const trend = trendMap.get(comp.id);
+        return {
+          ...comp,
+          usedListingsCount: countMap.get(comp.id) || 0,
+          priceTrendDirection: trend?.trend_direction ?? null,
+          priceTrendConfidence: trend?.confidence_score ?? null,
+          priceTrendPercentage: trend?.trend_percentage ?? null,
+        };
+      });
 
       // Get existing headphones data for amp matching
       let existingHeadphonesData = null;

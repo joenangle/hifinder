@@ -35,6 +35,9 @@ interface AudioComponent {
   expertScoreDisplay?: number
   avgPrice?: number
   hasThinExpertData?: boolean
+  priceTrendDirection?: string | null
+  priceTrendConfidence?: string | null
+  priceTrendPercentage?: number | null
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string

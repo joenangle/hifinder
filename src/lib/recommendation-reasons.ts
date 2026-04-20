@@ -26,6 +26,12 @@ export interface ReasonChipInput {
   /** True when the component lacks sufficient expert data and was
    *  down-weighted. Surfaced as a cautionary chip. */
   hasThinExpertData?: boolean
+  /** Latest price-trend direction from price_trends: 'up' | 'down' | 'stable' | null */
+  priceTrendDirection?: string | null
+  /** Confidence of the latest trend row: 'low' | 'medium' | 'high' | null.
+   *  Only medium/high are worth surfacing as a chip. */
+  priceTrendConfidence?: string | null
+  priceTrendPercentage?: number | null
 }
 
 export interface ReasonChip {
@@ -33,7 +39,7 @@ export interface ReasonChip {
   /** Longer text for title / aria-label. */
   tooltip: string
   /** Semantic tag for styling — keep the palette small. */
-  tone: 'expert' | 'signature' | 'value' | 'liquidity' | 'match' | 'caution'
+  tone: 'expert' | 'signature' | 'value' | 'liquidity' | 'match' | 'caution' | 'trend'
 }
 
 const TOP_GRADES = new Set(['S+', 'S', 'S-', 'A+', 'A'])
@@ -99,6 +105,32 @@ export function deriveReasonChips(
     })
   }
 
+  // 4b. Price-trend signal — only when confidence is ≥ medium (low-conf
+  //     trends are noise from 1-2 sold listings). "Down" is a meaningful
+  //     buy signal; "up" is surfaced with less urgency.
+  if (comp.priceTrendConfidence && comp.priceTrendConfidence !== 'low') {
+    const pct = comp.priceTrendPercentage
+    if (comp.priceTrendDirection === 'down') {
+      chips.push({
+        label: 'Used prices trending down',
+        tooltip:
+          typeof pct === 'number' && pct !== 0
+            ? `Used-market average has dropped ${Math.abs(pct).toFixed(1)}% recently`
+            : 'Used-market prices trending down — good time to buy',
+        tone: 'trend',
+      })
+    } else if (comp.priceTrendDirection === 'up') {
+      chips.push({
+        label: 'Used prices trending up',
+        tooltip:
+          typeof pct === 'number' && pct !== 0
+            ? `Used-market average has risen ${Math.abs(pct).toFixed(1)}% recently`
+            : 'Used-market prices trending up',
+        tone: 'trend',
+      })
+    }
+  }
+
   // 5. Near-perfect match — catch-all when nothing else fired but the
   //    headline score is strong (e.g. synergy of many small bonuses).
   if (chips.length === 0 && (comp.matchScore ?? 0) >= 85) {
@@ -136,4 +168,6 @@ export const REASON_CHIP_CLASSES: Record<ReasonChip['tone'], string> = {
     'border-subtle bg-secondary text-secondary',
   caution:
     'border-slate-300/70 bg-slate-50 text-slate-600 dark:border-slate-600/60 dark:bg-slate-900/40 dark:text-slate-300',
+  trend:
+    'border-teal-300/70 bg-teal-50 text-teal-900 dark:border-teal-700/60 dark:bg-teal-950/40 dark:text-teal-200',
 }

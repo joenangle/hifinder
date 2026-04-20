@@ -38,6 +38,9 @@ interface AudioComponent {
   expertScoreDisplay?: number
   avgPrice?: number
   hasThinExpertData?: boolean
+  priceTrendDirection?: string | null
+  priceTrendConfidence?: string | null
+  priceTrendPercentage?: number | null
   why_recommended?: string | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
