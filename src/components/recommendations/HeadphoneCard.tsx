@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Headphones, Ear } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
+import { PriceAlertButton } from '@/components/PriceAlertButton'
 
 interface AudioComponent {
   id: string
@@ -119,7 +120,7 @@ const HeadphoneCardComponent = ({
       {/* Horizontal layout: image left (1/3), info right (2/3) */}
       <div className="flex items-stretch gap-3 pr-10">
         {/* Product image — 1/3 width when image exists, narrow icon strip when not */}
-        <div className={`flex-shrink-0 rounded-lg bg-secondary flex items-center justify-center overflow-hidden ${
+        <div className={`flex-shrink-0 rounded-xl bg-secondary flex items-center justify-center overflow-hidden ${
           headphone.image_url ? 'w-1/4 sm:w-1/3' : 'w-8'
         }`}>
           {headphone.image_url ? (
@@ -243,6 +244,15 @@ const HeadphoneCardComponent = ({
               </a>
             )}
             <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <PriceAlertButton
+                componentId={headphone.id}
+                avgPrice={
+                  headphone.price_used_min != null && headphone.price_used_max != null
+                    ? (headphone.price_used_min + headphone.price_used_max) / 2
+                    : headphone.price_new ?? headphone.price_used_min ?? headphone.price_used_max ?? 0
+                }
+                priceFloor={headphone.price_used_min}
+              />
               <WishlistButton componentId={headphone.id} className="px-2 py-1" showText={false} />
             </div>
           </div>

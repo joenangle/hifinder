@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Cable, Disc3, Combine } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
+import { PriceAlertButton } from '@/components/PriceAlertButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
 
@@ -118,7 +119,7 @@ const SignalGearCardComponent = ({
       <div className="flex items-stretch gap-3 pr-10">
         {/* Product image — 1/3 width when image exists, narrow icon strip when not */}
         {(() => { const Icon = TYPE_ICON[type]; return (
-          <div className={`flex-shrink-0 rounded-lg bg-secondary flex items-center justify-center overflow-hidden ${
+          <div className={`flex-shrink-0 rounded-xl bg-secondary flex items-center justify-center overflow-hidden ${
             component.image_url ? 'w-1/4 sm:w-1/3' : 'w-8'
           }`}>
             {component.image_url ? (
@@ -245,6 +246,15 @@ const SignalGearCardComponent = ({
               </a>
             )}
             <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <PriceAlertButton
+                componentId={component.id}
+                avgPrice={
+                  component.price_used_min != null && component.price_used_max != null
+                    ? (component.price_used_min + component.price_used_max) / 2
+                    : component.price_new ?? component.price_used_min ?? component.price_used_max ?? 0
+                }
+                priceFloor={component.price_used_min}
+              />
               <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
             </div>
           </div>
