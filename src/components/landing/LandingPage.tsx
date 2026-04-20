@@ -209,16 +209,30 @@ export async function LandingPage() {
             <div className="hidden lg:block">
               <Link href="/recommendations" className="block cursor-pointer">
                 <BrowserFrame url="hifinder.app/recommendations">
-                  <Image
-                    src="/images/screenshots/recommendations.webp"
-                    alt="HiFinder recommendation engine showing matched headphones and audio equipment"
-                    width={2560}
-                    height={1600}
-                    sizes="(max-width: 1023px) 0px, 540px"
-                    className="w-full h-auto"
-                    priority
-                    style={{ display: 'block' }}
-                  />
+                  <div className="theme-light-only">
+                    <Image
+                      src="/images/screenshots/recommendations-light.webp"
+                      alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                      width={2560}
+                      height={1600}
+                      sizes="(max-width: 1023px) 0px, 540px"
+                      className="w-full h-auto"
+                      priority
+                      style={{ display: 'block' }}
+                    />
+                  </div>
+                  <div className="theme-dark-only">
+                    <Image
+                      src="/images/screenshots/recommendations-dark.webp"
+                      alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                      width={2560}
+                      height={1600}
+                      sizes="(max-width: 1023px) 0px, 540px"
+                      className="w-full h-auto"
+                      priority
+                      style={{ display: 'block' }}
+                    />
+                  </div>
                 </BrowserFrame>
               </Link>
             </div>
