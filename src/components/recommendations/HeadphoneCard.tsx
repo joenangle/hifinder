@@ -6,6 +6,7 @@ import { Headphones, Ear } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
 import { PriceAlertButton } from '@/components/PriceAlertButton'
+import { deriveReasonChips, REASON_CHIP_CLASSES } from '@/lib/recommendation-reasons'
 
 interface AudioComponent {
   id: string
@@ -28,6 +29,14 @@ interface AudioComponent {
   crin_tone?: string | null
   crin_tech?: string | null
   crin_rank?: number | null
+  crin_value?: number | null
+  asr_sinad?: number | null
+  valueScore?: number
+  signatureScoreDisplay?: number
+  proximityScoreDisplay?: number
+  liquidityBonusDisplay?: number
+  expertScoreDisplay?: number
+  avgPrice?: number
   why_recommended?: string | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
@@ -74,6 +83,7 @@ const HeadphoneCardComponent = ({
   const soundSig = headphone.crinacle_sound_signature || headphone.sound_signature
   const ampDifficulty = headphone.amplificationAssessment?.difficulty
   const isCans = headphone.category !== 'iems'
+  const reasonChips = deriveReasonChips(headphone)
 
   const selectedStyle = 'border-accent bg-accent/5 dark:bg-accent/10 shadow-[0_0_0_3px_rgba(204,78,37,0.12),0_2px_8px_rgba(204,78,37,0.10)]'
   const hoverStyle = 'hover:border-accent/20 hover:shadow-sm'
@@ -181,6 +191,21 @@ const HeadphoneCardComponent = ({
                   {headphone.crin_tech} <span className="font-normal text-tertiary text-xs">tech</span>
                 </span>
               )}
+            </div>
+          )}
+
+          {/* Row 2.5: Reason chips — small labels explaining why this ranks */}
+          {reasonChips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1 mt-1">
+              {reasonChips.map(chip => (
+                <span
+                  key={chip.label}
+                  title={chip.tooltip}
+                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${REASON_CHIP_CLASSES[chip.tone]}`}
+                >
+                  {chip.label}
+                </span>
+              ))}
             </div>
           )}
 

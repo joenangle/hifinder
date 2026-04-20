@@ -8,6 +8,7 @@ import { WishlistButton } from '@/components/WishlistButton'
 import { PriceAlertButton } from '@/components/PriceAlertButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
+import { deriveReasonChips, REASON_CHIP_CLASSES } from '@/lib/recommendation-reasons'
 
 const TYPE_ICON = { dac: Disc3, amp: Cable, combo: Combine } as const
 
@@ -24,6 +25,15 @@ interface AudioComponent {
   asr_review_url?: string | null
   manufacturer_url?: string | null
   usedListingsCount?: number
+  crin_tone?: string | null
+  crin_tech?: string | null
+  matchScore?: number
+  valueScore?: number
+  signatureScoreDisplay?: number
+  proximityScoreDisplay?: number
+  liquidityBonusDisplay?: number
+  expertScoreDisplay?: number
+  avgPrice?: number
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string
@@ -72,6 +82,7 @@ const SignalGearCardComponent = ({
 
   const powerMatch = component.powerMatchScore
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
+  const reasonChips = deriveReasonChips(component)
 
   const SELECTED_STYLE = 'border-accent bg-accent/5 dark:bg-accent/10 shadow-[0_0_0_3px_rgba(204,78,37,0.12),0_2px_8px_rgba(204,78,37,0.10)]'
   const HOVER_STYLE = 'hover:border-accent/20 hover:shadow-sm'
@@ -189,6 +200,21 @@ const SignalGearCardComponent = ({
                   {powerMatch >= 0.9 ? 'Excellent pairing' : powerMatch >= 0.6 ? 'Adequate' : 'May struggle'}
                 </span>
               )}
+            </div>
+          )}
+
+          {/* Row 2.5: Reason chips — small labels explaining why this ranks */}
+          {reasonChips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1 mt-1">
+              {reasonChips.map(chip => (
+                <span
+                  key={chip.label}
+                  title={chip.tooltip}
+                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${REASON_CHIP_CLASSES[chip.tone]}`}
+                >
+                  {chip.label}
+                </span>
+              ))}
             </div>
           )}
 
