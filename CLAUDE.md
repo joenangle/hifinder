@@ -12,6 +12,7 @@ Per-component final score (0–1, capped after bonuses):
 - **10%** budget-proximity score (Gaussian, σ = 15% of budget)
 - **+0.05** additive signature bonus when signature match > 0.35
 - **+0 to +0.05** power-adequacy bonus for amps only
+- **+0 to +0.03** used-market liquidity bonus (0.5% per active listing, capped at 6+ listings)
 
 Older 78/22 documentation in `docs/V2_ALGORITHM_IMPLEMENTATION.md` describes the v2.0 algorithm that was superseded.
 

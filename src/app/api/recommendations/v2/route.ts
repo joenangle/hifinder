@@ -778,16 +778,24 @@ function filterAndScoreComponents(
       const powerBonus =
         comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
+      // 6. USED-MARKET LIQUIDITY BONUS (max +3%)
+      // Items with active used listings are more actionable (user can buy now,
+      // see real prices, check condition). Small multiplier so it nudges ties
+      // without overwhelming quality/signature signals.
+      // 0 listings: 0, 1: +0.5%, 2: +1.0%, ..., 6+: +3.0% (capped)
+      const liquidityBonus = Math.min(0.03, (comp.usedListingsCount || 0) * 0.005);
+
       // FINAL SCORE CALCULATION
-      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10% + Power bonus: 0-5%
-      // Additive signature bonus: +5 points when signature matches well
+      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10%
+      // Additive bonuses: signature +0-5%, power (amps) +0-5%, liquidity +0-3%
       const rawScore =
         expertScore * 0.55 +
         signatureScore * 0.25 +
         valueScore * 0.10 +
         proximityScore * 0.10 +
         powerBonus +
-        signatureBonus;
+        signatureBonus +
+        liquidityBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)
       const matchScore = Math.min(1, rawScore);
@@ -799,6 +807,7 @@ function filterAndScoreComponents(
         expertScoreDisplay: Math.round(expertScore * 100), // Expert quality score (0-100)
         signatureScoreDisplay: Math.round(signatureScore * 100), // Signature match score (0-100)
         proximityScoreDisplay: Math.round(proximityScore * 100), // Budget proximity score (0-100)
+        liquidityBonusDisplay: Math.round(liquidityBonus * 100), // Used-market bonus (0-3)
       };
     })
     .sort((a, b) => {
