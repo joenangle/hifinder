@@ -217,6 +217,26 @@ export function FeatureCards() {
                     {f.description}
                   </p>
 
+                  {f.preview && (
+                    <div
+                      className="mt-4 overflow-hidden"
+                      style={{
+                        borderRadius: 8,
+                        border: '1px solid var(--border-subtle)',
+                        maxHeight: 140,
+                      }}
+                    >
+                      <Image
+                        src={f.preview}
+                        alt={`${f.title} preview`}
+                        width={1280}
+                        height={800}
+                        className="w-full h-auto"
+                        style={{ objectFit: 'cover', objectPosition: 'top', display: 'block' }}
+                      />
+                    </div>
+                  )}
+
                   {stackExpanded ? (
                     <StackBuilderPreview />
                   ) : (
