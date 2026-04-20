@@ -23,6 +23,9 @@ export interface ReasonChipInput {
   crin_tech?: string | null
   asr_sinad?: number | null
   usedListingsCount?: number
+  /** True when the component lacks sufficient expert data and was
+   *  down-weighted. Surfaced as a cautionary chip. */
+  hasThinExpertData?: boolean
 }
 
 export interface ReasonChip {
@@ -30,7 +33,7 @@ export interface ReasonChip {
   /** Longer text for title / aria-label. */
   tooltip: string
   /** Semantic tag for styling — keep the palette small. */
-  tone: 'expert' | 'signature' | 'value' | 'liquidity' | 'match'
+  tone: 'expert' | 'signature' | 'value' | 'liquidity' | 'match' | 'caution'
 }
 
 const TOP_GRADES = new Set(['S+', 'S', 'S-', 'A+', 'A'])
@@ -106,6 +109,17 @@ export function deriveReasonChips(
     })
   }
 
+  // 6. Limited expert data — pinned to the front so users always see the
+  //    caveat when it applies (can displace other chips under the cap).
+  if (comp.hasThinExpertData) {
+    chips.unshift({
+      label: 'Limited data',
+      tooltip:
+        'This rec has thin or no expert grades / SINAD measurements. Score is best-effort — verify before buying.',
+      tone: 'caution',
+    })
+  }
+
   return chips.slice(0, max)
 }
 
@@ -120,4 +134,6 @@ export const REASON_CHIP_CLASSES: Record<ReasonChip['tone'], string> = {
     'border-violet-300/70 bg-violet-50 text-violet-900 dark:border-violet-700/60 dark:bg-violet-950/40 dark:text-violet-200',
   match:
     'border-subtle bg-secondary text-secondary',
+  caution:
+    'border-slate-300/70 bg-slate-50 text-slate-600 dark:border-slate-600/60 dark:bg-slate-900/40 dark:text-slate-300',
 }

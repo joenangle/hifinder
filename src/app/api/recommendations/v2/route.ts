@@ -661,16 +661,31 @@ function filterAndScoreComponents(
       const isElectronics = component.category === "dac" || component.category === "amp" || component.category === "dac_amp";
       const confidence = calculateExpertConfidence(scoringData);
 
+      // Track whether this component has thin/absent expert data so the UI
+      // can surface a "Limited data" chip and so we can down-weight it.
+      let hasThinExpertData = false;
+
       let expertScore: number;
       if (isHeadphone && confidence > 0) {
         // Apply confidence penalty for headphones/IEMs with partial Crinacle data
         expertScore = rawExpertScore * confidence;
+        if (confidence < 0.75) hasThinExpertData = true;
+      } else if (isHeadphone) {
+        // Headphone with zero Crinacle data: down-weight the 5.0 default so
+        // items with even partial grades sort above it at the same price.
+        expertScore = rawExpertScore * 0.7;
+        hasThinExpertData = true;
       } else if (isElectronics && scoringData.asr_sinad != null) {
         // For electronics with SINAD data: use SINAD as quality signal
         // SINAD is the primary objective measurement for DACs/amps
         expertScore = sinadToScore(scoringData.asr_sinad);
+      } else if (isElectronics) {
+        // Electronics without SINAD: apply missing-data penalty. Otherwise
+        // every unmeasured DAC/amp would return 5.0 (C grade default) and
+        // rank equally with measured ones, which is misleading.
+        expertScore = rawExpertScore * 0.8;
+        hasThinExpertData = true;
       } else {
-        // Default: use raw expert score (5.0 for components with no data)
         expertScore = rawExpertScore;
       }
 
@@ -690,6 +705,8 @@ function filterAndScoreComponents(
         powerAdequacy,
         expert_grade_numeric: toneGradeNumeric,
         expertScore, // Add comprehensive expert score (0-10)
+        hasThinExpertData, // Flag so UI can surface a "Limited data" chip
+        expertConfidence: confidence, // 0-1, for downstream display
         // Add amplification assessment for headphones
         ...(component.category === "cans" || component.category === "iems"
           ? {
@@ -701,7 +718,7 @@ function filterAndScoreComponents(
               ),
             }
           : {}),
-      } as RecommendationComponent & { expertScore: number };
+      } as RecommendationComponent & { expertScore: number; hasThinExpertData: boolean; expertConfidence: number };
     })
     .filter((c, index, arr) => {
       // Remove duplicates

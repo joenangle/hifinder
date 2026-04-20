@@ -34,6 +34,7 @@ interface AudioComponent {
   liquidityBonusDisplay?: number
   expertScoreDisplay?: number
   avgPrice?: number
+  hasThinExpertData?: boolean
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string

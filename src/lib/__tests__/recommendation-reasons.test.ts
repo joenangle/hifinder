@@ -80,6 +80,25 @@ describe('deriveReasonChips', () => {
     expect(chips[0].label).toBe('Top-tier expert grade')
   })
 
+  it('surfaces a Limited data caution chip when hasThinExpertData is true', () => {
+    const chips = deriveReasonChips({ hasThinExpertData: true })
+    expect(chips.some(c => c.label === 'Limited data' && c.tone === 'caution')).toBe(true)
+  })
+
+  it('Limited data chip respects the max cap (may bump other chips off)', () => {
+    const chips = deriveReasonChips({
+      crin_tone: 'A+',
+      crin_tech: 'A',
+      valueScore: 95,
+      expertScoreDisplay: 80,
+      signatureScoreDisplay: 50,
+      hasThinExpertData: true,
+    }, 2)
+    expect(chips).toHaveLength(2)
+    // Limited data should appear (it's the last push)
+    expect(chips.some(c => c.label === 'Limited data')).toBe(true)
+  })
+
   it('returns stable ordering given identical inputs (determinism)', () => {
     const input = {
       crin_tone: 'A',

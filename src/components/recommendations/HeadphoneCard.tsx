@@ -37,6 +37,7 @@ interface AudioComponent {
   liquidityBonusDisplay?: number
   expertScoreDisplay?: number
   avgPrice?: number
+  hasThinExpertData?: boolean
   why_recommended?: string | null
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown'
