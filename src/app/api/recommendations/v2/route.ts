@@ -609,7 +609,7 @@ function filterAndScoreComponents(
   const minAcceptable = budgetRange.min;
   const maxAcceptable = budgetRange.max;
 
-  return components
+  const scored = components
     .map((c) => {
       const component = c as {
         price_used_min?: number;
@@ -851,8 +851,29 @@ function filterAndScoreComponents(
       if (b.valueScore !== a.valueScore) return b.valueScore - a.valueScore;
       if (a.avgPrice !== b.avgPrice) return a.avgPrice - b.avgPrice;
       return a.id.localeCompare(b.id);
-    })
-    .slice(0, maxOptions);
+    });
+
+  // Brand-diversity pass: cap any single brand at MAX_PER_BRAND in the
+  // ranked prefix, then append the overflow. Keeps the top-10 varied so
+  // users don't see 5 Sennheiser variants at $150 or 4 Focals at $800
+  // (observed in actual staging data 2026-04-21). The deferred items
+  // remain reachable via "Show More" since they only move to the tail.
+  const MAX_PER_BRAND = 2;
+  const normalizeBrand = (b?: string | null): string => (b ?? '').trim().toLowerCase();
+  const brandCounts = new Map<string, number>();
+  const kept: typeof scored = [];
+  const deferred: typeof scored = [];
+  for (const item of scored) {
+    const key = normalizeBrand(item.brand);
+    const count = brandCounts.get(key) ?? 0;
+    if (count < MAX_PER_BRAND) {
+      kept.push(item);
+      brandCounts.set(key, count + 1);
+    } else {
+      deferred.push(item);
+    }
+  }
+  return kept.concat(deferred).slice(0, maxOptions);
 }
 
 export async function GET(request: NextRequest) {
