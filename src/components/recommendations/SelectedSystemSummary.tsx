@@ -2,6 +2,20 @@
 
 import { memo } from 'react'
 
+function EmptySlot({ label, icon }: { label: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed bg-transparent">
+      <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-tertiary flex-shrink-0">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-tertiary">{label}</p>
+        <p className="text-[11px] text-tertiary opacity-70">Click a card below to add</p>
+      </div>
+    </div>
+  )
+}
+
 interface AudioComponent {
   id: string
   name: string
@@ -128,17 +142,6 @@ const SelectedSystemSummaryComponent = ({
 
   // --- Empty-state scaffold: always visible so users understand the mental model ---
   if (!hasItems) {
-    const EmptySlot = ({ label, icon }: { label: string; icon: React.ReactNode }) => (
-      <div className="flex items-center gap-2.5 p-3 rounded-lg border border-dashed bg-transparent">
-        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-tertiary flex-shrink-0">
-          {icon}
-        </div>
-        <div>
-          <p className="text-sm font-medium text-tertiary">{label}</p>
-          <p className="text-[11px] text-tertiary opacity-70">Click a card below to add</p>
-        </div>
-      </div>
-    )
 
     return (
       <div className="card p-5 mb-8 border border-dashed bg-transparent">
@@ -177,7 +180,7 @@ const SelectedSystemSummaryComponent = ({
   }
 
   return (
-    <div className="card p-6 mb-8 border-l-4 border-accent">
+    <div className="card p-6 mb-8">
       <h3 className="heading-3 text-center mb-4">Your Selected System</h3>
 
       {/* Component grid */}
@@ -187,13 +190,13 @@ const SelectedSystemSummaryComponent = ({
           <SelectedItem key={item.id} item={item} color="bg-accent" onRemove={() => onRemoveItem(item.id, getHeadphoneCategory(item))} />
         ))}
         {selectedDacs.map(item => (
-          <SelectedItem key={item.id} item={item} color="bg-red-500 dark:bg-red-400" onRemove={() => onRemoveItem(item.id, 'dacs')} />
+          <SelectedItem key={item.id} item={item} color="bg-accent" onRemove={() => onRemoveItem(item.id, 'dacs')} />
         ))}
         {selectedAmps.map(item => (
-          <SelectedItem key={item.id} item={item} color="bg-amber-500 dark:bg-amber-400" onRemove={() => onRemoveItem(item.id, 'amps')} />
+          <SelectedItem key={item.id} item={item} color="bg-accent" onRemove={() => onRemoveItem(item.id, 'amps')} />
         ))}
         {selectedCombos.map(item => (
-          <SelectedItem key={item.id} item={item} color="bg-orange-500 dark:bg-orange-400" onRemove={() => onRemoveItem(item.id, 'combos')} />
+          <SelectedItem key={item.id} item={item} color="bg-accent" onRemove={() => onRemoveItem(item.id, 'combos')} />
         ))}
 
         {/* Owned gear (visually distinct) */}
@@ -237,14 +240,8 @@ const SelectedSystemSummaryComponent = ({
         </div>
       )}
 
-      {/* Budget summary */}
-      <div className={`pt-4 border-t mt-4 rounded-lg p-4 ${
-        totalSelectedPrice > budget * 1.1
-          ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800'
-          : totalSelectedPrice > budget * 0.9
-          ? 'bg-transparent border'
-          : 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800'
-      }`}>
+      {/* Budget summary — neutral surface; status is carried by the colored text below, not the background */}
+      <div className="pt-4 border-t mt-4 rounded-lg p-4 bg-surface-hover border border-subtle">
         <div className="text-center mb-4">
           <p className="text-xl font-bold text-primary mb-2">
             {hasSelectedItems ? `$${Math.round(totalSelectedPrice).toLocaleString()}` : 'No new purchases'}

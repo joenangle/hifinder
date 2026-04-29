@@ -56,7 +56,7 @@ export function Footer() {
                 maxWidth: '260px',
               }}
             >
-              Build your perfect audio system with data-driven recommendations. Free, no account required.
+              Audio gear matched to how you listen. Free, no account required.
             </p>
           </div>
 
@@ -153,9 +153,18 @@ export function Footer() {
             >
               Audio Science Review
             </a>
+            . Not affiliated with any manufacturer or retailer.
           </p>
           <p className="text-xs text-tertiary">
-            Not affiliated with any manufacturer or retailer
+            Built by{' '}
+            <a
+              href="https://joenangle.com"
+              target="_blank"
+              rel="noopener"
+              className="text-tertiary hover:underline"
+            >
+              Joe Nangle
+            </a>
           </p>
         </div>
       </div>

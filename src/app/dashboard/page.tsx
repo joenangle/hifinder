@@ -189,8 +189,8 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-primary mb-4">Welcome back, {session?.user?.name || 'User'}!</h2>
-        <p className="text-secondary">Here&apos;s an overview of your audio gear ecosystem</p>
+        <h2 className="text-2xl font-bold text-primary mb-4">Welcome back, {session?.user?.name || 'there'}!</h2>
+        <p className="text-secondary">Your gear, wishlist, and alerts at a glance.</p>
       </div>
 
       {/* Quick Stats */}

@@ -18,6 +18,16 @@ import { NextRequest, NextResponse } from 'next/server'
  * })
  */
 export async function POST(request: NextRequest) {
+  // Auth: verify cron secret
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const { tag } = await request.json()
 

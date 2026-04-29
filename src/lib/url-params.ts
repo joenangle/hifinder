@@ -17,6 +17,36 @@ import {
 const parseAsCommaSeparated = parseAsArrayOf(parseAsString, ',')
 
 /**
+ * Clamped budget parser. Validates budget URL params are within sensible bounds
+ * instead of silently accepting `?b=-1` or `?b=999999999`.
+ */
+const BUDGET_MIN = 50
+const BUDGET_MAX = 50000
+
+const parseAsClampedBudget = createParser({
+  parse(value: string): number | null {
+    const n = parseInt(value, 10)
+    if (!Number.isFinite(n)) return null
+    if (n < BUDGET_MIN) {
+      if (typeof window !== 'undefined') {
+        console.warn(`[url-params] budget=${n} below min ${BUDGET_MIN}, clamping`)
+      }
+      return BUDGET_MIN
+    }
+    if (n > BUDGET_MAX) {
+      if (typeof window !== 'undefined') {
+        console.warn(`[url-params] budget=${n} above max ${BUDGET_MAX}, clamping`)
+      }
+      return BUDGET_MAX
+    }
+    return n
+  },
+  serialize(value: number): string {
+    return String(value)
+  },
+})
+
+/**
  * Boolean-keyed object parser for wantRecommendationsFor / existingGear.
  * Reads: "headphones,dac" → { headphones: true, dac: true, amp: false, combo: false }
  * Writes: { headphones: true, dac: true } → "headphones,dac"
@@ -110,7 +140,7 @@ export const PREF_DEFAULTS = {
 // Uses compact param names, with clearOnDefault to keep URLs clean.
 
 export const recommendationParams = {
-  b: parseAsInteger.withDefault(PREF_DEFAULTS.budget).withOptions({
+  b: parseAsClampedBudget.withDefault(PREF_DEFAULTS.budget).withOptions({
     clearOnDefault: true,
   }),
   budgetRangeMin: parseAsInteger

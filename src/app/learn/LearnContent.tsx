@@ -250,7 +250,7 @@ export default function LearnContent({ resources }: { resources: Resource[] }) {
       {/* Add Resource CTA */}
       <div className="mt-16 card p-8 bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 text-center">
         <h3 className="heading-3 mb-2">Know a great resource?</h3>
-        <p className="text-secondary mb-6">Help the community by suggesting additions to our learning library</p>
+        <p className="text-secondary mb-6">Help the community by suggesting additions to the learning library</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
             href="mailto:suggestions@hifinder.app?subject=Resource Suggestion&body=Resource Title:%0D%0AURL:%0D%0ADescription:%0D%0AAuthor:%0D%0AType (video/article/community):%0D%0ADifficulty (beginner/intermediate/advanced):%0D%0ACategory (basics/technical/guides/reviews):"

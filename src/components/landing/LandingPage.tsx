@@ -138,7 +138,7 @@ export async function LandingPage() {
                   marginBottom: '2.5rem',
                 }}
               >
-                HiFinder matches you with audio gear that suits your ears, your budget, and
+                HiFinder matches audio gear to your ears, your budget, and
                 the way you actually listen — no forums, no guesswork.
               </p>
 
@@ -209,16 +209,30 @@ export async function LandingPage() {
             <div className="hidden lg:block">
               <Link href="/recommendations" className="block cursor-pointer">
                 <BrowserFrame url="hifinder.app/recommendations">
-                  <Image
-                    src="/images/screenshots/recommendations.png"
-                    alt="HiFinder recommendation engine showing matched headphones and audio equipment"
-                    width={2560}
-                    height={1600}
-                    sizes="(max-width: 1023px) 0px, 540px"
-                    className="w-full h-auto"
-                    priority
-                    style={{ display: 'block' }}
-                  />
+                  <div className="theme-light-only">
+                    <Image
+                      src="/images/screenshots/recommendations-light.webp"
+                      alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                      width={2560}
+                      height={1600}
+                      sizes="(max-width: 1023px) 0px, 540px"
+                      className="w-full h-auto"
+                      priority
+                      style={{ display: 'block' }}
+                    />
+                  </div>
+                  <div className="theme-dark-only">
+                    <Image
+                      src="/images/screenshots/recommendations-dark.webp"
+                      alt="HiFinder recommendation engine showing matched headphones and audio equipment"
+                      width={2560}
+                      height={1600}
+                      sizes="(max-width: 1023px) 0px, 540px"
+                      className="w-full h-auto"
+                      priority
+                      style={{ display: 'block' }}
+                    />
+                  </div>
                 </BrowserFrame>
               </Link>
             </div>
@@ -312,13 +326,13 @@ export async function LandingPage() {
             {[
               {
                 step: '01',
-                title: 'Tell us how you listen',
-                body: 'Headphones at home, IEMs at the gym, or both? We ask a handful of questions about your habits, budget, and gear.',
+                title: 'Tell HiFinder how you listen',
+                body: 'Headphones at home, IEMs at the gym, or both? A handful of questions about your habits, budget, and gear.',
               },
               {
                 step: '02',
-                title: 'We match gear to you',
-                body: 'Our system cross-references measurements, user reviews, and synergy data to rank real options — not affiliate-stuffed lists.',
+                title: 'HiFinder matches gear to you',
+                body: 'Cross-references measurements, community reviews, and synergy data to rank real options — not affiliate-stuffed lists.',
               },
               {
                 step: '03',
@@ -419,7 +433,7 @@ export async function LandingPage() {
                 maxWidth: '480px',
               }}
             >
-              HiFinder is free, no account required. Get a personalized recommendation
+              HiFinder is free, no account required. Get a recommendation
               in under two minutes.
             </p>
             <TrackableLink

@@ -847,6 +847,14 @@ select.input {
   background-color: rgba(28, 31, 38, 0.5);
 }
 
+/* Theme-aware visibility — pairs with data-theme on <html>.
+   Use for assets that have distinct light/dark variants (e.g., screenshots).
+   Default rules handle the initial paint before JS runs; data-theme overrides
+   take effect once the pre-hydration script in layout.tsx sets the attribute. */
+.theme-dark-only { display: none; }
+[data-theme="dark"] .theme-light-only { display: none; }
+[data-theme="dark"] .theme-dark-only { display: block; }
+
 /* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -5,8 +5,10 @@ import Image from 'next/image'
 import { Cable, Disc3, Combine } from 'lucide-react'
 import { ExpertAnalysisPanel } from '@/components/recommendations/ExpertAnalysisPanel'
 import { WishlistButton } from '@/components/WishlistButton'
+import { PriceAlertButton } from '@/components/PriceAlertButton'
 import { PriceHistoryBadge } from '@/components/recommendations/PriceHistoryBadge'
 import { PriceTrendIndicator } from '@/components/recommendations/PriceTrendIndicator'
+import { deriveReasonChips, REASON_CHIP_CLASSES } from '@/lib/recommendation-reasons'
 
 const TYPE_ICON = { dac: Disc3, amp: Cable, combo: Combine } as const
 
@@ -23,6 +25,19 @@ interface AudioComponent {
   asr_review_url?: string | null
   manufacturer_url?: string | null
   usedListingsCount?: number
+  crin_tone?: string | null
+  crin_tech?: string | null
+  matchScore?: number
+  valueScore?: number
+  signatureScoreDisplay?: number
+  proximityScoreDisplay?: number
+  liquidityBonusDisplay?: number
+  expertScoreDisplay?: number
+  avgPrice?: number
+  hasThinExpertData?: boolean
+  priceTrendDirection?: string | null
+  priceTrendConfidence?: string | null
+  priceTrendPercentage?: number | null
   input_types?: string | string[]
   output_types?: string | string[]
   why_recommended?: string
@@ -71,19 +86,10 @@ const SignalGearCardComponent = ({
 
   const powerMatch = component.powerMatchScore
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
+  const reasonChips = deriveReasonChips(component)
 
-  const SELECTED_STYLE = {
-    dac:   'border-teal-400 bg-teal-50 dark:bg-teal-900/20 shadow-[0_0_0_3px_rgba(45,212,191,0.12),0_2px_8px_rgba(45,212,191,0.08)]',
-    amp:   'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-[0_0_0_3px_rgba(251,191,36,0.12),0_2px_8px_rgba(251,191,36,0.08)]',
-    combo: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-[0_0_0_3px_rgba(96,165,250,0.12),0_2px_8px_rgba(96,165,250,0.08)]',
-  }
-  const HOVER_STYLE = {
-    dac:   'hover:border-teal-300 hover:shadow-sm',
-    amp:   'hover:border-amber-300 hover:shadow-sm',
-    combo: 'hover:border-blue-300 hover:shadow-sm',
-  }
-
-  const SELECTED_COLOR = { dac: 'bg-teal-500', amp: 'bg-amber-500', combo: 'bg-blue-500' }
+  const SELECTED_STYLE = 'border-accent bg-accent/5 dark:bg-accent/10 shadow-[0_0_0_3px_rgba(204,78,37,0.12),0_2px_8px_rgba(204,78,37,0.10)]'
+  const HOVER_STYLE = 'hover:border-accent/20 hover:shadow-sm'
 
   return (
     <div
@@ -93,8 +99,8 @@ const SignalGearCardComponent = ({
       title="View details"
       className={`card-interactive group relative rounded-xl border cursor-pointer px-3 py-2.5 ${
         isSelected
-          ? SELECTED_STYLE[type]
-          : `bg-surface-card ${HOVER_STYLE[type]}`
+          ? SELECTED_STYLE
+          : `bg-surface-card ${HOVER_STYLE}`
       }`}
       onClick={() => onViewDetails?.(component.id)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewDetails?.(component.id) } }}
@@ -105,7 +111,7 @@ const SignalGearCardComponent = ({
         aria-label={isSelected ? `Remove ${component.brand} ${component.name} from stack` : `Add ${component.brand} ${component.name} to stack`}
         className={`absolute top-2.5 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-[color,background-color,opacity] duration-200 ${
           isSelected
-            ? `${SELECTED_COLOR[type]} text-white hover:brightness-90`
+            ? 'bg-accent text-white hover:bg-accent-hover'
             : isFirstCardHint
             ? 'border-2 border-accent text-accent opacity-100 animate-hint-pulse'
             : 'bg-transparent text-tertiary opacity-60 hover:opacity-100 border-2'
@@ -128,7 +134,7 @@ const SignalGearCardComponent = ({
       <div className="flex items-stretch gap-3 pr-10">
         {/* Product image — 1/3 width when image exists, narrow icon strip when not */}
         {(() => { const Icon = TYPE_ICON[type]; return (
-          <div className={`flex-shrink-0 rounded-lg bg-secondary flex items-center justify-center overflow-hidden ${
+          <div className={`flex-shrink-0 rounded-xl bg-secondary flex items-center justify-center overflow-hidden ${
             component.image_url ? 'w-1/4 sm:w-1/3' : 'w-8'
           }`}>
             {component.image_url ? (
@@ -201,6 +207,21 @@ const SignalGearCardComponent = ({
             </div>
           )}
 
+          {/* Row 2.5: Reason chips — small labels explaining why this ranks */}
+          {reasonChips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1 mt-1">
+              {reasonChips.map(chip => (
+                <span
+                  key={chip.label}
+                  title={chip.tooltip}
+                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${REASON_CHIP_CLASSES[chip.tone]}`}
+                >
+                  {chip.label}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Row 3: Price + MSRP */}
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className="text-sm font-bold text-primary tabular-nums">
@@ -255,6 +276,15 @@ const SignalGearCardComponent = ({
               </a>
             )}
             <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <PriceAlertButton
+                componentId={component.id}
+                avgPrice={
+                  component.price_used_min != null && component.price_used_max != null
+                    ? (component.price_used_min + component.price_used_max) / 2
+                    : component.price_new ?? component.price_used_min ?? component.price_used_max ?? 0
+                }
+                priceFloor={component.price_used_min}
+              />
               <WishlistButton componentId={component.id} className="px-2 py-1" showText={false} />
             </div>
           </div>

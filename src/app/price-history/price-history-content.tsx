@@ -256,26 +256,26 @@ export function PriceHistoryContent() {
             <div className="bg-surface-elevated rounded-lg p-6">
               <div className="flex items-start gap-4">
                 {/* Product image */}
-                <div className="flex-shrink-0 w-20 rounded-lg bg-surface-secondary flex items-center justify-center overflow-hidden self-start">
+                <div className="flex-shrink-0 w-32 rounded-lg bg-surface-secondary flex items-center justify-center overflow-hidden self-start">
                   {selectedComponent.image_url ? (
                     <Image
                       src={selectedComponent.image_url}
                       alt={`${selectedComponent.brand} ${selectedComponent.name}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-auto object-contain max-h-24 min-h-10"
+                      width={128}
+                      height={128}
+                      className="w-full h-auto object-contain max-h-36 min-h-16"
                     />
                   ) : ['cans'].includes(selectedComponent.category) ? (
-                    <div className="py-4">
-                      <Headphones className="w-8 h-8 text-tertiary" />
+                    <div className="py-6">
+                      <Headphones className="w-12 h-12 text-tertiary" />
                     </div>
                   ) : ['iems'].includes(selectedComponent.category) ? (
-                    <div className="py-4">
-                      <Ear className="w-8 h-8 text-tertiary" />
+                    <div className="py-6">
+                      <Ear className="w-12 h-12 text-tertiary" />
                     </div>
                   ) : (
-                    <div className="py-4">
-                      <Cpu className="w-8 h-8 text-tertiary" />
+                    <div className="py-6">
+                      <Cpu className="w-12 h-12 text-tertiary" />
                     </div>
                   )}
                 </div>

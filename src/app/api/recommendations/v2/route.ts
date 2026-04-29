@@ -609,7 +609,7 @@ function filterAndScoreComponents(
   const minAcceptable = budgetRange.min;
   const maxAcceptable = budgetRange.max;
 
-  return components
+  const scored = components
     .map((c) => {
       const component = c as {
         price_used_min?: number;
@@ -661,16 +661,31 @@ function filterAndScoreComponents(
       const isElectronics = component.category === "dac" || component.category === "amp" || component.category === "dac_amp";
       const confidence = calculateExpertConfidence(scoringData);
 
+      // Track whether this component has thin/absent expert data so the UI
+      // can surface a "Limited data" chip and so we can down-weight it.
+      let hasThinExpertData = false;
+
       let expertScore: number;
       if (isHeadphone && confidence > 0) {
         // Apply confidence penalty for headphones/IEMs with partial Crinacle data
         expertScore = rawExpertScore * confidence;
+        if (confidence < 0.75) hasThinExpertData = true;
+      } else if (isHeadphone) {
+        // Headphone with zero Crinacle data: down-weight the 5.0 default so
+        // items with even partial grades sort above it at the same price.
+        expertScore = rawExpertScore * 0.7;
+        hasThinExpertData = true;
       } else if (isElectronics && scoringData.asr_sinad != null) {
         // For electronics with SINAD data: use SINAD as quality signal
         // SINAD is the primary objective measurement for DACs/amps
         expertScore = sinadToScore(scoringData.asr_sinad);
+      } else if (isElectronics) {
+        // Electronics without SINAD: apply missing-data penalty. Otherwise
+        // every unmeasured DAC/amp would return 5.0 (C grade default) and
+        // rank equally with measured ones, which is misleading.
+        expertScore = rawExpertScore * 0.8;
+        hasThinExpertData = true;
       } else {
-        // Default: use raw expert score (5.0 for components with no data)
         expertScore = rawExpertScore;
       }
 
@@ -690,6 +705,8 @@ function filterAndScoreComponents(
         powerAdequacy,
         expert_grade_numeric: toneGradeNumeric,
         expertScore, // Add comprehensive expert score (0-10)
+        hasThinExpertData, // Flag so UI can surface a "Limited data" chip
+        expertConfidence: confidence, // 0-1, for downstream display
         // Add amplification assessment for headphones
         ...(component.category === "cans" || component.category === "iems"
           ? {
@@ -701,7 +718,7 @@ function filterAndScoreComponents(
               ),
             }
           : {}),
-      } as RecommendationComponent & { expertScore: number };
+      } as RecommendationComponent & { expertScore: number; hasThinExpertData: boolean; expertConfidence: number };
     })
     .filter((c, index, arr) => {
       // Remove duplicates
@@ -778,16 +795,39 @@ function filterAndScoreComponents(
       const powerBonus =
         comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
 
+      // 6. USED-MARKET LIQUIDITY BONUS (max +3%)
+      // Items with active used listings are more actionable (user can buy now,
+      // see real prices, check condition). Small multiplier so it nudges ties
+      // without overwhelming quality/signature signals.
+      // 0 listings: 0, 1: +0.5%, 2: +1.0%, ..., 6+: +3.0% (capped)
+      const liquidityBonus = Math.min(0.03, (comp.usedListingsCount || 0) * 0.005);
+
+      // 7. PRICE-TREND BONUS/PENALTY (range −1% to +2%)
+      // Rewards items whose used-market price is trending DOWN (good time to
+      // buy) and mildly penalizes items trending UP (scarcity/popularity,
+      // harder to find a deal). Skips low-confidence trends entirely since
+      // those are based on 1-2 sold listings and too noisy to trust.
+      const trendDir = (comp as { priceTrendDirection?: string | null }).priceTrendDirection;
+      const trendConf = (comp as { priceTrendConfidence?: string | null }).priceTrendConfidence;
+      let trendBonus = 0;
+      if (trendConf && trendConf !== 'low') {
+        if (trendDir === 'down') trendBonus = 0.02;
+        else if (trendDir === 'up') trendBonus = -0.01;
+      }
+
       // FINAL SCORE CALCULATION
-      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10% + Power bonus: 0-5%
-      // Additive signature bonus: +5 points when signature matches well
+      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10%
+      // Additive bonuses: signature +0-5%, power (amps) +0-5%, liquidity
+      // +0-3%, price-trend −1% to +2%
       const rawScore =
         expertScore * 0.55 +
         signatureScore * 0.25 +
         valueScore * 0.10 +
         proximityScore * 0.10 +
         powerBonus +
-        signatureBonus;
+        signatureBonus +
+        liquidityBonus +
+        trendBonus;
 
       // Convert to 0-100 percentage (cap at 1.0 after bonus)
       const matchScore = Math.min(1, rawScore);
@@ -799,10 +839,41 @@ function filterAndScoreComponents(
         expertScoreDisplay: Math.round(expertScore * 100), // Expert quality score (0-100)
         signatureScoreDisplay: Math.round(signatureScore * 100), // Signature match score (0-100)
         proximityScoreDisplay: Math.round(proximityScore * 100), // Budget proximity score (0-100)
+        liquidityBonusDisplay: Math.round(liquidityBonus * 100), // Used-market bonus (0-3)
+        trendBonusDisplay: Math.round(trendBonus * 100), // Price-trend bonus (−1 to +2)
       };
     })
-    .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, maxOptions);
+    .sort((a, b) => {
+      // Deterministic tie-breakers: matchScore → expertScoreDisplay → valueScore →
+      // avgPrice (cheaper first) → id (stable final fallback)
+      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+      if (b.expertScoreDisplay !== a.expertScoreDisplay) return b.expertScoreDisplay - a.expertScoreDisplay;
+      if (b.valueScore !== a.valueScore) return b.valueScore - a.valueScore;
+      if (a.avgPrice !== b.avgPrice) return a.avgPrice - b.avgPrice;
+      return a.id.localeCompare(b.id);
+    });
+
+  // Brand-diversity pass: cap any single brand at MAX_PER_BRAND in the
+  // ranked prefix, then append the overflow. Keeps the top-10 varied so
+  // users don't see 5 Sennheiser variants at $150 or 4 Focals at $800
+  // (observed in actual staging data 2026-04-21). The deferred items
+  // remain reachable via "Show More" since they only move to the tail.
+  const MAX_PER_BRAND = 2;
+  const normalizeBrand = (b?: string | null): string => (b ?? '').trim().toLowerCase();
+  const brandCounts = new Map<string, number>();
+  const kept: typeof scored = [];
+  const deferred: typeof scored = [];
+  for (const item of scored) {
+    const key = normalizeBrand(item.brand);
+    const count = brandCounts.get(key) ?? 0;
+    if (count < MAX_PER_BRAND) {
+      kept.push(item);
+      brandCounts.set(key, count + 1);
+    } else {
+      deferred.push(item);
+    }
+  }
+  return kept.concat(deferred).slice(0, maxOptions);
 }
 
 export async function GET(request: NextRequest) {
@@ -908,7 +979,19 @@ export async function GET(request: NextRequest) {
       soundSignatures: req.soundSignatures,
       headphoneType: req.headphoneType,
       wantRecommendationsFor: req.wantRecommendationsFor,
-      selectedItems: selectedItemsForCache.map(i => i.id).sort(),
+      selectedItems: selectedItemsForCache.map(i => i.id),
+      // v3.3: include every input that affects scoring so different users
+      // don't collide on the same cache entry (see cache-recommendations.ts)
+      budgetRangeMin: req.budgetRangeMin,
+      budgetRangeMax: req.budgetRangeMax,
+      driverType: req.driverType,
+      usageRanking: req.usageRanking,
+      usage: req.usage,
+      excludedUsages: req.excludedUsages,
+      connectivity: req.connectivity,
+      existingHeadphones: req.existingHeadphones,
+      existingGear: req.existingGear,
+      customBudgetAllocation: customBudgetAllocation,
     });
 
     // Wrap recommendation generation in cache
@@ -1024,36 +1107,84 @@ export async function GET(request: NextRequest) {
         requestedCategories.push("dac_amp");
       }
 
-      // Fetch components
+      // Fetch components — explicit column list (NOT select('*')) to avoid
+      // shipping fr_data (8KB/card) and technical_specs (JSONB, unused).
+      // Detail modals fetch FR data on-demand via /api/components/[id].
+      // See docs/RECOMMENDATION_PERF_PLAN.md §1.1 for context.
       const { data: allComponentsData, error } = await supabaseServer
         .from("components")
-        .select("*")
+        .select(`
+          id, name, brand, category,
+          price_new, price_used_min, price_used_max, budget_tier,
+          sound_signature, derived_signature, derived_signature_detail,
+          use_cases, impedance, needs_amp, is_tws,
+          amazon_url, manufacturer_url, asr_review_url, image_url,
+          why_recommended,
+          power_required_mw, voltage_required_v, amplification_difficulty,
+          sensitivity_db_mw, sensitivity_db_v,
+          power_output, power_output_mw_32, power_output_mw_300,
+          crin_rank, crin_tone, crin_tech, crin_value, crin_comments, crin_signature,
+          driver_type, fit,
+          expert_grade_numeric, asr_sinad,
+          source, created_at, updated_at
+        `)
         .in("category", requestedCategories)
         .order("price_used_min");
 
       if (error) throw error;
 
-      // Fetch active used listings counts using optimized database function
+      // Fetch active used listings counts + latest price-trend row per component
+      // in parallel (both use the same componentIds).
       const componentIds = allComponentsData?.map((c) => c.id) || [];
-      // Use database function for efficient aggregated query (filters sample/demo in SQL)
-      const { data: listingCountsData, error: listingsError } = await supabaseServer
-        .rpc('get_active_listing_counts', { component_ids: componentIds });
 
-      if (listingsError) {
-        console.error('❌ DEBUG: Error fetching listings:', listingsError);
+      const [listingCountsResult, trendsResult] = await Promise.all([
+        supabaseServer.rpc('get_active_listing_counts', { component_ids: componentIds }),
+        supabaseServer
+          .from('price_trends')
+          .select('component_id, trend_direction, trend_percentage, confidence_score, discount_factor, period_start')
+          .in('component_id', componentIds)
+          .order('period_start', { ascending: false }),
+      ]);
+
+      if (listingCountsResult.error) {
+        console.error('❌ DEBUG: Error fetching listings:', listingCountsResult.error);
+      }
+      if (trendsResult.error) {
+        console.error('❌ DEBUG: Error fetching trends:', trendsResult.error);
       }
 
       // Build count map from aggregated results
       const countMap = new Map<string, number>();
-      listingCountsData?.forEach((item: { component_id: string; listing_count: number }) => {
+      listingCountsResult.data?.forEach((item: { component_id: string; listing_count: number }) => {
         countMap.set(item.component_id, item.listing_count);
       });
 
-      // Transform data to add used listings count
-      const transformedComponents = allComponentsData?.map((comp) => ({
-        ...comp,
-        usedListingsCount: countMap.get(comp.id) || 0,
-      }));
+      // Latest trend row per component (trends are sorted desc by period_start,
+      // so the first row we see is the most recent).
+      type PriceTrendRow = {
+        component_id: string;
+        trend_direction: string | null;
+        trend_percentage: number | null;
+        confidence_score: string | null;
+        discount_factor: number | null;
+        period_start: string | null;
+      };
+      const trendMap = new Map<string, PriceTrendRow>();
+      (trendsResult.data as PriceTrendRow[] | null)?.forEach((row) => {
+        if (!trendMap.has(row.component_id)) trendMap.set(row.component_id, row);
+      });
+
+      // Transform data to add used listings count + trend info
+      const transformedComponents = allComponentsData?.map((comp) => {
+        const trend = trendMap.get(comp.id);
+        return {
+          ...comp,
+          usedListingsCount: countMap.get(comp.id) || 0,
+          priceTrendDirection: trend?.trend_direction ?? null,
+          priceTrendConfidence: trend?.confidence_score ?? null,
+          priceTrendPercentage: trend?.trend_percentage ?? null,
+        };
+      });
 
       // Get existing headphones data for amp matching
       let existingHeadphonesData = null;
@@ -1203,9 +1334,26 @@ export async function GET(request: NextRequest) {
       return results;
     }); // End of getCached wrapper
 
+    // Conditional CDN cache: anonymous canonical queries can be served from
+    // the Vercel edge; anything with user-specific inputs stays origin-only.
+    // Rationale: unstable_cache is per-worker on serverless, so cold-worker
+    // hit-rate at low traffic is ~0%. CDN caching lets a whole region share
+    // the same pre-computed payload. See docs/RECOMMENDATION_PERF_PLAN.md §1.4.
+    const hasPersonalization =
+      (req.existingHeadphones && req.existingHeadphones !== '') ||
+      (req.optimizeAroundHeadphones && req.optimizeAroundHeadphones !== '') ||
+      (req.existingGear && Object.keys(req.existingGear).length > 0) ||
+      customBudgetAllocation !== null ||
+      selectedItemsForCache.length > 0;
+
+    const cacheControl = hasPersonalization
+      ? 'no-store, no-cache, must-revalidate'
+      : 'public, s-maxage=300, stale-while-revalidate=600';
+
     return NextResponse.json(results, {
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Cache-Control': cacheControl,
+        'Vary': 'Accept-Encoding',
       }
     });
   } catch (error) {

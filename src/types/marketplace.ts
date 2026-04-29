@@ -70,11 +70,6 @@ export interface BundleAnalysis {
   confidence: number; // 0-100
 }
 
-export interface NormalizedLocation {
-  state: string | null   // US state or Canadian province code (e.g., "CA", "ON")
-  country: string | null // ISO 3166-1 alpha-2 (e.g., "US", "CA", "GB")
-}
-
 export interface RetailerLink {
   name: string
   url: string

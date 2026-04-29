@@ -91,18 +91,3 @@ export function calculateBudgetRange(
   };
 }
 
-/**
- * Legacy function for backward compatibility with existing code.
- * Converts old percentage-based system to new progressive ranges.
- *
- * @deprecated Use calculateBudgetRange() directly instead
- */
-export function legacyBudgetRange(
-  budget: number,
-  _rangeMinPercent: number = 20, // Deprecated parameter
-  _rangeMaxPercent: number = 10, // Deprecated parameter
-  isSignalGear: boolean = false
-): BudgetRange {
-  // Ignore old percentages, use new progressive logic with smooth defaults
-  return calculateBudgetRange(budget, undefined, undefined, isSignalGear)
-}

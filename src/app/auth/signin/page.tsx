@@ -2,7 +2,7 @@ import { SignInButton } from '@/components/auth/SignInButton'
 
 export const metadata = {
   title: 'Sign In — HiFinder',
-  description: 'Sign in to HiFinder to save your gear collection and get personalized recommendations.',
+  description: 'Sign in to HiFinder to save your gear collection, wishlist, and price alerts.',
 }
 
 const features = [
@@ -134,7 +134,7 @@ export default async function SignInPage({
             lineHeight: 1.5,
           }}
         >
-          We only use Google for authentication. We never post on your behalf.
+          Google is only used for authentication. HiFinder never posts on your behalf.
         </p>
       </div>
     </div>

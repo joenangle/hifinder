@@ -76,9 +76,15 @@ export async function GET(request: NextRequest) {
     })
     const cached = cache.get(cacheKey)
 
+    // Responses without customBudgetAllocation are a pure function of URL
+    // params — safe to serve from the Vercel CDN across workers/users.
+    const cacheControl = customBudgetAllocation
+      ? 'private, max-age=600, stale-while-revalidate=1200'
+      : 'public, s-maxage=600, stale-while-revalidate=1200'
+
     if (cached && cached.expires > Date.now()) {
       return NextResponse.json(cached.data, {
-        headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=1200' }
+        headers: { 'Cache-Control': cacheControl }
       })
     }
 
@@ -292,7 +298,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(result, {
-      headers: { 'Cache-Control': 'private, max-age=600, stale-while-revalidate=1200' }
+      headers: { 'Cache-Control': cacheControl }
     })
 
   } catch (error) {

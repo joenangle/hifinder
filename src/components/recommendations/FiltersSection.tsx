@@ -140,6 +140,12 @@ const FiltersSectionComponent = ({
     (resultCounts?.amps || 0) +
     (resultCounts?.combos || 0)
 
+  // Sound signature scoring only meaningfully applies to headphones / IEMs —
+  // signal gear (DACs / amps / combos) gets a flat 0.25 signature baseline
+  // regardless of which pill is active. Hide the filter when the user has
+  // only signal gear requested so picking "warm" vs "neutral" isn't a no-op.
+  const showSoundFilters = wantRecommendationsFor.headphones
+
   return (
     <div className="mb-4 px-4 py-3 rounded-xl border bg-secondary">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -200,31 +206,35 @@ const FiltersSectionComponent = ({
           )}
         </div>
 
-        {/* Divider */}
-        <div className="hidden sm:block h-5 w-px bg-border-default" />
+        {/* Divider — only when sound filters are visible */}
+        {showSoundFilters && (
+          <div className="hidden sm:block h-5 w-px bg-border-default" />
+        )}
 
-        {/* Sound signature group */}
-        <div className="flex flex-wrap items-center gap-1.5" data-sound-filters>
-          <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
-            Sound
-          </span>
-          {(['neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark'] as const).map(sig => {
-            const labels: Record<string, string> = {
-              neutral: 'Neutral', warm: 'Warm', bright: 'Bright',
-              fun: 'Fun', 'v-shaped': 'V-Shaped', dark: 'Dark',
-            }
-            return (<Pill
-              key={sig}
-              active={soundFilters.includes(sig)}
-              onClick={() => onSoundFilterChange(sig)}
-              label={labels[sig]}
-              count={filterCounts?.sound[sig]}
-              tooltip={FILTER_TOOLTIPS.sound[sig]?.description}
-              showTooltip={guidedModeEnabled}
-              activeClass={SOUND_ACTIVE[sig]}
-            />)
-          })}
-        </div>
+        {/* Sound signature group — headphones/IEMs only */}
+        {showSoundFilters && (
+          <div className="flex flex-wrap items-center gap-1.5" data-sound-filters>
+            <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider mr-1 min-w-[5rem]">
+              Sound
+            </span>
+            {(['neutral', 'warm', 'bright', 'fun', 'v-shaped', 'dark'] as const).map(sig => {
+              const labels: Record<string, string> = {
+                neutral: 'Neutral', warm: 'Warm', bright: 'Bright',
+                fun: 'Fun', 'v-shaped': 'V-Shaped', dark: 'Dark',
+              }
+              return (<Pill
+                key={sig}
+                active={soundFilters.includes(sig)}
+                onClick={() => onSoundFilterChange(sig)}
+                label={labels[sig]}
+                count={filterCounts?.sound[sig]}
+                tooltip={FILTER_TOOLTIPS.sound[sig]?.description}
+                showTooltip={guidedModeEnabled}
+                activeClass={SOUND_ACTIVE[sig]}
+              />)
+            })}
+          </div>
+        )}
 
         {/* Right side: result count + utility toggles */}
         <div className="ml-auto flex items-center gap-3 text-xs text-tertiary">

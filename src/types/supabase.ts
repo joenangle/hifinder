@@ -1063,6 +1063,129 @@ export type Database = {
           },
         ]
       }
+      reddit_mentions: {
+        Row: {
+          analyzed_at: string | null
+          author: string | null
+          collected_at: string | null
+          comment_score: number | null
+          component_id: string | null
+          id: string
+          is_recommendation: boolean | null
+          match_confidence: number | null
+          mention_context: string
+          mention_location: string
+          post_created_utc: string
+          post_score: number | null
+          post_title: string
+          post_type: string | null
+          post_url: string
+          reddit_comment_id: string | null
+          reddit_post_id: string
+          sentiment: string | null
+          sentiment_score: number | null
+          subreddit: string
+        }
+        Insert: {
+          analyzed_at?: string | null
+          author?: string | null
+          collected_at?: string | null
+          comment_score?: number | null
+          component_id?: string | null
+          id?: string
+          is_recommendation?: boolean | null
+          match_confidence?: number | null
+          mention_context: string
+          mention_location: string
+          post_created_utc: string
+          post_score?: number | null
+          post_title: string
+          post_type?: string | null
+          post_url: string
+          reddit_comment_id?: string | null
+          reddit_post_id: string
+          sentiment?: string | null
+          sentiment_score?: number | null
+          subreddit: string
+        }
+        Update: {
+          analyzed_at?: string | null
+          author?: string | null
+          collected_at?: string | null
+          comment_score?: number | null
+          component_id?: string | null
+          id?: string
+          is_recommendation?: boolean | null
+          match_confidence?: number | null
+          mention_context?: string
+          mention_location?: string
+          post_created_utc?: string
+          post_score?: number | null
+          post_title?: string
+          post_type?: string | null
+          post_url?: string
+          reddit_comment_id?: string | null
+          reddit_post_id?: string
+          sentiment?: string | null
+          sentiment_score?: number | null
+          subreddit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reddit_mentions_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reddit_mentions_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "top_affiliate_components"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reddit_scraper_state: {
+        Row: {
+          comment_count: number | null
+          comments_scanned: boolean | null
+          first_seen_at: string | null
+          last_checked_at: string | null
+          post_created_utc: string
+          post_score: number | null
+          post_type: string | null
+          reddit_post_id: string
+          subreddit: string
+          title_scanned: boolean | null
+        }
+        Insert: {
+          comment_count?: number | null
+          comments_scanned?: boolean | null
+          first_seen_at?: string | null
+          last_checked_at?: string | null
+          post_created_utc: string
+          post_score?: number | null
+          post_type?: string | null
+          reddit_post_id: string
+          subreddit: string
+          title_scanned?: boolean | null
+        }
+        Update: {
+          comment_count?: number | null
+          comments_scanned?: boolean | null
+          first_seen_at?: string | null
+          last_checked_at?: string | null
+          post_created_utc?: string
+          post_score?: number | null
+          post_type?: string | null
+          reddit_post_id?: string
+          subreddit?: string
+          title_scanned?: boolean | null
+        }
+        Relationships: []
+      }
       reverb_priceguide_mappings: {
         Row: {
           component_id: string

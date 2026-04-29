@@ -334,16 +334,22 @@ function transformReverbListing(listing, component) {
   }
   
   const normalizedLoc = normalizeLocationStructured(location, 'reverb');
+  const listingUrl = listing._links?.web?.href || `https://reverb.com/item/${listing.id}`;
+  const listingTitle = listing.title || 'Reverb Listing';
+  // Flag demo/open-box/sample listings so the recommendation engine can
+  // skip them without a costly ILIKE scan (see migrations/add-is-sample-column.sql).
+  const isSample = /sample|demo/i.test(listingUrl) || /sample|demo/i.test(listingTitle);
   return {
     component_id: component.id,
-    title: listing.title || 'Reverb Listing',
+    title: listingTitle,
     price: price,
     condition: condition,
     location: location,
     location_state: normalizedLoc.state,
     location_country: normalizedLoc.country,
     source: 'reverb',
-    url: listing._links?.web?.href || `https://reverb.com/item/${listing.id}`,
+    url: listingUrl,
+    is_sample: isSample,
     date_posted: listing.created_at || new Date().toISOString(),
     seller_username: listing.seller?.username || 'Unknown',
     seller_confirmed_trades: 0, // Reverb doesn't expose trade counts in API

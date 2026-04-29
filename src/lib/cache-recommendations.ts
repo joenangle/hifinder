@@ -1,39 +1,69 @@
 import { unstable_cache } from 'next/cache'
 
 /**
- * Cache key generator for recommendation queries
- * Creates deterministic keys based on normalized parameters
+ * Deterministic stringification: sort object keys so key equality is value-based.
+ * Used for nested params (existingGear, customBudgetAllocation) where object
+ * property order must not affect cache-key identity.
  */
-export function generateCacheKey(params: {
+function stableStringify(value: unknown): string {
+  if (value === null || value === undefined) return 'null'
+  if (typeof value !== 'object') return JSON.stringify(value)
+  if (Array.isArray(value)) return '[' + value.map(stableStringify).join(',') + ']'
+  const obj = value as Record<string, unknown>
+  const keys = Object.keys(obj).sort()
+  return '{' + keys.map(k => JSON.stringify(k) + ':' + stableStringify(obj[k])).join(',') + '}'
+}
+
+export interface RecommendationCacheParams {
   budget: number
   soundSignatures: string[]
   headphoneType: string
   wantRecommendationsFor: Record<string, boolean>
   selectedItems?: string[]
-}): string {
-  // Normalize parameters for consistent cache keys
-  const normalized = {
-    // Use exact budget - bucketing caused budget crossover bug where $200-$249
-    // budgets shared cache entries, returning $249-budget results for $225 searches
-    budget: params.budget,
+  // v3.3 scoring inputs that must be in the key to prevent cross-request leakage.
+  budgetRangeMin?: number
+  budgetRangeMax?: number
+  driverType?: string
+  usageRanking?: string[]
+  usage?: string
+  excludedUsages?: string[]
+  connectivity?: string[]
+  existingHeadphones?: string
+  existingGear?: Record<string, unknown>
+  customBudgetAllocation?: Record<string, unknown> | null
+}
 
-    // Sort signatures for deterministic ordering
-    signatures: params.soundSignatures.sort().join(','),
-
-    type: params.headphoneType,
-
-    // Only include requested components in key
-    wants: Object.entries(params.wantRecommendationsFor)
+/**
+ * Cache key generator for recommendation queries. Any field that changes the
+ * cached computation MUST be in the key — missing fields cause cross-user
+ * cache leakage (e.g., different driverType values sharing an entry).
+ */
+export function generateCacheKey(params: RecommendationCacheParams): string {
+  const parts: Array<string | number> = [
+    // Use exact budget — bucketing caused a prior bug where $200–$249 budgets
+    // shared cache entries, returning $249-budget results for $225 searches.
+    params.budget,
+    params.budgetRangeMin ?? '',
+    params.budgetRangeMax ?? '',
+    // Sort for deterministic ordering of all multi-value fields.
+    [...params.soundSignatures].sort().join(','),
+    params.headphoneType,
+    params.driverType ?? '',
+    [...(params.usageRanking ?? [])].sort().join(','),
+    params.usage ?? '',
+    [...(params.excludedUsages ?? [])].sort().join(','),
+    [...(params.connectivity ?? [])].sort().join(','),
+    Object.entries(params.wantRecommendationsFor)
       .filter(([, v]) => v)
       .map(([k]) => k)
       .sort()
       .join(','),
-
-    // Include selected items in cache key for budget-aware re-ranking
-    selected: params.selectedItems?.length ? params.selectedItems.join(',') : '',
-  }
-
-  return `${normalized.budget}:${normalized.signatures}:${normalized.type}:${normalized.wants}:${normalized.selected}`
+    params.selectedItems?.length ? [...params.selectedItems].sort().join(',') : '',
+    params.existingHeadphones ?? '',
+    stableStringify(params.existingGear ?? {}),
+    stableStringify(params.customBudgetAllocation ?? null),
+  ]
+  return parts.join('|')
 }
 
 /**

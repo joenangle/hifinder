@@ -77,7 +77,7 @@ export function WishlistTab() {
         <Heart className="w-16 h-16 mx-auto mb-4 text-muted" />
         <h2 className="heading-3 mb-2">Your wishlist is empty</h2>
         <p className="text-muted mb-6">
-          Start adding components from our recommendations or browse the used market
+          Start adding components from the recommendations page or browse the used market
         </p>
         <div className="flex gap-3 justify-center">
           <Link

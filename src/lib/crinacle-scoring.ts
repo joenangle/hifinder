@@ -123,21 +123,6 @@ export function sinadToScore(sinad: number | null | undefined): number {
 }
 
 /**
- * Check if component has sufficient Crinacle data for scoring
- *
- * @param component - Component to check
- * @returns true if component has at least rank or tone/tech grades
- */
-export function hasExpertData(component: ScoringComponent): boolean {
-  return !!(
-    component.crin_rank ||
-    component.crin_tone ||
-    component.crin_tech ||
-    component.crin_value
-  );
-}
-
-/**
  * Calculate expert confidence multiplier based on data completeness
  *
  * @param component - Component to evaluate

@@ -8,15 +8,19 @@ import { trackEvent } from '@/lib/analytics'
 import { ArrowRight, SlidersHorizontal, ShoppingBag, Layers, BookOpen, Mail, Check, ChevronDown } from 'lucide-react'
 import { EmailCaptureForm } from './EmailCaptureForm'
 
+// Previews captured via `npm run capture:screenshots`.
+// Stack Builder requires auth — `stacks.webp` is a signed-in dark-mode capture
+// committed separately; it's used for both themes until a light-mode version exists.
 const features = [
   {
     icon: <SlidersHorizontal className="h-5 w-5" />,
     title: 'Smart Recommendations',
     description:
-      'Answer a few questions about how you listen and what you own. We surface gear that genuinely fits — ranked by measurements, synergy, and budget.',
+      'Answer a few questions about how you listen and what you own. HiFinder surfaces gear that genuinely fits — ranked by measurements, synergy, and budget.',
     href: '/recommendations',
     tag: 'Most used',
-    preview: '/images/screenshots/recommendations.png',
+    previewLight: '/images/screenshots/recommendations-light.webp',
+    previewDark: '/images/screenshots/recommendations-dark.webp',
   },
   {
     icon: <Layers className="h-5 w-5" />,
@@ -25,7 +29,8 @@ const features = [
       'Build a full chain — source, DAC, amp, headphones. See how the components pair, where the bottlenecks are, and what a complete system costs.',
     href: '/gear?tab=stacks',
     tag: null,
-    preview: '/images/screenshots/stacks.png',
+    previewLight: '/images/screenshots/stacks.webp',
+    previewDark: '/images/screenshots/stacks.webp',
   },
   {
     icon: <ShoppingBag className="h-5 w-5" />,
@@ -34,16 +39,18 @@ const features = [
       'Browse aggregated listings from communities and resellers. Save searches, track price history, get alerts when something you want drops.',
     href: '/marketplace',
     tag: null,
-    preview: '/images/screenshots/marketplace.png',
+    previewLight: '/images/screenshots/marketplace-light.webp',
+    previewDark: '/images/screenshots/marketplace-dark.webp',
   },
   {
     icon: <BookOpen className="h-5 w-5" />,
     title: 'Learn the Basics',
     description:
-      "Not sure what a DAC does or why impedance matters? Our guides are written for people who want better sound — not audio engineers.",
+      "Not sure what a DAC does or why impedance matters? These guides are written for people who want better sound — not audio engineers.",
     href: '/learn',
     tag: null,
-    preview: '/images/screenshots/learn.png',
+    previewLight: '/images/screenshots/learn-light.webp',
+    previewDark: '/images/screenshots/learn-dark.webp',
   },
 ]
 
@@ -68,6 +75,39 @@ const STACK_BUILDER_BULLETS = [
   'See component synergy and compatibility',
   'Track total system cost at a glance',
 ]
+
+function PreviewImage({ light, dark, alt }: { light: string; dark: string; alt: string }) {
+  const wrapperStyle = {
+    borderRadius: 8,
+    border: '1px solid var(--border-subtle)',
+    maxHeight: 140,
+  }
+  const imageStyle = { objectFit: 'cover' as const, objectPosition: 'top' as const, display: 'block' }
+  return (
+    <>
+      <div className="mt-4 overflow-hidden theme-light-only" style={wrapperStyle}>
+        <Image
+          src={light}
+          alt={alt}
+          width={1280}
+          height={800}
+          className="w-full h-auto"
+          style={imageStyle}
+        />
+      </div>
+      <div className="mt-4 overflow-hidden theme-dark-only" style={wrapperStyle}>
+        <Image
+          src={dark}
+          alt={alt}
+          width={1280}
+          height={800}
+          className="w-full h-auto"
+          style={imageStyle}
+        />
+      </div>
+    </>
+  )
+}
 
 function StackBuilderPreview() {
   return (
@@ -217,6 +257,14 @@ export function FeatureCards() {
                     {f.description}
                   </p>
 
+                  {f.previewLight && f.previewDark && (
+                    <PreviewImage
+                      light={f.previewLight}
+                      dark={f.previewDark}
+                      alt={`${f.title} preview`}
+                    />
+                  )}
+
                   {stackExpanded ? (
                     <StackBuilderPreview />
                   ) : (
@@ -309,24 +357,12 @@ export function FeatureCards() {
                   {f.description}
                 </p>
 
-                {f.preview && (
-                  <div
-                    className="mt-4 overflow-hidden"
-                    style={{
-                      borderRadius: 8,
-                      border: '1px solid var(--border-subtle)',
-                      maxHeight: 140,
-                    }}
-                  >
-                    <Image
-                      src={f.preview}
-                      alt={`${f.title} preview`}
-                      width={1280}
-                      height={800}
-                      className="w-full h-auto"
-                      style={{ objectFit: 'cover', objectPosition: 'top', display: 'block' }}
-                    />
-                  </div>
+                {f.previewLight && f.previewDark && (
+                  <PreviewImage
+                    light={f.previewLight}
+                    dark={f.previewDark}
+                    alt={`${f.title} preview`}
+                  />
                 )}
 
                 <div
