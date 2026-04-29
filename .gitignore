@@ -55,3 +55,6 @@ scripts/.avexchange-bot-last-check.json
 *.bak
 /backups/
 /img/
+
+# local Claude Code / IDE config
+.claude/

@@ -1,0 +1,59 @@
+name: Scrape Reddit Social Mentions
+
+on:
+  schedule:
+    # Phase 1 (post discovery): Every 6 hours
+    - cron: '30 3,9,15,21 * * *'  # UTC, offset from marketplace scraper
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Which phase to run'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - phase1-only
+          - phase2-only
+
+jobs:
+  scrape-social-posts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Phase 1 — Scan posts
+        if: ${{ github.event.inputs.phase != 'phase2-only' }}
+        timeout-minutes: 10
+        run: node scripts/reddit-social-scraper.js --phase1-only --verbose
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+      - name: Phase 2 — Scan comments (selective)
+        if: ${{ github.event.inputs.phase != 'phase1-only' }}
+        timeout-minutes: 20
+        run: node scripts/reddit-social-scraper.js --phase2-only --verbose
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+      - name: Log completion
+        run: |
+          echo "✅ Social scraping completed at $(date)"

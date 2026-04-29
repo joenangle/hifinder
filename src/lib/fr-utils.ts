@@ -65,12 +65,21 @@ export function downsampleFR(points: [number, number][], targetCount = 50): [num
 }
 
 /**
- * Format frequency in Hz for axis labels.
- * 20→"20", 100→"100", 1000→"1k", 10000→"10k", 20000→"20k"
+ * Format frequency in Hz for axis labels and tooltips.
+ * ≤100 Hz: up to 1 decimal (trailing .0 trimmed) — 20→"20", 73.56→"73.6"
+ * 100–999 Hz: integer — 250.4→"250"
+ * ≥1000 Hz: kHz with up to 1 decimal (trailing .0 trimmed) — 1500→"1.5k", 10000→"10k"
  */
 export function formatFrequency(hz: number): string {
-  if (hz >= 1000) return `${hz / 1000}k`
-  return String(hz)
+  if (hz >= 1000) {
+    const rounded = Math.round(hz / 100) / 10
+    return `${rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)}k`
+  }
+  if (hz > 100) {
+    return String(Math.round(hz))
+  }
+  const rounded = Math.round(hz * 10) / 10
+  return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)
 }
 
 /** Frequency band definitions for FR charts */

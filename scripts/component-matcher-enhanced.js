@@ -851,11 +851,92 @@ function extractSanitizedText(title, body) {
   };
 }
 
+/**
+ * Find ALL component mentions in free text (for social/discussion scraping).
+ *
+ * Unlike findComponentMatch() which returns the single best match from a
+ * structured listing, this scans unstructured text (Reddit comments, reviews)
+ * and returns every distinct product mentioned.
+ *
+ * @param {string} text - Free text to scan (post body, comment, etc.)
+ * @param {object} options
+ * @param {number} options.minConfidence - Minimum match score (default 0.60)
+ * @param {number} options.maxMatches - Cap on returned matches (default 10)
+ * @returns {Promise<Array<{ component: object, confidence: number, context: string }>>}
+ */
+async function findAllComponentMentions(text, options = {}) {
+  const { minConfidence = 0.60, maxMatches = 10 } = options;
+
+  if (!text || text.trim().length < 5) return [];
+
+  const components = await getComponentsFromCache();
+  const mentionMap = new Map(); // component.id -> { component, confidence, context }
+
+  // Split text into sentences for context extraction
+  const sentences = text.split(/(?<=[.!?\n])\s+/).filter(s => s.trim().length > 10);
+
+  // If no sentence breaks found, treat the whole text as one block
+  if (sentences.length === 0) {
+    sentences.push(text);
+  }
+
+  for (const sentence of sentences) {
+    const sentenceLower = sentence.toLowerCase();
+
+    for (const component of components) {
+      const score = calculateMatchScore(sentenceLower, component, '', '');
+
+      if (score >= minConfidence) {
+        const existing = mentionMap.get(component.id);
+        if (!existing || score > existing.confidence) {
+          // Extract context: the sentence itself, capped at 200 chars
+          const context = sentence.trim().substring(0, 200);
+          mentionMap.set(component.id, {
+            component,
+            confidence: score,
+            context,
+          });
+        }
+      }
+    }
+  }
+
+  // Also scan overlapping windows for mentions that span sentence boundaries
+  // (e.g., "I own the Sennheiser\nHD600 and love it")
+  if (sentences.length > 1) {
+    for (let i = 0; i < sentences.length - 1; i++) {
+      const combined = (sentences[i] + ' ' + sentences[i + 1]).toLowerCase();
+      // Only scan if the combined window is reasonable length
+      if (combined.length > 500) continue;
+
+      for (const component of components) {
+        if (mentionMap.has(component.id)) continue; // Already found
+        const score = calculateMatchScore(combined, component, '', '');
+
+        if (score >= minConfidence) {
+          const context = (sentences[i] + ' ' + sentences[i + 1]).trim().substring(0, 200);
+          mentionMap.set(component.id, {
+            component,
+            confidence: score,
+            context,
+          });
+        }
+      }
+    }
+  }
+
+  return Array.from(mentionMap.values())
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, maxMatches);
+}
+
 module.exports = {
   findComponentMatch,
+  findAllComponentMentions,
   isAccessoryOnly,
   extractModelNumbers,
   detectMultipleComponents,
   getComponentsFromCache,
-  extractSanitizedText
+  extractSanitizedText,
+  calculateMatchScore,
 };

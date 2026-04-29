@@ -2,7 +2,7 @@
 
 import { Component } from '@/types'
 import Image from 'next/image'
-import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink, Headphones } from 'lucide-react'
+import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink, Headphones, MessageCircle } from 'lucide-react'
 import { StarRating } from '../ui/StarRating'
 import { AmplificationBadge } from '../ui/AmplificationIndicator'
 import { assessAmplificationFromImpedance } from '@/lib/audio-calculations'
@@ -88,6 +88,14 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     source: string;
   } | null>(null)
 
+  const [socialData, setSocialData] = useState<{
+    mentionCount: number
+    mentionCount30d: number
+    lastMentioned: string | null
+    topMentions: { context: string; postTitle: string; postUrl: string; postScore: number; subreddit: string; date: string; isRecommendation: boolean | null }[]
+    subredditBreakdown: Record<string, number>
+  } | null>(null)
+
   useEffect(() => {
     if (!isOpen) return
     let cancelled = false
@@ -123,6 +131,16 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
     fetch(`/api/components/${component.id}/pairings`)
       .then(res => res.json())
       .then(data => { if (!cancelled) setPairings(data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [isOpen, component.id])
+
+  useEffect(() => {
+    if (!isOpen) return
+    let cancelled = false
+    fetch(`/api/components/${component.id}/social`)
+      .then(res => res.json())
+      .then(data => { if (!cancelled && data.mentionCount > 0) setSocialData(data) })
       .catch(() => {})
     return () => { cancelled = true }
   }, [isOpen, component.id])
@@ -484,6 +502,57 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
                     </span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reddit Mentions */}
+          {socialData && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-primary">Reddit Mentions</h3>
+                <span className="ml-auto text-xs px-2 py-0.5 bg-accent/10 text-accent rounded-full">
+                  {socialData.mentionCount} mention{socialData.mentionCount !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="p-4 bg-secondary rounded-lg space-y-3">
+                {/* Subreddit breakdown chips */}
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(socialData.subredditBreakdown)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([sub, count]) => (
+                      <span key={sub} className="text-xs px-2 py-0.5 bg-surface border border-border rounded-full text-secondary">
+                        r/{sub} ({count})
+                      </span>
+                    ))
+                  }
+                </div>
+                {/* Top mentions */}
+                <div className="space-y-2.5">
+                  {socialData.topMentions.slice(0, 3).map((mention, i) => (
+                    <div key={i} className="text-sm">
+                      <a
+                        href={mention.postUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:underline font-medium text-xs leading-tight line-clamp-1"
+                      >
+                        {mention.postTitle}
+                      </a>
+                      <p className="text-secondary text-xs mt-0.5 line-clamp-2 italic">
+                        &ldquo;{mention.context}&rdquo;
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-tertiary">
+                        <span>r/{mention.subreddit}</span>
+                        <span className="text-border">·</span>
+                        <span>{mention.postScore} pts</span>
+                        <span className="text-border">·</span>
+                        <span>{new Date(mention.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
