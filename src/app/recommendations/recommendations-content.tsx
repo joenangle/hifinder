@@ -1259,8 +1259,19 @@ export function RecommendationsContent() {
           const hasCombos = wantRecommendationsFor.combo && filteredDacAmps.length > 0
           const hasSignalGear = hasDacs || hasAmps || hasCombos
 
-          // First-card hint flag — only the very first card across all sections gets the hint
-          let firstCardHintShown = false
+          // First-card hint — only the very first card across all sections gets the hint.
+          // Computed deterministically (no render-time mutation) for React Compiler compatibility.
+          // Render order: cans → iems → dacs → amps → combos.
+          const firstCardHintId = hasEverSelected
+            ? null
+            : (
+                (hasCans && displayCans[0]?.id) ||
+                (hasIems && displayIems[0]?.id) ||
+                (hasDacs && displayDacs[0]?.id) ||
+                (hasAmps && displayAmps[0]?.id) ||
+                (hasCombos && displayDacAmps[0]?.id) ||
+                null
+              )
 
           const activeTypes = [
             hasCans,
@@ -1338,8 +1349,7 @@ export function RecommendationsContent() {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
                   const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
-                  const showHint = !firstCardHintShown && !hasEverSelected
-                  if (showHint) firstCardHintShown = true
+                  const showHint = headphone.id === firstCardHintId
 
                   return (
                     <HeadphoneCard
@@ -1392,8 +1402,7 @@ export function RecommendationsContent() {
                   const isTechnicalChamp = !!(topTechnical && headphone.id === topTechnical.id && (topTechnical.expert_grade_numeric || 0) >= 3.3)
                   const isToneChamp = !!(topTone && headphone.id === topTone.id && (topTone.matchScore || 0) >= 85)
                   const isBudgetChamp = !!(topBudget && headphone.id === topBudget.id && (topBudget.value_rating || 0) >= 2)
-                  const showHint = !firstCardHintShown && !hasEverSelected
-                  if (showHint) firstCardHintShown = true
+                  const showHint = headphone.id === firstCardHintId
 
                   return (
                     <HeadphoneCard
@@ -1449,8 +1458,7 @@ export function RecommendationsContent() {
                           </div>
                         <div className="p-4 flex flex-col gap-[5px]">
                           {displayDacs.map((dac) => {
-                            const showHint = !firstCardHintShown && !hasEverSelected
-                            if (showHint) firstCardHintShown = true
+                            const showHint = dac.id === firstCardHintId
                             return (
                             <SignalGearCard
                               key={dac.id}
@@ -1508,8 +1516,7 @@ export function RecommendationsContent() {
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
                     {displayAmps.map((amp) => {
-                      const showHint = !firstCardHintShown && !hasEverSelected
-                      if (showHint) firstCardHintShown = true
+                      const showHint = amp.id === firstCardHintId
                       return (
                       <SignalGearCard
                         key={amp.id}
@@ -1567,8 +1574,7 @@ export function RecommendationsContent() {
                     </div>
                   <div className="p-4 flex flex-col gap-[5px]">
                     {displayDacAmps.map((combo) => {
-                      const showHint = !firstCardHintShown && !hasEverSelected
-                      if (showHint) firstCardHintShown = true
+                      const showHint = combo.id === firstCardHintId
                       return (
                       <SignalGearCard
                         key={combo.id}

@@ -27,8 +27,6 @@
     "scrape:social": "node scripts/reddit-social-scraper.js",
     "scrape:social:phase1": "node scripts/reddit-social-scraper.js --phase1-only",
     "scrape:social:phase2": "node scripts/reddit-social-scraper.js --phase2-only",
-    "scrape:market-prices": "node scripts/aggregate-market-prices.js",
-    "scrape:market-prices:execute": "node scripts/aggregate-market-prices.js --execute",
     "// Moderation and admin scripts": "",
     "moderate": "node scripts/admin-moderation.js",
     "moderate:report": "node scripts/admin-moderation.js report",

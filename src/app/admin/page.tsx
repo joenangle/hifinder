@@ -268,31 +268,6 @@ export default function AdminPage() {
     return () => clearTimeout(timeoutId)
   }, [editedCandidate?.brand, brandsList, isEditing])
 
-  // Keyboard shortcuts for edit mode
-  useEffect(() => {
-    if (!isEditing) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape key: Cancel editing
-      if (e.key === 'Escape') {
-        setIsEditing(false)
-        setEditedCandidate(null)
-        setValidationErrors({})
-        setVerificationWarnings([])
-        setError(null)
-      }
-
-      // Cmd+S (Mac) or Ctrl+S (Windows): Save changes
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault() // Prevent browser save dialog
-        handleSaveEdit()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isEditing, editedCandidate]) // eslint-disable-line react-hooks/exhaustive-deps
-
   // Warn user when leaving page with unsaved changes
   useEffect(() => {
     if (!isEditing) return
@@ -465,6 +440,31 @@ export default function AdminPage() {
       setSaving(false)
     }
   }
+
+  // Keyboard shortcuts for edit mode (declared after handleSaveEdit so it's in scope)
+  useEffect(() => {
+    if (!isEditing) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape key: Cancel editing
+      if (e.key === 'Escape') {
+        setIsEditing(false)
+        setEditedCandidate(null)
+        setValidationErrors({})
+        setVerificationWarnings([])
+        setError(null)
+      }
+
+      // Cmd+S (Mac) or Ctrl+S (Windows): Save changes
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault() // Prevent browser save dialog
+        handleSaveEdit()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isEditing, editedCandidate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (status === 'loading' || loading) {
     return (
