@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface FlaggedListing {
   id: string
@@ -73,21 +73,7 @@ export default function FlaggedListingsTab() {
   const [actionLoading, setActionLoading] = useState(false)
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  // Fetch listings
-  useEffect(() => {
-    fetchListings()
-  }, [statusFilter, confidenceMin, confidenceMax, sourceFilter, sortBy, sortOrder, currentPage])
-
-  // Fetch selected listing details
-  useEffect(() => {
-    if (selectedListing) {
-      fetchListingDetails(selectedListing)
-    } else {
-      setSelectedListingDetails(null)
-    }
-  }, [selectedListing])
-
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -109,9 +95,9 @@ export default function FlaggedListingsTab() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [statusFilter, confidenceMin, confidenceMax, sourceFilter, sortBy, sortOrder, currentPage])
 
-  const fetchListingDetails = async (id: string) => {
+  const fetchListingDetails = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/admin/flagged-listings/${id}`)
       const data = await res.json()
@@ -119,7 +105,21 @@ export default function FlaggedListingsTab() {
     } catch (error) {
       console.error('Error fetching listing details:', error)
     }
-  }
+  }, [])
+
+  // Fetch listings
+  useEffect(() => {
+    fetchListings()
+  }, [fetchListings])
+
+  // Fetch selected listing details
+  useEffect(() => {
+    if (selectedListing) {
+      fetchListingDetails(selectedListing)
+    } else {
+      setSelectedListingDetails(null)
+    }
+  }, [selectedListing, fetchListingDetails])
 
   const handleAction = async (action: 'approve' | 'delete' | 'fix', notes?: string, newComponentId?: string) => {
     if (!selectedListing) return
