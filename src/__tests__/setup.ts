@@ -1,3 +1,9 @@
+// Provide stub env values so server-only modules (Supabase, etc.) can be
+// imported during tests without crashing at module load. Tests must not make
+// real network calls — clients created with these stubs are inert.
+process.env.NEXT_PUBLIC_SUPABASE_URL ??= 'http://test.local'
+process.env.SUPABASE_SERVICE_ROLE_KEY ??= 'test-service-role-key'
+
 import '@testing-library/jest-dom/vitest'
 
 // Ensure localStorage is available in test environment

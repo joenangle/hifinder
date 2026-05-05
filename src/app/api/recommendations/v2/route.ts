@@ -5,7 +5,6 @@ import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
   calculateExpertScore,
   calculateExpertConfidence,
-  gradeToNumeric as gradeToNumeric10Scale,
   sinadToScore,
   type ScoringComponent,
 } from "@/lib/crinacle-scoring";
@@ -13,6 +12,32 @@ import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
 
 // Route handles dynamic query params; caching is managed by getCached() in cache-recommendations.ts
 // (5-min TTL, busted via revalidateTag('recommendations') on admin changes)
+
+// V3.3 scoring weights, bonuses, and thresholds. CLAUDE.md mirrors these —
+// keep the two in sync when tuning.
+export const SCORING_CONFIG = {
+  weights: {
+    expert: 0.55,
+    signature: 0.25,
+    value: 0.10,
+    proximity: 0.10,
+  },
+  bonuses: {
+    signatureMatchThreshold: 0.35,
+    signatureMatch: 0.05,
+    powerAdequacyMax: 0.05,
+    liquidityPerListing: 0.005,
+    liquidityCap: 0.03,
+    trendDown: 0.02,
+    trendUp: -0.01,
+  },
+  proximitySigma: 0.15,
+  valueFloor: 0.5,
+  overBudgetPenaltyMultiplier: 2,
+  signatureNeutralDefault: 0.25,
+  expertDefault: 5.0,
+  diversity: { maxPerBrand: 2 },
+} as const;
 
 // Enhanced component interface for recommendations
 interface RecommendationComponent {
@@ -102,8 +127,12 @@ interface RecommendationRequest {
   driverType?: string;
 }
 
-// Convert letter grades to numeric for quality gating
-function gradeToNumeric(grade: string | null | undefined): number | null {
+// Convert letter grades to GPA-style 0-4.3 numeric for the response field
+// `expert_grade_numeric`. This scale matches the DB column and the frontend's
+// 3.3 threshold for the "Technical Champ" badge. The 0-10 scoring scale used
+// internally for the 55% expert weight lives in `crinacle-scoring.ts` and is
+// applied by `calculateExpertScore` — keep these scales separate.
+function gradeToGpaScale(grade: string | null | undefined): number | null {
   if (!grade) return null;
 
   const gradeMap: Record<string, number> = {
@@ -125,13 +154,12 @@ function gradeToNumeric(grade: string | null | undefined): number | null {
     F: 0,
   };
 
-  // Clean the grade string
   const cleanGrade = grade.trim().toUpperCase();
   return gradeMap[cleanGrade] ?? null;
 }
 
 // Sound signature synergy scoring with detailed Crinacle signatures
-function calculateSynergyScore(
+export function calculateSynergyScore(
   component: unknown,
   soundSignatures: string[]
 ): number {
@@ -296,37 +324,28 @@ async function checkComponentAvailability(
   return count || 0;
 }
 
-// Optimized: Batch check availability for multiple categories (single query)
+// Batch availability check across categories. Each category has its own price
+// range, so we fan out parallel SQL count() queries rather than fetching all
+// rows and filtering in JS (the prior approach transferred ~hundreds of rows
+// just to derive a few counts). `head: true` returns only the aggregate.
 async function checkMultiCategoryAvailability(
   categoryRanges: Array<{ category: string; minPrice: number; maxPrice: number }>
 ): Promise<Record<string, number>> {
   if (categoryRanges.length === 0) return {};
 
-  // Build a single query with OR conditions for all categories
-  const categories = categoryRanges.map(r => r.category);
+  const results = await Promise.all(
+    categoryRanges.map(async ({ category, minPrice, maxPrice }) => {
+      const { count, error } = await supabaseServer
+        .from("components")
+        .select("*", { count: "exact", head: true })
+        .eq("category", category)
+        .gte("price_used_min", minPrice)
+        .lte("price_used_max", maxPrice);
+      return [category, error ? 0 : (count ?? 0)] as const;
+    })
+  );
 
-  const { data, error } = await supabaseServer
-    .from("components")
-    .select("category, price_used_min, price_used_max")
-    .in("category", categories);
-
-  if (error || !data) return {};
-
-  // Count matches in-memory (still more efficient than multiple round trips)
-  const counts: Record<string, number> = {};
-
-  categoryRanges.forEach(({ category, minPrice, maxPrice }) => {
-    const matchCount = data.filter(
-      c => c.category === category &&
-           c.price_used_min !== null &&
-           c.price_used_max !== null &&
-           c.price_used_min >= minPrice &&
-           c.price_used_max <= maxPrice
-    ).length;
-    counts[category] = matchCount;
-  });
-
-  return counts;
+  return Object.fromEntries(results);
 }
 
 // Calculate budget allocation with smart redistribution
@@ -575,7 +594,7 @@ function calculatePowerCompatibility(
 }
 
 // V3: Filter and score with performance-first prioritization
-function filterAndScoreComponents(
+export function filterAndScoreComponents(
   components: unknown[],
   budget: number,
   soundSignatures: string[], // Array for multi-select with OR logic
@@ -642,10 +661,9 @@ function filterAndScoreComponents(
           ? calculateSynergyScore(component, soundSignatures)
           : 0.25; // Neutral score for DACs/amps (25% = middle of 0-50% range)
 
-      // Convert letter grades to numeric if not already done (keep for backwards compatibility)
+      // Fallback for the GPA-scale display field when DB lacks a numeric value
       const toneGradeNumeric =
-        component.expert_grade_numeric ?? gradeToNumeric(component.crin_tone);
-      const technicalGradeNumeric = gradeToNumeric(component.crin_tech);
+        component.expert_grade_numeric ?? gradeToGpaScale(component.crin_tone);
 
       // Calculate comprehensive expert score using new scoring system (0-10)
       const scoringData: ScoringComponent = {
@@ -755,75 +773,61 @@ function filterAndScoreComponents(
       // Priority order: Performance (55%) > Sound Signature (25%) > Value (10%) > Budget Proximity (10%)
       // Additive signature bonus: +5pts when signature matches well (>0.35)
 
-      // 1. EXPERT PERFORMANCE SCORE (55% weight)
-      // Uses Crinacle rank/tone/tech/value or ASR measurements
+      // 1. EXPERT PERFORMANCE SCORE — uses Crinacle rank/tone/tech/value or ASR
       const expertScoreValue =
-        (comp as unknown as { expertScore?: number }).expertScore ?? 5.0; // 0-10 scale
-      const expertScore = expertScoreValue / 10; // Normalize to 0-1
+        (comp as unknown as { expertScore?: number }).expertScore ?? SCORING_CONFIG.expertDefault;
+      const expertScore = expertScoreValue / 10; // Normalize 0-10 → 0-1
 
-      // 2. SOUND SIGNATURE MATCH (25% weight + additive bonus)
-      // User's preference alignment (neutral/warm/bright/fun)
-      const signatureScore = comp.synergyScore || 0.25; // 0-0.5 range, default neutral
+      // 2. SOUND SIGNATURE MATCH — user's preference alignment
+      const signatureScore = comp.synergyScore || SCORING_CONFIG.signatureNeutralDefault; // 0-0.5 range
 
-      // Apply additive +5pt bonus when signature score is high (>0.35 = good match)
-      const signatureBonus = signatureScore > 0.35 ? 0.05 : 0;
+      // Additive bonus when signature score clears the "good match" threshold
+      const signatureBonus = signatureScore > SCORING_CONFIG.bonuses.signatureMatchThreshold
+        ? SCORING_CONFIG.bonuses.signatureMatch
+        : 0;
 
-      // 3. VALUE-FOR-MONEY SCORE (10% weight)
-      // Reward under-budget items at same performance tier
-      // Linear scoring: items at 50-100% of budget get proportional value score
+      // 3. VALUE-FOR-MONEY SCORE — reward under-budget items at same tier
       let valueScore = 0;
       const priceRatio = comp.avgPrice / budget;
 
       if (comp.avgPrice <= budget) {
-        // Under budget: Linear scale from 0.5 to 1.0
-        // 50% of budget = 0.5 score, 75% = 0.75, 100% = 1.0
-        valueScore = Math.max(0.5, priceRatio);
+        // Under budget: linear scale from valueFloor to 1.0
+        valueScore = Math.max(SCORING_CONFIG.valueFloor, priceRatio);
       } else {
-        // Over budget: Steep penalty (should already be filtered out)
+        // Over budget: steep penalty (should already be filtered out upstream)
         const overageRatio = (comp.avgPrice - budget) / budget;
-        valueScore = Math.max(0, 1 - overageRatio * 2);
+        valueScore = Math.max(0, 1 - overageRatio * SCORING_CONFIG.overBudgetPenaltyMultiplier);
       }
 
-      // 4. BUDGET PROXIMITY SCORE (10% weight)
-      // Gaussian curve: peaks at 1.0 when price == budget, decays as price diverges
-      // sigma = 15% of budget (68% of score retained within +/-15% of budget)
-      // Ensures $250 and $300 budgets recommend different price-appropriate products
+      // 4. BUDGET PROXIMITY SCORE — Gaussian centered on budget
       const budgetDist = Math.abs(comp.avgPrice - budget) / budget;
-      const proximityScore = Math.exp(-budgetDist * budgetDist / (2 * 0.15 * 0.15));
+      const sigma = SCORING_CONFIG.proximitySigma;
+      const proximityScore = Math.exp(-budgetDist * budgetDist / (2 * sigma * sigma));
 
-      // 5. POWER ADEQUACY BONUS (for amps only, max +5%)
+      // 5. POWER ADEQUACY BONUS — amps only
       const powerBonus =
-        comp.category === "amp" ? (comp.powerAdequacy || 0.5) * 0.05 : 0;
+        comp.category === "amp" ? (comp.powerAdequacy || 0.5) * SCORING_CONFIG.bonuses.powerAdequacyMax : 0;
 
-      // 6. USED-MARKET LIQUIDITY BONUS (max +3%)
-      // Items with active used listings are more actionable (user can buy now,
-      // see real prices, check condition). Small multiplier so it nudges ties
-      // without overwhelming quality/signature signals.
-      // 0 listings: 0, 1: +0.5%, 2: +1.0%, ..., 6+: +3.0% (capped)
-      const liquidityBonus = Math.min(0.03, (comp.usedListingsCount || 0) * 0.005);
+      // 6. USED-MARKET LIQUIDITY BONUS — capped, low influence by design
+      const liquidityBonus = Math.min(
+        SCORING_CONFIG.bonuses.liquidityCap,
+        (comp.usedListingsCount || 0) * SCORING_CONFIG.bonuses.liquidityPerListing
+      );
 
-      // 7. PRICE-TREND BONUS/PENALTY (range −1% to +2%)
-      // Rewards items whose used-market price is trending DOWN (good time to
-      // buy) and mildly penalizes items trending UP (scarcity/popularity,
-      // harder to find a deal). Skips low-confidence trends entirely since
-      // those are based on 1-2 sold listings and too noisy to trust.
+      // 7. PRICE-TREND BONUS/PENALTY — skip low-confidence trends
       const trendDir = (comp as { priceTrendDirection?: string | null }).priceTrendDirection;
       const trendConf = (comp as { priceTrendConfidence?: string | null }).priceTrendConfidence;
       let trendBonus = 0;
       if (trendConf && trendConf !== 'low') {
-        if (trendDir === 'down') trendBonus = 0.02;
-        else if (trendDir === 'up') trendBonus = -0.01;
+        if (trendDir === 'down') trendBonus = SCORING_CONFIG.bonuses.trendDown;
+        else if (trendDir === 'up') trendBonus = SCORING_CONFIG.bonuses.trendUp;
       }
 
-      // FINAL SCORE CALCULATION
-      // Expert: 55% + Signature: 25% + Value: 10% + Proximity: 10%
-      // Additive bonuses: signature +0-5%, power (amps) +0-5%, liquidity
-      // +0-3%, price-trend −1% to +2%
       const rawScore =
-        expertScore * 0.55 +
-        signatureScore * 0.25 +
-        valueScore * 0.10 +
-        proximityScore * 0.10 +
+        expertScore * SCORING_CONFIG.weights.expert +
+        signatureScore * SCORING_CONFIG.weights.signature +
+        valueScore * SCORING_CONFIG.weights.value +
+        proximityScore * SCORING_CONFIG.weights.proximity +
         powerBonus +
         signatureBonus +
         liquidityBonus +
@@ -853,12 +857,12 @@ function filterAndScoreComponents(
       return a.id.localeCompare(b.id);
     });
 
-  // Brand-diversity pass: cap any single brand at MAX_PER_BRAND in the
-  // ranked prefix, then append the overflow. Keeps the top-10 varied so
-  // users don't see 5 Sennheiser variants at $150 or 4 Focals at $800
-  // (observed in actual staging data 2026-04-21). The deferred items
-  // remain reachable via "Show More" since they only move to the tail.
-  const MAX_PER_BRAND = 2;
+  // Brand-diversity pass: cap any single brand at maxPerBrand in the ranked
+  // prefix, then append the overflow. Keeps the top-10 varied so users don't
+  // see 5 Sennheiser variants at $150 or 4 Focals at $800 (observed in actual
+  // staging data 2026-04-21). The deferred items remain reachable via
+  // "Show More" since they only move to the tail.
+  const MAX_PER_BRAND = SCORING_CONFIG.diversity.maxPerBrand;
   const normalizeBrand = (b?: string | null): string => (b ?? '').trim().toLowerCase();
   const brandCounts = new Map<string, number>();
   const kept: typeof scored = [];
@@ -1137,20 +1141,33 @@ export async function GET(request: NextRequest) {
       // in parallel (both use the same componentIds).
       const componentIds = allComponentsData?.map((c) => c.id) || [];
 
-      const [listingCountsResult, trendsResult] = await Promise.all([
+      // Existing-headphones lookup runs in parallel when the user wants amp
+      // recommendations and named a specific pair — no dependency on the main
+      // component fetch, so it joins the batch instead of being a 3rd round-trip.
+      const wantsAmpMatch = !!(req.wantRecommendationsFor.amp && req.existingHeadphones);
+      const existingHeadphoneQuery = wantsAmpMatch
+        ? supabaseServer
+            .from("components")
+            .select("impedance, sensitivity, power_required_mw, voltage_required_v, name")
+            .ilike("name", `%${req.existingHeadphones}%`)
+            .limit(1)
+        : Promise.resolve({ data: null, error: null } as const);
+
+      const [listingCountsResult, trendsResult, existingHeadphoneResult] = await Promise.all([
         supabaseServer.rpc('get_active_listing_counts', { component_ids: componentIds }),
         supabaseServer
           .from('price_trends')
           .select('component_id, trend_direction, trend_percentage, confidence_score, discount_factor, period_start')
           .in('component_id', componentIds)
           .order('period_start', { ascending: false }),
+        existingHeadphoneQuery,
       ]);
 
       if (listingCountsResult.error) {
-        console.error('❌ DEBUG: Error fetching listings:', listingCountsResult.error);
+        console.error('Error fetching listings:', listingCountsResult.error);
       }
       if (trendsResult.error) {
-        console.error('❌ DEBUG: Error fetching trends:', trendsResult.error);
+        console.error('Error fetching trends:', trendsResult.error);
       }
 
       // Build count map from aggregated results
@@ -1186,19 +1203,8 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      // Get existing headphones data for amp matching
-      let existingHeadphonesData = null;
-      if (req.wantRecommendationsFor.amp && req.existingHeadphones) {
-        const { data } = await supabaseServer
-          .from("components")
-          .select(
-            "impedance, sensitivity, power_required_mw, voltage_required_v, name"
-          )
-          .ilike("name", `%${req.existingHeadphones}%`)
-          .limit(1);
-
-        existingHeadphonesData = data?.[0] || null;
-      }
+      // Resolved earlier in parallel with listings + trends; just unwrap here.
+      const existingHeadphonesData = existingHeadphoneResult.data?.[0] || null;
 
       if (transformedComponents) {
         const componentsByCategory = {
