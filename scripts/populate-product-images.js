@@ -219,7 +219,9 @@ const CATEGORY_LABEL = {
 };
 
 const DDG_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
 };
 
 async function tier2DuckDuckGo(component, retries = 2) {
@@ -233,16 +235,17 @@ async function tier2DuckDuckGo(component, retries = 2) {
         headers: DDG_HEADERS,
       });
       const pageText = page.buffer.toString('utf-8');
-      const vqdMatch = pageText.match(/vqd="([^"]+)"/);
+      // DDG rotates between vqd="...", vqd='...', and vqd=&quot;...&quot; (HTML-encoded). Accept all forms.
+      const vqdMatch = pageText.match(/vqd=(?:["']|&quot;)?([\w-]+)(?:["']|&quot;)?/);
       if (!vqdMatch) {
         if (attempt < retries) {
           const backoff = (attempt + 1) * 5000;
-          console.log(`    Tier 2: Rate limited, waiting ${backoff / 1000}s...`);
+          console.log(`    Tier 2: vqd token missing (DDG may have changed HTML or blocked UA), retrying in ${backoff / 1000}s...`);
           await new Promise(r => setTimeout(r, backoff));
           continue;
         }
-        console.log('    Tier 2: Could not get search token after retries');
-        return null;
+        console.log(`    Tier 2: vqd token missing after ${retries + 1} attempts — DDG likely blocking. Page len: ${pageText.length}, sample: ${pageText.slice(0, 200).replace(/\s+/g, ' ')}`);
+        return [];
       }
 
       // Step 2: Fetch image results
