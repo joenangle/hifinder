@@ -16,15 +16,18 @@ on:
 jobs:
   analyze-prices:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -51,5 +54,4 @@ jobs:
 
       - name: Notify on failure
         if: failure()
-        run: |
-          echo "::error::Price trend analysis failed - check logs above"
+        uses: ./.github/actions/notify-failure
