@@ -1,0 +1,72 @@
+name: 'Notify on failure'
+description: 'Open or comment on a GitHub issue when a scheduled workflow fails. Dedupes by workflow name so repeated failures append comments instead of flooding issues.'
+runs:
+  using: composite
+  steps:
+    - name: Open or update failure issue
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const workflow = context.workflow;
+          const runId = context.runId;
+          const runNumber = context.runNumber;
+          const sha = context.sha;
+          const eventName = context.eventName;
+          const { owner, repo } = context.repo;
+          const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${runId}`;
+          const shortSha = sha.substring(0, 7);
+          const timestamp = new Date().toISOString();
+          const title = `[CI failure] ${workflow}`;
+          const label = 'ci-failure';
+
+          // Ensure the label exists (idempotent — swallow 422 if already present)
+          try {
+            await github.rest.issues.createLabel({
+              owner,
+              repo,
+              name: label,
+              color: 'd73a4a',
+              description: 'Scheduled workflow failure surfaced by notify-failure action',
+            });
+          } catch (err) {
+            if (err.status !== 422) throw err;
+          }
+
+          // Search for an existing open issue for this workflow
+          const search = await github.rest.search.issuesAndPullRequests({
+            q: `repo:${owner}/${repo} is:issue is:open label:${label} in:title "${title}"`,
+          });
+
+          const existing = search.data.items.find(item => item.title === title);
+
+          const commentBody = [
+            `❌ Run failed: [#${runNumber}](${runUrl})`,
+            `- **Commit:** \`${shortSha}\``,
+            `- **Trigger:** \`${eventName}\``,
+            `- **Time:** ${timestamp}`,
+          ].join('\n');
+
+          if (existing) {
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: existing.number,
+              body: commentBody,
+            });
+            core.info(`Appended failure comment to existing issue #${existing.number}`);
+          } else {
+            const issue = await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              labels: [label],
+              body: [
+                `The scheduled workflow **${workflow}** is failing.`,
+                '',
+                commentBody,
+                '',
+                `Close this issue once the workflow recovers. New failures while this issue is open will be appended as comments rather than opening duplicates.`,
+              ].join('\n'),
+            });
+            core.info(`Opened new failure issue #${issue.data.number}`);
+          }

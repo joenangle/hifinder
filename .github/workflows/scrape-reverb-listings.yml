@@ -10,15 +10,18 @@ jobs:
   scrape-listings:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -35,3 +38,7 @@ jobs:
       - name: Log completion
         run: |
           echo "Reverb active listings scrape completed at $(date)"
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

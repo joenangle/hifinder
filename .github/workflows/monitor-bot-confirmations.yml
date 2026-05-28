@@ -10,15 +10,18 @@ jobs:
   monitor-bot-confirmations:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -38,3 +41,7 @@ jobs:
           echo "🔍 Check Supabase used_listings table for bot-verified sales"
           echo "📝 Only listings already marked 'sold' were checked for bot confirmations"
           echo "🚀 Workflow triggered successfully"
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

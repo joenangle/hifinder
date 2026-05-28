@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer as supabase } from '@/lib/supabase-server'
 
-// Admin auth check
+// Admin auth check. This route lives behind the Supabase-Auth /admin/dashboard
+// surface (Bearer token), separate from the NextAuth session used by the rest
+// of /api/admin/*. Safe-by-default: if ADMIN_EMAIL is unset, deny.
 async function isAdmin(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization')
   if (!authHeader) return false
+
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!adminEmail) return false
 
   try {
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error } = await supabase.auth.getUser(token)
 
     if (error || !user) return false
-
-    // Check if user email matches admin email
-    const adminEmail = process.env.ADMIN_EMAIL || 'joe@example.com'
     return user.email === adminEmail
   } catch {
     return false
