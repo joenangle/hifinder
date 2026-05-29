@@ -7,7 +7,27 @@ import ComponentsTable from '@/components/admin/ComponentsTable'
 import ComponentForm from '@/components/admin/ComponentForm'
 import FlaggedListingsTab from '@/components/admin/FlaggedListingsTab'
 
-type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component' | 'flagged-listings'
+type Tab = 'scraper-stats' | 'candidates' | 'components-database' | 'add-component' | 'flagged-listings' | 'users'
+
+interface RegistryUser {
+  id: string
+  email: string | null
+  name: string | null
+  image: string | null
+  provider: string | null
+  created_at: string | null
+  gearCount: number
+  stacksCount: number
+  wishlistCount: number
+}
+
+interface UsersResponse {
+  users: RegistryUser[]
+  summary: {
+    total: number
+    registered: number
+  }
+}
 
 interface ScraperStats {
   summary: {
@@ -105,6 +125,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>('components-database')
   const [scraperStats, setScraperStats] = useState<ScraperStats | null>(null)
   const [candidates, setCandidates] = useState<CandidatesResponse | null>(null)
+  const [users, setUsers] = useState<UsersResponse | null>(null)
   const [flaggedListingsCount, setFlaggedListingsCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
@@ -163,6 +184,10 @@ export default function AdminPage() {
           const res = await fetch('/api/admin/component-candidates?status=pending&sortBy=quality_score&sortOrder=desc')
           const data = await res.json()
           setCandidates(data)
+        } else if (activeTab === 'users') {
+          const res = await fetch('/api/admin/users')
+          const data = await res.json()
+          setUsers(data)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -601,6 +626,32 @@ export default function AdminPage() {
               {flaggedListingsCount > 0 && (
                 <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
                   {flaggedListingsCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  const confirmed = confirm('You have unsaved changes. Are you sure you want to leave this page?')
+                  if (!confirmed) return
+                  setIsEditing(false)
+                  setEditedCandidate(null)
+                  setValidationErrors({})
+                  setVerificationWarnings([])
+                  setError(null)
+                }
+                setActiveTab('users')
+              }}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'users'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-secondary hover:text-primary hover:border-subtle'
+              }`}
+            >
+              Users
+              {users && users.summary.total > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
+                  {users.summary.total}
                 </span>
               )}
             </button>
@@ -1247,6 +1298,64 @@ export default function AdminPage() {
 
         {activeTab === 'flagged-listings' && (
           <FlaggedListingsTab />
+        )}
+
+        {activeTab === 'users' && users && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="card p-6">
+                <h3 className="text-sm font-medium text-tertiary mb-1">Total Users</h3>
+                <p className="text-3xl font-bold text-primary">{users.summary.total}</p>
+              </div>
+              <div className="card p-6">
+                <h3 className="text-sm font-medium text-tertiary mb-1">With Profile (synced)</h3>
+                <p className="text-3xl font-bold text-green-600">{users.summary.registered}</p>
+              </div>
+            </div>
+
+            <div className="card p-6">
+              {users.users.length === 0 ? (
+                <p className="text-tertiary text-center py-8">No users yet</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b border-subtle">
+                      <tr>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-tertiary">User</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-tertiary">User ID (Google sub)</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-tertiary">Gear</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-tertiary">Stacks</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-tertiary">Wishlist</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-tertiary">Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.users.map((u) => (
+                        <tr key={u.id} className="border-b border-subtle">
+                          <td className="py-3 px-4">
+                            <div className="font-medium text-primary">{u.name || u.email || '—'}</div>
+                            {u.name && u.email && (
+                              <div className="text-sm text-tertiary">{u.email}</div>
+                            )}
+                            {!u.email && (
+                              <div className="text-xs text-tertiary italic">no profile yet (logs in to sync)</div>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-xs text-secondary">{u.id}</td>
+                          <td className="py-3 px-4 text-right text-secondary">{u.gearCount}</td>
+                          <td className="py-3 px-4 text-right text-secondary">{u.stacksCount}</td>
+                          <td className="py-3 px-4 text-right text-secondary">{u.wishlistCount}</td>
+                          <td className="py-3 px-4 text-right text-secondary">
+                            {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

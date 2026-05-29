@@ -69,6 +69,10 @@ export const authOptions: NextAuthOptions = {
             console.time('Auth-DB-Operation')
 
             // Use upsert for atomic operation (faster than select + insert/update)
+            // Note: id is the Google OAuth sub (text) — the same identifier used
+            // as user_id across user_gear/user_stacks/wishlists. Don't write
+            // created_at here: on an onConflict update it would clobber the
+            // original signup date. The column has DEFAULT NOW() for inserts.
             const { error } = await supabaseAuth
               .from('users')
               .upsert({
@@ -77,7 +81,6 @@ export const authOptions: NextAuthOptions = {
                 name: user.name,
                 image: user.image,
                 provider: account.provider,
-                created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               }, {
                 onConflict: 'email',
@@ -87,7 +90,10 @@ export const authOptions: NextAuthOptions = {
             console.timeEnd('Auth-DB-Operation')
 
             if (error) {
-              console.error('Background user upsert error:', error)
+              console.error('Background user upsert error:', error, {
+                id: user.id,
+                email: user.email,
+              })
             }
           } catch (error) {
             console.error('Error in background user sync:', error)

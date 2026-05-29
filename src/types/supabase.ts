@@ -88,15 +88,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "accounts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       affiliate_clicks: {
         Row: {
@@ -931,63 +923,6 @@ export type Database = {
           },
         ]
       }
-      price_history: {
-        Row: {
-          component_id: string
-          created_at: string | null
-          date_recorded: string
-          excellent_condition_avg: number | null
-          good_condition_avg: number | null
-          id: string
-          listing_count: number | null
-          price_avg: number | null
-          price_max: number | null
-          price_min: number | null
-          source: string
-        }
-        Insert: {
-          component_id: string
-          created_at?: string | null
-          date_recorded: string
-          excellent_condition_avg?: number | null
-          good_condition_avg?: number | null
-          id?: string
-          listing_count?: number | null
-          price_avg?: number | null
-          price_max?: number | null
-          price_min?: number | null
-          source: string
-        }
-        Update: {
-          component_id?: string
-          created_at?: string | null
-          date_recorded?: string
-          excellent_condition_avg?: number | null
-          good_condition_avg?: number | null
-          id?: string
-          listing_count?: number | null
-          price_avg?: number | null
-          price_max?: number | null
-          price_min?: number | null
-          source?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "price_history_component_id_fkey"
-            columns: ["component_id"]
-            isOneToOne: false
-            referencedRelation: "components"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "price_history_component_id_fkey"
-            columns: ["component_id"]
-            isOneToOne: false
-            referencedRelation: "top_affiliate_components"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       price_trends: {
         Row: {
           active_count: number | null
@@ -1265,15 +1200,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       stack_components: {
         Row: {
@@ -1354,6 +1281,7 @@ export type Database = {
           is_active: boolean | null
           is_ambiguous: boolean | null
           is_bundle: boolean | null
+          is_sample: boolean
           listing_type: string | null
           location: string | null
           location_country: string | null
@@ -1405,6 +1333,7 @@ export type Database = {
           is_active?: boolean | null
           is_ambiguous?: boolean | null
           is_bundle?: boolean | null
+          is_sample?: boolean
           listing_type?: string | null
           location?: string | null
           location_country?: string | null
@@ -1456,6 +1385,7 @@ export type Database = {
           is_active?: boolean | null
           is_ambiguous?: boolean | null
           is_bundle?: boolean | null
+          is_sample?: boolean
           listing_type?: string | null
           location?: string | null
           location_country?: string | null
@@ -1738,15 +1668,17 @@ export type Database = {
           id: string
           image: string | null
           name: string | null
+          provider: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           email?: string | null
           email_verified?: string | null
-          id?: string
+          id: string
           image?: string | null
           name?: string | null
+          provider?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1756,6 +1688,7 @@ export type Database = {
           id?: string
           image?: string | null
           name?: string | null
+          provider?: string | null
           updated_at?: string | null
         }
         Relationships: []
