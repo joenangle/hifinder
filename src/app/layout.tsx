@@ -6,7 +6,7 @@ import { getCachedServerSession } from "@/lib/auth";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { Footer } from "@/components/navigation/Footer";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { DeferredGoogleAnalytics } from '@/components/DeferredGoogleAnalytics';
 import { Analytics as CustomAnalytics } from '@/components/Analytics';
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -153,9 +153,10 @@ export default async function RootLayout({
         </AuthProvider>
         </NuqsAdapter>
 
-        {/* Google Analytics */}
+        {/* Google Analytics — deferred until idle/first interaction so gtag.js
+            (~158KB) stays off the critical path. */}
         {process.env.NEXT_PUBLIC_GA_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+          <DeferredGoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
       </body>
     </html>
