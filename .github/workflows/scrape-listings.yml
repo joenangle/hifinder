@@ -42,6 +42,30 @@ jobs:
           echo "🔍 Check Supabase used_listings table for new entries"
           echo "🚀 Workflow triggered successfully"
 
+      # Match the freshly-scraped listings against active price alerts so the
+      # daily send-notifications cron has a non-empty queue to drain. Idempotent
+      # (de-dups on alert_id + listing_url), so safe to re-run on every scrape.
+      - name: Trigger price-alert matching
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          BASE_URL="${SITE_URL:-https://hifinder.app}"
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::CRON_SECRET not set — skipping alert matching (alerts will not fire until configured)"
+            exit 0
+          fi
+          echo "🔔 Triggering alert matching at $BASE_URL/api/alerts/match-new"
+          STATUS=$(curl -sS -o /tmp/match.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/alerts/match-new")
+          echo "HTTP $STATUS"
+          cat /tmp/match.json || true
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Alert matching returned HTTP $STATUS"
+            exit 1
+          fi
+
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure

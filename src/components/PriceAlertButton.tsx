@@ -62,7 +62,7 @@ export function PriceAlertButton({
       email_enabled: true,
       notification_frequency: 'instant',
       condition_preference: ['new', 'used', 'refurbished', 'b-stock'],
-      marketplace_preference: ['reddit', 'headfi', 'avexchange'],
+      marketplace_preference: ['reddit', 'headfi', 'avexchange', 'reverb'],
     })
     setState(result ? 'created' : 'error')
   }
