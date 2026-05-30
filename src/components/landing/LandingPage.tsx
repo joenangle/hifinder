@@ -6,7 +6,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 import { BrowserFrame } from './BrowserFrame'
 import { TrackableLink } from './TrackableLink'
 import { FeatureCards } from './FeatureCards'
-import { FloatingBar } from './FloatingBar'
+import { FloatingBarLazy } from './FloatingBarLazy'
 import { ScrollToButton } from './ScrollToButton'
 import { CuratedSystems } from './CuratedSystems'
 import { CollapsibleEmailSignup } from './CollapsibleEmailSignup'
@@ -468,7 +468,7 @@ export async function LandingPage() {
       {/* ─────────────────────────────────────────
           FLOATING BOTTOM BAR — client island
       ───────────────────────────────────────── */}
-      <FloatingBar />
+      <FloatingBarLazy />
 
     </div>
   )
