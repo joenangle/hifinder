@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useSession, signOut } from 'next-auth/react'
-import { User, ChevronDown, LayoutDashboard, Package, Heart, Bell, LogOut } from 'lucide-react'
+import { User, ChevronDown, LayoutDashboard, Package, Heart, Bell, Settings, LogOut } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -160,6 +160,18 @@ export function UserMenu() {
 
             {/* Account Actions */}
             <div className="py-2">
+              <Link
+                href="/settings"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 w-full text-left px-3 py-3 text-sm rounded transition-colors ${
+                  pathname === '/settings'
+                    ? 'text-primary bg-surface-hover'
+                    : 'text-secondary hover:text-primary hover:bg-surface-hover'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
               <button
                 onClick={() => {
                   setIsOpen(false)

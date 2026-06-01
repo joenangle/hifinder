@@ -68,6 +68,16 @@ export async function POST(request: Request) {
     }
   }
 
+  // 2b. Honor the global email opt-out (Settings → email notifications off).
+  const optedOut = new Set<string>()
+  const { data: prefs } = await supabase
+    .from('user_preferences')
+    .select('user_id, email_alerts_enabled')
+    .in('user_id', userIds)
+  for (const p of prefs ?? []) {
+    if (p.email_alerts_enabled === false) optedOut.add(p.user_id)
+  }
+
   // 3. Group matches by user + alert
   const grouped: Record<string, {
     alertId: string
@@ -76,6 +86,7 @@ export async function POST(request: Request) {
     frequency: string
     matches: typeof unsent
   }> = {}
+  const suppressedIds: string[] = []
 
   for (const match of unsent) {
     const alert = match.price_alerts as unknown as Record<string, unknown>
@@ -83,6 +94,12 @@ export async function POST(request: Request) {
     const frequency = (alert.notification_frequency as string) || 'none'
     const email = userEmails[match.user_id]
 
+    // Global opt-out: mark processed (suppressed) so it doesn't linger in the
+    // queue. Re-enabling won't replay the backlog, which is the intent.
+    if (optedOut.has(match.user_id)) {
+      suppressedIds.push(match.id)
+      continue
+    }
     if (!email || frequency === 'none') continue
 
     const components = alert.components as { brand: string; name: string } | null
@@ -150,16 +167,17 @@ export async function POST(request: Request) {
     }
   }
 
-  // 5. Mark as sent
-  if (sentIds.length > 0) {
+  // 5. Mark as processed — both emailed and opt-out-suppressed rows.
+  const processedIds = [...sentIds, ...suppressedIds]
+  if (processedIds.length > 0) {
     await supabase
       .from('alert_history')
       .update({
         notification_sent: true,
         notification_sent_at: new Date().toISOString(),
       })
-      .in('id', sentIds)
+      .in('id', processedIds)
   }
 
-  return NextResponse.json({ sent: sentCount, matched: sentIds.length })
+  return NextResponse.json({ sent: sentCount, matched: sentIds.length, suppressed: suppressedIds.length })
 }
