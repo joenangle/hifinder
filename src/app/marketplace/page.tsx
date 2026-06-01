@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { Search, SlidersHorizontal, Grid3X3, List, MapPin } from 'lucide-react'
 import { MarketplaceListingCard } from '@/components/marketplace/MarketplaceListingCard'
 import { ComponentDetailModal } from '@/components/modals/ComponentDetailModal'
+import { SavedSearches } from '@/components/marketplace/SavedSearches'
+import { parseMarketplaceParams, serializeMarketplaceParams } from '@/lib/marketplace-params'
 import { FilterButton } from '@/components/ui/FilterButton'
 import { US_STATES_LIST, COUNTRIES_LIST } from '@/lib/location-normalizer'
 import { X } from 'lucide-react'
@@ -39,19 +41,51 @@ function MarketplaceContent() {
   const [searchExpanded, setSearchExpanded] = useState(!!initialSearch)
 
   // Filter state — component_id is an exact filter (from recommendation cards)
+  // Initialize all filters from the URL on mount so a saved search
+  // (/marketplace?<params>) reconstructs the full filtered view.
+  const initialFilters = useMemo(() => parseMarketplaceParams(urlParams), []) // eslint-disable-line react-hooks/exhaustive-deps
   const [filteredComponentId, setFilteredComponentId] = useState(initialComponentId)
   const [filteredComponentName, setFilteredComponentName] = useState(initialComponentName)
-  const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [selectedSource, setSelectedSource] = useState<string>('all')
-  const [selectedConditions, setSelectedConditions] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [dealQuality, setDealQuality] = useState<string[]>([]) // 'great', 'good', 'hideOverpriced'
-  const [selectedState, setSelectedState] = useState<string>('all')
-  const [selectedCountry, setSelectedCountry] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState(initialFilters.search)
+  const [selectedSource, setSelectedSource] = useState<string>(initialFilters.source)
+  const [selectedConditions, setSelectedConditions] = useState<string[]>(initialFilters.conditions)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialFilters.categories)
+  const [dealQuality, setDealQuality] = useState<string[]>(initialFilters.dealQuality) // 'great', 'good', 'hideOverpriced'
+  const [selectedState, setSelectedState] = useState<string>(initialFilters.state)
+  const [selectedCountry, setSelectedCountry] = useState<string>(initialFilters.country)
   const [detectedState, setDetectedState] = useState<string | null>(null)
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' })
-  const [sortBy, setSortBy] = useState<SortBy>('date_desc')
+  const [priceRange, setPriceRange] = useState({ min: initialFilters.minPrice, max: initialFilters.maxPrice })
+  const [sortBy, setSortBy] = useState<SortBy>(initialFilters.sort as SortBy)
   const [presetTick, setPresetTick] = useState(0) // bumped by presets to bypass price debounce
+
+  // Serialized current filters — fed to SavedSearches so "Save current" stores
+  // exactly the active view.
+  const currentQuery = useMemo(
+    () =>
+      serializeMarketplaceParams({
+        search: searchQuery,
+        source: selectedSource,
+        conditions: selectedConditions,
+        categories: selectedCategories,
+        dealQuality,
+        minPrice: priceRange.min,
+        maxPrice: priceRange.max,
+        state: selectedState,
+        country: selectedCountry,
+        sort: sortBy,
+      }),
+    [
+      searchQuery,
+      selectedSource,
+      selectedConditions,
+      selectedCategories,
+      dealQuality,
+      priceRange,
+      selectedState,
+      selectedCountry,
+      sortBy,
+    ]
+  )
 
   // Modal state - Component details
   const [modalOpen, setModalOpen] = useState(false)
@@ -664,6 +698,11 @@ function MarketplaceContent() {
               <SlidersHorizontal className="w-4 h-4" />
               Filters
             </button>
+          </div>
+
+          {/* Saved searches — recurring marketplace scans */}
+          <div className="mt-3">
+            <SavedSearches currentQuery={currentQuery} />
           </div>
 
           {/* Expanded Filters — compact 2-row layout */}
