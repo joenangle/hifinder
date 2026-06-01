@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useQueryState, parseAsString, parseAsInteger } from 'nuqs'
+import Link from 'next/link'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { WishlistButton } from '@/components/WishlistButton'
 import { FindUsedButton } from '@/components/marketplace/FindUsedButton'
@@ -195,21 +196,25 @@ export function BrowseCatalog() {
                   className="bg-surface-elevated border border-border rounded-lg p-4 flex flex-col hover:border-accent transition-colors"
                 >
                   {item.image_url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.image_url}
-                      alt={`${item.brand} ${item.name}`}
-                      loading="lazy"
-                      className="w-full h-32 object-contain mb-3"
-                    />
+                    <Link href={`/components/${item.id}`} className="block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image_url}
+                        alt={`${item.brand} ${item.name}`}
+                        loading="lazy"
+                        className="w-full h-32 object-contain mb-3"
+                      />
+                    </Link>
                   )}
                   <div className="flex-1">
                     <div className="text-xs text-muted uppercase tracking-wide mb-0.5">
                       {CATEGORY_LABEL[item.category] ?? item.category}
                     </div>
-                    <h3 className="font-semibold text-foreground leading-snug">
-                      {item.brand} {item.name}
-                    </h3>
+                    <Link href={`/components/${item.id}`}>
+                      <h3 className="font-semibold text-foreground leading-snug hover:text-accent transition-colors">
+                        {item.brand} {item.name}
+                      </h3>
+                    </Link>
                     <div className="mt-1 text-sm text-foreground">{priceLabel(item)}</div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {badge && (
