@@ -21,6 +21,7 @@ require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 const { findComponentMatch } = require('./component-matcher-enhanced');
 const { validateListing } = require('./validators/listing-validator');
+const { extractPrice: extractPriceShared } = require('./shared/price-extractor');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -39,48 +40,12 @@ const LIMIT = args.find(a => a.startsWith('--limit='))?.split('=')[1] || null;
 const BATCH_SIZE = 100;
 
 /**
- * Re-extract price from title/description using improved logic
+ * Re-extract price from title/description using the shared hardened extractor.
+ * Returns a bare number (or null) for backwards-compatible call sites.
  */
 function extractPrice(title, selftext = '') {
-  const combinedText = title + ' ' + (selftext || '');
-
-  // Priority 1: Dollar sign patterns ($550, $1,200)
-  const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
-  const dollarMatches = Array.from(combinedText.matchAll(dollarPattern))
-    .map(m => ({ price: parseFloat(m[1].replace(/,/g, '')), priority: 1 }));
-
-  // Priority 2: Asking price patterns
-  const askingPattern = /\b(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)/gi;
-  const askingMatches = Array.from(combinedText.matchAll(askingPattern))
-    .map(m => ({ price: parseFloat(m[1].replace(/,/g, '')), priority: 2 }));
-
-  // Priority 3: Shipped/OBO patterns
-  const shippedPattern = /\b(\d{3,5})\s*(?:shipped|obo|or best offer|firm)\b/gi;
-  const shippedMatches = Array.from(combinedText.matchAll(shippedPattern))
-    .map(m => ({ price: parseFloat(m[1]), priority: 3 }));
-
-  // Priority 4: Currency patterns (USD, dollars)
-  const currencyPattern = /\b(\d{3,5})\s*(?:usd|dollars?)\b/gi;
-  const currencyMatches = Array.from(combinedText.matchAll(currencyPattern))
-    .map(m => ({ price: parseFloat(m[1]), priority: 4 }));
-
-  // Combine all matches
-  const allMatches = [...dollarMatches, ...askingMatches, ...shippedMatches, ...currencyMatches];
-
-  if (allMatches.length === 0) return null;
-
-  // Sort by priority, then by lowest price
-  allMatches.sort((a, b) => {
-    if (a.priority !== b.priority) return a.priority - b.priority;
-    return a.price - b.price;
-  });
-
-  const price = allMatches[0].price;
-
-  // Validate range ($10 - $10,000)
-  if (price < 10 || price > 10000) return null;
-
-  return Math.round(price);
+  const result = extractPriceShared(`${title} ${selftext || ''}`);
+  return result ? result.price : null;
 }
 
 /**
@@ -114,7 +79,12 @@ async function revalidateListing(listing) {
     requires_manual_review: false,
     validation_warnings: [],
     is_ambiguous: false,
-    new_price: null
+    new_price: null,
+    reject_price: false,            // when true, write price = null
+    has_validation: false,          // when true, write the price_* columns below
+    price_is_reasonable: null,
+    price_variance_percentage: null,
+    price_warning: null
   };
 
   try {
@@ -134,24 +104,27 @@ async function revalidateListing(listing) {
       result.requires_manual_review = true;
     }
 
-    // 2. Apply validation checks
+    // 2. Apply validation checks — same reject(null)/flag policy as ingest.
     if (listing.component) {
       const validation = validateListing(listing, listing.component, result.match_confidence);
+      result.has_validation = true;
+      result.price_variance_percentage = validation.priceVariancePercentage;
 
-      if (validation.shouldFlag || validation.shouldReject) {
+      if (validation.shouldReject || validation.shouldFlag) {
         result.requires_manual_review = true;
-      }
-
-      // Collect validation warnings
-      Object.values(validation.validations).forEach(v => {
-        if (v.reason) {
-          result.validation_warnings.push(v.reason);
+        result.price_is_reasonable = validation.priceIsReasonable;
+        result.price_warning = validation.priceWarning;
+        validation.validationWarnings.forEach(w => result.validation_warnings.push(w));
+        if (validation.shouldReject) {
+          result.reject_price = true;   // null out the corrupt price
         }
-      });
+      } else {
+        result.price_is_reasonable = true;
+      }
     }
 
-    // 3. Re-extract price if missing
-    if (!listing.price || listing.price === 0) {
+    // 3. Re-extract price if missing (skip when we're rejecting the price outright)
+    if (!result.reject_price && (!listing.price || listing.price === 0)) {
       const newPrice = extractPrice(listing.title, listing.description);
       if (newPrice) {
         result.new_price = newPrice;
@@ -191,8 +164,17 @@ async function updateBatch(updates) {
         is_ambiguous: update.is_ambiguous
       };
 
-      // Add price if re-extracted
-      if (update.new_price) {
+      // Persist price-validation columns when validation ran.
+      if (update.has_validation) {
+        updateData.price_is_reasonable = update.price_is_reasonable;
+        updateData.price_variance_percentage = update.price_variance_percentage;
+        updateData.price_warning = update.price_warning;
+      }
+
+      // Price column: null it out on reject, else apply a re-extracted price.
+      if (update.reject_price) {
+        updateData.price = null;
+      } else if (update.new_price) {
         updateData.price = update.new_price;
       }
 
@@ -225,14 +207,15 @@ async function revalidateAllListings() {
   console.log(EXECUTE_MODE ? '║   MODE: EXECUTE (will update database)     ║' : '║   MODE: DRY RUN (preview only)             ║');
   console.log('╚════════════════════════════════════════════╝\n');
 
-  // Fetch all available listings
+  // Fetch available AND sold listings — sold prices feed price_trends, so a
+  // corrupt sale price must be caught here too.
   let query = supabase
     .from('used_listings')
     .select(`
       *,
       component:components(*)
     `)
-    .eq('status', 'available')
+    .in('status', ['available', 'sold'])
     .order('created_at', { ascending: false });
 
   if (LIMIT) {
