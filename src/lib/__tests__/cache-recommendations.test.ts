@@ -88,4 +88,13 @@ describe('generateCacheKey', () => {
       generateCacheKey(baseParams)
     )
   })
+
+  it('distinguishes selected items with the same id but a different price', () => {
+    // The route encodes each selection as `id:category:avgPrice`. avgPrice
+    // drives the effective budget, so keying on id alone let two requests with
+    // the same selection at different prices collide and serve wrong rankings.
+    const cheap = generateCacheKey({ ...baseParams, selectedItems: ['abc:cans:120'] })
+    const dear = generateCacheKey({ ...baseParams, selectedItems: ['abc:cans:400'] })
+    expect(cheap).not.toBe(dear)
+  })
 })

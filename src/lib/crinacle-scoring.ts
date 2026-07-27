@@ -82,6 +82,9 @@ export type { ScoringComponent } from '@/types/audio'
  * - Sennheiser HD600 (A-/S-/B+/2): 7.68
  * - Moondrop Chu (B/A+/C+/3): 7.60
  */
+/** Midpoint of Crinacle's 0–3 value scale; the equivalent of a C grade. */
+const NEUTRAL_VALUE_RATING = 1.5;
+
 export function calculateExpertScore(component: ScoringComponent): number {
   // Convert letter grades to 0-10 numeric scores
   const rankScore = gradeToNumeric(component.crin_rank);
@@ -90,7 +93,12 @@ export function calculateExpertScore(component: ScoringComponent): number {
 
   // Scale value rating (0-3) to 0-10 range
   // Value 0 = 0 pts, Value 1 = 3.33 pts, Value 2 = 6.67 pts, Value 3 = 10 pts
-  const valueScore = ((component.crin_value ?? 0) / 3) * 10;
+  //
+  // A missing rating defaults to the neutral midpoint (1.5 → 5.0), matching
+  // gradeToNumeric's C default. Defaulting it to 0 treated "not rated" as
+  // "worst possible value", which combined with the confidence multiplier to
+  // penalise ungraded components twice.
+  const valueScore = ((component.crin_value ?? NEUTRAL_VALUE_RATING) / 3) * 10;
 
   // Apply 30/30/20/20 weighting
   const expertScore =

@@ -1,3 +1,11 @@
+/**
+ * Canonical sound-signature vocabulary. The scorer, filters, and UI all support
+ * these six; keep validation and dropdowns pointed here so they don't drift
+ * (admin write validation previously accepted only the first four).
+ */
+export const SOUND_SIGNATURES = ['warm', 'neutral', 'bright', 'fun', 'v-shaped', 'dark'] as const;
+export type SoundSignature = (typeof SOUND_SIGNATURES)[number];
+
 export interface Component {
   id: string;
   name: string;

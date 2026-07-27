@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
-import { assessAmplificationFromImpedance } from "@/lib/audio-calculations";
+import {
+  assessAmplificationFromImpedance,
+  calculateAmpAdequacy,
+  type AmplificationTarget,
+} from "@/lib/audio-calculations";
 import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
   calculateExpertScore,
@@ -13,8 +17,12 @@ import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
 // Route handles dynamic query params; caching is managed by getCached() in cache-recommendations.ts
 // (5-min TTL, busted via revalidateTag('recommendations') on admin changes)
 
-// V3.3 scoring weights, bonuses, and thresholds. CLAUDE.md mirrors these —
+// V3.4 scoring weights, bonuses, and thresholds. CLAUDE.md mirrors these —
 // keep the two in sync when tuning.
+//
+// All four weighted terms are on a true 0–1 scale, so each weight is the real
+// share of the final score. (Through v3.3 the signature term was capped at 0.5,
+// making its effective weight 12.5% rather than the stated 25%.)
 export const SCORING_CONFIG = {
   weights: {
     expert: 0.55,
@@ -23,7 +31,10 @@ export const SCORING_CONFIG = {
     proximity: 0.10,
   },
   bonuses: {
-    signatureMatchThreshold: 0.35,
+    // An exact signature match (0.7) clears this on its own — the threshold
+    // used to sit exactly at the exact-match value under a strict `>`, so the
+    // bonus only fired when a detailed-signature match pushed it over.
+    signatureMatchThreshold: 0.7,
     signatureMatch: 0.05,
     powerAdequacyMax: 0.05,
     liquidityPerListing: 0.005,
@@ -34,10 +45,21 @@ export const SCORING_CONFIG = {
   proximitySigma: 0.15,
   valueFloor: 0.5,
   overBudgetPenaltyMultiplier: 2,
-  signatureNeutralDefault: 0.25,
+  signatureNeutralDefault: 0.5,
   expertDefault: 5.0,
+  /** Discount applied to headphones with no expert grades at all. */
+  noExpertDataMultiplier: 0.85,
+  /** Discount applied to DACs/amps with no SINAD measurement. */
+  noSinadMultiplier: 0.8,
   diversity: { maxPerBrand: 2 },
 } as const;
+
+/**
+ * Hard cap on the component fetch. Well above the current catalogue (~711 rows
+ * total) so it never binds in practice — it exists to make truncation
+ * detectable rather than silent. Raise it alongside catalogue growth.
+ */
+const COMPONENT_FETCH_LIMIT = 5000;
 
 // Enhanced component interface for recommendations
 interface RecommendationComponent {
@@ -80,6 +102,8 @@ interface RecommendationComponent {
   synergyScore: number;
   compatibilityScore?: number;
   powerAdequacy?: number;
+  /** False when powerAdequacy is a neutral placeholder rather than a real verdict. */
+  powerMatchKnown?: boolean;
   amplificationAssessment?: {
     difficulty:
       | "easy"
@@ -158,6 +182,42 @@ function gradeToGpaScale(grade: string | null | undefined): number | null {
   return gradeMap[cleanGrade] ?? null;
 }
 
+/**
+ * Signature-match tiers, on a true 0–1 scale.
+ *
+ * These were previously capped at 0.5 while being multiplied by the 0.25
+ * signature weight — so signature could contribute at most 12.5% of the final
+ * score, half its documented weight, and a perfect match displayed to the user
+ * as "50". The tiers keep their original relative spacing; only the scale
+ * changed. `exact + full detail bonus` reaches exactly 1.0.
+ */
+const SIGNATURE_SCORES = {
+  exact: 0.7,          // component signature is exactly what the user asked for
+  close: 0.56,         // neutral ↔ balanced
+  compatible: 0.4,     // adjacent signatures (see COMPATIBLE_SIGNATURES)
+  mismatch: 0.16,      // has a signature, but not one the user wants
+  unknown: 0.3,        // no signature data — neutral, not penalised
+  detailBonusMax: 0.3, // additional credit from the detailed Crinacle signature
+} as const;
+
+/**
+ * Signatures that partially satisfy each other. Symmetric by construction —
+ * the previous hand-written list scored warm→neutral at 0.20 but
+ * neutral→warm at 0.08 purely because only one direction was enumerated.
+ */
+const COMPATIBLE_SIGNATURES: readonly (readonly [string, string])[] = [
+  ["warm", "neutral"],
+  ["bright", "neutral"],
+  ["v-shaped", "fun"],
+  ["dark", "warm"],
+];
+
+function areCompatibleSignatures(a: string, b: string): boolean {
+  return COMPATIBLE_SIGNATURES.some(
+    ([x, y]) => (a === x && b === y) || (a === y && b === x)
+  );
+}
+
 // Sound signature synergy scoring with detailed Crinacle signatures
 export function calculateSynergyScore(
   component: unknown,
@@ -187,26 +247,19 @@ export function calculateSynergyScore(
     let soundScore = 0;
     if (effectiveComponentSig && effectiveSignature !== "any") {
       if (effectiveComponentSig === effectiveSignature) {
-        soundScore = 0.35; // Perfect basic match
+        soundScore = SIGNATURE_SCORES.exact;
       } else if (
-        effectiveSignature === "neutral" &&
-        effectiveComponentSig === "balanced"
+        (effectiveSignature === "neutral" && effectiveComponentSig === "balanced") ||
+        (effectiveSignature === "balanced" && effectiveComponentSig === "neutral")
       ) {
-        soundScore = 0.28; // Close match
-      } else if (
-        (effectiveSignature === "warm" && effectiveComponentSig === "neutral") ||
-        (effectiveSignature === "bright" && effectiveComponentSig === "neutral") ||
-        (effectiveSignature === "v-shaped" && effectiveComponentSig === "fun") ||
-        (effectiveSignature === "fun" && effectiveComponentSig === "v-shaped") ||
-        (effectiveSignature === "dark" && effectiveComponentSig === "warm") ||
-        (effectiveSignature === "warm" && effectiveComponentSig === "dark")
-      ) {
-        soundScore = 0.2; // Compatible match
+        soundScore = SIGNATURE_SCORES.close;
+      } else if (areCompatibleSignatures(effectiveSignature, effectiveComponentSig)) {
+        soundScore = SIGNATURE_SCORES.compatible;
       } else {
-        soundScore = 0.08; // Has signature but doesn't match
+        soundScore = SIGNATURE_SCORES.mismatch;
       }
     } else {
-      soundScore = 0.15; // No signature = neutral baseline
+      soundScore = SIGNATURE_SCORES.unknown;
     }
 
     // Detailed signature adds to sound score (Crinacle or FR-derived)
@@ -216,14 +269,14 @@ export function calculateSynergyScore(
         detailedSig,
         effectiveSignature
       );
-      soundScore += detailedMatch * 0.15; // Up to +15% for detailed match
+      soundScore += detailedMatch * SIGNATURE_SCORES.detailBonusMax;
     }
 
     // Keep the best score from any matched signature (OR logic)
     bestSoundScore = Math.max(bestSoundScore, soundScore);
   }
 
-  score += Math.min(0.5, bestSoundScore); // Cap at 50%
+  score += Math.min(1, bestSoundScore);
 
   // Usage matching removed - not differentiated enough to be useful
   // "Music" works for almost everything, "gaming" needs soundstage data we don't have,
@@ -309,21 +362,6 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
 }
 
 // Helper: Check if components are available in a budget range (single category)
-async function checkComponentAvailability(
-  category: string,
-  minPrice: number,
-  maxPrice: number
-): Promise<number> {
-  const { count } = await supabaseServer
-    .from("components")
-    .select("id", { count: "exact", head: true })
-    .eq("category", category)
-    .gte("price_used_min", minPrice)
-    .lte("price_used_max", maxPrice);
-
-  return count || 0;
-}
-
 // Batch availability check across categories. Each category has its own price
 // range, so we fan out parallel SQL count() queries rather than fetching all
 // rows and filtering in JS (the prior approach transferred ~hundreds of rows
@@ -478,8 +516,6 @@ async function allocateBudgetAcrossComponents(
     let count = 0;
 
     if (component === "headphones") {
-      const cansRange = categoryRanges.find(r => r.component === component && r.category === "cans");
-      const iemsRange = categoryRanges.find(r => r.component === component && r.category === "iems");
       count = (availabilityCounts["cans"] || 0) + (availabilityCounts["iems"] || 0);
     } else {
       const category = categoryMap[component];
@@ -538,59 +574,45 @@ async function allocateBudgetAcrossComponents(
 }
 
 // Power matching for amps based on existing headphones
+/**
+ * Does the user actually own any gear?
+ *
+ * `existingGear` always arrives as a fully-populated object of boolean flags
+ * plus a `specificModels` map, so testing `Object.keys(...).length > 0` was
+ * always true — which meant every real request was treated as personalized and
+ * the CDN cache branch was unreachable outside of synthetic requests.
+ */
+export function hasExistingGear(gear: RecommendationRequest["existingGear"] | undefined): boolean {
+  if (!gear) return false;
+  if (gear.headphones || gear.dac || gear.amp || gear.combo) return true;
+  return Object.values(gear.specificModels ?? {}).some(
+    (model) => typeof model === "string" && model.trim() !== ""
+  );
+}
+
+/**
+ * Escape PostgREST `ilike` wildcards in user-supplied text so a stray `%` or
+ * `_` matches literally instead of acting as a pattern.
+ */
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/**
+ * How well does this amp drive the user's headphones?
+ *
+ * Thin wrapper over `calculateAmpAdequacy` — the physics lives in
+ * `src/lib/audio-calculations.ts`. The previous implementation here had its own
+ * mW-only regex and, when that failed to parse (which was most of the time),
+ * fell back to scoring the *headphone's* difficulty — so every amp scored the
+ * same, and scored highest against the headphones it was least able to drive.
+ */
 function calculatePowerCompatibility(
   amp: RecommendationComponent,
-  headphones: {
-    impedance?: number;
-    sensitivity?: number;
-    power_required_mw?: number;
-    voltage_required_v?: number;
-    name?: string;
-  }
-): number {
-  if (!headphones.impedance && !headphones.sensitivity) return 0.5;
-
-  // If we have power requirements, check if amp can meet them
-  if (headphones.power_required_mw && amp.power_output) {
-    // Parse power output (e.g., "500mW @ 32Ω")
-    const powerMatch = amp.power_output.match(/(\d+)mW.*?(\d+)[Ωohm]/i);
-    if (powerMatch) {
-      const ampPower = parseInt(powerMatch[1]);
-      const ampImpedance = parseInt(powerMatch[2]);
-
-      // Rough power scaling based on impedance
-      const scaledPower =
-        ampPower * (ampImpedance / (headphones.impedance || 32));
-
-      if (scaledPower >= headphones.power_required_mw * 1.5) {
-        return 1.0; // Excellent match - 50% headroom
-      } else if (scaledPower >= headphones.power_required_mw) {
-        return 0.8; // Good match
-      } else if (scaledPower >= headphones.power_required_mw * 0.7) {
-        return 0.5; // Marginal
-      } else {
-        return 0.2; // Insufficient
-      }
-    }
-  }
-
-  // Fallback to impedance-based assessment
-  const assessment = assessAmplificationFromImpedance(
-    headphones.impedance ?? null,
-    null,
-    headphones.name,
-    ""
-  );
-
-  const difficultyScores = {
-    easy: 0.3,
-    moderate: 0.6,
-    demanding: 0.8,
-    very_demanding: 1.0,
-    unknown: 0.5,
-  };
-
-  return difficultyScores[assessment.difficulty];
+  headphones: AmplificationTarget
+): { score: number; dataAvailable: boolean } {
+  const { score, dataAvailable } = calculateAmpAdequacy(amp.power_output, headphones);
+  return { score, dataAvailable };
 }
 
 // V3: Filter and score with performance-first prioritization
@@ -601,13 +623,7 @@ export function filterAndScoreComponents(
   primaryUsage: string,
   maxOptions: number,
   driverType?: string,
-  existingHeadphones?: {
-    impedance?: number;
-    sensitivity?: number;
-    power_required_mw?: number;
-    voltage_required_v?: number;
-    name?: string;
-  },
+  existingHeadphones?: AmplificationTarget & { name?: string },
   totalBudget?: number, // Added to support entry-level handling
   rangeMinPercent?: number, // V3: User's desired range below budget
   rangeMaxPercent?: number  // V3: User's desired range above budget
@@ -659,7 +675,7 @@ export function filterAndScoreComponents(
       const synergyScore =
         component.category === "cans" || component.category === "iems"
           ? calculateSynergyScore(component, soundSignatures)
-          : 0.25; // Neutral score for DACs/amps (25% = middle of 0-50% range)
+          : SCORING_CONFIG.signatureNeutralDefault; // DACs/amps should be transparent
 
       // Fallback for the GPA-scale display field when DB lacks a numeric value
       const toneGradeNumeric =
@@ -689,9 +705,12 @@ export function filterAndScoreComponents(
         expertScore = rawExpertScore * confidence;
         if (confidence < 0.75) hasThinExpertData = true;
       } else if (isHeadphone) {
-        // Headphone with zero Crinacle data: down-weight the 5.0 default so
+        // Headphone with zero Crinacle data: down-weight the neutral default so
         // items with even partial grades sort above it at the same price.
-        expertScore = rawExpertScore * 0.7;
+        // Kept mild (0.85) — this is the ~20% of the catalogue with no expert
+        // coverage, and at a 55% weight a harsher discount made them
+        // unrecommendable regardless of how well they fit the user's request.
+        expertScore = rawExpertScore * SCORING_CONFIG.noExpertDataMultiplier;
         hasThinExpertData = true;
       } else if (isElectronics && scoringData.asr_sinad != null) {
         // For electronics with SINAD data: use SINAD as quality signal
@@ -701,19 +720,25 @@ export function filterAndScoreComponents(
         // Electronics without SINAD: apply missing-data penalty. Otherwise
         // every unmeasured DAC/amp would return 5.0 (C grade default) and
         // rank equally with measured ones, which is misleading.
-        expertScore = rawExpertScore * 0.8;
+        expertScore = rawExpertScore * SCORING_CONFIG.noSinadMultiplier;
         hasThinExpertData = true;
       } else {
         expertScore = rawExpertScore;
       }
 
-      // Calculate power compatibility for amps
+      // Calculate power compatibility for amps.
+      // `powerMatchKnown` distinguishes "verified adequate" from "we couldn't
+      // tell" — both used to collapse into a bare 0.5 that the UI presented as
+      // a real verdict.
       let powerAdequacy = 0.5;
-      if (component.category === "amp" && existingHeadphones) {
-        powerAdequacy = calculatePowerCompatibility(
+      let powerMatchKnown = false;
+      if ((component.category === "amp" || component.category === "dac_amp") && existingHeadphones) {
+        const compatibility = calculatePowerCompatibility(
           { ...component, avgPrice, synergyScore } as RecommendationComponent,
           existingHeadphones
         );
+        powerAdequacy = compatibility.score;
+        powerMatchKnown = compatibility.dataAvailable;
       }
 
       return {
@@ -721,6 +746,7 @@ export function filterAndScoreComponents(
         avgPrice,
         synergyScore,
         powerAdequacy,
+        powerMatchKnown,
         expert_grade_numeric: toneGradeNumeric,
         expertScore, // Add comprehensive expert score (0-10)
         hasThinExpertData, // Flag so UI can surface a "Limited data" chip
@@ -778,11 +804,14 @@ export function filterAndScoreComponents(
         (comp as unknown as { expertScore?: number }).expertScore ?? SCORING_CONFIG.expertDefault;
       const expertScore = expertScoreValue / 10; // Normalize 0-10 → 0-1
 
-      // 2. SOUND SIGNATURE MATCH — user's preference alignment
-      const signatureScore = comp.synergyScore || SCORING_CONFIG.signatureNeutralDefault; // 0-0.5 range
+      // 2. SOUND SIGNATURE MATCH — user's preference alignment (0-1)
+      // `??` not `||`: a genuine score of 0 is a real mismatch and must not be
+      // silently promoted to the neutral default.
+      const signatureScore = comp.synergyScore ?? SCORING_CONFIG.signatureNeutralDefault;
 
-      // Additive bonus when signature score clears the "good match" threshold
-      const signatureBonus = signatureScore > SCORING_CONFIG.bonuses.signatureMatchThreshold
+      // Additive bonus when signature score clears the "good match" threshold.
+      // `>=` so an exact match qualifies on its own.
+      const signatureBonus = signatureScore >= SCORING_CONFIG.bonuses.signatureMatchThreshold
         ? SCORING_CONFIG.bonuses.signatureMatch
         : 0;
 
@@ -806,7 +835,9 @@ export function filterAndScoreComponents(
 
       // 5. POWER ADEQUACY BONUS — amps only
       const powerBonus =
-        comp.category === "amp" ? (comp.powerAdequacy || 0.5) * SCORING_CONFIG.bonuses.powerAdequacyMax : 0;
+        comp.category === "amp" || comp.category === "dac_amp"
+          ? (comp.powerAdequacy ?? 0.5) * SCORING_CONFIG.bonuses.powerAdequacyMax
+          : 0;
 
       // 6. USED-MARKET LIQUIDITY BONUS — capped, low influence by design
       const liquidityBonus = Math.min(
@@ -983,7 +1014,12 @@ export async function GET(request: NextRequest) {
       soundSignatures: req.soundSignatures,
       headphoneType: req.headphoneType,
       wantRecommendationsFor: req.wantRecommendationsFor,
-      selectedItems: selectedItemsForCache.map(i => i.id),
+      // Must include category and price, not just id: `avgPrice` feeds
+      // effectiveBudget (and therefore every value/proximity score), and
+      // `category` decides which categories get skipped entirely. Keying on id
+      // alone let two requests with the same selections at different prices
+      // collide and serve each other's rankings.
+      selectedItems: selectedItemsForCache.map(i => `${i.id}:${i.category}:${i.avgPrice}`),
       // v3.3: include every input that affects scoring so different users
       // don't collide on the same cache entry (see cache-recommendations.ts)
       budgetRangeMin: req.budgetRangeMin,
@@ -1034,10 +1070,11 @@ export async function GET(request: NextRequest) {
       // Calculate budget allocation with smart redistribution
       // Use custom allocation if provided, otherwise use smart allocation
       let budgetAllocation: Record<string, number>;
-      const customRanges: Record<string, { min: number; max: number }> = {};
 
       if (customBudgetAllocation) {
-        // Extract amounts from custom allocation
+        // Extract amounts from custom allocation. Per-component rangeMin/rangeMax
+        // are accepted in the payload but not applied here — the shared
+        // req.budgetRange* still governs the fetch window.
         budgetAllocation = {};
         Object.entries(customBudgetAllocation).forEach(([component, data]) => {
           const allocationData = data as {
@@ -1046,16 +1083,6 @@ export async function GET(request: NextRequest) {
             rangeMax?: number;
           };
           budgetAllocation[component] = allocationData.amount;
-          // Store custom ranges if provided
-          if (
-            allocationData.rangeMin !== undefined ||
-            allocationData.rangeMax !== undefined
-          ) {
-            customRanges[component] = {
-              min: allocationData.rangeMin ?? req.budgetRangeMin,
-              max: allocationData.rangeMax ?? req.budgetRangeMax,
-            };
-          }
         });
       } else {
         // Use smart allocation with effective budget (remaining after selections)
@@ -1124,18 +1151,32 @@ export async function GET(request: NextRequest) {
           use_cases, impedance, needs_amp, is_tws,
           amazon_url, manufacturer_url, asr_review_url, image_url,
           why_recommended,
-          power_required_mw, voltage_required_v, amplification_difficulty,
+          power_required_mw, amplification_difficulty,
           sensitivity_db_mw, sensitivity_db_v,
-          power_output, power_output_mw_32, power_output_mw_300,
+          power_output,
           crin_rank, crin_tone, crin_tech, crin_value, crin_comments, crin_signature,
           driver_type, fit,
-          expert_grade_numeric, asr_sinad,
-          source, created_at, updated_at
+          expert_grade_numeric, asr_sinad
         `)
         .in("category", requestedCategories)
-        .order("price_used_min");
+        .order("price_used_min")
+        .limit(COMPONENT_FETCH_LIMIT);
 
       if (error) throw error;
+
+      // Budget filtering happens in JS because each category is scored against
+      // its own allocated budget, so there is no single price window to push
+      // into SQL. That makes the row cap load-bearing: PostgREST also applies
+      // its own default max-rows, and because the order is price ascending, a
+      // silent truncation would quietly bias the catalogue toward cheap items.
+      // Fail loudly instead of ranking a partial catalogue.
+      if (allComponentsData && allComponentsData.length >= COMPONENT_FETCH_LIMIT) {
+        console.error(
+          `[recommendations] Component fetch hit the ${COMPONENT_FETCH_LIMIT}-row cap for categories ` +
+          `[${requestedCategories.join(', ')}]. Results are truncated toward cheaper items — ` +
+          `raise COMPONENT_FETCH_LIMIT or add server-side price filtering.`
+        );
+      }
 
       // Fetch active used listings counts + latest price-trend row per component
       // in parallel (both use the same componentIds).
@@ -1148,18 +1189,16 @@ export async function GET(request: NextRequest) {
       const existingHeadphoneQuery = wantsAmpMatch
         ? supabaseServer
             .from("components")
-            .select("impedance, sensitivity, power_required_mw, voltage_required_v, name")
-            .ilike("name", `%${req.existingHeadphones}%`)
+            .select("impedance, sensitivity_db_mw, sensitivity_db_v, needs_amp, name")
+            .ilike("name", `%${escapeLikePattern(req.existingHeadphones!)}%`)
             .limit(1)
         : Promise.resolve({ data: null, error: null } as const);
 
       const [listingCountsResult, trendsResult, existingHeadphoneResult] = await Promise.all([
         supabaseServer.rpc('get_active_listing_counts', { component_ids: componentIds }),
-        supabaseServer
-          .from('price_trends')
-          .select('component_id, trend_direction, trend_percentage, confidence_score, discount_factor, period_start')
-          .in('component_id', componentIds)
-          .order('period_start', { ascending: false }),
+        // RPC returns exactly one (latest) row per component via DISTINCT ON,
+        // rather than every historical row for us to dedupe in JS.
+        supabaseServer.rpc('get_latest_price_trends', { component_ids: componentIds }),
         existingHeadphoneQuery,
       ]);
 
@@ -1169,6 +1208,12 @@ export async function GET(request: NextRequest) {
       if (trendsResult.error) {
         console.error('Error fetching trends:', trendsResult.error);
       }
+      // Previously unchecked — a schema drift here silently disabled amp power
+      // matching for months, because a failed query looks identical to "user
+      // named a headphone we don't stock".
+      if (existingHeadphoneResult.error) {
+        console.error('Error fetching existing headphone:', existingHeadphoneResult.error);
+      }
 
       // Build count map from aggregated results
       const countMap = new Map<string, number>();
@@ -1176,19 +1221,17 @@ export async function GET(request: NextRequest) {
         countMap.set(item.component_id, item.listing_count);
       });
 
-      // Latest trend row per component (trends are sorted desc by period_start,
-      // so the first row we see is the most recent).
+      // One latest row per component, already reduced by the RPC.
       type PriceTrendRow = {
         component_id: string;
         trend_direction: string | null;
         trend_percentage: number | null;
         confidence_score: string | null;
-        discount_factor: number | null;
         period_start: string | null;
       };
       const trendMap = new Map<string, PriceTrendRow>();
       (trendsResult.data as PriceTrendRow[] | null)?.forEach((row) => {
-        if (!trendMap.has(row.component_id)) trendMap.set(row.component_id, row);
+        trendMap.set(row.component_id, row);
       });
 
       // Transform data to add used listings count + trend info
@@ -1222,7 +1265,11 @@ export async function GET(request: NextRequest) {
 
         // Process cans and IEMs: ALWAYS separate, never combine
         if (req.wantRecommendationsFor.headphones) {
-          const headphoneBudget = budgetAllocation.headphones || req.budget;
+          // `??` not `||`: allocateBudgetAcrossComponents sets an allocation to
+          // a deliberate 0 when a category has no in-budget options and its
+          // budget was redistributed elsewhere. `||` treated that 0 as "missing"
+          // and silently re-inflated it, undoing the redistribution.
+          const headphoneBudget = budgetAllocation.headphones ?? req.budget;
 
           // Check if user wants both types or just one specific type
           const wantsBoth = req.headphoneType === "both";
@@ -1278,7 +1325,7 @@ export async function GET(request: NextRequest) {
           req.wantRecommendationsFor.dac &&
           componentsByCategory.dacs.length > 0
         ) {
-          const dacBudget = budgetAllocation.dac || req.budget * 0.25;
+          const dacBudget = budgetAllocation.dac ?? req.budget * 0.25;
 
           results.dacs = filterAndScoreComponents(
             componentsByCategory.dacs,
@@ -1299,7 +1346,7 @@ export async function GET(request: NextRequest) {
           req.wantRecommendationsFor.amp &&
           componentsByCategory.amps.length > 0
         ) {
-          const ampBudget = budgetAllocation.amp || req.budget * 0.25;
+          const ampBudget = budgetAllocation.amp ?? req.budget * 0.25;
 
           results.amps = filterAndScoreComponents(
             componentsByCategory.amps,
@@ -1320,7 +1367,7 @@ export async function GET(request: NextRequest) {
           req.wantRecommendationsFor.combo &&
           componentsByCategory.combos.length > 0
         ) {
-          const comboBudget = budgetAllocation.combo || req.budget * 0.4;
+          const comboBudget = budgetAllocation.combo ?? req.budget * 0.4;
 
           results.combos = filterAndScoreComponents(
             componentsByCategory.combos,
@@ -1348,7 +1395,7 @@ export async function GET(request: NextRequest) {
     const hasPersonalization =
       (req.existingHeadphones && req.existingHeadphones !== '') ||
       (req.optimizeAroundHeadphones && req.optimizeAroundHeadphones !== '') ||
-      (req.existingGear && Object.keys(req.existingGear).length > 0) ||
+      hasExistingGear(req.existingGear) ||
       customBudgetAllocation !== null ||
       selectedItemsForCache.length > 0;
 

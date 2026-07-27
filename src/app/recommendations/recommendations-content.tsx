@@ -201,6 +201,10 @@ export function RecommendationsContent() {
 
   // Simple debouncing for API calls - debounce budget only
   const debouncedBudget = useDebounce(userPrefs.budget, 300)
+  // Range sliders emit continuously while dragging — debounce so a drag fires
+  // one request, not dozens (each also paired a /api/filters/counts call).
+  const debouncedBudgetRangeMin = useDebounce(userPrefs.budgetRangeMin, 300)
+  const debouncedBudgetRangeMax = useDebounce(userPrefs.budgetRangeMax, 300)
 
   // Track selected items for background re-fetch (debounced to avoid spam)
   const [selectedItemsForApi, setSelectedItemsForApi] = useState<Array<{ id: string; category: string; avgPrice: number }>>([])
@@ -371,8 +375,8 @@ export function RecommendationsContent() {
       // Build URL parameters for recommendations API
       const params = new URLSearchParams({
         budget: debouncedBudget.toString(), // Debounced for API performance
-        budgetRangeMin: userPrefs.budgetRangeMin.toString(),
-        budgetRangeMax: userPrefs.budgetRangeMax.toString(),
+        budgetRangeMin: debouncedBudgetRangeMin.toString(),
+        budgetRangeMax: debouncedBudgetRangeMax.toString(),
         headphoneType: headphoneType, // Use local state instead of URL state to avoid race condition
         wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
         existingGear: JSON.stringify(userPrefs.existingGear),
@@ -428,8 +432,8 @@ export function RecommendationsContent() {
             allocation[component as keyof BudgetAllocation] = {
               amount,
               percentage: (amount / totalBudget) * 100,
-              rangeMin: userPrefs.budgetRangeMin,
-              rangeMax: userPrefs.budgetRangeMax
+              rangeMin: debouncedBudgetRangeMin,
+              rangeMax: debouncedBudgetRangeMax
             }
           }
         })
@@ -477,8 +481,8 @@ export function RecommendationsContent() {
     debouncedBudget,
     debouncedCustomBudgetAllocation,
     debouncedSelectedItems,
-    userPrefs.budgetRangeMin,
-    userPrefs.budgetRangeMax,
+    debouncedBudgetRangeMin,
+    debouncedBudgetRangeMax,
     userPrefs.usage,
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
@@ -495,8 +499,8 @@ export function RecommendationsContent() {
 
       const params = new URLSearchParams({
         budget: debouncedBudget.toString(),
-        rangeMin: userPrefs.budgetRangeMin.toString(),
-        rangeMax: userPrefs.budgetRangeMax.toString(),
+        rangeMin: debouncedBudgetRangeMin.toString(),
+        rangeMax: debouncedBudgetRangeMax.toString(),
         headphoneType: userPrefs.headphoneType,
         equipment: activeEquipment.join(','),
         soundSignatures: soundFiltersKey,
@@ -527,8 +531,8 @@ export function RecommendationsContent() {
   }, [
     debouncedBudget,
     debouncedCustomBudgetAllocation,
-    userPrefs.budgetRangeMin,
-    userPrefs.budgetRangeMax,
+    debouncedBudgetRangeMin,
+    debouncedBudgetRangeMax,
     userPrefs.headphoneType,
     userPrefs.usage,
     typeFiltersKey,

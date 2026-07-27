@@ -38,6 +38,8 @@ export interface UserGearItem {
     sound_signature?: string
     use_cases?: string[]
     impedance?: number
+    sensitivity_db_mw?: number | null
+    sensitivity_db_v?: number | null
     needs_amp?: boolean
     amazon_url?: string
     why_recommended?: string

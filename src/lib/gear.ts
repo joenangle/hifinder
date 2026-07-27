@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
 import { supabaseServer } from './supabase-server'
+import { needsAmplification } from './audio-calculations'
+import { AMP_CATEGORIES, DAC_CATEGORIES, isCategoryIn } from './component-categories'
 import type { UserGearItem, GearSuggestion } from '@/types/gear'
 
 export type { UserGearItem, GearSuggestion } from '@/types/gear'
@@ -21,6 +23,8 @@ export async function getUserGear(userId: string): Promise<UserGearItem[]> {
         sound_signature,
         use_cases,
         impedance,
+        sensitivity_db_mw,
+        sensitivity_db_v,
         needs_amp,
         amazon_url,
         why_recommended,
@@ -47,22 +51,19 @@ export async function getUpgradeSuggestions(
 
   const suggestions: GearSuggestion[] = []
 
-  const hasAmp = gear.some(
-    item => item.components?.category === 'amps' || item.components?.category === 'combo'
-  )
-  const hasDAC = gear.some(
-    item => item.components?.category === 'dacs' || item.components?.category === 'combo'
-  )
+  const hasAmp = gear.some(item => isCategoryIn(item.components?.category, AMP_CATEGORIES))
+  const hasDAC = gear.some(item => isCategoryIn(item.components?.category, DAC_CATEGORIES))
 
-  // 1. missing_amp — high-impedance headphones without an amp
-  const highImpedanceHeadphones = gear.filter(
-    item => item.components?.impedance && item.components.impedance > 80
+  // 1. missing_amp — headphones that want power, with nothing to supply it.
+  // Shared threshold with the stack builder and stack compatibility checks.
+  const underpoweredHeadphones = gear.filter(
+    item => item.components && needsAmplification(item.components)
   )
-  if (highImpedanceHeadphones.length > 0 && !hasAmp) {
+  if (underpoweredHeadphones.length > 0 && !hasAmp) {
     const { data: amps } = await supabaseServer
       .from('components')
       .select('id, brand, name, category, price_new, price_used_min, price_used_max')
-      .in('category', ['amps', 'combo'])
+      .in('category', [...AMP_CATEGORIES])
       .order('crin_rank', { ascending: true, nullsFirst: false })
       .limit(3)
 
@@ -79,7 +80,7 @@ export async function getUpgradeSuggestions(
     const { data: dacs } = await supabaseServer
       .from('components')
       .select('id, brand, name, category, price_new, price_used_min, price_used_max')
-      .in('category', ['dacs', 'combo'])
+      .in('category', [...DAC_CATEGORIES])
       .order('crin_rank', { ascending: true, nullsFirst: false })
       .limit(3)
 

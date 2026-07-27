@@ -9,7 +9,10 @@ import { trackEvent } from '@/lib/analytics'
 import {
   parsePowerSpec,
   calculatePowerAtImpedance,
-  estimatePowerFromImpedance
+  calculatePowerRequirements,
+  estimatePowerFromImpedance,
+  resolveSensitivityDbMw,
+  needsAmplification
 } from '@/lib/audio-calculations'
 
 interface StackBuilderModalProps {
@@ -119,8 +122,11 @@ export function StackBuilderModal({
 
       if (!impedance) return
 
-      // Get power requirements for this headphone
-      const powerReq = estimatePowerFromImpedance(impedance)
+      // Prefer measured sensitivity; fall back to the impedance estimate.
+      const sensitivity = resolveSensitivityDbMw(hp)
+      const powerReq = sensitivity != null
+        ? calculatePowerRequirements(impedance, sensitivity)
+        : estimatePowerFromImpedance(impedance)
       const powerNeeded = powerReq?.powerNeeded_mW || 50
       const difficulty = powerReq?.difficulty || 'moderate'
 
@@ -133,7 +139,7 @@ export function StackBuilderModal({
             message: `${hp.name} (${impedance}Ω) requires amplification - needs ~${Math.round(powerNeeded)}mW`,
             components: [hp.name]
           })
-        } else if (impedance > 80) {
+        } else if (needsAmplification(hp)) {
           newWarnings.push({
             type: 'power',
             severity: 'warning',
@@ -146,22 +152,25 @@ export function StackBuilderModal({
         allAmps.forEach(amp => {
           const ampComponent = amp as Component & { power_output?: string }
           const parsedSpec = parsePowerSpec(ampComponent.power_output)
-          let powerAtHeadphoneZ: number
 
-          if (parsedSpec) {
-            powerAtHeadphoneZ = calculatePowerAtImpedance(
-              parsedSpec.power_mW,
-              parsedSpec.reference_impedance,
-              impedance
-            )
-          } else {
-            // Estimate based on price tier
-            const avgPrice = ((amp.price_used_min || 0) + (amp.price_used_max || 0)) / 2
-            if (avgPrice > 500) powerAtHeadphoneZ = 1000
-            else if (avgPrice > 300) powerAtHeadphoneZ = 500
-            else if (avgPrice > 150) powerAtHeadphoneZ = 250
-            else powerAtHeadphoneZ = 100
+          // No published power spec means we genuinely don't know. Say so,
+          // rather than guessing from price — a $600 tube amp and a $600 solid
+          // state amp have nothing in common power-wise.
+          if (!parsedSpec) {
+            newWarnings.push({
+              type: 'power',
+              severity: 'info' as CompatibilityWarning['severity'],
+              message: `No published power output for ${amp.name} - can't verify it drives ${hp.name} (needs ~${Math.round(powerNeeded)}mW at ${impedance}Ω)`,
+              components: [amp.name, hp.name]
+            })
+            return
           }
+
+          const powerAtHeadphoneZ = calculatePowerAtImpedance(
+            parsedSpec.power_mW,
+            parsedSpec.reference_impedance,
+            impedance
+          )
 
           const powerRatio = powerAtHeadphoneZ / powerNeeded
 

@@ -113,12 +113,21 @@ describe('calculateExpertScore', () => {
     expect(calculateExpertScore(chu)).toBeCloseTo(7.6, 2)
   })
 
-  it('uses defaults for missing fields (all default to C/0)', () => {
+  it('uses a neutral C-equivalent default for every missing field', () => {
     const empty: ScoringComponent = {}
     // rank: 5.0*0.3 = 1.5, tone: 5.0*0.3 = 1.5, tech: 5.0*0.2 = 1.0
-    // value: 0*0.2 = 0
-    // total: 4.0
-    expect(calculateExpertScore(empty)).toBe(4.0)
+    // value: missing → 1.5 of 3 → 5.0, *0.2 = 1.0
+    // total: 5.0
+    expect(calculateExpertScore(empty)).toBe(5.0)
+  })
+
+  it('treats a missing crin_value as neutral, not as the worst rating', () => {
+    // Absent data must not be scored as "value 0". Uncertainty is discounted
+    // once, by calculateExpertConfidence — baking it into the raw score too
+    // double-penalised the ~20% of the catalogue with no Crinacle grades.
+    const missing: ScoringComponent = { crin_rank: 'A', crin_tone: 'A', crin_tech: 'A' }
+    const worst: ScoringComponent = { crin_rank: 'A', crin_tone: 'A', crin_tech: 'A', crin_value: 0 }
+    expect(calculateExpertScore(missing)).toBeGreaterThan(calculateExpertScore(worst))
   })
 
   it('handles partial data gracefully', () => {
@@ -129,9 +138,9 @@ describe('calculateExpertScore', () => {
       crin_value: null,
     }
     // rank: 8.5*0.3 = 2.55, tone: 5.0*0.3 (default) = 1.5, tech: 5.0*0.2 = 1.0
-    // value: 0*0.2 = 0
-    // total: 5.05
-    expect(calculateExpertScore(partial)).toBeCloseTo(5.05, 2)
+    // value: missing → neutral 5.0, *0.2 = 1.0
+    // total: 6.05
+    expect(calculateExpertScore(partial)).toBeCloseTo(6.05, 2)
   })
 
   it('perfect score: S+/S+/S+ value 3 = 10.0', () => {

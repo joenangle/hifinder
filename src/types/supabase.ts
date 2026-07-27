@@ -1842,6 +1842,16 @@ export type Database = {
           listing_count: number
         }[]
       }
+      get_latest_price_trends: {
+        Args: { component_ids: string[] }
+        Returns: {
+          component_id: string
+          trend_direction: string | null
+          trend_percentage: number | null
+          confidence_score: string | null
+          period_start: string | null
+        }[]
+      }
       get_unique_brands: {
         Args: never
         Returns: {
