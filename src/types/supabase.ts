@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       accounts: {
@@ -1846,10 +1821,10 @@ export type Database = {
         Args: { component_ids: string[] }
         Returns: {
           component_id: string
-          trend_direction: string | null
-          trend_percentage: number | null
-          confidence_score: string | null
-          period_start: string | null
+          confidence_score: string
+          period_start: string
+          trend_direction: string
+          trend_percentage: number
         }[]
       }
       get_unique_brands: {
@@ -1986,9 +1961,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

@@ -50,7 +50,7 @@
     "capture:screenshots": "node scripts/capture-screenshots.js",
     "// Database scripts": "",
     "db": "node scripts/run-sql.js",
-    "db:types": "supabase gen types --linked --lang=typescript > src/types/supabase.ts",
+    "db:types": "supabase gen types --project-id dqvuvieggqltkznluvol --lang=typescript > src/types/supabase.ts",
     "prepare": "husky"
   },
   "dependencies": {
