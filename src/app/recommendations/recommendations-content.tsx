@@ -52,6 +52,8 @@ interface AudioComponent extends Component {
   priceFitScore?: number
   compatibilityScore?: number
   powerAdequacy?: number
+  powerMatchKnown?: boolean
+  powerMatchEstimated?: boolean
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown';
     explanation: string;
@@ -79,6 +81,19 @@ export function RecommendationsContent() {
   const [dacs, setDacs] = useState<AudioComponent[]>([])
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
+  // System-level synergy: the top recommended headphone paired with the amp/combo
+  // that drives it best (set by the API only in the co-recommendation case).
+  const [recommendedPairing, setRecommendedPairing] = useState<{
+    headphone: { id: string; name: string }
+    amp: {
+      id: string
+      name: string
+      category: string
+      powerAdequacy: number | null
+      powerMatchKnown: boolean
+      powerMatchEstimated: boolean
+    } | null
+  } | null>(null)
   const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
   const [customBudgetAllocation, setCustomBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const [autoBudgetAllocation, setAutoBudgetAllocation] = useState<BudgetAllocation | null>(null)
@@ -421,6 +436,7 @@ export function RecommendationsContent() {
       setAmps(prev => recommendations.amps?.length > 0 || !skippedCategories.has('amp') ? (recommendations.amps || []) : prev)
       setDacAmps(prev => recommendations.combos?.length > 0 || !skippedCategories.has('combo') ? (recommendations.combos || []) : prev)
       setShowAmplification(recommendations.needsAmplification || false)
+      setRecommendedPairing(recommendations.recommendedPairing ?? null)
 
       // Store server's automatic allocation for display (but don't auto-use it)
       if (recommendations.budgetAllocation) {
@@ -1528,10 +1544,15 @@ export function RecommendationsContent() {
                         isSelected={selectedAmps.has(amp.id)}
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
-  
+
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
+                        pairsWithHeadphone={
+                          recommendedPairing?.amp?.powerMatchKnown && recommendedPairing.amp.id === amp.id
+                            ? recommendedPairing.headphone.name
+                            : null
+                        }
                       />
                       )
                     })}
@@ -1586,10 +1607,15 @@ export function RecommendationsContent() {
                         isSelected={selectedDacAmps.has(combo.id)}
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
-  
+
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
+                        pairsWithHeadphone={
+                          recommendedPairing?.amp?.powerMatchKnown && recommendedPairing.amp.id === combo.id
+                            ? recommendedPairing.headphone.name
+                            : null
+                        }
                       />
                       )
                     })}
