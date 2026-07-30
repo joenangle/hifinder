@@ -3,7 +3,9 @@ import { supabaseServer } from "@/lib/supabase-server";
 import {
   assessAmplificationFromImpedance,
   calculateAmpAdequacy,
+  resolveUserHeadphone,
   type AmplificationTarget,
+  type HeadphoneCandidate,
 } from "@/lib/audio-calculations";
 import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
@@ -17,18 +19,23 @@ import { getCached, generateCacheKey } from "@/lib/cache-recommendations";
 // Route handles dynamic query params; caching is managed by getCached() in cache-recommendations.ts
 // (5-min TTL, busted via revalidateTag('recommendations') on admin changes)
 
-// V3.4 scoring weights, bonuses, and thresholds. CLAUDE.md mirrors these —
+// V3.5 scoring weights, bonuses, and thresholds. CLAUDE.md mirrors these —
 // keep the two in sync when tuning.
 //
 // All four weighted terms are on a true 0–1 scale, so each weight is the real
 // share of the final score. (Through v3.3 the signature term was capped at 0.5,
 // making its effective weight 12.5% rather than the stated 25%.)
+//
+// v3.5 treats budget as a CEILING: the `value` term now rewards efficiency
+// (cheaper = better) and `proximity` no longer penalizes being under budget.
+// Through v3.4 both terms rewarded spending near the top of the budget, so
+// their 0.20 combined weight biased results toward max-spend.
 export const SCORING_CONFIG = {
   weights: {
     expert: 0.55,
     signature: 0.25,
-    value: 0.10,
-    proximity: 0.10,
+    value: 0.10,     // value-for-money (efficiency); see term #3 in scoring
+    proximity: 0.10, // budget-ceiling; see term #4 in scoring
   },
   bonuses: {
     // An exact signature match (0.7) clears this on its own — the threshold
@@ -44,7 +51,9 @@ export const SCORING_CONFIG = {
   },
   proximitySigma: 0.15,
   valueFloor: 0.5,
-  overBudgetPenaltyMultiplier: 2,
+  /** Slope of the value-for-money term: valueScore = max(valueFloor, 1 − slope·price/budget).
+   *  0.5 puts a full-budget pick at the floor (0.5) and a free one at 1.0. */
+  valueEfficiencySlope: 0.5,
   signatureNeutralDefault: 0.5,
   expertDefault: 5.0,
   /** Discount applied to headphones with no expert grades at all. */
@@ -104,6 +113,9 @@ interface RecommendationComponent {
   powerAdequacy?: number;
   /** False when powerAdequacy is a neutral placeholder rather than a real verdict. */
   powerMatchKnown?: boolean;
+  /** True when the pairing was unverifiable *because* headphone sensitivity was
+   * only an impedance estimate (vs. no data at all). Lets the UI say so. */
+  powerMatchEstimated?: boolean;
   amplificationAssessment?: {
     difficulty:
       | "easy"
@@ -610,9 +622,38 @@ function escapeLikePattern(value: string): string {
 function calculatePowerCompatibility(
   amp: RecommendationComponent,
   headphones: AmplificationTarget
-): { score: number; dataAvailable: boolean } {
-  const { score, dataAvailable } = calculateAmpAdequacy(amp.power_output, headphones);
-  return { score, dataAvailable };
+): { score: number; dataAvailable: boolean; sensitivityEstimated: boolean } {
+  const { score, dataAvailable, sensitivityEstimated } = calculateAmpAdequacy(
+    amp.power_output,
+    headphones
+  );
+  return { score, dataAvailable, sensitivityEstimated };
+}
+
+/**
+ * Extract an amp-matching target from a scored headphone result.
+ *
+ * Used for system-level synergy: when the user isn't optimising around an owned
+ * headphone, amps are matched against the *top recommended* headphone — the pair
+ * we'd actually suggest — rather than scored blind. The scored component carries
+ * the sensitivity columns at runtime even though the interface doesn't declare
+ * them (see the main component `select`), so we widen the type here.
+ */
+function headphoneToAmpTarget(
+  headphone: RecommendationComponent | undefined
+): (AmplificationTarget & { name?: string }) | undefined {
+  if (!headphone) return undefined;
+  const h = headphone as RecommendationComponent & {
+    sensitivity_db_mw?: number | null;
+    sensitivity_db_v?: number | null;
+  };
+  return {
+    impedance: h.impedance ?? null,
+    sensitivity_db_mw: h.sensitivity_db_mw ?? null,
+    sensitivity_db_v: h.sensitivity_db_v ?? null,
+    needs_amp: h.needs_amp ?? null,
+    name: h.name,
+  };
 }
 
 // V3: Filter and score with performance-first prioritization
@@ -732,6 +773,7 @@ export function filterAndScoreComponents(
       // a real verdict.
       let powerAdequacy = 0.5;
       let powerMatchKnown = false;
+      let powerMatchEstimated = false;
       if ((component.category === "amp" || component.category === "dac_amp") && existingHeadphones) {
         const compatibility = calculatePowerCompatibility(
           { ...component, avgPrice, synergyScore } as RecommendationComponent,
@@ -739,6 +781,7 @@ export function filterAndScoreComponents(
         );
         powerAdequacy = compatibility.score;
         powerMatchKnown = compatibility.dataAvailable;
+        powerMatchEstimated = compatibility.sensitivityEstimated;
       }
 
       return {
@@ -747,6 +790,7 @@ export function filterAndScoreComponents(
         synergyScore,
         powerAdequacy,
         powerMatchKnown,
+        powerMatchEstimated,
         expert_grade_numeric: toneGradeNumeric,
         expertScore, // Add comprehensive expert score (0-10)
         hasThinExpertData, // Flag so UI can surface a "Limited data" chip
@@ -795,9 +839,9 @@ export function filterAndScoreComponents(
       return isInRange && hasReasonableRange;
     })
     .map((comp) => {
-      // V3.3 SCORING ALGORITHM
-      // Priority order: Performance (55%) > Sound Signature (25%) > Value (10%) > Budget Proximity (10%)
-      // Additive signature bonus: +5pts when signature matches well (>0.35)
+      // V3.5 SCORING ALGORITHM
+      // Priority order: Performance (55%) > Sound Signature (25%) > Value-for-money (10%) > Budget ceiling (10%)
+      // Additive signature bonus: +0.05 when signature score ≥ 0.70 (exact match)
 
       // 1. EXPERT PERFORMANCE SCORE — uses Crinacle rank/tone/tech/value or ASR
       const expertScoreValue =
@@ -815,23 +859,27 @@ export function filterAndScoreComponents(
         ? SCORING_CONFIG.bonuses.signatureMatch
         : 0;
 
-      // 3. VALUE-FOR-MONEY SCORE — reward under-budget items at same tier
-      let valueScore = 0;
+      // 3. VALUE-FOR-MONEY SCORE — reward efficiency (more gear per dollar).
+      // Budget is a CEILING, not a target: a cheaper pick at the same quality is
+      // BETTER value, so this *decreases* with price, from 1.0 (free) down to
+      // `valueFloor` at budget and below. Through v3.4 this rewarded spending
+      // *more* (`max(0.5, price/budget)`) which — stacked on the proximity term
+      // below — biased results toward the top of the budget. Higher `valueScore`
+      // now means a genuine giant-killer, which is what the "value" chip wants.
       const priceRatio = comp.avgPrice / budget;
+      const valueScore = Math.max(
+        SCORING_CONFIG.valueFloor,
+        1 - priceRatio * SCORING_CONFIG.valueEfficiencySlope
+      );
 
-      if (comp.avgPrice <= budget) {
-        // Under budget: linear scale from valueFloor to 1.0
-        valueScore = Math.max(SCORING_CONFIG.valueFloor, priceRatio);
-      } else {
-        // Over budget: steep penalty (should already be filtered out upstream)
-        const overageRatio = (comp.avgPrice - budget) / budget;
-        valueScore = Math.max(0, 1 - overageRatio * SCORING_CONFIG.overBudgetPenaltyMultiplier);
-      }
-
-      // 4. BUDGET PROXIMITY SCORE — Gaussian centered on budget
-      const budgetDist = Math.abs(comp.avgPrice - budget) / budget;
+      // 4. BUDGET-CEILING SCORE — full credit at or under budget; one-sided
+      // Gaussian penalty only *above* it. Through v3.4 this was a two-sided
+      // Gaussian centered on budget, so a strong pick at 60% of budget was
+      // penalized as hard as one 40% over — the core "spend it all" bias. Being
+      // under the ceiling is not a fault.
+      const overBudgetDist = Math.max(0, (comp.avgPrice - budget) / budget);
       const sigma = SCORING_CONFIG.proximitySigma;
-      const proximityScore = Math.exp(-budgetDist * budgetDist / (2 * sigma * sigma));
+      const proximityScore = Math.exp(-overBudgetDist * overBudgetDist / (2 * sigma * sigma));
 
       // 5. POWER ADEQUACY BONUS — amps only
       const powerBonus =
@@ -1103,6 +1151,20 @@ export async function GET(request: NextRequest) {
         combos: RecommendationComponent[];
         budgetAllocation: Record<string, number>;
         needsAmplification: boolean;
+        // System-level synergy: the top recommended headphone paired with the
+        // recommended amp/combo that drives it best. Only set in the
+        // co-recommendation case (headphone + amp, no owned headphone).
+        recommendedPairing?: {
+          headphone: { id: string; name: string };
+          amp: {
+            id: string;
+            name: string;
+            category: string;
+            powerAdequacy: number | null;
+            powerMatchKnown: boolean;
+            powerMatchEstimated: boolean;
+          } | null;
+        };
       } = {
         cans: [],
         iems: [],
@@ -1186,12 +1248,15 @@ export async function GET(request: NextRequest) {
       // recommendations and named a specific pair — no dependency on the main
       // component fetch, so it joins the batch instead of being a 3rd round-trip.
       const wantsAmpMatch = !!(req.wantRecommendationsFor.amp && req.existingHeadphones);
+      // Fetch every substring match (not `.limit(1)`), then disambiguate in JS
+      // via resolveUserHeadphone — a bare `%name%` limit-1 could grab the wrong
+      // impedance variant (DT 990 32Ω vs 600Ω), silently poisoning the pairing.
       const existingHeadphoneQuery = wantsAmpMatch
         ? supabaseServer
             .from("components")
             .select("impedance, sensitivity_db_mw, sensitivity_db_v, needs_amp, name")
             .ilike("name", `%${escapeLikePattern(req.existingHeadphones!)}%`)
-            .limit(1)
+            .limit(25)
         : Promise.resolve({ data: null, error: null } as const);
 
       const [listingCountsResult, trendsResult, existingHeadphoneResult] = await Promise.all([
@@ -1246,8 +1311,24 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      // Resolved earlier in parallel with listings + trends; just unwrap here.
-      const existingHeadphonesData = existingHeadphoneResult.data?.[0] || null;
+      // Resolved earlier in parallel with listings + trends. Disambiguate the
+      // substring matches to a single variant; when variants disagree on
+      // impedance we decline to score the pairing rather than guess.
+      const headphoneResolution =
+        wantsAmpMatch && existingHeadphoneResult.data
+          ? resolveUserHeadphone(
+              req.existingHeadphones!,
+              existingHeadphoneResult.data as HeadphoneCandidate[]
+            )
+          : ({ status: "not_found" } as const);
+      if (headphoneResolution.status === "ambiguous") {
+        console.warn(
+          `Ambiguous existing-headphone match for "${req.existingHeadphones}": ` +
+            `${headphoneResolution.candidates.length} variants differ in impedance — skipping power matching.`
+        );
+      }
+      const existingHeadphonesData =
+        headphoneResolution.status === "matched" ? headphoneResolution.headphone : null;
 
       if (transformedComponents) {
         const componentsByCategory = {
@@ -1341,6 +1422,14 @@ export async function GET(request: NextRequest) {
           );
         }
 
+        // System-level synergy: score amps/combos against the headphone we'd
+        // actually recommend (top-ranked cans, else IEMs) when the user hasn't
+        // named an owned headphone — instead of the old flat neutral 0.5. Cans
+        // are tried first since they're the ones that tend to need amplification.
+        const ampMatchTarget =
+          existingHeadphonesData ??
+          headphoneToAmpTarget(results.cans[0] ?? results.iems[0]);
+
         // Process AMPs with power matching
         if (
           req.wantRecommendationsFor.amp &&
@@ -1355,7 +1444,7 @@ export async function GET(request: NextRequest) {
             req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
-            existingHeadphonesData || undefined,
+            ampMatchTarget,
             req.budget,
             req.budgetRangeMin, // V3: Pass user range parameters
             req.budgetRangeMax
@@ -1376,11 +1465,40 @@ export async function GET(request: NextRequest) {
             req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
-            undefined,
+            ampMatchTarget, // combos amplify too — match them to the pairing headphone
             req.budget,
             req.budgetRangeMin, // V3: Pass user range parameters
             req.budgetRangeMax
           );
+        }
+
+        // Best-pairing hint for the co-recommendation case (headphone + amp/combo
+        // and no owned headphone). When the user owns a headphone, amps are
+        // already matched against it individually, so no synthetic pairing.
+        if (!existingHeadphonesData) {
+          const pairingHeadphone = results.cans[0] ?? results.iems[0];
+          const drivers = [...results.amps, ...results.combos];
+          if (pairingHeadphone && drivers.length > 0) {
+            // Prefer a verified pairing; fall back to the best unverified one but
+            // let its powerMatchKnown flag say so rather than assert confidence.
+            const verified = drivers.filter((d) => d.powerMatchKnown);
+            const best = (verified.length ? verified : drivers)
+              .slice()
+              .sort((a, b) => (b.powerAdequacy ?? 0) - (a.powerAdequacy ?? 0))[0];
+            results.recommendedPairing = {
+              headphone: { id: pairingHeadphone.id, name: pairingHeadphone.name },
+              amp: best
+                ? {
+                    id: best.id,
+                    name: best.name,
+                    category: best.category,
+                    powerAdequacy: best.powerAdequacy ?? null,
+                    powerMatchKnown: best.powerMatchKnown ?? false,
+                    powerMatchEstimated: best.powerMatchEstimated ?? false,
+                  }
+                : null,
+            };
+          }
         }
       }
 

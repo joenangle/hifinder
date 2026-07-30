@@ -178,9 +178,42 @@ export function sensitivityDbVToDbMw(
   return sensitivity_dB_V - 10 * Math.log10(impedance / 1000);
 }
 
+/** Where a resolved sensitivity came from, worst-to-best confidence. */
+export type SensitivitySource = 'measured' | 'converted' | 'estimated';
+
 /**
- * Best available sensitivity in dB/mW for a component, in preference order:
+ * Best available sensitivity in dB/mW plus its provenance, in preference order:
  * measured dB/mW → converted dB/V → impedance-based estimate.
+ *
+ * Callers that make a precise power *verdict* (e.g. amp adequacy) must treat
+ * `source: 'estimated'` as unverified — an impedance ladder is a ballpark, not
+ * a measurement. Callers answering a coarse yes/no ("does this want an amp?")
+ * can use the estimate freely.
+ *
+ * @returns null when there is no impedance and no measured sensitivity.
+ */
+export function resolveSensitivityWithSource(component: {
+  sensitivity_db_mw?: number | null;
+  sensitivity_db_v?: number | null;
+  impedance?: number | null;
+}): { value: number; source: SensitivitySource } | null {
+  if (component.sensitivity_db_mw != null) {
+    return { value: component.sensitivity_db_mw, source: 'measured' };
+  }
+
+  const converted = sensitivityDbVToDbMw(component.sensitivity_db_v, component.impedance);
+  if (converted != null) return { value: converted, source: 'converted' };
+
+  if (component.impedance) {
+    return { value: estimateSensitivityFromImpedance(component.impedance), source: 'estimated' };
+  }
+
+  return null;
+}
+
+/**
+ * Best available sensitivity in dB/mW, discarding provenance. Preserved for
+ * callers that only need the number (`needsAmplification`, StackBuilderModal).
  *
  * @returns null when there is no impedance and no measured sensitivity.
  */
@@ -189,14 +222,7 @@ export function resolveSensitivityDbMw(component: {
   sensitivity_db_v?: number | null;
   impedance?: number | null;
 }): number | null {
-  if (component.sensitivity_db_mw != null) return component.sensitivity_db_mw;
-
-  const converted = sensitivityDbVToDbMw(component.sensitivity_db_v, component.impedance);
-  if (converted != null) return converted;
-
-  if (component.impedance) return estimateSensitivityFromImpedance(component.impedance);
-
-  return null;
+  return resolveSensitivityWithSource(component)?.value ?? null;
 }
 
 /** A headphone/IEM as far as amplification is concerned. */
@@ -246,18 +272,29 @@ export function needsAmplification(component: AmplificationTarget): boolean {
 export function calculateAmpAdequacy(
   ampPowerSpec: string | null | undefined,
   headphone: AmplificationTarget
-): { score: number; dataAvailable: boolean; headroomRatio: number | null } {
-  const UNKNOWN = { score: 0.5, dataAvailable: false, headroomRatio: null };
+): { score: number; dataAvailable: boolean; headroomRatio: number | null; sensitivityEstimated: boolean } {
+  const UNKNOWN = { score: 0.5, dataAvailable: false, headroomRatio: null, sensitivityEstimated: false };
 
   if (!headphone.impedance) return UNKNOWN;
 
-  const sensitivity = resolveSensitivityDbMw(headphone);
+  const sensitivity = resolveSensitivityWithSource(headphone);
   if (sensitivity == null) return UNKNOWN;
 
   const ampSpec = parsePowerSpec(ampPowerSpec);
   if (!ampSpec) return UNKNOWN;
 
-  const required_mW = calculatePowerRequirements(headphone.impedance, sensitivity).powerNeeded_mW;
+  // Both sides are present, so we *could* compute a verdict — but if the
+  // headphone's sensitivity is only an impedance-derived estimate, that verdict
+  // rests on a guess. Report it as unknown (like the other data-gap cases) and
+  // flag WHY, so `powerMatchKnown` stays honest and the UI can distinguish
+  // "sensitivity estimated" from "no data at all". Previously any headphone
+  // with an impedance but no measured sensitivity returned a confident-looking
+  // score with dataAvailable: true.
+  if (sensitivity.source === 'estimated') {
+    return { ...UNKNOWN, sensitivityEstimated: true };
+  }
+
+  const required_mW = calculatePowerRequirements(headphone.impedance, sensitivity.value).powerNeeded_mW;
   if (required_mW <= 0) return UNKNOWN;
 
   const available_mW = calculatePowerAtImpedance(
@@ -274,7 +311,7 @@ export function calculateAmpAdequacy(
   else if (headroomRatio >= 0.7) score = 0.5;  // marginal
   else score = 0.2;                            // insufficient
 
-  return { score, dataAvailable: true, headroomRatio };
+  return { score, dataAvailable: true, headroomRatio, sensitivityEstimated: false };
 }
 
 export function assessAmplificationFromImpedance(
@@ -431,6 +468,69 @@ export function calculatePowerAtImpedance(
  */
 export function estimatePowerFromImpedance(impedance: number): PowerRequirements | null {
   if (!impedance) return null;
-  
+
   return calculatePowerRequirements(impedance, estimateSensitivityFromImpedance(impedance));
+}
+
+// ─── User-headphone identity resolution ─────────────────────────────────────
+
+/** A catalogue row as far as amp-pairing identity resolution needs it. */
+export interface HeadphoneCandidate {
+  name: string;
+  impedance?: number | null;
+  sensitivity_db_mw?: number | null;
+  sensitivity_db_v?: number | null;
+  needs_amp?: boolean | null;
+}
+
+export type HeadphoneResolution =
+  | { status: 'matched'; headphone: HeadphoneCandidate }
+  | { status: 'ambiguous'; candidates: HeadphoneCandidate[] }
+  | { status: 'not_found' };
+
+/** Lowercase, collapse internal whitespace, trim — for name comparison. */
+function normalizeName(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Resolve a user-typed headphone name to a single catalogue row.
+ *
+ * Replaces a `.ilike('%name%').limit(1)` that returned an arbitrary substring
+ * match with no ordering. Because impedance drives the entire power
+ * calculation, silently grabbing the wrong variant (e.g. Beyerdynamic DT 990 in
+ * 32Ω vs 250Ω vs 600Ω) produced a confident but wrong adequacy verdict.
+ *
+ * Precedence: exact name → startsWith → contains. Within the tightest
+ * non-empty tier, if the candidates disagree on impedance we return
+ * `ambiguous` rather than guess — the caller then declines to score the pairing
+ * instead of inventing one. When impedance agrees (or only one candidate
+ * exists), we pick the row with the most trustworthy sensitivity data, since
+ * every such row yields the same power verdict.
+ */
+export function resolveUserHeadphone(
+  query: string,
+  candidates: HeadphoneCandidate[]
+): HeadphoneResolution {
+  const q = normalizeName(query ?? '');
+  if (!q || candidates.length === 0) return { status: 'not_found' };
+
+  const exact = candidates.filter((c) => normalizeName(c.name) === q);
+  const starts = candidates.filter((c) => normalizeName(c.name).startsWith(q));
+  const contains = candidates.filter((c) => normalizeName(c.name).includes(q));
+
+  const tier = exact.length ? exact : starts.length ? starts : contains;
+  if (tier.length === 0) return { status: 'not_found' };
+
+  const distinctImpedances = new Set(
+    tier.map((c) => c.impedance).filter((z): z is number => typeof z === 'number')
+  );
+  if (distinctImpedances.size > 1) return { status: 'ambiguous', candidates: tier };
+
+  const best =
+    tier.find((c) => c.sensitivity_db_mw != null) ??
+    tier.find((c) => c.sensitivity_db_v != null) ??
+    tier[0];
+
+  return { status: 'matched', headphone: best };
 }
