@@ -9,6 +9,10 @@ import {
 } from "@/lib/audio-calculations";
 import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
+  resolveAmplificationStrategy,
+  type AmplificationStrategy,
+} from "@/lib/amplification-strategy";
+import {
   calculateExpertScore,
   calculateExpertConfidence,
   sinadToScore,
@@ -1143,6 +1147,52 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // Low-budget amplification: a portable dac_amp combo does the job of a
+      // separate DAC + amp when the amplification sub-budget is dongle-sized.
+      // Resolve once from the computed allocation; the *effective* wants below
+      // drive both the category fetch and the results assembly so they can't
+      // disagree. Skipped for custom allocations — a power user who hand-set
+      // amp/dac amounts gets exactly those.
+      const amplificationStrategy: AmplificationStrategy = customBudgetAllocation
+        ? { mode: "separate" }
+        : resolveAmplificationStrategy({
+            wants: req.wantRecommendationsFor,
+            ampAllocation: budgetAllocation.amp ?? 0,
+            dacAllocation: budgetAllocation.dac ?? 0,
+          });
+
+      const effectiveWants = { ...req.wantRecommendationsFor };
+      if (
+        amplificationStrategy.mode === "combo" &&
+        amplificationStrategy.reason === "budget"
+      ) {
+        effectiveWants.amp = false;
+        effectiveWants.dac = false;
+        effectiveWants.combo = true;
+
+        // Re-allocate against the effective wants so the combo receives a real
+        // proportional amplification budget. Summing the amp/dac slots here
+        // would starve it: when the desktop amp/dac window is empty — the exact
+        // low-budget case that triggers this route — the allocator has already
+        // redistributed those slots to $0. Allocating with combo as a
+        // first-class component splits the budget against the well-populated
+        // dac_amp category instead (reusing the shared allocator, not new math).
+        const effectiveRequested = Object.entries(effectiveWants)
+          .filter(([, wanted]) => wanted)
+          .map(([component]) => component);
+        const effectiveToFetch =
+          selectedItems.length > 0
+            ? effectiveRequested.filter((c) => !categoriesWithSelections.has(c))
+            : effectiveRequested;
+        budgetAllocation = await allocateBudgetAcrossComponents(
+          selectedItems.length > 0 ? Math.max(effectiveBudget, 20) : req.budget,
+          effectiveToFetch,
+          req.existingGear,
+          req.budgetRangeMin,
+          req.budgetRangeMax
+        );
+      }
+
       const results: {
         cans: RecommendationComponent[];
         iems: RecommendationComponent[];
@@ -1150,6 +1200,7 @@ export async function GET(request: NextRequest) {
         amps: RecommendationComponent[];
         combos: RecommendationComponent[];
         budgetAllocation: Record<string, number>;
+        amplificationStrategy: AmplificationStrategy;
         needsAmplification: boolean;
         // System-level synergy: the top recommended headphone paired with the
         // recommended amp/combo that drives it best. Only set in the
@@ -1172,13 +1223,14 @@ export async function GET(request: NextRequest) {
         amps: [],
         combos: [],
         budgetAllocation,
+        amplificationStrategy,
         needsAmplification: false,
       };
 
       // Build query for all components (skip categories with existing selections)
       const requestedCategories: string[] = [];
 
-      if (req.wantRecommendationsFor.headphones && !categoriesWithSelections.has("headphones")) {
+      if (effectiveWants.headphones && !categoriesWithSelections.has("headphones")) {
         if (req.headphoneType === "cans") {
           requestedCategories.push("cans");
         } else if (req.headphoneType === "iems") {
@@ -1188,15 +1240,15 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      if (req.wantRecommendationsFor.dac && !categoriesWithSelections.has("dac")) {
+      if (effectiveWants.dac && !categoriesWithSelections.has("dac")) {
         requestedCategories.push("dac");
       }
 
-      if (req.wantRecommendationsFor.amp && !categoriesWithSelections.has("amp")) {
+      if (effectiveWants.amp && !categoriesWithSelections.has("amp")) {
         requestedCategories.push("amp");
       }
 
-      if (req.wantRecommendationsFor.combo && !categoriesWithSelections.has("combo")) {
+      if (effectiveWants.combo && !categoriesWithSelections.has("combo")) {
         requestedCategories.push("dac_amp");
       }
 
@@ -1247,7 +1299,7 @@ export async function GET(request: NextRequest) {
       // Existing-headphones lookup runs in parallel when the user wants amp
       // recommendations and named a specific pair — no dependency on the main
       // component fetch, so it joins the batch instead of being a 3rd round-trip.
-      const wantsAmpMatch = !!(req.wantRecommendationsFor.amp && req.existingHeadphones);
+      const wantsAmpMatch = !!((effectiveWants.amp || effectiveWants.combo) && req.existingHeadphones);
       // Fetch every substring match (not `.limit(1)`), then disambiguate in JS
       // via resolveUserHeadphone — a bare `%name%` limit-1 could grab the wrong
       // impedance variant (DT 990 32Ω vs 600Ω), silently poisoning the pairing.
@@ -1345,7 +1397,7 @@ export async function GET(request: NextRequest) {
 
 
         // Process cans and IEMs: ALWAYS separate, never combine
-        if (req.wantRecommendationsFor.headphones) {
+        if (effectiveWants.headphones) {
           // `??` not `||`: allocateBudgetAcrossComponents sets an allocation to
           // a deliberate 0 when a category has no in-budget options and its
           // budget was redistributed elsewhere. `||` treated that 0 as "missing"
@@ -1403,7 +1455,7 @@ export async function GET(request: NextRequest) {
 
         // Process DACs
         if (
-          req.wantRecommendationsFor.dac &&
+          effectiveWants.dac &&
           componentsByCategory.dacs.length > 0
         ) {
           const dacBudget = budgetAllocation.dac ?? req.budget * 0.25;
@@ -1432,7 +1484,7 @@ export async function GET(request: NextRequest) {
 
         // Process AMPs with power matching
         if (
-          req.wantRecommendationsFor.amp &&
+          effectiveWants.amp &&
           componentsByCategory.amps.length > 0
         ) {
           const ampBudget = budgetAllocation.amp ?? req.budget * 0.25;
@@ -1453,7 +1505,7 @@ export async function GET(request: NextRequest) {
 
         // Process combo units
         if (
-          req.wantRecommendationsFor.combo &&
+          effectiveWants.combo &&
           componentsByCategory.combos.length > 0
         ) {
           const comboBudget = budgetAllocation.combo ?? req.budget * 0.4;
