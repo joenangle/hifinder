@@ -59,6 +59,32 @@ Category strings come from `src/lib/component-categories.ts` (`AMP_CATEGORIES`,
 `cans | iems | dac | amp | dac_amp | cable`; legacy plural spellings silently
 matched nothing before this module existed.
 
+### Low-Budget Amplification Routing (portable combos)
+
+**Source of truth:** `resolveAmplificationStrategy` in
+`src/lib/amplification-strategy.ts` — a pure resolver, unit-tested. When the
+amplification sub-budget (`amp` + `dac` allocation) is at or under
+`PORTABLE_COMBO_CEILING` (**$150**, named/exported/tunable), a `want=amp`/`dac`
+request resolves to a single portable `dac_amp` combo instead of the empty
+desktop-amp "No amplifiers in range" dead-end (the desktop `amp` category starts
+at $64 / median $389, so its sub-$64 window is empty; all budget-fi
+amplification lives in `dac_amp`). Returns `{ mode: 'separate' }` or
+`{ mode: 'combo', reason: 'explicit' | 'budget' }`.
+
+The v2 route ([route.ts](src/app/api/recommendations/v2/route.ts)) resolves the
+strategy once from the finalized `budgetAllocation`, derives **effective wants**
+(combo replaces amp/dac) that drive both the category fetch and the results
+assembly, and returns `amplificationStrategy` on the response. **Gotcha:** when
+routing to a combo the route *re-allocates* against the effective wants — it does
+NOT sum the amp/dac slots, because the allocator has already redistributed the
+empty desktop-amp slot to $0, which would starve the combo too. Skipped for
+`customBudgetAllocation` (power users get exactly what they set). No
+`wantRecommendationsFor` schema change — the collapse is server-side; the client
+re-gates the amp/dac/combo sections and shows an explanatory note off the
+returned `amplificationStrategy` (`recommendations-content.tsx`,
+`FiltersSection.tsx`). Scoring/weights untouched — `npm run eval:reco --baseline`
+stays flat.
+
 ## Tech Stack
 - Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS v4
 - Supabase (database + auth), Framer Motion, Recharts, Lucide icons
