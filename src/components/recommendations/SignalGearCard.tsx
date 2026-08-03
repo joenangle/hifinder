@@ -164,7 +164,7 @@ const SignalGearCardComponent = ({
                 alt={`${component.brand} ${component.name}`}
                 width={160}
                 height={160}
-                className="w-full h-full object-contain p-1 rounded-md"
+                className="w-full h-full object-contain p-1 rounded-lg"
               />
             ) : (
               <Icon className="w-5 h-5 text-tertiary" />

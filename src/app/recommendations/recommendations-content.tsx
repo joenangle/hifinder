@@ -95,6 +95,11 @@ export function RecommendationsContent() {
     } | null
   } | null>(null)
   const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
+  // How the API chose to satisfy amplification: 'combo'/'budget' means it
+  // collapsed a low amp/dac sub-budget into a single portable dac_amp combo.
+  const [amplificationStrategy, setAmplificationStrategy] = useState<
+    { mode: 'separate' | 'combo'; reason?: 'explicit' | 'budget' } | null
+  >(null)
   const [customBudgetAllocation, setCustomBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const [autoBudgetAllocation, setAutoBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const debouncedCustomBudgetAllocation = useDebounce(customBudgetAllocation, 300)
@@ -437,6 +442,7 @@ export function RecommendationsContent() {
       setDacAmps(prev => recommendations.combos?.length > 0 || !skippedCategories.has('combo') ? (recommendations.combos || []) : prev)
       setShowAmplification(recommendations.needsAmplification || false)
       setRecommendedPairing(recommendations.recommendedPairing ?? null)
+      setAmplificationStrategy(recommendations.amplificationStrategy ?? null)
 
       // Store server's automatic allocation for display (but don't auto-use it)
       if (recommendations.budgetAllocation) {
@@ -829,6 +835,12 @@ export function RecommendationsContent() {
   const filteredDacs = dacs
   const filteredAmps = amps
   const filteredDacAmps = dacAmps
+
+  // API collapsed a low amplification budget into a single portable combo, so
+  // the amp/dac sections would be empty dead-ends — show the combo section
+  // instead and suppress them.
+  const routedToCombo =
+    amplificationStrategy?.mode === 'combo' && amplificationStrategy?.reason === 'budget'
 
   // Update selectedItemsForApi when selections change — triggers API re-fetch with smart budget reallocation
   useEffect(() => {
@@ -1463,7 +1475,7 @@ export function RecommendationsContent() {
             return (
               <SignalGearWrapper {...wrapperProps}>
                 {/* DACs Section — hide empty fallback when stack is already complete */}
-                  {wantRecommendationsFor.dac && (!isStackComplete || filteredDacs.length > 0) && (
+                  {wantRecommendationsFor.dac && !routedToCombo && (!isStackComplete || filteredDacs.length > 0) && (
                     <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(45 212 191)' }}>
                       {filteredDacs.length > 0 ? (
                         <>
@@ -1521,7 +1533,7 @@ export function RecommendationsContent() {
                 )}
 
           {/* Amps Section */}
-          {wantRecommendationsFor.amp && (!isStackComplete || filteredAmps.length > 0) && (
+          {wantRecommendationsFor.amp && !routedToCombo && (!isStackComplete || filteredAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
                 {filteredAmps.length > 0 ? (
                   <>
@@ -1584,10 +1596,15 @@ export function RecommendationsContent() {
           )}
 
           {/* Combo Units Section — hide empty fallback when stack is already complete */}
-          {wantRecommendationsFor.combo && (!isStackComplete || filteredDacAmps.length > 0) && (
+          {(wantRecommendationsFor.combo || routedToCombo) && (!isStackComplete || filteredDacAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(96 165 250)' }}>
                 {filteredDacAmps.length > 0 ? (
                   <>
+                    {routedToCombo && (
+                      <div className="px-4 py-2 text-xs text-tertiary border-b bg-surface-secondary/50">
+                        At this budget, a portable combo does the job of a separate DAC and amp.
+                      </div>
+                    )}
                     <div className="px-4 py-3 border-b flex items-center justify-between">
                       <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                         DAC/Amp Combos
