@@ -1230,6 +1230,7 @@ export function RecommendationsContent() {
             onBudgetAllocationChange={handleBudgetAllocationChange}
             budgetRangeMin={userPrefs.budgetRangeMin}
             budgetRangeMax={userPrefs.budgetRangeMax}
+            amplificationReason={amplificationStrategy?.reason ?? null}
           />
         </div>
        )}

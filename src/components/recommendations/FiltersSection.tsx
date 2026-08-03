@@ -49,6 +49,9 @@ interface FiltersSectionProps {
   onBudgetAllocationChange?: (allocation: BudgetAllocation) => void
   budgetRangeMin?: number
   budgetRangeMax?: number
+  /** How the API resolved amplification on the most recent response. 'budget'
+   *  means it collapsed the amp/DAC picks into one portable combo. */
+  amplificationReason?: 'explicit' | 'budget' | null
 }
 
 const Pill = ({
@@ -131,7 +134,8 @@ const FiltersSectionComponent = ({
   autoBudgetAllocation,
   onBudgetAllocationChange,
   budgetRangeMin = 20,
-  budgetRangeMax = 10
+  budgetRangeMax = 10,
+  amplificationReason = null
 }: FiltersSectionProps) => {
   const totalResults =
     (resultCounts?.cans || 0) +
@@ -254,6 +258,14 @@ const FiltersSectionComponent = ({
           )}
         </div>
       </div>
+
+      {/* Low-budget amplification collapses the amp/DAC picks into a single
+          portable combo server-side — explain it right where those chips live. */}
+      {amplificationReason === 'budget' && (wantRecommendationsFor.amp || wantRecommendationsFor.dac) && (
+        <p className="mt-3 text-xs text-tertiary">
+          At this budget, a portable combo does the job of a separate DAC and amp — see the combos below.
+        </p>
+      )}
 
       {/* Budget allocation — below the filter row if active (stage 2 only) */}
       {stage >= 2 && totalBudget && onBudgetAllocationChange && (
