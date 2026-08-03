@@ -107,9 +107,17 @@ describe('calculateBudgetRange for signal gear', () => {
     expect(range.max).toBe(220) // 200 * 1.1 = 220
   })
 
-  it('uses 30% lower min for higher-end signal gear (>$250)', () => {
+  it('keeps a low $20 floor for higher-end signal gear so cheap giant-killers survive', () => {
+    // budget is a ceiling, not a target: a ~$119 combo that measures like $300
+    // units must remain a candidate even at a $500 budget rather than being
+    // filtered out for being "too cheap". The scorer's value term decides on merit.
     const range = calculateBudgetRange(500, undefined, undefined, true)
-    expect(range.min).toBe(350) // max(20, round(500*0.7)) = 350
+    expect(range.min).toBe(20)
+  })
+
+  it('admits sub-$150 signal gear even at a high ($1000) budget', () => {
+    const range = calculateBudgetRange(1000, undefined, undefined, true)
+    expect(range.min).toBeLessThanOrEqual(120) // e.g. a ~$119 DX1 II stays in range
   })
 
   it('higher-end signal gear min is at least $20', () => {

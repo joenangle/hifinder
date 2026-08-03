@@ -87,6 +87,9 @@ async function getSoldListingsByMonth(monthsBack) {
     .from('used_listings')
     .select('component_id, price, date_sold, source')
     .eq('status', 'sold')
+    // Exclude price-flagged/rejected rows — a corrupt price must not skew trends.
+    .not('requires_manual_review', 'is', true)
+    .not('price_is_reasonable', 'is', false)
     .not('date_sold', 'is', null)
     .gte('date_sold', startDate.toISOString())
     .order('date_sold', { ascending: true });
@@ -109,7 +112,10 @@ async function getActiveListingsByComponent() {
   const { data, error } = await supabase
     .from('used_listings')
     .select('component_id, price')
-    .eq('status', 'available');
+    .eq('status', 'available')
+    // Exclude price-flagged/rejected rows — a corrupt price must not skew trends.
+    .not('requires_manual_review', 'is', true)
+    .not('price_is_reasonable', 'is', false);
 
   if (error) {
     console.error('❌ Error fetching active listings:', error);

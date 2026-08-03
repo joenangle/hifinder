@@ -12,7 +12,12 @@
  * one earned its match score.
  */
 
+import { isCategoryIn, HEADPHONE_CATEGORIES } from './component-categories'
+
 export interface ReasonChipInput {
+  /** Component category — gates category-specific chips (e.g. the signature
+   *  chip is only meaningful for headphones/IEMs, not transparent signal gear). */
+  category?: string
   matchScore?: number
   expertScoreDisplay?: number
   signatureScoreDisplay?: number
@@ -75,19 +80,33 @@ export function deriveReasonChips(
     })
   }
 
-  // 2. Value pick — well under budget AND scoring at least decently.
-  //    Requires both (just cheap isn't interesting; cheap + good is).
-  if ((comp.valueScore ?? 0) >= 85 && (comp.expertScoreDisplay ?? 0) >= 60) {
+  // 2. Value pick — a genuine giant-killer: standout performance for the price.
+  //    Fires on EITHER a deep budget discount at decent quality (the original
+  //    "well under budget" rule), OR top-tier performance at a moderate discount
+  //    (performance-per-dollar). The second clause is essential for cheap-but-
+  //    excellent gear — e.g. a $119 combo measuring like $300 units — which
+  //    ranks #1 yet whose valueScore can never reach 85: being far enough under
+  //    budget to score that high also drops it out of the budget-range filter,
+  //    so the discount-only rule structurally missed exactly the giant-killers
+  //    this chip exists to celebrate.
+  const perf = comp.expertScoreDisplay ?? 0
+  const value = comp.valueScore ?? 0
+  if ((value >= 85 && perf >= 60) || (perf >= 75 && value >= 65)) {
     chips.push({
       label: 'Strong value',
-      tooltip: 'Well under budget for this performance tier',
+      tooltip: 'Standout performance for the price',
       tone: 'value',
     })
   }
 
-  // 3. Signature match — only worth surfacing if clearly aligned.
-  //    sigScore is 0-50 range in the scoring code; >= 40 ≈ strong match.
-  if ((comp.signatureScoreDisplay ?? 0) >= 40) {
+  // 3. Signature match — only meaningful for headphones/IEMs. A transparent DAC/
+  //    amp should not claim to "match your sound" (the rare warm tube amp is an
+  //    acceptable edge case); before this gate every signal-gear card showed it,
+  //    because electronics carry a neutral 0.5 signature score (display 50).
+  if (
+    isCategoryIn(comp.category, HEADPHONE_CATEGORIES) &&
+    (comp.signatureScoreDisplay ?? 0) >= 40
+  ) {
     chips.push({
       label: 'Matches your sound',
       tooltip: 'Sound signature aligns with your preferences',

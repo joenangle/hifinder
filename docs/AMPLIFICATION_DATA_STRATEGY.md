@@ -1,18 +1,33 @@
 # Amplification Data Collection & Matching Strategy
 
-## Current State Analysis (Oct 9, 2025)
+## Current State Analysis (updated 2026-07-26)
 
-### Data Coverage Gaps
+### Data Coverage (live counts)
 
-| Component Type | Total | With Data | Coverage | Issue |
-|---------------|-------|-----------|----------|-------|
-| **Headphones/IEMs** | 400+ | 3% | ❌ Critical | Missing impedance/sensitivity |
-| **Amps/DACs** | 50+ | 20% | ⚠️ Partial | Missing power output specs |
+| Category | Total | Impedance | Sensitivity (dB/mW) | Power spec |
+|----------|-------|-----------|---------------------|-----------|
+| **cans** | 167 | 130 (78%) | 120 (72%) | — |
+| **iems** | 376 | 99 (26%) | 83 (22%) | — |
+| **amp** | 58 | — | — | 43 (74%) |
+| **dac_amp** | 56 | — | — | 40 (71%) |
+| **dac** | 54 | — | — | n/a |
+
+The earlier "3% / 90% unknown" figures were stale. Over-ear headphone coverage is
+now good (78% impedance, 72% sensitivity); IEMs remain the real gap (~1 in 4). The
+recommender uses measured `sensitivity_db_mw` when present, converts `sensitivity_db_v`
+when only that exists, and falls back to an impedance estimate otherwise
+(`resolveSensitivityDbMw` in `src/lib/audio-calculations.ts`).
+
+Amp power is parsed from the freeform `power_output` string via `parsePowerSpec`.
+The structured `power_output_mw_32` / `power_output_mw_300` columns remain **0%
+populated** and are no longer selected — either backfill them and add a read path,
+or drop the columns. When an amp has no usable power spec, matching reports
+`dataAvailable: false` rather than guessing.
 
 ### Result
-- **90% of headphones** show "unknown" amplification difficulty
-- **Cannot match amps to headphones** accurately
-- **Cannot predict volume levels** at all
+- Over-ear amp matching now works on real data for most of the catalogue
+- IEM impedance/sensitivity is the priority remaining gap
+- DAC/amp power specs cover ~72% of signal gear
 
 ---
 

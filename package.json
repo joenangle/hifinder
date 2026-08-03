@@ -48,9 +48,11 @@
     "analyze:prices:full": "node scripts/analyze-price-trends.js --months=12",
     "// Screenshot capture": "",
     "capture:screenshots": "node scripts/capture-screenshots.js",
+    "// Evaluation scripts": "",
+    "eval:reco": "tsx scripts/eval-recommendations.ts",
     "// Database scripts": "",
     "db": "node scripts/run-sql.js",
-    "db:types": "supabase gen types --linked --lang=typescript > src/types/supabase.ts",
+    "db:types": "supabase gen types --project-id dqvuvieggqltkznluvol --lang=typescript > src/types/supabase.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -91,6 +93,7 @@
     "msw": "^2.12.10",
     "playwright": "^1.58.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.0.18"
   }

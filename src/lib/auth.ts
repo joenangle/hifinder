@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { NextAuthOptions, Session } from 'next-auth'
 import { getServerSession } from 'next-auth/next'
 import GoogleProvider from 'next-auth/providers/google'
@@ -155,10 +156,19 @@ export const authOptions: NextAuthOptions = {
 }
 
 /**
+ * Request-scoped session lookup. React `cache()` dedupes all calls within a
+ * single server render (e.g. layout + page both need the session on "/"), so
+ * the JWT is verified once per request instead of once per call site.
+ */
+export const getCachedServerSession = cache(
+  () => getServerSession(authOptions) as Promise<Session | null>
+)
+
+/**
  * Server-side admin check. Returns the session if the user is admin, null otherwise.
  */
 export async function requireAdmin(): Promise<AdminSession | null> {
-  const session = await getServerSession(authOptions) as AdminSession | null
+  const session = await getCachedServerSession() as AdminSession | null
   if (!session?.isAdmin) return null
   return session
 }

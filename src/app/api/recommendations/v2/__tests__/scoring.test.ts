@@ -3,7 +3,47 @@ import {
   SCORING_CONFIG,
   calculateSynergyScore,
   filterAndScoreComponents,
+  hasExistingGear,
 } from '../route'
+
+const emptyGear = {
+  headphones: false,
+  dac: false,
+  amp: false,
+  combo: false,
+  specificModels: { headphones: '', dac: '', amp: '', combo: '' },
+}
+
+describe('hasExistingGear', () => {
+  it('is false for a fully-empty gear object (the always-sent default)', () => {
+    // The client always sends a populated object, so Object.keys().length was
+    // always truthy — which made every request look personalized and blocked
+    // CDN caching entirely.
+    expect(hasExistingGear(emptyGear)).toBe(false)
+  })
+
+  it('is false for undefined', () => {
+    expect(hasExistingGear(undefined)).toBe(false)
+  })
+
+  it('is true when a category flag is set', () => {
+    expect(hasExistingGear({ ...emptyGear, amp: true })).toBe(true)
+  })
+
+  it('is true when a specific model is named', () => {
+    expect(hasExistingGear({
+      ...emptyGear,
+      specificModels: { ...emptyGear.specificModels, headphones: 'HD 600' },
+    })).toBe(true)
+  })
+
+  it('ignores whitespace-only specific models', () => {
+    expect(hasExistingGear({
+      ...emptyGear,
+      specificModels: { ...emptyGear.specificModels, dac: '   ' },
+    })).toBe(false)
+  })
+})
 
 // Builds a component shaped like what the route fetches from Supabase.
 // Defaults give a "scoreable" item that passes price-range and reasonable-spread filters.
@@ -84,12 +124,49 @@ describe('filterAndScoreComponents — final-score composition', () => {
     // Total bonuses on this fixture: signatureBonus only, since liquidity=0,
     // trend=null, and category=iems (no power bonus).
     const signatureBonus =
-      (scored.signatureScoreDisplay / 100) > SCORING_CONFIG.bonuses.signatureMatchThreshold
+      (scored.signatureScoreDisplay / 100) >= SCORING_CONFIG.bonuses.signatureMatchThreshold
         ? SCORING_CONFIG.bonuses.signatureMatch * 100
         : 0
 
     // matchScore is Math.round(min(1, raw) * 100), so within ±1 of computed
     expect(Math.abs(scored.matchScore - (expected + signatureBonus))).toBeLessThanOrEqual(2)
+  })
+
+  it('displays a perfect signature match as 100, not 50', () => {
+    // The signature axis used to be capped at 0.5 while carrying a 0.25 weight,
+    // so its real influence was 12.5% and a perfect match showed as "50".
+    const [scored] = filterAndScoreComponents(
+      [makeComponent({ sound_signature: 'neutral', crin_signature: 'Neutral' })],
+      100,
+      ['neutral'],
+      'music',
+      10
+    )
+    expect(scored.signatureScoreDisplay).toBe(100)
+  })
+
+  it('awards the signature bonus for an exact match with no detailed signature', () => {
+    const [scored] = filterAndScoreComponents(
+      [makeComponent({ sound_signature: 'neutral', crin_signature: null })],
+      100,
+      ['neutral'],
+      'music',
+      10
+    )
+    expect(scored.signatureScoreDisplay / 100).toBeGreaterThanOrEqual(
+      SCORING_CONFIG.bonuses.signatureMatchThreshold
+    )
+  })
+
+  it('scores compatible signatures symmetrically', () => {
+    const score = (userSig: string, compSig: string) =>
+      calculateSynergyScore({ sound_signature: compSig }, [userSig])
+
+    // warm↔neutral was 0.20 one way and 0.08 the other, purely because only
+    // one direction was enumerated in the compatibility list.
+    expect(score('warm', 'neutral')).toBe(score('neutral', 'warm'))
+    expect(score('dark', 'warm')).toBe(score('warm', 'dark'))
+    expect(score('fun', 'v-shaped')).toBe(score('v-shaped', 'fun'))
   })
 })
 

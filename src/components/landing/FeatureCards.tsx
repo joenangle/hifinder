@@ -7,6 +7,7 @@ import { useSession, signIn } from 'next-auth/react'
 import { trackEvent } from '@/lib/analytics'
 import { ArrowRight, SlidersHorizontal, ShoppingBag, Layers, BookOpen, Mail, Check, ChevronDown } from 'lucide-react'
 import { EmailCaptureForm } from './EmailCaptureForm'
+import { useResolvedTheme } from '@/hooks/useResolvedTheme'
 
 // Previews captured via `npm run capture:screenshots`.
 // Stack Builder requires auth — `stacks.webp` is a signed-in dark-mode capture
@@ -77,6 +78,12 @@ const STACK_BUILDER_BULLETS = [
 ]
 
 function PreviewImage({ light, dark, alt }: { light: string; dark: string; alt: string }) {
+  const theme = useResolvedTheme()
+  // Render only the active theme's screenshot (default to light pre-mount for
+  // stable SSR markup) instead of rendering both and hiding one with CSS, which
+  // downloaded both variants. These previews sit below the fold, so next/image's
+  // default lazy loading + the swap-after-mount carry no LCP cost.
+  const src = theme === 'dark' ? dark : light
   const wrapperStyle = {
     borderRadius: 8,
     border: '1px solid var(--border-subtle)',
@@ -84,28 +91,20 @@ function PreviewImage({ light, dark, alt }: { light: string; dark: string; alt: 
   }
   const imageStyle = { objectFit: 'cover' as const, objectPosition: 'top' as const, display: 'block' }
   return (
-    <>
-      <div className="mt-4 overflow-hidden theme-light-only" style={wrapperStyle}>
-        <Image
-          src={light}
-          alt={alt}
-          width={1280}
-          height={800}
-          className="w-full h-auto"
-          style={imageStyle}
-        />
-      </div>
-      <div className="mt-4 overflow-hidden theme-dark-only" style={wrapperStyle}>
-        <Image
-          src={dark}
-          alt={alt}
-          width={1280}
-          height={800}
-          className="w-full h-auto"
-          style={imageStyle}
-        />
-      </div>
-    </>
+    <div className="mt-4 overflow-hidden" style={wrapperStyle}>
+      <Image
+        src={src}
+        alt={alt}
+        width={1280}
+        height={800}
+        // Each card renders at ~470-500px on desktop (lg:grid-cols-2 in an
+        // 1100px container) and full-width on mobile — so cap the candidate
+        // well below the previous w=1920 default (sizes was unset → 100vw).
+        sizes="(max-width: 1023px) 90vw, 500px"
+        className="w-full h-auto"
+        style={imageStyle}
+      />
+    </div>
   )
 }
 

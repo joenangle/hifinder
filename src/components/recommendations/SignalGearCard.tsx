@@ -46,8 +46,12 @@ interface AudioComponent {
   thd_n?: number
   crin_comments?: string
   driver_type?: string | null
-  powerMatchScore?: number
-  powerMatchExplanation?: string
+  // Amp-pairing verdict from the recommendations API (route.ts). powerAdequacy
+  // is only meaningful when powerMatchKnown is true; powerMatchEstimated marks
+  // the case where the headphone's sensitivity was only estimated from impedance.
+  powerAdequacy?: number
+  powerMatchKnown?: boolean
+  powerMatchEstimated?: boolean
 }
 
 interface SignalGearCardProps {
@@ -58,6 +62,9 @@ interface SignalGearCardProps {
   onViewDetails?: (id: string) => void
   expandAllExperts?: boolean
   isFirstCardHint?: boolean
+  /** Set to the headphone name when this card is the recommended amp/combo
+   *  pairing for it — surfaces a verified "pairs with …" badge. */
+  pairsWithHeadphone?: string | null
 }
 
 const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
@@ -75,7 +82,8 @@ const SignalGearCardComponent = ({
   type,
   onViewDetails,
   expandAllExperts = false,
-  isFirstCardHint = false
+  isFirstCardHint = false,
+  pairsWithHeadphone = null
 }: SignalGearCardProps) => {
   const inputs = component.input_types
     ? (Array.isArray(component.input_types) ? component.input_types : [component.input_types])
@@ -84,7 +92,20 @@ const SignalGearCardComponent = ({
     ? (Array.isArray(component.output_types) ? component.output_types : [component.output_types])
     : []
 
-  const powerMatch = component.powerMatchScore
+  // Power-pairing verdict. Only assert one when the match is VERIFIED against a
+  // known-sensitivity headphone; an estimated-sensitivity pairing gets a muted
+  // "estimated" note instead of a confident verdict; no data shows nothing.
+  const pa = component.powerAdequacy ?? 0
+  const showPowerVerdict = component.powerMatchKnown === true && component.powerAdequacy != null
+  const showPowerEstimated = component.powerMatchKnown !== true && component.powerMatchEstimated === true
+  const powerVerdictLabel =
+    pa >= 0.9 ? 'Excellent pairing' :
+    pa >= 0.7 ? 'Good pairing' :
+    pa >= 0.45 ? 'Adequate' : 'May struggle'
+  const powerVerdictColor =
+    pa >= 0.7 ? 'text-emerald-600 dark:text-emerald-400' :
+    pa >= 0.45 ? 'text-amber-600 dark:text-amber-400' :
+    'text-red-600 dark:text-red-400'
   const hasMeasurements = component.asr_sinad || component.power_output_mw || component.power_output || component.thd_n
   const reasonChips = deriveReasonChips(component)
 
@@ -143,7 +164,7 @@ const SignalGearCardComponent = ({
                 alt={`${component.brand} ${component.name}`}
                 width={160}
                 height={160}
-                className="w-full h-full object-contain p-1 rounded-md"
+                className="w-full h-full object-contain p-1 rounded-lg"
               />
             ) : (
               <Icon className="w-5 h-5 text-tertiary" />
@@ -180,7 +201,7 @@ const SignalGearCardComponent = ({
           </div>
 
           {/* Row 2: Measurements + compatibility */}
-          {(hasMeasurements || powerMatch !== undefined) && (
+          {(hasMeasurements || showPowerVerdict || showPowerEstimated || pairsWithHeadphone) && (
             <div className="flex flex-wrap items-center gap-2 mt-0.5 text-sm">
               {component.asr_sinad && (
                 <span className="text-secondary tabular-nums">
@@ -195,13 +216,25 @@ const SignalGearCardComponent = ({
                   <span className="font-semibold text-primary">{component.power_output || `${component.power_output_mw}mW`}</span>
                 </span>
               )}
-              {powerMatch !== undefined && (
-                <span className={`text-xs font-medium ${
-                  powerMatch >= 0.9 ? 'text-emerald-600 dark:text-emerald-400' :
-                  powerMatch >= 0.6 ? 'text-amber-600 dark:text-amber-400' :
-                  'text-red-600 dark:text-red-400'
-                }`}>
-                  {powerMatch >= 0.9 ? 'Excellent pairing' : powerMatch >= 0.6 ? 'Adequate' : 'May struggle'}
+              {showPowerVerdict && (
+                <span className={`text-xs font-medium ${powerVerdictColor}`}>
+                  {powerVerdictLabel}
+                </span>
+              )}
+              {showPowerEstimated && (
+                <span
+                  className="text-xs font-medium text-tertiary"
+                  title="Headphone sensitivity was estimated from impedance, so this pairing couldn't be verified."
+                >
+                  Pairing est.
+                </span>
+              )}
+              {pairsWithHeadphone && (
+                <span
+                  className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-accent/30 text-accent bg-accent/5"
+                  title={`Best power match for the recommended ${pairsWithHeadphone}`}
+                >
+                  ★ Pairs with {pairsWithHeadphone}
                 </span>
               )}
             </div>

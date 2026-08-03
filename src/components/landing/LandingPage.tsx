@@ -6,7 +6,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 import { BrowserFrame } from './BrowserFrame'
 import { TrackableLink } from './TrackableLink'
 import { FeatureCards } from './FeatureCards'
-import { FloatingBar } from './FloatingBar'
+import { FloatingBarLazy } from './FloatingBarLazy'
 import { ScrollToButton } from './ScrollToButton'
 import { CuratedSystems } from './CuratedSystems'
 import { CollapsibleEmailSignup } from './CollapsibleEmailSignup'
@@ -209,6 +209,11 @@ export async function LandingPage() {
             <div className="hidden lg:block">
               <Link href="/recommendations" className="block cursor-pointer">
                 <BrowserFrame url="hifinder.app/recommendations">
+                  {/* Only ONE screenshot is on the critical path. The light
+                      (default-theme) image is preloaded as the LCP candidate;
+                      the dark variant lazy-loads, so light-theme visitors never
+                      download it and the two no longer compete for bandwidth.
+                      BrowserFrame reserves the box, so the dark swap is CLS-free. */}
                   <div className="theme-light-only">
                     <Image
                       src="/images/screenshots/recommendations-light.webp"
@@ -218,6 +223,7 @@ export async function LandingPage() {
                       sizes="(max-width: 1023px) 0px, 540px"
                       className="w-full h-auto"
                       priority
+                      fetchPriority="high"
                       style={{ display: 'block' }}
                     />
                   </div>
@@ -229,7 +235,7 @@ export async function LandingPage() {
                       height={1600}
                       sizes="(max-width: 1023px) 0px, 540px"
                       className="w-full h-auto"
-                      priority
+                      loading="lazy"
                       style={{ display: 'block' }}
                     />
                   </div>
@@ -462,7 +468,7 @@ export async function LandingPage() {
       {/* ─────────────────────────────────────────
           FLOATING BOTTOM BAR — client island
       ───────────────────────────────────────── */}
-      <FloatingBar />
+      <FloatingBarLazy />
 
     </div>
   )

@@ -73,7 +73,7 @@ export function AlertsTab() {
     price_range_min: '',
     price_range_max: '',
     condition_preference: ['new', 'used', 'refurbished', 'b-stock'],
-    marketplace_preference: ['reddit', 'headfi', 'avexchange'],
+    marketplace_preference: ['reddit', 'headfi', 'avexchange', 'reverb'],
     custom_search_query: '',
     custom_brand: '',
     custom_model: '',
@@ -204,7 +204,7 @@ export function AlertsTab() {
       price_range_min: '',
       price_range_max: '',
       condition_preference: ['new', 'used', 'refurbished', 'b-stock'],
-      marketplace_preference: ['reddit', 'headfi', 'avexchange'],
+      marketplace_preference: ['reddit', 'headfi', 'avexchange', 'reverb'],
       custom_search_query: '',
       custom_brand: '',
       custom_model: '',
@@ -760,7 +760,7 @@ export function AlertsTab() {
                   Marketplace Preferences
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {['reddit', 'headfi', 'avexchange'].map(marketplace => (
+                  {['reddit', 'headfi', 'avexchange', 'reverb'].map(marketplace => (
                     <button
                       key={marketplace}
                       onClick={() => {

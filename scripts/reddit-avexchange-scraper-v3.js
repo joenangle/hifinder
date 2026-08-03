@@ -16,6 +16,8 @@ const { findComponentMatch, isAccessoryOnly, detectMultipleComponents, extractSa
 const { normalizeLocation: normalizeLocationStructured } = require('./location-normalizer');
 const { extractComponentCandidate } = require('./component-candidate-extractor');
 const { extractBundleComponents, generateBundleGroupId, calculateBundlePrice } = require('./bundle-extractor');
+const { extractPrice: extractPriceShared } = require('./shared/price-extractor');
+const { validateListing } = require('./validators/listing-validator');
 const {
   getRedditAccessToken: getRedditAccessTokenShared,
   fetchWithRetry: fetchWithRetryShared,
@@ -279,13 +281,11 @@ function extractPrice(title, selftext = '') {
  * @returns {number|null} - Price or null
  */
 function extractComponentPrice(componentName, title, selftext = '', matchedSegment = '') {
-  // Priority 1: [W] section price in title — this IS the asking price
-  const wantPriceMatch = title.match(/\[W\][^\[]*?\$(\d{1,5}(?:,\d{3})*)/i);
-  if (wantPriceMatch) {
-    const wantPrice = parseInt(wantPriceMatch[1].replace(/,/g, ''), 10);
-    if (wantPrice >= 10 && wantPrice <= 10000) {
-      return wantPrice;
-    }
+  // Priority 1: [W] section price in title — this IS the asking price.
+  // The shared extractor guards against "[W] PayPal" (payment method, not a price).
+  const titleResult = extractPriceShared(title);
+  if (titleResult && titleResult.sourcePattern === 'W') {
+    return titleResult.price;
   }
 
   if (!selftext) return extractPricesFromText(title);
@@ -315,20 +315,8 @@ function extractComponentPrice(componentName, title, selftext = '', matchedSegme
       continue;
     }
 
-    // Priority 2a: Prefer explicit asking-price patterns on this line
-    const askingMatch = line.match(/(?:asking|selling\s+(?:for|at))\s*\$?(\d{1,5}(?:,\d{3})*)/i);
-    if (askingMatch) {
-      const price = parseInt(askingMatch[1].replace(/,/g, ''), 10);
-      if (price >= 10 && price <= 10000) return price;
-    }
-
-    const shippedMatch = line.match(/\$(\d{1,5}(?:,\d{3})*)\s*(?:shipped|obo|firm|or best offer)/i);
-    if (shippedMatch) {
-      const price = parseInt(shippedMatch[1].replace(/,/g, ''), 10);
-      if (price >= 10 && price <= 10000) return price;
-    }
-
-    // Priority 3: Any dollar amount on this (non-MSRP) component line
+    // Any asking/shipped/dollar amount on this (non-MSRP) component line.
+    // The shared extractor already prefers explicit asking/shipped patterns.
     const linePrice = extractPricesFromText(line);
     if (linePrice) {
       return linePrice;
@@ -341,99 +329,13 @@ function extractComponentPrice(componentName, title, selftext = '', matchedSegme
 
 /**
  * Core price extraction from a text string.
- * Returns the highest-priority price, preferring bundle totals over per-item prices.
+ * Thin adapter over the unified shared extractor (scripts/shared/price-extractor.js),
+ * which owns the tier/priority model, unit-exclusion, and MSRP de-prioritisation.
+ * Returns a bare number (or null) to preserve existing call-site expectations.
  */
 function extractPricesFromText(text) {
-  // Check if this is likely a bundle listing with multiple prices
-  const hasBundleKeywords = /\b(all|bundle|total|together|both|for everything|combo|package)\b/i.test(text);
-
-  // Priority 0 (HIGHEST): Price in [W] (Want) section - most reliable for total price
-  const wantPattern = /\[W\][^\[]*?\$?(\d{1,5}(?:,\d{3})*)\b/gi;
-
-  // Pattern 1: Bundle keywords + price (e.g., "asking $500 for all", "$300 total")
-  const bundlePattern = /\b(?:asking|price:?|selling)\s*\$?(\d{1,5}(?:,\d{3})*)\s*(?:for\s+)?(?:all|total|together|both|everything|bundle)/gi;
-
-  // Pattern 2: $X,XXX or $XXX (standard dollar signs)
-  const dollarPattern = /\$(\d{1,5}(?:,\d{3})*(?:\.\d{2})?)/g;
-
-  // Pattern 3: asking/price/selling $XXX (without bundle keywords)
-  const askingPattern = /\b(?:asking|price:?|selling\s*(?:for|at)?)\s*\$?(\d{1,5}(?:,\d{3})*)/gi;
-
-  // Pattern 4: XXX shipped / XXX obo
-  const shippedPattern = /\b(\d{3,5})\s*(?:shipped|obo|or best offer|firm)\b/gi;
-
-  // Pattern 5: XXX USD
-  const currencyPattern = /\b(\d{3,5})\s*(?:usd|dollars?)\b/gi;
-
-  const allPrices = [];
-
-  // Extract Priority 0: [W] section prices
-  let match;
-  while ((match = wantPattern.exec(text)) !== null) {
-    const price = parseInt(match[1].replace(/,/g, ''), 10);
-    if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 0 });
-    }
-  }
-
-  // Extract Priority 1: Bundle keyword + price
-  while ((match = bundlePattern.exec(text)) !== null) {
-    const price = parseInt(match[1].replace(/,/g, ''), 10);
-    if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 1 });
-    }
-  }
-
-  // Extract Priority 2: Standard dollar signs
-  // MSRP-context prices get deprioritized to priority 6
-  while ((match = dollarPattern.exec(text)) !== null) {
-    const price = parseInt(match[1].replace(/,/g, ''), 10);
-    if (price >= 10 && price <= 10000) {
-      // Check surrounding context for MSRP/retail indicators
-      const contextStart = Math.max(0, match.index - 40);
-      const context = text.substring(contextStart, match.index);
-      const isRetailPrice = /\b(?:msrp|retail|originally?|bought\s+for|paid|new\s+price|list\s+price|was|worth|rrp|cost\s+(?:me|was))\s*$/i.test(context);
-
-      allPrices.push({ price, priority: isRetailPrice ? 6 : 2 });
-    }
-  }
-
-  // Extract Priority 3: Asking/price/selling
-  while ((match = askingPattern.exec(text)) !== null) {
-    const price = parseInt(match[1].replace(/,/g, ''), 10);
-    if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 3 });
-    }
-  }
-
-  // Extract Priority 4: Shipped/OBO
-  while ((match = shippedPattern.exec(text)) !== null) {
-    const price = parseInt(match[1], 10);
-    if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 4 });
-    }
-  }
-
-  // Extract Priority 5: USD/dollars
-  while ((match = currencyPattern.exec(text)) !== null) {
-    const price = parseInt(match[1], 10);
-    if (price >= 10 && price <= 10000) {
-      allPrices.push({ price, priority: 5 });
-    }
-  }
-
-  if (allPrices.length === 0) return null;
-
-  // Sort by priority first
-  allPrices.sort((a, b) => {
-    if (a.priority !== b.priority) return a.priority - b.priority;
-
-    // Within same priority: if bundle keywords exist, prefer HIGHEST price (likely the total)
-    // Otherwise prefer LOWEST price (for single items)
-    return hasBundleKeywords ? b.price - a.price : a.price - b.price;
-  });
-
-  return allPrices[0].price;
+  const result = extractPriceShared(text);
+  return result ? result.price : null;
 }
 
 /**
@@ -793,6 +695,29 @@ async function scrapeReddit() {
           seller_confirmed_trades: null,
           seller_feedback_score: null
         };
+
+        // Ingest-time price sanity check against the component's reference prices.
+        // reject → null the corrupt price (keep the listing for availability signal);
+        // flag   → keep the price but route to manual review. Both excluded from the
+        // rec engine (see get_active_listing_counts + analyze-price-trends).
+        const validation = validateListing(listing, match.component, match.score);
+        if (validation.shouldReject || validation.shouldFlag) {
+          listing.price = validation.priceOverride;
+          listing.price_is_reasonable = validation.priceIsReasonable;
+          listing.price_variance_percentage = validation.priceVariancePercentage;
+          listing.price_warning = validation.priceWarning;
+          listing.requires_manual_review = true;
+          listing.validation_warnings = validation.validationWarnings.length
+            ? validation.validationWarnings
+            : null;
+          console.log(
+            `    ${validation.shouldReject ? '🚫 Rejected price' : '⚠️  Flagged price'} ` +
+            `for ${match.component.brand} ${match.component.name}: ${validation.priceWarning}`
+          );
+        } else {
+          listing.price_is_reasonable = true;
+          listing.price_variance_percentage = validation.priceVariancePercentage;
+        }
 
         // Upsert to database
         const { error } = await supabase

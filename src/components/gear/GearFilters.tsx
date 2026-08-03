@@ -1,6 +1,6 @@
 'use client'
 
-import { Headphones, Cpu, Speaker, Download, Grid3X3, List, Layers } from 'lucide-react'
+import { Headphones, Cpu, Speaker, Download, Upload, Grid3X3, List, Layers } from 'lucide-react'
 import { OverflowMenu } from '@/components/ui/OverflowMenu'
 
 type CategoryFilter = 'all' | 'headphones' | 'iems' | 'dacs' | 'amps' | 'combo'
@@ -25,6 +25,7 @@ interface GearFiltersProps {
   // Actions
   onAddGear?: () => void
   onExport?: () => void
+  onImport?: () => void
   viewMode?: ViewMode
   onViewModeChange?: (mode: ViewMode) => void
 }
@@ -35,6 +36,7 @@ export function GearFilters({
   categoryCounts,
   onAddGear,
   onExport,
+  onImport,
   viewMode,
   onViewModeChange
 }: GearFiltersProps) {
@@ -107,6 +109,19 @@ export function GearFilters({
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2">
+            {onImport && (
+              <button
+                onClick={onImport}
+                className="px-3 py-1.5 rounded-md transition-colors"
+                style={{
+                  backgroundColor: 'var(--surface-hover)',
+                  color: 'var(--text-secondary)',
+                }}
+                title="Import Collection (CSV)"
+              >
+                <Upload className="w-4 h-4" />
+              </button>
+            )}
             {onExport && (
               <button
                 onClick={onExport}

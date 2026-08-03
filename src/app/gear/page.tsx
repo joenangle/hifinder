@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { GearPageHeader } from '@/components/gear/GearPageHeader'
 import { GearFilters } from '@/components/gear/GearFilters'
+import { GearImportModal } from '@/components/gear/GearImportModal'
 import { BrandCombobox } from '@/components/gear/BrandCombobox'
 import { CategoryFilter, getGearCategory, calculateCurrentValue, getCategoryIcon, getCategoryLabel, getCategoryColor, getCategoryEmoji } from '@/lib/gear-utils'
 import { StackItemDetailModal } from '@/components/modals/StackItemDetailModal'
@@ -46,6 +47,7 @@ function GearContent() {
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode)
   const [activeFilters, setActiveFilters] = useState<Set<CategoryFilter>>(new Set())
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showCreateStackModal, setShowCreateStackModal] = useState(false)
@@ -634,6 +636,7 @@ function GearContent() {
             categoryCounts={categoryCounts}
             onAddGear={() => setShowAddModal(true)}
             onExport={exportCollection}
+            onImport={() => setShowImportModal(true)}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
           />
@@ -2389,6 +2392,13 @@ function GearContent() {
           setSelectedStackItemData(null)
         }}
         data={selectedStackItemData}
+      />
+
+      {/* Bulk CSV Import Modal */}
+      <GearImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImported={loadData}
       />
     </div>
   )

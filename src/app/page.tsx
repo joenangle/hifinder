@@ -1,10 +1,9 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getCachedServerSession } from '@/lib/auth'
 import { LandingPage } from '@/components/landing/LandingPage'
 import { UserDashboard } from '@/components/dashboard/UserDashboard'
 
 export default async function Home() {
-  const session = await getServerSession(authOptions)
+  const session = await getCachedServerSession()
 
   // Show user dashboard for signed-in users, landing page for signed-out users
   return session ? <UserDashboard /> : <LandingPage />

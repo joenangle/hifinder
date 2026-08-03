@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { needsAmplification } from './audio-calculations'
+import { HEADPHONE_CATEGORIES, AMP_CATEGORIES, isCategoryIn } from './component-categories'
 import type { UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
 
 export type { UserStack, StackComponent, StackComponentData, StackPurpose, CompatibilityWarning, StackTemplate } from '@/types/gear'
@@ -249,24 +251,23 @@ export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarn
     _sc: sc,
   }))
 
-  // Check for headphones without amp/DAC when high impedance
+  // Check for headphones without amp/DAC when they need power.
+  // Categories go through normalizeCategory because stack entries may carry a
+  // user-supplied `custom_category` with a legacy spelling.
   const headphones = normalizedComponents.filter(c =>
-    c.category === 'headphones' || c.category === 'cans'
+    isCategoryIn(c.category, HEADPHONE_CATEGORIES)
   )
-  const amps = normalizedComponents.filter(c =>
-    c.category === 'amps' || c.category === 'amp'
-  )
-  const combos = normalizedComponents.filter(c =>
-    c.category === 'combo' || c.category === 'dac_amp'
-  )
+  const amps = normalizedComponents.filter(c => isCategoryIn(c.category, AMP_CATEGORIES))
 
   headphones.forEach(hp => {
-    if ((hp.impedance && hp.impedance > 150) || hp.needs_amp) {
-      if (amps.length === 0 && combos.length === 0) {
+    // Shared threshold — previously 150Ω here, 80Ω in the stack builder and in
+    // gear.ts, so the same headphone got contradictory verdicts per screen.
+    if (needsAmplification(hp)) {
+      if (amps.length === 0) {
         warnings.push({
           type: 'power',
           severity: 'warning',
-          message: 'High impedance headphones may need amplification',
+          message: 'These headphones would benefit from a dedicated amplifier',
           components: [`${hp.brand} ${hp.name}`]
         })
       }

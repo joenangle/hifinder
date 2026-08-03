@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { SOUND_SIGNATURES } from '@/types'
 
 /**
  * GET /api/admin/components?id=xxx
@@ -101,10 +102,9 @@ export async function POST(request: Request) {
 
     // Validate sound_signature if provided
     if (body.sound_signature) {
-      const validSignatures = ['neutral', 'warm', 'bright', 'fun']
-      if (!validSignatures.includes(body.sound_signature)) {
+      if (!SOUND_SIGNATURES.includes(body.sound_signature)) {
         return NextResponse.json(
-          { error: `Invalid sound_signature. Must be one of: ${validSignatures.join(', ')}` },
+          { error: `Invalid sound_signature. Must be one of: ${SOUND_SIGNATURES.join(', ')}` },
           { status: 400 }
         )
       }
@@ -264,10 +264,9 @@ export async function PUT(request: Request) {
 
     // Validate sound_signature if provided
     if (body.sound_signature) {
-      const validSignatures = ['neutral', 'warm', 'bright', 'fun']
-      if (!validSignatures.includes(body.sound_signature)) {
+      if (!SOUND_SIGNATURES.includes(body.sound_signature)) {
         return NextResponse.json(
-          { error: `Invalid sound_signature. Must be one of: ${validSignatures.join(', ')}` },
+          { error: `Invalid sound_signature. Must be one of: ${SOUND_SIGNATURES.join(', ')}` },
           { status: 400 }
         )
       }

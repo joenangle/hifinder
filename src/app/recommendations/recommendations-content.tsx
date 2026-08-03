@@ -52,6 +52,8 @@ interface AudioComponent extends Component {
   priceFitScore?: number
   compatibilityScore?: number
   powerAdequacy?: number
+  powerMatchKnown?: boolean
+  powerMatchEstimated?: boolean
   amplificationAssessment?: {
     difficulty: 'easy' | 'moderate' | 'demanding' | 'very_demanding' | 'unknown';
     explanation: string;
@@ -79,7 +81,25 @@ export function RecommendationsContent() {
   const [dacs, setDacs] = useState<AudioComponent[]>([])
   const [amps, setAmps] = useState<AudioComponent[]>([])
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
+  // System-level synergy: the top recommended headphone paired with the amp/combo
+  // that drives it best (set by the API only in the co-recommendation case).
+  const [recommendedPairing, setRecommendedPairing] = useState<{
+    headphone: { id: string; name: string }
+    amp: {
+      id: string
+      name: string
+      category: string
+      powerAdequacy: number | null
+      powerMatchKnown: boolean
+      powerMatchEstimated: boolean
+    } | null
+  } | null>(null)
   const [budgetAllocation, setBudgetAllocation] = useState<Record<string, number>>({})
+  // How the API chose to satisfy amplification: 'combo'/'budget' means it
+  // collapsed a low amp/dac sub-budget into a single portable dac_amp combo.
+  const [amplificationStrategy, setAmplificationStrategy] = useState<
+    { mode: 'separate' | 'combo'; reason?: 'explicit' | 'budget' } | null
+  >(null)
   const [customBudgetAllocation, setCustomBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const [autoBudgetAllocation, setAutoBudgetAllocation] = useState<BudgetAllocation | null>(null)
   const debouncedCustomBudgetAllocation = useDebounce(customBudgetAllocation, 300)
@@ -201,6 +221,10 @@ export function RecommendationsContent() {
 
   // Simple debouncing for API calls - debounce budget only
   const debouncedBudget = useDebounce(userPrefs.budget, 300)
+  // Range sliders emit continuously while dragging — debounce so a drag fires
+  // one request, not dozens (each also paired a /api/filters/counts call).
+  const debouncedBudgetRangeMin = useDebounce(userPrefs.budgetRangeMin, 300)
+  const debouncedBudgetRangeMax = useDebounce(userPrefs.budgetRangeMax, 300)
 
   // Track selected items for background re-fetch (debounced to avoid spam)
   const [selectedItemsForApi, setSelectedItemsForApi] = useState<Array<{ id: string; category: string; avgPrice: number }>>([])
@@ -371,8 +395,8 @@ export function RecommendationsContent() {
       // Build URL parameters for recommendations API
       const params = new URLSearchParams({
         budget: debouncedBudget.toString(), // Debounced for API performance
-        budgetRangeMin: userPrefs.budgetRangeMin.toString(),
-        budgetRangeMax: userPrefs.budgetRangeMax.toString(),
+        budgetRangeMin: debouncedBudgetRangeMin.toString(),
+        budgetRangeMax: debouncedBudgetRangeMax.toString(),
         headphoneType: headphoneType, // Use local state instead of URL state to avoid race condition
         wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
         existingGear: JSON.stringify(userPrefs.existingGear),
@@ -417,6 +441,8 @@ export function RecommendationsContent() {
       setAmps(prev => recommendations.amps?.length > 0 || !skippedCategories.has('amp') ? (recommendations.amps || []) : prev)
       setDacAmps(prev => recommendations.combos?.length > 0 || !skippedCategories.has('combo') ? (recommendations.combos || []) : prev)
       setShowAmplification(recommendations.needsAmplification || false)
+      setRecommendedPairing(recommendations.recommendedPairing ?? null)
+      setAmplificationStrategy(recommendations.amplificationStrategy ?? null)
 
       // Store server's automatic allocation for display (but don't auto-use it)
       if (recommendations.budgetAllocation) {
@@ -428,8 +454,8 @@ export function RecommendationsContent() {
             allocation[component as keyof BudgetAllocation] = {
               amount,
               percentage: (amount / totalBudget) * 100,
-              rangeMin: userPrefs.budgetRangeMin,
-              rangeMax: userPrefs.budgetRangeMax
+              rangeMin: debouncedBudgetRangeMin,
+              rangeMax: debouncedBudgetRangeMax
             }
           }
         })
@@ -477,8 +503,8 @@ export function RecommendationsContent() {
     debouncedBudget,
     debouncedCustomBudgetAllocation,
     debouncedSelectedItems,
-    userPrefs.budgetRangeMin,
-    userPrefs.budgetRangeMax,
+    debouncedBudgetRangeMin,
+    debouncedBudgetRangeMax,
     userPrefs.usage,
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
@@ -495,8 +521,8 @@ export function RecommendationsContent() {
 
       const params = new URLSearchParams({
         budget: debouncedBudget.toString(),
-        rangeMin: userPrefs.budgetRangeMin.toString(),
-        rangeMax: userPrefs.budgetRangeMax.toString(),
+        rangeMin: debouncedBudgetRangeMin.toString(),
+        rangeMax: debouncedBudgetRangeMax.toString(),
         headphoneType: userPrefs.headphoneType,
         equipment: activeEquipment.join(','),
         soundSignatures: soundFiltersKey,
@@ -527,8 +553,8 @@ export function RecommendationsContent() {
   }, [
     debouncedBudget,
     debouncedCustomBudgetAllocation,
-    userPrefs.budgetRangeMin,
-    userPrefs.budgetRangeMax,
+    debouncedBudgetRangeMin,
+    debouncedBudgetRangeMax,
     userPrefs.headphoneType,
     userPrefs.usage,
     typeFiltersKey,
@@ -809,6 +835,12 @@ export function RecommendationsContent() {
   const filteredDacs = dacs
   const filteredAmps = amps
   const filteredDacAmps = dacAmps
+
+  // API collapsed a low amplification budget into a single portable combo, so
+  // the amp/dac sections would be empty dead-ends — show the combo section
+  // instead and suppress them.
+  const routedToCombo =
+    amplificationStrategy?.mode === 'combo' && amplificationStrategy?.reason === 'budget'
 
   // Update selectedItemsForApi when selections change — triggers API re-fetch with smart budget reallocation
   useEffect(() => {
@@ -1443,7 +1475,7 @@ export function RecommendationsContent() {
             return (
               <SignalGearWrapper {...wrapperProps}>
                 {/* DACs Section — hide empty fallback when stack is already complete */}
-                  {wantRecommendationsFor.dac && (!isStackComplete || filteredDacs.length > 0) && (
+                  {wantRecommendationsFor.dac && !routedToCombo && (!isStackComplete || filteredDacs.length > 0) && (
                     <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(45 212 191)' }}>
                       {filteredDacs.length > 0 ? (
                         <>
@@ -1501,7 +1533,7 @@ export function RecommendationsContent() {
                 )}
 
           {/* Amps Section */}
-          {wantRecommendationsFor.amp && (!isStackComplete || filteredAmps.length > 0) && (
+          {wantRecommendationsFor.amp && !routedToCombo && (!isStackComplete || filteredAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
                 {filteredAmps.length > 0 ? (
                   <>
@@ -1524,10 +1556,15 @@ export function RecommendationsContent() {
                         isSelected={selectedAmps.has(amp.id)}
                         onToggleSelection={toggleAmpSelection}
                         type="amp"
-  
+
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
+                        pairsWithHeadphone={
+                          recommendedPairing?.amp?.powerMatchKnown && recommendedPairing.amp.id === amp.id
+                            ? recommendedPairing.headphone.name
+                            : null
+                        }
                       />
                       )
                     })}
@@ -1559,10 +1596,15 @@ export function RecommendationsContent() {
           )}
 
           {/* Combo Units Section — hide empty fallback when stack is already complete */}
-          {wantRecommendationsFor.combo && (!isStackComplete || filteredDacAmps.length > 0) && (
+          {(wantRecommendationsFor.combo || routedToCombo) && (!isStackComplete || filteredDacAmps.length > 0) && (
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(96 165 250)' }}>
                 {filteredDacAmps.length > 0 ? (
                   <>
+                    {routedToCombo && (
+                      <div className="px-4 py-2 text-xs text-tertiary border-b bg-surface-secondary/50">
+                        At this budget, a portable combo does the job of a separate DAC and amp.
+                      </div>
+                    )}
                     <div className="px-4 py-3 border-b flex items-center justify-between">
                       <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                         DAC/Amp Combos
@@ -1582,10 +1624,15 @@ export function RecommendationsContent() {
                         isSelected={selectedDacAmps.has(combo.id)}
                         onToggleSelection={toggleDacAmpSelection}
                         type="combo"
-  
+
                         onViewDetails={handleViewDetails}
                         expandAllExperts={expandAllExperts}
                         isFirstCardHint={showHint}
+                        pairsWithHeadphone={
+                          recommendedPairing?.amp?.powerMatchKnown && recommendedPairing.amp.id === combo.id
+                            ? recommendedPairing.headphone.name
+                            : null
+                        }
                       />
                       )
                     })}

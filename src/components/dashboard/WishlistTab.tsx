@@ -7,11 +7,15 @@ import { WishlistItem } from '@/types/auth'
 import { Heart } from 'lucide-react'
 import { WishlistButton } from '@/components/WishlistButton'
 import { FindUsedButton } from '@/components/marketplace/FindUsedButton'
+import { PriceAlertButton } from '@/components/PriceAlertButton'
+import { supabase } from '@/lib/supabase'
+import { countListingsByComponent, type ListingCountEntry } from '@/lib/listing-counts'
 import Link from 'next/link'
 
 export function WishlistTab() {
   const { data: session } = useSession()
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
+  const [listingCounts, setListingCounts] = useState<Map<string, ListingCountEntry>>(new Map())
   const [loading, setLoading] = useState(true)
 
   const loadWishlist = useCallback(async () => {
@@ -20,6 +24,23 @@ export function WishlistTab() {
     setLoading(true)
     const items = await getUserWishlist(session.user.id)
     setWishlistItems(items)
+
+    // Fetch active used-listing counts so we can gate the "Find Used" CTA:
+    // inventory => show count; none => offer a price alert (which now fires).
+    const componentIds = items
+      .map((i) => i.component_id)
+      .filter((id): id is string => !!id)
+    if (componentIds.length > 0) {
+      const { data: listings } = await supabase
+        .from('used_listings')
+        .select('component_id, price')
+        .in('component_id', componentIds)
+        .eq('status', 'available')
+      setListingCounts(countListingsByComponent(listings ?? []))
+    } else {
+      setListingCounts(new Map())
+    }
+
     setLoading(false)
   }, [session?.user?.id])
 
@@ -129,15 +150,31 @@ export function WishlistTab() {
             </div>
           )}
 
-          {/* Actions */}
+          {/* Actions — show listings when available, otherwise capture a price
+              alert (the matcher now fires these when matching gear is listed). */}
           <div className="flex gap-2">
-            <FindUsedButton
-              componentId={item.component_id}
-              componentName={item.component?.name}
-              brand={item.component?.brand}
-              className="flex-1 justify-center"
-              showText
-            />
+            {(listingCounts.get(item.component_id)?.count ?? 0) > 0 ? (
+              <FindUsedButton
+                componentId={item.component_id}
+                componentName={item.component?.name}
+                brand={item.component?.brand}
+                listingCount={listingCounts.get(item.component_id)?.count}
+                className="flex-1 justify-center"
+                showText
+              />
+            ) : (
+              <PriceAlertButton
+                componentId={item.component_id}
+                avgPrice={
+                  item.component?.price_used_min && item.component?.price_used_max
+                    ? (item.component.price_used_min + item.component.price_used_max) / 2
+                    : item.component?.price_new ?? 0
+                }
+                priceFloor={item.component?.price_used_min ?? null}
+                className="flex-1 justify-center"
+                showText
+              />
+            )}
             <WishlistButton
               componentId={item.component_id}
               className="px-3"

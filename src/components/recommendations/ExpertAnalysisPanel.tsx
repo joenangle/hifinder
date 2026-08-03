@@ -141,8 +141,6 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
     )
   }
 
-  const blurb = generateExpertBlurb(component)
-
   return (
     <div className="border-t pt-2 mt-2">
       <button
@@ -175,7 +173,10 @@ export function ExpertAnalysisPanel({ component, forceExpanded = false, inline =
             </div>
           )}
 
-          <p className="text-secondary">{blurb}</p>
+          {/* Computed only when expanded — collapsed panels (the default for
+              every result card) do zero blurb work, keeping it off the hot
+              re-render path that runs on each filter/budget/selection change. */}
+          <p className="text-secondary">{generateExpertBlurb(component)}</p>
 
           {/* Show original comments if available */}
           {component.crin_comments && (
