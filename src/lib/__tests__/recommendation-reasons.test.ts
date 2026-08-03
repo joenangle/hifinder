@@ -150,4 +150,53 @@ describe('deriveReasonChips', () => {
     const b = deriveReasonChips(input).map(c => c.label)
     expect(a).toEqual(b)
   })
+
+  it('surfaces "Matches your sound" for headphones/IEMs', () => {
+    expect(
+      deriveReasonChips({ category: 'cans', signatureScoreDisplay: 85 })
+        .some(c => c.label === 'Matches your sound')
+    ).toBe(true)
+    expect(
+      deriveReasonChips({ category: 'iems', signatureScoreDisplay: 85 })
+        .some(c => c.label === 'Matches your sound')
+    ).toBe(true)
+  })
+
+  it('never claims a transparent DAC/amp/combo "Matches your sound"', () => {
+    for (const category of ['dac', 'amp', 'dac_amp']) {
+      expect(
+        deriveReasonChips({ category, signatureScoreDisplay: 95 })
+          .some(c => c.label === 'Matches your sound')
+      ).toBe(false)
+    }
+  })
+
+  it('surfaces "Strong value" for a giant-killer: top performance at a moderate discount', () => {
+    // Topping DX1 II profile: SINAD-driven expert 87, valueScore 70 in its own
+    // price tier. The old value>=85-only rule could never fire for cheap-but-
+    // excellent gear, so genuine giant-killers went unlabeled.
+    const chips = deriveReasonChips({
+      category: 'dac_amp',
+      expertScoreDisplay: 87,
+      valueScore: 70,
+    })
+    expect(chips.some(c => c.label === 'Strong value')).toBe(true)
+  })
+
+  it('does NOT call a top performer priced AT budget a "Strong value"', () => {
+    // Great performance but no discount (value 55) — not a value story.
+    expect(
+      deriveReasonChips({ expertScoreDisplay: 87, valueScore: 55 })
+        .some(c => c.label === 'Strong value')
+    ).toBe(false)
+  })
+
+  it('does NOT call cheap-but-mediocre gear a "Strong value"', () => {
+    // Deep discount (value 82) but weak performance (50): not a giant-killer,
+    // and below the deep-discount clause's 85 threshold.
+    expect(
+      deriveReasonChips({ expertScoreDisplay: 50, valueScore: 82 })
+        .some(c => c.label === 'Strong value')
+    ).toBe(false)
+  })
 })

@@ -63,11 +63,17 @@ export function calculateBudgetRange(
         max: Math.round(budget * 1.1) // +10% above budget
       };
     } else {
-      // Higher-end signal gear: Search 30% lower to catch good deals
-      // Many excellent amps/DACs available below allocated budget
+      // Higher-end signal gear: keep the floor LOW ($20) rather than clamping to
+      // 70% of budget. Signal-gear quality is measurement-driven and plateaus
+      // early, so genuinely cheap giant-killers (e.g. a $119 combo measuring like
+      // $300 units) must stay candidates instead of being filtered out for being
+      // "too cheap". This matches the v3.5 "budget is a ceiling, not a target"
+      // philosophy: the scorer's value term already rewards spending less, so
+      // cheaper-but-better wins on merit rather than by exclusion. The $20 floor
+      // still screens out trivial sub-$20 dongles.
       const maxPercent = 5 + 15 * Math.exp(-budget / 800);
       return {
-        min: Math.max(20, Math.round(budget * 0.7)), // Search 30% lower
+        min: 20,
         max: Math.round(budget * (1 + maxPercent / 100))
       };
     }
