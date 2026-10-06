@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { redirect, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { LayoutDashboard, Heart, Bell, Package } from 'lucide-react'
@@ -20,13 +20,6 @@ function DashboardContent() {
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview')
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      redirect('/api/auth/signin?callbackUrl=/dashboard')
-    }
-  }, [status])
 
   // Set active tab from URL
   useEffect(() => {
