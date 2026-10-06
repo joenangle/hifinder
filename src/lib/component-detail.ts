@@ -47,3 +47,60 @@ export function buildComponentSeo(c: SeoComponent): { title: string; description
 
   return { title, description }
 }
+
+const SITE_URL = 'https://hifinder.app'
+
+export interface JsonLdComponent extends SeoComponent {
+  id: string
+  image_url: string | null
+}
+
+/**
+ * schema.org Product + BreadcrumbList for the detail page.
+ *
+ * Prices become an AggregateOffer spanning used and new. Expert grades are
+ * deliberately not mapped to aggregateRating: Google reserves that for
+ * user reviews, and marking up third-party grades risks a manual action.
+ */
+export function buildComponentJsonLd(
+  c: JsonLdComponent,
+  { listingCount }: { listingCount: number }
+) {
+  const fullName = `${c.brand} ${c.name}`
+  const url = `${SITE_URL}/components/${c.id}`
+  const prices = [c.price_new, c.price_used_min, c.price_used_max].filter(
+    (p): p is number => typeof p === 'number' && p > 0
+  )
+
+  const product = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: fullName,
+    brand: { '@type': 'Brand', name: c.brand },
+    category: categoryLabel(c.category),
+    description: buildComponentSeo(c).description,
+    url,
+    image: c.image_url ? [c.image_url] : undefined,
+    offers:
+      prices.length > 0
+        ? {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'USD',
+            lowPrice: Math.round(Math.min(...prices)),
+            highPrice: Math.round(Math.max(...prices)),
+            offerCount: listingCount > 0 ? listingCount : undefined,
+          }
+        : undefined,
+  }
+
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Catalog', item: `${SITE_URL}/browse` },
+      { '@type': 'ListItem', position: 2, name: fullName, item: url },
+    ],
+  }
+
+  return [product, breadcrumb] as const
+}

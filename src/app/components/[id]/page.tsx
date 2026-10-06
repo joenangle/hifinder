@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { supabaseServer } from '@/lib/supabase-server'
-import { buildComponentSeo, categoryLabel } from '@/lib/component-detail'
+import { buildComponentSeo, buildComponentJsonLd, categoryLabel } from '@/lib/component-detail'
 import { getRetailerLinks } from '@/lib/retailer-links'
 import { WishlistButton } from '@/components/WishlistButton'
 import { FindUsedButton } from '@/components/marketplace/FindUsedButton'
@@ -96,8 +96,12 @@ export default async function ComponentDetailPage({ params }: { params: Params }
         ? `$${Math.round(c.price_new)} new`
         : 'Price unknown'
 
+  // Escape '<' so catalogue text can never close the script tag early
+  const jsonLd = JSON.stringify(buildComponentJsonLd(c, { listingCount })).replace(/</g, '\\u003c')
+
   return (
     <div className="min-h-screen bg-primary">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/browse"
