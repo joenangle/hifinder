@@ -114,7 +114,7 @@ export const authOptions: NextAuthOptions = {
         token.picture = user.image
       }
       // Compute admin flag from server-only env var
-      token.isAdmin = token.email === process.env.ADMIN_EMAIL
+      token.isAdmin = isAdminEmail(token.email)
       return token
     },
 
@@ -163,6 +163,16 @@ export const authOptions: NextAuthOptions = {
 export const getCachedServerSession = cache(
   () => getServerSession(authOptions) as Promise<Session | null>
 )
+
+/**
+ * True only when ADMIN_EMAIL is configured and matches. Guards against
+ * `undefined === undefined` granting admin when the env var is missing and
+ * the token carries no email.
+ */
+export function isAdminEmail(email: unknown): boolean {
+  const adminEmail = process.env.ADMIN_EMAIL
+  return !!adminEmail && typeof email === 'string' && email === adminEmail
+}
 
 /**
  * Server-side admin check. Returns the session if the user is admin, null otherwise.

@@ -181,3 +181,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ sent: sentCount, matched: sentIds.length, suppressed: suppressedIds.length })
 }
+
+// Vercel Cron invokes routes with GET (vercel.json "crons"); keep POST for
+// manual/GitHub Actions triggers. Both paths share the CRON_SECRET check.
+export const GET = POST
