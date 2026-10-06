@@ -2,6 +2,7 @@
 
 import { Component } from '@/types'
 import Image from 'next/image'
+import Link from 'next/link'
 import { X, Volume2, Cpu, Zap, TrendingUp, Star, Users, ShoppingCart, ExternalLink, Headphones, MessageCircle } from 'lucide-react'
 import { StarRating } from '../ui/StarRating'
 import { AmplificationBadge } from '../ui/AmplificationIndicator'
@@ -251,6 +252,12 @@ export function ComponentDetailModal({ component, isOpen, onClose, isSelected, o
             <p className="text-secondary text-sm mt-0.5">
               {component.category.charAt(0).toUpperCase() + component.category.slice(1)}
             </p>
+            <Link
+              href={`/components/${component.id}`}
+              className="inline-flex items-center gap-1 text-xs text-accent hover:underline mt-1"
+            >
+              View full page <ExternalLink className="w-3 h-3" aria-hidden />
+            </Link>
           </div>
         </div>
 
