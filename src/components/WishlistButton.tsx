@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { Heart } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { addToWishlist, removeFromWishlist, isInWishlist } from '@/lib/wishlist'
@@ -34,7 +34,8 @@ export function WishlistButton({ componentId, className = '', showText = false }
     e.stopPropagation()
     
     if (!session?.user?.id) {
-      // TODO: Open login modal
+      // Route to sign-in, come back here
+      signIn(undefined, { callbackUrl: window.location.href })
       return
     }
 
