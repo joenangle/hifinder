@@ -85,7 +85,7 @@ export function AlertsTab() {
     if (!session?.user?.id) return
     
     setLoading(true)
-    const userAlerts = await getUserAlerts(session.user.id)
+    const userAlerts = await getUserAlerts()
     setAlerts(userAlerts)
     setLoading(false)
   }, [session?.user?.id])
@@ -93,7 +93,7 @@ export function AlertsTab() {
   const loadHistory = useCallback(async () => {
     if (!session?.user?.id) return
     
-    const history = await getAlertHistory(session.user.id)
+    const history = await getAlertHistory()
     setAlertHistory(history)
   }, [session?.user?.id])
 
@@ -148,7 +148,7 @@ export function AlertsTab() {
       }
     }
 
-    const newAlert = await createAlert(session.user.id, alertData)
+    const newAlert = await createAlert(alertData)
     if (newAlert) {
       await loadAlerts()
       setShowCreateModal(false)
@@ -159,7 +159,7 @@ export function AlertsTab() {
   const handleToggleAlert = async (alertId: string, isActive: boolean) => {
     if (!session?.user?.id) return
     
-    const success = await updateAlert(session.user.id, alertId, { is_active: !isActive })
+    const success = await updateAlert(alertId, { is_active: !isActive })
     if (success) {
       await loadAlerts()
     }
@@ -168,7 +168,7 @@ export function AlertsTab() {
   const handleDeleteAlert = async (alertId: string) => {
     if (!session?.user?.id) return
     
-    const success = await deleteAlert(session.user.id, alertId)
+    const success = await deleteAlert(alertId)
     if (success) {
       await loadAlerts()
     }
@@ -179,7 +179,7 @@ export function AlertsTab() {
     setSelectedAlert(alert)
     setShowHistoryModal(true)
     setHistoryLoading(true)
-    const history = await getAlertHistory(session.user.id, alert.id)
+    const history = await getAlertHistory(alert.id)
     setSelectedAlertHistory(history)
     setHistoryLoading(false)
   }
@@ -187,7 +187,7 @@ export function AlertsTab() {
   const handleMarkViewed = async (historyId: string) => {
     if (!session?.user?.id) return
     
-    const success = await markAlertViewed(session.user.id, historyId)
+    const success = await markAlertViewed(historyId)
     if (success) {
       await loadHistory()
     }

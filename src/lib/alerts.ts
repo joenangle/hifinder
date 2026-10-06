@@ -1,151 +1,65 @@
-import { supabase } from './supabase'
 import type { PriceAlert, AlertHistory } from '@/types/marketplace'
 
 export type { PriceAlert, AlertHistory } from '@/types/marketplace'
 
-export async function getUserAlerts(userId: string): Promise<PriceAlert[]> {
-  const { data, error } = await supabase
-    .from('price_alerts')
-    .select(`
-      *,
-      components (
-        id,
-        name,
-        brand,
-        category,
-        type,
-        image_url,
-        price_new,
-        price_used_min,
-        price_used_max
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+// Browser client for /api/alerts. price_alerts and alert_history are RLS-locked
+// to auth.uid(), which NextAuth never sets, so all access goes through the
+// session-scoped API routes rather than the Supabase anon client.
 
-  if (error) {
-    console.error('Error fetching price alerts:', error)
-    return []
-  }
-
-  return data as PriceAlert[]
-}
-
-export async function createAlert(
-  userId: string,
-  alertData: Partial<PriceAlert>
-): Promise<PriceAlert | null> {
-  const { data, error } = await supabase
-    .from('price_alerts')
-    .insert({
-      ...alertData,
-      user_id: userId,
-      is_active: true,
-      trigger_count: 0
+async function request<T>(url: string, init?: RequestInit): Promise<T | null> {
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...init?.headers },
     })
-    .select(`
-      *,
-      components (
-        id,
-        name,
-        brand,
-        category,
-        type,
-        image_url,
-        price_new,
-        price_used_min,
-        price_used_max
-      )
-    `)
-    .single()
-
-  if (error) {
-    console.error('Error creating alert:', error)
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}))
+      console.error(`${init?.method ?? 'GET'} ${url} failed:`, body.error ?? response.status)
+      return null
+    }
+    return (await response.json()) as T
+  } catch (error) {
+    console.error(`${init?.method ?? 'GET'} ${url} failed:`, error)
     return null
   }
-
-  return data as PriceAlert
 }
 
-export async function updateAlert(
-  userId: string,
-  alertId: string,
-  updates: Partial<PriceAlert>
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('price_alerts')
-    .update(updates)
-    .eq('id', alertId)
-    .eq('user_id', userId)
-
-  if (error) {
-    console.error('Error updating alert:', error)
-    return false
-  }
-
-  return true
+export async function getUserAlerts(): Promise<PriceAlert[]> {
+  return (await request<PriceAlert[]>('/api/alerts')) ?? []
 }
 
-export async function deleteAlert(
-  userId: string,
-  alertId: string
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('price_alerts')
-    .delete()
-    .eq('id', alertId)
-    .eq('user_id', userId)
-
-  if (error) {
-    console.error('Error deleting alert:', error)
-    return false
-  }
-
-  return true
+export async function createAlert(alertData: Partial<PriceAlert>): Promise<PriceAlert | null> {
+  return request<PriceAlert>('/api/alerts', {
+    method: 'POST',
+    body: JSON.stringify(alertData),
+  })
 }
 
-export async function getAlertHistory(
-  userId: string,
-  alertId?: string
-): Promise<AlertHistory[]> {
-  let query = supabase
-    .from('alert_history')
-    .select('*')
-    .eq('user_id', userId)
-    .order('triggered_at', { ascending: false })
-
-  if (alertId) {
-    query = query.eq('alert_id', alertId)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    console.error('Error fetching alert history:', error)
-    return []
-  }
-
-  return data as AlertHistory[]
+export async function updateAlert(alertId: string, updates: Partial<PriceAlert>): Promise<boolean> {
+  const result = await request('/api/alerts', {
+    method: 'PATCH',
+    body: JSON.stringify({ ...updates, id: alertId }),
+  })
+  return result !== null
 }
 
-export async function markAlertViewed(
-  userId: string,
-  historyId: string
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('alert_history')
-    .update({ 
-      user_viewed: true, 
-      user_viewed_at: new Date().toISOString() 
-    })
-    .eq('id', historyId)
-    .eq('user_id', userId)
-
-  if (error) {
-    console.error('Error marking alert as viewed:', error)
-    return false
-  }
-
-  return true
+export async function deleteAlert(alertId: string): Promise<boolean> {
+  const result = await request(`/api/alerts?id=${encodeURIComponent(alertId)}`, { method: 'DELETE' })
+  return result !== null
 }
 
+export async function getAlertHistory(alertId?: string): Promise<AlertHistory[]> {
+  const url = alertId
+    ? `/api/alerts/history?alert_id=${encodeURIComponent(alertId)}`
+    : '/api/alerts/history'
+  return (await request<AlertHistory[]>(url)) ?? []
+}
+
+export async function markAlertViewed(historyId: string): Promise<boolean> {
+  const result = await request('/api/alerts/history', {
+    method: 'PATCH',
+    body: JSON.stringify({ id: historyId }),
+  })
+  return result !== null
+}

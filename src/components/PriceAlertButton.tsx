@@ -55,7 +55,7 @@ export function PriceAlertButton({
     if (state === 'loading' || state === 'created') return
 
     setState('loading')
-    const result = await createAlert(session.user.id, {
+    const result = await createAlert({
       component_id: componentId,
       target_price: defaultTarget,
       alert_type: 'below',

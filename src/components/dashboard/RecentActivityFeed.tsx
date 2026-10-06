@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import {
   Package,
@@ -21,6 +20,14 @@ interface ActivityItem {
   link?: { tab?: string; href?: string; label?: string }
 }
 
+// Shape of `recent` from GET /api/user/activity
+interface RecentActivity {
+  gear: { id: string; created_at: string; components: { brand: string; name: string; category: string } | null }[]
+  wishlist: { id: string; created_at: string; components: { brand: string; name: string } | null }[]
+  alertHistory: { id: string; triggered_at: string; listing_title: string; listing_price: number; user_viewed: boolean }[]
+  stacks: { id: string; name: string; created_at: string }[]
+}
+
 export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -31,92 +38,57 @@ export function RecentActivityFeed({ setActiveTab }: { setActiveTab: (tab: strin
     if (!session?.user?.id) return
 
     const fetchActivity = async () => {
-      const userId = session.user.id
       const items: ActivityItem[] = []
 
-      // Fetch recent gear additions
-      const { data: gear } = await supabase
-        .from('user_gear')
-        .select('id, created_at, components(brand, name, category)')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(5)
+      const response = await fetch('/api/user/activity', { credentials: 'include' })
+      if (!response.ok) {
+        setLoading(false)
+        return
+      }
+      const { recent } = await response.json() as { recent: RecentActivity }
 
-      if (gear) {
-        for (const item of gear) {
-          const comp = item.components as unknown as { brand: string; name: string; category: string } | null
-          items.push({
-            id: `gear-${item.id}`,
-            type: 'gear_added',
-            title: comp ? `Added ${comp.brand} ${comp.name}` : 'Added gear to collection',
-            subtitle: comp?.category,
-            timestamp: item.created_at,
-            link: { href: '/gear' }
-          })
-        }
+      for (const item of recent.gear) {
+        const comp = item.components
+        items.push({
+          id: `gear-${item.id}`,
+          type: 'gear_added',
+          title: comp ? `Added ${comp.brand} ${comp.name}` : 'Added gear to collection',
+          subtitle: comp?.category,
+          timestamp: item.created_at,
+          link: { href: '/gear' }
+        })
       }
 
-      // Fetch recent wishlist additions
-      const { data: wishlist } = await supabase
-        .from('wishlists')
-        .select('id, created_at, components(brand, name)')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      if (wishlist) {
-        for (const item of wishlist) {
-          const comp = item.components as unknown as { brand: string; name: string } | null
-          items.push({
-            id: `wish-${item.id}`,
-            type: 'wishlist_added',
-            title: comp ? `Saved ${comp.brand} ${comp.name}` : 'Added item to wishlist',
-            timestamp: item.created_at,
-            link: { tab: 'wishlist' }
-          })
-        }
+      for (const item of recent.wishlist) {
+        const comp = item.components
+        items.push({
+          id: `wish-${item.id}`,
+          type: 'wishlist_added',
+          title: comp ? `Saved ${comp.brand} ${comp.name}` : 'Added item to wishlist',
+          timestamp: item.created_at,
+          link: { tab: 'wishlist' }
+        })
       }
 
-      // Fetch recent alert triggers
-      const { data: alertHist } = await supabase
-        .from('alert_history')
-        .select('id, triggered_at, listing_title, listing_price, user_viewed')
-        .eq('user_id', userId)
-        .order('triggered_at', { ascending: false })
-        .limit(5)
-
-      if (alertHist) {
-        for (const item of alertHist) {
-          items.push({
-            id: `alert-${item.id}`,
-            type: 'alert_triggered',
-            title: `Alert match: ${item.listing_title}`,
-            subtitle: `$${Math.round(item.listing_price)}${!item.user_viewed ? ' (unread)' : ''}`,
-            timestamp: item.triggered_at,
-            link: { tab: 'alerts' }
-          })
-        }
+      for (const item of recent.alertHistory) {
+        items.push({
+          id: `alert-${item.id}`,
+          type: 'alert_triggered',
+          title: `Alert match: ${item.listing_title}`,
+          subtitle: `$${Math.round(item.listing_price)}${!item.user_viewed ? ' (unread)' : ''}`,
+          timestamp: item.triggered_at,
+          link: { tab: 'alerts' }
+        })
       }
 
-      // Fetch recent stacks
-      const { data: stacks } = await supabase
-        .from('user_stacks')
-        .select('id, name, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(3)
-
-      if (stacks) {
-        for (const item of stacks) {
-          items.push({
-            id: `stack-${item.id}`,
-            type: 'stack_created',
-            title: `Created stack "${item.name}"`,
-            timestamp: item.created_at,
-            link: { href: '/gear?tab=stacks' }
-          })
-        }
+      for (const item of recent.stacks) {
+        items.push({
+          id: `stack-${item.id}`,
+          type: 'stack_created',
+          title: `Created stack "${item.name}"`,
+          timestamp: item.created_at,
+          link: { href: '/gear?tab=stacks' }
+        })
       }
 
       // Sort all items by timestamp, most recent first

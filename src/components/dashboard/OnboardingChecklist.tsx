@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {
   CheckCircle,
@@ -42,20 +41,19 @@ export function OnboardingChecklist({ setActiveTab }: { setActiveTab: (tab: stri
     if (!session?.user?.id) return
 
     const checkProgress = async () => {
-      const userId = session.user.id
+      const response = await fetch('/api/user/activity', { credentials: 'include' })
+      if (!response.ok) {
+        setLoading(false)
+        return
+      }
+      const { counts } = await response.json() as {
+        counts: { gear: number; wishlist: number; alerts: number; stacks: number }
+      }
 
-      // Check each milestone in parallel
-      const [gearRes, wishlistRes, alertsRes, stacksRes] = await Promise.all([
-        supabase.from('user_gear').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true),
-        supabase.from('wishlists').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('price_alerts').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-        supabase.from('user_stacks').select('id', { count: 'exact', head: true }).eq('user_id', userId)
-      ])
-
-      const hasGear = (gearRes.count || 0) > 0
-      const hasWishlist = (wishlistRes.count || 0) > 0
-      const hasAlerts = (alertsRes.count || 0) > 0
-      const hasStacks = (stacksRes.count || 0) > 0
+      const hasGear = counts.gear > 0
+      const hasWishlist = counts.wishlist > 0
+      const hasAlerts = counts.alerts > 0
+      const hasStacks = counts.stacks > 0
       const hasVisitedRecs = !!localStorage.getItem('hifinder_visited_recommendations')
 
       setItems([

@@ -17,6 +17,18 @@ interface WishlistMatch {
   priceUsedMax: number | null
 }
 
+interface WishlistItem {
+  component_id: string | null
+  components: {
+    id: string
+    brand: string
+    name: string
+    category: string
+    price_used_min: number | null
+    price_used_max: number | null
+  } | null
+}
+
 export function WishlistMatches({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { data: session } = useSession()
   const [matches, setMatches] = useState<WishlistMatch[]>([])
@@ -26,11 +38,9 @@ export function WishlistMatches({ setActiveTab }: { setActiveTab: (tab: string) 
     if (!session?.user?.id) return
 
     const fetchMatches = async () => {
-      // Get wishlist items with component data
-      const { data: wishlistItems } = await supabase
-        .from('wishlists')
-        .select('component_id, components(id, brand, name, category, price_used_min, price_used_max)')
-        .eq('user_id', session.user.id)
+      // Wishlists are RLS-locked to the browser; read them via the session-scoped API
+      const response = await fetch('/api/wishlist', { credentials: 'include' })
+      const wishlistItems: WishlistItem[] | null = response.ok ? await response.json() : null
 
       if (!wishlistItems || wishlistItems.length === 0) {
         setLoading(false)
@@ -79,7 +89,7 @@ export function WishlistMatches({ setActiveTab }: { setActiveTab: (tab: string) 
       // Build matches
       const result: WishlistMatch[] = []
       for (const item of wishlistItems) {
-        const comp = item.components as unknown as { id: string; brand: string; name: string; category: string; price_used_min: number | null; price_used_max: number | null } | null
+        const comp = item.components
         if (!comp || !item.component_id) continue
         const listingData = listingsByComponent.get(item.component_id)
         if (!listingData) continue

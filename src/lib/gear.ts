@@ -1,4 +1,3 @@
-import { supabase } from './supabase'
 import { supabaseServer } from './supabase-server'
 import { needsAmplification } from './audio-calculations'
 import { AMP_CATEGORIES, DAC_CATEGORIES, isCategoryIn } from './component-categories'
@@ -6,8 +5,9 @@ import type { UserGearItem, GearSuggestion } from '@/types/gear'
 
 export type { UserGearItem, GearSuggestion } from '@/types/gear'
 
+// Server-only: user_gear is RLS-locked to the browser under NextAuth
 export async function getUserGear(userId: string): Promise<UserGearItem[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServer
     .from('user_gear')
     .select(`
       *,
