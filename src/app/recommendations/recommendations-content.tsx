@@ -383,8 +383,16 @@ export function RecommendationsContent() {
 
   // ===== MOVED TO API - RECOMMENDATIONS LOGIC NOW SERVER-SIDE =====
 
+  // In-flight request, aborted when a newer fetch starts (e.g. dragging the
+  // budget slider) so a slow stale response can't overwrite fresher results
+  const fetchAbortRef = React.useRef<AbortController | null>(null)
+
   // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async (background = false) => {
+    fetchAbortRef.current?.abort()
+    const controller = new AbortController()
+    fetchAbortRef.current = controller
+
     if (!background) setLoading(true)
     setError(null)
 
@@ -416,7 +424,9 @@ export function RecommendationsContent() {
         params.set('selectedItems', JSON.stringify(debouncedSelectedItems))
       }
 
-      const response = await fetch(`/api/recommendations/v2?${params.toString()}`)
+      const response = await fetch(`/api/recommendations/v2?${params.toString()}`, {
+        signal: controller.signal,
+      })
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -424,6 +434,7 @@ export function RecommendationsContent() {
       }
       
       const recommendations = await response.json()
+      if (controller.signal.aborted) return
       
       // Validate response structure
       if (!recommendations || typeof recommendations !== 'object') {
@@ -483,6 +494,8 @@ export function RecommendationsContent() {
       }
 
     } catch (error) {
+      // Superseded by a newer request: not a failure, and not ours to report
+      if (controller.signal.aborted) return
       console.error('Recommendations API error:', error)
       // Only show error and clear results on foreground fetches — background
       // re-fetches should silently fail and keep existing results visible
@@ -497,7 +510,12 @@ export function RecommendationsContent() {
         setShowAmplification(false)
       }
     } finally {
-      if (!background) setLoading(false)
+      // Only the latest request settles loading. Clearing it unconditionally
+      // also covers a foreground fetch that was superseded by a background one.
+      if (fetchAbortRef.current === controller) {
+        fetchAbortRef.current = null
+        setLoading(false)
+      }
     }
   }, [
     debouncedBudget,
@@ -1337,7 +1355,7 @@ export function RecommendationsContent() {
               )}
 
               {/* Empty state when no categories have results — but not if the user already has a complete stack */}
-              {activeTypes === 0 && hasLoadedOnce && !loading && !isStackComplete && (
+              {activeTypes === 0 && hasLoadedOnce && !loading && !error && !isStackComplete && (
                 <div className="card p-12 text-center max-w-lg mx-auto">
                   <div className="text-4xl mb-4">🔍</div>
                   <h3 className="heading-3 mb-2">No results match your filters</h3>
