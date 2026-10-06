@@ -3,6 +3,7 @@ import { SignInButton } from '@/components/auth/SignInButton'
 export const metadata = {
   title: 'Sign In — HiFinder',
   description: 'Sign in to HiFinder to save your gear collection, wishlist, and price alerts.',
+  robots: { index: false, follow: true },
 }
 
 const features = [

@@ -5,6 +5,7 @@ export const metadata = {
   title: 'Browse Catalog | HiFinder',
   description:
     'Search and browse every headphone, IEM, DAC, and amp in the HiFinder catalog — filter by category, sort by price or expert rating, and jump straight to used listings.',
+  alternates: { canonical: '/browse' },
 }
 
 export default function BrowsePage() {

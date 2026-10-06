@@ -4,6 +4,7 @@ import { PriceHistoryContent } from './price-history-content'
 export const metadata = {
   title: 'Price History | HiFinder',
   description: 'Check used market prices for headphones, IEMs, DACs, and amps. See price trends, sold listings, and market statistics.',
+  alternates: { canonical: '/price-history' },
 }
 
 export default function PriceHistoryPage() {

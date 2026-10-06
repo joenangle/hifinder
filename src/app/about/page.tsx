@@ -1,6 +1,13 @@
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 
+export const metadata = {
+  title: 'About | HiFinder',
+  description:
+    'HiFinder is a free tool that matches headphones, IEMs, DACs and amps to how you listen, using expert measurements and live used-market prices.',
+  alternates: { canonical: '/about' },
+}
+
 const donateUrl = process.env.NEXT_PUBLIC_DONATE_URL
 
 export default function AboutPage() {

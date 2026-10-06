@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -14,10 +15,11 @@ const BASE_URL = 'https://hifinder.app'
 
 type Params = Promise<{ id: string }>
 
-async function getComponent(id: string) {
+// cache(): generateMetadata and the page both need the row; fetch it once per request
+const getComponent = cache(async (id: string) => {
   const { data } = await supabaseServer.from('components').select('*').eq('id', id).maybeSingle()
   return data
-}
+})
 
 async function getActiveListingCount(id: string): Promise<number> {
   const { count } = await supabaseServer
@@ -39,6 +41,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title,
     description,
+    alternates: { canonical: `/components/${id}` },
     openGraph: {
       title,
       description,

@@ -1,5 +1,12 @@
 import LearnContent from './LearnContent'
 
+export const metadata = {
+  title: 'Learn Audio | HiFinder',
+  description:
+    'Curated videos, articles and tools for understanding headphones, IEMs, DACs and amplifiers — from reading frequency response graphs to choosing your first amp.',
+  alternates: { canonical: '/learn' },
+}
+
 interface Resource {
   id: string;
   title: string;

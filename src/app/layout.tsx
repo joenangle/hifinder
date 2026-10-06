@@ -38,13 +38,9 @@ export const metadata: Metadata = {
       'impact-site-verification': 'ab752c49-e654-41e0-a0ee-abc6dc0eb30b',
     },
   },
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: "HiFinder - Audio System Builder",
     description: "Find headphones, IEMs, DACs, and amps matched to your budget and how you listen. Free, no account required.",
-    url: 'https://hifinder.app',
     siteName: 'HiFinder',
     type: 'website',
     locale: 'en_US',
