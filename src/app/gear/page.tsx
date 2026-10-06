@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import type { UserGearItem } from '@/types/gear'
+import { searchWords, brandOrNameMatches } from '@/lib/search-terms'
 import { StackWithGear, StackPurpose, StackComponentData, calculateStackValue, checkStackCompatibility, stackTemplates, getStackComponentData, purposeIcons } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
@@ -184,11 +185,18 @@ function GearContent() {
       return
     }
 
-    const { data, error } = await supabase
-      .from('components')
-      .select('*')
-      .or(`name.ilike.%${query}%,brand.ilike.%${query}%`)
-      .limit(10)
+    const words = searchWords(query)
+    if (words.length === 0) {
+      setSearchResults([])
+      return
+    }
+
+    // Each word must appear in brand or name
+    let request = supabase.from('components').select('*')
+    for (const word of words) {
+      request = request.or(brandOrNameMatches(word))
+    }
+    const { data, error } = await request.limit(10)
 
     if (!error && data) {
       setSearchResults(data)

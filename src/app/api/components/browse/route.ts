@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { brandOrNameMatches } from '@/lib/search-terms'
 import { supabaseServer } from '@/lib/supabase-server'
 import {
   parseBrowseParams,
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Each search word must appear in brand or name (words AND together).
     for (const word of browseSearchWords(q)) {
-      query = query.or(`brand.ilike.%${word}%,name.ilike.%${word}%`)
+      query = query.or(brandOrNameMatches(word))
     }
 
     if (category) {

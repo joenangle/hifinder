@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
+import { searchWords, brandOrNameMatches } from '@/lib/search-terms'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     // Search across brand + name using ilike
     // Split query into words for better matching ("sennheiser hd" matches "Sennheiser HD 600")
-    const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean)
+    const words = searchWords(q)
 
     let query = supabaseServer
       .from('components')
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Each word must appear in either brand or name
     for (const word of words) {
-      query = query.or(`brand.ilike.%${word}%,name.ilike.%${word}%`)
+      query = query.or(brandOrNameMatches(word))
     }
 
     // Optional category filter

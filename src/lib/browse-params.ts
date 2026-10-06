@@ -4,6 +4,8 @@
  * normalization/clamping logic is unit-testable without a request.
  */
 
+import { searchWords } from './search-terms'
+
 export const BROWSE_CATEGORIES = ['cans', 'iems', 'dac', 'amp', 'dac_amp'] as const
 export type BrowseCategory = (typeof BROWSE_CATEGORIES)[number]
 
@@ -48,8 +50,7 @@ export function parseBrowseParams(sp: URLSearchParams): BrowseParams {
 }
 
 export function browseSearchWords(q: string | null | undefined): string[] {
-  if (!q) return []
-  return q.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  return searchWords(q)
 }
 
 export function browseSortClauses(sort: BrowseSort): SortClause[] {
