@@ -4,8 +4,8 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
-import { UserGearItem } from '@/lib/gear'
-import { StackWithGear, StackPurpose, StackComponentData, createStack, deleteStack, calculateStackValue, updateStack, checkStackCompatibility, stackTemplates, getStackComponentData, removeComponentFromStack, purposeIcons } from '@/lib/stacks'
+import type { UserGearItem } from '@/types/gear'
+import { StackWithGear, StackPurpose, StackComponentData, calculateStackValue, checkStackCompatibility, stackTemplates, getStackComponentData, purposeIcons } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
@@ -313,21 +313,74 @@ function GearContent() {
   const handleEditStack = async () => {
     if (!selectedStackForEdit || !editStackName.trim()) return
     
-    const success = await updateStack(
-      selectedStackForEdit.id, 
-      {
-        name: editStackName.trim(),
-        description: editStackDescription.trim() || undefined,
-        purpose: editStackPurpose
+    try {
+      const response = await fetch('/api/stacks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          id: selectedStackForEdit.id,
+          name: editStackName.trim(),
+          description: editStackDescription.trim() || null,
+          purpose: editStackPurpose
+        })
+      })
+
+      if (response.ok) {
+        await loadData()
+        setShowEditStackModal(false)
+        setSelectedStackForEdit(null)
+        setEditStackName('')
+        setEditStackDescription('')
+      } else {
+        const error = await response.json()
+        alert('Failed to update stack: ' + (error.error || 'Unknown error'))
       }
-    )
-    
-    if (success) {
+    } catch (error) {
+      console.error('Error updating stack:', error)
+      alert('Error updating stack: ' + error)
+    }
+  }
+
+  const handleDeleteStack = async (stackId: string) => {
+    if (!confirm('Are you sure you want to delete this stack?')) return
+
+    try {
+      const response = await fetch(`/api/stacks?id=${encodeURIComponent(stackId)}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        alert('Failed to delete stack: ' + (error.error || 'Unknown error'))
+        return
+      }
       await loadData()
-      setShowEditStackModal(false)
-      setSelectedStackForEdit(null)
-      setEditStackName('')
-      setEditStackDescription('')
+    } catch (error) {
+      console.error('Error deleting stack:', error)
+      alert('Error deleting stack: ' + error)
+    }
+  }
+
+  const handleCreateStackFromTemplate = async (template: { name: string; description: string }) => {
+    try {
+      const response = await fetch('/api/stacks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name: template.name, description: template.description })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        alert('Failed to create stack: ' + (error.error || 'Unknown error'))
+        return
+      }
+      await loadData()
+    } catch (error) {
+      console.error('Error creating stack:', error)
+      alert('Error creating stack: ' + error)
     }
   }
 
@@ -735,10 +788,7 @@ function GearContent() {
                         {stackTemplates.map(template => (
                           <div
                             key={template.id}
-                            onClick={async () => {
-                              const newStack = await createStack(session?.user?.id || '', template.name, template.description)
-                              if (newStack) loadData()
-                            }}
+                            onClick={() => handleCreateStackFromTemplate(template)}
                             className="card p-4 hover:shadow-lg transition-[border-color,box-shadow] cursor-pointer border-2 border-dashed border-secondary hover:border-primary"
                           >
                             <div className="flex items-center gap-3 mb-2">
@@ -808,12 +858,7 @@ function GearContent() {
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={async () => {
-                                  if (confirm('Are you sure you want to delete this stack?')) {
-                                    await deleteStack(stack.id)
-                                    loadData()
-                                  }
-                                }}
+                                onClick={() => handleDeleteStack(stack.id)}
                                 className="p-1 rounded hover:bg-secondary text-secondary hover:text-primary transition-colors"
                                 title="Delete Stack"
                               >

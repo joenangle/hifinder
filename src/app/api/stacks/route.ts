@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { purposeIcons } from '@/lib/stacks'
+import type { StackPurpose } from '@/types/gear'
+
+function isStackPurpose(value: unknown): value is StackPurpose {
+  return typeof value === 'string' && Object.hasOwn(purposeIcons, value)
+}
 
 export async function GET() {
   try {
@@ -67,10 +73,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description } = body
+    const { name, description, purpose } = body
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Stack name is required' }, { status: 400 })
+    }
+
+    if (purpose != null && !isStackPurpose(purpose)) {
+      return NextResponse.json({ error: 'Invalid stack purpose' }, { status: 400 })
     }
 
     const { data: newStack, error } = await supabaseServer
@@ -78,7 +88,8 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: session.user.id,
         name: name.trim(),
-        description: description?.trim() || null
+        description: description?.trim() || null,
+        ...(purpose != null && { purpose })
       })
       .select()
       .single()
@@ -93,6 +104,103 @@ export async function POST(request: NextRequest) {
     console.error('Error creating stack:', error)
     return NextResponse.json(
       { error: 'Failed to create stack' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { id, name, description, purpose } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'Stack ID is required' }, { status: 400 })
+    }
+
+    const updates: { name?: string; description?: string | null; purpose?: StackPurpose } = {}
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || !name.trim()) {
+        return NextResponse.json({ error: 'Stack name is required' }, { status: 400 })
+      }
+      updates.name = name.trim()
+    }
+    if (description !== undefined) {
+      updates.description = typeof description === 'string' && description.trim() ? description.trim() : null
+    }
+    if (purpose !== undefined) {
+      if (!isStackPurpose(purpose)) {
+        return NextResponse.json({ error: 'Invalid stack purpose' }, { status: 400 })
+      }
+      updates.purpose = purpose
+    }
+
+    // Scoping by user_id makes another user's stack indistinguishable from a missing one
+    const { data: stack, error } = await supabaseServer
+      .from('user_stacks')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', session.user.id)
+      .select()
+      .single()
+
+    if (error || !stack) {
+      return NextResponse.json({ error: 'Stack not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(stack)
+  } catch (error) {
+    console.error('Error updating stack:', error)
+    return NextResponse.json(
+      { error: 'Failed to update stack' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const id = new URL(request.url).searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Stack ID is required' }, { status: 400 })
+    }
+
+    // stack_components rows cascade via stack_components_stack_id_fkey
+    const { data: deleted, error } = await supabaseServer
+      .from('user_stacks')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', session.user.id)
+      .select('id')
+
+    if (error) {
+      console.error('Error deleting stack:', error)
+      return NextResponse.json({ error: 'Failed to delete stack' }, { status: 500 })
+    }
+
+    if (!deleted?.length) {
+      return NextResponse.json({ error: 'Stack not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting stack:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete stack' },
       { status: 500 }
     )
   }
