@@ -64,7 +64,7 @@ matched nothing before this module existed.
 - Supabase (database + auth), Framer Motion, Recharts, Lucide icons
 - React Compiler enabled (auto memoization)
 - Build: `tsc --noEmit && next build` (decoupled for incremental TS caching)
-- Deploy: Vercel, staging branch → staging.hifinder.app (GitHub Actions auto-alias)
+- Deploy: Vercel Git integration — `main` → hifinder.app, `staging` → staging.hifinder.app (see Deployment below)
 
 ## Working Style
 
@@ -134,7 +134,26 @@ node scripts/merge-crinacle-cans.js data.csv --execute  # Expert data import
 - `memory/feature-plans.md` — Deferred features (NL search, sound filtering), data quality gaps
 - `memory/completed-work.md` — History of completed features and optimizations
 
+## Deployment & Git Integration
+Vercel's Git integration does all deploys; there is no deploy workflow in GitHub Actions.
+- `main` → production (hifinder.app). Every other pushed branch → a preview deployment.
+- `staging` → staging.hifinder.app via Vercel's branch-domain assignment (also
+  `hifinder-git-staging-joenangles-projects.vercel.app`). The domain re-points to each
+  new `staging` build automatically — nothing to alias by hand.
+- The old `staging-alias.yml` workflow was removed in `2eb4023` (it was promoting
+  staging builds to production). `VERCEL_TOKEN` / `VERCEL_ORG_ID` secrets are no
+  longer used by any workflow.
+- Staging is behind **Vercel Deployment Protection** (plain requests 302 to Vercel
+  login), plus Basic Auth in `middleware.ts` for page routes on that hostname.
+  To smoke-test a deploy, use the authenticated CLI:
+  `vercel curl /api/... --deployment <deployment-url> -- -s -w '%{http_code}'`.
+  Find the deployment URL with `gh api "repos/joenangle/hifinder/deployments?sha=<sha>"`
+  then its `/statuses`, or `vercel alias ls | grep staging`.
+- Promote: merge `staging` → `main` (fast-forward when possible).
+
 ## GitHub Actions Secrets
-- `VERCEL_TOKEN`: Vercel personal access token
-- `VERCEL_ORG_ID`: `joenangles-projects`
-- Workflow: `.github/workflows/staging-alias.yml`
+Workflows are cron jobs only (scrapers, price trends, cache warming); none deploy.
+- `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`: scraper/DB jobs
+- `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET`, `REVERB_API_TOKEN`: scrapers
+- `CRON_SECRET` + `SITE_URL`: `scrape-listings.yml` calls `/api/alerts/match-new`
+- `VERCEL_PROTECTION_BYPASS_TOKEN`: `warm-api.yml` reaches protected deployments
