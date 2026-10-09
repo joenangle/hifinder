@@ -24,7 +24,7 @@ export interface RecommendationCacheParams {
   budgetRangeMin?: number
   budgetRangeMax?: number
   driverType?: string
-  existingHeadphones?: string
+  ownedHeadphoneIds?: string[]
   existingGear?: Record<string, unknown>
   customBudgetAllocation?: Record<string, unknown> | null
 }
@@ -51,7 +51,7 @@ export function generateCacheKey(params: RecommendationCacheParams): string {
       .sort()
       .join(','),
     params.selectedItems?.length ? [...params.selectedItems].sort().join(',') : '',
-    params.existingHeadphones ?? '',
+    [...(params.ownedHeadphoneIds ?? [])].sort().join(','),
     stableStringify(params.existingGear ?? {}),
     stableStringify(params.customBudgetAllocation ?? null),
   ]

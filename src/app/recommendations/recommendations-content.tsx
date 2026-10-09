@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic'
 import { Component, UsedListing } from '@/types'
 import { BudgetSlider } from '@/components/budget/BudgetSlider'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useCollection } from '@/hooks/useCollection'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { useDisclosureStage } from '@/hooks/useDisclosureStage'
@@ -83,6 +84,8 @@ export function RecommendationsContent() {
   const [dacAmps, setDacAmps] = useState<AudioComponent[]>([])
   // System-level synergy: the top recommended headphone paired with the amp/combo
   // that drives it best (set by the API only in the co-recommendation case).
+  // Owned headphone (from the user's collection) the API matched amps/combos to
+  const [ampMatchedTo, setAmpMatchedTo] = useState<{ id: string; brand: string; name: string } | null>(null)
   const [recommendedPairing, setRecommendedPairing] = useState<{
     headphone: { id: string; name: string }
     amp: {
@@ -209,10 +212,7 @@ export function RecommendationsContent() {
     budgetRangeMax: nuqsParams.budgetRangeMax,
     headphoneType: nuqsParams.type,
     wantRecommendationsFor: nuqsParams.want,
-    existingGear: {
-      ...nuqsParams.gear,
-      specificModels: nuqsParams.gearModels,
-    },
+    existingGear: nuqsParams.gear,
     soundSignature: nuqsParams.soundSignature,
   }), [nuqsParams])
 
@@ -292,7 +292,6 @@ export function RecommendationsContent() {
         amp: gear.amp,
         combo: gear.combo,
       }
-      if (gear.specificModels) nuqsUpdates.gearModels = gear.specificModels
     }
     setNuqsParams(nuqsUpdates)
   }, [setNuqsParams])
@@ -381,8 +380,26 @@ export function RecommendationsContent() {
   // budget slider) so a slow stale response can't overwrite fresher results
   const fetchAbortRef = React.useRef<AbortController | null>(null)
 
+  // Amps and combos are matched to the headphones the user owns: those in
+  // their collection (signed in) plus any marked owned on this page. The API
+  // sizes the amp for the hardest to drive.
+  const collection = useCollection()
+  const ownedHeadphoneIdsKey = useMemo(() => {
+    const ids = new Set<string>()
+    for (const item of [...collection.items, ...ownedGear.values()]) {
+      if (item.category === 'cans' || item.category === 'iems') ids.add(item.id)
+    }
+    return [...ids].sort().join(',')
+  }, [collection.items, ownedGear])
+  const wantsAmpMatch =
+    userPrefs.wantRecommendationsFor.amp || userPrefs.wantRecommendationsFor.combo
+
   // Main recommendation fetching logic using new API
   const fetchRecommendations = useCallback(async (background = false) => {
+    // Wait for the collection before ranking amps, rather than showing a
+    // generic ranking that changes a moment later
+    if (wantsAmpMatch && !collection.loaded) return
+
     fetchAbortRef.current?.abort()
     const controller = new AbortController()
     fetchAbortRef.current = controller
@@ -412,10 +429,9 @@ export function RecommendationsContent() {
         soundSignatures: JSON.stringify(soundFilters)
       })
 
-      // The owned headphone model lets the API rank amps by how well they drive it
-      const ownedHeadphones = userPrefs.existingGear.specificModels.headphones.trim()
-      if (ownedHeadphones) {
-        params.set('existingHeadphones', ownedHeadphones)
+      // Only amp/combo ranking uses these, so don't split the cache otherwise
+      if (wantsAmpMatch && ownedHeadphoneIdsKey) {
+        params.set('ownedHeadphoneIds', ownedHeadphoneIdsKey)
       }
 
       // Add custom budget allocation if provided (using debounced value)
@@ -457,6 +473,7 @@ export function RecommendationsContent() {
       setDacAmps(prev => recommendations.combos?.length > 0 || !skippedCategories.has('combo') ? (recommendations.combos || []) : prev)
       setShowAmplification(recommendations.needsAmplification || false)
       setRecommendedPairing(recommendations.recommendedPairing ?? null)
+      setAmpMatchedTo(recommendations.ampMatchedTo ?? null)
       setAmplificationStrategy(recommendations.amplificationStrategy ?? null)
 
       // Store server's automatic allocation for display (but don't auto-use it)
@@ -533,7 +550,9 @@ export function RecommendationsContent() {
     userPrefs.existingGear.dac,
     userPrefs.existingGear.amp,
     userPrefs.existingGear.combo,
-    userPrefs.existingGear.specificModels.headphones,
+    wantsAmpMatch,
+    collection.loaded,
+    ownedHeadphoneIdsKey,
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
     typeFilters, // Need actual array for headphoneType conversion
@@ -1562,9 +1581,16 @@ export function RecommendationsContent() {
                 {filteredAmps.length > 0 ? (
                   <>
                     <div className="px-4 py-3 border-b flex items-center justify-between">
-                      <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
-                        Amplifiers
-                      </h2>
+                      <div>
+                        <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                          Amplifiers
+                        </h2>
+                        {ampMatchedTo && (
+                          <p className="text-xs text-secondary mt-0.5">
+                            Matched to your {ampMatchedTo.brand} {ampMatchedTo.name}
+                          </p>
+                        )}
+                      </div>
                       <span className="text-xs text-tertiary tabular-nums">
                         {filteredAmps.length} results
                         {budgetAllocation.amp && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.amp)} budget` : ''}
@@ -1630,9 +1656,16 @@ export function RecommendationsContent() {
                       </div>
                     )}
                     <div className="px-4 py-3 border-b flex items-center justify-between">
-                      <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
-                        DAC/Amp Combos
-                      </h2>
+                      <div>
+                        <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
+                          DAC/Amp Combos
+                        </h2>
+                        {ampMatchedTo && (
+                          <p className="text-xs text-secondary mt-0.5">
+                            Matched to your {ampMatchedTo.brand} {ampMatchedTo.name}
+                          </p>
+                        )}
+                      </div>
                       <span className="text-xs text-tertiary tabular-nums">
                         {filteredDacAmps.length} results
                         {budgetAllocation.combo && Object.keys(budgetAllocation).length > 1 ? ` · ${formatBudgetUSD(budgetAllocation.combo)} budget` : ''}
@@ -1967,6 +2000,7 @@ export function RecommendationsContent() {
         onClose={() => setShowOwnedGearModal(false)}
         onAddOwnedGear={(component) => addOwnedGear(component as AudioComponent)}
         ownedIds={ownedIds}
+        collectionItems={collection.items}
       />
 
       {/* Component Detail Modal */}

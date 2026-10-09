@@ -3,9 +3,8 @@ import { supabaseServer } from "@/lib/supabase-server";
 import {
   assessAmplificationFromImpedance,
   calculateAmpAdequacy,
-  resolveUserHeadphone,
+  pickHardestToDrive,
   type AmplificationTarget,
-  type HeadphoneCandidate,
 } from "@/lib/audio-calculations";
 import { calculateBudgetRange } from "@/lib/budget-ranges";
 import {
@@ -156,7 +155,8 @@ interface RecommendationRequest {
     };
   };
   soundSignatures: string[]; // Array for multi-select support
-  existingHeadphones?: string;
+  /** Catalogue IDs of headphones in the signed-in user's collection. */
+  ownedHeadphoneIds: string[];
   driverType?: string;
 }
 
@@ -613,12 +613,18 @@ export function existingGearFlags(gear: RecommendationRequest["existingGear"] | 
   };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_OWNED_HEADPHONES = 10;
+
 /**
- * Escape PostgREST `ilike` wildcards in user-supplied text so a stray `%` or
- * `_` matches literally instead of acting as a pattern.
+ * Parse `ownedHeadphoneIds` (comma-separated catalogue UUIDs from the user's
+ * collection). Invalid entries are dropped; the result is de-duplicated and
+ * sorted so the same collection always yields the same cache key.
  */
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+export function parseOwnedHeadphoneIds(param: string | null): string[] {
+  if (!param) return [];
+  const ids = param.split(",").map((s) => s.trim()).filter((s) => UUID_RE.test(s));
+  return [...new Set(ids)].sort().slice(0, MAX_OWNED_HEADPHONES);
 }
 
 /**
@@ -1050,7 +1056,7 @@ export async function GET(request: NextRequest) {
       wantRecommendationsFor,
       existingGear,
       soundSignatures, // Use the parsed array
-      existingHeadphones: searchParams.get("existingHeadphones") || "",
+      ownedHeadphoneIds: parseOwnedHeadphoneIds(searchParams.get("ownedHeadphoneIds")),
       driverType: driverTypeParam,
     };
 
@@ -1078,9 +1084,9 @@ export async function GET(request: NextRequest) {
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
       driverType: req.driverType,
-      existingHeadphones: req.existingHeadphones,
+      ownedHeadphoneIds: req.ownedHeadphoneIds,
       // Only the ownership flags change the allocation; specificModels never
-      // reach scoring (the owned headphone arrives as existingHeadphones)
+      // reach scoring (owned headphones arrive as ownedHeadphoneIds)
       existingGear: existingGearFlags(req.existingGear),
       customBudgetAllocation: customBudgetAllocation,
     });
@@ -1201,6 +1207,9 @@ export async function GET(request: NextRequest) {
         budgetAllocation: Record<string, number>;
         amplificationStrategy: AmplificationStrategy;
         needsAmplification: boolean;
+        // The owned headphone (from the user's collection) amps/combos were
+        // matched to, when there is one.
+        ampMatchedTo?: { id: string; brand: string; name: string };
         // System-level synergy: the top recommended headphone paired with the
         // recommended amp/combo that drives it best. Only set in the
         // co-recommendation case (headphone + amp, no owned headphone).
@@ -1298,24 +1307,24 @@ export async function GET(request: NextRequest) {
       // Existing-headphones lookup runs in parallel when the user wants amp
       // recommendations and named a specific pair — no dependency on the main
       // component fetch, so it joins the batch instead of being a 3rd round-trip.
-      const wantsAmpMatch = !!((effectiveWants.amp || effectiveWants.combo) && req.existingHeadphones);
-      // Fetch every substring match (not `.limit(1)`), then disambiguate in JS
-      // via resolveUserHeadphone — a bare `%name%` limit-1 could grab the wrong
-      // impedance variant (DT 990 32Ω vs 600Ω), silently poisoning the pairing.
-      const existingHeadphoneQuery = wantsAmpMatch
+      // Amps/combos are matched to the user's own headphones when we know them
+      // (from their collection, by catalogue ID, so there's no name guessing).
+      const wantsAmpMatch =
+        (effectiveWants.amp || effectiveWants.combo) && req.ownedHeadphoneIds.length > 0;
+      const ownedHeadphonesQuery = wantsAmpMatch
         ? supabaseServer
             .from("components")
-            .select("impedance, sensitivity_db_mw, sensitivity_db_v, needs_amp, name")
-            .ilike("name", `%${escapeLikePattern(req.existingHeadphones!)}%`)
-            .limit(25)
+            .select("id, brand, name, impedance, sensitivity_db_mw, sensitivity_db_v, needs_amp")
+            .in("id", req.ownedHeadphoneIds)
+            .in("category", ["cans", "iems"])
         : Promise.resolve({ data: null, error: null } as const);
 
-      const [listingCountsResult, trendsResult, existingHeadphoneResult] = await Promise.all([
+      const [listingCountsResult, trendsResult, ownedHeadphonesResult] = await Promise.all([
         supabaseServer.rpc('get_active_listing_counts', { component_ids: componentIds }),
         // RPC returns exactly one (latest) row per component via DISTINCT ON,
         // rather than every historical row for us to dedupe in JS.
         supabaseServer.rpc('get_latest_price_trends', { component_ids: componentIds }),
-        existingHeadphoneQuery,
+        ownedHeadphonesQuery,
       ]);
 
       if (listingCountsResult.error) {
@@ -1324,11 +1333,10 @@ export async function GET(request: NextRequest) {
       if (trendsResult.error) {
         console.error('Error fetching trends:', trendsResult.error);
       }
-      // Previously unchecked — a schema drift here silently disabled amp power
-      // matching for months, because a failed query looks identical to "user
-      // named a headphone we don't stock".
-      if (existingHeadphoneResult.error) {
-        console.error('Error fetching existing headphone:', existingHeadphoneResult.error);
+      // Checked explicitly: a failed query would otherwise look identical to
+      // "the user owns no headphones we stock" and silently skip matching.
+      if (ownedHeadphonesResult.error) {
+        console.error('Error fetching owned headphones:', ownedHeadphonesResult.error);
       }
 
       // Build count map from aggregated results
@@ -1362,24 +1370,21 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      // Resolved earlier in parallel with listings + trends. Disambiguate the
-      // substring matches to a single variant; when variants disagree on
-      // impedance we decline to score the pairing rather than guess.
-      const headphoneResolution =
-        wantsAmpMatch && existingHeadphoneResult.data
-          ? resolveUserHeadphone(
-              req.existingHeadphones!,
-              existingHeadphoneResult.data as HeadphoneCandidate[]
-            )
-          : ({ status: "not_found" } as const);
-      if (headphoneResolution.status === "ambiguous") {
-        console.warn(
-          `Ambiguous existing-headphone match for "${req.existingHeadphones}": ` +
-            `${headphoneResolution.candidates.length} variants differ in impedance — skipping power matching.`
-        );
+      // Size amps for the hardest-to-drive headphone the user owns: an amp
+      // that drives that one drives the rest.
+      const ownedHeadphone = pickHardestToDrive(
+        (ownedHeadphonesResult.data ?? []) as Array<
+          AmplificationTarget & { id: string; brand: string; name: string }
+        >
+      );
+      const existingHeadphonesData = ownedHeadphone ?? null;
+      if (ownedHeadphone) {
+        results.ampMatchedTo = {
+          id: ownedHeadphone.id,
+          brand: ownedHeadphone.brand,
+          name: ownedHeadphone.name,
+        };
       }
-      const existingHeadphonesData =
-        headphoneResolution.status === "matched" ? headphoneResolution.headphone : null;
 
       if (transformedComponents) {
         const componentsByCategory = {
@@ -1557,7 +1562,7 @@ export async function GET(request: NextRequest) {
     // hit-rate at low traffic is ~0%. CDN caching lets a whole region share
     // the same pre-computed payload. See docs/RECOMMENDATION_PERF_PLAN.md §1.4.
     const hasPersonalization =
-      (req.existingHeadphones && req.existingHeadphones !== '') ||
+      req.ownedHeadphoneIds.length > 0 ||
       hasExistingGear(req.existingGear) ||
       customBudgetAllocation !== null ||
       selectedItemsForCache.length > 0;

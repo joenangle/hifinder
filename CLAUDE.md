@@ -54,6 +54,14 @@ math elsewhere — three divergent copies previously disagreed with each other.
 `dataAvailable: false` means we could not verify the pairing; surface that as
 "unknown" rather than presenting the neutral 0.5 as a real verdict.
 
+**Owned headphones ("I own").** Amps/combos are matched to headphones the user
+owns: their collection (`useCollection`, signed in) plus anything marked owned
+on the recommendations page (`OwnedGearModal`, which offers the collection as
+one-click picks). The client sends catalogue IDs as `ownedHeadphoneIds`; the
+route sizes the amp for the hardest to drive (`pickHardestToDrive`, least
+headroom from a reference amp via `calculateAmpAdequacy`) and returns
+`ampMatchedTo`. IDs, not names: there is no fuzzy name matching.
+
 Category strings come from `src/lib/component-categories.ts` (`AMP_CATEGORIES`,
 `HEADPHONE_CATEGORIES`, `isCategoryIn`). The canonical enum is
 `cans | iems | dac | amp | dac_amp | cable`; legacy plural spellings silently
@@ -84,6 +92,15 @@ re-gates the amp/dac/combo sections and shows an explanatory note off the
 returned `amplificationStrategy` (`recommendations-content.tsx`,
 `FiltersSection.tsx`). Scoring/weights untouched — `npm run eval:reco --baseline`
 stays flat.
+
+## Rate Limiting
+
+`src/lib/rate-limit.ts` + the `rate_limit_hit` Postgres function
+(`migrations/add-rate-limits.sql`): fixed windows in the `rate_limits` table,
+shared by all serverless instances, no extra service. Fails open if the check
+errors. Used by `/api/subscribe` (10/h per IP, 3/day per address) and
+`/api/analytics/affiliate-click` (60/min per IP). Use it for any new public
+endpoint that writes or sends email.
 
 ## Tech Stack
 - Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS v4
@@ -129,8 +146,6 @@ SINAD values live in measurement dashboard **images**, not page text. OCR workfl
 
 ## Active To-Dos
 - eBay Campaign ID: Once approved, add `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` to Vercel env vars
-- Owned-headphone amp matching works server-side (`existingHeadphones`, sent from `gearModels.headphones`) but no UI sets it, and free-text names must match catalogue spelling ("HD800", not "HD 800"). Needs an "I own…" component picker that passes an exact catalogue name/ID.
-- Rate limiting: `/api/subscribe` can still re-send to an unconfirmed address on every call; needs persistent state (a `last_sent_at` column, Upstash, or Vercel WAF).
 - SINAD gaps: ~100 electronics still missing, many lack ASR reviews or have model version mismatches
 - Image gaps: ~136 electronics still missing images — run `npm run scrape:images:execute -- --category dac,amp,dac_amp`
 - See `memory/feature-plans.md` for deferred features (NL search, sound filtering)

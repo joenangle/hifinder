@@ -72,27 +72,6 @@ const parseAsEquipmentFlags = createParser({
  * Reads: "headphones:HD650,dac:D90" → { headphones: "HD650", dac: "D90", amp: "", combo: "" }
  * Writes: { headphones: "HD650", dac: "D90" } → "headphones:HD650,dac:D90"
  */
-type GearModels = Record<(typeof EQUIPMENT_KEYS)[number], string>
-
-const parseAsGearModels = createParser({
-  parse(value: string): GearModels | null {
-    const models: GearModels = { headphones: '', dac: '', amp: '', combo: '' }
-    value.split(',').forEach((entry) => {
-      const colonIdx = entry.indexOf(':')
-      if (colonIdx === -1) return
-      const k = entry.slice(0, colonIdx)
-      const v = entry.slice(colonIdx + 1)
-      if (k && v && k in models) models[k as keyof GearModels] = v
-    })
-    return models
-  },
-  serialize(models: GearModels): string {
-    return EQUIPMENT_KEYS
-      .filter((k) => models[k])
-      .map((k) => `${k}:${models[k]}`)
-      .join(',')
-  },
-})
 
 // ---- Defaults ----
 
@@ -113,12 +92,6 @@ export const PREF_DEFAULTS = {
     amp: false,
     combo: false,
   } as EquipmentFlags,
-  gearModels: {
-    headphones: '',
-    dac: '',
-    amp: '',
-    combo: '',
-  } as GearModels,
   soundSignature: 'any',
   soundSignatures: ['neutral'] as string[],
   headphoneTypes: ['cans', 'iems'] as string[],
@@ -146,7 +119,6 @@ export const recommendationParams = {
   gear: parseAsEquipmentFlags.withDefault(PREF_DEFAULTS.existingGear).withOptions({
     clearOnDefault: true,
   }),
-  gearModels: parseAsGearModels.withDefault(PREF_DEFAULTS.gearModels),
   soundSignature: parseAsString
     .withDefault(PREF_DEFAULTS.soundSignature)
     .withOptions({ clearOnDefault: true }),
@@ -225,4 +197,4 @@ export function parseLegacyParams(
   return hasLegacy ? migrations : null
 }
 
-export type { EquipmentFlags, GearModels }
+export type { EquipmentFlags }

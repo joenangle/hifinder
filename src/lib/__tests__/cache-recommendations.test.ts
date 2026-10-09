@@ -31,10 +31,12 @@ describe('generateCacheKey', () => {
     expect(narrow).not.toBe(wide)
   })
 
-  it('is sensitive to existingHeadphones for amp recommendations', () => {
-    const hd600 = generateCacheKey({ ...baseParams, existingHeadphones: 'HD 600' })
-    const hd650 = generateCacheKey({ ...baseParams, existingHeadphones: 'HD 650' })
-    expect(hd600).not.toBe(hd650)
+  it('is sensitive to which headphones the user owns, not their order', () => {
+    const a = generateCacheKey({ ...baseParams, ownedHeadphoneIds: ['id-hd600', 'id-he6'] })
+    const b = generateCacheKey({ ...baseParams, ownedHeadphoneIds: ['id-he6', 'id-hd600'] })
+    const c = generateCacheKey({ ...baseParams, ownedHeadphoneIds: ['id-hd600'] })
+    expect(a).toBe(b)
+    expect(a).not.toBe(c)
   })
 
   it('is sensitive to customBudgetAllocation', () => {

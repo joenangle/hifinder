@@ -6,6 +6,7 @@ import {
   hasExistingGear,
   existingGearFlags,
   isAvgPriceInWindow,
+  parseOwnedHeadphoneIds,
 } from '../route'
 
 const emptyGear = {
@@ -82,6 +83,31 @@ describe('isAvgPriceInWindow', () => {
   it('includes the window edges', () => {
     expect(isAvgPriceInWindow(400, 400, window)).toBe(true)
     expect(isAvgPriceInWindow(550, 550, window)).toBe(true)
+  })
+})
+
+describe('parseOwnedHeadphoneIds', () => {
+  const A = '0081973e-226a-40aa-a485-1b8226fbed94'
+  const B = '008f1cc8-5a5a-4f7d-8400-eddf069a8fed'
+
+  it('returns sorted, de-duplicated catalogue ids', () => {
+    expect(parseOwnedHeadphoneIds(`${B}, ${A},${B}`)).toEqual([A, B])
+  })
+
+  it('drops anything that is not a uuid', () => {
+    expect(parseOwnedHeadphoneIds(`${A},HD 600,,'; drop table`)).toEqual([A])
+  })
+
+  it('is empty for a missing param', () => {
+    expect(parseOwnedHeadphoneIds(null)).toEqual([])
+    expect(parseOwnedHeadphoneIds('')).toEqual([])
+  })
+
+  it('caps how many ids it accepts', () => {
+    const many = Array.from({ length: 25 }, (_, i) =>
+      `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`
+    ).join(',')
+    expect(parseOwnedHeadphoneIds(many)).toHaveLength(10)
   })
 })
 

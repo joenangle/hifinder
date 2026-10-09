@@ -24,6 +24,8 @@ interface OwnedGearModalProps {
   onClose: () => void
   onAddOwnedGear: (component: SearchResult) => void
   ownedIds: Set<string>
+  /** The signed-in user's collection, offered as one-click picks. */
+  collectionItems?: SearchResult[]
 }
 
 const categoryLabels: Record<string, string> = {
@@ -42,7 +44,7 @@ const categoryFilters = [
   { value: 'dac_amp', label: 'Combos' },
 ]
 
-export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: OwnedGearModalProps) {
+export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds, collectionItems = [] }: OwnedGearModalProps) {
   const [query, setQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
@@ -100,6 +102,61 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
 
   const fmt = (amount: number) => `$${Math.round(amount).toLocaleString()}`
 
+  const renderRow = (item: SearchResult) => {
+    const isOwned = ownedIds.has(item.id)
+    return (
+      <button
+        key={item.id}
+        onClick={() => !isOwned && handleSelect(item)}
+        disabled={isOwned}
+        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center gap-3 ${
+          isOwned
+            ? 'bg-surface-hover opacity-60 cursor-not-allowed'
+            : 'hover:bg-surface-hover cursor-pointer'
+        }`}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-primary truncate">
+            <span className="text-secondary font-normal">{item.brand}</span>{' '}
+            {item.name}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-xs text-tertiary">
+              {categoryLabels[item.category] || item.category}
+            </span>
+            {item.impedance && (
+              <span className="text-xs text-tertiary">{item.impedance}&#8486;</span>
+            )}
+            {item.sound_signature && (
+              <span className="text-xs text-tertiary capitalize">{item.sound_signature}</span>
+            )}
+          </div>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          {isOwned ? (
+            <span className="text-xs font-medium text-tertiary">Already added</span>
+          ) : (
+            <>
+              {item.price_used_min && item.price_used_max ? (
+                <span className="text-xs text-tertiary tabular-nums">
+                  {fmt(item.price_used_min)}–{fmt(item.price_used_max)}
+                </span>
+              ) : item.price_new ? (
+                <span className="text-xs text-tertiary tabular-nums">
+                  {fmt(item.price_new)} new
+                </span>
+              ) : null}
+              <div className="text-xs font-medium text-accent mt-0.5">
+                + Add
+              </div>
+            </>
+          )}
+        </div>
+      </button>
+    )
+  }
+
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Gear You Own" maxWidth="lg">
       <div className="p-4">
@@ -142,64 +199,19 @@ export function OwnedGearModal({ isOpen, onClose, onAddOwnedGear, ownedIds }: Ow
         <div className="min-h-[200px] max-h-[400px] overflow-y-auto">
           {results.length > 0 ? (
             <div className="space-y-1">
-              {results.map((item) => {
-                const isOwned = ownedIds.has(item.id)
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => !isOwned && handleSelect(item)}
-                    disabled={isOwned}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center gap-3 ${
-                      isOwned
-                        ? 'bg-surface-hover opacity-60 cursor-not-allowed'
-                        : 'hover:bg-surface-hover cursor-pointer'
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-primary truncate">
-                        <span className="text-secondary font-normal">{item.brand}</span>{' '}
-                        {item.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-tertiary">
-                          {categoryLabels[item.category] || item.category}
-                        </span>
-                        {item.impedance && (
-                          <span className="text-xs text-tertiary">{item.impedance}&#8486;</span>
-                        )}
-                        {item.sound_signature && (
-                          <span className="text-xs text-tertiary capitalize">{item.sound_signature}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-right">
-                      {isOwned ? (
-                        <span className="text-xs font-medium text-tertiary">Already added</span>
-                      ) : (
-                        <>
-                          {item.price_used_min && item.price_used_max ? (
-                            <span className="text-xs text-tertiary tabular-nums">
-                              {fmt(item.price_used_min)}–{fmt(item.price_used_max)}
-                            </span>
-                          ) : item.price_new ? (
-                            <span className="text-xs text-tertiary tabular-nums">
-                              {fmt(item.price_new)} new
-                            </span>
-                          ) : null}
-                          <div className="text-xs font-medium text-accent mt-0.5">
-                            + Add
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
+              {results.map(renderRow)}
             </div>
           ) : hasSearched && debouncedQuery.length >= 2 ? (
             <div className="text-center py-12">
               <p className="text-sm text-secondary">No components found for &ldquo;{debouncedQuery}&rdquo;</p>
               <p className="text-xs text-tertiary mt-1">Try a different search term or category</p>
+            </div>
+          ) : collectionItems.length > 0 && debouncedQuery.length < 2 ? (
+            <div>
+              <p className="text-xs font-semibold uppercase text-tertiary px-3 mb-2" style={{ letterSpacing: '0.1em' }}>
+                From your collection
+              </p>
+              <div className="space-y-1">{collectionItems.map(renderRow)}</div>
             </div>
           ) : (
             <div className="text-center py-12">

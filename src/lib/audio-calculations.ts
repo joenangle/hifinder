@@ -472,65 +472,42 @@ export function estimatePowerFromImpedance(impedance: number): PowerRequirements
   return calculatePowerRequirements(impedance, estimateSensitivityFromImpedance(impedance));
 }
 
-// ─── User-headphone identity resolution ─────────────────────────────────────
-
-/** A catalogue row as far as amp-pairing identity resolution needs it. */
-export interface HeadphoneCandidate {
-  name: string;
-  impedance?: number | null;
-  sensitivity_db_mw?: number | null;
-  sensitivity_db_v?: number | null;
-  needs_amp?: boolean | null;
-}
-
-export type HeadphoneResolution =
-  | { status: 'matched'; headphone: HeadphoneCandidate }
-  | { status: 'ambiguous'; candidates: HeadphoneCandidate[] }
-  | { status: 'not_found' };
-
-/** Lowercase, collapse internal whitespace, trim — for name comparison. */
-function normalizeName(value: string): string {
-  return value.toLowerCase().replace(/\s+/g, ' ').trim();
-}
+// ─── Owned-headphone selection ──────────────────────────────────────────────
 
 /**
- * Resolve a user-typed headphone name to a single catalogue row.
- *
- * Replaces a `.ilike('%name%').limit(1)` that returned an arbitrary substring
- * match with no ordering. Because impedance drives the entire power
- * calculation, silently grabbing the wrong variant (e.g. Beyerdynamic DT 990 in
- * 32Ω vs 250Ω vs 600Ω) produced a confident but wrong adequacy verdict.
- *
- * Precedence: exact name → startsWith → contains. Within the tightest
- * non-empty tier, if the candidates disagree on impedance we return
- * `ambiguous` rather than guess — the caller then declines to score the pairing
- * instead of inventing one. When impedance agrees (or only one candidate
- * exists), we pick the row with the most trustworthy sensitivity data, since
- * every such row yields the same power verdict.
+ * Reference amp for ranking how hard headphones are to drive. The absolute
+ * value doesn't matter, only the ordering it produces: it sits in the
+ * voltage-limited regime for typical loads, like most real amps.
  */
-export function resolveUserHeadphone(
-  query: string,
-  candidates: HeadphoneCandidate[]
-): HeadphoneResolution {
-  const q = normalizeName(query ?? '');
-  if (!q || candidates.length === 0) return { status: 'not_found' };
+const REFERENCE_AMP_SPEC = '1W @ 32Ω'
 
-  const exact = candidates.filter((c) => normalizeName(c.name) === q);
-  const starts = candidates.filter((c) => normalizeName(c.name).startsWith(q));
-  const contains = candidates.filter((c) => normalizeName(c.name).includes(q));
+/**
+ * Of the headphones a user owns, the one an amp should be sized for: an amp
+ * that drives the hardest load drives all the easier ones.
+ *
+ * "Hardest" = least headroom from the same amp (calculateAmpAdequacy), so the
+ * ranking uses the same physics as the scoring. That accounts for voltage, not
+ * just milliwatts: a 600Ω dynamic can be harder than a lower-impedance can
+ * that needs more mW, because available power falls as impedance rises.
+ *
+ * Headphones with real power data rank ahead of those without; among those
+ * without, prefer one flagged needs_amp, then the higher impedance.
+ */
+export function pickHardestToDrive<T extends AmplificationTarget>(headphones: T[]): T | null {
+  if (headphones.length === 0) return null
 
-  const tier = exact.length ? exact : starts.length ? starts : contains;
-  if (tier.length === 0) return { status: 'not_found' };
+  const ranked = headphones.map((h) => ({
+    h,
+    headroom: calculateAmpAdequacy(REFERENCE_AMP_SPEC, h).headroomRatio,
+  }))
 
-  const distinctImpedances = new Set(
-    tier.map((c) => c.impedance).filter((z): z is number => typeof z === 'number')
-  );
-  if (distinctImpedances.size > 1) return { status: 'ambiguous', candidates: tier };
+  const withData = ranked.filter((r) => r.headroom != null)
+  if (withData.length > 0) {
+    return withData.reduce((a, b) => (b.headroom! < a.headroom! ? b : a)).h
+  }
 
-  const best =
-    tier.find((c) => c.sensitivity_db_mw != null) ??
-    tier.find((c) => c.sensitivity_db_v != null) ??
-    tier[0];
-
-  return { status: 'matched', headphone: best };
+  return headphones.slice().sort((a, b) => {
+    const ampFlag = Number(b.needs_amp === true) - Number(a.needs_amp === true)
+    return ampFlag !== 0 ? ampFlag : (b.impedance ?? 0) - (a.impedance ?? 0)
+  })[0]
 }

@@ -4,7 +4,6 @@ import {
   sensitivityDbVToDbMw,
   resolveSensitivityDbMw,
   resolveSensitivityWithSource,
-  resolveUserHeadphone,
   calculateAmpAdequacy,
   needsAmplification,
 } from '../audio-calculations'
@@ -182,63 +181,6 @@ describe('calculateAmpAdequacy — estimated sensitivity is not a verdict', () =
 // ─── user-headphone identity resolution ─────────────────────────────────────
 // Regression (WS2-C): a `.ilike('%name%').limit(1)` returned an arbitrary
 // substring match, so the wrong impedance variant could poison the pairing.
-
-describe('resolveUserHeadphone', () => {
-  it('prefers an exact match over a longer contains-variant', () => {
-    const r = resolveUserHeadphone('HD 600', [
-      { name: 'HD 600', impedance: 300, sensitivity_db_mw: 97 },
-      { name: 'HD 600S', impedance: 150 },
-    ])
-    expect(r.status).toBe('matched')
-    if (r.status === 'matched') expect(r.headphone.impedance).toBe(300)
-  })
-
-  it('is case- and whitespace-insensitive', () => {
-    const r = resolveUserHeadphone('hd  600', [{ name: 'HD 600', impedance: 300 }])
-    expect(r.status).toBe('matched')
-  })
-
-  it('returns ambiguous when variants disagree on impedance', () => {
-    const r = resolveUserHeadphone('DT 990', [
-      { name: 'DT 990 Pro', impedance: 250 },
-      { name: 'DT 990 Edition', impedance: 600 },
-    ])
-    expect(r.status).toBe('ambiguous')
-  })
-
-  it('lets an exact match win even when other variants differ on impedance', () => {
-    const r = resolveUserHeadphone('HD 600', [
-      { name: 'HD 600', impedance: 300 },
-      { name: 'HD 600 SE', impedance: 150 },
-    ])
-    expect(r.status).toBe('matched')
-    if (r.status === 'matched') expect(r.headphone.impedance).toBe(300)
-  })
-
-  it('picks the row with the most trustworthy sensitivity when impedance agrees', () => {
-    const r = resolveUserHeadphone('HD 650', [
-      { name: 'HD 650', impedance: 300 },
-      { name: 'HD 650', impedance: 300, sensitivity_db_mw: 103 },
-    ])
-    expect(r.status).toBe('matched')
-    if (r.status === 'matched') expect(r.headphone.sensitivity_db_mw).toBe(103)
-  })
-
-  it('matches on a startsWith prefix when there is no exact match', () => {
-    const r = resolveUserHeadphone('Sund', [{ name: 'Sundara', impedance: 37 }])
-    expect(r.status).toBe('matched')
-  })
-
-  it('returns not_found when nothing contains the query', () => {
-    expect(resolveUserHeadphone('Utopia', [{ name: 'HD 600', impedance: 300 }]).status)
-      .toBe('not_found')
-  })
-
-  it('returns not_found for empty query or empty candidates', () => {
-    expect(resolveUserHeadphone('', [{ name: 'HD 600', impedance: 300 }]).status).toBe('not_found')
-    expect(resolveUserHeadphone('HD 600', []).status).toBe('not_found')
-  })
-})
 
 describe('needsAmplification', () => {
   it('respects an explicit needs_amp flag', () => {
