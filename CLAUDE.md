@@ -170,7 +170,7 @@ Vercel's Git integration does all deploys; there is no deploy workflow in GitHub
   staging builds to production). `VERCEL_TOKEN` / `VERCEL_ORG_ID` secrets are no
   longer used by any workflow.
 - Staging is behind **Vercel Deployment Protection** (plain requests 302 to Vercel
-  login), plus Basic Auth in `middleware.ts` for page routes on that hostname.
+  login), plus Basic Auth in `src/proxy.ts` (Next 16's name for middleware; must live in `src/` because the app is in `src/app`) for page routes on that hostname.
   To smoke-test a deploy, use the authenticated CLI:
   `vercel curl /api/... --deployment <deployment-url> -- -s -w '%{http_code}'`.
   Find the deployment URL with `gh api "repos/joenangle/hifinder/deployments?sha=<sha>"`
