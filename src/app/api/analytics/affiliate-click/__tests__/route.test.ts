@@ -12,6 +12,12 @@ vi.mock('@/lib/supabase-server', () => ({
   supabaseServer: { from: () => ({ insert }) },
 }))
 
+const { allow } = vi.hoisted(() => ({ allow: vi.fn() }))
+vi.mock('@/lib/rate-limit', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/rate-limit')>()),
+  isWithinRateLimit: allow,
+}))
+
 import { POST } from '../route'
 
 const COMPONENT_ID = '0081973e-226a-40aa-a485-1b8226fbed94'
@@ -33,7 +39,10 @@ function click(body: unknown, headers: Record<string, string> = {}) {
   )
 }
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+  vi.clearAllMocks()
+  allow.mockResolvedValue(true)
+})
 
 describe('POST /api/analytics/affiliate-click', () => {
   it('records a valid click', async () => {
@@ -75,5 +84,14 @@ describe('POST /api/analytics/affiliate-click', () => {
     // A fixed message, not the parser's (which quotes the input and position)
     expect(response.status).toBe(400)
     expect(body).toEqual({ error: 'Invalid JSON body' })
+  })
+  it('returns 429 when the caller is rate limited', async () => {
+    allow.mockResolvedValue(false)
+
+    const response = await click(valid, { 'x-forwarded-for': '203.0.113.7' })
+
+    expect(response.status).toBe(429)
+    expect(allow).toHaveBeenCalledWith(expect.objectContaining({ name: 'affiliate-click:ip' }), '203.0.113.7')
+    expect(insert).not.toHaveBeenCalled()
   })
 })

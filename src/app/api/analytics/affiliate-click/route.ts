@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
+import { getClientIp, isWithinRateLimit, tooManyRequests } from '@/lib/rate-limit'
 
 // Public, unauthenticated endpoint: only accept values our own CTAs send, and
 // bound every free-text field so it can't be used to store arbitrary data.
@@ -8,6 +9,8 @@ const SOURCES = ['recommendations', 'component_detail', 'used_listings'] as cons
 const MAX_TRACKING_ID = 128
 const MAX_REFERRER = 2048
 const MAX_USER_AGENT = 512
+// Real users click a handful of times a minute at most
+const IP_LIMIT = { name: 'affiliate-click:ip', windowSeconds: 60, max: 60 }
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const isOneOf = <T extends string>(values: readonly T[], v: unknown): v is T =>
@@ -37,10 +40,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid click payload' }, { status: 400 })
     }
 
-    // Get client info
+    const ip_address = getClientIp(request)
+    if (!(await isWithinRateLimit(IP_LIMIT, ip_address ?? 'unknown'))) {
+      return tooManyRequests(IP_LIMIT.windowSeconds)
+    }
+
     const user_agent = (request.headers.get('user-agent') || 'Unknown').slice(0, MAX_USER_AGENT)
-    const forwarded_for = request.headers.get('x-forwarded-for')
-    const ip_address = forwarded_for?.split(',')[0].trim() || request.headers.get('x-real-ip') || null
 
     // Insert click tracking
     const { data, error } = await supabaseServer

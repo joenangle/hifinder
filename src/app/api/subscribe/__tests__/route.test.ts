@@ -39,6 +39,12 @@ vi.mock('@/lib/supabase-server', () => ({
   },
 }))
 
+const { allow } = vi.hoisted(() => ({ allow: vi.fn() }))
+vi.mock('@/lib/rate-limit', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/rate-limit')>()),
+  isWithinRateLimit: allow,
+}))
+
 import { POST } from '../route'
 
 function subscribe(body: unknown) {
@@ -55,6 +61,7 @@ const valid = { email: 'Reader@Example.com ', source: 'bottom_cta_newsletter' }
 
 beforeEach(() => {
   vi.clearAllMocks()
+  allow.mockResolvedValue(true)
   db.existingRow = null
   send.mockResolvedValue({ data: { id: 'email-1' }, error: null })
 })
@@ -113,5 +120,22 @@ describe('POST /api/subscribe', () => {
 
     expect(response.status).toBe(400)
     expect(send).not.toHaveBeenCalled()
+  })
+  it('returns 429 and sends nothing when rate limited', async () => {
+    allow.mockResolvedValue(false)
+
+    const response = await subscribe(valid)
+
+    expect(response.status).toBe(429)
+    expect(response.headers.get('Retry-After')).toBeTruthy()
+    expect(insert).not.toHaveBeenCalled()
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('limits per IP and per address', async () => {
+    await subscribe(valid)
+
+    expect(allow).toHaveBeenCalledWith(expect.objectContaining({ name: 'subscribe:ip' }), expect.any(String))
+    expect(allow).toHaveBeenCalledWith(expect.objectContaining({ name: 'subscribe:email' }), 'reader@example.com')
   })
 })

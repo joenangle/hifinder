@@ -3,12 +3,18 @@ import { supabaseServer as supabase } from '@/lib/supabase-server'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 import { SubscribeConfirmation } from '@/emails/subscribe-confirmation'
+import { getClientIp, isWithinRateLimit, tooManyRequests } from '@/lib/rate-limit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hifinder.app'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_SOURCES = ['feature_card_guide', 'bottom_cta_newsletter'] as const
+
+// Each call can send an email, so cap both the caller and the recipient: the
+// per-address limit stops one inbox being flooded from many IPs.
+const IP_LIMIT = { name: 'subscribe:ip', windowSeconds: 60 * 60, max: 10 }
+const EMAIL_LIMIT = { name: 'subscribe:email', windowSeconds: 24 * 60 * 60, max: 3 }
 
 // RFC 5321 caps a forward-path at 256 octets including the angle brackets
 const MAX_EMAIL_LENGTH = 254
@@ -25,6 +31,13 @@ export async function POST(request: Request) {
 
     if (typeof source !== 'string' || !VALID_SOURCES.includes(source as (typeof VALID_SOURCES)[number])) {
       return NextResponse.json({ error: 'Invalid source' }, { status: 400 })
+    }
+
+    if (!(await isWithinRateLimit(IP_LIMIT, getClientIp(request) ?? 'unknown'))) {
+      return tooManyRequests(IP_LIMIT.windowSeconds)
+    }
+    if (!(await isWithinRateLimit(EMAIL_LIMIT, email))) {
+      return tooManyRequests(EMAIL_LIMIT.windowSeconds)
     }
 
     const { data: existing, error: lookupError } = await supabase
