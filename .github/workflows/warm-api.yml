@@ -24,16 +24,18 @@ jobs:
         run: |
           set -u
 
-          # Build the list of canonical URLs to warm. Each covers a popular
-          # query pattern. Keep this small — runtime is ~N * 500ms.
-          BASE_PARAMS='soundSignatures=%5B%22neutral%22%5D&wantRecommendationsFor=%7B%22headphones%22%3Atrue%7D&usageRanking=%5B%22Music%22%5D'
-          URLS=(
-            "budget=300&headphoneType=cans&${BASE_PARAMS}"
-            "budget=500&headphoneType=cans&${BASE_PARAMS}"
-            "budget=1000&headphoneType=cans&${BASE_PARAMS}"
-            "budget=300&headphoneType=iems&${BASE_PARAMS}"
-            "budget=500&headphoneType=both&${BASE_PARAMS}"
-          )
+          # The CDN keys on the exact URL string, so these must match what the
+          # browser sends byte-for-byte: same params, order and encoding as the
+          # URLSearchParams built in fetchRecommendations
+          # (src/app/recommendations/recommendations-content.tsx). Only budget
+          # varies: the $250 default plus the dashboard quick-start tiers.
+          # If the client's params change, regenerate these.
+          RANGE='budgetRangeMin=20&budgetRangeMax=10'
+          REST='wantRecommendationsFor=%7B%22headphones%22%3Atrue%2C%22dac%22%3Afalse%2C%22amp%22%3Afalse%2C%22combo%22%3Afalse%7D&existingGear=%7B%22headphones%22%3Afalse%2C%22dac%22%3Afalse%2C%22amp%22%3Afalse%2C%22combo%22%3Afalse%7D&soundSignatures=%5B%22neutral%22%5D'
+          URLS=()
+          for budget in 250 75 700 2000; do
+            URLS+=("budget=${budget}&${RANGE}&headphoneType=both&${REST}")
+          done
 
           warm_host() {
             local host="$1"
