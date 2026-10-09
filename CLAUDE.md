@@ -129,7 +129,8 @@ SINAD values live in measurement dashboard **images**, not page text. OCR workfl
 
 ## Active To-Dos
 - eBay Campaign ID: Once approved, add `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` to Vercel env vars
-- Usage/experience inputs are parsed and passed to the scorer but never read (usage matching was removed deliberately); they only fragment the cache key. Remove them or reinstate the feature.
+- Owned-headphone amp matching works server-side (`existingHeadphones`, sent from `gearModels.headphones`) but no UI sets it, and free-text names must match catalogue spelling ("HD800", not "HD 800"). Needs an "I own…" component picker that passes an exact catalogue name/ID.
+- Rate limiting: `/api/subscribe` can still re-send to an unconfirmed address on every call; needs persistent state (a `last_sent_at` column, Upstash, or Vercel WAF).
 - SINAD gaps: ~100 electronics still missing, many lack ASR reviews or have model version mismatches
 - Image gaps: ~136 electronics still missing images — run `npm run scrape:images:execute -- --category dac,amp,dac_amp`
 - See `memory/feature-plans.md` for deferred features (NL search, sound filtering)
@@ -150,9 +151,12 @@ node scripts/detect-all-duplicates.js             # Quarterly duplicate check
 node scripts/merge-crinacle-cans.js data.csv --execute  # Expert data import
 ```
 
-## Pre-commit Hooks (husky)
+## Pre-commit Hooks (husky) & CI
 - `pre-commit`: `npm run type-check && npm run lint`
 - `pre-push`: `npm run build`
+- `type-check` runs `next typegen` first, so stale `.next/types` from a deleted route can't fail it
+- Test files are excluded from `tsconfig.json`; `npm run type-check:tests` (tsconfig.test.json) covers them
+- CI (`.github/workflows/ci.yml`, PRs + pushes to main/staging): lint, type-check, type-check:tests, test. `eval:reco` is not in CI (needs DB creds)
 
 ## Reference (in memory files)
 - `memory/scrapers-and-data-sources.md` — Reddit, Reverb, eBay details
