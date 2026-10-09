@@ -667,6 +667,17 @@ function headphoneToAmpTarget(
   };
 }
 
+/** A component as returned by filterAndScoreComponents, with its score breakdown (0–100 scales). */
+export type ScoredComponent = RecommendationComponent & {
+  matchScore: number;
+  valueScore: number;
+  expertScoreDisplay: number;
+  signatureScoreDisplay: number;
+  proximityScoreDisplay: number;
+  liquidityBonusDisplay: number;
+  trendBonusDisplay: number;
+};
+
 // V3: Filter and score with performance-first prioritization
 export function filterAndScoreComponents(
   components: unknown[],
@@ -678,7 +689,7 @@ export function filterAndScoreComponents(
   totalBudget?: number, // Added to support entry-level handling
   rangeMinPercent?: number, // V3: User's desired range below budget
   rangeMaxPercent?: number  // V3: User's desired range above budget
-): RecommendationComponent[] {
+): ScoredComponent[] {
   // Entry-level budget handling: For DACs/amps/combos under $150 total, allow dongles from $5
   const componentCategory = (components[0] as { category?: string })?.category;
   const isSignalGear = componentCategory

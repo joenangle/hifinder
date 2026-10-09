@@ -134,7 +134,8 @@ describe('POST /api/alerts', () => {
     })
   })
 
-  it.each([
+  // Bodies are deliberately malformed, so type them as untyped JSON
+  it.each<[Record<string, unknown>, string]>([
     [{ component_id: 'c1', target_price: -5 }, 'negative price'],
     [{ component_id: 'c1', target_price: '200' }, 'string price'],
     [{ component_id: 'c1', target_price: 200, alert_type: 'above' }, 'unknown alert_type'],

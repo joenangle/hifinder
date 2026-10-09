@@ -1,0 +1,12 @@
+{
+  // Type-checks the test files that tsconfig.json excludes (so `next build`
+  // and the app type-check stay fast). Run via `npm run type-check:tests`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.test.tsbuildinfo",
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
+}

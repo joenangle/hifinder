@@ -1,0 +1,43 @@
+name: CI
+
+# Lint, type-check (app + tests) and unit tests on every PR and on pushes to
+# the deploy branches. Needs no secrets: tests stub Supabase env in
+# src/__tests__/setup.ts and make no network calls.
+# eval:reco is not run here; it scores against the live catalogue, so it
+# needs DB credentials (run it locally: npm run eval:reco -- --baseline ...).
+
+on:
+  pull_request:
+  push:
+    branches: [main, staging]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check app
+        run: npm run type-check
+
+      - name: Type-check tests
+        run: npm run type-check:tests
+
+      - name: Unit tests
+        run: npm test

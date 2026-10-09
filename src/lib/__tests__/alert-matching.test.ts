@@ -10,6 +10,7 @@ import {
   buildAlertHistoryRow,
   runAlertMatching,
   type MatchableListing,
+  type AlertHistoryRow,
   type MatchableAlert,
 } from '../alert-matching'
 
@@ -222,7 +223,7 @@ describe('buildAlertHistoryRow', () => {
 
 describe('runAlertMatching', () => {
   function makeDeps(initialHistoryKeys: string[] = []) {
-    const inserted: Array<Record<string, unknown>> = []
+    const inserted: AlertHistoryRow[] = []
     const bumps: Array<{ alertId: string; increment: number }> = []
     const historyKeys = new Set(initialHistoryKeys)
     return {
@@ -236,7 +237,7 @@ describe('runAlertMatching', () => {
           listing({ id: 'l2', price: 999, url: 'https://x/2' }), // over target -> no match
         ],
         getExistingHistoryKeys: async () => historyKeys,
-        insertHistoryRows: async (rows: Array<Record<string, unknown>>) => {
+        insertHistoryRows: async (rows: AlertHistoryRow[]) => {
           inserted.push(...rows)
           for (const r of rows) historyKeys.add(`${r.alert_id}::${r.listing_url}`)
         },
