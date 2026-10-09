@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { invalidateRecommendationCache } from '@/lib/cache-recommendations'
 import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 
@@ -98,6 +99,8 @@ export async function POST(
       .eq('id', id)
 
     if (updateError) throw updateError
+
+    invalidateRecommendationCache()
 
     // TODO: Update any trigger listings to point to new component
     // This would require storing the original listing IDs, which we might want to add later

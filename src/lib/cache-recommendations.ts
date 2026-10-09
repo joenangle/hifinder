@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache'
+import { revalidateTag, unstable_cache } from 'next/cache'
 
 /**
  * Deterministic stringification: sort object keys so key equality is value-based.
@@ -58,10 +58,12 @@ export function generateCacheKey(params: RecommendationCacheParams): string {
   return parts.join('|')
 }
 
+const RECOMMENDATIONS_TAG = 'recommendations'
+
 /**
  * Cache wrapper for recommendation computations.
  * Uses Next.js Data Cache with a 5-minute TTL and the 'recommendations' tag
- * so admin changes can bust the cache via revalidateTag('recommendations').
+ * so catalogue edits can bust it via invalidateRecommendationCache().
  */
 export async function getCached<T>(
   cacheKey: string,
@@ -72,8 +74,21 @@ export async function getCached<T>(
     [`recommendations:${cacheKey}`],
     {
       revalidate: 300, // 5 minutes
-      tags: ['recommendations'],
+      tags: [RECOMMENDATIONS_TAG],
     }
   )
   return await cachedFn()
+}
+
+/**
+ * Expire cached recommendations immediately after a catalogue write (admin
+ * create/update/approve). `expire: 0` rather than the stale-while-revalidate
+ * 'max' profile, so the next request recomputes instead of serving the old
+ * ranking once. Route handlers can't use updateTag (Server Actions only).
+ *
+ * The CDN layer (s-maxage=300 on anonymous responses) is separate and still
+ * ages out on its own, within about 5 minutes.
+ */
+export function invalidateRecommendationCache(): void {
+  revalidateTag(RECOMMENDATIONS_TAG, { expire: 0 })
 }

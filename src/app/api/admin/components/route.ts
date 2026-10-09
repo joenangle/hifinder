@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { invalidateRecommendationCache } from '@/lib/cache-recommendations'
 import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 import { SOUND_SIGNATURES } from '@/types'
@@ -183,6 +184,8 @@ export async function POST(request: Request) {
 
     if (insertError) throw insertError
 
+    invalidateRecommendationCache()
+
     return NextResponse.json({
       success: true,
       component: newComponentData,
@@ -351,6 +354,8 @@ export async function PUT(request: Request) {
         { status: 404 }
       )
     }
+
+    invalidateRecommendationCache()
 
     return NextResponse.json({
       success: true,
