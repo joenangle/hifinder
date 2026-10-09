@@ -5,6 +5,7 @@ import {
   filterAndScoreComponents,
   hasExistingGear,
   existingGearFlags,
+  isAvgPriceInWindow,
 } from '../route'
 
 const emptyGear = {
@@ -61,6 +62,26 @@ describe('existingGearFlags', () => {
     expect(existingGearFlags(undefined)).toEqual({
       headphones: false, dac: false, amp: false, combo: false,
     })
+  })
+})
+
+describe('isAvgPriceInWindow', () => {
+  const window = { min: 400, max: 550 }
+
+  it('accepts a component whose used range straddles the window edge', () => {
+    // $350–$600 used averages $475: the scorer keeps it, so availability must
+    // too. The old check required the whole range inside and said "none".
+    expect(isAvgPriceInWindow(350, 600, window)).toBe(true)
+  })
+
+  it('rejects a component whose average is outside the window', () => {
+    expect(isAvgPriceInWindow(500, 700, window)).toBe(false) // avg 600
+    expect(isAvgPriceInWindow(200, 380, window)).toBe(false) // avg 290
+  })
+
+  it('includes the window edges', () => {
+    expect(isAvgPriceInWindow(400, 400, window)).toBe(true)
+    expect(isAvgPriceInWindow(550, 550, window)).toBe(true)
   })
 })
 

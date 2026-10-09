@@ -370,11 +370,25 @@ function getDetailedSignatureMatch(crinSig: string, userPref: string): number {
   return 0;
 }
 
-// Helper: Check if components are available in a budget range (single category)
-// Batch availability check across categories. Each category has its own price
-// range, so we fan out parallel SQL count() queries rather than fetching all
-// rows and filtering in JS (the prior approach transferred ~hundreds of rows
-// just to derive a few counts). `head: true` returns only the aggregate.
+/**
+ * The scorer's price test: a component is in budget when its average used
+ * price falls inside the window (see the isInRange filter in
+ * filterAndScoreComponents). The availability check must ask the same
+ * question, or the allocator zeroes out categories the scorer would fill.
+ */
+export function isAvgPriceInWindow(
+  priceUsedMin: number | null | undefined,
+  priceUsedMax: number | null | undefined,
+  window: { min: number; max: number }
+): boolean {
+  const avgPrice = ((priceUsedMin || 0) + (priceUsedMax || 0)) / 2;
+  return avgPrice >= window.min && avgPrice <= window.max;
+}
+
+// Batch availability check across categories, one parallel query per
+// category. The SQL filter is a cheap superset (used range overlaps the
+// window: avg <= max implies min <= max, avg >= min implies max >= min);
+// the exact average-in-window test runs on the few rows that come back.
 async function checkMultiCategoryAvailability(
   categoryRanges: Array<{ category: string; minPrice: number; maxPrice: number }>
 ): Promise<Record<string, number>> {
@@ -382,13 +396,18 @@ async function checkMultiCategoryAvailability(
 
   const results = await Promise.all(
     categoryRanges.map(async ({ category, minPrice, maxPrice }) => {
-      const { count, error } = await supabaseServer
+      const { data, error } = await supabaseServer
         .from("components")
-        .select("*", { count: "exact", head: true })
+        .select("price_used_min, price_used_max")
         .eq("category", category)
-        .gte("price_used_min", minPrice)
-        .lte("price_used_max", maxPrice);
-      return [category, error ? 0 : (count ?? 0)] as const;
+        .lte("price_used_min", maxPrice)
+        .gte("price_used_max", minPrice);
+      if (error || !data) return [category, 0] as const;
+      const window = { min: minPrice, max: maxPrice };
+      const count = data.filter((c) =>
+        isAvgPriceInWindow(c.price_used_min, c.price_used_max, window)
+      ).length;
+      return [category, count] as const;
     })
   );
 
@@ -478,30 +497,15 @@ async function allocateBudgetAcrossComponents(
   for (const component of requestedComponents) {
     const componentBudget = initialAllocation[component];
 
-    // Entry-level budget handling: For signal gear, search lower to catch budget options
-    // Examples: Apple dongle ($9), Tempotec ($40), Atom DAC/Modi ($100)
-    let searchMin: number;
-    let searchMax: number;
-
+    // Use the scorer's own window for this component's budget, so "available"
+    // means "filterAndScoreComponents would return something"
     const isSignalGear = component === "dac" || component === "amp" || component === "combo";
-
-    if (isSignalGear && componentBudget <= 250) {
-      // For signal gear with modest component budgets, search much lower
-      // This catches budget DACs ($80-110) that are excellent value
-      searchMin = 20; // Allow searching down to dongles/budget options
-      searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
-    } else if (isSignalGear) {
-      // For higher signal gear budgets, still search 30% lower to catch good deals
-      searchMin = Math.max(20, Math.round(componentBudget * 0.7));
-      searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
-    } else {
-      // Standard behavior for headphones
-      searchMin = Math.max(
-        20,
-        Math.round(componentBudget * (1 - rangeMin / 100))
-      );
-      searchMax = Math.round(componentBudget * (1 + rangeMax / 100));
-    }
+    const { min: searchMin, max: searchMax } = calculateBudgetRange(
+      componentBudget,
+      rangeMin,
+      rangeMax,
+      isSignalGear
+    );
 
     if (component === "headphones") {
       // Check both cans and iems
