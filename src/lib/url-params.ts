@@ -1,6 +1,5 @@
 import {
   createParser,
-  createSerializer,
   parseAsInteger,
   parseAsJson,
   parseAsString,
@@ -161,8 +160,6 @@ export const recommendationParams = {
   source: parseAsString,
   experience: parseAsString,
 }
-
-export const serializeRecommendationParams = createSerializer(recommendationParams)
 
 // ---- Legacy URL migration ----
 // Reads legacy param names and returns compact equivalents.

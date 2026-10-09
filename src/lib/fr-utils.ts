@@ -52,19 +52,6 @@ export function normalizeTo1kHz(points: [number, number][]): [number, number][] 
 }
 
 /**
- * Evenly downsample FR points by index stepping.
- */
-export function downsampleFR(points: [number, number][], targetCount = 50): [number, number][] {
-  if (points.length <= targetCount) return points
-  const step = (points.length - 1) / (targetCount - 1)
-  const result: [number, number][] = []
-  for (let i = 0; i < targetCount; i++) {
-    result.push(points[Math.round(i * step)])
-  }
-  return result
-}
-
-/**
  * Format frequency in Hz for axis labels and tooltips.
  * ≤100 Hz: up to 1 decimal (trailing .0 trimmed) — 20→"20", 73.56→"73.6"
  * 100–999 Hz: integer — 250.4→"250"
