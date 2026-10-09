@@ -43,7 +43,7 @@ async function main() {
 
   for (const s of SCENARIOS) {
     const pool = data!.filter(c => c.category === s.category)
-    const scored = filterAndScoreComponents(pool, s.budget, s.signatures, 'music', 50)
+    const scored = filterAndScoreComponents(pool, s.budget, s.signatures, 50)
     // matchScore is attached during scoring but isn't on the declared return type.
     out[s.name] = scored.slice(0, TOP_N).map((c, i) => ({
       rank: i + 1,

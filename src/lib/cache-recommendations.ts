@@ -24,10 +24,6 @@ export interface RecommendationCacheParams {
   budgetRangeMin?: number
   budgetRangeMax?: number
   driverType?: string
-  usageRanking?: string[]
-  usage?: string
-  excludedUsages?: string[]
-  connectivity?: string[]
   existingHeadphones?: string
   existingGear?: Record<string, unknown>
   customBudgetAllocation?: Record<string, unknown> | null
@@ -49,10 +45,6 @@ export function generateCacheKey(params: RecommendationCacheParams): string {
     [...params.soundSignatures].sort().join(','),
     params.headphoneType,
     params.driverType ?? '',
-    [...(params.usageRanking ?? [])].sort().join(','),
-    params.usage ?? '',
-    [...(params.excludedUsages ?? [])].sort().join(','),
-    [...(params.connectivity ?? [])].sort().join(','),
     Object.entries(params.wantRecommendationsFor)
       .filter(([, v]) => v)
       .map(([k]) => k)

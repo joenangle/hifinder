@@ -4,6 +4,7 @@ import {
   calculateSynergyScore,
   filterAndScoreComponents,
   hasExistingGear,
+  existingGearFlags,
 } from '../route'
 
 const emptyGear = {
@@ -42,6 +43,24 @@ describe('hasExistingGear', () => {
       ...emptyGear,
       specificModels: { ...emptyGear.specificModels, dac: '   ' },
     })).toBe(false)
+  })
+})
+
+describe('existingGearFlags', () => {
+  it('keeps only the ownership flags that affect budget allocation', () => {
+    // specificModels never reach scoring, so typed model names must not split
+    // the cache key (the owned headphone travels as existingHeadphones).
+    expect(existingGearFlags({
+      ...emptyGear,
+      amp: true,
+      specificModels: { ...emptyGear.specificModels, dac: 'Modi+' },
+    })).toEqual({ headphones: false, dac: false, amp: true, combo: false })
+  })
+
+  it('treats undefined as owning nothing', () => {
+    expect(existingGearFlags(undefined)).toEqual({
+      headphones: false, dac: false, amp: false, combo: false,
+    })
   })
 })
 
@@ -108,7 +127,6 @@ describe('filterAndScoreComponents — final-score composition', () => {
       [comp],
       100,            // budget
       ['neutral'],    // signatures
-      'music',
       10
     )
 
@@ -139,7 +157,6 @@ describe('filterAndScoreComponents — final-score composition', () => {
       [makeComponent({ sound_signature: 'neutral', crin_signature: 'Neutral' })],
       100,
       ['neutral'],
-      'music',
       10
     )
     expect(scored.signatureScoreDisplay).toBe(100)
@@ -150,7 +167,6 @@ describe('filterAndScoreComponents — final-score composition', () => {
       [makeComponent({ sound_signature: 'neutral', crin_signature: null })],
       100,
       ['neutral'],
-      'music',
       10
     )
     expect(scored.signatureScoreDisplay / 100).toBeGreaterThanOrEqual(
@@ -185,7 +201,7 @@ describe('filterAndScoreComponents — diversity rerank', () => {
       makeComponent({ id: 'b2', brand: 'BrandB', name: 'B2' }),
     ]
 
-    const result = filterAndScoreComponents(components, 100, ['neutral'], 'music', 10)
+    const result = filterAndScoreComponents(components, 100, ['neutral'], 10)
     const prefix = result.slice(0, cap + 2) // first 4 should be BrandA×2, BrandB×2
 
     const brandACount = prefix.filter((r) => r.brand === 'BrandA').length
@@ -197,8 +213,8 @@ describe('filterAndScoreComponents — liquidity bonus cap', () => {
   it('clamps liquidity bonus at 6+ listings to liquidityCap', () => {
     const six = makeComponent({ id: 's6', usedListingsCount: 6 })
     const twenty = makeComponent({ id: 's20', usedListingsCount: 20 })
-    const [r6] = filterAndScoreComponents([six], 100, ['neutral'], 'music', 10)
-    const [r20] = filterAndScoreComponents([twenty], 100, ['neutral'], 'music', 10)
+    const [r6] = filterAndScoreComponents([six], 100, ['neutral'], 10)
+    const [r20] = filterAndScoreComponents([twenty], 100, ['neutral'], 10)
 
     // Both should saturate at liquidityCap × 100, so liquidityBonusDisplay is equal
     expect(r6.liquidityBonusDisplay).toBe(Math.round(SCORING_CONFIG.bonuses.liquidityCap * 100))
@@ -208,7 +224,7 @@ describe('filterAndScoreComponents — liquidity bonus cap', () => {
   it('linearly accumulates liquidity bonus below the cap', () => {
     const [r2] = filterAndScoreComponents(
       [makeComponent({ id: 's2', usedListingsCount: 2 })],
-      100, ['neutral'], 'music', 10
+      100, ['neutral'], 10
     )
     expect(r2.liquidityBonusDisplay).toBe(
       Math.round(2 * SCORING_CONFIG.bonuses.liquidityPerListing * 100)
@@ -223,7 +239,7 @@ describe('filterAndScoreComponents — price-trend gating', () => {
       priceTrendDirection: 'down',
       priceTrendConfidence: 'low',
     })
-    const [r] = filterAndScoreComponents([lowConfDown], 100, ['neutral'], 'music', 10)
+    const [r] = filterAndScoreComponents([lowConfDown], 100, ['neutral'], 10)
     expect(r.trendBonusDisplay).toBe(0)
   })
 
@@ -233,7 +249,7 @@ describe('filterAndScoreComponents — price-trend gating', () => {
       priceTrendDirection: 'down',
       priceTrendConfidence: 'high',
     })
-    const [r] = filterAndScoreComponents([highConfDown], 100, ['neutral'], 'music', 10)
+    const [r] = filterAndScoreComponents([highConfDown], 100, ['neutral'], 10)
     expect(r.trendBonusDisplay).toBe(Math.round(SCORING_CONFIG.bonuses.trendDown * 100))
   })
 
@@ -243,7 +259,7 @@ describe('filterAndScoreComponents — price-trend gating', () => {
       priceTrendDirection: 'up',
       priceTrendConfidence: 'medium',
     })
-    const [r] = filterAndScoreComponents([upTrend], 100, ['neutral'], 'music', 10)
+    const [r] = filterAndScoreComponents([upTrend], 100, ['neutral'], 10)
     expect(r.trendBonusDisplay).toBe(Math.round(SCORING_CONFIG.bonuses.trendUp * 100))
   })
 })

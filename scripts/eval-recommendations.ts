@@ -151,7 +151,6 @@ async function main() {
       pool as unknown[],
       s.budget,
       s.signatures,
-      'music',
       MAX_OPTIONS
     ) as unknown as Component[]
 

@@ -1,20 +1,12 @@
 import {
   createParser,
   createSerializer,
-  parseAsArrayOf,
   parseAsInteger,
   parseAsJson,
   parseAsString,
 } from 'nuqs'
 
 // ---- Custom parsers ----
-
-/**
- * Comma-separated string array parser.
- * Reads: "headphones,dac" → ["headphones", "dac"]
- * Writes: ["headphones", "dac"] → "headphones,dac"
- */
-const parseAsCommaSeparated = parseAsArrayOf(parseAsString, ',')
 
 /**
  * Clamped budget parser. Validates budget URL params are within sensible bounds
@@ -128,9 +120,6 @@ export const PREF_DEFAULTS = {
     amp: '',
     combo: '',
   } as GearModels,
-  usage: 'music',
-  usageRanking: [] as string[],
-  excludedUsages: [] as string[],
   soundSignature: 'any',
   soundSignatures: ['neutral'] as string[],
   headphoneTypes: ['cans', 'iems'] as string[],
@@ -159,15 +148,6 @@ export const recommendationParams = {
     clearOnDefault: true,
   }),
   gearModels: parseAsGearModels.withDefault(PREF_DEFAULTS.gearModels),
-  use: parseAsString.withDefault(PREF_DEFAULTS.usage).withOptions({
-    clearOnDefault: true,
-  }),
-  ranked: parseAsCommaSeparated.withDefault([]).withOptions({
-    clearOnDefault: true,
-  }),
-  exclude: parseAsCommaSeparated.withDefault([]).withOptions({
-    clearOnDefault: true,
-  }),
   soundSignature: parseAsString
     .withDefault(PREF_DEFAULTS.soundSignature)
     .withOptions({ clearOnDefault: true }),
@@ -208,13 +188,6 @@ export function parseLegacyParams(
     hasLegacy = true
   }
 
-  // usage → use
-  const usage = searchParams.get('usage')
-  if (usage && !searchParams.has('use')) {
-    migrations.use = usage
-    hasLegacy = true
-  }
-
   // wantRecommendationsFor (JSON) → want (comma-separated)
   const wantJson = searchParams.get('wantRecommendationsFor')
   if (wantJson && !searchParams.has('want')) {
@@ -238,34 +211,6 @@ export function parseLegacyParams(
       const keys = EQUIPMENT_KEYS.filter((k) => parsed[k])
       if (keys.length > 0) {
         migrations.gear = keys.join(',')
-        hasLegacy = true
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  // usageRanking (JSON) → ranked (comma-separated)
-  const rankingJson = searchParams.get('usageRanking')
-  if (rankingJson && !searchParams.has('ranked')) {
-    try {
-      const parsed = JSON.parse(rankingJson)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        migrations.ranked = parsed.join(',')
-        hasLegacy = true
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  // excludedUsages (JSON) → exclude (comma-separated)
-  const excludeJson = searchParams.get('excludedUsages')
-  if (excludeJson && !searchParams.has('exclude')) {
-    try {
-      const parsed = JSON.parse(excludeJson)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        migrations.exclude = parsed.join(',')
         hasLegacy = true
       }
     } catch {

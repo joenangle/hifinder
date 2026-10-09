@@ -31,16 +31,6 @@ describe('generateCacheKey', () => {
     expect(narrow).not.toBe(wide)
   })
 
-  it('is sensitive to usageRanking ordering where priority matters (first element differs)', () => {
-    const musicFirst = generateCacheKey({ ...baseParams, usageRanking: ['Music', 'Gaming'] })
-    const gamingFirst = generateCacheKey({ ...baseParams, usageRanking: ['Gaming', 'Music'] })
-    // Usage ranking is sorted in the key — same members produce the same key.
-    // This is a deliberate trade-off: filterAndScoreComponents uses the first
-    // element as primary usage, so this MAY cause collisions; if that becomes
-    // a problem, change the serialization to preserve order.
-    expect(musicFirst).toBe(gamingFirst)
-  })
-
   it('is sensitive to existingHeadphones for amp recommendations', () => {
     const hd600 = generateCacheKey({ ...baseParams, existingHeadphones: 'HD 600' })
     const hd650 = generateCacheKey({ ...baseParams, existingHeadphones: 'HD 650' })
@@ -77,11 +67,6 @@ describe('generateCacheKey', () => {
     expect(a).toBe(b)
   })
 
-  it('is sensitive to connectivity filter changes', () => {
-    const wired = generateCacheKey({ ...baseParams, connectivity: ['wired'] })
-    const wireless = generateCacheKey({ ...baseParams, connectivity: ['wireless'] })
-    expect(wired).not.toBe(wireless)
-  })
 
   it('treats an empty selectedItems array the same as omitting the field', () => {
     expect(generateCacheKey({ ...baseParams, selectedItems: [] })).toBe(

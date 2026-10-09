@@ -213,9 +213,6 @@ export function RecommendationsContent() {
       ...nuqsParams.gear,
       specificModels: nuqsParams.gearModels,
     },
-    usage: nuqsParams.use,
-    usageRanking: nuqsParams.ranked,
-    excludedUsages: nuqsParams.exclude,
     soundSignature: nuqsParams.soundSignature,
   }), [nuqsParams])
 
@@ -285,9 +282,6 @@ export function RecommendationsContent() {
     if ('budgetRangeMin' in updates) nuqsUpdates.budgetRangeMin = updates.budgetRangeMin
     if ('budgetRangeMax' in updates) nuqsUpdates.budgetRangeMax = updates.budgetRangeMax
     if ('headphoneType' in updates) nuqsUpdates.type = updates.headphoneType
-    if ('usage' in updates) nuqsUpdates.use = updates.usage
-    if ('usageRanking' in updates) nuqsUpdates.ranked = updates.usageRanking
-    if ('excludedUsages' in updates) nuqsUpdates.exclude = updates.excludedUsages
     if ('soundSignature' in updates) nuqsUpdates.soundSignature = updates.soundSignature
     if ('wantRecommendationsFor' in updates) nuqsUpdates.want = updates.wantRecommendationsFor
     if ('existingGear' in updates) {
@@ -407,12 +401,22 @@ export function RecommendationsContent() {
         budgetRangeMax: debouncedBudgetRangeMax.toString(),
         headphoneType: headphoneType, // Use local state instead of URL state to avoid race condition
         wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
-        existingGear: JSON.stringify(userPrefs.existingGear),
-        usage: userPrefs.usage,
-        usageRanking: JSON.stringify(userPrefs.usageRanking),
-        excludedUsages: JSON.stringify(userPrefs.excludedUsages),
+        // Ownership flags only: they shape the budget split. Typed model names
+        // would just fragment the API and CDN caches.
+        existingGear: JSON.stringify({
+          headphones: userPrefs.existingGear.headphones,
+          dac: userPrefs.existingGear.dac,
+          amp: userPrefs.existingGear.amp,
+          combo: userPrefs.existingGear.combo,
+        }),
         soundSignatures: JSON.stringify(soundFilters)
       })
+
+      // The owned headphone model lets the API rank amps by how well they drive it
+      const ownedHeadphones = userPrefs.existingGear.specificModels.headphones.trim()
+      if (ownedHeadphones) {
+        params.set('existingHeadphones', ownedHeadphones)
+      }
 
       // Add custom budget allocation if provided (using debounced value)
       if (debouncedCustomBudgetAllocation) {
@@ -523,7 +527,13 @@ export function RecommendationsContent() {
     debouncedSelectedItems,
     debouncedBudgetRangeMin,
     debouncedBudgetRangeMax,
-    userPrefs.usage,
+    // Primitives, not the existingGear object: its identity changes on every
+    // URL update, which would refetch immediately and bypass the debounce
+    userPrefs.existingGear.headphones,
+    userPrefs.existingGear.dac,
+    userPrefs.existingGear.amp,
+    userPrefs.existingGear.combo,
+    userPrefs.existingGear.specificModels.headphones,
     soundFiltersKey,
     typeFiltersKey, // Triggers refetch when type filters change (cans/IEMs)
     typeFilters, // Need actual array for headphoneType conversion
@@ -545,10 +555,6 @@ export function RecommendationsContent() {
         equipment: activeEquipment.join(','),
         soundSignatures: soundFiltersKey,
         wantRecommendationsFor: JSON.stringify(userPrefs.wantRecommendationsFor),
-        existingGear: JSON.stringify(userPrefs.existingGear),
-        usage: userPrefs.usage,
-        usageRanking: JSON.stringify(userPrefs.usageRanking),
-        excludedUsages: JSON.stringify(userPrefs.excludedUsages)
       })
 
       // Add custom budget allocation if provided (using debounced value)
@@ -574,7 +580,6 @@ export function RecommendationsContent() {
     debouncedBudgetRangeMin,
     debouncedBudgetRangeMax,
     userPrefs.headphoneType,
-    userPrefs.usage,
     typeFiltersKey,
     soundFiltersKey
     // Removed JSON.stringify dependencies - they create new references every render

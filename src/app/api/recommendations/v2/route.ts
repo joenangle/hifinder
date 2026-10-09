@@ -155,15 +155,8 @@ interface RecommendationRequest {
       combo: string;
     };
   };
-  usage: string;
-  usageRanking: string[];
-  excludedUsages: string[];
   soundSignatures: string[]; // Array for multi-select support
-  powerNeeds?: string;
-  connectivity?: string[];
-  usageContext?: string;
   existingHeadphones?: string;
-  optimizeAroundHeadphones?: string;
   driverType?: string;
 }
 
@@ -606,6 +599,16 @@ export function hasExistingGear(gear: RecommendationRequest["existingGear"] | un
   );
 }
 
+/** The ownership booleans from `existingGear` — the only part that affects results. */
+export function existingGearFlags(gear: RecommendationRequest["existingGear"] | undefined) {
+  return {
+    headphones: !!gear?.headphones,
+    dac: !!gear?.dac,
+    amp: !!gear?.amp,
+    combo: !!gear?.combo,
+  };
+}
+
 /**
  * Escape PostgREST `ilike` wildcards in user-supplied text so a stray `%` or
  * `_` matches literally instead of acting as a pattern.
@@ -665,7 +668,6 @@ export function filterAndScoreComponents(
   components: unknown[],
   budget: number,
   soundSignatures: string[], // Array for multi-select with OR logic
-  primaryUsage: string,
   maxOptions: number,
   driverType?: string,
   existingHeadphones?: AmplificationTarget & { name?: string },
@@ -1008,9 +1010,6 @@ export async function GET(request: NextRequest) {
     // Parse JSON parameters
     let wantRecommendationsFor,
       existingGear,
-      usageRanking,
-      excludedUsages,
-      connectivity,
       customBudgetAllocation;
 
     try {
@@ -1018,11 +1017,6 @@ export async function GET(request: NextRequest) {
         searchParams.get("wantRecommendationsFor") || '{"headphones":true}'
       );
       existingGear = JSON.parse(searchParams.get("existingGear") || "{}");
-      usageRanking = JSON.parse(
-        searchParams.get("usageRanking") || '["Music"]'
-      );
-      excludedUsages = JSON.parse(searchParams.get("excludedUsages") || "[]");
-      connectivity = JSON.parse(searchParams.get("connectivity") || "[]");
       customBudgetAllocation = searchParams.get("customBudgetAllocation")
         ? JSON.parse(searchParams.get("customBudgetAllocation")!)
         : null;
@@ -1040,16 +1034,8 @@ export async function GET(request: NextRequest) {
       headphoneType: headphoneTypeParam,
       wantRecommendationsFor,
       existingGear,
-      usage: searchParams.get("usage") || "music",
-      usageRanking,
-      excludedUsages,
       soundSignatures, // Use the parsed array
-      powerNeeds: searchParams.get("powerNeeds") || "",
-      connectivity,
-      usageContext: searchParams.get("usageContext") || "",
       existingHeadphones: searchParams.get("existingHeadphones") || "",
-      optimizeAroundHeadphones:
-        searchParams.get("optimizeAroundHeadphones") || "",
       driverType: driverTypeParam,
     };
 
@@ -1077,12 +1063,10 @@ export async function GET(request: NextRequest) {
       budgetRangeMin: req.budgetRangeMin,
       budgetRangeMax: req.budgetRangeMax,
       driverType: req.driverType,
-      usageRanking: req.usageRanking,
-      usage: req.usage,
-      excludedUsages: req.excludedUsages,
-      connectivity: req.connectivity,
       existingHeadphones: req.existingHeadphones,
-      existingGear: req.existingGear,
+      // Only the ownership flags change the allocation; specificModels never
+      // reach scoring (the owned headphone arrives as existingHeadphones)
+      existingGear: existingGearFlags(req.existingGear),
       customBudgetAllocation: customBudgetAllocation,
     });
 
@@ -1415,7 +1399,6 @@ export async function GET(request: NextRequest) {
               componentsByCategory.cans,
               headphoneBudget,
               req.soundSignatures,
-              req.usageRanking[0] || req.usage,
               maxOptions,
               req.driverType, // Pass actual driver type preference (dynamic/planar/etc)
               undefined,
@@ -1431,7 +1414,6 @@ export async function GET(request: NextRequest) {
               componentsByCategory.iems,
               headphoneBudget,
               req.soundSignatures,
-              req.usageRanking[0] || req.usage,
               maxOptions,
               undefined, // Don't filter by driver type for IEMs
               undefined,
@@ -1464,7 +1446,6 @@ export async function GET(request: NextRequest) {
             componentsByCategory.dacs,
             dacBudget,
             req.soundSignatures,
-            req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             undefined,
@@ -1493,7 +1474,6 @@ export async function GET(request: NextRequest) {
             componentsByCategory.amps,
             ampBudget,
             req.soundSignatures,
-            req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             ampMatchTarget,
@@ -1514,7 +1494,6 @@ export async function GET(request: NextRequest) {
             componentsByCategory.combos,
             comboBudget,
             req.soundSignatures,
-            req.usageRanking[0] || req.usage,
             maxOptions,
             undefined,
             ampMatchTarget, // combos amplify too — match them to the pairing headphone
@@ -1564,7 +1543,6 @@ export async function GET(request: NextRequest) {
     // the same pre-computed payload. See docs/RECOMMENDATION_PERF_PLAN.md §1.4.
     const hasPersonalization =
       (req.existingHeadphones && req.existingHeadphones !== '') ||
-      (req.optimizeAroundHeadphones && req.optimizeAroundHeadphones !== '') ||
       hasExistingGear(req.existingGear) ||
       customBudgetAllocation !== null ||
       selectedItemsForCache.length > 0;
