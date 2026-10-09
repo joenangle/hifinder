@@ -40,7 +40,7 @@ saves a scorecard and `-- --baseline f.json` prints the delta. `scripts/eval/bas
 is the v3.4 pre-refactor reference (v3.5 scored nDCG@5 +0.0095, P@5 +0.02 against it).
 See `scripts/eval/`. The older `scripts/_rank-snapshot.ts` still dumps raw top-N rankings.
 
-Older 78/22 documentation in `docs/V2_ALGORITHM_IMPLEMENTATION.md` describes the v2.0 algorithm that was superseded.
+Older 78/22 documentation in `docs/archive/V2_ALGORITHM_IMPLEMENTATION.md` describes the v2.0 algorithm that was superseded.
 
 ## Gear Synergy / Amp Matching
 

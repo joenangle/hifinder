@@ -31,6 +31,19 @@ Obsolete duplicate detection scripts superseded by detect-all-duplicates.js
 - fix-spacing-duplicates.js (one-time fix)
 - fix-sundara-duplicates.js (one-time fix)
 
+### `data-fixes/`
+One-time data corrections that have already been run (fix-*.js, recover-*.js).
+
+### `notes/`
+Reports and checklists that lived alongside the scripts (performance reports,
+migration instructions, pre-upgrade checklist).
+
+**2026-10-09 sweep:** one-off scripts in `/scripts` that nothing referenced
+(no npm script, workflow, other script or CLAUDE.md) and that hadn't changed
+in 6+ months were moved here into `tests/`, `migrations/`, `data-fixes/` and
+`notes/`. Relative `require()` paths inside archived scripts were not
+updated, so fix them before re-running one.
+
 ## Active Scripts (in parent directory)
 
 The following scripts remain active in `/scripts`:
