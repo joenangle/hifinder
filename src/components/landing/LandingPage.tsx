@@ -178,6 +178,13 @@ export async function LandingPage() {
                 >
                   See how it works
                 </ScrollToButton>
+                <Link
+                  href="/stereo"
+                  className="inline-flex items-center text-sm underline underline-offset-4"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Speakers?
+                </Link>
               </div>
 
               {/* Stats — server-rendered with live data */}

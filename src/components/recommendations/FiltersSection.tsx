@@ -1,6 +1,7 @@
 'use client'
 
 import { memo } from 'react'
+import Link from 'next/link'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { FILTER_TOOLTIPS } from '@/lib/tooltips'
 import { BudgetAllocationControls, BudgetAllocation } from '@/components/budget/BudgetAllocationControls'
@@ -208,6 +209,12 @@ const FiltersSectionComponent = ({
               />
             </>
           )}
+          <Link
+            href="/stereo"
+            className="text-xs text-secondary underline underline-offset-4 hover:text-primary"
+          >
+            Speakers?
+          </Link>
         </div>
 
         {/* Divider — only when sound filters are visible */}

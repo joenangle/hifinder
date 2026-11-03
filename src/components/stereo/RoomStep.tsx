@@ -1,13 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ROOM_PRESETS } from '@/lib/stereo/power-check'
 import { SPEC_RANGES, type Acoustics, type RoomPresetId, type SystemProfile } from '@/lib/stereo/specs'
 import { DecimalInput, fieldLabelClass, inputClass, parseDecimal, secondaryButtonClass } from './form-bits'
 
+export type RoomField = 'size' | 'acoustics' | 'distance'
+
+/** Ask the step to open (if needed) and focus a field. Pass a new object each time so repeat requests re-fire. */
+export interface RoomFocusRequest {
+  field: RoomField
+}
+
 interface RoomStepProps {
   profile: SystemProfile
   onChange: (p: SystemProfile) => void
+  focusRequest?: RoomFocusRequest | null
+}
+
+/** Stable DOM ids, so assumption chips elsewhere on the page can jump to the matching input. */
+const FIELD_IDS: Record<RoomField, string> = {
+  size: 'stereo-room-length',
+  acoustics: 'stereo-acoustics',
+  distance: 'stereo-distance',
 }
 
 const ACOUSTICS_OPTIONS: readonly { id: Acoustics; label: string; description: string }[] = [
@@ -37,8 +52,22 @@ function summaryFor(profile: SystemProfile): string {
   return dims ?? 'Room not set yet'
 }
 
-export function RoomStep({ profile, onChange }: RoomStepProps) {
+export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepProps) {
   const [open, setOpen] = useState(true)
+  const [seenRequest, setSeenRequest] = useState(focusRequest)
+  if (focusRequest !== seenRequest) {
+    setSeenRequest(focusRequest)
+    // The distance input stays visible when the room is collapsed; the other fields do not.
+    if (focusRequest && focusRequest.field !== 'distance') setOpen(true)
+  }
+
+  useEffect(() => {
+    if (!focusRequest) return
+    const el = document.getElementById(FIELD_IDS[focusRequest.field])
+    if (!el) return
+    el.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
+    el.focus()
+  }, [focusRequest])
 
   type DimKey = (typeof DIMENSIONS)[number]['key']
   // Local drafts keep partial entries alive while the profile has no room yet.
@@ -128,6 +157,7 @@ export function RoomStep({ profile, onChange }: RoomStepProps) {
               <label key={key} className={fieldLabelClass}>
                 {label}
                 <input
+                  id={key === 'length_m' ? FIELD_IDS.size : undefined}
                   type="text"
                   inputMode="decimal"
                   className={inputClass}
@@ -145,6 +175,7 @@ export function RoomStep({ profile, onChange }: RoomStepProps) {
           <label className={fieldLabelClass}>
             How the room sounds
             <select
+              id={FIELD_IDS.acoustics}
               value={profile.acoustics ?? ''}
               onChange={(e) => onChange({ ...profile, acoustics: e.target.value as Acoustics })}
               className={inputClass}
@@ -178,6 +209,7 @@ export function RoomStep({ profile, onChange }: RoomStepProps) {
         Listening distance
         <span className="flex items-center gap-2 font-normal">
           <DecimalInput
+            id={FIELD_IDS.distance}
             aria-label="Listening distance in meters"
             value={profile.distance_m}
             range={SPEC_RANGES.distance_m}

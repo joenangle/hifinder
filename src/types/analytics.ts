@@ -51,6 +51,11 @@ export type AnalyticsEvent =
   | { name: 'price_alert_created', parameters: { component_id?: string, target_price: number, budget_tier: BudgetTier } }
   | { name: 'alert_triggered_clicked', parameters: { listing_price: number, target_price: number } }
 
+  // Stereo Builder
+  | { name: 'stereo_verdict_shown', properties: { verdict: string, any_assumed: boolean } }
+  | { name: 'stereo_system_saved' }
+  | { name: 'stereo_system_edited' }
+
 export interface SavedSearch {
   url: string
   budget: number

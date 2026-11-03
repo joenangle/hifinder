@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Heart, Bell, Package } from 'lucide-react'
+import { LayoutDashboard, Heart, Bell, Package, Speaker } from 'lucide-react'
 import { WishlistTab } from '@/components/dashboard/WishlistTab'
 import { AlertsTab } from '@/components/dashboard/AlertsTab'
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed'
@@ -262,7 +262,7 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
       {/* Quick Actions */}
       <div className="card p-6">
         <h3 className="text-lg font-semibold text-primary mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/recommendations"
             className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center"
@@ -292,6 +292,15 @@ function OverviewTab({ setActiveTab }: { setActiveTab: (tab: DashboardTab) => vo
             <Bell className="w-6 h-6 mx-auto mb-2 text-accent" />
             <p className="font-medium text-primary">Create Price Alert</p>
             <p className="text-sm text-secondary">Get notified</p>
+          </Link>
+
+          <Link
+            href="/stereo"
+            className="p-4 border border-border rounded-lg hover:border-accent transition-colors text-center"
+          >
+            <Speaker className="w-6 h-6 mx-auto mb-2 text-accent" />
+            <p className="font-medium text-primary">Stereo systems</p>
+            <p className="text-sm text-secondary">Check an amp and speakers</p>
           </Link>
         </div>
       </div>

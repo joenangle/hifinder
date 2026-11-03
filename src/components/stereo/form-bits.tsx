@@ -32,6 +32,7 @@ interface DecimalInputProps {
   clampOnBlur?: boolean
   className?: string
   placeholder?: string
+  id?: string
   'aria-label'?: string
 }
 

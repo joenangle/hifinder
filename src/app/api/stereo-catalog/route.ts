@@ -10,6 +10,8 @@ import {
 
 const MAX_RESULTS = 20
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const ROLE_CATEGORY = {
   speakers: CATEGORY.SPEAKERS,
   amp: CATEGORY.SPEAKER_AMP,
@@ -25,10 +27,19 @@ export async function GET(request: NextRequest) {
     }
     const category = ROLE_CATEGORY[role]
 
+    const id = searchParams.get('id')
+    if (id !== null && !UUID_PATTERN.test(id)) {
+      return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
+    }
+
     let query = supabaseServer
       .from('components')
       .select('id, brand, name, category, technical_specs')
       .eq('category', category)
+
+    // Single-item lookup, used to restore catalog gear from a shared link.
+    // The category filter above means an id from another role finds nothing.
+    if (id !== null) query = query.eq('id', id)
 
     // Each word must appear in either brand or name
     for (const word of searchWords(searchParams.get('q'))) {

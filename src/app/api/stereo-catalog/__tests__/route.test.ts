@@ -158,6 +158,55 @@ describe('GET /api/stereo-catalog', () => {
     })
   })
 
+  describe('id lookup', () => {
+    const ID = '3f1c2a9e-5b7d-4e21-9a0c-8d6f4b2e1a77'
+    const row = {
+      id: ID,
+      brand: 'KEF',
+      name: 'LS50',
+      category: 'speakers',
+      technical_specs: { sensitivity_db: { value: 85, trust: 'measured' } },
+    }
+
+    it('returns the one item, filtered by id and by the role category', async () => {
+      mockResult = { data: [row], error: null }
+      const res = await GET(makeRequest(`/api/stereo-catalog?role=speakers&id=${ID}`))
+      expect(res.status).toBe(200)
+      expect(mockChain.eq).toHaveBeenCalledWith('category', 'speakers')
+      expect(mockChain.eq).toHaveBeenCalledWith('id', ID)
+      const body = await res.json()
+      expect(body.items).toEqual([
+        {
+          id: ID,
+          brand: 'KEF',
+          name: 'LS50',
+          category: 'speakers',
+          specs: { sensitivity_db: { value: 85, trust: 'measured' } },
+        },
+      ])
+    })
+
+    it('returns no items when the id belongs to another category', async () => {
+      // The category filter excludes the row, so the database returns nothing.
+      mockResult = { data: [], error: null }
+      const res = await GET(makeRequest(`/api/stereo-catalog?role=amp&id=${ID}`))
+      expect(mockChain.eq).toHaveBeenCalledWith('category', 'speaker_amp')
+      expect(await res.json()).toEqual({ items: [] })
+    })
+
+    it('still requires a valid role', async () => {
+      const res = await GET(makeRequest(`/api/stereo-catalog?id=${ID}`))
+      expect(res.status).toBe(400)
+      expect(mockChain.from).not.toHaveBeenCalled()
+    })
+
+    it('rejects an id that is not a uuid without querying', async () => {
+      const res = await GET(makeRequest('/api/stereo-catalog?role=speakers&id=not-a-uuid'))
+      expect(res.status).toBe(400)
+      expect(mockChain.from).not.toHaveBeenCalled()
+    })
+  })
+
   it('returns 500 on a database error', async () => {
     mockResult = { data: null, error: { message: 'boom' } }
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})

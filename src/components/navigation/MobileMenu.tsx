@@ -10,6 +10,7 @@ const publicNavItems = [
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/browse', label: 'Browse' },
   { href: '/marketplace', label: 'Marketplace' },
+  { href: '/stereo', label: 'Stereo' },
   { href: '/price-history', label: 'Price History' },
 ]
 
@@ -18,6 +19,7 @@ const authNavItems = [
   { href: '/recommendations', label: 'Recommendations' },
   { href: '/browse', label: 'Browse' },
   { href: '/marketplace', label: 'Marketplace' },
+  { href: '/stereo', label: 'Stereo' },
   { href: '/price-history', label: 'Price History' },
 ]
 
