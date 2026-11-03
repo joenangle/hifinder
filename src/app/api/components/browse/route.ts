@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { brandOrNameMatches } from '@/lib/search-terms'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 import {
   parseBrowseParams,
   browseSearchWords,
@@ -33,8 +34,11 @@ export async function GET(request: NextRequest) {
       query = query.or(brandOrNameMatches(word))
     }
 
+    // `category` is already limited to headphone-era values by parseBrowseParams.
     if (category) {
       query = query.eq('category', category)
+    } else {
+      query = query.in('category', HEADPHONE_SYSTEM_CATEGORIES)
     }
 
     for (const clause of browseSortClauses(sort)) {

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
+import {
+  HEADPHONE_SYSTEM_CATEGORIES,
+  isCategoryIn,
+  normalizeCategory,
+} from '@/lib/component-categories'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +14,10 @@ export async function GET(request: NextRequest) {
     const sound_signature = searchParams.get('sound_signature')
     const use_cases = searchParams.get('use_cases')
     const headphone_type = searchParams.get('headphone_type')
+    // Stereo categories (and unknown ones) are ignored: this feeds headphone flows.
+    const safeCategory = isCategoryIn(category, HEADPHONE_SYSTEM_CATEGORIES)
+      ? normalizeCategory(category)
+      : null
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined
 
     const ids = searchParams.get('ids')
@@ -37,12 +46,12 @@ export async function GET(request: NextRequest) {
         .from('components')
         .select('brand')
         
-      if (category) {
-        if (category === 'headphones_and_iems') {
-          brandsQuery = brandsQuery.in('category', ['headphones', 'iems'])
-        } else {
-          brandsQuery = brandsQuery.eq('category', category)
-        }
+      if (category === 'headphones_and_iems') {
+        brandsQuery = brandsQuery.in('category', ['headphones', 'iems'])
+      } else if (safeCategory) {
+        brandsQuery = brandsQuery.eq('category', safeCategory)
+      } else {
+        brandsQuery = brandsQuery.in('category', HEADPHONE_SYSTEM_CATEGORIES)
       }
       
       const { data: components, error } = await brandsQuery.order('brand')
@@ -65,6 +74,8 @@ export async function GET(request: NextRequest) {
         
       if (category === 'headphones_and_iems') {
         modelsQuery = modelsQuery.in('category', ['headphones', 'iems'])
+      } else {
+        modelsQuery = modelsQuery.in('category', HEADPHONE_SYSTEM_CATEGORIES)
       }
       
       const { data: components, error } = await modelsQuery.order('name')
@@ -84,8 +95,10 @@ export async function GET(request: NextRequest) {
       .select('*')
 
     // Apply filters
-    if (category) {
-      query = query.eq('category', category)
+    if (safeCategory) {
+      query = query.eq('category', safeCategory)
+    } else {
+      query = query.in('category', HEADPHONE_SYSTEM_CATEGORIES)
     }
 
     if (brand) {

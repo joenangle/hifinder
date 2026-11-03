@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 
 const BASE_URL = 'https://hifinder.app'
 
@@ -31,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data, error } = await supabaseServer
       .from('components')
       .select('id, updated_at')
+      .in('category', HEADPHONE_SYSTEM_CATEGORIES)
       .order('id')
       .range(from, from + PAGE_SIZE - 1)
 

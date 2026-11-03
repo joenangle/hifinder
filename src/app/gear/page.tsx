@@ -8,6 +8,7 @@ import type { UserGearItem } from '@/types/gear'
 import { searchWords, brandOrNameMatches } from '@/lib/search-terms'
 import { StackWithGear, StackPurpose, StackComponentData, calculateStackValue, checkStackCompatibility, stackTemplates, getStackComponentData, purposeIcons } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 import { Component, CollectionStats } from '@/types'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -192,7 +193,10 @@ function GearContent() {
     }
 
     // Each word must appear in brand or name
-    let request = supabase.from('components').select('*')
+    let request = supabase
+      .from('components')
+      .select('*')
+      .in('category', HEADPHONE_SYSTEM_CATEGORIES)
     for (const word of words) {
       request = request.or(brandOrNameMatches(word))
     }

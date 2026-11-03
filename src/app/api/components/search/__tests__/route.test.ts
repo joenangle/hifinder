@@ -51,6 +51,7 @@ vi.mock('@/lib/supabase-server', () => ({
 }))
 
 import { GET } from '../route'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -139,5 +140,20 @@ describe('GET /api/components/search', () => {
     const response = await GET(makeRequest('/api/components/search?q=test'))
 
     expect(response.status).toBe(500)
+  })
+
+  describe('stereo categories stay out of search', () => {
+    it('restricts to headphone-system categories when no category is given', async () => {
+      await GET(makeRequest('/api/components/search?q=test'))
+
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
+
+    it('ignores a stereo category param and falls back to the headphone restriction', async () => {
+      await GET(makeRequest('/api/components/search?q=test&category=speaker_amp'))
+
+      expect(mockChain.eq).not.toHaveBeenCalledWith('category', 'speaker_amp')
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
   })
 })

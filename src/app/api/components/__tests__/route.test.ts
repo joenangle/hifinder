@@ -53,6 +53,7 @@ vi.mock('@/lib/supabase-server', () => ({
 }))
 
 import { GET } from '../route'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -157,5 +158,36 @@ describe('GET /api/components', () => {
     const body = await response.json()
 
     expect(body).toEqual([])
+  })
+
+  describe('stereo categories stay out of headphone flows', () => {
+    it('restricts list queries to headphone-system categories when no category is given', async () => {
+      await GET(makeRequest('/api/components'))
+
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
+
+    it('restricts brand lists and model lists the same way', async () => {
+      await GET(makeRequest('/api/components?brands_only=true'))
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+
+      vi.clearAllMocks()
+      await GET(makeRequest('/api/components?models_only=true&brand=Sennheiser'))
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
+
+    it('ignores a stereo category param and falls back to the headphone restriction', async () => {
+      await GET(makeRequest('/api/components?category=speakers'))
+
+      expect(mockChain.eq).not.toHaveBeenCalledWith('category', 'speakers')
+      expect(mockChain.in).toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
+
+    it('keeps an explicit headphone category as the only category filter', async () => {
+      await GET(makeRequest('/api/components?category=cans'))
+
+      expect(mockChain.eq).toHaveBeenCalledWith('category', 'cans')
+      expect(mockChain.in).not.toHaveBeenCalledWith('category', HEADPHONE_SYSTEM_CATEGORIES)
+    })
   })
 })

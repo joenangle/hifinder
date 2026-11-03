@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { searchWords, brandOrNameMatches } from '@/lib/search-terms'
+import {
+  HEADPHONE_SYSTEM_CATEGORIES,
+  isCategoryIn,
+  normalizeCategory,
+} from '@/lib/component-categories'
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,13 +31,13 @@ export async function GET(request: NextRequest) {
       query = query.or(brandOrNameMatches(word))
     }
 
-    // Optional category filter
-    if (category) {
-      if (category === 'headphones') {
-        query = query.in('category', ['cans', 'iems'])
-      } else {
-        query = query.eq('category', category)
-      }
+    // Optional category filter; stereo/unknown categories fall back to all headphone-system gear
+    if (category === 'headphones') {
+      query = query.in('category', ['cans', 'iems'])
+    } else if (isCategoryIn(category, HEADPHONE_SYSTEM_CATEGORIES)) {
+      query = query.eq('category', normalizeCategory(category)!)
+    } else {
+      query = query.in('category', HEADPHONE_SYSTEM_CATEGORIES)
     }
 
     const { data, error } = await query

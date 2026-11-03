@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { X, Upload, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 import {
   parseGearCsv,
   buildComponentIndex,
@@ -64,7 +65,10 @@ export function GearImportModal({ isOpen, onClose, onImported }: GearImportModal
     }
 
     // Build a catalog index to match rows to components (711 rows, tiny payload).
-    const { data: components } = await supabase.from('components').select('id, brand, name')
+    const { data: components } = await supabase
+      .from('components')
+      .select('id, brand, name')
+      .in('category', HEADPHONE_SYSTEM_CATEGORIES)
     const index = buildComponentIndex(components ?? [])
 
     setPreviews(

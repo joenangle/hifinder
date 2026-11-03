@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 import { BrowserFrame } from './BrowserFrame'
 import { TrackableLink } from './TrackableLink'
 import { FeatureCards } from './FeatureCards'
@@ -14,7 +15,10 @@ import { CollapsibleEmailSignup } from './CollapsibleEmailSignup'
 async function getStats() {
   try {
     const [componentResult, listingsResult] = await Promise.all([
-      supabaseServer.from('components').select('*', { count: 'exact', head: true }),
+      supabaseServer
+        .from('components')
+        .select('*', { count: 'exact', head: true })
+        .in('category', HEADPHONE_SYSTEM_CATEGORIES),
       supabaseServer.from('used_listings').select('*', { count: 'exact', head: true }),
     ])
 
