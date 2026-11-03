@@ -367,6 +367,26 @@ describe('RoomStep', () => {
     expect(onChange).toHaveBeenLastCalledWith({ ...p, distance_m: 2.5 })
   })
 
+  it('lets a room be typed from scratch when the profile has none', () => {
+    const onChange = vi.fn()
+    const p = profile({ room: null, room_preset: null })
+    render(<RoomStep profile={p} onChange={onChange} />)
+    expect(screen.getByLabelText('Length (m)')).toHaveAttribute('placeholder', '5')
+
+    fireEvent.change(screen.getByLabelText('Length (m)'), { target: { value: '4' } })
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.getByLabelText('Length (m)')).toHaveValue('4')
+
+    fireEvent.change(screen.getByLabelText('Width (m)'), { target: { value: '3' } })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByLabelText('Height (m)'), { target: { value: '2.5' } })
+    expect(onChange).toHaveBeenLastCalledWith({
+      ...p,
+      room: { length_m: 4, width_m: 3, height_m: 2.5 },
+      room_preset: null,
+    })
+  })
+
   it('never emits NaN or out-of-range values', () => {
     const onChange = vi.fn()
     render(<RoomStep profile={profile()} onChange={onChange} />)

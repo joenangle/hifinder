@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ROOM_PRESETS } from '@/lib/stereo/power-check'
 import { SPEC_RANGES, type Acoustics, type RoomPresetId, type SystemProfile } from '@/lib/stereo/specs'
-import { DecimalInput, fieldLabelClass, inputClass, secondaryButtonClass } from './form-bits'
+import { DecimalInput, fieldLabelClass, inputClass, parseDecimal, secondaryButtonClass } from './form-bits'
 
 interface RoomStepProps {
   profile: SystemProfile
@@ -24,6 +24,8 @@ const DIMENSIONS = [
 
 const PRESET_IDS = Object.keys(ROOM_PRESETS) as RoomPresetId[]
 
+const ASSUMED_ROOM = ROOM_PRESETS.living_room
+
 const fmt = (n: number) => String(Number(n.toFixed(1)))
 
 function summaryFor(profile: SystemProfile): string {
@@ -38,9 +40,32 @@ function summaryFor(profile: SystemProfile): string {
 export function RoomStep({ profile, onChange }: RoomStepProps) {
   const [open, setOpen] = useState(true)
 
-  const setDimension = (key: (typeof DIMENSIONS)[number]['key'], n: number) => {
-    if (!profile.room) return
-    onChange({ ...profile, room: { ...profile.room, [key]: n }, room_preset: null })
+  type DimKey = (typeof DIMENSIONS)[number]['key']
+  // Local drafts keep partial entries alive while the profile has no room yet.
+  const [drafts, setDrafts] = useState<Partial<Record<DimKey, string>>>({})
+  const [syncedRoom, setSyncedRoom] = useState(profile.room)
+  if (profile.room !== syncedRoom) {
+    setSyncedRoom(profile.room)
+    const room = profile.room
+    // Re-sync from outside (preset, URL state); keep drafts that already describe this room.
+    const echoed =
+      room !== null &&
+      DIMENSIONS.every(({ key }) => drafts[key] === undefined || parseDecimal(drafts[key]) === room[key])
+    if (!echoed) setDrafts({})
+  }
+
+  const shownFor = (key: DimKey) =>
+    drafts[key] ?? (profile.room ? fmt(profile.room[key]) : '')
+
+  const setDimension = (key: DimKey, raw: string) => {
+    setDrafts((d) => ({ ...d, [key]: raw }))
+    const parsed = DIMENSIONS.map((dim) =>
+      parseDecimal(dim.key === key ? raw : shownFor(dim.key), SPEC_RANGES.room_dimension_m),
+    )
+    if (parsed.every((n) => n !== null)) {
+      const [length_m, width_m, height_m] = parsed as number[]
+      onChange({ ...profile, room: { length_m, width_m, height_m }, room_preset: null })
+    }
   }
 
   return (
@@ -102,10 +127,16 @@ export function RoomStep({ profile, onChange }: RoomStepProps) {
             {DIMENSIONS.map(({ key, label }) => (
               <label key={key} className={fieldLabelClass}>
                 {label}
-                <DecimalInput
-                  value={profile.room ? profile.room[key] : null}
-                  range={SPEC_RANGES.room_dimension_m}
-                  onCommit={(n) => setDimension(key, n)}
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  className={inputClass}
+                  value={shownFor(key)}
+                  placeholder={fmt(ASSUMED_ROOM[key])}
+                  onChange={(e) => setDimension(key, e.target.value)}
+                  onBlur={() => {
+                    if (profile.room) setDrafts((d) => ({ ...d, [key]: undefined }))
+                  }}
                 />
               </label>
             ))}
