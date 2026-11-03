@@ -2,7 +2,11 @@
  * Canonical component categories and the groupings built on them.
  *
  * The DB `components.category` enum is the source of truth:
- *   cans | iems | dac | amp | dac_amp | cable
+ *   cans | iems | dac | amp | dac_amp | cable | speakers | speaker_amp
+ *
+ * `speakers` and `speaker_amp` belong to the Stereo Builder and are kept out of
+ * every headphone group below (AMP_CATEGORIES, SIGNAL_CATEGORIES, ...), so
+ * speaker gear never leaks into headphone recommendations.
  *
  * Several modules had independently drifted to plural/legacy spellings
  * ('headphones', 'amps', 'dacs', 'combo'). Those string comparisons silently
@@ -18,9 +22,24 @@ export const CATEGORY = {
   AMP: 'amp',
   DAC_AMP: 'dac_amp',
   CABLE: 'cable',
+  SPEAKERS: 'speakers',
+  SPEAKER_AMP: 'speaker_amp',
 } as const;
 
 export type ComponentCategory = (typeof CATEGORY)[keyof typeof CATEGORY];
+
+/** Stereo Builder gear: passive speakers and the amps that drive them. */
+export const STEREO_CATEGORIES: readonly string[] = [CATEGORY.SPEAKERS, CATEGORY.SPEAKER_AMP];
+
+/** Everything in the headphone flows; excludes the stereo categories. */
+export const HEADPHONE_SYSTEM_CATEGORIES: readonly string[] = [
+  CATEGORY.CANS,
+  CATEGORY.IEMS,
+  CATEGORY.DAC,
+  CATEGORY.AMP,
+  CATEGORY.DAC_AMP,
+  CATEGORY.CABLE,
+];
 
 /** Anything worn on the head — the things that have a sound signature. */
 export const HEADPHONE_CATEGORIES: readonly string[] = [CATEGORY.CANS, CATEGORY.IEMS];
@@ -58,6 +77,9 @@ const CATEGORY_ALIASES: Record<string, ComponentCategory> = {
   'dac/amp': CATEGORY.DAC_AMP,
   cable: CATEGORY.CABLE,
   cables: CATEGORY.CABLE,
+  speaker: CATEGORY.SPEAKERS,
+  speakers: CATEGORY.SPEAKERS,
+  speaker_amp: CATEGORY.SPEAKER_AMP,
 };
 
 /**

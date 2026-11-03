@@ -5,6 +5,7 @@
  * Compliant with eBay API License Agreement - no data scraping/storage
  */
 
+import type { ComponentCategory } from './component-categories'
 import type { EbayAffiliateConfig, ComponentSearchParams } from '@/types/marketplace'
 
 let ebayWarningLogged = false;
@@ -27,7 +28,8 @@ export function generateEbayAffiliateLink(
   const keywords = `${component.brand} ${component.name}`.trim();
 
   // eBay category IDs for audio equipment
-  const categoryMap = {
+  // Stereo categories have no mapped eBay category, so they search unfiltered.
+  const categoryMap: Partial<Record<ComponentCategory, string>> = {
     'cans': '112529',      // Consumer Electronics > Portable Audio & Headphones > Headphones
     'iems': '112529',       // Same category for IEMs
     'dac': '14990',         // Musical Instruments & Gear > Pro Audio Equipment > Signal Processors & Effects

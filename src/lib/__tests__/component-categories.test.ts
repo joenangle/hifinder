@@ -4,6 +4,8 @@ import {
   HEADPHONE_CATEGORIES,
   AMP_CATEGORIES,
   DAC_CATEGORIES,
+  STEREO_CATEGORIES,
+  HEADPHONE_SYSTEM_CATEGORIES,
   normalizeCategory,
   isCategoryIn,
 } from '../component-categories'
@@ -26,7 +28,7 @@ describe('normalizeCategory', () => {
   })
 
   it('returns null for unknown or empty input', () => {
-    expect(normalizeCategory('speakers')).toBeNull()
+    expect(normalizeCategory('turntable')).toBeNull()
     expect(normalizeCategory('')).toBeNull()
     expect(normalizeCategory(null)).toBeNull()
   })
@@ -50,7 +52,33 @@ describe('isCategoryIn', () => {
   })
 
   it('returns false for unknown categories', () => {
-    expect(isCategoryIn('speakers', AMP_CATEGORIES)).toBe(false)
+    expect(isCategoryIn('turntable', AMP_CATEGORIES)).toBe(false)
     expect(isCategoryIn(null, HEADPHONE_CATEGORIES)).toBe(false)
+  })
+})
+
+describe('stereo categories', () => {
+  it('exposes the stereo and headphone-system groups', () => {
+    expect(CATEGORY.SPEAKERS).toBe('speakers')
+    expect(CATEGORY.SPEAKER_AMP).toBe('speaker_amp')
+    expect(STEREO_CATEGORIES).toEqual(['speakers', 'speaker_amp'])
+    expect(HEADPHONE_SYSTEM_CATEGORIES).toEqual(['cans', 'iems', 'dac', 'amp', 'dac_amp', 'cable'])
+  })
+
+  it('keeps stereo categories out of the headphone groups', () => {
+    expect(AMP_CATEGORIES).not.toContain('speaker_amp')
+    expect(HEADPHONE_CATEGORIES).not.toContain('speakers')
+    expect(isCategoryIn('speaker_amp', HEADPHONE_SYSTEM_CATEGORIES)).toBe(false)
+    expect(isCategoryIn('speakers', HEADPHONE_SYSTEM_CATEGORIES)).toBe(false)
+  })
+
+  it('normalizes stereo spellings', () => {
+    expect(normalizeCategory('Speakers')).toBe('speakers')
+    expect(normalizeCategory('speaker')).toBe('speakers')
+    expect(normalizeCategory('speaker_amp')).toBe('speaker_amp')
+  })
+
+  it('leaves the headphone meaning of amplifier unchanged', () => {
+    expect(normalizeCategory('amplifier')).toBe('amp')
   })
 })

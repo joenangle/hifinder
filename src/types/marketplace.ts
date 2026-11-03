@@ -7,6 +7,8 @@
  * lib/location-normalizer.ts, lib/retailer-links.ts, lib/ebay-affiliate.ts
  */
 
+import type { ComponentCategory } from '@/lib/component-categories'
+
 export interface PriceAlert {
   id: string
   user_id: string
@@ -80,14 +82,14 @@ export interface ComponentInfo {
   id: string
   brand: string
   name: string
-  category: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable'
+  category: ComponentCategory
   amazon_url: string | null
 }
 
 export interface ComponentSearchParams {
   brand: string;
   name: string;
-  category?: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable';
+  category?: ComponentCategory;
 }
 
 export interface EbayAffiliateConfig {

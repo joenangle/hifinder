@@ -10,7 +10,7 @@ export interface Component {
   id: string;
   name: string;
   brand: string;
-  category: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable';
+  category: 'cans' | 'iems' | 'dac' | 'amp' | 'dac_amp' | 'cable' | 'speakers' | 'speaker_amp';
   price_new: number | null;
   price_used_min: number | null;
   price_used_max: number | null;
