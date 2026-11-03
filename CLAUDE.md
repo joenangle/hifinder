@@ -129,6 +129,20 @@ npm run db:types                                  # Regenerate TypeScript types
 - Pooler: `aws-1-us-east-2.pooler.supabase.com` (password has special chars — use PGPASSWORD env var, not URL-embedded)
 - `scripts/run-sql.js` handles quoting safely
 
+### Cloud sessions (claude.ai/code)
+`npm run db` cannot work in a cloud container: outbound traffic is HTTPS-only via
+a proxy, so the Postgres pooler (raw TCP) doesn't even resolve. Instead:
+- **SQL / schema / types:** Supabase connector — `execute_sql`, `list_tables`,
+  `generate_typescript_types` with project id `dqvuvieggqltkznluvol`. The
+  connection is **not read-only**: it can write to production, so any write or
+  `apply_migration` needs explicit user approval first.
+- **Deploys, build logs, runtime errors:** Vercel connector (project `hifinder`),
+  in place of `vercel curl` / `vercel alias ls`.
+- **`npm run eval:reco`** uses supabase-js over HTTPS, so it works if the environment
+  sets `NEXT_PUBLIC_SUPABASE_URL` + a key as env vars (the loader doesn't need
+  `.env.local`) and allows `dqvuvieggqltkznluvol.supabase.co` in network access.
+- Dependencies aren't preinstalled unless the environment's setup script runs `npm ci`.
+
 ## URL State Management (nuqs)
 - `src/lib/url-params.ts` — typed schema for all recommendation params
 - `NuqsAdapter` in root layout, `useQueryStates` in recommendations page
