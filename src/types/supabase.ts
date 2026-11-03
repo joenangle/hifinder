@@ -1205,24 +1205,39 @@ export type Database = {
         Row: {
           component_id: string | null
           created_at: string | null
+          custom_brand: string | null
+          custom_category: string | null
+          custom_name: string | null
           id: string
           position: number
+          role: string | null
+          spec_overrides: Json | null
           stack_id: string
           user_gear_id: string | null
         }
         Insert: {
           component_id?: string | null
           created_at?: string | null
+          custom_brand?: string | null
+          custom_category?: string | null
+          custom_name?: string | null
           id?: string
           position?: number
+          role?: string | null
+          spec_overrides?: Json | null
           stack_id: string
           user_gear_id?: string | null
         }
         Update: {
           component_id?: string | null
           created_at?: string | null
+          custom_brand?: string | null
+          custom_category?: string | null
+          custom_name?: string | null
           id?: string
           position?: number
+          role?: string | null
+          spec_overrides?: Json | null
           stack_id?: string
           user_gear_id?: string | null
         }
@@ -1655,6 +1670,7 @@ export type Database = {
           is_primary: boolean | null
           name: string
           purpose: string | null
+          system_profile: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -1665,6 +1681,7 @@ export type Database = {
           is_primary?: boolean | null
           name: string
           purpose?: string | null
+          system_profile?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -1675,6 +1692,7 @@ export type Database = {
           is_primary?: boolean | null
           name?: string
           purpose?: string | null
+          system_profile?: Json | null
           updated_at?: string | null
           user_id?: string
         }

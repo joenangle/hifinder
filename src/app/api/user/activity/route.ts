@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_STACK_FILTER } from '@/lib/stacks'
 
 /**
  * Milestone counts and recent activity for the signed-in user's dashboard.
@@ -42,6 +43,7 @@ export async function GET() {
         .from('user_stacks')
         .select('id, name, created_at', { count: 'exact' })
         .eq('user_id', userId)
+        .or(HEADPHONE_STACK_FILTER)
         .order('created_at', { ascending: false })
         .limit(3),
       supabaseServer

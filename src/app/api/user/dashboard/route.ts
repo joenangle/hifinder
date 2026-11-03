@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_STACK_FILTER } from '@/lib/stacks'
 
 export async function GET() {
   try {
@@ -67,6 +68,7 @@ export async function GET() {
         )
       `)
       .eq('user_id', session.user.id)
+      .or(HEADPHONE_STACK_FILTER)
       .order('created_at', { ascending: false })
 
     if (stacksError) {

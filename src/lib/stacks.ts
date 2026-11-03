@@ -45,6 +45,9 @@ export function getStackComponentData(sc: StackComponent): StackComponentData {
 }
 
 export function checkStackCompatibility(stack: StackWithGear): CompatibilityWarning[] {
+  // Headphone-only checks (power, multiple headphones) don't apply to a speaker system.
+  if (isStereoStack(stack)) return []
+
   const warnings: CompatibilityWarning[] = []
   const normalizedComponents = stack.stack_components.map(sc => ({
     ...getStackComponentData(sc),
@@ -129,7 +132,18 @@ export const purposeIcons: Record<StackPurpose, string> = {
   gaming: '🎮',
   office: '💼',
   general: '📦',
+  stereo: '🔊',
 }
+
+export const isStereoStack = (s: Pick<UserStack, 'purpose'>): boolean => s.purpose === 'stereo'
+
+/**
+ * PostgREST filter for `.or(...)` that keeps headphone stacks only. Use this
+ * everywhere a headphone-stack list or count reads `user_stacks`. Do not use
+ * `.neq('purpose', 'stereo')`: SQL `NULL <> 'stereo'` is NULL, so it silently
+ * drops legacy stacks whose purpose is NULL.
+ */
+export const HEADPHONE_STACK_FILTER = 'purpose.is.null,purpose.neq.stereo'
 
 export function calculateStackValue(stack: StackWithGear): {
   totalPaid: number

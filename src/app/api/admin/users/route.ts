@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { HEADPHONE_STACK_FILTER } from '@/lib/stacks'
 
 interface RegistryUser {
   id: string
@@ -36,7 +37,9 @@ export async function GET() {
     // identifier used as users.id. Count per user so historical users who don't
     // yet have a users row still surface.
     const countByUser = async (table: 'user_gear' | 'user_stacks' | 'wishlists') => {
-      const { data, error } = await supabaseServer.from(table).select('user_id')
+      const query = supabaseServer.from(table).select('user_id')
+      // Stereo systems are not headphone stacks; keep NULL-purpose rows (see HEADPHONE_STACK_FILTER).
+      const { data, error } = await (table === 'user_stacks' ? query.or(HEADPHONE_STACK_FILTER) : query)
       if (error) throw error
       return (data ?? []).reduce((acc, { user_id }) => {
         if (user_id) acc[user_id] = (acc[user_id] || 0) + 1

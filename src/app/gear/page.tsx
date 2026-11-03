@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import type { UserGearItem } from '@/types/gear'
 import { searchWords, brandOrNameMatches } from '@/lib/search-terms'
-import { StackWithGear, StackPurpose, StackComponentData, calculateStackValue, checkStackCompatibility, stackTemplates, getStackComponentData, purposeIcons } from '@/lib/stacks'
+import { StackWithGear, StackPurpose, StackComponentData, calculateStackValue, checkStackCompatibility, stackTemplates, getStackComponentData, purposeIcons, isStereoStack } from '@/lib/stacks'
 import { supabase } from '@/lib/supabase'
 import { HEADPHONE_SYSTEM_CATEGORIES } from '@/lib/component-categories'
 import { Component, CollectionStats } from '@/types'
@@ -128,7 +128,9 @@ function GearContent() {
       const stackItems = dashboardData.stacks || []
       
       setGear(gearItems)
-      setStacks(stackItems)
+      // Stereo systems live on the Stereo page. The dashboard route already omits
+      // them; this keeps the view correct if one ever slips through.
+      setStacks(stackItems.filter((s: StackWithGear) => !isStereoStack(s)))
       
       // Use stats from dashboard API directly
       if (dashboardData.collectionStats) {
@@ -732,6 +734,10 @@ function GearContent() {
                     Create Stack
                   </button>
                 </div>
+
+                <p className="text-sm text-secondary">
+                  Stereo systems live on the <Link href="/stereo" className="text-accent hover:underline">Stereo page</Link>.
+                </p>
 
                 {/* Stacks List */}
                 {stacks.length === 0 ? (

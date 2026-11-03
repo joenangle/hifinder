@@ -55,7 +55,10 @@ export interface GearSuggestion {
   suggestedItems?: { id: string; brand: string; name: string; category: string; price_new: number | null; price_used_min: number | null; price_used_max: number | null }[]
 }
 
-export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general'
+export type StackPurpose = 'desktop' | 'portable' | 'studio' | 'gaming' | 'office' | 'general' | 'stereo'
+
+/** Slot a component fills in a stereo system (stack_components.role). */
+export type StackRole = 'speakers' | 'amp' | 'sub' | 'source'
 
 export interface UserStack {
   id: string
@@ -64,6 +67,8 @@ export interface UserStack {
   description?: string
   purpose?: StackPurpose
   is_primary?: boolean
+  /** Stereo system profile (room, listening distance, ...); parsed by the stereo spec parsers. */
+  system_profile?: unknown | null
   created_at: string
   updated_at: string
   stack_components?: StackComponent[]
@@ -76,6 +81,12 @@ export interface StackComponent {
   component_id?: string | null
   position: number
   created_at: string
+  role?: StackRole | null
+  spec_overrides?: unknown | null
+  // Custom (off-catalogue) stereo item; mutually exclusive with user_gear_id / component_id.
+  custom_brand?: string | null
+  custom_name?: string | null
+  custom_category?: string | null
   user_gear?: UserGearItem | null
   components?: Partial<Component> | null  // Direct component reference (recommendation stacks)
 }

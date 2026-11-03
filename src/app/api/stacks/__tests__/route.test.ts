@@ -103,6 +103,17 @@ describe('POST /api/stacks', () => {
     )
   })
 
+  it('accepts the stereo purpose', async () => {
+    mockResult = { data: { id: 's1' }, error: null }
+
+    const response = await POST(jsonRequest('POST', { name: 'Living room', purpose: 'stereo' }))
+
+    expect(response.status).toBe(201)
+    expect(mockChain.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ purpose: 'stereo' })
+    )
+  })
+
   it('rejects an unknown purpose', async () => {
     const response = await POST(jsonRequest('POST', { name: 'Desk', purpose: 'spaceship' }))
 
