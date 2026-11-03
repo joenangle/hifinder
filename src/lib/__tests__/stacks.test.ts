@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import type { ComponentCategory } from '../component-categories'
 import {
   checkStackCompatibility,
   isStereoStack,
@@ -7,7 +8,7 @@ import {
   type StackWithGear,
 } from '../stacks'
 
-function stack(purpose: StackWithGear['purpose'], category: string): StackWithGear {
+function stack(purpose: StackWithGear['purpose'], category: ComponentCategory): StackWithGear {
   return {
     id: 's1',
     user_id: 'u1',
