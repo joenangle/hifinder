@@ -613,6 +613,28 @@ export function existingGearFlags(gear: RecommendationRequest["existingGear"] | 
   };
 }
 
+/**
+ * The `components.category` values one request fetches. Only headphone-flow
+ * categories can appear: the stereo categories (speakers, speaker_amp) are
+ * never requested, so Stereo Builder gear cannot reach these recommendations.
+ */
+export function categoriesToFetch(
+  wants: { headphones?: boolean; dac?: boolean; amp?: boolean; combo?: boolean },
+  headphoneType: string | undefined,
+  alreadySelected: ReadonlySet<string>,
+): string[] {
+  const categories: string[] = [];
+  if (wants.headphones && !alreadySelected.has("headphones")) {
+    if (headphoneType === "cans") categories.push("cans");
+    else if (headphoneType === "iems") categories.push("iems");
+    else categories.push("cans", "iems");
+  }
+  if (wants.dac && !alreadySelected.has("dac")) categories.push("dac");
+  if (wants.amp && !alreadySelected.has("amp")) categories.push("amp");
+  if (wants.combo && !alreadySelected.has("combo")) categories.push("dac_amp");
+  return categories;
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_OWNED_HEADPHONES = 10;
 
@@ -1236,29 +1258,7 @@ export async function GET(request: NextRequest) {
       };
 
       // Build query for all components (skip categories with existing selections)
-      const requestedCategories: string[] = [];
-
-      if (effectiveWants.headphones && !categoriesWithSelections.has("headphones")) {
-        if (req.headphoneType === "cans") {
-          requestedCategories.push("cans");
-        } else if (req.headphoneType === "iems") {
-          requestedCategories.push("iems");
-        } else {
-          requestedCategories.push("cans", "iems");
-        }
-      }
-
-      if (effectiveWants.dac && !categoriesWithSelections.has("dac")) {
-        requestedCategories.push("dac");
-      }
-
-      if (effectiveWants.amp && !categoriesWithSelections.has("amp")) {
-        requestedCategories.push("amp");
-      }
-
-      if (effectiveWants.combo && !categoriesWithSelections.has("combo")) {
-        requestedCategories.push("dac_amp");
-      }
+      const requestedCategories = categoriesToFetch(effectiveWants, req.headphoneType, categoriesWithSelections);
 
       // Fetch components — explicit column list (NOT select('*')) to avoid
       // shipping fr_data (8KB/card) and technical_specs (JSONB, unused).

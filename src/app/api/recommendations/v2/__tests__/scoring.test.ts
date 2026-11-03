@@ -7,7 +7,9 @@ import {
   existingGearFlags,
   isAvgPriceInWindow,
   parseOwnedHeadphoneIds,
+  categoriesToFetch,
 } from '../route'
+import { HEADPHONE_SYSTEM_CATEGORIES, STEREO_CATEGORIES } from '@/lib/component-categories'
 
 const emptyGear = {
   headphones: false,
@@ -308,5 +310,30 @@ describe('filterAndScoreComponents — price-trend gating', () => {
     })
     const [r] = filterAndScoreComponents([upTrend], 100, ['neutral'], 10)
     expect(r.trendBonusDisplay).toBe(Math.round(SCORING_CONFIG.bonuses.trendUp * 100))
+  })
+})
+
+describe('categoriesToFetch (stereo isolation)', () => {
+  const flags = [true, false]
+
+  it('only ever requests headphone-flow categories, never speakers or speaker_amp', () => {
+    for (const headphones of flags)
+      for (const dac of flags)
+        for (const amp of flags)
+          for (const combo of flags)
+            for (const type of [undefined, 'cans', 'iems', 'speakers'])
+              for (const selected of [new Set<string>(), new Set(['dac', 'amp'])]) {
+                const cats = categoriesToFetch({ headphones, dac, amp, combo }, type, selected)
+                for (const c of cats) {
+                  expect(HEADPHONE_SYSTEM_CATEGORIES).toContain(c)
+                  expect(STEREO_CATEGORIES).not.toContain(c)
+                }
+              }
+  })
+
+  it('maps the wants to categories and skips ones the user already picked', () => {
+    const all = { headphones: true, dac: true, amp: true, combo: true }
+    expect(categoriesToFetch(all, undefined, new Set())).toEqual(['cans', 'iems', 'dac', 'amp', 'dac_amp'])
+    expect(categoriesToFetch(all, 'iems', new Set(['headphones', 'dac']))).toEqual(['amp', 'dac_amp'])
   })
 })
