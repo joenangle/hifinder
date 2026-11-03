@@ -40,7 +40,16 @@ export interface SpeakerAmpSpecs {
   review_links?: ReviewLink[]
 }
 
-export type Acoustics = 'lively' | 'average' | 'damped'
+/** A catalog row as served by the public stereo catalog search. */
+export interface StereoCatalogItem {
+  id: string
+  brand: string
+  name: string
+  category: 'speakers' | 'speaker_amp'
+  specs: SpeakerSpecs | SpeakerAmpSpecs
+}
+
+export type Acoustics ='lively' | 'average' | 'damped'
 export type RoomPresetId = 'small_bedroom' | 'office' | 'living_room' | 'large_open_plan'
 export interface SystemProfile {
   room: { length_m: number; width_m: number; height_m: number } | null
