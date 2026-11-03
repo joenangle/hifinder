@@ -511,3 +511,6 @@ export function pickHardestToDrive<T extends AmplificationTarget>(headphones: T[
     return ampFlag !== 0 ? ampFlag : (b.impedance ?? 0) - (a.impedance ?? 0)
   })[0]
 }
+
+// Speaker power math for Stereo Builder (separate from the headphone math above)
+export * from './stereo/power'
