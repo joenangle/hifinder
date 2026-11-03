@@ -177,7 +177,10 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
         <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
           {reasons.map((r) => (
             <li key={r} className="flex items-start gap-2.5 text-[15px] leading-normal text-[var(--text-primary)]">
-              <Check aria-hidden="true" className="mt-0.5 h-5 w-5 flex-none" style={{ color: 'var(--success)' }} />
+              <span
+                aria-hidden="true"
+                className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[var(--text-secondary)]"
+              />
               <span>{r}</span>
             </li>
           ))}

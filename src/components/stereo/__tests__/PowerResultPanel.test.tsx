@@ -59,6 +59,14 @@ describe('PowerResultPanel', () => {
     expect(screen.getByText(/^About \d+ dB to spare at your seat\./)).toBeInTheDocument()
   })
 
+  it('marks reasons with a neutral bullet, never a green check', () => {
+    const out = ok()
+    render(<PowerResultPanel outcome={out} targetPeakDb={95} distanceM={3} />)
+    const list = screen.getByText(out.reasons[0]).closest('ul')!
+    expect(list.querySelectorAll('li')).toHaveLength(out.reasons.length)
+    expect(list.querySelector('svg')).toBeNull()
+  })
+
   it('renders the runs_out headline with the clean-peak range', () => {
     const out = ok({ profile: profile({ target_peak_db: 110 }), amp: amp({ power_w_4ohm: sv(5) }) })
     expect(out.verdict.kind).toBe('runs_out')

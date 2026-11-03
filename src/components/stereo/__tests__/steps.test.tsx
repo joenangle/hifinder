@@ -426,6 +426,13 @@ describe('LoudnessSlider', () => {
     ).toBeInTheDocument()
   })
 
+  it('keeps a typed loudness a whole number', () => {
+    const onChange = vi.fn()
+    render(<LoudnessSlider valueDb={85} onChange={onChange} />)
+    fireEvent.change(screen.getByLabelText('Peak loudness at your seat, in dB'), { target: { value: '95.4' } })
+    expect(onChange).toHaveBeenLastCalledWith(95)
+  })
+
   it('lets the number be typed and clamps it on blur', () => {
     const onChange = vi.fn()
     render(<LoudnessSlider valueDb={85} onChange={onChange} />)

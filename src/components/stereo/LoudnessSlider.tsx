@@ -40,7 +40,7 @@ export function LoudnessSlider({ valueDb, onChange }: LoudnessSliderProps) {
               value={valueDb}
               range={SPEC_RANGES.target_peak_db}
               clampOnBlur
-              onCommit={onChange}
+              onCommit={(db) => onChange(Math.round(db))}
               className="min-h-11 w-[72px] border-0 bg-transparent text-right text-[28px] font-bold text-[var(--text-primary)]"
             />
             <span className="text-base text-[var(--text-secondary)]">dB</span>
