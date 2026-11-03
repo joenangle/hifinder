@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { parseAsString, useQueryState, useQueryStates } from 'nuqs'
@@ -21,7 +22,7 @@ import { GearStep } from './GearStep'
 import { LoudnessSlider } from './LoudnessSlider'
 import { PowerResultPanel } from './PowerResultPanel'
 import { RoomStep, type RoomFocusRequest } from './RoomStep'
-import { primaryButtonClass, secondaryButtonClass } from './form-bits'
+import { inputClass, primaryButtonClass, secondaryButtonClass } from './form-bits'
 
 interface Draft {
   speakers: GearPick | null
@@ -34,6 +35,7 @@ interface Dirty {
   profile: boolean
   speakers: boolean
   amp: boolean
+  name: boolean
 }
 
 interface SavedSystem {
@@ -44,8 +46,13 @@ interface SavedSystem {
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
-/** What a failed save still has to do; the Retry button replays it. */
-type Failure = { kind: 'create' } | { kind: 'update'; parts: Dirty }
+/** Why the last save failed: creating the system (Retry replays the whole save) or writing to an existing one. */
+type Failure = 'create' | 'update'
+
+interface SavedSystemSummary {
+  id: string
+  name: string
+}
 
 interface ComponentRow {
   component_id: string | null
@@ -71,7 +78,15 @@ interface SystemRow {
 const SAVE_DEBOUNCE_MS = 800
 const DEFAULT_SYSTEM_NAME = 'My stereo system'
 const ROLES: readonly GearRole[] = ['speakers', 'amp']
-const NOTHING_DIRTY: Dirty = { profile: false, speakers: false, amp: false }
+const NOTHING_DIRTY: Dirty = { profile: false, speakers: false, amp: false, name: false }
+
+const anyDirty = (d: Dirty) => d.profile || d.speakers || d.amp || d.name
+const mergeDirty = (a: Dirty, b: Partial<Dirty>): Dirty => ({
+  profile: a.profile || Boolean(b.profile),
+  speakers: a.speakers || Boolean(b.speakers),
+  amp: a.amp || Boolean(b.amp),
+  name: a.name || Boolean(b.name),
+})
 
 const ROLE_CATEGORY = { speakers: 'speakers', amp: 'speaker_amp' } as const
 const CUSTOM_NAME = { speakers: 'Your speakers', amp: 'Your amplifier' } as const
@@ -157,7 +172,8 @@ function pickFromRow(role: GearRole, row: ComponentRow | undefined): GearPick | 
     kind: 'custom',
     brand: row.custom_brand ?? '',
     name: row.custom_name ?? CUSTOM_NAME[role],
-    specs: parse(row.spec_overrides),
+    // Everything stored on a custom item was typed by the user, whatever the stored trust says.
+    specs: applyOverrides(parse({}), row.spec_overrides, parse),
   }
 }
 
@@ -194,15 +210,36 @@ async function send(method: 'POST' | 'PATCH' | 'PUT', url: string, body: unknown
   return res.json()
 }
 
-/** Write the dirty parts of a saved system. Throws on the first failure. */
-async function persist(systemId: string, draft: Draft, parts: Dirty) {
-  if (parts.profile) {
-    await send('PATCH', '/api/stereo-systems', { id: systemId, system_profile: draft.profile })
+/**
+ * Write the dirty parts of a saved system. Every part is attempted on its own,
+ * so one failure cannot hide another part's success; the returned set is what
+ * still has to be saved. The name rides along with the profile in one PATCH.
+ */
+async function persist(system: SavedSystem, parts: Dirty): Promise<Dirty> {
+  let failed = NOTHING_DIRTY
+  if (parts.profile || parts.name) {
+    try {
+      await send('PATCH', '/api/stereo-systems', {
+        id: system.id,
+        ...(parts.name ? { name: system.name } : {}),
+        ...(parts.profile ? { system_profile: system.draft.profile } : {}),
+      })
+    } catch (err) {
+      console.error('Saving stereo system failed:', err)
+      failed = mergeDirty(failed, { profile: parts.profile, name: parts.name })
+    }
   }
   for (const role of ROLES) {
-    const pick = draft[role]
-    if (parts[role] && pick) await send('PUT', '/api/stereo-systems/items', itemBody(systemId, role, pick))
+    const pick = system.draft[role]
+    if (!parts[role] || !pick) continue
+    try {
+      await send('PUT', '/api/stereo-systems/items', itemBody(system.id, role, pick))
+    } catch (err) {
+      console.error('Saving stereo system failed:', err)
+      failed = mergeDirty(failed, { [role]: true })
+    }
   }
+  return failed
 }
 
 export function StereoBuilder() {
@@ -223,7 +260,14 @@ export function StereoBuilder() {
   const [saved, setSaved] = useState<SavedSystem | null>(null)
   const [loadFailure, setLoadFailure] = useState<{ id: string; kind: 'missing' | 'failed' } | null>(null)
   const requestedSystem = useRef<string | null>(null)
-  const [dirty, setDirty] = useState<Dirty | null>(null)
+  // Parts of the saved system that are not on the server yet: edited since the
+  // last round, or failed in it. Rounds run one at a time (queue), each sending
+  // the latest state, so an older request can never land after a newer one.
+  const pending = useRef<Dirty>(NOTHING_DIRTY)
+  const queue = useRef<Promise<void>>(Promise.resolve())
+  const latestSaved = useRef<SavedSystem | null>(null)
+  const [editTick, setEditTick] = useState(0)
+  const [systems, setSystems] = useState<SavedSystemSummary[]>([])
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [failure, setFailure] = useState<Failure | null>(null)
 
@@ -231,6 +275,10 @@ export function StereoBuilder() {
   const [focusRequest, setFocusRequest] = useState<RoomFocusRequest | null>(null)
 
   const activeSaved = signedIn && saved && systemId === saved.id ? saved : null
+
+  useEffect(() => {
+    latestSaved.current = activeSaved
+  })
 
   useEffect(() => {
     for (const [role, id] of [
@@ -261,7 +309,10 @@ export function StereoBuilder() {
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`status ${res.status}`))))
       .then((body: { systems?: SystemRow[] }) => {
         const row = body.systems?.find((s) => s.id === systemId)
-        if (row) setSaved({ id: row.id, name: row.name, draft: draftFromRow(row) })
+        if (row) {
+          pending.current = NOTHING_DIRTY
+          setSaved({ id: row.id, name: row.name, draft: draftFromRow(row) })
+        }
         else setLoadFailure({ id: systemId, kind: 'missing' })
       })
       .catch((err: unknown) => {
@@ -270,31 +321,53 @@ export function StereoBuilder() {
       })
   }, [signedIn, systemId, saved?.id])
 
-  async function runPersist(id: string, draft: Draft, parts: Dirty, event: 'stereo_system_saved' | 'stereo_system_edited') {
+  // The signed-in landing view: a way back to the systems saved earlier.
+  useEffect(() => {
+    if (!signedIn || systemId) return
+    fetch('/api/stereo-systems')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`status ${res.status}`))))
+      .then((body: { systems?: SystemRow[] }) => {
+        setSystems((body.systems ?? []).map(({ id, name }) => ({ id, name })))
+      })
+      .catch((err: unknown) => {
+        console.error('Loading saved stereo systems failed:', err)
+      })
+  }, [signedIn, systemId])
+
+  /** One save round: send everything pending using the latest state. Never throws. */
+  async function runRound(event: 'stereo_system_saved' | 'stereo_system_edited') {
+    const system = latestSaved.current
+    const parts = pending.current
+    if (!system || !anyDirty(parts)) return
+    pending.current = NOTHING_DIRTY
     setSaveState('saving')
-    try {
-      await persist(id, draft, parts)
-      setSaveState('saved')
-      setFailure(null)
-      trackEvent({ name: event })
-    } catch (err) {
-      console.error('Saving stereo system failed:', err)
+    const failed = await persist(system, parts)
+    if (anyDirty(failed)) {
+      // Keep the failed parts for the next round; "Saved" waits until nothing is outstanding.
+      pending.current = mergeDirty(pending.current, failed)
+      setFailure('update')
       setSaveState('error')
-      setFailure({ kind: 'update', parts })
+      return
     }
+    setFailure(null)
+    // Edits made during the request are saved by the next round.
+    setSaveState(anyDirty(pending.current) ? 'saving' : 'saved')
+    trackEvent({ name: event })
   }
 
-  // Debounced autosave: every edit restarts the timer, and the snapshot is
-  // taken when it fires. Edits made while a request is in flight mark parts
-  // dirty again and are saved by the next round.
+  function enqueueSave(event: 'stereo_system_saved' | 'stereo_system_edited' = 'stereo_system_edited') {
+    const round = queue.current.then(() => runRound(event))
+    queue.current = round
+    return round
+  }
+
+  // Debounced autosave: every edit restarts the timer; when it fires, a round
+  // is queued behind any request still in flight.
   useEffect(() => {
-    if (!activeSaved || !dirty) return
-    const timer = setTimeout(() => {
-      setDirty(null)
-      void runPersist(activeSaved.id, activeSaved.draft, dirty, 'stereo_system_edited')
-    }, SAVE_DEBOUNCE_MS)
+    if (editTick === 0) return
+    const timer = setTimeout(() => void enqueueSave(), SAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [activeSaved, dirty])
+  }, [editTick])
 
   const profile: SystemProfile = activeSaved
     ? activeSaved.draft.profile
@@ -308,10 +381,13 @@ export function StereoBuilder() {
       }
 
   function markDirty(parts: Partial<Dirty>) {
-    setDirty((d) => ({ ...(d ?? NOTHING_DIRTY), ...Object.fromEntries(Object.entries(parts).filter(([, v]) => v)) }))
+    pending.current = mergeDirty(pending.current, parts)
+    setEditTick((t) => t + 1)
   }
 
   function changeGear(role: GearRole, pick: GearPick) {
+    // A fresh pick replaces whatever the broken link failed to load.
+    setCatalogFailed(false)
     // Picks straight from the chooser are untouched catalog rows; remember them so the URL id resolves without a refetch.
     if (pick.kind === 'catalog' && !catalog[pick.item.id] && Object.keys(overridesOf(pick.item.specs)).length === 0) {
       setCatalog((c) => ({ ...c, [pick.item.id]: pick.item }))
@@ -322,6 +398,13 @@ export function StereoBuilder() {
     } else {
       void setParams(gearToParams(role, pick))
     }
+  }
+
+  function changeName(name: string) {
+    if (!activeSaved) return
+    setSaved({ ...activeSaved, name })
+    // The server rejects a blank name, so a blank field is never saved.
+    if (name.trim()) markDirty({ name: true })
   }
 
   function changeProfile(next: SystemProfile) {
@@ -369,33 +452,31 @@ export function StereoBuilder() {
       return
     }
     setSaveState('saving')
-    let createdId: string | null = null
+    let created: SavedSystem
     try {
       const { system } = (await send('POST', '/api/stereo-systems', {
         name: DEFAULT_SYSTEM_NAME,
         system_profile: draft.profile,
       })) as { system: { id: string; name?: string } }
-      createdId = system.id
-      setSaved({ id: system.id, name: system.name ?? DEFAULT_SYSTEM_NAME, draft })
-      void setSystemId(system.id)
-      void setParams(null)
-      await persist(system.id, draft, { profile: false, speakers: true, amp: true })
-      setSaveState('saved')
-      setFailure(null)
-      trackEvent({ name: 'stereo_system_saved' })
+      created = { id: system.id, name: system.name ?? DEFAULT_SYSTEM_NAME, draft }
     } catch (err) {
       console.error('Saving stereo system failed:', err)
       setSaveState('error')
-      setFailure(createdId ? { kind: 'update', parts: { profile: false, speakers: true, amp: true } } : { kind: 'create' })
+      setFailure('create')
+      return
     }
+    // The profile went up with the POST; the gear follows through the same queue as later edits.
+    pending.current = mergeDirty(pending.current, { speakers: true, amp: true })
+    latestSaved.current = created
+    setSaved(created)
+    void setSystemId(created.id)
+    void setParams(null)
+    await enqueueSave('stereo_system_saved')
   }
 
   function retrySave() {
-    if (failure?.kind === 'update' && activeSaved) {
-      void runPersist(activeSaved.id, activeSaved.draft, failure.parts, 'stereo_system_edited')
-    } else {
-      void saveSystem()
-    }
+    if (failure === 'update') void enqueueSave()
+    else void saveSystem()
   }
 
   async function copyLink() {
@@ -427,6 +508,16 @@ export function StereoBuilder() {
           <h1 className="m-0 text-[32px] font-bold leading-tight text-[var(--text-primary)]">
             {activeSaved?.name ?? 'Your stereo system'}
           </h1>
+          {activeSaved && (
+            <input
+              type="text"
+              aria-label="System name"
+              maxLength={200}
+              value={activeSaved.name}
+              onChange={(e) => changeName(e.target.value)}
+              className={`${inputClass} max-w-xs`}
+            />
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {!activeSaved && (
@@ -460,6 +551,23 @@ export function StereoBuilder() {
             Retry
           </button>
         </p>
+      )}
+      {signedIn && !systemId && systems.length > 0 && (
+        <nav aria-label="Your saved systems" className="flex flex-col gap-2">
+          <h2 className="m-0 text-base font-bold text-[var(--text-primary)]">Your saved systems</h2>
+          <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
+            {systems.map((s) => (
+              <li key={s.id}>
+                <Link
+                  href={`/stereo?system=${encodeURIComponent(s.id)}`}
+                  className="text-sm text-[var(--accent-hover)] underline"
+                >
+                  {s.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
       {loadNotice && (
         <p role="alert" className="m-0 text-sm text-[var(--text-primary)]">

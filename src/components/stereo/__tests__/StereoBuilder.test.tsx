@@ -210,6 +210,7 @@ describe('StereoBuilder (signed in)', () => {
   it('saving a new system POSTs it, then PUTs the speakers and amp', async () => {
     const fetchMock = stubFetch({
       ...catalogHandlers(),
+      'GET /api/stereo-systems': () => ({ systems: [] }),
       'POST /api/stereo-systems': () => ({ system: { id: SYSTEM_ID, name: 'My stereo system' } }),
       'PUT /api/stereo-systems/items': () => ({ item: {} }),
     })
@@ -312,5 +313,190 @@ describe('StereoBuilder (signed in)', () => {
     renderBuilder('system=nope')
 
     expect((await screen.findByRole('alert')).textContent).toContain("couldn't find that saved system")
+  })
+})
+
+describe('StereoBuilder (signed in): saved systems, renaming and the save queue', () => {
+  const SYSTEM_ID = 'sys-1'
+  const FLOOR_ID = '5d0f6a44-2b9e-4f0a-8c11-7e3a9b6d2c55'
+  const profileJson = { room: null, room_preset: null, acoustics: 'average', distance_m: 3, near_wall: null, target_peak_db: 95 }
+  const row = {
+    id: SYSTEM_ID,
+    name: 'Living room',
+    system_profile: profileJson,
+    stack_components: [
+      {
+        role: 'speakers',
+        component_id: SPK_ID,
+        custom_brand: null,
+        custom_name: null,
+        spec_overrides: null,
+        components: { id: SPK_ID, brand: 'Test', name: 'Bookshelf', category: 'speakers', technical_specs: SPEAKERS },
+      },
+      { role: 'amp', component_id: null, custom_brand: 'Home', custom_name: 'Brew', spec_overrides: AMP, components: null },
+    ],
+  }
+  const floorItem = item(FLOOR_ID, 'speakers', 'Floorstander', SPEAKERS)
+
+  const writes = (fetchMock: ReturnType<typeof stubFetch>) =>
+    fetchMock.mock.calls
+      .filter(([, init]) => init?.method && init.method !== 'GET')
+      .map(([url, init]) => ({ method: init!.method!, url: String(url), body: JSON.parse(String(init!.body)) }))
+
+  beforeEach(() => signedIn())
+
+  it('lists the saved systems with links when signed in and no system is open', async () => {
+    stubFetch({
+      'GET /api/stereo-systems': () => ({ systems: [row, { ...row, id: 'sys-2', name: 'Office' }] }),
+    })
+    renderBuilder('')
+
+    expect(await screen.findByText('Your saved systems')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Living room' }).getAttribute('href')).toBe('/stereo?system=sys-1')
+    expect(screen.getByRole('link', { name: 'Office' }).getAttribute('href')).toBe('/stereo?system=sys-2')
+  })
+
+  it('shows no saved-systems list when there are none, or when a system is open', async () => {
+    const empty = stubFetch({ 'GET /api/stereo-systems': () => ({ systems: [] }) })
+    const { unmount } = renderBuilder('')
+    await waitFor(() => expect(empty).toHaveBeenCalled())
+    expect(screen.queryByText('Your saved systems')).toBeNull()
+    unmount()
+
+    stubFetch({ 'GET /api/stereo-systems': () => ({ systems: [row] }) })
+    renderBuilder(`system=${SYSTEM_ID}`)
+    await screen.findByRole('heading', { name: 'Living room' })
+    expect(screen.queryByText('Your saved systems')).toBeNull()
+  })
+
+  it('renaming a loaded system PATCHes { id, name } after the debounce', async () => {
+    const fetchMock = stubFetch({
+      'GET /api/stereo-systems': () => ({ systems: [row] }),
+      'PATCH /api/stereo-systems': () => ({ system: {} }),
+    })
+    renderBuilder(`system=${SYSTEM_ID}`)
+    await screen.findByRole('heading', { name: 'Living room' })
+
+    vi.useFakeTimers()
+    fireEvent.change(screen.getByLabelText('System name'), { target: { value: 'Den' } })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800)
+    })
+    vi.useRealTimers()
+
+    expect(writes(fetchMock)).toEqual([{ method: 'PATCH', url: '/api/stereo-systems', body: { id: SYSTEM_ID, name: 'Den' } }])
+    expect(await screen.findByRole('heading', { name: 'Den' })).toBeTruthy()
+  })
+
+  it('never has two saves in flight: a second edit waits and then sends the newest profile', async () => {
+    let release: () => void = () => {}
+    const gate = new Promise<void>((resolve) => (release = resolve))
+    let inFlight = 0
+    let maxInFlight = 0
+    const patchBodies: Array<{ distance: number }> = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+        const method = init?.method ?? 'GET'
+        if (method === 'GET') return { ok: true, status: 200, json: async () => ({ systems: [row] }) }
+        inFlight += 1
+        maxInFlight = Math.max(maxInFlight, inFlight)
+        patchBodies.push({ distance: JSON.parse(String(init!.body)).system_profile.distance_m })
+        if (patchBodies.length === 1) await gate
+        inFlight -= 1
+        return { ok: true, status: 200, json: async () => ({ system: {} }) }
+      }),
+    )
+    renderBuilder(`system=${SYSTEM_ID}`)
+    await screen.findByRole('heading', { name: 'Living room' })
+
+    vi.useFakeTimers()
+    const distance = screen.getByLabelText('Listening distance in meters')
+    fireEvent.change(distance, { target: { value: '2' } })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800)
+    })
+    expect(patchBodies).toEqual([{ distance: 2 }])
+
+    // The first request is still in flight; a newer edit's round must wait for it.
+    fireEvent.change(distance, { target: { value: '2.5' } })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800)
+    })
+    expect(patchBodies).toHaveLength(1)
+
+    release()
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0)
+    })
+    expect(patchBodies).toEqual([{ distance: 2 }, { distance: 2.5 }])
+    expect(maxInFlight).toBe(1)
+    vi.useRealTimers()
+    expect(await screen.findByText('Saved')).toBeTruthy()
+  })
+
+  it('keeps a failed profile save and retries it with the next round instead of showing Saved', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let patchFails = true
+    const fetchMock = stubFetch({
+      'GET /api/stereo-catalog?role=speakers': () => ({ items: [floorItem] }),
+      'GET /api/stereo-systems': () => ({ systems: [row] }),
+      'PATCH /api/stereo-systems': () => (patchFails ? new Error('boom') : { system: {} }),
+      'PUT /api/stereo-systems/items': () => ({ item: {} }),
+    })
+    renderBuilder(`system=${SYSTEM_ID}`)
+    await screen.findByRole('heading', { name: 'Living room' })
+
+    // Round 1: the profile edit fails.
+    vi.useFakeTimers()
+    fireEvent.change(screen.getByLabelText('Listening distance in meters'), { target: { value: '2' } })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800)
+    })
+    vi.useRealTimers()
+    expect((await screen.findByRole('alert')).textContent).toContain("Couldn't save. Try again.")
+
+    // Round 2: only the speakers changed, and that write succeeds. The profile must be retried
+    // (and, still failing here, the error must stay).
+    fireEvent.click(screen.getByRole('button', { name: 'Change speakers' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Floorstander/ }))
+    await waitFor(() => expect(writes(fetchMock).filter((w) => w.method === 'PATCH')).toHaveLength(2), { timeout: 3000 })
+    await waitFor(() => expect(writes(fetchMock).filter((w) => w.method === 'PUT')).toHaveLength(1))
+    expect(writes(fetchMock)[1].body.system_profile.distance_m).toBe(2)
+    expect(screen.getByRole('alert').textContent).toContain("Couldn't save. Try again.")
+    expect(screen.queryByText('Saved')).toBeNull()
+
+    // Once the server accepts it, Retry sends the profile again and only then shows Saved.
+    patchFails = false
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText('Saved')).toBeTruthy()
+    const patches = writes(fetchMock).filter((w) => w.method === 'PATCH')
+    expect(patches).toHaveLength(3)
+    expect(patches[2].body.system_profile.distance_m).toBe(2)
+    consoleError.mockRestore()
+  })
+
+  it('treats saved custom values as hand-entered, whatever trust is stored', async () => {
+    stubFetch({ 'GET /api/stereo-systems': () => ({ systems: [row] }) })
+    renderBuilder(`system=${SYSTEM_ID}`)
+    await screen.findByRole('heading', { name: 'Living room' })
+
+    const ampRow = screen.getByRole('row', { name: /Amp power at the speakers/ })
+    expect(ampRow.textContent).toContain('Your entry')
+  })
+
+  it('clears the broken-link notice once the user picks new gear', async () => {
+    stubFetch({
+      [`GET /api/stereo-catalog?role=speakers&id=${SPK_ID}`]: () => ({ items: [] }),
+      'GET /api/stereo-catalog?role=speakers': () => ({ items: [floorItem] }),
+      'GET /api/stereo-systems': () => ({ systems: [] }),
+    })
+    renderBuilder(`spk=${SPK_ID}`)
+    expect((await screen.findByRole('alert')).textContent).toContain("Couldn't load some of the gear in this link")
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change speakers' }))
+    fireEvent.click(await screen.findByRole('button', { name: /Floorstander/ }))
+
+    await waitFor(() => expect(screen.queryByText(/Couldn't load some of the gear/)).toBeNull())
   })
 })
