@@ -93,6 +93,37 @@ returned `amplificationStrategy` (`recommendations-content.tsx`,
 `FiltersSection.tsx`). Scoring/weights untouched — `npm run eval:reco --baseline`
 stays flat.
 
+## Stereo Builder
+
+A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
+`docs/superpowers/specs/2026-11-03-stereo-builder-design.md`.
+
+- **Source of truth for the math:** `src/lib/stereo/power.ts`, re-exported from
+  `audio-calculations.ts`. It covers sensitivity at 1 W, amp power at the
+  speakers' impedance, the in-room level (Hopkins–Stryker) next to the
+  free-field level, and the verdict. Never call `calculatePowerAtImpedance` for
+  speakers: it models headphone amps.
+- **Runner:** `runPowerCheck` in `src/lib/stereo/power-check.ts` returns
+  `ok` (verdict, working rows with trust labels, assumptions, reasons, notes) or
+  `needs` (the exact missing inputs, never a number). The `/stereo` page always
+  runs it in `simple` mode, where each missing room or seat field becomes an
+  `assumed` chip.
+- **Specs:** `src/lib/stereo/specs.ts` holds tolerant parsers. Catalog specs live in
+  `components.technical_specs` as `{ value, trust, source_url }`. User entries
+  go only to `stack_components.spec_overrides` (or to the URL when anonymous),
+  always with trust `user`.
+- **Categories:** `speakers` and `speaker_amp` are outside `AMP_CATEGORIES` and
+  `HEADPHONE_CATEGORIES`. Headphone listings, search and brands filter to
+  `HEADPHONE_SYSTEM_CATEGORIES`.
+- **Systems** are `user_stacks` rows with `purpose = 'stereo'`, read and written
+  through `/api/stereo-systems` (+ `/items`). Catalog search is
+  `/api/stereo-catalog`.
+- **Gotcha: `HEADPHONE_STACK_FILTER`.** Use `.or(HEADPHONE_STACK_FILTER)`
+  (`src/lib/stacks.ts`) to exclude stereo stacks, never
+  `.neq('purpose','stereo')`. PostgREST `neq` also drops rows whose purpose is NULL.
+- **Seed:** `npm run seed:stereo` validates `scripts/stereo-seed/stereo-seed.json`
+  as a dry run; `-- --execute` writes. Every value needs an http(s) `source_url`.
+
 ## Rate Limiting
 
 `src/lib/rate-limit.ts` + the `rate_limit_hit` Postgres function
