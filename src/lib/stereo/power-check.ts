@@ -16,6 +16,7 @@ import {
   type Trust,
 } from './specs'
 import {
+  COMFORTABLE_MARGIN_DB,
   levelAtSeatPerWatt,
   powerVerdict,
   resolveAmpPower,
@@ -143,6 +144,10 @@ export interface PowerCheckInput {
 /** One decimal at most, trailing zero dropped: 3 -> "3", 2.46 -> "2.5". */
 const fmt = (n: number) => String(Number(n.toFixed(1)))
 const fmtWatts = (w: number) => (w < 10 ? w.toFixed(1) : String(Math.round(w)))
+/** Power-needed figures: anything that would print as "0.0" reads "under 0.1" instead. */
+const fmtNeeded = (w: number) => (w < 0.05 ? 'under 0.1' : fmtWatts(w))
+const fmtNeededRange = ([low, high]: number[]) =>
+  high < 0.05 ? 'under 0.1 W' : `${fmtNeeded(low)} to ${fmtNeeded(high)} W`
 
 export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
   // Re-parse everything so raw junk degrades to "missing", never NaN/Infinity.
@@ -246,7 +251,7 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
     { step: 'Free-field level at 1 W', value: `${level.freeField.toFixed(1)} dB at the seat`, trust: 'modeled' },
     {
       step: 'Power needed',
-      value: `${fmtWatts(needRange[0])} to ${fmtWatts(needRange[1])} W for ${profile.target_peak_db} dB peaks`,
+      value: `${fmtNeededRange(needRange)} for ${profile.target_peak_db} dB peaks`,
       trust: 'modeled',
     },
   ]
@@ -284,7 +289,12 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
       "Claimed (optimistic rating): this amp's power is quoted as peak or at high distortion, so we counted 3 dB less."
     )
   }
-  if (resolved.conditionsUnknown && verdict.kind === 'tight') {
+  // Unstated conditions matter when the margin is thin: tight, or comfortable by less than 6 dB.
+  const thinMargin =
+    verdict.kind === 'tight' ||
+    ((verdict.kind === 'comfortable' || verdict.kind === 'comfortable_most_rooms') &&
+      verdict.headroomInRoomDb < COMFORTABLE_MARGIN_DB + 3)
+  if (resolved.conditionsUnknown && thinMargin) {
     notes.push("The amp's rating conditions aren't stated, so this result could be optimistic.")
   }
   if (resolved.basis === 'eight_ohm_lower_bound') {

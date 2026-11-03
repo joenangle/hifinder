@@ -107,6 +107,27 @@ describe('notes', () => {
     const easy = ok(input({ amp: unknown }))
     expect(easy.notes).not.toContain("The amp's rating conditions aren't stated, so this result could be optimistic.")
   })
+  it('also flags unstated conditions on a comfortable verdict with under 6 dB to spare', () => {
+    const note = "The amp's rating conditions aren't stated, so this result could be optimistic."
+    const unknown = amp({ power_rating: { kind: 'unknown' } })
+    const narrow = ok(input({ amp: unknown, profile: profile({ target_peak_db: 100 }) }))
+    expect(['comfortable', 'comfortable_most_rooms']).toContain(narrow.verdict.kind)
+    expect(narrow.verdict.headroomInRoomDb).toBeGreaterThan(3)
+    expect(narrow.verdict.headroomInRoomDb).toBeLessThan(6)
+    expect(narrow.notes).toContain(note)
+    const wide = ok(input({ amp: unknown, profile: profile({ target_peak_db: 95 }) }))
+    expect(wide.verdict.headroomInRoomDb).toBeGreaterThan(9)
+    expect(wide.notes).not.toContain(note)
+    // A stated rating never gets the note, however narrow the margin.
+    expect(ok(input({ profile: profile({ target_peak_db: 100 }) })).notes).not.toContain(note)
+  })
+  it('shows tiny power figures as "under 0.1 W" instead of 0.0', () => {
+    const quiet = ok(input({ profile: profile({ target_peak_db: 60 }) }))
+    const need = quiet.working.find((r) => r.step === 'Power needed')!
+    expect(need.value).toBe('under 0.1 W for 60 dB peaks')
+    const loud = ok(input()).working.find((r) => r.step === 'Power needed')!
+    expect(loud.value).not.toContain('under')
+  })
   it('flags near-wall placement', () => {
     expect(ok(input({ profile: profile({ near_wall: true }) })).notes).toEqual([
       "Speakers near a wall get extra bass, which this check doesn't model yet.",
