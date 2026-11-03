@@ -4,15 +4,15 @@
 //   L = Lw + 10*log10(Q/(4*pi*r^2) + 4/R),  R = S*a/(1-a)  (room constant),
 // with Lw = S_1W - 10*log10(Q) + 10.99.
 //
-// Reference status (PRD 7.3 requires a published reference): the only page
-// fetched in this session was "Critical Distance For Microphone Positioning"
-// (https://vocal.com/dereverberation/critical-distance/). It confirms the
-// structure (direct field + reverberant field, Q = directivity, R depends on
-// room surface area S and mean absorption) but renders its formulas as images,
-// so the exact equations above are NOT confirmed against a fetched source.
-// Check against Kuttruff, Room Acoustics, or Beranek before shipping. The
-// diffuse-field term is known to overstate levels in small furnished rooms,
-// so the in-room figure is an estimate, not a bound.
+// Reference: Engineers Edge, "Converting Sound Power to Sound Pressure Formulas
+// and Calculator",
+// https://engineersedge.com/calculators/converting_sound_power_to_sound_pressure_15732.htm
+// gives Lp = Lw + 10 log(Q/4*pi*r^2 + 4/R) + 10.3 with R = S*a/(1-a), in
+// imperial units. The 10.3 dB is 10*log10(10.76), the ft^2 to m^2 conversion,
+// so the constant is 0 in SI units, which is what this module uses. The
+// diffuse-field term overstates levels in small furnished rooms, so the
+// in-room figure is an estimate, not a bound. Hopkins-Stryker assumes a
+// diffuse field and is less accurate in long or non-cubical rooms.
 
 import type { Acoustics, SpeakerAmpSpecs } from './specs'
 
