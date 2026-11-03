@@ -46,6 +46,7 @@
     "capture:screenshots": "node scripts/capture-screenshots.js",
     "// Evaluation scripts": "",
     "eval:reco": "tsx scripts/eval-recommendations.ts",
+    "seed:stereo": "tsx scripts/seed-stereo-catalog.ts",
     "// Database scripts": "",
     "db": "node scripts/run-sql.js",
     "db:types": "supabase gen types --project-id dqvuvieggqltkznluvol --lang=typescript > src/types/supabase.ts",
