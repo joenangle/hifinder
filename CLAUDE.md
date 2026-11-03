@@ -142,6 +142,9 @@ a proxy, so the Postgres pooler (raw TCP) doesn't even resolve. Instead:
   sets `NEXT_PUBLIC_SUPABASE_URL` + a key as env vars (the loader doesn't need
   `.env.local`) and allows `dqvuvieggqltkznluvol.supabase.co` in network access.
 - Dependencies aren't preinstalled unless the environment's setup script runs `npm ci`.
+- The husky **pre-push build** needs `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+  set in the environment (server modules throw at import during page-data collection),
+  so without them every push fails.
 
 ## URL State Management (nuqs)
 - `src/lib/url-params.ts` — typed schema for all recommendation params
