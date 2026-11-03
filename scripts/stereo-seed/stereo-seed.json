@@ -1,1 +1,872 @@
-[]
+[
+  {
+    "brand": "Klipsch",
+    "name": "R-51M",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 93,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/R-51M_Spec-Sheet_v01.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/R-51M_Spec-Sheet_v01.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/R-51M_Spec-Sheet_v01.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/r-51m-bookshelf-speaker"
+  },
+  {
+    "brand": "Klipsch",
+    "name": "RP-600M II",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 94.5,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M-II_Spec-Sheet_v02.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M-II_Spec-Sheet_v02.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M-II_Spec-Sheet_v02.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/rp-600m-ii-bookshelf-speakers"
+  },
+  {
+    "brand": "Klipsch",
+    "name": "RP-500M II",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 92,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-500M-II_Spec-Sheet_v02_2022-05-18-131859_rlqj.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-500M-II_Spec-Sheet_v02_2022-05-18-131859_rlqj.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-500M-II_Spec-Sheet_v02_2022-05-18-131859_rlqj.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/rp-500m-ii-bookshelf-speakers"
+  },
+  {
+    "brand": "Klipsch",
+    "name": "RP-600M",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 96,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M_Spec-Sheet_v01.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M_Spec-Sheet_v01.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M_Spec-Sheet_v01.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/rp-600m-bookshelf-speakers"
+  },
+  {
+    "brand": "Klipsch",
+    "name": "Heresy III",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 99,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Heresy-III-Spec-Sheet-v06_2024-07-10-003315_bklh.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Heresy-III-Spec-Sheet-v06_2024-07-10-003315_bklh.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Heresy-III-Spec-Sheet-v06_2024-07-10-003315_bklh.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/heresy-iii-floorstanding-speaker"
+  },
+  {
+    "brand": "Klipsch",
+    "name": "Forte IV",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 99,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Forte-IV-Spec-Sheet-v01-1.pdf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Forte-IV-Spec-Sheet-v01-1.pdf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Forte-IV-Spec-Sheet-v01-1.pdf"
+      }
+    },
+    "manufacturer_url": "https://www.klipsch.com/products/forte-iv-floorstanding-speaker"
+  },
+  {
+    "brand": "KEF",
+    "name": "LS50 Meta",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/ls50-meta"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/ls50-meta"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/ls50-meta"
+      },
+      "min_impedance_ohms": {
+        "value": 3.5,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/ls50-meta"
+      }
+    },
+    "manufacturer_url": "https://us.kef.com/products/ls50-meta"
+  },
+  {
+    "brand": "KEF",
+    "name": "R3 Meta",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/r3-meta"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/r3-meta"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/r3-meta"
+      },
+      "min_impedance_ohms": {
+        "value": 3.2,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/r3-meta"
+      }
+    },
+    "manufacturer_url": "https://us.kef.com/products/r3-meta"
+  },
+  {
+    "brand": "Wharfedale",
+    "name": "Diamond 12.1",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 88,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
+      },
+      "min_impedance_ohms": {
+        "value": 4.0,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
+      }
+    },
+    "manufacturer_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
+  },
+  {
+    "brand": "Wharfedale",
+    "name": "Diamond 12.2",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 88,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
+      },
+      "min_impedance_ohms": {
+        "value": 4.0,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
+      }
+    },
+    "manufacturer_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
+  },
+  {
+    "brand": "Wharfedale",
+    "name": "Diamond 12.3",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 89,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
+      },
+      "min_impedance_ohms": {
+        "value": 5.0,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
+      }
+    },
+    "manufacturer_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
+  },
+  {
+    "brand": "SVS",
+    "name": "Prime Bookshelf",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-bookshelf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-bookshelf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-bookshelf"
+      }
+    },
+    "manufacturer_url": "https://www.svsound.com/products/prime-bookshelf"
+  },
+  {
+    "brand": "SVS",
+    "name": "Prime Satellite",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-satellite"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-satellite"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-satellite"
+      }
+    },
+    "manufacturer_url": "https://www.svsound.com/products/prime-satellite"
+  },
+  {
+    "brand": "SVS",
+    "name": "Ultra Bookshelf",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/ultra-bookshelf"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/ultra-bookshelf"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/ultra-bookshelf"
+      }
+    },
+    "manufacturer_url": "https://www.svsound.com/products/ultra-bookshelf"
+  },
+  {
+    "brand": "SVS",
+    "name": "Prime Pinnacle",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 88,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-pinnacle"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-pinnacle"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.svsound.com/products/prime-pinnacle"
+      }
+    },
+    "manufacturer_url": "https://www.svsound.com/products/prime-pinnacle"
+  },
+  {
+    "brand": "ELAC",
+    "name": "Debut Reference DBR62",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86,
+        "trust": "claimed",
+        "source_url": "https://elac.com/dbr62"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://elac.com/dbr62"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://elac.com/dbr62"
+      }
+    },
+    "manufacturer_url": "https://elac.com/dbr62"
+  },
+  {
+    "brand": "ELAC",
+    "name": "Debut 2.0 DB62",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://elac.com/db62"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://elac.com/db62"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://elac.com/db62"
+      }
+    },
+    "manufacturer_url": "https://elac.com/db62"
+  },
+  {
+    "brand": "ELAC",
+    "name": "Debut 2.0 DB52",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86,
+        "trust": "claimed",
+        "source_url": "https://elac.com/db52"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://elac.com/db52"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://elac.com/db52"
+      }
+    },
+    "manufacturer_url": "https://elac.com/db52"
+  },
+  {
+    "brand": "Arendal Sound",
+    "name": "1961 Bookshelf",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 84,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-bookshelf/tech/"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-bookshelf/tech/"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-bookshelf/tech/"
+      }
+    },
+    "manufacturer_url": "https://arendalsound.com/product/1961-bookshelf/"
+  },
+  {
+    "brand": "Arendal Sound",
+    "name": "1961 Monitor",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-monitor/tech/"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-monitor/tech/"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-monitor/tech/"
+      }
+    },
+    "manufacturer_url": "https://arendalsound.com/product/1961-monitor/"
+  },
+  {
+    "brand": "Arendal Sound",
+    "name": "1961 Tower",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-tower/tech/"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-tower/tech/"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://arendalsound.com/product/1961-tower/tech/"
+      }
+    },
+    "manufacturer_url": "https://arendalsound.com/product/1961-tower/"
+  },
+  {
+    "brand": "Yamaha",
+    "name": "A-S301",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s301/specs.html"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.019
+      }
+    },
+    "manufacturer_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s301/specs.html"
+  },
+  {
+    "brand": "Yamaha",
+    "name": "A-S501",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s501/specs.html"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.019
+      }
+    },
+    "manufacturer_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s501/specs.html"
+  },
+  {
+    "brand": "Yamaha",
+    "name": "A-S801",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s801/specs.html"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.019
+      }
+    },
+    "manufacturer_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s801/specs.html"
+  },
+  {
+    "brand": "Yamaha",
+    "name": "R-S202",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 140,
+        "trust": "claimed",
+        "source_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/r-s202/specs.html"
+      },
+      "power_rating": {
+        "kind": "peak",
+        "thd_pct": 10
+      }
+    },
+    "manufacturer_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/r-s202/specs.html"
+  },
+  {
+    "brand": "Fosi Audio",
+    "name": "V3",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_4ohm": {
+        "value": 300,
+        "trust": "claimed",
+        "source_url": "https://fosiaudio.com/pages/2-channel-amplifier-v3"
+      },
+      "power_rating": {
+        "kind": "peak"
+      }
+    },
+    "manufacturer_url": "https://fosiaudio.com/pages/2-channel-amplifier-v3"
+  },
+  {
+    "brand": "Fosi Audio",
+    "name": "BT20A Pro",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_4ohm": {
+        "value": 300,
+        "trust": "claimed",
+        "source_url": "https://fosiaudio.com/products/bt20a-pro-2-channel-bluetooth-power-amplifier"
+      },
+      "power_rating": {
+        "kind": "peak"
+      }
+    },
+    "manufacturer_url": "https://fosiaudio.com/products/bt20a-pro-2-channel-bluetooth-power-amplifier"
+  },
+  {
+    "brand": "Fosi Audio",
+    "name": "BT20A Max",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_4ohm": {
+        "value": 180,
+        "trust": "claimed",
+        "source_url": "https://fosiaudio.com/products/bt20a-max"
+      },
+      "power_rating": {
+        "kind": "continuous"
+      }
+    },
+    "manufacturer_url": "https://fosiaudio.com/products/bt20a-max"
+  },
+  {
+    "brand": "Fosi Audio",
+    "name": "ZA3",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_4ohm": {
+        "value": 180,
+        "trust": "claimed",
+        "source_url": "https://fosiaudio.com/products/fosi-audio-za3-balanced-dual-mode-class-d-amplifier"
+      },
+      "power_rating": {
+        "kind": "unknown"
+      }
+    },
+    "manufacturer_url": "https://fosiaudio.com/products/fosi-audio-za3-balanced-dual-mode-class-d-amplifier"
+  },
+  {
+    "brand": "WiiM",
+    "name": "Amp",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://faq.wiimhome.com/en/support/solutions/articles/72000616467-technical-specification-of-the-wiim-amp-and-wiim-amp-pro"
+      },
+      "power_w_4ohm": {
+        "value": 120,
+        "trust": "claimed",
+        "source_url": "https://faq.wiimhome.com/en/support/solutions/articles/72000616467-technical-specification-of-the-wiim-amp-and-wiim-amp-pro"
+      },
+      "power_rating": {
+        "kind": "unknown"
+      }
+    }
+  },
+  {
+    "brand": "WiiM",
+    "name": "Amp Pro",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://faq.wiimhome.com/en/support/solutions/articles/72000616467-technical-specification-of-the-wiim-amp-and-wiim-amp-pro"
+      },
+      "power_w_4ohm": {
+        "value": 120,
+        "trust": "claimed",
+        "source_url": "https://faq.wiimhome.com/en/support/solutions/articles/72000616467-technical-specification-of-the-wiim-amp-and-wiim-amp-pro"
+      },
+      "power_rating": {
+        "kind": "unknown"
+      }
+    }
+  },
+  {
+    "brand": "WiiM",
+    "name": "Amp Ultra",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://www.wiimhome.com/wiim-amp-ultra"
+      },
+      "power_w_4ohm": {
+        "value": 200,
+        "trust": "claimed",
+        "source_url": "https://www.wiimhome.com/wiim-amp-ultra"
+      },
+      "power_rating": {
+        "kind": "unknown",
+        "thd_pct": 0.08,
+        "channels_driven": "two"
+      }
+    },
+    "manufacturer_url": "https://www.wiimhome.com/wiim-amp-ultra"
+  },
+  {
+    "brand": "Emotiva",
+    "name": "BasX TA1",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://emotiva.com/products/basx-ta1-stereo-preamp-dac-tuner-with-integrated-amplifier"
+      },
+      "power_w_4ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://emotiva.com/products/basx-ta1-stereo-preamp-dac-tuner-with-integrated-amplifier"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.02,
+        "channels_driven": "two"
+      }
+    },
+    "manufacturer_url": "https://emotiva.com/products/basx-ta1-stereo-preamp-dac-tuner-with-integrated-amplifier"
+  },
+  {
+    "brand": "Emotiva",
+    "name": "BasX A2+",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 160,
+        "trust": "claimed",
+        "source_url": "https://emotiva.com/products/basx-a2-stereo-amplifier-1"
+      },
+      "power_w_4ohm": {
+        "value": 250,
+        "trust": "claimed",
+        "source_url": "https://emotiva.com/products/basx-a2-stereo-amplifier-1"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.1
+      }
+    },
+    "manufacturer_url": "https://emotiva.com/products/basx-a2-stereo-amplifier-1"
+  },
+  {
+    "brand": "Pioneer",
+    "name": "SX-750",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 50,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/pioneer--sx-750--service--ID7230.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/pioneer--sx-750--service--ID7230.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.1,
+        "channels_driven": "two"
+      }
+    }
+  },
+  {
+    "brand": "Pioneer",
+    "name": "SX-950",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/pioneer--sx-950--user--ID7224.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.1
+      }
+    }
+  },
+  {
+    "brand": "Marantz",
+    "name": "2270",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 70,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2270--service--ID823.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 70,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2270--service--ID823.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.3,
+        "channels_driven": "two"
+      }
+    }
+  },
+  {
+    "brand": "Marantz",
+    "name": "2215",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 15,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2215--service--ID6592.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 15,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2215--service--ID6592.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.9,
+        "channels_driven": "two"
+      }
+    }
+  },
+  {
+    "brand": "Marantz",
+    "name": "2226B",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "receiver",
+      "power_w_8ohm": {
+        "value": 26,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2226b--service--ID6596.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 33,
+        "trust": "claimed",
+        "source_url": "https://www.lost-manuals.com/pdf/marantz--2226b--service--ID6596.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.1,
+        "channels_driven": "two"
+      }
+    }
+  }
+]
