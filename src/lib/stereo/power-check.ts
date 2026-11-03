@@ -83,6 +83,7 @@ export const AMP_ONLY_CAVEAT = 'This checks the amp. Small speakers may distort 
 const DEFAULT_PRESET: RoomPresetId = 'living_room'
 const DEFAULT_ACOUSTICS: Acoustics = 'average'
 const DEFAULT_DISTANCE_M = 3
+const ACOUSTICS_LABEL: Record<Acoustics, string> = { lively: 'Lively', average: 'Average', damped: 'Damped' }
 
 /** Declared inputs, in table order. Drives `missing` labels and hints. */
 const DECLARED: Record<'sensitivity' | 'impedance' | 'amp' | 'room' | 'acoustics' | 'distance', MissingInput> = {
@@ -235,7 +236,7 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
       value: `${fmt(room.length_m)} × ${fmt(room.width_m)} × ${fmt(room.height_m)} m`,
       trust: roomTrust,
     },
-    { step: 'Room acoustics', value: acousticsId, trust: profile.acoustics ? 'user' : 'assumed' },
+    { step: 'Room acoustics', value: ACOUSTICS_LABEL[acousticsId], trust: profile.acoustics ? 'user' : 'assumed' },
     {
       step: 'Listening distance',
       value: `${fmt(distanceM)} m`,

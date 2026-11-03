@@ -55,6 +55,7 @@ describe('fixture system', () => {
     expect(out.working[0].value).toBe('87 dB at 2.83 V → 84.0 dB/W')
     expect(out.working[2].value).toBe('80 W into 4 Ω')
     expect(out.working[3].value).toBe('5 × 4 × 2.6 m')
+    expect(out.working[4].value).toBe('Average')
     expect(out.caveat).toBe(AMP_ONLY_CAVEAT)
     expect(out.sensitivityRange).toBe(false)
     expect(out.assumptions).toEqual([])
