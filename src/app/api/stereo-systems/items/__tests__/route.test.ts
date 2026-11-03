@@ -128,6 +128,8 @@ function tablesWritten() {
 }
 
 const sensitivity = { value: 90, trust: 'user' }
+// What the route stores: applyOverrides stamps trust 'user' and adds source_url.
+const stored = { ...sensitivity, source_url: null }
 
 // ── PUT ─────────────────────────────────────────────────────────────────────
 
@@ -233,7 +235,6 @@ describe('PUT /api/stereo-systems/items', () => {
     results = [
       stereoStack,
       ok({ category: 'speakers' }),
-      ok(null), // delete existing in role
       ok({ id: 'item-1', role: 'speakers', component_id: 'ls50' }),
     ]
 
@@ -250,36 +251,55 @@ describe('PUT /api/stereo-systems/items', () => {
     expect(await response.json()).toEqual({
       item: { id: 'item-1', role: 'speakers', component_id: 'ls50' },
     })
-    expect(mockChain.insert).toHaveBeenCalledWith(
+    expect(mockChain.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         stack_id: 'sys-1',
         role: 'speakers',
         component_id: 'ls50',
-        spec_overrides: { sensitivity_db: sensitivity },
-      })
+        spec_overrides: { sensitivity_db: stored },
+      }),
+      { onConflict: 'stack_id,role' }
     )
-    // Replacement is delete-then-insert, scoped to this stack's role.
-    expect(tablesWritten()).toEqual(['stack_components.delete', 'stack_components.insert'])
-    expect(mockChain.eq).toHaveBeenCalledWith('stack_id', 'sys-1')
-    expect(mockChain.eq).toHaveBeenCalledWith('role', 'speakers')
+    // Replacement is one upsert keyed on (stack_id, role): atomic, no delete step.
+    expect(tablesWritten()).toEqual(['stack_components.upsert'])
+    expect(mockChain.upsert).toHaveBeenCalledWith(expect.anything(), { onConflict: 'stack_id,role' })
     // The only catalog access is the category read.
     expect(calls.filter(([t]) => t === 'components').map(([, m]) => m)).toEqual(['select', 'eq'])
     expectCatalogUntouched()
   })
 
+  it('stores every override with trust "user", whatever the client claimed', async () => {
+    results = [stereoStack, ok({ id: 'item-9' })]
+
+    await PUT(
+      putRequest({
+        stack_id: 'sys-1',
+        role: 'speakers',
+        custom: { name: 'X' },
+        spec_overrides: { sensitivity_db: { value: 90, trust: 'measured' } },
+      })
+    )
+
+    expect(mockChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ spec_overrides: { sensitivity_db: stored } }),
+      { onConflict: 'stack_id,role' }
+    )
+  })
+
   it('accepts a speaker_amp catalog component in the amp slot', async () => {
-    results = [stereoStack, ok({ category: 'speaker_amp' }), ok(null), ok({ id: 'item-2' })]
+    results = [stereoStack, ok({ category: 'speaker_amp' }), ok({ id: 'item-2' })]
 
     const response = await PUT(putRequest({ stack_id: 'sys-1', role: 'amp', component_id: 'a1' }))
 
     expect(response.status).toBe(200)
-    expect(mockChain.insert).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'amp', component_id: 'a1', spec_overrides: null })
+    expect(mockChain.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'amp', component_id: 'a1', spec_overrides: null }),
+      { onConflict: 'stack_id,role' }
     )
   })
 
   it('inserts a custom speaker with custom_name, custom_category and spec_overrides', async () => {
-    results = [stereoStack, ok(null), ok({ id: 'item-3' })]
+    results = [stereoStack, ok({ id: 'item-3' })]
 
     const response = await PUT(
       putRequest({
@@ -291,7 +311,7 @@ describe('PUT /api/stereo-systems/items', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(mockChain.insert).toHaveBeenCalledWith(
+    expect(mockChain.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         stack_id: 'sys-1',
         role: 'speakers',
@@ -299,15 +319,16 @@ describe('PUT /api/stereo-systems/items', () => {
         custom_brand: 'Acme',
         custom_name: 'Bookshelf 2',
         custom_category: 'speakers',
-        spec_overrides: { sensitivity_db: sensitivity },
-      })
+        spec_overrides: { sensitivity_db: stored },
+      }),
+      { onConflict: 'stack_id,role' }
     )
     // No catalog access at all for custom items.
     expect(calls.some(([t]) => t === 'components')).toBe(false)
   })
 
   it('uses speaker_amp as the custom category for the amp role and parses amp specs', async () => {
-    results = [stereoStack, ok(null), ok({ id: 'item-4' })]
+    results = [stereoStack, ok({ id: 'item-4' })]
 
     await PUT(
       putRequest({
@@ -318,17 +339,18 @@ describe('PUT /api/stereo-systems/items', () => {
       })
     )
 
-    expect(mockChain.insert).toHaveBeenCalledWith(
+    expect(mockChain.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         custom_brand: null,
         custom_category: 'speaker_amp',
-        spec_overrides: { power_w_8ohm: { value: 50, trust: 'user' } },
-      })
+        spec_overrides: { power_w_8ohm: { value: 50, trust: 'user', source_url: null } },
+      }),
+      { onConflict: 'stack_id,role' }
     )
   })
 
   it('stores null overrides when the parse is empty and for sub/source roles', async () => {
-    results = [stereoStack, ok(null), ok({ id: 'i' })]
+    results = [stereoStack, ok({ id: 'i' })]
     await PUT(
       putRequest({
         stack_id: 'sys-1',
@@ -337,11 +359,12 @@ describe('PUT /api/stereo-systems/items', () => {
         spec_overrides: 'junk',
       })
     )
-    expect(mockChain.insert).toHaveBeenLastCalledWith(
-      expect.objectContaining({ spec_overrides: null })
+    expect(mockChain.upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({ spec_overrides: null }),
+      { onConflict: 'stack_id,role' }
     )
 
-    results = [stereoStack, ok(null), ok({ id: 'i2' })]
+    results = [stereoStack, ok({ id: 'i2' })]
     await PUT(
       putRequest({
         stack_id: 'sys-1',
@@ -350,19 +373,20 @@ describe('PUT /api/stereo-systems/items', () => {
         spec_overrides: { sensitivity_db: sensitivity },
       })
     )
-    expect(mockChain.insert).toHaveBeenLastCalledWith(
+    expect(mockChain.upsert).toHaveBeenLastCalledWith(
       expect.objectContaining({
         role: 'sub',
         custom_name: 'Sub 10',
         custom_category: null,
         spec_overrides: null,
-      })
+      }),
+      { onConflict: 'stack_id,role' }
     )
   })
 
-  it('returns 500 when the insert fails', async () => {
+  it('returns 500 when the upsert fails', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    results = [stereoStack, ok(null), { data: null, error: { message: 'boom' } }]
+    results = [stereoStack, { data: null, error: { message: 'boom' } }]
 
     const response = await PUT(
       putRequest({ stack_id: 'sys-1', role: 'speakers', custom: { name: 'X' } })

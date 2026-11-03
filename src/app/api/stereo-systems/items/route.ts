@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 import { CATEGORY } from '@/lib/component-categories'
-import { parseSpeakerSpecs, parseSpeakerAmpSpecs } from '@/lib/stereo/specs'
+import { applyOverrides, parseSpeakerSpecs, parseSpeakerAmpSpecs } from '@/lib/stereo/specs'
 import type { StackRole } from '@/types/gear'
 import type { Json } from '@/types/supabase'
 
@@ -24,13 +24,19 @@ function isStackRole(value: unknown): value is StackRole {
   return typeof value === 'string' && (ROLES as readonly string[]).includes(value)
 }
 
-/** Parse overrides with the role's spec parser. An empty result is stored as null. */
+/**
+ * Parse overrides with the role's spec parser. applyOverrides stamps every
+ * value with trust 'user', whatever the client claimed. An empty result is
+ * stored as null.
+ */
 function parseOverrides(role: StackRole, input: unknown): Json | null {
-  const parsed =
-    role === 'speakers' ? parseSpeakerSpecs(input)
-    : role === 'amp' ? parseSpeakerAmpSpecs(input)
+  const parse =
+    role === 'speakers' ? parseSpeakerSpecs
+    : role === 'amp' ? parseSpeakerAmpSpecs
     : null
-  return parsed && Object.keys(parsed).length > 0 ? (parsed as unknown as Json) : null
+  if (!parse) return null
+  const parsed = applyOverrides({}, input, parse)
+  return Object.keys(parsed).length > 0 ? (parsed as unknown as Json) : null
 }
 
 function cleanText(value: unknown): string | null {
@@ -132,30 +138,24 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Replace whatever fills this slot now.
-    const { error: deleteError } = await supabaseServer
+    // Replace whatever fills this slot now, in one statement: the
+    // (stack_id, role) unique constraint makes concurrent saves last-write-wins
+    // instead of interleaving a delete and an insert.
+    const { data: item, error: upsertError } = await supabaseServer
       .from('stack_components')
-      .delete()
-      .eq('stack_id', stack_id)
-      .eq('role', role)
-
-    if (deleteError) {
-      console.error('Error clearing stereo system slot:', deleteError)
-      return NextResponse.json({ error: 'Failed to save item' }, { status: 500 })
-    }
-
-    const { data: item, error: insertError } = await supabaseServer
-      .from('stack_components')
-      .insert({
-        stack_id,
-        role,
-        position: ROLES.indexOf(role),
-        component_id: hasComponent ? component_id : null,
-        custom_brand: customBrand,
-        custom_name: customName,
-        custom_category: hasCustom ? (requiredCategory ?? null) : null,
-        spec_overrides: parseOverrides(role, spec_overrides),
-      })
+      .upsert(
+        {
+          stack_id,
+          role,
+          position: ROLES.indexOf(role),
+          component_id: hasComponent ? component_id : null,
+          custom_brand: customBrand,
+          custom_name: customName,
+          custom_category: hasCustom ? (requiredCategory ?? null) : null,
+          spec_overrides: parseOverrides(role, spec_overrides),
+        },
+        { onConflict: 'stack_id,role' }
+      )
       .select(`
         id, stack_id, position, role, component_id, custom_brand, custom_name,
         custom_category, spec_overrides, created_at,
@@ -165,8 +165,8 @@ export async function PUT(request: NextRequest) {
       `)
       .single()
 
-    if (insertError || !item) {
-      console.error('Error saving stereo system item:', insertError)
+    if (upsertError || !item) {
+      console.error('Error saving stereo system item:', upsertError)
       return NextResponse.json({ error: 'Failed to save item' }, { status: 500 })
     }
 

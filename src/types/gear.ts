@@ -83,7 +83,7 @@ export interface StackComponent {
   created_at: string
   role?: StackRole | null
   spec_overrides?: unknown | null
-  // Custom (off-catalogue) stereo item; mutually exclusive with user_gear_id / component_id.
+  // Custom (off-catalog) stereo item; mutually exclusive with user_gear_id / component_id.
   custom_brand?: string | null
   custom_name?: string | null
   custom_category?: string | null
