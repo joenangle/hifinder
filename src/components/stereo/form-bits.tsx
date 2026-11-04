@@ -36,6 +36,7 @@ interface DecimalInputProps {
   placeholder?: string
   id?: string
   'aria-label'?: string
+  'aria-describedby'?: string
 }
 
 /**

@@ -26,7 +26,12 @@ import {
 export type GearRole = 'speakers' | 'amp'
 
 export type GearPick =
-  | { kind: 'catalog'; item: StereoCatalogItem }
+  | {
+      kind: 'catalog'
+      item: StereoCatalogItem
+      /** The catalog's own values, kept once the user's entries are layered into item.specs. */
+      catalogSpecs?: SpeakerSpecs | SpeakerAmpSpecs
+    }
   | { kind: 'custom'; brand: string; name: string; specs: SpeakerSpecs | SpeakerAmpSpecs }
 
 /** A hand-entered value: user trust, no source. */
@@ -47,8 +52,32 @@ export function mergeOverrides(role: GearRole, pick: GearPick | null, overrides:
   }
   const layer = (specs: SpeakerSpecs | SpeakerAmpSpecs) => applyOverrides(specs, overrides, parse)
   return base.kind === 'catalog'
-    ? { kind: 'catalog', item: { ...base.item, specs: layer(base.item.specs) } }
+    ? {
+        kind: 'catalog',
+        item: { ...base.item, specs: layer(base.item.specs) },
+        catalogSpecs: base.catalogSpecs ?? base.item.specs,
+      }
     : { ...base, specs: layer(base.specs) }
+}
+
+/** The catalog's value for a field, whatever the user has typed over it. */
+export function catalogValue(pick: GearPick, key: string): unknown {
+  if (pick.kind !== 'catalog') return undefined
+  return (pick.catalogSpecs ?? pick.item.specs)[key as keyof (SpeakerSpecs | SpeakerAmpSpecs)]
+}
+
+/** Drop the user's entry for a field: catalog gear gets its own value back, custom gear loses the value. */
+export function resetField(pick: GearPick, key: string): GearPick {
+  if (pick.kind === 'custom') {
+    const specs: Record<string, unknown> = { ...pick.specs }
+    delete specs[key]
+    return { ...pick, specs: specs as SpeakerSpecs | SpeakerAmpSpecs }
+  }
+  const specs: Record<string, unknown> = { ...pick.item.specs }
+  const original = catalogValue(pick, key)
+  if (original === undefined) delete specs[key]
+  else specs[key] = original
+  return { ...pick, item: { ...pick.item, specs: specs as SpeakerSpecs | SpeakerAmpSpecs } }
 }
 
 const SEARCH_DEBOUNCE_MS = 250

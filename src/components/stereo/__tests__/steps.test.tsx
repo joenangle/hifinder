@@ -86,71 +86,36 @@ describe('GearStep', () => {
     expect(screen.getByRole('button', { name: 'Done' })).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('edits a picked amp in place, prefilled, keeping its name', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep speakers={null} amp={{ kind: 'catalog', item: AMP_ITEM }} ampNote={null} missing={[]} onChange={onChange} />,
+  /** GearStep is controlled; this keeps its picks in state so edits round-trip like on the page. */
+  function GearHarness({
+    amp = null,
+    speakers = null,
+    missing = [],
+    spy,
+  }: {
+    amp?: GearPick | null
+    speakers?: GearPick | null
+    missing?: MissingInput[]
+    spy?: (role: string, pick: GearPick) => void
+  }) {
+    const [a, setA] = useState(amp)
+    const [s, setS] = useState(speakers)
+    return (
+      <GearStep
+        amp={a}
+        speakers={s}
+        ampNote={null}
+        missing={missing}
+        onChange={(role, pick) => {
+          spy?.(role, pick)
+          if (role === 'amp') setA(pick)
+          else setS(pick)
+        }}
+      />
     )
-    // no edit button for an empty tile
-    expect(screen.getAllByRole('button', { name: 'Edit specs' })).toHaveLength(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
-    const power = screen.getByLabelText('Power into 8 Ω (W per channel)')
-    expect(power).toHaveValue('50')
+  }
 
-    fireEvent.change(power, { target: { value: '2' } })
-    const [role, pick] = onChange.mock.calls.at(-1)!
-    expect(role).toBe('amp')
-    expect(pick.kind).toBe('catalog')
-    expect(pick.item.name).toBe('A-S301')
-    expect(pick.item.specs.power_w_8ohm).toEqual({ value: 2, trust: 'user', source_url: null })
-
-    fireEvent.change(screen.getByLabelText('Kind of rating'), { target: { value: 'continuous' } })
-    expect(onChange.mock.calls.at(-1)![1].item.specs.power_rating).toEqual({ kind: 'continuous' })
-  })
-
-  it('lets hand-entered gear drop its optional 4 Ω figure', () => {
-    const onChange = vi.fn()
-    const ampSpecs: SpeakerAmpSpecs = {
-      power_w_8ohm: { value: 5, trust: 'user', source_url: null },
-      power_w_4ohm: { value: 8, trust: 'user', source_url: null },
-    }
-    const custom: GearPick = { kind: 'custom', brand: '', name: 'Your amplifier', specs: ampSpecs }
-    render(<GearStep speakers={null} amp={custom} ampNote={null} missing={[]} onChange={onChange} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
-    fireEvent.change(screen.getByLabelText('Power into 4 Ω, if listed'), { target: { value: '' } })
-    const pick = onChange.mock.calls.at(-1)![1]
-    expect(pick).toEqual({ ...custom, specs: { power_w_8ohm: ampSpecs.power_w_8ohm } })
-  })
-
-  it('edits speaker sensitivity and impedance in place', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep speakers={{ kind: 'catalog', item: SPK_ITEM }} amp={null} ampNote={null} missing={[]} onChange={onChange} />,
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
-    expect(screen.getByLabelText('Sensitivity (dB)')).toHaveValue('87')
-    fireEvent.change(screen.getByLabelText('Nominal impedance (Ω)'), { target: { value: '8' } })
-    const specs = onChange.mock.calls.at(-1)![1].item.specs
-    expect(specs.nominal_impedance_ohms).toEqual({ value: 8, trust: 'user', source_url: null })
-    expect(specs.sensitivity_db).toEqual(claimed(87))
-  })
-
-  it('never shows the editor and the chooser on the same tile at once', () => {
-    vi.useFakeTimers()
-    stubCatalog([])
-    render(
-      <GearStep speakers={null} amp={{ kind: 'catalog', item: AMP_ITEM }} ampNote={null} missing={[]} onChange={vi.fn()} />,
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
-    expect(screen.getByRole('group', { name: 'Edit amplifier specs' })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Change amplifier' }))
-    expect(screen.queryByRole('group', { name: 'Edit amplifier specs' })).not.toBeInTheDocument()
-    expect(screen.getByRole('tablist')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
-    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
-  })
-
-  it('shows the amp note on the amp tile', () => {
+  it('shows catalog specs as live fields with where each number came from', () => {
     render(
       <GearStep
         speakers={{ kind: 'catalog', item: SPK_ITEM }}
@@ -161,130 +126,129 @@ describe('GearStep', () => {
       />,
     )
     expect(screen.getByText('Sized for your headphones')).toBeInTheDocument()
-    expect(screen.getByText('50 W into 8 Ω')).toBeInTheDocument()
-    expect(screen.getByText('87 dB · 4 Ω')).toBeInTheDocument()
+    expect(screen.getByLabelText('Power into 8 Ω (W per channel)')).toHaveValue('50')
+    expect(screen.getByLabelText('Sensitivity (dB)')).toHaveValue('87')
+    expect(screen.getByLabelText('Impedance (Ω)')).toHaveValue('4')
+    expect(screen.getAllByText('Manufacturer spec').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: /Reset/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Edit specs' })).not.toBeInTheDocument()
   })
 
-  const sensitivityMissing: MissingInput[] = [
-    { id: 'speakers.sensitivity_db', label: 'Speaker sensitivity', hint: 'Usually on the back panel.' },
-  ]
-  const noSensitivity: GearPick = {
-    kind: 'catalog',
-    item: { ...SPK_ITEM, specs: { nominal_impedance_ohms: claimed(8) } },
-  }
+  it('applies a new amp power as it is typed, keeps the name, and can reset to the catalog', () => {
+    const spy = vi.fn()
+    render(<GearHarness amp={{ kind: 'catalog', item: AMP_ITEM }} spy={spy} />)
+    const power = screen.getByLabelText('Power into 8 Ω (W per channel)')
+    power.focus()
+    fireEvent.change(power, { target: { value: '2' } })
 
-  it('asks for a missing sensitivity with one input and stores it as a user value', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={sensitivityMissing} onChange={onChange} />,
-    )
-    expect(screen.getByText("We need your speakers' sensitivity.")).toBeInTheDocument()
-    expect(screen.getByText("It changes the answer by several dB, so we won't guess it.")).toBeInTheDocument()
-    expect(screen.getByText('Usually on the back panel.')).toBeInTheDocument()
-    expect(screen.getAllByRole('textbox')).toHaveLength(1)
-
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '87' } })
-    fireEvent.click(screen.getByRole('radio', { name: '1 W / 1 m' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-
-    expect(onChange).toHaveBeenCalledTimes(1)
-    const [role, pick] = onChange.mock.calls[0]
-    expect(role).toBe('speakers')
-    expect(pick.kind).toBe('catalog')
-    expect(pick.item.specs.sensitivity_db).toEqual({ value: 87, trust: 'user', source_url: null })
-    expect(pick.item.specs.sensitivity_ref).toEqual({ value: '1W', trust: 'user', source_url: null })
-    // the catalog's own values keep their trust
-    expect(pick.item.specs.nominal_impedance_ohms).toEqual(claimed(8))
-  })
-
-  it('defaults the sensitivity reference to unknown and accepts a decimal comma', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={sensitivityMissing} onChange={onChange} />,
-    )
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: ' 88,5 ' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-    const specs = onChange.mock.calls[0][1].item.specs
-    expect(specs.sensitivity_db.value).toBe(88.5)
-    expect(specs.sensitivity_ref).toEqual({ value: 'unknown', trust: 'user', source_url: null })
-  })
-
-  it('does not submit a non-numeric or out-of-range sensitivity', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={sensitivityMissing} onChange={onChange} />,
-    )
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'loud' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '300' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  it('asks for amp power with the rating radios and merges into a custom pick', () => {
-    const onChange = vi.fn()
-    const customAmp: GearPick = { kind: 'custom', brand: 'Marantz', name: '2270', specs: {} }
-    render(
-      <GearStep
-        speakers={null}
-        amp={customAmp}
-        ampNote={null}
-        missing={[{ id: 'amp.power_w_8ohm', label: 'Amp power', hint: 'In the specs.' }]}
-        onChange={onChange}
-      />,
-    )
-    expect(screen.getByText('In the specs.')).toBeInTheDocument()
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '70' } })
-    fireEvent.click(screen.getByRole('radio', { name: 'Peak / max' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-    const [role, pick] = onChange.mock.calls[0]
+    const [role, pick] = spy.mock.calls.at(-1)!
     expect(role).toBe('amp')
-    expect(pick.kind).toBe('custom')
-    expect(pick.specs.power_w_8ohm).toEqual({ value: 70, trust: 'user', source_url: null })
-    expect(pick.specs.power_rating).toEqual({ kind: 'peak' })
+    expect(pick.item.name).toBe('A-S301')
+    expect(pick.item.specs.power_w_8ohm).toEqual({ value: 2, trust: 'user', source_url: null })
+    // still the same input, still focused: typing is not interrupted by the update
+    expect(screen.getByLabelText('Power into 8 Ω (W per channel)')).toBe(power)
+    expect(document.activeElement).toBe(power)
+    expect(screen.getByText(/Your entry/)).toBeInTheDocument()
+
+    fireEvent.blur(power)
+    fireEvent.click(screen.getByRole('button', { name: 'Reset to 50' }))
+    expect(spy.mock.calls.at(-1)![1].item.specs.power_w_8ohm).toEqual(claimed(50))
+    expect(screen.getByLabelText('Power into 8 Ω (W per channel)')).toHaveValue('50')
   })
 
-  it('labels each prompt as a save while other values are still missing', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep
-        speakers={null}
-        amp={null}
-        ampNote={null}
-        missing={[
-          { id: 'speakers.sensitivity_db', label: 'Speaker sensitivity', hint: 'Back panel.' },
-          { id: 'speakers.nominal_impedance_ohms', label: 'Speaker impedance', hint: 'Back panel.' },
-          { id: 'amp.power_w_8ohm', label: 'Amp power', hint: 'In the specs.' },
-        ]}
-        onChange={onChange}
-      />,
-    )
-    expect(screen.getByRole('button', { name: 'Save speaker sensitivity' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Save amp power' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Show the verdict' })).not.toBeInTheDocument()
+  it('creates hand-entered gear from an empty tile on the first typed value', () => {
+    const spy = vi.fn()
+    render(<GearHarness spy={spy} />)
+    const power = screen.getByLabelText('Power into 8 Ω (W per channel)')
+    power.focus()
+    fireEvent.change(power, { target: { value: '5' } })
+    expect(spy).toHaveBeenLastCalledWith('amp', {
+      kind: 'custom',
+      brand: '',
+      name: 'Your amplifier',
+      specs: { power_w_8ohm: { value: 5, trust: 'user', source_url: null } },
+    })
+    expect(screen.getByText('Your amplifier')).toBeInTheDocument()
+    expect(document.activeElement).toBe(screen.getByLabelText('Power into 8 Ω (W per channel)'))
   })
 
-  it('asks for impedance with a 4/6/8/16 choice', () => {
-    const onChange = vi.fn()
-    render(
-      <GearStep
-        speakers={{ kind: 'catalog', item: { ...SPK_ITEM, specs: { sensitivity_db: claimed(90) } } }}
-        amp={null}
-        ampNote={null}
-        missing={[{ id: 'speakers.nominal_impedance_ohms', label: 'Speaker impedance', hint: 'Back panel.' }]}
-        onChange={onChange}
-      />,
-    )
-    for (const ohms of ['4 Ω', '6 Ω', '8 Ω', '16 Ω']) {
-      expect(screen.getByRole('radio', { name: ohms })).toBeInTheDocument()
+  it('highlights a missing value with its hint instead of a separate prompt', () => {
+    const missing: MissingInput[] = [
+      { id: 'speakers.sensitivity_db', label: 'Speaker sensitivity', hint: 'Usually on the back panel.' },
+    ]
+    const noSensitivity: GearPick = {
+      kind: 'catalog',
+      item: { ...SPK_ITEM, specs: { nominal_impedance_ohms: claimed(8) } },
     }
-    fireEvent.click(screen.getByRole('radio', { name: '6 Ω' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
-    expect(onChange.mock.calls[0][1].item.specs.nominal_impedance_ohms).toEqual({
+    render(<GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={missing} onChange={vi.fn()} />)
+    expect(screen.getByText('We need speaker sensitivity.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Sensitivity (dB)')).toHaveAccessibleDescription('Usually on the back panel.')
+    expect(screen.queryByRole('button', { name: /Show the verdict|Save/ })).not.toBeInTheDocument()
+  })
+
+  it('stores a typed sensitivity as a user value, accepting a decimal comma and skipping junk', () => {
+    const spy = vi.fn()
+    const noSensitivity: GearPick = {
+      kind: 'catalog',
+      item: { ...SPK_ITEM, specs: { nominal_impedance_ohms: claimed(8) } },
+    }
+    render(<GearHarness speakers={noSensitivity} spy={spy} />)
+    const field = screen.getByLabelText('Sensitivity (dB)')
+    fireEvent.change(field, { target: { value: 'loud' } })
+    fireEvent.change(field, { target: { value: '300' } })
+    expect(spy).not.toHaveBeenCalled()
+
+    fireEvent.change(field, { target: { value: ' 88,5 ' } })
+    const specs = spy.mock.calls.at(-1)![1].item.specs
+    expect(specs.sensitivity_db).toEqual({ value: 88.5, trust: 'user', source_url: null })
+    // the catalog's own values keep their trust
+    expect(specs.nominal_impedance_ohms).toEqual(claimed(8))
+
+    fireEvent.change(screen.getByLabelText('Measured at'), { target: { value: '1W' } })
+    expect(spy.mock.calls.at(-1)![1].item.specs.sensitivity_ref).toEqual({
+      value: '1W',
+      trust: 'user',
+      source_url: null,
+    })
+  })
+
+  it('offers 4/6/8/16 for impedance and stores the choice as a user value', () => {
+    const spy = vi.fn()
+    const noImpedance: GearPick = { kind: 'catalog', item: { ...SPK_ITEM, specs: { sensitivity_db: claimed(90) } } }
+    render(<GearHarness speakers={noImpedance} spy={spy} />)
+    const select = screen.getByLabelText('Impedance (Ω)')
+    expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual([
+      'Choose one',
+      '4',
+      '6',
+      '8',
+      '16',
+    ])
+    fireEvent.change(select, { target: { value: '6' } })
+    expect(spy.mock.calls.at(-1)![1].item.specs.nominal_impedance_ohms).toEqual({
       value: 6,
       trust: 'user',
       source_url: null,
     })
+  })
+
+  it('sets the rating kind and lets hand-entered gear drop its optional 4 Ω figure', () => {
+    const spy = vi.fn()
+    const ampSpecs: SpeakerAmpSpecs = {
+      power_w_8ohm: { value: 5, trust: 'user', source_url: null },
+      power_w_4ohm: { value: 8, trust: 'user', source_url: null },
+    }
+    const custom: GearPick = { kind: 'custom', brand: 'Marantz', name: '2270', specs: ampSpecs }
+    render(<GearHarness amp={custom} spy={spy} />)
+
+    fireEvent.change(screen.getByLabelText('Kind of rating'), { target: { value: 'peak' } })
+    expect(spy.mock.calls.at(-1)![1].specs.power_rating).toEqual({ kind: 'peak' })
+
+    fireEvent.change(screen.getByLabelText('Power into 4 Ω, if listed'), { target: { value: '' } })
+    const last = spy.mock.calls.at(-1)![1]
+    expect(last.name).toBe('2270')
+    expect(last.specs.power_w_4ohm).toBeUndefined()
+    expect(last.specs.power_w_8ohm).toEqual(ampSpecs.power_w_8ohm)
   })
 })
 

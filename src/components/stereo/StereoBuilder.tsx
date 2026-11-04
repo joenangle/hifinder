@@ -131,7 +131,11 @@ function pickFromUrl(
   if (id) {
     const base = catalog[id]
     if (!base) return null
-    return { kind: 'catalog', item: { ...base, specs: applyOverrides(base.specs, overrides, parserFor(role)) } }
+    return {
+      kind: 'catalog',
+      item: { ...base, specs: applyOverrides(base.specs, overrides, parserFor(role)) },
+      catalogSpecs: base.specs,
+    }
   }
   if (Object.keys(overrides).length === 0) return null
   return { kind: 'custom', brand: '', name: CUSTOM_NAME[role], specs: overrides }
@@ -162,10 +166,12 @@ function pickFromRow(role: GearRole, row: ComponentRow | undefined): GearPick | 
   const parse = parserFor(role)
   const joined = Array.isArray(row.components) ? row.components[0] : row.components
   if (row.component_id && joined) {
-    const specs = applyOverrides(parse(joined.technical_specs), row.spec_overrides, parse)
+    const catalogSpecs = parse(joined.technical_specs)
+    const specs = applyOverrides(catalogSpecs, row.spec_overrides, parse)
     return {
       kind: 'catalog',
       item: { id: joined.id, brand: joined.brand, name: joined.name, category: ROLE_CATEGORY[role], specs },
+      catalogSpecs,
     }
   }
   return {
