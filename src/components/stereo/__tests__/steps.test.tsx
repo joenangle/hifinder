@@ -86,6 +86,70 @@ describe('GearStep', () => {
     expect(screen.getByRole('button', { name: 'Done' })).toHaveAttribute('aria-expanded', 'true')
   })
 
+  it('edits a picked amp in place, prefilled, keeping its name', () => {
+    const onChange = vi.fn()
+    render(
+      <GearStep speakers={null} amp={{ kind: 'catalog', item: AMP_ITEM }} ampNote={null} missing={[]} onChange={onChange} />,
+    )
+    // no edit button for an empty tile
+    expect(screen.getAllByRole('button', { name: 'Edit specs' })).toHaveLength(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
+    const power = screen.getByLabelText('Power into 8 Ω (W per channel)')
+    expect(power).toHaveValue('50')
+
+    fireEvent.change(power, { target: { value: '2' } })
+    const [role, pick] = onChange.mock.calls.at(-1)!
+    expect(role).toBe('amp')
+    expect(pick.kind).toBe('catalog')
+    expect(pick.item.name).toBe('A-S301')
+    expect(pick.item.specs.power_w_8ohm).toEqual({ value: 2, trust: 'user', source_url: null })
+
+    fireEvent.change(screen.getByLabelText('Kind of rating'), { target: { value: 'continuous' } })
+    expect(onChange.mock.calls.at(-1)![1].item.specs.power_rating).toEqual({ kind: 'continuous' })
+  })
+
+  it('lets hand-entered gear drop its optional 4 Ω figure', () => {
+    const onChange = vi.fn()
+    const ampSpecs: SpeakerAmpSpecs = {
+      power_w_8ohm: { value: 5, trust: 'user', source_url: null },
+      power_w_4ohm: { value: 8, trust: 'user', source_url: null },
+    }
+    const custom: GearPick = { kind: 'custom', brand: '', name: 'Your amplifier', specs: ampSpecs }
+    render(<GearStep speakers={null} amp={custom} ampNote={null} missing={[]} onChange={onChange} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
+    fireEvent.change(screen.getByLabelText('Power into 4 Ω, if listed'), { target: { value: '' } })
+    const pick = onChange.mock.calls.at(-1)![1]
+    expect(pick).toEqual({ ...custom, specs: { power_w_8ohm: ampSpecs.power_w_8ohm } })
+  })
+
+  it('edits speaker sensitivity and impedance in place', () => {
+    const onChange = vi.fn()
+    render(
+      <GearStep speakers={{ kind: 'catalog', item: SPK_ITEM }} amp={null} ampNote={null} missing={[]} onChange={onChange} />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
+    expect(screen.getByLabelText('Sensitivity (dB)')).toHaveValue('87')
+    fireEvent.change(screen.getByLabelText('Nominal impedance (Ω)'), { target: { value: '8' } })
+    const specs = onChange.mock.calls.at(-1)![1].item.specs
+    expect(specs.nominal_impedance_ohms).toEqual({ value: 8, trust: 'user', source_url: null })
+    expect(specs.sensitivity_db).toEqual(claimed(87))
+  })
+
+  it('never shows the editor and the chooser on the same tile at once', () => {
+    vi.useFakeTimers()
+    stubCatalog([])
+    render(
+      <GearStep speakers={null} amp={{ kind: 'catalog', item: AMP_ITEM }} ampNote={null} missing={[]} onChange={vi.fn()} />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
+    expect(screen.getByRole('group', { name: 'Edit amplifier specs' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Change amplifier' }))
+    expect(screen.queryByRole('group', { name: 'Edit amplifier specs' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tablist')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specs' }))
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+  })
+
   it('shows the amp note on the amp tile', () => {
     render(
       <GearStep

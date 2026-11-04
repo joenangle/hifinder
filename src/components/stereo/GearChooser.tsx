@@ -3,6 +3,9 @@
 import { useEffect, useState, type KeyboardEvent } from 'react'
 import {
   SPEC_RANGES,
+  applyOverrides,
+  parseSpeakerAmpSpecs,
+  parseSpeakerSpecs,
   type PowerRatingKind,
   type SensitivityRef,
   type SpeakerAmpSpecs,
@@ -28,6 +31,25 @@ export type GearPick =
 
 /** A hand-entered value: user trust, no source. */
 export const userValue = <T,>(value: T): SpecValue<T> => ({ value, trust: 'user', source_url: null })
+
+export function pickSpecs(pick: GearPick): SpeakerSpecs | SpeakerAmpSpecs {
+  return pick.kind === 'catalog' ? pick.item.specs : pick.specs
+}
+
+/** Layer the user's answers over the current pick without touching other fields' trust. */
+export function mergeOverrides(role: GearRole, pick: GearPick | null, overrides: Record<string, unknown>): GearPick {
+  const parse = role === 'speakers' ? parseSpeakerSpecs : parseSpeakerAmpSpecs
+  const base: GearPick = pick ?? {
+    kind: 'custom',
+    brand: '',
+    name: role === 'speakers' ? 'Your speakers' : 'Your amplifier',
+    specs: {},
+  }
+  const layer = (specs: SpeakerSpecs | SpeakerAmpSpecs) => applyOverrides(specs, overrides, parse)
+  return base.kind === 'catalog'
+    ? { kind: 'catalog', item: { ...base.item, specs: layer(base.item.specs) } }
+    : { ...base, specs: layer(base.specs) }
+}
 
 const SEARCH_DEBOUNCE_MS = 250
 

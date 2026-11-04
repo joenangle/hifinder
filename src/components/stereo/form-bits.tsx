@@ -28,6 +28,8 @@ interface DecimalInputProps {
   value: number | null
   range: readonly [number, number]
   onCommit: (n: number) => void
+  /** Called when the field is emptied. Without it, a blank field just keeps the last committed value. */
+  onClear?: () => void
   /** Clamp to the range on blur instead of ignoring an out-of-range value. */
   clampOnBlur?: boolean
   className?: string
@@ -41,7 +43,7 @@ interface DecimalInputProps {
  * "3." survives); a valid in-range value is committed as it is typed. On blur
  * the draft is dropped and the committed value shows again.
  */
-export function DecimalInput({ value, range, onCommit, clampOnBlur, className, ...rest }: DecimalInputProps) {
+export function DecimalInput({ value, range, onCommit, onClear, clampOnBlur, className, ...rest }: DecimalInputProps) {
   const [draft, setDraft] = useState<string | null>(null)
   const shown = draft ?? (value === null ? '' : String(Number(value.toFixed(2))))
   return (
@@ -53,6 +55,7 @@ export function DecimalInput({ value, range, onCommit, clampOnBlur, className, .
       value={shown}
       onChange={(e) => {
         setDraft(e.target.value)
+        if (onClear && e.target.value.trim() === '') return onClear()
         const n = parseDecimal(e.target.value, range)
         if (n !== null) onCommit(n)
       }}

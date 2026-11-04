@@ -5,16 +5,14 @@ import { ArrowRight, SlidersHorizontal, Speaker } from 'lucide-react'
 import type { MissingInput } from '@/lib/stereo/power-check'
 import {
   SPEC_RANGES,
-  applyOverrides,
-  parseSpeakerAmpSpecs,
-  parseSpeakerSpecs,
   type PowerRatingKind,
   type SensitivityRef,
   type SpeakerAmpSpecs,
   type SpeakerSpecs,
   type Trust,
 } from '@/lib/stereo/specs'
-import { GearChooser, specLine, type GearPick, type GearRole } from './GearChooser'
+import { GearChooser, mergeOverrides, pickSpecs, specLine, type GearPick, type GearRole } from './GearChooser'
+import { SpecEditor } from './SpecEditor'
 import {
   RATING_OPTIONS,
   RadioGroup,
@@ -64,10 +62,6 @@ function pickName(pick: GearPick): string {
     : [pick.brand, pick.name].filter(Boolean).join(' ')
 }
 
-function pickSpecs(pick: GearPick): SpeakerSpecs | SpeakerAmpSpecs {
-  return pick.kind === 'catalog' ? pick.item.specs : pick.specs
-}
-
 function pickTrustLabel(role: GearRole, pick: GearPick): string | null {
   if (pick.kind === 'custom') return TRUST_LABEL.user
   const specs = pick.item.specs
@@ -76,21 +70,6 @@ function pickTrustLabel(role: GearRole, pick: GearPick): string | null {
       ? (specs as SpeakerSpecs).sensitivity_db
       : ((specs as SpeakerAmpSpecs).power_w_8ohm ?? (specs as SpeakerAmpSpecs).power_w_4ohm)
   return lead ? TRUST_LABEL[lead.trust] : null
-}
-
-/** Layer the user's answers over the tile's current pick without touching other fields' trust. */
-function mergeOverrides(role: GearRole, pick: GearPick | null, overrides: Record<string, unknown>): GearPick {
-  const parse = role === 'speakers' ? parseSpeakerSpecs : parseSpeakerAmpSpecs
-  const base: GearPick = pick ?? {
-    kind: 'custom',
-    brand: '',
-    name: role === 'speakers' ? 'Your speakers' : 'Your amplifier',
-    specs: {},
-  }
-  const layer = (specs: SpeakerSpecs | SpeakerAmpSpecs) => applyOverrides(specs, overrides, parse)
-  return base.kind === 'catalog'
-    ? { kind: 'catalog', item: { ...base.item, specs: layer(base.item.specs) } }
-    : { ...base, specs: layer(base.specs) }
 }
 
 function MissingPrompt({
@@ -218,7 +197,9 @@ function GearTile({
   prompt,
   promptIsLast,
   open,
+  editing,
   onToggle,
+  onToggleEdit,
   onPrompt,
 }: {
   role: GearRole
@@ -227,7 +208,9 @@ function GearTile({
   prompt: MissingInput | undefined
   promptIsLast: boolean
   open: boolean
+  editing: boolean
   onToggle: () => void
+  onToggleEdit: () => void
   onPrompt: (p: GearPick) => void
 }) {
   const copy = TILE_COPY[role]
@@ -264,20 +247,38 @@ function GearTile({
         <MissingPrompt key={prompt.id} role={role} missing={prompt} pick={pick} isLast={promptIsLast} onSubmit={onPrompt} />
       )}
 
-      <button type="button" aria-expanded={open} onClick={onToggle} className={`${secondaryButtonClass} self-start`}>
-        {open ? 'Done' : copy.action}
-      </button>
+      {editing && pick && <SpecEditor role={role} pick={pick} onChange={onPrompt} />}
+
+      <div className="flex flex-wrap gap-2">
+        {pick && (
+          <button type="button" aria-expanded={editing} onClick={onToggleEdit} className={secondaryButtonClass}>
+            {editing ? 'Done editing' : 'Edit specs'}
+          </button>
+        )}
+        <button type="button" aria-expanded={open} onClick={onToggle} className={secondaryButtonClass}>
+          {open ? 'Done' : copy.action}
+        </button>
+      </div>
     </div>
   )
 }
 
 export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStepProps) {
   const [openRole, setOpenRole] = useState<GearRole | null>(null)
+  const [editRole, setEditRole] = useState<GearRole | null>(null)
 
   const promptFor = (role: GearRole) => missing.find((m) => m.id.startsWith(`${role}.`))
   const picks: Record<GearRole, GearPick | null> = { amp, speakers }
 
-  const toggle = (role: GearRole) => setOpenRole((cur) => (cur === role ? null : role))
+  // The chooser replaces the gear and the editor tweaks it: only one is open at a time.
+  const toggle = (role: GearRole) => {
+    setEditRole(null)
+    setOpenRole((cur) => (cur === role ? null : role))
+  }
+  const toggleEdit = (role: GearRole) => {
+    setOpenRole(null)
+    setEditRole((cur) => (cur === role ? null : role))
+  }
   const choose = (role: GearRole, pick: GearPick) => {
     onChange(role, pick)
     setOpenRole(null)
@@ -306,7 +307,9 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
           prompt={promptFor('amp')}
           promptIsLast={missing.length === 1}
           open={openRole === 'amp'}
+          editing={editRole === 'amp'}
           onToggle={() => toggle('amp')}
+          onToggleEdit={() => toggleEdit('amp')}
           onPrompt={(p) => onChange('amp', p)}
         />
         <ArrowRight aria-hidden="true" className="h-6 w-6 flex-none self-center rotate-90 text-[var(--text-secondary)] md:rotate-0" />
@@ -316,7 +319,9 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
           prompt={promptFor('speakers')}
           promptIsLast={missing.length === 1}
           open={openRole === 'speakers'}
+          editing={editRole === 'speakers'}
           onToggle={() => toggle('speakers')}
+          onToggleEdit={() => toggleEdit('speakers')}
           onPrompt={(p) => onChange('speakers', p)}
         />
       </div>
