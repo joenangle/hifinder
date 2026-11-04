@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the project root. Without it Next infers the root from the highest
+  // lockfile it finds, so a stray ~/package-lock.json made it pick the home
+  // folder: Turbopack then watched all of ~ and the dev server (worse in a
+  // nested .claude/worktrees checkout) spawned workers until it ran away.
+  // __dirname is this checkout, so worktrees resolve to themselves too.
+  turbopack: { root: __dirname },
+  outputFileTracingRoot: __dirname,
+
   // Ensure we're NOT using static export (which breaks API routes)
   // output: 'export', // ❌ This would break API routes
 
