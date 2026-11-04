@@ -132,9 +132,9 @@ export function SpecEditor({ role, pick, onChange }: SpecEditorProps) {
     <div
       role="group"
       aria-label={role === 'speakers' ? 'Edit speaker specs' : 'Edit amplifier specs'}
-      className="flex flex-col gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--background-secondary)] p-3.5"
+      className="@container flex flex-col gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--background-secondary)] p-3.5"
     >
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">{fields}</div>
+      <div className="grid grid-cols-1 gap-3 @lg:grid-cols-3">{fields}</div>
       <p className="m-0 text-[13px] leading-normal text-[var(--text-secondary)]">
         The verdict updates as you type. Changed values are labeled &quot;your entry&quot;.
       </p>
