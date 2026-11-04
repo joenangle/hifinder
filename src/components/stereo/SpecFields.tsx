@@ -61,10 +61,17 @@ export function SpecFields({ role, pick, missing, onChange }: SpecFieldsProps) {
     if (!current || typeof current !== 'object' || !('trust' in current)) return null
     const original = catalogValue(pick, key) as SpecValue<unknown> | undefined
     const edited = current.trust === 'user' && original !== undefined
+    const inRoomRating = key === 'sensitivity_db' && (specs as SpeakerSpecs).sensitivity_in_room?.value === true
     return {
       id,
       node: (
         <>
+          {inRoomRating && (
+            <span className="block text-[var(--text-primary)]">
+              {pick.item.brand} quotes this in a listening room, so it already includes room reinforcement. We take
+              out about 3 dB so your room isn&apos;t counted twice.
+            </span>
+          )}
           {TRUST_LABEL[current.trust]}
           {edited && (
             <>

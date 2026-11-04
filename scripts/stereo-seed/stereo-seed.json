@@ -37,6 +37,11 @@
         "trust": "claimed",
         "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M-II_Spec-Sheet_v02.pdf"
       },
+      "sensitivity_in_room": {
+        "value": true,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-600M-II_Spec-Sheet_v02.pdf"
+      },
       "nominal_impedance_ohms": {
         "value": 8,
         "trust": "claimed",
@@ -57,6 +62,11 @@
       },
       "sensitivity_ref": {
         "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-500M-II_Spec-Sheet_v02_2022-05-18-131859_rlqj.pdf"
+      },
+      "sensitivity_in_room": {
+        "value": true,
         "trust": "claimed",
         "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/RP-500M-II_Spec-Sheet_v02_2022-05-18-131859_rlqj.pdf"
       },
@@ -106,6 +116,11 @@
         "trust": "claimed",
         "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Heresy-III-Spec-Sheet-v06_2024-07-10-003315_bklh.pdf"
       },
+      "sensitivity_in_room": {
+        "value": true,
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Heresy-III-Spec-Sheet-v06_2024-07-10-003315_bklh.pdf"
+      },
       "nominal_impedance_ohms": {
         "value": 8,
         "trust": "claimed",
@@ -126,6 +141,11 @@
       },
       "sensitivity_ref": {
         "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Forte-IV-Spec-Sheet-v01-1.pdf"
+      },
+      "sensitivity_in_room": {
+        "value": true,
         "trust": "claimed",
         "source_url": "https://d2um2qdswy1tb0.cloudfront.net/spec-sheets/Forte-IV-Spec-Sheet-v01-1.pdf"
       },
@@ -214,7 +234,7 @@
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
       },
       "min_impedance_ohms": {
-        "value": 4.0,
+        "value": 4,
         "trust": "claimed",
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-1"
       }
@@ -242,7 +262,7 @@
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
       },
       "min_impedance_ohms": {
-        "value": 4.0,
+        "value": 4,
         "trust": "claimed",
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-2"
       }
@@ -270,7 +290,7 @@
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
       },
       "min_impedance_ohms": {
-        "value": 5.0,
+        "value": 5,
         "trust": "claimed",
         "source_url": "https://www.wharfedale.co.uk/products/diamond-12-3"
       }

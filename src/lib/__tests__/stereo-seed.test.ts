@@ -159,3 +159,21 @@ describe('validateSeedEntry', () => {
     expect(errorsOf({ ...speaker(), price_new: -5 }).join()).toMatch(/price_new/)
   })
 })
+
+describe('validateSeedEntry: in-room sensitivity flag', () => {
+  it('accepts a sourced sensitivity_in_room flag', () => {
+    const e = speaker()
+    e.technical_specs.sensitivity_in_room = sv(true, 'claimed')
+    expect(validateSeedEntry(e).ok).toBe(true)
+  })
+
+  it('requires a source for the flag and a boolean value', () => {
+    const unsourced = speaker()
+    unsourced.technical_specs.sensitivity_in_room = { value: true, trust: 'claimed' }
+    expect(errorsOf(unsourced).join()).toMatch(/sensitivity_in_room: source_url/)
+
+    const notBoolean = speaker()
+    notBoolean.technical_specs.sensitivity_in_room = sv('yes', 'claimed')
+    expect(errorsOf(notBoolean).join()).toMatch(/sensitivity_in_room/)
+  })
+})

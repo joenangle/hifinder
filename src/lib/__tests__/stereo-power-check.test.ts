@@ -8,6 +8,7 @@ import {
   type PowerCheckInput,
 } from '../stereo/power-check'
 import type { SpeakerAmpSpecs, SpeakerSpecs, SystemProfile } from '../stereo/specs'
+import { inRoomRatingGainDb } from '../stereo/power'
 
 const sv = <T,>(value: T, trust: 'claimed' | 'measured' | 'user' = 'claimed') => ({ value, trust })
 
@@ -245,5 +246,38 @@ describe('tiers and presets', () => {
   it('has the four room presets', () => {
     expect(ROOM_PRESETS.living_room).toMatchObject({ length_m: 5, width_m: 4, height_m: 2.6 })
     expect(Object.keys(ROOM_PRESETS).sort()).toEqual(['large_open_plan', 'living_room', 'office', 'small_bedroom'])
+  })
+})
+
+describe('in-room sensitivity ratings (Klipsch)', () => {
+  const inRoomSpeakers = (over: Partial<SpeakerSpecs> = {}) =>
+    speakers({ sensitivity_in_room: sv(true), ...over })
+
+  it('takes the reference room gain out once, in both the in-room and free-field estimates', () => {
+    const plain = ok(input())
+    const inRoom = ok(input({ speakers: inRoomSpeakers() }))
+    const gain = inRoomRatingGainDb()
+    expect(plain.verdict.headroomInRoomDb - inRoom.verdict.headroomInRoomDb).toBeCloseTo(gain, 6)
+    expect(plain.verdict.headroomFreeFieldDb - inRoom.verdict.headroomFreeFieldDb).toBeCloseTo(gain, 6)
+  })
+
+  it('says so in the working and the notes', () => {
+    const out = ok(input({ speakers: inRoomSpeakers() }))
+    const row = out.working.find((r) => r.step === 'Speaker sensitivity')!
+    expect(row.value).toMatch(/^87 dB at 2\.83 V in a listening room, less 2\.7 dB room reinforcement → /)
+    expect(out.notes.some((n) => /quoted in a listening room/.test(n) && /2\.7 dB/.test(n))).toBe(true)
+  })
+
+  it('applies the correction to both ends of an unstated reference', () => {
+    const out = ok(input({ speakers: inRoomSpeakers({ sensitivity_ref: undefined }) }))
+    const row = out.working.find((r) => r.step === 'Speaker sensitivity')!
+    // 87 dB at 2.83 V into 4 Ω is 84.0 dB/W, at 1 W it is 87.0; both less 2.7
+    expect(row.value).toContain('81.3 dB/W if 2.83 V, 84.3 dB/W if 1 W')
+  })
+
+  it('leaves ordinary speakers alone', () => {
+    const out = ok(input({ speakers: speakers({ sensitivity_in_room: sv(false) }) }))
+    expect(out.notes.some((n) => /listening room/.test(n))).toBe(false)
+    expect(out.working.find((r) => r.step === 'Speaker sensitivity')!.value).not.toMatch(/listening room/)
   })
 })

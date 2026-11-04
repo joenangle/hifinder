@@ -5,7 +5,10 @@ import {
   levelAtSeatPerWatt,
   powerVerdict,
   VERDICT_LABELS,
+  inRoomRatingGainDb,
+  IN_ROOM_RATING_REFERENCE,
 } from '../stereo/power'
+import { ROOM_PRESETS } from '../stereo/power-check'
 import type { SpeakerAmpSpecs } from '../stereo/specs'
 
 const room = { length_m: 5, width_m: 4, height_m: 2.6 }
@@ -125,5 +128,15 @@ describe('resolveAmpPower', () => {
     const r = resolveAmpPower(amp(50, undefined, 'unknown'), 8)!
     expect(r.conditionsUnknown).toBe(true)
     expect(r.derated).toBe(false)
+  })
+})
+
+describe('in-room sensitivity ratings', () => {
+  it('derives the reference room gain from the model itself (about 2.7 dB)', () => {
+    expect(inRoomRatingGainDb()).toBeCloseTo(2.713, 2)
+    // the reference room is the medium living room preset, average acoustics
+    const { label: _label, ...livingRoom } = ROOM_PRESETS.living_room
+    expect(IN_ROOM_RATING_REFERENCE.room).toEqual(livingRoom)
+    expect(IN_ROOM_RATING_REFERENCE.acoustics).toBe('average')
   })
 })

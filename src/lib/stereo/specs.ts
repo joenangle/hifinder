@@ -19,6 +19,11 @@ export interface ReviewLink {
 export interface SpeakerSpecs {
   sensitivity_db?: SpecValue<number>
   sensitivity_ref?: SpecValue<SensitivityRef>
+  /**
+   * True when the maker quotes sensitivity measured in a listening room (Klipsch
+   * does), so the figure already includes room reinforcement. Catalog-only.
+   */
+  sensitivity_in_room?: SpecValue<boolean>
   nominal_impedance_ohms?: SpecValue<number>
   min_impedance_ohms?: SpecValue<number>
   f3_hz?: SpecValue<number>
@@ -134,6 +139,7 @@ export function parseSpeakerSpecs(json: unknown): SpeakerSpecs {
   }
   set('sensitivity_db', numericSpec(json.sensitivity_db, SPEC_RANGES.sensitivity_db))
   set('sensitivity_ref', parseSpecValue(json.sensitivity_ref, (v) => inEnum(SENSITIVITY_REFS, v)))
+  set('sensitivity_in_room', parseSpecValue(json.sensitivity_in_room, (v) => typeof v === 'boolean'))
   set('nominal_impedance_ohms', numericSpec(json.nominal_impedance_ohms, SPEC_RANGES.impedance_ohms))
   set('min_impedance_ohms', numericSpec(json.min_impedance_ohms, SPEC_RANGES.min_impedance_ohms))
   set('f3_hz', numericSpec(json.f3_hz, SPEC_RANGES.f3_hz))

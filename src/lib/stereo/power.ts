@@ -109,6 +109,28 @@ export function levelAtSeatPerWatt(
   }
 }
 
+/**
+ * Reference room for "in-room" sensitivity ratings: a medium living room with
+ * average acoustics (the medium living room preset). Klipsch quotes some
+ * sensitivities "in an average listening room", so the figure already holds
+ * that room's reinforcement at 1 m.
+ */
+export const IN_ROOM_RATING_REFERENCE = {
+  room: { length_m: 5, width_m: 4, height_m: 2.6 },
+  acoustics: 'average' as Acoustics,
+}
+
+/**
+ * Room reinforcement baked into an in-room sensitivity rating: what this model
+ * itself adds at 1 m in the reference room (≈2.7 dB). Subtracting it gives an
+ * anechoic estimate, so the user's own room is counted once, not twice.
+ */
+export function inRoomRatingGainDb(): number {
+  const { room, acoustics } = IN_ROOM_RATING_REFERENCE
+  const one = levelAtSeatPerWatt(0, 1, room, acoustics, { speakers: 1 })
+  return one.inRoom - one.freeField
+}
+
 export type VerdictKind = 'comfortable' | 'comfortable_most_rooms' | 'tight' | 'runs_out'
 export const VERDICT_LABELS: Record<VerdictKind, string> = {
   comfortable: 'Comfortable',

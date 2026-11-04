@@ -112,6 +112,12 @@ A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
   `components.technical_specs` as `{ value, trust, source_url }`. User entries
   go only to `stack_components.spec_overrides` (or to the URL when anonymous),
   always with trust `user`.
+- **In-room sensitivity ratings:** some makers quote sensitivity measured in a
+  listening room (Klipsch RP II and Heritage sheets footnote it). Those catalog
+  rows carry a sourced `sensitivity_in_room: true`, and `runPowerCheck`
+  subtracts `inRoomRatingGainDb()` (≈2.7 dB: the model's own 1 m room gain in
+  the medium living room preset) so the user's room isn't counted twice. Only
+  flag a row when its source page says so; user-typed values are never flagged.
 - **Categories:** `speakers` and `speaker_amp` are outside `AMP_CATEGORIES` and
   `HEADPHONE_CATEGORIES`. Headphone listings, search and brands filter to
   `HEADPHONE_SYSTEM_CATEGORIES`.

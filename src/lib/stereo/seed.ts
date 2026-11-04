@@ -33,6 +33,7 @@ const ENTRY_KEYS = new Set(['brand', 'name', 'category', 'technical_specs', 'pri
 const SPEAKER_SPEC_VALUES = [
   'sensitivity_db',
   'sensitivity_ref',
+  'sensitivity_in_room',
   'nominal_impedance_ohms',
   'min_impedance_ohms',
   'f3_hz',

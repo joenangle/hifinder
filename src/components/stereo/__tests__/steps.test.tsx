@@ -134,6 +134,27 @@ describe('GearStep', () => {
     expect(screen.queryByRole('button', { name: 'Edit specs' })).not.toBeInTheDocument()
   })
 
+  it('explains an in-room sensitivity rating under the sensitivity field', () => {
+    const klipsch: GearPick = {
+      kind: 'catalog',
+      item: {
+        ...SPK_ITEM,
+        brand: 'Klipsch',
+        name: 'Heresy III',
+        specs: { ...SPK_ITEM.specs, sensitivity_in_room: claimed(true) },
+      },
+    }
+    render(<GearStep speakers={klipsch} amp={null} ampNote={null} missing={[]} onChange={vi.fn()} />)
+    expect(screen.getByLabelText('Sensitivity (dB)')).toHaveAccessibleDescription(
+      /Klipsch quotes this in a listening room, so it already includes room reinforcement\. We take out about 3 dB/,
+    )
+  })
+
+  it('shows no room disclaimer for ordinary speakers', () => {
+    render(<GearStep speakers={{ kind: 'catalog', item: SPK_ITEM }} amp={null} ampNote={null} missing={[]} onChange={vi.fn()} />)
+    expect(screen.queryByText(/quotes this in a listening room/)).not.toBeInTheDocument()
+  })
+
   it('applies a new amp power as it is typed, keeps the name, and can reset to the catalog', () => {
     const spy = vi.fn()
     render(<GearHarness amp={{ kind: 'catalog', item: AMP_ITEM }} spy={spy} />)

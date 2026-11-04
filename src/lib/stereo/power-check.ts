@@ -17,6 +17,7 @@ import {
 } from './specs'
 import {
   COMFORTABLE_MARGIN_DB,
+  inRoomRatingGainDb,
   levelAtSeatPerWatt,
   powerVerdict,
   resolveAmpPower,
@@ -189,8 +190,13 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
 
   const refValue = speakers.sensitivity_ref?.value ?? 'unknown'
   const refs: ('1W' | '2.83V')[] = refValue === 'unknown' ? ['1W', '2.83V'] : [refValue]
+  // An in-room rating already holds a room's reinforcement; take it out so the
+  // model adds the user's room once instead of twice.
+  const inRoomRating = speakers.sensitivity_in_room?.value === true
+  const roomCorrectionDb = inRoomRating ? inRoomRatingGainDb() : 0
+  const perWatt = (ref: '1W' | '2.83V') => sensitivityPerWatt(sensitivity.value, ref, nominal) - roomCorrectionDb
   const cases = refs.map((ref) => {
-    const sens1W = sensitivityPerWatt(sensitivity.value, ref, nominal)
+    const sens1W = perWatt(ref)
     const level = levelAtSeatPerWatt(sens1W, distanceM, room, acousticsId)
     return { ref, sens1W, level, verdict: powerVerdict(profile.target_peak_db, level, resolved.watts) }
   })
@@ -217,13 +223,13 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
 
   const sensValue = (() => {
     const db = fmt(sensitivity.value)
-    if (refValue === '1W') return `${db} dB at 1 W → ${worst.sens1W.toFixed(1)} dB/W`
-    if (refValue === '2.83V') return `${db} dB at 2.83 V → ${worst.sens1W.toFixed(1)} dB/W`
-    const [w1, v283] = [
-      sensitivityPerWatt(sensitivity.value, '1W', nominal),
-      sensitivityPerWatt(sensitivity.value, '2.83V', nominal),
-    ]
-    return `${db} dB, reference not stated → ${v283.toFixed(1)} dB/W if 2.83 V, ${w1.toFixed(1)} dB/W if 1 W`
+    const quoted = inRoomRating
+      ? ` in a listening room, less ${roomCorrectionDb.toFixed(1)} dB room reinforcement`
+      : ''
+    if (refValue === '1W') return `${db} dB at 1 W${quoted} → ${worst.sens1W.toFixed(1)} dB/W`
+    if (refValue === '2.83V') return `${db} dB at 2.83 V${quoted} → ${worst.sens1W.toFixed(1)} dB/W`
+    const [w1, v283] = [perWatt('1W'), perWatt('2.83V')]
+    return `${db} dB${quoted}, reference not stated → ${v283.toFixed(1)} dB/W if 2.83 V, ${w1.toFixed(1)} dB/W if 1 W`
   })()
 
   const roomTrust: Trust = roomGiven ? 'user' : 'assumed'
@@ -284,6 +290,11 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
         : `You sit at a typical distance (${fmt(distanceM)} m)`
 
   const notes: string[] = []
+  if (inRoomRating) {
+    notes.push(
+      `This speaker's sensitivity is quoted in a listening room, so it already includes room reinforcement. We took out ${roomCorrectionDb.toFixed(1)} dB so your room isn't counted twice.`
+    )
+  }
   if (resolved.derated) {
     notes.push(
       "Claimed (optimistic rating): this amp's power is quoted as peak or at high distortion, so we counted 3 dB less."
