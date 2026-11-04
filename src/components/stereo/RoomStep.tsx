@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { ROOM_PRESETS } from '@/lib/stereo/power-check'
 import { SPEC_RANGES, type Acoustics, type RoomPresetId, type SystemProfile } from '@/lib/stereo/specs'
+import { formatLength, fromMeters, rangeIn, toMeters, UNIT_NAME, UNIT_SUFFIX, type LengthUnit } from '@/lib/stereo/units'
+import { useLengthUnit } from '@/hooks/useLengthUnit'
 import { DecimalInput, fieldLabelClass, inputClass, parseDecimal, secondaryButtonClass } from './form-bits'
 
 export type RoomField = 'size' | 'acoustics' | 'distance'
@@ -32,21 +34,22 @@ const ACOUSTICS_OPTIONS: readonly { id: Acoustics; label: string; description: s
 ]
 
 const DIMENSIONS = [
-  { key: 'length_m', label: 'Length (m)' },
-  { key: 'width_m', label: 'Width (m)' },
-  { key: 'height_m', label: 'Height (m)' },
+  { key: 'length_m', label: 'Length' },
+  { key: 'width_m', label: 'Width' },
+  { key: 'height_m', label: 'Height' },
 ] as const
+
+const UNITS: readonly LengthUnit[] = ['m', 'ft']
 
 const PRESET_IDS = Object.keys(ROOM_PRESETS) as RoomPresetId[]
 
 const ASSUMED_ROOM = ROOM_PRESETS.living_room
 
-const fmt = (n: number) => String(Number(n.toFixed(1)))
-
-function summaryFor(profile: SystemProfile): string {
+function summaryFor(profile: SystemProfile, unit: LengthUnit): string {
   const acoustics = ACOUSTICS_OPTIONS.find((a) => a.id === profile.acoustics)
-  const dims = profile.room
-    ? `${fmt(profile.room.length_m)} × ${fmt(profile.room.width_m)} × ${fmt(profile.room.height_m)} m`
+  const r = profile.room
+  const dims = r
+    ? `${[r.length_m, r.width_m, r.height_m].map((m) => formatLength(m, unit)).join(' × ')} ${UNIT_SUFFIX[unit]}`
     : null
   if (dims && acoustics) return `${dims} · ${acoustics.label} acoustics`
   return dims ?? 'Room not set yet'
@@ -54,6 +57,7 @@ function summaryFor(profile: SystemProfile): string {
 
 export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepProps) {
   const [open, setOpen] = useState(true)
+  const [unit, setUnit] = useLengthUnit()
   const [seenRequest, setSeenRequest] = useState(focusRequest)
   if (focusRequest !== seenRequest) {
     setSeenRequest(focusRequest)
@@ -72,6 +76,15 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
   type DimKey = (typeof DIMENSIONS)[number]['key']
   // Local drafts keep partial entries alive while the profile has no room yet.
   const [drafts, setDrafts] = useState<Partial<Record<DimKey, string>>>({})
+  // Drafts are typed in the display unit; parse one back to meters, range-checked in meters.
+  const draftMeters = (raw: string | undefined): number | null => {
+    const n = raw === undefined ? null : parseDecimal(raw)
+    if (n === null) return null
+    const m = toMeters(n, unit)
+    const [lo, hi] = SPEC_RANGES.room_dimension_m
+    return m >= lo && m <= hi ? m : null
+  }
+
   const [syncedRoom, setSyncedRoom] = useState(profile.room)
   if (profile.room !== syncedRoom) {
     setSyncedRoom(profile.room)
@@ -79,17 +92,28 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
     // Re-sync from outside (preset, URL state); keep drafts that already describe this room.
     const echoed =
       room !== null &&
-      DIMENSIONS.every(({ key }) => drafts[key] === undefined || parseDecimal(drafts[key]) === room[key])
+      DIMENSIONS.every(({ key }) => drafts[key] === undefined || draftMeters(drafts[key]) === room[key])
     if (!echoed) setDrafts({})
   }
 
+  const changeUnit = (next: LengthUnit) => {
+    // Half-typed numbers were in the old unit; show the saved room in the new one instead.
+    setDrafts({})
+    setUnit(next)
+  }
+
   const shownFor = (key: DimKey) =>
-    drafts[key] ?? (profile.room ? fmt(profile.room[key]) : '')
+    drafts[key] ?? (profile.room ? formatLength(profile.room[key], unit) : '')
 
   const setDimension = (key: DimKey, raw: string) => {
     setDrafts((d) => ({ ...d, [key]: raw }))
+    // Untouched fields keep their exact stored meters; re-parsing the rounded display would drift them.
     const parsed = DIMENSIONS.map((dim) =>
-      parseDecimal(dim.key === key ? raw : shownFor(dim.key), SPEC_RANGES.room_dimension_m),
+      dim.key === key
+        ? draftMeters(raw)
+        : drafts[dim.key] !== undefined
+          ? draftMeters(drafts[dim.key])
+          : (profile.room?.[dim.key] ?? null),
     )
     if (parsed.every((n) => n !== null)) {
       const [length_m, width_m, height_m] = parsed as number[]
@@ -113,18 +137,37 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
           <div className="flex flex-col gap-0.5">
             <h2 className="m-0 text-xl font-bold text-[var(--text-primary)]">Room and seat</h2>
             <span className="text-sm text-[var(--text-secondary)]">
-              {open ? "Usually set once. Distance is the one you'll tweak." : summaryFor(profile)}
+              {open ? "Usually set once. Distance is the one you'll tweak." : summaryFor(profile, unit)}
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className={secondaryButtonClass}
-        >
-          {open ? 'Collapse' : 'Edit room'}
-        </button>
+        <div className="flex items-center gap-2">
+          <div role="group" aria-label="Units" className="flex rounded-lg border border-[var(--border-subtle)] p-0.5">
+            {UNITS.map((u) => (
+              <button
+                key={u}
+                type="button"
+                aria-pressed={unit === u}
+                onClick={() => changeUnit(u)}
+                className={`min-h-10 min-w-11 rounded-md px-2.5 text-sm ${
+                  unit === u
+                    ? 'bg-[var(--background-secondary)] font-semibold text-[var(--text-primary)]'
+                    : 'text-[var(--text-secondary)]'
+                }`}
+              >
+                {UNIT_SUFFIX[u]}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className={secondaryButtonClass}
+          >
+            {open ? 'Collapse' : 'Edit room'}
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -155,14 +198,14 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
           <div className="grid grid-cols-3 gap-3">
             {DIMENSIONS.map(({ key, label }) => (
               <label key={key} className={fieldLabelClass}>
-                {label}
+                {`${label} (${UNIT_SUFFIX[unit]})`}
                 <input
                   id={key === 'length_m' ? FIELD_IDS.size : undefined}
                   type="text"
                   inputMode="decimal"
                   className={inputClass}
                   value={shownFor(key)}
-                  placeholder={fmt(ASSUMED_ROOM[key])}
+                  placeholder={formatLength(ASSUMED_ROOM[key], unit)}
                   onChange={(e) => setDimension(key, e.target.value)}
                   onBlur={() => {
                     if (profile.room) setDrafts((d) => ({ ...d, [key]: undefined }))
@@ -200,7 +243,7 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
               checked={profile.near_wall === true}
               onChange={(e) => onChange({ ...profile, near_wall: e.target.checked })}
             />
-            Speakers are near a wall (within about 0.5 m)
+            Speakers are near a wall (within about {unit === 'ft' ? '1.5 ft' : '0.5 m'})
           </label>
         </div>
       )}
@@ -210,13 +253,14 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
         <span className="flex items-center gap-2 font-normal">
           <DecimalInput
             id={FIELD_IDS.distance}
-            aria-label="Listening distance in meters"
-            value={profile.distance_m}
-            range={SPEC_RANGES.distance_m}
-            onCommit={(n) => onChange({ ...profile, distance_m: n })}
+            key={unit}
+            aria-label={`Listening distance in ${UNIT_NAME[unit]}`}
+            value={profile.distance_m === null ? null : fromMeters(profile.distance_m, unit)}
+            range={rangeIn(SPEC_RANGES.distance_m, unit)}
+            onCommit={(n) => onChange({ ...profile, distance_m: toMeters(n, unit) })}
             className={`${inputClass} !w-20`}
           />
-          m
+          {UNIT_SUFFIX[unit]}
         </span>
       </label>
     </section>

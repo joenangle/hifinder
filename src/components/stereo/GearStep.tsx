@@ -97,11 +97,14 @@ function MissingPrompt({
   role,
   missing,
   pick,
+  isLast,
   onSubmit,
 }: {
   role: GearRole
   missing: MissingInput
   pick: GearPick | null
+  /** Nothing else is missing, so submitting this value produces the verdict. */
+  isLast: boolean
   onSubmit: (p: GearPick) => void
 }) {
   const [text, setText] = useState('')
@@ -202,7 +205,7 @@ function MissingPrompt({
         Saved to this system only, labeled &quot;your entry&quot;. It won&apos;t be shared.
       </p>
       <button type="submit" className={primaryButtonClass}>
-        Run the check
+        {isLast ? 'Show the verdict' : `Save ${missing.label.toLowerCase()}`}
       </button>
     </form>
   )
@@ -213,6 +216,7 @@ function GearTile({
   pick,
   note,
   prompt,
+  promptIsLast,
   open,
   onToggle,
   onPrompt,
@@ -221,6 +225,7 @@ function GearTile({
   pick: GearPick | null
   note?: string | null
   prompt: MissingInput | undefined
+  promptIsLast: boolean
   open: boolean
   onToggle: () => void
   onPrompt: (p: GearPick) => void
@@ -255,7 +260,9 @@ function GearTile({
         {note && <span className="text-sm text-[var(--text-secondary)]">{note}</span>}
       </div>
 
-      {prompt && <MissingPrompt key={prompt.id} role={role} missing={prompt} pick={pick} onSubmit={onPrompt} />}
+      {prompt && (
+        <MissingPrompt key={prompt.id} role={role} missing={prompt} pick={pick} isLast={promptIsLast} onSubmit={onPrompt} />
+      )}
 
       <button type="button" aria-expanded={open} onClick={onToggle} className={`${secondaryButtonClass} self-start`}>
         {open ? 'Done' : copy.action}
@@ -297,6 +304,7 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
           pick={amp}
           note={ampNote}
           prompt={promptFor('amp')}
+          promptIsLast={missing.length === 1}
           open={openRole === 'amp'}
           onToggle={() => toggle('amp')}
           onPrompt={(p) => onChange('amp', p)}
@@ -306,6 +314,7 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
           role="speakers"
           pick={speakers}
           prompt={promptFor('speakers')}
+          promptIsLast={missing.length === 1}
           open={openRole === 'speakers'}
           onToggle={() => toggle('speakers')}
           onPrompt={(p) => onChange('speakers', p)}

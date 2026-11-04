@@ -48,6 +48,7 @@ function stubCatalog(items: StereoCatalogItem[]) {
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
+  localStorage.clear()
 })
 
 async function flushCatalog() {
@@ -120,7 +121,7 @@ describe('GearStep', () => {
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '87' } })
     fireEvent.click(screen.getByRole('radio', { name: '1 W / 1 m' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
 
     expect(onChange).toHaveBeenCalledTimes(1)
     const [role, pick] = onChange.mock.calls[0]
@@ -138,7 +139,7 @@ describe('GearStep', () => {
       <GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={sensitivityMissing} onChange={onChange} />,
     )
     fireEvent.change(screen.getByRole('textbox'), { target: { value: ' 88,5 ' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
     const specs = onChange.mock.calls[0][1].item.specs
     expect(specs.sensitivity_db.value).toBe(88.5)
     expect(specs.sensitivity_ref).toEqual({ value: 'unknown', trust: 'user', source_url: null })
@@ -150,9 +151,9 @@ describe('GearStep', () => {
       <GearStep speakers={noSensitivity} amp={null} ampNote={null} missing={sensitivityMissing} onChange={onChange} />,
     )
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'loud' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '300' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -171,12 +172,32 @@ describe('GearStep', () => {
     expect(screen.getByText('In the specs.')).toBeInTheDocument()
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '70' } })
     fireEvent.click(screen.getByRole('radio', { name: 'Peak / max' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
     const [role, pick] = onChange.mock.calls[0]
     expect(role).toBe('amp')
     expect(pick.kind).toBe('custom')
     expect(pick.specs.power_w_8ohm).toEqual({ value: 70, trust: 'user', source_url: null })
     expect(pick.specs.power_rating).toEqual({ kind: 'peak' })
+  })
+
+  it('labels each prompt as a save while other values are still missing', () => {
+    const onChange = vi.fn()
+    render(
+      <GearStep
+        speakers={null}
+        amp={null}
+        ampNote={null}
+        missing={[
+          { id: 'speakers.sensitivity_db', label: 'Speaker sensitivity', hint: 'Back panel.' },
+          { id: 'speakers.nominal_impedance_ohms', label: 'Speaker impedance', hint: 'Back panel.' },
+          { id: 'amp.power_w_8ohm', label: 'Amp power', hint: 'In the specs.' },
+        ]}
+        onChange={onChange}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Save speaker sensitivity' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save amp power' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Show the verdict' })).not.toBeInTheDocument()
   })
 
   it('asks for impedance with a 4/6/8/16 choice', () => {
@@ -194,7 +215,7 @@ describe('GearStep', () => {
       expect(screen.getByRole('radio', { name: ohms })).toBeInTheDocument()
     }
     fireEvent.click(screen.getByRole('radio', { name: '6 Ω' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Run the check' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Show the verdict' }))
     expect(onChange.mock.calls[0][1].item.specs.nominal_impedance_ohms).toEqual({
       value: 6,
       trust: 'user',
@@ -385,6 +406,42 @@ describe('RoomStep', () => {
       room: { length_m: 4, width_m: 3, height_m: 2.5 },
       room_preset: null,
     })
+  })
+
+  it('switches room size and distance to feet while emitting meters', () => {
+    const onChange = vi.fn()
+    const p = profile()
+    render(<RoomStep profile={p} onChange={onChange} />)
+    fireEvent.click(screen.getByRole('button', { name: 'ft' }))
+
+    expect(screen.getByRole('button', { name: 'ft' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByLabelText('Length (ft)')).toHaveValue('16.4')
+    expect(screen.getByLabelText('Listening distance in feet')).toHaveValue('9.84')
+
+    fireEvent.change(screen.getByLabelText('Length (ft)'), { target: { value: '20' } })
+    expect(onChange).toHaveBeenLastCalledWith({
+      ...p,
+      room: { length_m: 20 * 0.3048, width_m: 4, height_m: 2.6 },
+      room_preset: null,
+    })
+    fireEvent.change(screen.getByLabelText('Listening distance in feet'), { target: { value: '10' } })
+    expect(onChange).toHaveBeenLastCalledWith({ ...p, distance_m: 10 * 0.3048 })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse' }))
+    expect(screen.getByText('16.4 × 13.1 × 8.5 ft · Average acoustics')).toBeInTheDocument()
+  })
+
+  it('remembers the unit and rejects feet values outside the meter range', () => {
+    const onChange = vi.fn()
+    const { unmount } = render(<RoomStep profile={profile()} onChange={onChange} />)
+    fireEvent.click(screen.getByRole('button', { name: 'ft' }))
+    unmount()
+
+    render(<RoomStep profile={profile()} onChange={onChange} />)
+    expect(screen.getByLabelText('Width (ft)')).toBeInTheDocument()
+    // 3 ft is 0.91 m, under the 1.5 m minimum room dimension
+    fireEvent.change(screen.getByLabelText('Width (ft)'), { target: { value: '3' } })
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   it('never emits NaN or out-of-range values', () => {
