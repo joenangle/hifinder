@@ -53,7 +53,8 @@ const BRAND_ALIASES = {
   'letshuoer': ['let shuoer', 'letshuoer'],
   'truthear': ['truth ear', 'truthear'],
   'kiwi ears': ['kiwi', 'kiwiears'],
-  'dunu': ['dunu-topsound', 'dunu topsound']
+  'dunu': ['dunu-topsound', 'dunu topsound'],
+  'fosi audio': ['fosi']
 };
 
 // Product variation mappings - handles legitimate model variants
