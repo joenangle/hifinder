@@ -8,7 +8,9 @@ import {
   type StereoCatalogItem,
 } from '@/lib/stereo/specs'
 
-const MAX_RESULTS = 20
+const MAX_SEARCH_RESULTS = 20
+/** Browsing shows everything we have, so this only needs to exceed the catalog's size. */
+const MAX_BROWSE_RESULTS = 200
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -42,14 +44,15 @@ export async function GET(request: NextRequest) {
     if (id !== null) query = query.eq('id', id)
 
     // Each word must appear in either brand or name
-    for (const word of searchWords(searchParams.get('q'))) {
+    const words = searchWords(searchParams.get('q'))
+    for (const word of words) {
       query = query.or(brandOrNameMatches(word))
     }
 
     const { data, error } = await query
       .order('brand')
       .order('name')
-      .limit(MAX_RESULTS)
+      .limit(words.length > 0 ? MAX_SEARCH_RESULTS : MAX_BROWSE_RESULTS)
 
     if (error) {
       console.error('Stereo catalog search error:', error)

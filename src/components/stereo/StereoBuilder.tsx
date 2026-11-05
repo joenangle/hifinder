@@ -18,7 +18,7 @@ import {
   type SystemProfile,
 } from '@/lib/stereo/specs'
 import type { GearPick, GearRole } from './GearChooser'
-import { GearStep } from './GearStep'
+import { GearStep, type CatalogCounts } from './GearStep'
 import { LoudnessSlider } from './LoudnessSlider'
 import { PowerResultPanel } from './PowerResultPanel'
 import { RoomStep, type RoomFocusRequest } from './RoomStep'
@@ -248,7 +248,7 @@ async function persist(system: SavedSystem, parts: Dirty): Promise<Dirty> {
   return failed
 }
 
-export function StereoBuilder() {
+export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts }) {
   const { data: session, status } = useSession()
   const signedIn = status === 'authenticated' && Boolean(session?.user)
 
@@ -605,6 +605,7 @@ export function StereoBuilder() {
               speakers={draft.speakers}
               amp={draft.amp}
               ampNote={null}
+              catalogCounts={catalogCounts}
               missing={outcome.status === 'needs' ? outcome.missing : []}
               onChange={changeGear}
             />

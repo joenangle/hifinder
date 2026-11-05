@@ -494,7 +494,7 @@ describe('StereoBuilder (signed in): saved systems, renaming and the save queue'
     renderBuilder(`spk=${SPK_ID}`)
     expect((await screen.findByRole('alert')).textContent).toContain("Couldn't load some of the gear in this link")
 
-    fireEvent.click(screen.getByRole('button', { name: 'Change speakers' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Browse speakers' }))
     fireEvent.click(await screen.findByRole('button', { name: /Floorstander/ }))
 
     await waitFor(() => expect(screen.queryByText(/Couldn't load some of the gear/)).toBeNull())

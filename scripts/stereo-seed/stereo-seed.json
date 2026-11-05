@@ -888,5 +888,241 @@
         "channels_driven": "two"
       }
     }
+  },
+  {
+    "brand": "Benchmark",
+    "name": "AHB2",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://benchmarkmedia.com/products/benchmark-ahb2-power-amplifier"
+      },
+      "power_w_4ohm": {
+        "value": 190,
+        "trust": "claimed",
+        "source_url": "https://benchmarkmedia.com/products/benchmark-ahb2-power-amplifier"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.0003,
+        "channels_driven": "all"
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/review-and-measurements-of-benchmark-ahb2-amp.7628/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://benchmarkmedia.com/products/benchmark-ahb2-power-amplifier"
+  },
+  {
+    "brand": "NAD",
+    "name": "C 298",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 185,
+        "trust": "claimed",
+        "source_url": "https://nadelectronics.com/products/c-298-stereo-power-amplifier"
+      },
+      "power_w_4ohm": {
+        "value": 340,
+        "trust": "claimed",
+        "source_url": "https://www.audiosciencereview.com/forum/index.php?threads/nad-c298-stereo-amplifier-review.47531/"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.005,
+        "channels_driven": "all"
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/nad-c298-stereo-amplifier-review.47531/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://nadelectronics.com/products/c-298-stereo-power-amplifier"
+  },
+  {
+    "brand": "Yamaha",
+    "name": "A-S701",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s701/specs.html"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.019
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/yamaha-a-s701-stereo-amplifier-review.55211/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://usa.yamaha.com/products/audio_visual/hifi_components/a-s701/specs.html"
+  },
+  {
+    "brand": "Topping",
+    "name": "PA5 II",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 65,
+        "trust": "claimed",
+        "source_url": "https://www.toppingaudio.com/product-item/pa5-ii-pa5-iiplus?tab=specs"
+      },
+      "power_w_4ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://www.toppingaudio.com/product-item/pa5-ii-pa5-iiplus?tab=specs"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-pa5-ii-stereo-amplifier-review.47362/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.toppingaudio.com/product-item/pa5-ii-pa5-iiplus?tab=specs"
+  },
+  {
+    "brand": "Topping",
+    "name": "Mini 300",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 65,
+        "trust": "claimed",
+        "source_url": "https://dl.topping.audio/um/Mini_300.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 125,
+        "trust": "claimed",
+        "source_url": "https://dl.topping.audio/um/Mini_300.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-mini-300-amplifier-review.68581/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.toppingaudio.com/product-item/mini-300"
+  },
+  {
+    "brand": "Topping",
+    "name": "PA3s",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 37,
+        "trust": "claimed",
+        "source_url": "https://dl.topping.audio/usermanual/pa3s.pdf"
+      },
+      "power_w_4ohm": {
+        "value": 65,
+        "trust": "claimed",
+        "source_url": "https://dl.topping.audio/usermanual/pa3s.pdf"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/topping-pa3s-review-desktop-amplifier.27079/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.toppingaudio.com/product-item/pa3s"
+  },
+  {
+    "brand": "3e Audio",
+    "name": "A5 Stereo",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 80,
+        "trust": "claimed",
+        "source_url": "https://www.audiophonics.fr/en/integrated-amplifiers/3e-audio-a5-p-20375.html"
+      },
+      "power_w_4ohm": {
+        "value": 122,
+        "trust": "measured",
+        "source_url": "https://www.audiosciencereview.com/forum/index.php?threads/3e-audio-a5-stereo-amplifier-review.59870/"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/3e-audio-a5-stereo-amplifier-review.59870/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.audiophonics.fr/en/integrated-amplifiers/3e-audio-a5-p-20375.html"
+  },
+  {
+    "brand": "AIYIMA",
+    "name": "A80",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 102,
+        "trust": "claimed",
+        "source_url": "https://www.audiophonics.fr/en/integrated-amplifiers/aiyima-a80-p-20401.html"
+      },
+      "power_w_4ohm": {
+        "value": 120,
+        "trust": "claimed",
+        "source_url": "https://www.audiophonics.fr/en/integrated-amplifiers/aiyima-a80-p-20401.html"
+      },
+      "power_rating": {
+        "kind": "unknown"
+      },
+      "review_links": [
+        {
+          "outlet": "Audio Science Review",
+          "url": "https://www.audiosciencereview.com/forum/index.php?threads/aiyima-a80-stereo-amplifier-dac-review.61095/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.audiophonics.fr/en/integrated-amplifiers/aiyima-a80-p-20401.html"
   }
 ]

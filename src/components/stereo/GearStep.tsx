@@ -5,21 +5,25 @@ import { ArrowRight, SlidersHorizontal, Speaker } from 'lucide-react'
 import type { MissingInput } from '@/lib/stereo/power-check'
 import { GearChooser, type GearPick, type GearRole } from './GearChooser'
 import { SpecFields } from './SpecFields'
-import { secondaryButtonClass } from './form-bits'
+import { primaryButtonClass, secondaryButtonClass } from './form-bits'
 
 export type { GearPick } from './GearChooser'
+
+/** How many of each role the catalog holds. A null count (query failed) just drops the number. */
+export type CatalogCounts = Partial<Record<GearRole, number | null>>
 
 interface GearStepProps {
   speakers: GearPick | null
   amp: GearPick | null
   ampNote: string | null
+  catalogCounts?: CatalogCounts
   missing: MissingInput[]
   onChange: (role: GearRole, pick: GearPick) => void
 }
 
-const TILE_COPY: Record<GearRole, { title: string; action: string }> = {
-  amp: { title: 'Amplifier', action: 'Change amplifier' },
-  speakers: { title: 'Speakers (pair)', action: 'Change speakers' },
+const TILE_COPY: Record<GearRole, { title: string; action: string; plural: string }> = {
+  amp: { title: 'Amplifier', action: 'Change amplifier', plural: 'amplifiers' },
+  speakers: { title: 'Speakers (pair)', action: 'Change speakers', plural: 'speakers' },
 }
 
 const cardClass = 'rounded-xl border border-[var(--border-subtle)] bg-[var(--background-primary)]'
@@ -34,6 +38,7 @@ function GearTile({
   role,
   pick,
   note,
+  catalogCount,
   missing,
   open,
   onToggle,
@@ -42,6 +47,7 @@ function GearTile({
   role: GearRole
   pick: GearPick | null
   note?: string | null
+  catalogCount?: number | null
   missing: MissingInput[]
   open: boolean
   onToggle: () => void
@@ -49,6 +55,8 @@ function GearTile({
 }) {
   const copy = TILE_COPY[role]
   const Icon = role === 'amp' ? SlidersHorizontal : Speaker
+  // Empty count means an empty or unreachable catalog: drop the number, keep the way in.
+  const browseLabel = catalogCount ? `Browse ${catalogCount} ${copy.plural}` : `Browse ${copy.plural}`
 
   return (
     <div className={`${cardClass} flex min-w-0 flex-1 flex-col gap-3 p-4`}>
@@ -66,23 +74,31 @@ function GearTile({
           <>
             <span className="text-base font-bold text-[var(--text-primary)]">Nothing chosen yet</span>
             <span className="text-sm text-[var(--text-secondary)]">
-              Pick from the catalog, or type the numbers below.
+              Pick yours from our list, or type the numbers below.
             </span>
           </>
         )}
         {note && <span className="text-sm text-[var(--text-secondary)]">{note}</span>}
       </div>
 
+      {!pick && (
+        <button type="button" aria-expanded={open} onClick={onToggle} className={`${primaryButtonClass} self-start`}>
+          {open ? 'Done' : browseLabel}
+        </button>
+      )}
+
       <SpecFields role={role} pick={pick} missing={missing} onChange={onEdit} />
 
-      <button type="button" aria-expanded={open} onClick={onToggle} className={`${secondaryButtonClass} self-start`}>
-        {open ? 'Done' : copy.action}
-      </button>
+      {pick && (
+        <button type="button" aria-expanded={open} onClick={onToggle} className={`${secondaryButtonClass} self-start`}>
+          {open ? 'Done' : copy.action}
+        </button>
+      )}
     </div>
   )
 }
 
-export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStepProps) {
+export function GearStep({ speakers, amp, ampNote, catalogCounts, missing, onChange }: GearStepProps) {
   const [openRole, setOpenRole] = useState<GearRole | null>(null)
 
   const missingFor = (role: GearRole) => missing.filter((m) => m.id.startsWith(`${role}.`))
@@ -109,27 +125,7 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
         </div>
       </div>
 
-      <div className="flex flex-col items-stretch gap-3 md:flex-row">
-        <GearTile
-          role="amp"
-          pick={amp}
-          note={ampNote}
-          missing={missingFor('amp')}
-          open={openRole === 'amp'}
-          onToggle={() => toggle('amp')}
-          onEdit={(p) => onChange('amp', p)}
-        />
-        <ArrowRight aria-hidden="true" className="h-6 w-6 flex-none self-center rotate-90 text-[var(--text-secondary)] md:rotate-0" />
-        <GearTile
-          role="speakers"
-          pick={speakers}
-          missing={missingFor('speakers')}
-          open={openRole === 'speakers'}
-          onToggle={() => toggle('speakers')}
-          onEdit={(p) => onChange('speakers', p)}
-        />
-      </div>
-
+      {/* Above the tiles: they are tall, so below them the list would open off screen. */}
       {openRole && (
         <GearChooser
           key={openRole}
@@ -139,6 +135,29 @@ export function GearStep({ speakers, amp, ampNote, missing, onChange }: GearStep
           onClose={() => setOpenRole(null)}
         />
       )}
+
+      <div className="flex flex-col items-stretch gap-3 md:flex-row">
+        <GearTile
+          role="amp"
+          pick={amp}
+          note={ampNote}
+          catalogCount={catalogCounts?.amp}
+          missing={missingFor('amp')}
+          open={openRole === 'amp'}
+          onToggle={() => toggle('amp')}
+          onEdit={(p) => onChange('amp', p)}
+        />
+        <ArrowRight aria-hidden="true" className="h-6 w-6 flex-none self-center rotate-90 text-[var(--text-secondary)] md:rotate-0" />
+        <GearTile
+          role="speakers"
+          pick={speakers}
+          catalogCount={catalogCounts?.speakers}
+          missing={missingFor('speakers')}
+          open={openRole === 'speakers'}
+          onToggle={() => toggle('speakers')}
+          onEdit={(p) => onChange('speakers', p)}
+        />
+      </div>
     </section>
   )
 }

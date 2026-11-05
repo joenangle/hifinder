@@ -103,10 +103,15 @@ describe('GET /api/stereo-catalog', () => {
     }
   })
 
-  it('caps results at 20 and orders by brand then name', async () => {
-    await GET(makeRequest('/api/stereo-catalog?role=speakers'))
+  it('caps search results at 20 and orders by brand then name', async () => {
+    await GET(makeRequest('/api/stereo-catalog?role=speakers&q=kef'))
     expect(mockChain.limit).toHaveBeenCalledWith(20)
     expect(mockChain.order.mock.calls).toEqual([['brand'], ['name']])
+  })
+
+  it('returns the whole catalog when browsing with no search words', async () => {
+    await GET(makeRequest('/api/stereo-catalog?role=speakers&q=%20'))
+    expect(mockChain.limit).toHaveBeenCalledWith(200)
   })
 
   it('passes technical_specs through the speaker parser', async () => {

@@ -64,11 +64,11 @@ describe('GearStep', () => {
     const onChange = vi.fn()
     render(<GearStep speakers={null} amp={null} ampNote={null} missing={[]} onChange={onChange} />)
 
-    const toggle = screen.getByRole('button', { name: 'Change amplifier' })
+    const toggle = screen.getByRole('button', { name: 'Browse amplifiers' })
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     fireEvent.click(toggle)
     expect(screen.getByRole('tab', { name: 'Catalog' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByRole('button', { name: 'Change speakers' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByRole('button', { name: 'Browse speakers' })).toHaveAttribute('aria-expanded', 'false')
 
     await flushCatalog()
     fireEvent.click(screen.getByRole('button', { name: /Yamaha A-S301/ }))
@@ -79,11 +79,45 @@ describe('GearStep', () => {
     vi.useFakeTimers()
     stubCatalog([])
     render(<GearStep speakers={null} amp={null} ampNote={null} missing={[]} onChange={vi.fn()} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Change amplifier' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Change speakers' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Browse amplifiers' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Browse speakers' }))
     expect(screen.getAllByRole('tablist')).toHaveLength(1)
-    expect(screen.getByRole('button', { name: 'Change amplifier' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByRole('button', { name: 'Browse amplifiers' })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByRole('button', { name: 'Done' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('leads an empty tile with how many it can browse, and a filled tile with changing it', () => {
+    render(
+      <GearStep
+        speakers={{ kind: 'catalog', item: SPK_ITEM }}
+        amp={null}
+        ampNote={null}
+        catalogCounts={{ amp: 18, speakers: 21 }}
+        missing={[]}
+        onChange={vi.fn()}
+      />,
+    )
+    const browse = screen.getByRole('button', { name: 'Browse 18 amplifiers' })
+    const power = screen.getByLabelText('Power into 8 Ω (W per channel)')
+    // the catalog comes before the fields, as the easy path
+    expect(browse.compareDocumentPosition(power) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Change speakers' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Browse .*speakers/ })).not.toBeInTheDocument()
+  })
+
+  it('still offers the catalog when the count is unavailable', () => {
+    render(
+      <GearStep
+        speakers={null}
+        amp={null}
+        ampNote={null}
+        catalogCounts={{ amp: null, speakers: 0 }}
+        missing={[]}
+        onChange={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Browse amplifiers' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Browse speakers' })).toBeInTheDocument()
   })
 
   /** GearStep is controlled; this keeps its picks in state so edits round-trip like on the page. */
@@ -274,6 +308,26 @@ describe('GearStep', () => {
 })
 
 describe('GearChooser', () => {
+  it('lists the catalog by brand with a count before anything is typed', async () => {
+    vi.useFakeTimers()
+    const second: StereoCatalogItem = { ...AMP_ITEM, id: 'amp-2', name: 'A-S501' }
+    const other: StereoCatalogItem = { ...AMP_ITEM, id: 'amp-3', brand: 'Zeta', name: 'Z1' }
+    stubCatalog([AMP_ITEM, second, other])
+    render(<GearChooser role="amp" current={null} onPick={vi.fn()} onClose={vi.fn()} />)
+    await flushCatalog()
+
+    expect(screen.getByText('3 amplifiers with specs on file. Pick yours from the list, or search.')).toBeInTheDocument()
+    const yamaha = screen.getByRole('region', { name: 'Yamaha' })
+    expect(within(yamaha).getAllByRole('button').map((b) => b.textContent)).toEqual([
+      expect.stringContaining('A-S301'),
+      expect.stringContaining('A-S501'),
+    ])
+    expect(within(screen.getByRole('region', { name: 'Zeta' })).getByRole('button', { name: /Zeta Z1/ })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'yam' } })
+    expect(screen.queryByText(/with specs on file/)).not.toBeInTheDocument()
+  })
+
   it('debounces catalog search by 250 ms and shows a spec line per result', async () => {
     vi.useFakeTimers()
     const fetchMock = stubCatalog([SPK_ITEM])

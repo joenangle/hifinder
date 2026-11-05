@@ -100,6 +100,17 @@ export function specLine(role: GearRole, specs: SpeakerSpecs | SpeakerAmpSpecs):
 
 type CatalogResult = { q: string; items: StereoCatalogItem[] | null }
 
+/** The API sorts by brand, so a brand's items are already adjacent. */
+function groupByBrand(items: StereoCatalogItem[]): { brand: string; items: StereoCatalogItem[] }[] {
+  const groups: { brand: string; items: StereoCatalogItem[] }[] = []
+  for (const item of items) {
+    const last = groups.at(-1)
+    if (last?.brand === item.brand) last.items.push(item)
+    else groups.push({ brand: item.brand, items: [item] })
+  }
+  return groups
+}
+
 function CatalogTab({
   role,
   current,
@@ -138,9 +149,16 @@ function CatalogTab({
 
   const ready = result !== null && result.q === query ? result : null
   const currentId = current?.kind === 'catalog' ? current.item.id : null
+  const browsing = query.trim() === ''
+  const plural = role === 'speakers' ? 'speakers' : 'amplifiers'
 
   return (
     <div className="flex flex-col gap-3">
+      {browsing && ready?.items && ready.items.length > 0 && (
+        <p className="m-0 text-sm text-[var(--text-primary)]">
+          {ready.items.length} {plural} with specs on file. Pick yours from the list, or search.
+        </p>
+      )}
       <label className={fieldLabelClass}>
         Search by brand or model
         <input
@@ -152,7 +170,7 @@ function CatalogTab({
         />
       </label>
 
-      <div className="flex flex-col gap-2" aria-busy={ready === null}>
+      <div className="flex max-h-96 flex-col gap-2 overflow-y-auto" aria-busy={ready === null}>
         {ready === null ? (
           <p className="m-0 text-sm text-[var(--text-secondary)]">Loading...</p>
         ) : ready.items === null ? (
@@ -162,20 +180,28 @@ function CatalogTab({
         ) : ready.items.length === 0 ? (
           <p className="m-0 text-sm text-[var(--text-secondary)]">No matches. Try fewer words, or enter it yourself.</p>
         ) : (
-          ready.items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onPick({ kind: 'catalog', item })}
-              className={`flex min-h-11 flex-col items-start gap-0.5 rounded-lg border bg-[var(--background-primary)] px-3.5 py-2.5 text-left ${
-                item.id === currentId ? 'border-[var(--accent-hover)]' : 'border-[var(--border-subtle)]'
-              }`}
-            >
-              <span className="text-[15px] font-semibold text-[var(--text-primary)]">
-                {item.brand} {item.name}
-              </span>
-              <span className="text-[13px] text-[var(--text-secondary)]">{specLine(role, item.specs)}</span>
-            </button>
+          groupByBrand(ready.items).map((group) => (
+            <section key={group.brand} aria-label={group.brand} className="flex flex-col gap-2">
+              <h4 className="m-0 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--text-secondary)]">
+                {group.brand}
+              </h4>
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onPick({ kind: 'catalog', item })}
+                  className={`flex min-h-11 flex-col items-start gap-0.5 rounded-lg border bg-[var(--background-primary)] px-3.5 py-2.5 text-left ${
+                    item.id === currentId ? 'border-[var(--accent-hover)]' : 'border-[var(--border-subtle)]'
+                  }`}
+                >
+                  <span className="text-[15px] font-semibold text-[var(--text-primary)]">
+                    <span className="sr-only">{item.brand} </span>
+                    {item.name}
+                  </span>
+                  <span className="text-[13px] text-[var(--text-secondary)]">{specLine(role, item.specs)}</span>
+                </button>
+              ))}
+            </section>
           ))
         )}
       </div>
