@@ -259,7 +259,7 @@ describe('GearStep', () => {
     // the catalog's own values keep their trust
     expect(specs.nominal_impedance_ohms).toEqual(claimed(8))
 
-    fireEvent.change(screen.getByLabelText('Measured at'), { target: { value: '1W' } })
+    fireEvent.click(screen.getByRole('radio', { name: '1 W / 1 m' }))
     expect(spy.mock.calls.at(-1)![1].item.specs.sensitivity_ref).toEqual({
       value: '1W',
       trust: 'user',
@@ -267,21 +267,17 @@ describe('GearStep', () => {
     })
   })
 
-  it('offers 4/6/8/16 for impedance and stores the choice as a user value', () => {
+  it('takes impedance as a typed number and stores it as a user value', () => {
     const spy = vi.fn()
     const noImpedance: GearPick = { kind: 'catalog', item: { ...SPK_ITEM, specs: { sensitivity_db: claimed(90) } } }
     render(<GearHarness speakers={noImpedance} spy={spy} />)
-    const select = screen.getByLabelText('Impedance (Ω)')
-    expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual([
-      'Choose one',
-      '4',
-      '6',
-      '8',
-      '16',
-    ])
-    fireEvent.change(select, { target: { value: '6' } })
+    const field = screen.getByLabelText('Impedance (Ω)')
+    expect(field.tagName).toBe('INPUT')
+    fireEvent.change(field, { target: { value: '99' } })
+    expect(spy).not.toHaveBeenCalled()
+    fireEvent.change(field, { target: { value: '6.3' } })
     expect(spy.mock.calls.at(-1)![1].item.specs.nominal_impedance_ohms).toEqual({
-      value: 6,
+      value: 6.3,
       trust: 'user',
       source_url: null,
     })
@@ -296,7 +292,8 @@ describe('GearStep', () => {
     const custom: GearPick = { kind: 'custom', brand: 'Marantz', name: '2270', specs: ampSpecs }
     render(<GearHarness amp={custom} spy={spy} />)
 
-    fireEvent.change(screen.getByLabelText('Kind of rating'), { target: { value: 'peak' } })
+    expect(screen.getByRole('group', { name: 'Kind of rating' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('radio', { name: 'Peak / max' }))
     expect(spy.mock.calls.at(-1)![1].specs.power_rating).toEqual({ kind: 'peak' })
 
     fireEvent.change(screen.getByLabelText('Power into 4 Ω, if listed'), { target: { value: '' } })
@@ -308,7 +305,7 @@ describe('GearStep', () => {
 })
 
 describe('GearChooser', () => {
-  it('lists the catalog by brand with a count before anything is typed', async () => {
+  it('opens amps on the popular picks, then expands to the full list by brand', async () => {
     vi.useFakeTimers()
     const second: StereoCatalogItem = { ...AMP_ITEM, id: 'amp-2', name: 'A-S501' }
     const other: StereoCatalogItem = { ...AMP_ITEM, id: 'amp-3', brand: 'Zeta', name: 'Z1' }
@@ -317,6 +314,12 @@ describe('GearChooser', () => {
     await flushCatalog()
 
     expect(screen.getByText('3 amplifiers with specs on file. Pick yours from the list, or search.')).toBeInTheDocument()
+    const popular = screen.getByRole('region', { name: 'Popular picks' })
+    expect(within(popular).getByRole('button', { name: /Yamaha A-S301/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /A-S501/ })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'See 2 more' }))
+    expect(screen.queryByRole('region', { name: 'Popular picks' })).not.toBeInTheDocument()
     const yamaha = screen.getByRole('region', { name: 'Yamaha' })
     expect(within(yamaha).getAllByRole('button').map((b) => b.textContent)).toEqual([
       expect.stringContaining('A-S301'),
@@ -326,6 +329,26 @@ describe('GearChooser', () => {
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'yam' } })
     expect(screen.queryByText(/with specs on file/)).not.toBeInTheDocument()
+  })
+
+  it('shows all speakers straight away, with no popular picks', async () => {
+    vi.useFakeTimers()
+    stubCatalog([SPK_ITEM])
+    render(<GearChooser role="speakers" current={null} onPick={vi.fn()} onClose={vi.fn()} />)
+    await flushCatalog()
+    expect(screen.getByRole('region', { name: 'KEF' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Popular picks' })).not.toBeInTheDocument()
+  })
+
+  it('shows every search match, not just popular picks', async () => {
+    vi.useFakeTimers()
+    const second: StereoCatalogItem = { ...AMP_ITEM, id: 'amp-2', name: 'A-S501' }
+    stubCatalog([AMP_ITEM, second])
+    render(<GearChooser role="amp" current={null} onPick={vi.fn()} onClose={vi.fn()} />)
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'yamaha' } })
+    await flushCatalog()
+    expect(screen.getByRole('button', { name: /A-S301/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /A-S501/ })).toBeInTheDocument()
   })
 
   it('debounces catalog search by 250 ms and shows a spec line per result', async () => {
@@ -411,7 +434,7 @@ describe('GearChooser', () => {
     })
   })
 
-  it('manual speakers: leaves out out-of-range values and "Not sure" impedance', () => {
+  it('manual speakers: leaves out out-of-range values and blank impedance', () => {
     const onPick = vi.fn()
     render(<GearChooser role="speakers" current={null} onPick={onPick} onClose={vi.fn()} />)
     fireEvent.click(screen.getByRole('tab', { name: 'Enter it yourself' }))
@@ -558,52 +581,49 @@ describe('RoomStep', () => {
 })
 
 describe('LoudnessSlider', () => {
-  function Harness({ start = 85 }: { start?: number }) {
+  function Harness({ start = 75 }: { start?: number }) {
     const [db, setDb] = useState(start)
     return <LoudnessSlider valueDb={db} onChange={setDb} />
   }
 
-  it('exposes a 60-110 range and shows the tier for the chosen level', () => {
+  it('exposes a 45-95 average range and shows the tier for the chosen level', () => {
     render(<Harness />)
     const range = screen.getByRole('slider')
-    expect(range).toHaveAttribute('min', '60')
-    expect(range).toHaveAttribute('max', '110')
+    expect(range).toHaveAttribute('min', '45')
+    expect(range).toHaveAttribute('max', '95')
     expect(range).toHaveAttribute('step', '1')
     expect(screen.getByText('Normal')).toBeInTheDocument()
 
-    fireEvent.change(range, { target: { value: '105' } })
+    fireEvent.change(range, { target: { value: '95' } })
     expect(screen.getByText('Club')).toBeInTheDocument()
     expect(screen.getByText('Party or club level, rare at home')).toBeInTheDocument()
   })
 
-  it('renders ticks and the log-scale note', () => {
+  it('renders ticks and says the level is an average, with peaks higher', () => {
     render(<Harness />)
-    for (const t of ['65', '75', '85', '95', '105']) expect(screen.getByText(t)).toBeInTheDocument()
-    expect(
-      screen.getByText(
-        'dB is a log scale: every +10 dB sounds about twice as loud, and takes 10× the amp power. Equal steps on this slider are not equal steps in watts.',
-      ),
-    ).toBeInTheDocument()
+    for (const t of ['55', '65', '75', '85', '95']) expect(screen.getByText(t)).toBeInTheDocument()
+    expect(screen.getByText('Average volume')).toBeInTheDocument()
+    expect(screen.getByText(/This is the average level at your seat\. Music peaks run about 15 dB higher/)).toBeInTheDocument()
   })
 
   it('keeps a typed loudness a whole number', () => {
     const onChange = vi.fn()
-    render(<LoudnessSlider valueDb={85} onChange={onChange} />)
-    fireEvent.change(screen.getByLabelText('Peak loudness at your seat, in dB'), { target: { value: '95.4' } })
-    expect(onChange).toHaveBeenLastCalledWith(95)
+    render(<LoudnessSlider valueDb={75} onChange={onChange} />)
+    fireEvent.change(screen.getByLabelText('Average volume at your seat, in dB'), { target: { value: '85.4' } })
+    expect(onChange).toHaveBeenLastCalledWith(85)
   })
 
   it('lets the number be typed and clamps it on blur', () => {
     const onChange = vi.fn()
-    render(<LoudnessSlider valueDb={85} onChange={onChange} />)
-    const number = screen.getByLabelText('Peak loudness at your seat, in dB')
-    fireEvent.change(number, { target: { value: '95' } })
-    expect(onChange).toHaveBeenLastCalledWith(95)
+    render(<LoudnessSlider valueDb={75} onChange={onChange} />)
+    const number = screen.getByLabelText('Average volume at your seat, in dB')
+    fireEvent.change(number, { target: { value: '85' } })
+    expect(onChange).toHaveBeenLastCalledWith(85)
     fireEvent.change(number, { target: { value: '150' } })
     fireEvent.blur(number)
-    expect(onChange).toHaveBeenLastCalledWith(110)
+    expect(onChange).toHaveBeenLastCalledWith(95)
     fireEvent.change(number, { target: { value: '12' } })
     fireEvent.blur(number)
-    expect(onChange).toHaveBeenLastCalledWith(60)
+    expect(onChange).toHaveBeenLastCalledWith(45)
   })
 })

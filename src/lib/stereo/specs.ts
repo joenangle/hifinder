@@ -81,7 +81,8 @@ export const SPEC_RANGES = {
   target_peak_db: [60, 110],
 } as const satisfies Record<string, Range>
 
-export const DEFAULT_TARGET_PEAK_DB = 85
+/** The Normal tier: 75 dB average plus the music peak allowance (see MUSIC_PEAK_ALLOWANCE_DB). */
+export const DEFAULT_TARGET_PEAK_DB = 90
 
 const TRUSTS: readonly Trust[] = ['measured', 'claimed', 'user', 'assumed']
 const SENSITIVITY_REFS: readonly SensitivityRef[] = ['1W', '2.83V', 'unknown']

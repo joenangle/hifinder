@@ -1,4 +1,5 @@
 import { Check, AlertTriangle } from 'lucide-react'
+import { averageFromPeak } from '@/lib/stereo/power'
 import { tierFor, type Assumption, type PowerCheckOutcome, type WorkingRow } from '@/lib/stereo/power-check'
 import type { VerdictKind } from '@/lib/stereo/power'
 
@@ -9,8 +10,9 @@ interface PowerResultPanelProps {
   onEditAssumption?: (id: Assumption['id']) => void
 }
 
-const METER_MIN_DB = 60
-const METER_MAX_DB = 110
+// The meter reads in average dB, like the slider.
+const METER_MIN_DB = 45
+const METER_MAX_DB = 95
 
 const TRUST_LABEL: Record<WorkingRow['trust'], string> = {
   measured: 'Measured',
@@ -30,6 +32,11 @@ const pct = (db: number) => {
   return ((clamped - METER_MIN_DB) / (METER_MAX_DB - METER_MIN_DB)) * 100
 }
 
+function dbRange({ low, high }: { low: number; high: number }): string {
+  const [a, b] = [Math.round(low), Math.round(high)]
+  return a === b ? String(a) : `${a}–${b}`
+}
+
 function isComfortable(kind: VerdictKind) {
   return kind === 'comfortable' || kind === 'comfortable_most_rooms'
 }
@@ -37,7 +44,7 @@ function isComfortable(kind: VerdictKind) {
 function headlineFor(
   kind: VerdictKind,
   headroomInRoomDb: number,
-  peaks: { low: number; high: number }
+  averages: { low: number; high: number }
 ): string {
   const spare = `About ${Math.round(headroomInRoomDb)} dB to spare at your seat.`
   switch (kind) {
@@ -48,7 +55,7 @@ function headlineFor(
     case 'tight':
       return 'Under 3 dB to spare. Peaks will push this amp to its limit.'
     case 'runs_out':
-      return `About ${Math.max(1, Math.round(-headroomInRoomDb))} dB short. Clean peaks top out around ${Math.round(peaks.low)}–${Math.round(peaks.high)} dB at your seat.`
+      return `About ${Math.max(1, Math.round(-headroomInRoomDb))} dB short. It tops out around ${dbRange(averages)} dB average at your seat.`
   }
 }
 
@@ -109,8 +116,10 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
   const comfortable = isComfortable(verdict.kind)
   const tone = comfortable ? 'var(--success)' : 'var(--warning)'
   const peaks = verdict.maxCleanPeakDb
-  const bandLeft = pct(peaks.low)
-  const bandWidth = Math.max(pct(peaks.high) - bandLeft, 1)
+  const averages = { low: averageFromPeak(peaks.low), high: averageFromPeak(peaks.high) }
+  const targetAverageDb = Math.round(averageFromPeak(targetPeakDb))
+  const bandLeft = pct(averages.low)
+  const bandWidth = Math.max(pct(averages.high) - bandLeft, 1)
   const VerdictIcon = comfortable ? Check : AlertTriangle
 
   return (
@@ -135,13 +144,13 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
             {verdict.label}
           </span>
           <span className="text-[13px] text-[var(--text-secondary)]">
-            Target: {tierFor(targetPeakDb).label} · {Math.round(targetPeakDb)} dB peaks at your seat
+            Target: {tierFor(targetAverageDb).label} · {targetAverageDb} dB average at your seat
           </span>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <p className="m-0 text-[28px] font-bold leading-tight text-[var(--text-primary)]">
-            {headlineFor(verdict.kind, verdict.headroomInRoomDb, peaks)}
+            {headlineFor(verdict.kind, verdict.headroomInRoomDb, averages)}
           </p>
           {assumptions.length > 0 && (
             <p className="m-0 text-sm text-[var(--text-secondary)]">Based on assumed values below.</p>
@@ -154,6 +163,13 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
         </div>
 
         <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-0.5">
+            <span className={eyebrowClass}>Max volume without clipping</span>
+            <span className="text-2xl font-bold text-[var(--text-primary)]">About {dbRange(averages)} dB average</span>
+            <span className="text-sm text-[var(--text-secondary)]">
+              With clean peaks of {dbRange(peaks)} dB at your seat · Your target: {targetAverageDb} dB average
+            </span>
+          </div>
           <div data-testid="power-meter" aria-hidden="true" className="relative h-10">
             <div className="absolute inset-x-0 top-4 h-2 rounded-full bg-[var(--background-secondary)] ring-1 ring-[var(--border-subtle)]" />
             <div
@@ -162,16 +178,13 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
             />
             <div
               className="absolute top-1.5 h-7 w-[3px] rounded-sm bg-[var(--text-primary)]"
-              style={{ left: `${pct(targetPeakDb)}%` }}
+              style={{ left: `${pct(targetAverageDb)}%` }}
             />
           </div>
           <div aria-hidden="true" className="flex justify-between text-xs text-[var(--text-secondary)]">
             <span>{METER_MIN_DB} dB</span>
             <span>{METER_MAX_DB} dB</span>
           </div>
-          <p className="m-0 text-sm leading-normal text-[var(--text-secondary)]">
-            {`Clean peaks: about ${Math.round(peaks.low)}–${Math.round(peaks.high)} dB · Your target: ${Math.round(targetPeakDb)} dB`}
-          </p>
         </div>
 
         <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -228,7 +241,7 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
 
       <details open className={`${cardClass} px-6 py-3`}>
         <summary className="flex min-h-11 cursor-pointer items-center text-base font-bold text-[var(--text-primary)]">
-          Show the working
+          Summary Table
         </summary>
         <div className="overflow-x-auto pb-5">
           <table className="w-full border-collapse text-left text-sm">

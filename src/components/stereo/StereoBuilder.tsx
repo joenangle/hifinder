@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { parseAsString, useQueryState, useQueryStates } from 'nuqs'
 import { trackEvent } from '@/lib/analytics'
+import { averageFromPeak, peakFromAverage } from '@/lib/stereo/power'
 import { runPowerCheck, type Assumption } from '@/lib/stereo/power-check'
 import { profileFromParams, stereoParams } from '@/lib/stereo/url-params'
 import {
@@ -611,8 +612,8 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
             />
             <RoomStep profile={draft.profile} onChange={changeProfile} focusRequest={focusRequest} />
             <LoudnessSlider
-              valueDb={draft.profile.target_peak_db}
-              onChange={(db) => changeProfile({ ...draft.profile, target_peak_db: db })}
+              valueDb={averageFromPeak(draft.profile.target_peak_db)}
+              onChange={(db) => changeProfile({ ...draft.profile, target_peak_db: peakFromAverage(db) })}
             />
           </div>
           <div className="min-w-0 flex-[2_1_420px] md:sticky md:top-6">

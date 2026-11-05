@@ -118,6 +118,11 @@ A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
   subtracts `inRoomRatingGainDb()` (≈2.7 dB: the model's own 1 m room gain in
   the medium living room preset) so the user's room isn't counted twice. Only
   flag a row when its source page says so; user-typed values are never flagged.
+- **Loudness is average on screen, peak in the model.** People read volume as
+  an average, but amps clip on peaks. The slider and result show average dB;
+  `profile.target_peak_db` (and the `db` URL param) stay peak, and
+  `MUSIC_PEAK_ALLOWANCE_DB` (15 dB, cited in `power.ts`) converts between them
+  through `peakFromAverage` / `averageFromPeak`.
 - **Categories:** `speakers` and `speaker_amp` are outside `AMP_CATEGORIES` and
   `HEADPHONE_CATEGORIES`. Headphone listings, search and brands filter to
   `HEADPHONE_SYSTEM_CATEGORIES`.

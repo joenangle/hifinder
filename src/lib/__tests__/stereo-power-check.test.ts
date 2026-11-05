@@ -46,13 +46,14 @@ function ok(i: PowerCheckInput) {
 }
 
 describe('fixture system', () => {
-  it('is ok and comfortable with nine working rows', () => {
+  it('is ok and comfortable with ten working rows', () => {
     const out = ok(input())
     expect(out.verdict.kind).toBe('comfortable')
     expect(out.working.map((r) => r.trust)).toEqual([
-      'claimed', 'claimed', 'claimed', 'user', 'user', 'user', 'modeled', 'modeled', 'modeled',
+      'claimed', 'claimed', 'claimed', 'user', 'user', 'user', 'assumed', 'modeled', 'modeled', 'modeled',
     ])
-    expect(out.working).toHaveLength(9)
+    expect(out.working).toHaveLength(10)
+    expect(out.working[6].value).toBe('80 dB average + 15 dB for music peaks = 95 dB peaks')
     expect(out.working[0].value).toBe('87 dB at 2.83 V → 84.0 dB/W')
     expect(out.working[2].value).toBe('80 W into 4 Ω')
     expect(out.working[3].value).toBe('5 × 4 × 2.6 m')
@@ -235,13 +236,13 @@ describe('sensitivity reference unknown', () => {
 })
 
 describe('tiers and presets', () => {
-  it('maps peaks to tiers', () => {
-    expect(tierFor(64).label).toBe('Quiet')
-    expect(tierFor(70).label).toBe('Background')
-    expect(tierFor(85).label).toBe('Normal')
-    expect(tierFor(95).label).toBe('Loud')
-    expect(tierFor(105).label).toBe('Club')
-    expect(LOUDNESS_TIERS.map((t) => t.peakDb)).toEqual([65, 75, 85, 95, 105])
+  it('maps average levels to tiers', () => {
+    expect(tierFor(59).label).toBe('Quiet')
+    expect(tierFor(60).label).toBe('Background')
+    expect(tierFor(75).label).toBe('Normal')
+    expect(tierFor(85).label).toBe('Loud')
+    expect(tierFor(95).label).toBe('Club')
+    expect(LOUDNESS_TIERS.map((t) => t.averageDb)).toEqual([55, 65, 75, 85, 95])
   })
   it('has the four room presets', () => {
     expect(ROOM_PRESETS.living_room).toMatchObject({ length_m: 5, width_m: 4, height_m: 2.6 })

@@ -101,16 +101,16 @@ describe('parseSystemProfile', () => {
       acoustics: null,
       distance_m: null,
       near_wall: null,
-      target_peak_db: 85,
+      target_peak_db: 90,
     })
-    expect(parseSystemProfile(null).target_peak_db).toBe(85)
+    expect(parseSystemProfile(null).target_peak_db).toBe(90)
   })
 
   it('clamps and rounds target_peak_db', () => {
     expect(parseSystemProfile({ target_peak_db: 200 }).target_peak_db).toBe(110)
     expect(parseSystemProfile({ target_peak_db: 10 }).target_peak_db).toBe(60)
     expect(parseSystemProfile({ target_peak_db: 90.6 }).target_peak_db).toBe(91)
-    expect(parseSystemProfile({ target_peak_db: 'loud' }).target_peak_db).toBe(85)
+    expect(parseSystemProfile({ target_peak_db: 'loud' }).target_peak_db).toBe(90)
   })
 
   it('range-checks room and distance', () => {

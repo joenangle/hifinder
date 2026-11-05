@@ -7,6 +7,9 @@ import {
   VERDICT_LABELS,
   inRoomRatingGainDb,
   IN_ROOM_RATING_REFERENCE,
+  MUSIC_PEAK_ALLOWANCE_DB,
+  averageFromPeak,
+  peakFromAverage,
 } from '../stereo/power'
 import { ROOM_PRESETS } from '../stereo/power-check'
 import type { SpeakerAmpSpecs } from '../stereo/specs'
@@ -128,6 +131,14 @@ describe('resolveAmpPower', () => {
     const r = resolveAmpPower(amp(50, undefined, 'unknown'), 8)!
     expect(r.conditionsUnknown).toBe(true)
     expect(r.derated).toBe(false)
+  })
+})
+
+describe('average and peak levels', () => {
+  it('converts both ways with the music peak allowance', () => {
+    expect(MUSIC_PEAK_ALLOWANCE_DB).toBe(15)
+    expect(peakFromAverage(75)).toBe(90)
+    expect(averageFromPeak(90)).toBe(75)
   })
 })
 

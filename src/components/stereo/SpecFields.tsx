@@ -12,7 +12,15 @@ import {
   type Trust,
 } from '@/lib/stereo/specs'
 import { catalogValue, mergeOverrides, pickSpecs, resetField, type GearPick, type GearRole } from './GearChooser'
-import { DecimalInput, RATING_OPTIONS, SENSITIVITY_REF_OPTIONS, fieldLabelClass, inputClass } from './form-bits'
+import {
+  DecimalInput,
+  RATING_OPTIONS,
+  RadioGroup,
+  SENSITIVITY_REF_OPTIONS,
+  fieldLabelClass,
+  inputClass,
+  type RadioOption,
+} from './form-bits'
 
 const TRUST_LABEL: Record<Trust, string> = {
   measured: 'Measured',
@@ -109,6 +117,22 @@ export function SpecFields({ role, pick, missing, onChange }: SpecFieldsProps) {
     )
   }
 
+  function radioField<T extends string>(
+    legend: string,
+    k: string,
+    options: readonly RadioOption<T>[],
+    value: T,
+    onSelect: (v: T) => void,
+  ) {
+    const foot = footer(k)
+    return (
+      <div key={k} className="flex flex-col gap-1">
+        <RadioGroup legend={legend} name={`${uid}-${k}`} options={options} value={value} onChange={onSelect} />
+        {foot && <span className="text-xs leading-snug text-[var(--text-secondary)]">{foot.node}</span>}
+      </div>
+    )
+  }
+
   function decimalInput(
     key: string,
     range: readonly [number, number],
@@ -135,68 +159,38 @@ export function SpecFields({ role, pick, missing, onChange }: SpecFieldsProps) {
     const s = specs as SpeakerSpecs
     fields = (
       <>
-        {field("Sensitivity (dB)", "sensitivity_db", (d) => decimalInput('sensitivity_db', SPEC_RANGES.sensitivity_db, 'e.g. 87', d))}
-        {field("Measured at", "sensitivity_ref", (describedBy) => (
-            <select
-              value={s.sensitivity_ref?.value ?? 'unknown'}
-              onChange={(e) => set('sensitivity_ref', e.target.value as SensitivityRef)}
-              aria-describedby={describedBy}
-              className={inputClass}
-            >
-              {SENSITIVITY_REF_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          ))}
-        {field("Impedance (Ω)", "nominal_impedance_ohms", (describedBy) => (
-            <select
-              value={s.nominal_impedance_ohms?.value ?? ''}
-              onChange={(e) => set('nominal_impedance_ohms', Number(e.target.value))}
-              aria-describedby={describedBy}
-              className={`${inputClass} ${missingFor('nominal_impedance_ohms') ? missingClass : ''}`}
-            >
-              {s.nominal_impedance_ohms === undefined && (
-                <option value="" disabled>
-                  Choose one
-                </option>
-              )}
-              {[4, 6, 8, 16].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          ))}
+        {field('Sensitivity (dB)', 'sensitivity_db', (d) =>
+          decimalInput('sensitivity_db', SPEC_RANGES.sensitivity_db, 'e.g. 87', d),
+        )}
+        {field('Impedance (Ω)', 'nominal_impedance_ohms', (d) =>
+          decimalInput('nominal_impedance_ohms', SPEC_RANGES.impedance_ohms, 'e.g. 8', d),
+        )}
+        {radioField<SensitivityRef>(
+          'Sensitivity measured at',
+          'sensitivity_ref',
+          SENSITIVITY_REF_OPTIONS,
+          s.sensitivity_ref?.value ?? 'unknown',
+          (v) => set('sensitivity_ref', v),
+        )}
       </>
     )
   } else {
     const a = specs as SpeakerAmpSpecs
     fields = (
       <>
-        {field("Power into 8 Ω (W per channel)", "power_w_8ohm", (d) => decimalInput('power_w_8ohm', SPEC_RANGES.power_w, 'e.g. 50', d))}
-        {field("Power into 4 Ω, if listed", "power_w_4ohm", (d) => decimalInput('power_w_4ohm', SPEC_RANGES.power_w, 'Optional', d, true))}
-        {field("Kind of rating", "power_rating", (describedBy) => (
-            <select
-              value={a.power_rating?.kind ?? 'unknown'}
-              onChange={(e) =>
-                onChange(
-                  mergeOverrides(role, pick, {
-                    power_rating: { ...a.power_rating, kind: e.target.value as PowerRatingKind },
-                  }),
-                )
-              }
-              aria-describedby={describedBy}
-              className={inputClass}
-            >
-              {RATING_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          ))}
+        {field('Power into 8 Ω (W per channel)', 'power_w_8ohm', (d) =>
+          decimalInput('power_w_8ohm', SPEC_RANGES.power_w, 'e.g. 50', d),
+        )}
+        {field('Power into 4 Ω, if listed', 'power_w_4ohm', (d) =>
+          decimalInput('power_w_4ohm', SPEC_RANGES.power_w, 'Optional', d, true),
+        )}
+        {radioField<PowerRatingKind>(
+          'Kind of rating',
+          'power_rating',
+          RATING_OPTIONS,
+          a.power_rating?.kind ?? 'unknown',
+          (kind) => onChange(mergeOverrides(role, pick, { power_rating: { ...a.power_rating, kind } })),
+        )}
       </>
     )
   }

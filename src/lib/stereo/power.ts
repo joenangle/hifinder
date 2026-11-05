@@ -131,6 +131,20 @@ export function inRoomRatingGainDb(): number {
   return one.inRoom - one.freeField
 }
 
+/**
+ * How far music's peaks rise above its average level. People think of volume
+ * as an average, but amps clip on peaks, so the page takes an average and the
+ * model sizes the amp for average + this allowance. Tom Martin, "Dynamic Range
+ * and Choosing Amplifier Power", The Absolute Sound (2026): recorded music is
+ * commonly 12-20 dB; pop 12-14, rock and modern country 14-16, acoustic jazz
+ * 20-22, orchestral 24-26. 15 dB is a mid-range planning figure.
+ * https://www.theabsolutesound.com/articles/dynamic-range-and-choosing-amplifier-power/
+ */
+export const MUSIC_PEAK_ALLOWANCE_DB = 15
+
+export const peakFromAverage = (averageDb: number) => averageDb + MUSIC_PEAK_ALLOWANCE_DB
+export const averageFromPeak = (peakDb: number) => peakDb - MUSIC_PEAK_ALLOWANCE_DB
+
 export type VerdictKind = 'comfortable' | 'comfortable_most_rooms' | 'tight' | 'runs_out'
 export const VERDICT_LABELS: Record<VerdictKind, string> = {
   comfortable: 'Comfortable',

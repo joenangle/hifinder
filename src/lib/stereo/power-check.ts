@@ -17,6 +17,8 @@ import {
 } from './specs'
 import {
   COMFORTABLE_MARGIN_DB,
+  MUSIC_PEAK_ALLOWANCE_DB,
+  averageFromPeak,
   inRoomRatingGainDb,
   levelAtSeatPerWatt,
   powerVerdict,
@@ -54,19 +56,19 @@ export interface Assumption {
 }
 
 export const LOUDNESS_TIERS = [
-  { id: 'quiet', label: 'Quiet', peakDb: 65, feel: 'Late night, conversation easy over it' },
-  { id: 'background', label: 'Background', peakDb: 75, feel: 'Music while working or cooking' },
-  { id: 'normal', label: 'Normal', peakDb: 85, feel: 'Focused listening at a comfortable level' },
-  { id: 'loud', label: 'Loud', peakDb: 95, feel: 'Turned up for a favorite record' },
-  { id: 'club', label: 'Club', peakDb: 105, feel: 'Party or club level, rare at home' },
+  { id: 'quiet', label: 'Quiet', averageDb: 55, feel: 'Late night, conversation easy over it' },
+  { id: 'background', label: 'Background', averageDb: 65, feel: 'Music while working or cooking' },
+  { id: 'normal', label: 'Normal', averageDb: 75, feel: 'Focused listening at a comfortable level' },
+  { id: 'loud', label: 'Loud', averageDb: 85, feel: 'Turned up for a favorite record' },
+  { id: 'club', label: 'Club', averageDb: 95, feel: 'Party or club level, rare at home' },
 ] as const
 
-/** Tier boundaries: below 70 Quiet, below 80 Background, below 90 Normal, below 100 Loud, else Club. */
-export function tierFor(peakDb: number): (typeof LOUDNESS_TIERS)[number] {
-  if (peakDb < 70) return LOUDNESS_TIERS[0]
-  if (peakDb < 80) return LOUDNESS_TIERS[1]
-  if (peakDb < 90) return LOUDNESS_TIERS[2]
-  if (peakDb < 100) return LOUDNESS_TIERS[3]
+/** Tier boundaries on average level: below 60 Quiet, below 70 Background, below 80 Normal, below 90 Loud, else Club. */
+export function tierFor(averageDb: number): (typeof LOUDNESS_TIERS)[number] {
+  if (averageDb < 60) return LOUDNESS_TIERS[0]
+  if (averageDb < 70) return LOUDNESS_TIERS[1]
+  if (averageDb < 80) return LOUDNESS_TIERS[2]
+  if (averageDb < 90) return LOUDNESS_TIERS[3]
   return LOUDNESS_TIERS[4]
 }
 
@@ -252,6 +254,11 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
       step: 'Listening distance',
       value: `${fmt(distanceM)} m`,
       trust: profile.distance_m !== null ? 'user' : 'assumed',
+    },
+    {
+      step: 'Loudness target',
+      value: `${averageFromPeak(profile.target_peak_db)} dB average + ${MUSIC_PEAK_ALLOWANCE_DB} dB for music peaks = ${profile.target_peak_db} dB peaks`,
+      trust: 'assumed',
     },
     { step: 'In-room level at 1 W', value: `${level.inRoom.toFixed(1)} dB at the seat`, trust: 'modeled' },
     { step: 'Free-field level at 1 W', value: `${level.freeField.toFixed(1)} dB at the seat`, trust: 'modeled' },

@@ -13,6 +13,7 @@ import {
   type SpecValue,
   type StereoCatalogItem,
 } from '@/lib/stereo/specs'
+import { popularAmps } from '@/lib/stereo/popular'
 import {
   RATING_OPTIONS,
   RadioGroup,
@@ -21,6 +22,7 @@ import {
   inputClass,
   parseDecimal,
   primaryButtonClass,
+  secondaryButtonClass,
 } from './form-bits'
 
 export type GearRole = 'speakers' | 'amp'
@@ -125,6 +127,7 @@ function CatalogTab({
   const [query, setQuery] = useState('')
   const [debounced, setDebounced] = useState('')
   const [result, setResult] = useState<CatalogResult | null>(null)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     if (query === debounced) return
@@ -151,6 +154,26 @@ function CatalogTab({
   const currentId = current?.kind === 'catalog' ? current.item.id : null
   const browsing = query.trim() === ''
   const plural = role === 'speakers' ? 'speakers' : 'amplifiers'
+  const items = ready?.items ?? []
+  // Amps open on a short list; anything the user searches for still shows in full.
+  const popular = role === 'amp' && browsing && !showAll ? popularAmps(items) : []
+
+  const itemButton = (item: StereoCatalogItem, showBrand: boolean) => (
+    <button
+      key={item.id}
+      type="button"
+      onClick={() => onPick({ kind: 'catalog', item })}
+      className={`flex min-h-11 flex-col items-start gap-0.5 rounded-lg border bg-[var(--background-primary)] px-3.5 py-2.5 text-left ${
+        item.id === currentId ? 'border-[var(--accent-hover)]' : 'border-[var(--border-subtle)]'
+      }`}
+    >
+      <span className="text-[15px] font-semibold text-[var(--text-primary)]">
+        <span className={showBrand ? undefined : 'sr-only'}>{item.brand} </span>
+        {item.name}
+      </span>
+      <span className="text-[13px] text-[var(--text-secondary)]">{specLine(role, item.specs)}</span>
+    </button>
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -179,28 +202,29 @@ function CatalogTab({
           </p>
         ) : ready.items.length === 0 ? (
           <p className="m-0 text-sm text-[var(--text-secondary)]">No matches. Try fewer words, or enter it yourself.</p>
+        ) : popular.length > 0 ? (
+          <section aria-label="Popular picks" className="flex flex-col gap-2">
+            <h4 className="m-0 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--text-secondary)]">
+              Popular picks
+            </h4>
+            {popular.map((item) => itemButton(item, true))}
+            {items.length > popular.length && (
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className={`${secondaryButtonClass} self-start`}
+              >
+                See {items.length - popular.length} more
+              </button>
+            )}
+          </section>
         ) : (
           groupByBrand(ready.items).map((group) => (
             <section key={group.brand} aria-label={group.brand} className="flex flex-col gap-2">
               <h4 className="m-0 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--text-secondary)]">
                 {group.brand}
               </h4>
-              {group.items.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onPick({ kind: 'catalog', item })}
-                  className={`flex min-h-11 flex-col items-start gap-0.5 rounded-lg border bg-[var(--background-primary)] px-3.5 py-2.5 text-left ${
-                    item.id === currentId ? 'border-[var(--accent-hover)]' : 'border-[var(--border-subtle)]'
-                  }`}
-                >
-                  <span className="text-[15px] font-semibold text-[var(--text-primary)]">
-                    <span className="sr-only">{item.brand} </span>
-                    {item.name}
-                  </span>
-                  <span className="text-[13px] text-[var(--text-secondary)]">{specLine(role, item.specs)}</span>
-                </button>
-              ))}
+              {group.items.map((item) => itemButton(item, false))}
             </section>
           ))
         )}
@@ -295,14 +319,14 @@ function ManualTab({ role, onPick }: { role: GearRole; onPick: (p: GearPick) => 
             </label>
             <label className={fieldLabelClass}>
               Nominal impedance (Ω)
-              <select value={impedance} onChange={(e) => setImpedance(e.target.value)} className={inputClass}>
-                <option value="">Not sure</option>
-                {[4, 6, 8, 16].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="e.g. 8, or leave blank"
+                value={impedance}
+                onChange={(e) => setImpedance(e.target.value)}
+                className={inputClass}
+              />
             </label>
           </>
         ) : (

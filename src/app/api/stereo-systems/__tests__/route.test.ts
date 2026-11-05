@@ -191,7 +191,7 @@ describe('POST /api/stereo-systems', () => {
     expect(response.status).toBe(201)
     expect(mockChain.insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        system_profile: expect.objectContaining({ room_preset: null, target_peak_db: 85 }),
+        system_profile: expect.objectContaining({ room_preset: null, target_peak_db: 90 }),
       })
     )
   })
@@ -200,7 +200,7 @@ describe('POST /api/stereo-systems', () => {
     mockResult = { data: { id: 's1' }, error: null }
     await POST(jsonRequest('POST', { name: 'Den' }))
     expect(mockChain.insert).toHaveBeenCalledWith(
-      expect.objectContaining({ system_profile: expect.objectContaining({ target_peak_db: 85 }) })
+      expect.objectContaining({ system_profile: expect.objectContaining({ target_peak_db: 90 }) })
     )
   })
 

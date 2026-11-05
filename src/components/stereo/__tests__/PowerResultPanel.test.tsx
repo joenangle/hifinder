@@ -67,14 +67,14 @@ describe('PowerResultPanel', () => {
     expect(list.querySelector('svg')).toBeNull()
   })
 
-  it('renders the runs_out headline with the clean-peak range', () => {
+  it('renders the runs_out headline with the average range', () => {
     const out = ok({ profile: profile({ target_peak_db: 110 }), amp: amp({ power_w_4ohm: sv(5) }) })
     expect(out.verdict.kind).toBe('runs_out')
     render(<PowerResultPanel outcome={out} targetPeakDb={110} distanceM={3} />)
     const { low, high } = out.verdict.maxCleanPeakDb
     expect(
       screen.getByText(
-        new RegExp(`^About \\d+ dB short\\. Clean peaks top out around ${Math.round(low)}–${Math.round(high)} dB at your seat\\.$`)
+        new RegExp(`^About \\d+ dB short\\. It tops out around ${Math.round(low - 15)}–${Math.round(high - 15)} dB average at your seat\\.$`)
       )
     ).toBeInTheDocument()
   })
@@ -111,7 +111,11 @@ describe('PowerResultPanel', () => {
     expect(screen.getByTestId('power-meter')).toHaveAttribute('aria-hidden', 'true')
     const { low, high } = out.verdict.maxCleanPeakDb
     expect(
-      screen.getByText(`Clean peaks: about ${Math.round(low)}–${Math.round(high)} dB · Your target: 95 dB`)
+      screen.getByText(`About ${Math.round(low - 15)}–${Math.round(high - 15)} dB average`),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Max volume without clipping')).toBeInTheDocument()
+    expect(
+      screen.getByText(new RegExp(`clean peaks of ${Math.round(low)}–${Math.round(high)} dB at your seat · Your target: 80 dB average`)),
     ).toBeInTheDocument()
   })
 
