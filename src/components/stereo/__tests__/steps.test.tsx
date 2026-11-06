@@ -331,7 +331,19 @@ describe('GearChooser', () => {
     expect(screen.queryByText(/with specs on file/)).not.toBeInTheDocument()
   })
 
-  it('shows all speakers straight away, with no popular picks', async () => {
+  it('opens speakers on the popular picks too, skipping any not in the catalog', async () => {
+    vi.useFakeTimers()
+    const ls50: StereoCatalogItem = { ...SPK_ITEM, id: 'spk-2', name: 'LS50 Meta' }
+    stubCatalog([ls50, SPK_ITEM])
+    render(<GearChooser role="speakers" current={null} onPick={vi.fn()} onClose={vi.fn()} />)
+    await flushCatalog()
+    const popular = screen.getByRole('region', { name: 'Popular picks' })
+    expect(within(popular).getByRole('button', { name: /KEF LS50 Meta/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'See 1 more' }))
+    expect(screen.getByRole('region', { name: 'KEF' })).toBeInTheDocument()
+  })
+
+  it('falls back to the full list when no popular pick is in the catalog', async () => {
     vi.useFakeTimers()
     stubCatalog([SPK_ITEM])
     render(<GearChooser role="speakers" current={null} onPick={vi.fn()} onClose={vi.fn()} />)

@@ -1124,5 +1124,731 @@
       ]
     },
     "manufacturer_url": "https://www.audiophonics.fr/en/integrated-amplifiers/aiyima-a80-p-20401.html"
+  },
+  {
+    "brand": "Philharmonic Audio",
+    "name": "BMR Monitor",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86.5,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-monitor"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-monitor"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-monitor"
+      }
+    },
+    "manufacturer_url": "https://philharmonicaudio.com/products/bmr-monitor"
+  },
+  {
+    "brand": "Philharmonic Audio",
+    "name": "Super BMR Monitor",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/super-bmr-monitor"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/super-bmr-monitor"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/super-bmr-monitor"
+      }
+    },
+    "manufacturer_url": "https://philharmonicaudio.com/products/super-bmr-monitor"
+  },
+  {
+    "brand": "Philharmonic Audio",
+    "name": "BMR Tower",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-tower"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-tower"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://philharmonicaudio.com/products/bmr-tower"
+      }
+    },
+    "manufacturer_url": "https://philharmonicaudio.com/products/bmr-tower"
+  },
+  {
+    "brand": "MoFi Electronics",
+    "name": "SourcePoint 8",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-8-loudspeakers-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-8-loudspeakers-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-8-loudspeakers-pair"
+      },
+      "min_impedance_ohms": {
+        "value": 6.4,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-8-loudspeakers-pair"
+      }
+    },
+    "manufacturer_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-8-loudspeakers-pair"
+  },
+  {
+    "brand": "MoFi Electronics",
+    "name": "SourcePoint 10",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 91,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-loudspeakers"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-loudspeakers"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-loudspeakers"
+      },
+      "min_impedance_ohms": {
+        "value": 6.2,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-loudspeakers"
+      }
+    },
+    "manufacturer_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-loudspeakers"
+  },
+  {
+    "brand": "MoFi Electronics",
+    "name": "SourcePoint 10 Master Edition",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 91,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-master-edition-loudspeakers-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-master-edition-loudspeakers-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-master-edition-loudspeakers-pair"
+      },
+      "min_impedance_ohms": {
+        "value": 6.2,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-master-edition-loudspeakers-pair"
+      }
+    },
+    "manufacturer_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-10-master-edition-loudspeakers-pair"
+  },
+  {
+    "brand": "MoFi Electronics",
+    "name": "SourcePoint 888",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-888-floorstanding-speakers-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-888-floorstanding-speakers-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-888-floorstanding-speakers-pair"
+      },
+      "min_impedance_ohms": {
+        "value": 4.5,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-888-floorstanding-speakers-pair"
+      }
+    },
+    "manufacturer_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-888-floorstanding-speakers-pair"
+  },
+  {
+    "brand": "MoFi Electronics",
+    "name": "SourcePoint V10 Master Edition",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 91,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-v10-floodstanding-speakers-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-v10-floodstanding-speakers-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-v10-floodstanding-speakers-pair"
+      },
+      "min_impedance_ohms": {
+        "value": 4.5,
+        "trust": "claimed",
+        "source_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-v10-floodstanding-speakers-pair"
+      }
+    },
+    "manufacturer_url": "https://www.mofielectronics.com/products/mofi-electronics-sourcepoint-v10-floodstanding-speakers-pair"
+  },
+  {
+    "brand": "Ascend Acoustics",
+    "name": "Sierra-1 V2",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 83,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-1-v2-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-1-v2-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-1-v2-pair"
+      }
+    },
+    "manufacturer_url": "https://www.ascendacoustics.com/products/sierra-1-v2-pair"
+  },
+  {
+    "brand": "Ascend Acoustics",
+    "name": "Sierra-2EX V2",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/collections/pairs/products/sierra-2ex-v2-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/collections/pairs/products/sierra-2ex-v2-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/collections/pairs/products/sierra-2ex-v2-pair"
+      }
+    },
+    "manufacturer_url": "https://www.ascendacoustics.com/collections/pairs/products/sierra-2ex-v2-pair"
+  },
+  {
+    "brand": "Ascend Acoustics",
+    "name": "Sierra Tower V2",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 88,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-tower-v2-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-tower-v2-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-tower-v2-pair"
+      }
+    },
+    "manufacturer_url": "https://www.ascendacoustics.com/products/sierra-tower-v2-pair"
+  },
+  {
+    "brand": "Ascend Acoustics",
+    "name": "Sierra-LX",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 83,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-lx-pair"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-lx-pair"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://www.ascendacoustics.com/products/sierra-lx-pair"
+      }
+    },
+    "manufacturer_url": "https://www.ascendacoustics.com/products/sierra-lx-pair"
+  },
+  {
+    "brand": "Wharfedale",
+    "name": "Super Linton",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 90,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/super-linton"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/super-linton"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/super-linton"
+      },
+      "min_impedance_ohms": {
+        "value": 3.9,
+        "trust": "claimed",
+        "source_url": "https://www.wharfedale.co.uk/products/super-linton"
+      }
+    },
+    "manufacturer_url": "https://www.wharfedale.co.uk/products/super-linton"
+  },
+  {
+    "brand": "Wharfedale",
+    "name": "Linton 85th Anniversary",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "measured",
+        "source_url": "https://www.erinsaudiocorner.com/loudspeakers/wharfedale_linton_85/"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "measured",
+        "source_url": "https://www.erinsaudiocorner.com/loudspeakers/wharfedale_linton_85/"
+      },
+      "nominal_impedance_ohms": {
+        "value": 6,
+        "trust": "claimed",
+        "source_url": "https://www.erinsaudiocorner.com/loudspeakers/wharfedale_linton_85/"
+      },
+      "min_impedance_ohms": {
+        "value": 3.5,
+        "trust": "claimed",
+        "source_url": "https://www.erinsaudiocorner.com/loudspeakers/wharfedale_linton_85/"
+      },
+      "review_links": [
+        {
+          "outlet": "Erin's Audio Corner",
+          "url": "https://www.erinsaudiocorner.com/loudspeakers/wharfedale_linton_85/",
+          "kind": "measurement"
+        }
+      ]
+    },
+    "manufacturer_url": "https://www.wharfedale.co.uk/products/linton"
+  },
+  {
+    "brand": "KEF",
+    "name": "Q150",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q150-bookshelf-speaker"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q150-bookshelf-speaker"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q150-bookshelf-speaker"
+      },
+      "min_impedance_ohms": {
+        "value": 3.7,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q150-bookshelf-speaker"
+      }
+    },
+    "manufacturer_url": "https://international.kef.com/products/q150-bookshelf-speaker"
+  },
+  {
+    "brand": "KEF",
+    "name": "Q350",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q350-bookshelf-speaker"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q350-bookshelf-speaker"
+      },
+      "nominal_impedance_ohms": {
+        "value": 8,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q350-bookshelf-speaker"
+      },
+      "min_impedance_ohms": {
+        "value": 3.7,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/q350-bookshelf-speaker"
+      }
+    },
+    "manufacturer_url": "https://international.kef.com/products/q350-bookshelf-speaker"
+  },
+  {
+    "brand": "KEF",
+    "name": "Q1 Meta",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 86,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/q1-meta"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/q1-meta"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/q1-meta"
+      },
+      "min_impedance_ohms": {
+        "value": 3.2,
+        "trust": "claimed",
+        "source_url": "https://us.kef.com/products/q1-meta"
+      }
+    },
+    "manufacturer_url": "https://us.kef.com/products/q1-meta"
+  },
+  {
+    "brand": "KEF",
+    "name": "R5 Meta",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 87,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/r5-meta"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/r5-meta"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/r5-meta"
+      },
+      "min_impedance_ohms": {
+        "value": 3.2,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/r5-meta"
+      }
+    },
+    "manufacturer_url": "https://international.kef.com/products/r5-meta"
+  },
+  {
+    "brand": "KEF",
+    "name": "Reference 1 Meta",
+    "category": "speakers",
+    "technical_specs": {
+      "sensitivity_db": {
+        "value": 85,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/reference-1-bookshelf-speaker"
+      },
+      "sensitivity_ref": {
+        "value": "2.83V",
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/reference-1-bookshelf-speaker"
+      },
+      "nominal_impedance_ohms": {
+        "value": 4,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/reference-1-bookshelf-speaker"
+      },
+      "min_impedance_ohms": {
+        "value": 3.2,
+        "trust": "claimed",
+        "source_url": "https://international.kef.com/products/reference-1-bookshelf-speaker"
+      }
+    },
+    "manufacturer_url": "https://international.kef.com/products/reference-1-bookshelf-speaker"
+  },
+  {
+    "brand": "Buckeye",
+    "name": "NCx252MP 2-Channel",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 150,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx252mp/2_channel"
+      },
+      "power_w_4ohm": {
+        "value": 250,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx252mp/2_channel"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      }
+    },
+    "manufacturer_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx252mp/2_channel"
+  },
+  {
+    "brand": "Buckeye",
+    "name": "NC502MP 2-Channel",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 350,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/nc502mp/2_channel"
+      },
+      "power_w_4ohm": {
+        "value": 500,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/nc502mp/2_channel"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      }
+    },
+    "manufacturer_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/nc502mp/2_channel"
+  },
+  {
+    "brand": "Buckeye",
+    "name": "NCx500 2-Channel",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 380,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx500/2_channel"
+      },
+      "power_w_4ohm": {
+        "value": 700,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx500/2_channel"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      }
+    },
+    "manufacturer_url": "https://www.buckeyeamp.com/shop/amplifiers/hypex/ncx500/2_channel"
+  },
+  {
+    "brand": "Buckeye",
+    "name": "Purifi 1ET6525SA 2-Channel",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 230,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/purifi/1et6525sa/2_channel"
+      },
+      "power_w_4ohm": {
+        "value": 450,
+        "trust": "claimed",
+        "source_url": "https://www.buckeyeamp.com/shop/amplifiers/purifi/1et6525sa/2_channel"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 1
+      }
+    },
+    "manufacturer_url": "https://www.buckeyeamp.com/shop/amplifiers/purifi/1et6525sa/2_channel"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Aegir 2F",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 30,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/aegir-2f"
+      },
+      "power_w_4ohm": {
+        "value": 50,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/aegir-2f"
+      },
+      "power_rating": {
+        "kind": "continuous"
+      }
+    },
+    "manufacturer_url": "https://www.schiit.com/products/aegir-2f"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Vidar 2F",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 100,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/vidar-2f"
+      },
+      "power_w_4ohm": {
+        "value": 200,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/vidar-2f"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.004
+      }
+    },
+    "manufacturer_url": "https://www.schiit.com/products/vidar-2f"
+  },
+  {
+    "brand": "Schiit",
+    "name": "Wotan",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "power",
+      "power_w_8ohm": {
+        "value": 200,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/wotan"
+      },
+      "power_w_4ohm": {
+        "value": 400,
+        "trust": "claimed",
+        "source_url": "https://www.schiit.com/products/wotan"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "thd_pct": 0.02
+      }
+    },
+    "manufacturer_url": "https://www.schiit.com/products/wotan"
+  },
+  {
+    "brand": "NAD",
+    "name": "C 316BEE V2",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 40,
+        "trust": "claimed",
+        "source_url": "https://nadelectronics.com/products/c-316bee-v2-stereo-integrated-amplifier"
+      },
+      "power_rating": {
+        "kind": "continuous"
+      }
+    },
+    "manufacturer_url": "https://nadelectronics.com/products/c-316bee-v2-stereo-integrated-amplifier"
+  },
+  {
+    "brand": "Cambridge Audio",
+    "name": "CXA81 Mk II",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 80,
+        "trust": "claimed",
+        "source_url": "https://www.cambridgeaudio.com/usa/en/products/hi-fi/cx/cxa81-mkii"
+      },
+      "power_w_4ohm": {
+        "value": 120,
+        "trust": "claimed",
+        "source_url": "https://www.cambridgeaudio.com/usa/en/products/hi-fi/cx/cxa81-mkii"
+      },
+      "power_rating": {
+        "kind": "continuous"
+      }
+    },
+    "manufacturer_url": "https://www.cambridgeaudio.com/usa/en/products/hi-fi/cx/cxa81-mkii"
+  },
+  {
+    "brand": "Marantz",
+    "name": "PM6007",
+    "category": "speaker_amp",
+    "technical_specs": {
+      "subtype": "integrated",
+      "power_w_8ohm": {
+        "value": 45,
+        "trust": "claimed",
+        "source_url": "https://manuals.marantz.com/PM6007/EU/EN/DNTXSYnslltjoe.php"
+      },
+      "power_w_4ohm": {
+        "value": 60,
+        "trust": "claimed",
+        "source_url": "https://manuals.marantz.com/PM6007/EU/EN/DNTXSYnslltjoe.php"
+      },
+      "power_rating": {
+        "kind": "continuous",
+        "channels_driven": "all"
+      }
+    },
+    "manufacturer_url": "https://manuals.marantz.com/PM6007/EU/EN/DNTXSYnslltjoe.php"
   }
 ]

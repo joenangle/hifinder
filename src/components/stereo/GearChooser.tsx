@@ -13,7 +13,7 @@ import {
   type SpecValue,
   type StereoCatalogItem,
 } from '@/lib/stereo/specs'
-import { popularAmps } from '@/lib/stereo/popular'
+import { popularPicks } from '@/lib/stereo/popular'
 import {
   RATING_OPTIONS,
   RadioGroup,
@@ -155,8 +155,8 @@ function CatalogTab({
   const browsing = query.trim() === ''
   const plural = role === 'speakers' ? 'speakers' : 'amplifiers'
   const items = ready?.items ?? []
-  // Amps open on a short list; anything the user searches for still shows in full.
-  const popular = role === 'amp' && browsing && !showAll ? popularAmps(items) : []
+  // Browsing opens on a short list; anything the user searches for still shows in full.
+  const popular = browsing && !showAll ? popularPicks(role, items) : []
 
   const itemButton = (item: StereoCatalogItem, showBrand: boolean) => (
     <button
