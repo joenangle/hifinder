@@ -46,13 +46,13 @@ function ok(i: PowerCheckInput) {
 }
 
 describe('fixture system', () => {
-  it('is ok and comfortable with ten working rows', () => {
+  it('is ok and comfortable with eleven working rows', () => {
     const out = ok(input())
     expect(out.verdict.kind).toBe('comfortable')
     expect(out.working.map((r) => r.trust)).toEqual([
-      'claimed', 'claimed', 'claimed', 'user', 'user', 'user', 'assumed', 'modeled', 'modeled', 'modeled',
+      'claimed', 'claimed', 'claimed', 'user', 'user', 'user', 'assumed', 'modeled', 'modeled', 'modeled', 'modeled',
     ])
-    expect(out.working).toHaveLength(10)
+    expect(out.working).toHaveLength(11)
     expect(out.working[6].value).toBe('80 dB average + 15 dB for music peaks = 95 dB peaks')
     expect(out.working[0].value).toBe('87 dB at 2.83 V → 84.0 dB/W')
     expect(out.working[2].value).toBe('80 W into 4 Ω')
@@ -139,11 +139,56 @@ describe('notes', () => {
     const out = ok(input({
       speakers: speakers({ min_impedance_ohms: sv(2.5) }),
       amp: amp({ power_w_4ohm: undefined, power_w_8ohm: sv(60), power_rating: { kind: 'peak' } }),
-      profile: profile({ near_wall: true }),
+      profile: profile({ near_wall: true, target_peak_db: 85 }),
     }))
     expect(out.notes).toHaveLength(4)
     expect(out.notes[0]).toMatch(/^Claimed \(optimistic rating\)/)
     expect(out.notes[3]).toMatch(/^Speakers near a wall/)
+  })
+})
+
+describe('wide-dynamic music', () => {
+  const STEP = 'Jazz and classical at this volume'
+  const row = (targetPeak: number) =>
+    ok(input({ profile: profile({ target_peak_db: targetPeak }) })).working.find((r) => r.step === STEP)!
+  const clipNote = /could clip at this volume/
+
+  it('is the last working row, modeled', () => {
+    const out = ok(input())
+    expect(out.working.at(-1)).toMatchObject({ step: STEP, trust: 'modeled' })
+  })
+  it('gives a range when both styles have room', () => {
+    expect(row(85).value).toBe('Peaks 20 to 26 dB above average: 10 to 16 dB to spare')
+  })
+  it('separates the styles when only jazz has room', () => {
+    expect(row(100).value).toBe('Peaks 20 to 26 dB above average: 1 dB to spare for jazz, 5 dB short for orchestral')
+  })
+  it('gives a shortfall range when neither has room', () => {
+    expect(row(103).value).toBe('Peaks 20 to 26 dB above average: 2 to 8 dB short')
+  })
+  it('leaves the verdict on the planning allowance', () => {
+    const out = ok(input({ profile: profile({ target_peak_db: 100 }) }))
+    expect(out.verdict.kind).toBe('comfortable_most_rooms')
+    expect(Math.round(out.verdict.headroomInRoomDb)).toBe(6)
+  })
+  it('notes the clipping risk when a passing system falls short on orchestral peaks', () => {
+    const notes = ok(input({ profile: profile({ target_peak_db: 100 }) })).notes
+    expect(notes).toContain(
+      'Wide-dynamic recordings, like orchestral music, could clip at this volume. Turn down about 5 dB for those.'
+    )
+  })
+  it('skips the note when orchestral peaks fit', () => {
+    expect(ok(input({ profile: profile({ target_peak_db: 85 }) })).notes.some((n) => clipNote.test(n))).toBe(false)
+  })
+  it('skips the note when the row shows no shortfall after rounding', () => {
+    const out = ok(input({ profile: profile({ target_peak_db: 95 }) }))
+    expect(out.working.at(-1)!.value).toBe('Peaks 20 to 26 dB above average: 0 to 6 dB to spare')
+    expect(out.notes.some((n) => clipNote.test(n))).toBe(false)
+  })
+  it('skips the note when the system already runs out', () => {
+    const out = ok(input({ profile: profile({ target_peak_db: 110 }) }))
+    expect(out.verdict.kind).toBe('runs_out')
+    expect(out.notes.some((n) => clipNote.test(n))).toBe(false)
   })
 })
 

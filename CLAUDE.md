@@ -122,7 +122,9 @@ A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
   an average, but amps clip on peaks. The slider and result show average dB;
   `profile.target_peak_db` (and the `db` URL param) stay peak, and
   `MUSIC_PEAK_ALLOWANCE_DB` (15 dB, cited in `power.ts`) converts between them
-  through `peakFromAverage` / `averageFromPeak`.
+  through `peakFromAverage` / `averageFromPeak`. Jazz and classical peak higher
+  (`WIDE_DYNAMIC_PEAK_ALLOWANCE_DB`, 20 to 26 dB). They get a Summary Table row
+  and a note, not an input, and the verdict stays on 15 dB.
 - **Categories:** `speakers` and `speaker_amp` are outside `AMP_CATEGORIES` and
   `HEADPHONE_CATEGORIES`. Headphone listings, search and brands filter to
   `HEADPHONE_SYSTEM_CATEGORIES`.

@@ -18,7 +18,9 @@ import {
 import {
   COMFORTABLE_MARGIN_DB,
   MUSIC_PEAK_ALLOWANCE_DB,
+  WIDE_DYNAMIC_PEAK_ALLOWANCE_DB,
   averageFromPeak,
+  headroomAtAllowance,
   inRoomRatingGainDb,
   levelAtSeatPerWatt,
   powerVerdict,
@@ -152,6 +154,18 @@ const fmtNeeded = (w: number) => (w < 0.05 ? 'under 0.1' : fmtWatts(w))
 const fmtNeededRange = ([low, high]: number[]) =>
   high < 0.05 ? 'under 0.1 W' : `${fmtNeeded(low)} to ${fmtNeeded(high)} W`
 
+/** Whole-dB headroom for jazz and orchestral peaks. Orchestral is always the smaller. */
+function fmtWideDynamic(jazz: number, orchestral: number): string {
+  const { jazz: low, orchestral: high } = WIDE_DYNAMIC_PEAK_ALLOWANCE_DB
+  const outcome =
+    orchestral >= 0
+      ? `${orchestral} to ${jazz} dB to spare`
+      : jazz >= 0
+        ? `${jazz} dB to spare for jazz, ${-orchestral} dB short for orchestral`
+        : `${-jazz} to ${-orchestral} dB short`
+  return `Peaks ${low} to ${high} dB above average: ${outcome}`
+}
+
 export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
   // Re-parse everything so raw junk degrades to "missing", never NaN/Infinity.
   const speakers = parseSpeakerSpecs(input.speakers)
@@ -236,6 +250,10 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
 
   const roomTrust: Trust = roomGiven ? 'user' : 'assumed'
   const needRange = [verdict.requiredWattsInRoom, verdict.requiredWattsFreeField].sort((a, b) => a - b)
+  const [jazzSpareDb, orchestralSpareDb] = [
+    WIDE_DYNAMIC_PEAK_ALLOWANCE_DB.jazz,
+    WIDE_DYNAMIC_PEAK_ALLOWANCE_DB.orchestral,
+  ].map((allowance) => Math.round(headroomAtAllowance(verdict.headroomInRoomDb, allowance)))
   const working: WorkingRow[] = [
     { step: 'Speaker sensitivity', value: sensValue, trust: sensitivity.trust },
     { step: 'Speaker nominal impedance', value: `${fmt(nominal)} Ω`, trust: imp!.trust },
@@ -265,6 +283,11 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
     {
       step: 'Power needed',
       value: `${fmtNeededRange(needRange)} for ${profile.target_peak_db} dB peaks`,
+      trust: 'modeled',
+    },
+    {
+      step: 'Jazz and classical at this volume',
+      value: fmtWideDynamic(jazzSpareDb, orchestralSpareDb),
       trust: 'modeled',
     },
   ]
@@ -320,6 +343,11 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
   }
   if (resolved.lowImpedanceCaution) {
     notes.push('Low impedance dips: check the amp is rated for 4 Ω loads.')
+  }
+  if (verdict.kind !== 'runs_out' && orchestralSpareDb < 0) {
+    notes.push(
+      `Wide-dynamic recordings, like orchestral music, could clip at this volume. Turn down about ${-orchestralSpareDb} dB for those.`
+    )
   }
   if (profile.near_wall === true) {
     notes.push("Speakers near a wall get extra bass, which this check doesn't model yet.")

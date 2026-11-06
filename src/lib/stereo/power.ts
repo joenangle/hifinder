@@ -145,6 +145,13 @@ export const MUSIC_PEAK_ALLOWANCE_DB = 15
 export const peakFromAverage = (averageDb: number) => averageDb + MUSIC_PEAK_ALLOWANCE_DB
 export const averageFromPeak = (peakDb: number) => peakDb - MUSIC_PEAK_ALLOWANCE_DB
 
+/** The outer ends of the same source's figures: acoustic jazz from 20 dB, orchestral up to 26 dB. */
+export const WIDE_DYNAMIC_PEAK_ALLOWANCE_DB = { jazz: 20, orchestral: 26 }
+
+/** Headroom at the same average volume for music whose peaks rise `allowanceDb` above it. */
+export const headroomAtAllowance = (headroomDb: number, allowanceDb: number) =>
+  headroomDb - (allowanceDb - MUSIC_PEAK_ALLOWANCE_DB)
+
 export type VerdictKind = 'comfortable' | 'comfortable_most_rooms' | 'tight' | 'runs_out'
 export const VERDICT_LABELS: Record<VerdictKind, string> = {
   comfortable: 'Comfortable',
