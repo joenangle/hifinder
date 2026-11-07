@@ -14,6 +14,7 @@ Simple mode stays the default and stays quiet. It gains one line at most, and
 only when a check finds a real problem.
 
 **Spec:** `docs/superpowers/specs/2026-11-03-stereo-builder-design.md` (PRD).
+**Mockup:** https://claude.ai/artifact/Y4sm6GuyL8YVUkT77jCCTV (Advanced on desktop, Simple on a phone, and every check and limit state). It sets the layout and copy.
 This plan implements part of PRD §13 item 2 (impedance interaction) plus two
 checks that §13 doesn't list yet (gain, hiss). Task 1 amends the PRD first.
 
@@ -47,11 +48,11 @@ Everything in the v1 plan's Global Constraints still applies. In addition:
 - **No folklore.** Copy never says a higher damping factor "tightens bass" or
   "controls the woofer" beyond what the divider and Qes math shows. The tonal
   check's explainer states that above about 20 to 50 the effect is inaudible.
-- **Thresholds are planning figures until cited.** Every audibility threshold
-  is a named, exported constant with a doc comment. Before ship, each gets a
-  source found by WebSearch (never from memory), or the comment says plainly
-  that it is a planning figure. This is the same rule as
-  `MUSIC_PEAK_ALLOWANCE_DB`.
+- **Every threshold is a named, exported constant whose doc comment carries
+  its source** from "Sources for constants" below. A figure taken from a
+  secondary source, or derived by arithmetic rather than a listening test,
+  says so in its comment. New figures are found by WebSearch, never from
+  memory. This is the same rule as `MUSIC_PEAK_ALLOWANCE_DB`.
 - **Secondary checks never block or nag.** Their `needs` show as "Add X to
   check this", never as the red "We need" treatment the power check uses.
 - **No schema migration.** New specs go in `components.technical_specs` and
@@ -59,14 +60,31 @@ Everything in the v1 plan's Global Constraints still applies. In addition:
   `user_stacks.system_profile` (all JSONB). The `source` role is already
   allowed by `add-stereo-stacks.sql`.
 
-## Open decisions (Joe), with defaults the plan assumes
+## Decisions (settled by Joe, 2026-11-07)
 
-| # | Decision | Default in this plan | Alternative |
-|---|---|---|---|
-| D1 | Does Advanced mode drop simple mode's assumed room/seat defaults? | **No.** Both modes run the power check with stated defaults as chips; Advanced only reveals more inputs and checks. Flipping to Advanced never makes a verdict disappear. | Advanced runs `mode: 'advanced'` and shows `needs` for every unset field (the runner already supports this). It's purer, but punishing. |
-| D2 | Where is the mode remembered? | URL param `adv=1`, plus a per-browser preference in localStorage. Not in the saved system: it's a view setting, not system data. | Stored in `system_profile`. |
-| D3 | What simple mode shows from secondary checks | Only a `problem`, as one line under the reasons, linking to Advanced. Never `ok` or `note`. | Nothing at all. |
-| D4 | §13 order | Gain before tonal before hiss (this plan's order). | Tonal first, if impedance interaction is the headline feature. |
+| # | Decision |
+|---|---|
+| D1 | **Advanced mode keeps the room data.** Entered values are used as entered in both modes; unset ones stay `assumed` chips. Advanced only reveals more inputs and checks. Switching modes never changes a verdict. |
+| D2 | The mode is remembered in the URL param `adv=1` plus a per-browser localStorage preference, not in the saved system. |
+| D3 | Simple mode shows only the single worst secondary `problem`, as one line that links to Advanced. |
+| D4 | §13 order: gain → tonal → hiss, with speaker limits (Tasks 10 to 12) folded into the power verdict. |
+
+## Sources for constants
+
+Each constant's doc comment carries its source. When the figure comes from a
+secondary source, the comment says so and names the primary to check.
+
+| Constant | Value | Basis |
+|---|---|---|
+| `TONAL_INAUDIBLE_DB` | 0.5 dB span | Half the lower end of the broad-resonance detection range below. It's a conservative "no change" line, not a measured threshold. |
+| `TONAL_NOTE_DB`, `TONAL_CLEAR_DB` | 1 dB, 2 dB | Toole & Olive, "The Modification of Timbre by Resonances", JAES 36(3), 1988 ([AES e-lib 5163](https://www.aes.org/e-lib/browse.cfm?elib=5163)): broad, low-Q resonances are detectable at about 1–2 dB, and narrow ones need about 10 dB. That figure is secondhand, via [audioXpress, "Testing Loudspeakers: Which Measurements Matter, Part 1"](https://audioxpress.com/article/testing-loudspeakers-which-measurements-matter-part-1). An output-impedance divider over a speaker's impedance curve produces exactly these broad, low-Q shapes. Check the paper's figure before ship. Also cite Bücklein, "The Audibility of Frequency Response Irregularities", JAES 29(3), 1981 ([AES e-lib 10291](https://aes.org/publications/elibrary/elibrary-page/?id=10291)): peaks are more audible than dips. |
+| Stereophile's simulated-load method | n/a | It's the evidence that the divider effect is real and measured. For example, PrimaLuna's 8 Ω tap shows ±3.1 dB into the simulated speaker ([measurements](https://stereophile.com/content/primaluna-prologue-premium-power-amplifier-measurements)), while Simaudio's Moon i-1 shows minimal change ([measurements](https://stereophile.com/content/simaudio-moon-i-1-integrated-amplifier-measurements)). Use these as worked-example tests: the model, fed Stereophile's measured Zout and its standard simulated load, should land near Stereophile's figure. |
+| Copper resistance | derived | Don't use a table. AWG diameter is d = 0.127 mm × 92^((36−n)/39) ([UCSB physics handout](https://web.physics.ucsb.edu/~phys13BH/w2014/awg.pdf)). Annealed-copper resistivity is 1.7241×10⁻⁸ Ω·m at 20 °C (the IACS 100% definition). 16 AWG comes out at about 13.2 mΩ/m. The UCSB constant implies about 1.68×10⁻⁸; the 3% gap is inside the tolerance of real cable. Cite IACS as the basis. |
+| `ROOM_BACKGROUND_DBA` | 30 dBA | Quiet homes are about 30–40 dBA. The 35–40 dBA figure is from Pearsons et al. 1977 (cited in an [auditory.org posting](https://auditory.org/mhonarc/2026/msg00010.html)), and nonoise.org lists a "quiet room" at 28–33 dBA. 30 is the quiet end, which is the worst case for hiss. |
+| `HISS_MASKED_MARGIN_DB` | 10 dB | Hiss 10 dB below the room's background adds 0.4 dB to it (power sum). This is arithmetic, not a listening test, so the doc comment must say so. Hiss is treble-heavy and room noise is bass-heavy, so the check is optimistic for an ear near a tweeter. `note` if hiss is above background − 10, `problem` if it's above background. |
+| Speaker max SPL | see Task 10 | AES75-2022 (M-noise, level raised until compression or coherence fails; [AES announcement](https://aes2.org/?p=18749)). IEC 60268-21 SPLmax (100 h without damage, ignores distortion; per the [IOA 2022 paper](https://pub.ioa.org.uk/conference-proceeding/reproduced-sound-2022-vol44-pt3/j-hipperson-comparison-of-splmax-using-aes75-and-multitone-distortion--mtd--methods)). Erin's Audio Corner compression sweeps at 96 and 102 dB @ 1 m (e.g. [ELAC DB63](https://erinsaudiocorner.com/loudspeakers/elac_db63/)). |
+| `SPEAKER_COMPRESSION_LIMIT_DB` | 3 dB | The AES75 revision draft's "3 dB compression anywhere" criterion, reported from the task group chair's talk ([AES Melbourne](https://aesmelbourne.org.au/?p=7481)). It's a draft, so label it that way. |
+| Power-handling derates | program −3 dB, peak −6 dB | Relative to continuous, per [EAW, "Power Handling"](https://eaw.com/wp-content/uploads/2020/12/Power_Handling.pdf) (a 6 dB crest factor test signal) and the [Teufel support note](https://support.teufel.de/hc/en-us/articles/360007857679-How-should-the-different-power-specifications-of-loudspeakers-and-power-amplifiers-be-evaluated). |
 
 ## Review Focus
 
@@ -196,8 +214,11 @@ export function responseDeviation(curve: ImpedancePoint[], zSource: number):
   { points: { hz: number; db: number }[]; spanDb: number }                            // normalized to the curve's mean dB
 export function deviationSpanBound(nominal: number, min?: number, max?: number, zSource: number):
   { spanDb: number; isLowerBound: boolean }                                           // lower bound unless both min and max are known
-export const TONAL_INAUDIBLE_DB = 0.5     // planning figure, needs a cite (Global Constraints)
-export const TONAL_CLEAR_DB = 1.5
+export const TONAL_INAUDIBLE_DB = 0.5     // see Sources for constants
+export const TONAL_NOTE_DB = 1
+export const TONAL_CLEAR_DB = 2
+export function awgDiameterMm(awg: number): number                                    // 0.127 × 92^((36−n)/39)
+export const COPPER_RESISTIVITY_OHM_M = 1.7241e-8                                     // IACS 100%, 20 °C
 
 // gain.ts
 export function ampGainDb(ratedWatts8: number, inputSensitivityV: number): number     // 20·log10(√(8P)/Vin)
@@ -208,8 +229,8 @@ export function reachableWatts(sourceV: number, gainDb: number, ampWatts: number
 export function noiseVoltsFromSnr(snrDb: number, refWatts: number, loadOhms = 8): number   // √(P·R)/10^(SNR/20)
 export function hissAtSeatDb(sens1W: number, noiseV: number, nominalOhms: number,
   distanceM: number, room: RoomDims, acoustics: Acoustics): SeatLevel                 // reuses levelAtSeatPerWatt + 10·log10(Vn²/Z)
-export const HISS_INAUDIBLE_DB = 15       // planning figures, need a cite
-export const HISS_AUDIBLE_DB = 25
+export const ROOM_BACKGROUND_DBA = 30     // see Sources for constants
+export const HISS_MASKED_MARGIN_DB = 10
 ```
 
 - [ ] **Step 1: Write failing tests from worked examples.** These go into the
@@ -218,9 +239,12 @@ export const HISS_AUDIBLE_DB = 25
     span of about 0.12 dB; Zsrc 1 gives about 2.1 dB; Zsrc 3 gives about 4.9 dB.
     The same speaker without `max` returns `isLowerBound: true`, and its span
     is never larger than the min-and-max result.
-  - Cable. 16 AWG copper is about 13.2 mΩ/m, so 5 m comes to about 0.13 Ω loop
-    resistance. Take the copper table from a cited source (a NIST or ASTM-derived
-    AWG table, found by WebSearch).
+  - Cable. `awgDiameterMm(14)` is about 1.628 mm. 16 AWG copper is about
+    13.2 mΩ/m, so 5 m comes to about 0.13 Ω loop resistance.
+  - Stereophile cross-check. The PrimaLuna and Moon i-1 cases from "Sources
+    for constants" land within ±0.5 dB of the published simulated-load
+    deviation when fed the published Zout. Transcribe Stereophile's
+    simulated-load curve once as a test fixture, with its source URL.
   - DF. 50 at 8 Ω gives 0.16 Ω; a stated ref of 4 Ω gives 0.08 Ω.
   - Gain. 100 W/8 Ω with 2.5 V sensitivity gives 21.1 dB. A 2 V source into
     8 Ω reaches 64 W (`limited: true`); a 4 V balanced source reaches the full
@@ -304,8 +328,10 @@ With no `sourceLimit`, the power output is unchanged.
     reference counts as rated power, the worst case, and the working says so.
   - It reuses the power check's resolved room, distance and sensitivity. Share
     one internal resolver; don't recompute differently.
-  - Severity: in-room hiss below `HISS_INAUDIBLE_DB` is `ok`, below
-    `HISS_AUDIBLE_DB` is `note`, else `problem`.
+  - Severity: in-room hiss at or below `ROOM_BACKGROUND_DBA −
+    HISS_MASKED_MARGIN_DB` is `ok`, at or below `ROOM_BACKGROUND_DBA` is
+    `note`, else `problem`. The headline compares hiss to the room ("about
+    8 dB under a quiet room"), never a bare number.
   - A note for integrated amps: "Noise specs are often measured at a low volume
     setting; hiss can rise with the volume knob."
 
@@ -420,19 +446,18 @@ plus additions to `PowerResultPanel.test.tsx`
     `WorkingTable`; don't copy it.
   - **Tonal:**
     - With a curve, a `TonalShiftChart`: a log-frequency x-axis from 20 Hz to
-      20 kHz, a dB y-axis fixed at ±6 dB so small shifts look small, and a
+      20 kHz, a dB y-axis fixed at ±3 dB, never autoscaled, so a 0.3 dB wiggle can't look dramatic, and a
       shaded ±`TONAL_INAUDIBLE_DB` band labeled "Below audibility". There's a
       `<table>` fallback in a `<details>` for screen readers.
-    - Without a curve, a single "at least ±X dB" bar against the same band.
+    - Without a curve, a single "at least X dB" span bar against the same band.
     - The explainer line reads: "Damping factor is 8 Ω ÷ the amp's output
       impedance. Above about 20 to 50, the effect on frequency response and bass
       is too small to hear; this system's effective damping factor is N,
       including cable." Here N = nominal ÷ Zsrc, which teaches that the cable
       counts.
   - **Gain:** a mini meter showing reachable watts against rated watts.
-  - **Hiss:** the hiss level at the seat in dB, next to "a quiet room is about
-    25 to 30 dBA". Cite that figure, or mark it a planning figure, per the
-    Global Constraints.
+  - **Hiss:** a horizontal scale showing the hiss level at the seat next to a
+    quiet room's 30 dBA, with the "masked" zone shaded below 20.
 - On mobile the result column stacks after the steps, as now. The checks
   section goes after the power card, not between the steps.
 - [ ] **Step 1: Write failing tests.**
@@ -477,24 +502,125 @@ Test: `src/lib/__tests__/stereo-seed.test.ts`
   - The gain-cap coupling.
   - "DF stored as stated, Zout derived."
   - Secondary checks are soft.
-  - Thresholds are planning figures until cited.
+  - Thresholds and their sources (the Sources for constants table).
+  - Speaker limits feed the power verdict; the amp-only caveat shows only without limit data.
 - [ ] **Step 2: Commit** `docs: stereo system checks in CLAUDE.md`
 
 ---
 
+### Task 10: Speaker limits, data and math
+
+PRD §13 item 1. This matters more than tonal shift for most buyers: today the
+verdict can say "Comfortable" while the speakers compress. Unlike the other
+checks, speaker limits feed **into the power verdict**, because "can this
+system play this loud?" has one answer, and it's the lower of the amp limit
+and the speaker limit.
+
+**Files:** Modify `src/lib/stereo/specs.ts`; create `src/lib/stereo/limits.ts`.
+Tests: `src/lib/__tests__/stereo-limits.test.ts`, plus `stereo-specs.test.ts`
+
+**Interfaces (produces):**
+```ts
+// SpeakerSpecs gains:
+max_spl_db?: SpecValue<number> & {
+  method: 'aes75' | 'iec_splmax' | 'manufacturer' | 'unknown'
+  kind: 'peak' | 'continuous' | 'unknown'                  // at 1 m, one speaker
+}
+compression?: SpecValue<{ level_db_1m: number; worst_db: number }[]>  // e.g. Erin's 96 and 102 dB sweeps
+power_handling_w?: SpecValue<number> & { kind: 'continuous' | 'program' | 'peak' | 'unknown' }
+
+// limits.ts
+export const SPEAKER_COMPRESSION_LIMIT_DB = 3
+export const POWER_HANDLING_DERATE_DB = { continuous: 0, program: 3, peak: 6, unknown: 6 }
+export type LimitBasis = 'measured_max_spl' | 'compression_sweep' | 'rated_max_spl' | 'power_handling'
+export interface SpeakerLimit {
+  averageDb1m: { low: number; high: number }   // clean average output at 1 m, one speaker, as a range
+  basis: LimitBasis
+  trust: Trust
+  bound: 'estimate' | 'at_least' | 'at_most'
+}
+export function resolveSpeakerLimit(s: SpeakerSpecs, sens1W: number): SpeakerLimit | null
+```
+
+**Resolution order** (best evidence first; the first one present wins, and the
+working names it):
+1. `max_spl_db` with method `aes75` or `iec_splmax` (`measured`). A `peak`
+   kind converts to average by subtracting `MUSIC_PEAK_ALLOWANCE_DB`. That
+   keeps one convention: peaks are the amp's problem, averages are the driver's
+   heat problem.
+2. `compression`: the highest tested level whose `worst_db` is at most
+   `SPEAKER_COMPRESSION_LIMIT_DB` is a floor (`at_least`). The lowest level
+   that exceeds it is a ceiling (`at_most`). Erin's levels are dense-signal
+   averages, so no conversion.
+3. `max_spl_db` from the manufacturer (`claimed`), with `kind: 'unknown'`
+   treated as peak, which is the optimistic reading, so derate it.
+4. `power_handling_w`: sens1W + 10·log10(P − derate), `claimed`, and the
+   working always says "Power handling is a survival rating, not a clean-output
+   rating". Program and peak derates come from Sources for constants.
+5. Nothing: `null`. The power check keeps today's amp-only caveat word for word.
+
+**Seat conversion.** The 1 m figure goes through `levelAtSeatPerWatt` (it is a
+1 m level just like sensitivity), with pair gain. Reuse it; don't write a
+second room model.
+
+- [ ] **Step 1: Write failing tests.**
+  - Each resolution tier, plus precedence when several are present.
+  - Compression bracketing: 96 dB with 1.2 dB compression and 102 dB with
+    4.1 dB gives at least 96 and at most 102.
+  - A power-handling "peak 200 W" on an 87 dB/W speaker gives
+    87 + 10·log10(200) − 6 ≈ 104 dB at 1 m.
+  - Junk (`level_db_1m` out of 70 to 130, an empty array) is dropped by the parser.
+- [ ] **Step 2: Implement**, with a header comment carrying the sources.
+- [ ] **Step 3: Commit** `feat(stereo): speaker limit resolution from max SPL, compression or power handling`
+
+### Task 11: Speaker limits in the power verdict
+
+**Files:** Modify `src/lib/stereo/power.ts` and `power-check.ts`. Test: `stereo-power-check.test.ts`
+
+- [ ] **Step 1: Write failing tests.**
+  - With no limit data, the outcome is deep-equal to today's, caveat included.
+  - When speakers limit before the amp, `limitedBy: 'speakers'`, the verdict
+    is computed against the speaker's ceiling, and the headline names it.
+  - When the amp limits first, the speaker limit appears as a working row and
+    the caveat is dropped, since the speakers were checked.
+  - An `at_least` speaker limit above the target is `ok`, and below the target
+    it's "can't confirm" (a note, not a downgrade). An `at_most` limit below
+    the target downgrades.
+- [ ] **Step 2: Implement.**
+  - `PowerCheckOutcome.ok` gains `limitedBy: 'amp' | 'speakers' | 'source'`
+    and `speakerLimit: SpeakerLimit | null`.
+  - `maxCleanPeakDb` becomes the minimum across amp, speaker and source.
+  - The verdict labels stay the four from v1. Only the headline and reasons
+    change: "Your speakers run out first: about 98 dB average at your seat".
+  - The caveat appears only when `speakerLimit` is null. That changes PRD
+    §6.2's "always" wording, so update the PRD in the same commit.
+- [ ] **Step 3: Commit** `feat(stereo): power verdict accounts for speaker limits`
+
+### Task 12: Speaker limits UI and data
+
+- [ ] **Step 1: Result card.** A "Limited by" line under the max-volume figure
+  (Amp / Speakers / Source), and a second marker on the meter, so amp and
+  speaker ceilings show side by side.
+- [ ] **Step 2: Advanced speaker fields.**
+  - Max SPL, with a method select (AES75 / IEC / manufacturer / not sure) and
+    a kind (peak / continuous / not sure).
+  - Power handling, with a kind (continuous / program / peak / not sure).
+  - Compression is catalog-only: there's no hand entry for sweeps.
+- [ ] **Step 3: Seed.** Add `compression` from Erin's Audio Corner reviews and
+  manufacturer max SPL and power handling for the seeded speakers. Every URL is
+  verified by WebSearch, with exact model matches only.
+- [ ] **Step 4: Commit** `feat(stereo): show speaker limits and seed limit data`
+
 ## Not in this plan (next, in order)
 
-1. **Speaker limits** (PRD §13 item 1): max SPL, thermal compression and power
-   handling. This matters more than tonal shift for most buyers, because the
-   current verdict can say "Comfortable" while the speaker compresses.
-2. **Entering an impedance curve by hand:** paste a CSV, or pick points on a
+1. **Entering an impedance curve by hand:** paste a CSV, or pick points on a
    chart. This plan uses curves only from the catalog.
-3. **Load difficulty (EPDR) and amp current delivery,** using phase as well as
+2. **Load difficulty (EPDR) and amp current delivery,** using phase as well as
    magnitude, and 2 Ω ratings.
-4. **Tube output taps:** recommend the 4, 8 or 16 Ω tap from the curve.
-5. **Boundary bass gain** from `near_wall`, which also adds to the tube bass
+3. **Tube output taps:** recommend the 4, 8 or 16 Ω tap from the curve.
+4. **Boundary bass gain** from `near_wall`, which also adds to the tube bass
    lift the tonal check shows.
-6. **Preamp in the chain:** preamp noise multiplied by power-amp gain, and
+5. **Preamp in the chain:** preamp noise multiplied by power-amp gain, and
    preamp gain in the gain check.
 
 ## Verification before asking to push
