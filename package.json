@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:hooks": "node --test scripts/claude-hooks/git-push-guard.test.mjs",
     "validate": "npm run lint && npm run type-check",
     "// Listing aggregation scripts": "",
     "scrape:reddit": "node scripts/reddit-avexchange-scraper-v3.js",

@@ -56,5 +56,6 @@ scripts/.avexchange-bot-last-check.json
 /backups/
 /img/
 
-# local Claude Code / IDE config
-.claude/
+# local Claude Code / IDE config (shared project settings are committed)
+.claude/*
+!.claude/settings.json
