@@ -514,3 +514,6 @@ export function pickHardestToDrive<T extends AmplificationTarget>(headphones: T[
 
 // Speaker power math for Stereo Builder (separate from the headphone math above)
 export * from './stereo/power'
+export * from './stereo/interaction'
+export * from './stereo/gain'
+export * from './stereo/noise'
