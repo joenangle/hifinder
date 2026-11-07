@@ -3,8 +3,10 @@ name: CI
 # Lint, type-check (app + tests) and unit tests on every PR and on pushes to
 # the deploy branches. Needs no secrets: tests stub Supabase env in
 # src/__tests__/setup.ts and make no network calls.
-# eval:reco is not run here; it scores against the live catalogue, so it
-# needs DB credentials (run it locally: npm run eval:reco -- --baseline ...).
+#
+# On PRs, eval-reco also scores recommendation quality (nDCG@5, P@5) for the
+# PR's base and head against the live catalogue and writes the delta to the
+# job summary. Report-only: it never fails the PR.
 
 on:
   pull_request:
@@ -44,3 +46,48 @@ jobs:
 
       - name: Push guard tests
         run: npm run test:hooks
+
+  eval-reco:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      # The eval only reads the public catalogue, so the public anon key is
+      # enough; the service-role key never enters CI. The variable must still
+      # be set because importing the route loads supabase-server.ts, which
+      # throws at import time when it is missing.
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Score base and head
+        continue-on-error: true
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Skipped: secrets are unavailable (PRs from forks do not receive them)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # Score the base commit's code with the head's dependencies, then
+          # restore the head. Both runs read the same catalogue seconds apart,
+          # so the delta is the code change alone.
+          git fetch --depth=1 origin "$BASE_SHA"
+          git checkout "$BASE_SHA" -- src scripts
+          npx tsx scripts/eval-recommendations.ts --json > "$RUNNER_TEMP/base.json"
+          git checkout HEAD -- src scripts
+          git clean -fdq -- src scripts
+          {
+            echo "### Recommendation quality: this PR vs. its base"
+            echo '```'
+            npx tsx scripts/eval-recommendations.ts --baseline "$RUNNER_TEMP/base.json"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
