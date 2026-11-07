@@ -15,9 +15,12 @@ import {
   type SystemProfile,
   type Trust,
 } from './specs'
+import { resolveSpeakerLimit, type SpeakerLimit } from './limits'
 import {
   COMFORTABLE_MARGIN_DB,
   MUSIC_PEAK_ALLOWANCE_DB,
+  VERDICT_LABELS,
+  verdictKindFor,
   WIDE_DYNAMIC_PEAK_ALLOWANCE_DB,
   averageFromPeak,
   headroomAtAllowance,
@@ -39,6 +42,12 @@ export type InputId =
   | 'seat.distance_m'
   | 'room.size'
   | 'room.acoustics'
+  | 'source.output_v'
+  | 'amp.input_sensitivity_v'
+  | 'amp.output_impedance_ohms'
+  | 'amp.noise'
+  | 'speakers.max_impedance_ohms'
+  | 'cable.run'
 
 export interface MissingInput {
   id: InputId
@@ -125,6 +134,20 @@ const DECLARED: Record<'sensitivity' | 'impedance' | 'amp' | 'room' | 'acoustics
   },
 }
 
+/** What set the loudest clean level: the amp, the speakers, or a source too weak to drive the amp. */
+export type LimitedBy = 'amp' | 'speakers' | 'source'
+
+/** The resolved seat, shared with checks that reuse the room model (hiss). */
+export interface SeatContext {
+  /** 1 W per speaker at the seat, for the lower sensitivity reading (the power check's worst case). */
+  levelPerWatt: SeatLevel
+  /** The same for the higher sensitivity reading (the worst case for hiss). */
+  levelPerWattMax: SeatLevel
+  nominalOhms: number
+  /** Assumptions the seat itself relies on (room, acoustics, distance). */
+  assumptions: Assumption[]
+}
+
 export type PowerCheckOutcome =
   | {
       status: 'ok'
@@ -134,8 +157,12 @@ export type PowerCheckOutcome =
       assumptions: Assumption[]
       reasons: string[]
       notes: string[]
-      caveat: string
+      /** The amp-only caveat; null once the speakers' own limit was checked. */
+      caveat: string | null
       sensitivityRange: boolean
+      limitedBy: LimitedBy
+      speakerLimit: SpeakerLimit | null
+      seat: SeatContext
     }
   | { status: 'needs'; missing: MissingInput[]; caveat: string }
 
@@ -144,6 +171,11 @@ export interface PowerCheckInput {
   amp: SpeakerAmpSpecs | null
   profile: SystemProfile
   mode: 'simple' | 'advanced'
+  /**
+   * The most power the source can drive the amp to (from the gain check).
+   * Applied only when below the amp's own power.
+   */
+  sourceLimit?: { watts: number; sourceV: number; trust: Trust }
 }
 
 /** One decimal at most, trailing zero dropped: 3 -> "3", 2.46 -> "2.5". */
@@ -211,14 +243,17 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
   const inRoomRating = speakers.sensitivity_in_room?.value === true
   const roomCorrectionDb = inRoomRating ? inRoomRatingGainDb() : 0
   const perWatt = (ref: '1W' | '2.83V') => sensitivityPerWatt(sensitivity.value, ref, nominal) - roomCorrectionDb
+  const sourceCapped = input.sourceLimit !== undefined && input.sourceLimit.watts < resolved.watts
+  const watts = sourceCapped ? input.sourceLimit!.watts : resolved.watts
   const cases = refs.map((ref) => {
     const sens1W = perWatt(ref)
     const level = levelAtSeatPerWatt(sens1W, distanceM, room, acousticsId)
-    return { ref, sens1W, level, verdict: powerVerdict(profile.target_peak_db, level, resolved.watts) }
+    return { ref, sens1W, level, verdict: powerVerdict(profile.target_peak_db, level, watts) }
   })
   const worst = cases.reduce((a, b) => (b.verdict.headroomInRoomDb < a.verdict.headroomInRoomDb ? b : a))
+  const best = cases.reduce((a, b) => (b.sens1W > a.sens1W ? b : a))
   const sensitivityRange = cases.length > 1
-  const verdict: PowerVerdict = sensitivityRange
+  const ampVerdict: PowerVerdict = sensitivityRange
     ? {
         ...worst.verdict,
         maxCleanPeakDb: {
@@ -228,6 +263,47 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
       }
     : worst.verdict
   const level: SeatLevel = worst.level
+
+  // Speaker limits: the speakers' clean average level, moved to the seat with
+  // the same room model as the amp (it's a 1 m level, like sensitivity).
+  const speakerLimit = resolveSpeakerLimit(speakers, worst.sens1W)
+  const inRoomOffset = level.inRoom - worst.sens1W
+  const freeFieldOffset = level.freeField - worst.sens1W
+  const targetAverageDb = averageFromPeak(profile.target_peak_db)
+  let verdict = ampVerdict
+  let speakersLimit = false
+  let speakerUnconfirmedDb: number | null = null
+  if (speakerLimit) {
+    const { low, high } = speakerLimit.averageDb1m
+    const ceiling = speakerLimit.bound === 'at_least' ? null : high
+    const floor = speakerLimit.bound === 'at_most' ? null : low
+    if (ceiling !== null) {
+      const headIn = ceiling + inRoomOffset - targetAverageDb
+      const headFree = ceiling + freeFieldOffset - targetAverageDb
+      if (headIn < ampVerdict.headroomInRoomDb) {
+        speakersLimit = true
+        const kind = verdictKindFor(headIn, headFree)
+        const peakIn = ceiling + inRoomOffset + MUSIC_PEAK_ALLOWANCE_DB
+        const peakFree = ceiling + freeFieldOffset + MUSIC_PEAK_ALLOWANCE_DB
+        verdict = {
+          ...ampVerdict,
+          kind,
+          label: VERDICT_LABELS[kind],
+          headroomInRoomDb: headIn,
+          headroomFreeFieldDb: headFree,
+          maxCleanPeakDb: {
+            low: Math.min(ampVerdict.maxCleanPeakDb.low, peakFree),
+            high: Math.min(ampVerdict.maxCleanPeakDb.high, peakIn),
+          },
+        }
+      }
+    }
+    // Tested clean only up to below the target, and not shown to fail: say so, don't downgrade.
+    if (!speakersLimit && floor !== null && floor + inRoomOffset < targetAverageDb) {
+      speakerUnconfirmedDb = floor + inRoomOffset
+    }
+  }
+  const limitedBy: LimitedBy = speakersLimit ? 'speakers' : sourceCapped ? 'source' : 'amp'
 
   const ampSpec =
     nominal <= 4 && amp.power_w_4ohm ? amp.power_w_4ohm : amp.power_w_8ohm ?? amp.power_w_4ohm!
@@ -262,6 +338,15 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
       value: [`${fmtWatts(resolved.watts)} W into ${fmt(nominal)} Ω`, ...ampCaveats].join(' '),
       trust: ampSpec.trust,
     },
+    ...(sourceCapped
+      ? [
+          {
+            step: 'Limited by source level',
+            value: `${fmt(input.sourceLimit!.sourceV)} V reaches ${fmtWatts(watts)} W of ${fmtWatts(resolved.watts)} W`,
+            trust: input.sourceLimit!.trust,
+          },
+        ]
+      : []),
     {
       step: 'Room size',
       value: `${fmt(room.length_m)} × ${fmt(room.width_m)} × ${fmt(room.height_m)} m`,
@@ -280,6 +365,15 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
     },
     { step: 'In-room level at 1 W', value: `${level.inRoom.toFixed(1)} dB at the seat`, trust: 'modeled' },
     { step: 'Free-field level at 1 W', value: `${level.freeField.toFixed(1)} dB at the seat`, trust: 'modeled' },
+    ...(speakerLimit
+      ? [
+          {
+            step: 'Speaker limit',
+            value: `${speakerLimit.detail} → ${speakerLimitText(speakerLimit, inRoomOffset)} at your seat`,
+            trust: speakerLimit.trust,
+          },
+        ]
+      : []),
     {
       step: 'Power needed',
       value: `${fmtNeededRange(needRange)} for ${profile.target_peak_db} dB peaks`,
@@ -352,6 +446,22 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
   if (profile.near_wall === true) {
     notes.push("Speakers near a wall get extra bass, which this check doesn't model yet.")
   }
+  if (sourceCapped) {
+    notes.push(
+      `Your source's ${fmt(input.sourceLimit!.sourceV)} V can only drive this amp to about ${fmtWatts(watts)} W of its ${fmtWatts(resolved.watts)} W. A source with more output, or a preamp, gets the rest.`
+    )
+  }
+  if (speakersLimit) {
+    notes.push("Your speakers, not the amp, set the limit here, so a bigger amp won't play louder cleanly.")
+  }
+  if (speakerUnconfirmedDb !== null) {
+    notes.push(
+      `Your speakers were measured clean to about ${Math.round(speakerUnconfirmedDb)} dB average at your seat and not tested louder, so we can't confirm them at your target.`
+    )
+  }
+  if (speakerLimit?.basis === 'power_handling') {
+    notes.push("Speaker limit is from power handling, a survival rating rather than a clean-output rating, so it's optimistic.")
+  }
 
   return {
     status: 'ok',
@@ -361,7 +471,30 @@ export function runPowerCheck(input: PowerCheckInput): PowerCheckOutcome {
     assumptions,
     reasons: [efficiency, distanceReason],
     notes,
-    caveat: AMP_ONLY_CAVEAT,
+    caveat: speakerLimit ? null : AMP_ONLY_CAVEAT,
     sensitivityRange,
+    limitedBy,
+    speakerLimit,
+    seat: {
+      levelPerWatt: level,
+      levelPerWattMax: best.level,
+      nominalOhms: nominal,
+      assumptions: [...assumptions],
+    },
+  }
+}
+
+function speakerLimitText(limit: SpeakerLimit, inRoomOffset: number): string {
+  const { low, high } = limit.averageDb1m
+  const at = (v: number) => Math.round(v + inRoomOffset)
+  switch (limit.bound) {
+    case 'at_least':
+      return `clean to at least ${at(low)} dB average`
+    case 'at_most':
+      return `compresses by ${at(high)} dB average`
+    case 'range':
+      return `clean to ${at(low)}, compresses by ${at(high)} dB average`
+    default:
+      return `about ${at(low)} dB average`
   }
 }

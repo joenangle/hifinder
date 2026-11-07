@@ -209,7 +209,7 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
           </ul>
         )}
 
-        <Caveat>{caveat}</Caveat>
+        {caveat && <Caveat>{caveat}</Caveat>}
 
         {assumptions.length > 0 && (
           <div className="flex flex-col gap-2">
