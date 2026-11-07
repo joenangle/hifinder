@@ -167,9 +167,13 @@ describe('StereoBuilder (anonymous, URL state)', () => {
     await screen.findByText('Comfortable')
 
     const shown = () => mocks.trackEvent.mock.calls.map(([e]) => e).filter((e) => e.name === 'stereo_verdict_shown')
-    expect(shown()).toEqual([
-      { name: 'stereo_verdict_shown', properties: { verdict: 'comfortable', any_assumed: true } },
-    ])
+    // The event is sent from a passive effect, which can run after the text is
+    // already in the DOM, so wait for it rather than asserting at once.
+    await waitFor(() =>
+      expect(shown()).toEqual([
+        { name: 'stereo_verdict_shown', properties: { verdict: 'comfortable', any_assumed: true } },
+      ])
+    )
 
     // A change that keeps both the same adds nothing.
     fireEvent.change(screen.getByLabelText('Listening distance in meters'), { target: { value: '2' } })
