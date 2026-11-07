@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { STEREO_CATEGORIES, isCategoryIn } from '@/lib/component-categories'
 
 interface ComponentFormProps {
   editComponentId?: string
@@ -152,7 +153,8 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
       const parsedPriceUsedMin = priceUsedMin ? parseFloat(priceUsedMin) : null
       const parsedPriceUsedMax = priceUsedMax ? parseFloat(priceUsedMax) : null
 
-      if (!parsedPriceNew && !parsedPriceUsedMin && !parsedPriceUsedMax) {
+      const priceRequired = !isCategoryIn(category, STEREO_CATEGORIES)
+      if (priceRequired && !parsedPriceNew && !parsedPriceUsedMin && !parsedPriceUsedMax) {
         throw new Error('At least one price field is required')
       }
 
@@ -187,7 +189,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
         manufacturer_url?: string
         asr_sinad?: number
         asr_review_url?: string
-        crin_rank?: number
+        crin_rank?: string
         crin_tone?: string
         crin_tech?: string
         crin_value?: number
@@ -213,7 +215,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
       // Add expert data fields if provided
       if (asrSinad) body.asr_sinad = parseFloat(asrSinad)
       if (asrReviewUrl) body.asr_review_url = asrReviewUrl
-      if (crinRank) body.crin_rank = parseInt(crinRank)
+      if (crinRank) body.crin_rank = crinRank.trim()
       if (crinTone) body.crin_tone = crinTone
       if (crinTech) body.crin_tech = crinTech
       if (crinValue) body.crin_value = parseFloat(crinValue)
@@ -386,6 +388,8 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 <option value="amp">Amplifier</option>
                 <option value="dac_amp">DAC/Amp Combo</option>
                 <option value="cable">Cable</option>
+                <option value="speakers">Speakers</option>
+                <option value="speaker_amp">Speaker Amp</option>
               </select>
             </div>
           </div>
@@ -394,7 +398,9 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
         {/* Pricing Section */}
         <div className="card p-6">
           <h3 className="text-lg font-semibold text-primary mb-4">
-            Pricing <span className="text-sm font-normal text-secondary">(at least one required)</span>
+            Pricing <span className="text-sm font-normal text-secondary">
+              {isCategoryIn(category, STEREO_CATEGORIES) ? '(optional for stereo gear)' : '(at least one required)'}
+            </span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -409,7 +415,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="299"
                 min="0"
-                step="0.01"
+                step="1"
               />
             </div>
 
@@ -425,7 +431,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="150"
                 min="0"
-                step="0.01"
+                step="1"
               />
             </div>
 
@@ -441,7 +447,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="250"
                 min="0"
-                step="0.01"
+                step="1"
               />
             </div>
           </div>
@@ -468,8 +474,6 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 <option value="warm">Warm</option>
                 <option value="bright">Bright</option>
                 <option value="fun">Fun (V-shaped)</option>
-                <option value="v-shaped">V-Shaped</option>
-                <option value="dark">Dark</option>
               </select>
             </div>
 
@@ -499,7 +503,7 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
                 className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="32"
                 min="0"
-                step="0.1"
+                step="1"
               />
             </div>
 
@@ -597,16 +601,15 @@ export default function ComponentForm({ editComponentId, onSuccess, onCancel }: 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="crinRank" className="block text-sm font-medium text-primary mb-2">
-                    Ranking (1-400+)
+                    Rank Grade
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     id="crinRank"
                     value={crinRank}
                     onChange={(e) => setCrinRank(e.target.value)}
                     className="w-full px-4 py-2 border rounded-lg bg-secondary text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="e.g. 42"
-                    min="1"
+                    placeholder="e.g. A-"
                   />
                 </div>
                 <div>
