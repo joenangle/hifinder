@@ -1055,7 +1055,7 @@ export default function AdminPage() {
                             className="w-full px-3 py-2 bg-surface-hover border rounded text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                           >
                             <option value="">Select category...</option>
-                            <option value="headphones">Headphones</option>
+                            <option value="cans">Headphones</option>
                             <option value="iems">IEMs</option>
                             <option value="dac">DAC</option>
                             <option value="amp">Amplifier</option>

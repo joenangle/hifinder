@@ -3,6 +3,9 @@ import { invalidateRecommendationCache } from '@/lib/cache-recommendations'
 import { requireAdmin } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 import { SOUND_SIGNATURES } from '@/types'
+import { CATEGORY, STEREO_CATEGORIES, isCategoryIn } from '@/lib/component-categories'
+
+const VALID_CATEGORIES: readonly string[] = Object.values(CATEGORY)
 
 /**
  * GET /api/admin/components?id=xxx
@@ -84,8 +87,11 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate at least one price field
-    if (!body.price_new && !body.price_used_min && !body.price_used_max) {
+    // Validate at least one price field (stereo gear is cataloged unpriced)
+    if (
+      !isCategoryIn(body.category, STEREO_CATEGORIES) &&
+      !body.price_new && !body.price_used_min && !body.price_used_max
+    ) {
       return NextResponse.json(
         { error: 'At least one price field (price_new, price_used_min, or price_used_max) is required' },
         { status: 400 }
@@ -93,10 +99,9 @@ export async function POST(request: Request) {
     }
 
     // Validate category
-    const validCategories = ['cans', 'iems', 'dac', 'amp', 'dac_amp', 'cable']
-    if (!validCategories.includes(body.category)) {
+    if (!VALID_CATEGORIES.includes(body.category)) {
       return NextResponse.json(
-        { error: `Invalid category. Must be one of: ${validCategories.join(', ')}` },
+        { error: `Invalid category. Must be one of: ${VALID_CATEGORIES.join(', ')}` },
         { status: 400 }
       )
     }
@@ -248,8 +253,11 @@ export async function PUT(request: Request) {
       )
     }
 
-    // Validate at least one price field
-    if (!body.price_new && !body.price_used_min && !body.price_used_max) {
+    // Validate at least one price field (stereo gear is cataloged unpriced)
+    if (
+      !isCategoryIn(body.category, STEREO_CATEGORIES) &&
+      !body.price_new && !body.price_used_min && !body.price_used_max
+    ) {
       return NextResponse.json(
         { error: 'At least one price field (price_new, price_used_min, or price_used_max) is required' },
         { status: 400 }
@@ -257,10 +265,9 @@ export async function PUT(request: Request) {
     }
 
     // Validate category
-    const validCategories = ['cans', 'iems', 'dac', 'amp', 'dac_amp', 'cable']
-    if (!validCategories.includes(body.category)) {
+    if (!VALID_CATEGORIES.includes(body.category)) {
       return NextResponse.json(
-        { error: `Invalid category. Must be one of: ${validCategories.join(', ')}` },
+        { error: `Invalid category. Must be one of: ${VALID_CATEGORIES.join(', ')}` },
         { status: 400 }
       )
     }
