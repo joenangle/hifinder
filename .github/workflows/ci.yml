@@ -41,3 +41,6 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      - name: Push guard tests
+        run: npm run test:hooks
