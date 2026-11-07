@@ -252,11 +252,12 @@ export function SpecFields({ role, pick, missing, softMissing = [], advanced = f
   }
 
   function advancedLabel(text: string) {
+    // One flex item, so the tag stays on the label's line.
     return (
-      <>
+      <span>
         {text}
         <AdvancedTag />
-      </>
+      </span>
     )
   }
 
