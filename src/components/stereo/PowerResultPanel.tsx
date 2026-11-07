@@ -1,6 +1,6 @@
 import { Check, AlertTriangle } from 'lucide-react'
 import { averageFromPeak } from '@/lib/stereo/power'
-import { tierFor, type Assumption, type PowerCheckOutcome, type WorkingRow } from '@/lib/stereo/power-check'
+import { tierFor, type Assumption, type LimitedBy, type PowerCheckOutcome, type WorkingRow } from '@/lib/stereo/power-check'
 import type { VerdictKind } from '@/lib/stereo/power'
 
 interface PowerResultPanelProps {
@@ -8,6 +8,43 @@ interface PowerResultPanelProps {
   targetPeakDb: number
   distanceM: number | null
   onEditAssumption?: (id: Assumption['id']) => void
+  /** Simple mode: the single worst problem from the other checks, if any (decision D3). */
+  problemLine?: string | null
+  /** Open Advanced mode at that check. */
+  onShowProblem?: () => void
+}
+
+const LIMITED_BY: Record<LimitedBy, string> = {
+  amp: 'the amp',
+  speakers: 'your speakers',
+  source: 'your source',
+}
+
+/** The working behind a result: step, value and where each number came from. Shared by every check. */
+export function WorkingTable({ rows, caption }: { rows: WorkingRow[]; caption?: string }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-left text-sm">
+        {caption && <caption className="sr-only">{caption}</caption>}
+        <thead>
+          <tr className="border-b border-[var(--border-subtle)] text-xs uppercase tracking-[0.05em] text-[var(--text-secondary)]">
+            <th scope="col" className="py-2.5 pr-3 font-semibold">Step</th>
+            <th scope="col" className="py-2.5 pr-3 font-semibold">Value</th>
+            <th scope="col" className="py-2.5 font-semibold">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.step} className="border-b border-[var(--border-subtle)] align-top">
+              <td className="py-3 pr-3 text-[var(--text-primary)]">{row.step}</td>
+              <td className="py-3 pr-3 text-[var(--text-primary)]">{row.value}</td>
+              <td className="py-3 text-[var(--text-secondary)]">{TRUST_LABEL[row.trust]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 }
 
 // The meter reads in average dB, like the slider.
@@ -81,7 +118,14 @@ function ListeningColumn() {
   )
 }
 
-export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssumption }: PowerResultPanelProps) {
+export function PowerResultPanel({
+  outcome,
+  targetPeakDb,
+  distanceM,
+  onEditAssumption,
+  problemLine = null,
+  onShowProblem,
+}: PowerResultPanelProps) {
   if (outcome.status === 'needs') {
     const first = outcome.missing[0]
     const headline =
@@ -112,7 +156,7 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
     )
   }
 
-  const { verdict, reasons, notes, caveat, assumptions, working, sensitivityRange } = outcome
+  const { verdict, reasons, notes, caveat, assumptions, working, sensitivityRange, limitedBy } = outcome
   const comfortable = isComfortable(verdict.kind)
   const tone = comfortable ? 'var(--success)' : 'var(--warning)'
   const peaks = verdict.maxCleanPeakDb
@@ -169,6 +213,9 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
             <span className="text-sm text-[var(--text-secondary)]">
               With clean peaks of {dbRange(peaks)} dB at your seat · Your target: {targetAverageDb} dB average
             </span>
+            <span className="text-sm text-[var(--text-secondary)]">
+              Limited by: <strong className="font-semibold text-[var(--text-primary)]">{LIMITED_BY[limitedBy]}</strong>
+            </span>
           </div>
           <div data-testid="power-meter" aria-hidden="true" className="relative h-10">
             <div className="absolute inset-x-0 top-4 h-2 rounded-full bg-[var(--background-secondary)] ring-1 ring-[var(--border-subtle)]" />
@@ -209,6 +256,20 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
           </ul>
         )}
 
+        {problemLine && (
+          <button
+            type="button"
+            onClick={onShowProblem}
+            className="flex min-h-11 items-start gap-2.5 rounded-lg border border-[var(--warning)] px-3.5 py-3 text-left text-sm leading-normal text-[var(--text-primary)]"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}
+          >
+            <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 flex-none" />
+            <span>
+              {problemLine} <span className="font-semibold text-[var(--accent-hover)] underline">See it in Advanced</span>
+            </span>
+          </button>
+        )}
+
         {caveat && <Caveat>{caveat}</Caveat>}
 
         {assumptions.length > 0 && (
@@ -243,25 +304,8 @@ export function PowerResultPanel({ outcome, targetPeakDb, distanceM, onEditAssum
         <summary className="flex min-h-11 cursor-pointer items-center text-base font-bold text-[var(--text-primary)]">
           Summary Table
         </summary>
-        <div className="overflow-x-auto pb-5">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border-subtle)] text-xs uppercase tracking-[0.05em] text-[var(--text-secondary)]">
-                <th scope="col" className="py-2.5 pr-3 font-semibold">Step</th>
-                <th scope="col" className="py-2.5 pr-3 font-semibold">Value</th>
-                <th scope="col" className="py-2.5 font-semibold">Source</th>
-              </tr>
-            </thead>
-            <tbody>
-              {working.map((row) => (
-                <tr key={row.step} className="border-b border-[var(--border-subtle)] align-top">
-                  <td className="py-3 pr-3 text-[var(--text-primary)]">{row.step}</td>
-                  <td className="py-3 pr-3 text-[var(--text-primary)]">{row.value}</td>
-                  <td className="py-3 text-[var(--text-secondary)]">{TRUST_LABEL[row.trust]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="pb-5">
+          <WorkingTable rows={working} />
         </div>
       </details>
 

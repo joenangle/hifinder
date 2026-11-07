@@ -183,6 +183,68 @@ describe('StereoBuilder (anonymous, URL state)', () => {
   })
 })
 
+describe('StereoBuilder advanced mode', () => {
+  beforeEach(() => {
+    try {
+      window.localStorage.clear()
+    } catch {
+      // jsdom always has storage; ignore if not.
+    }
+  })
+
+  it('starts in Simple mode with no checks panel or source tile', async () => {
+    stubFetch(catalogHandlers())
+    renderBuilder(`spk=${SPK_ID}&amp=${AMP_ID}`)
+    await screen.findByText('Test Bookshelf')
+    expect(screen.getByRole('button', { name: 'Simple' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.queryByRole('heading', { name: 'System checks' })).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Source type' })).toBeNull()
+  })
+
+  it('switching to Advanced shows the source, the advanced fields and the checks, and keeps the verdict', async () => {
+    stubFetch(catalogHandlers())
+    renderBuilder(`spk=${SPK_ID}&amp=${AMP_ID}&db=95`)
+    await screen.findByText('Comfortable')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced' }))
+    expect(await screen.findByRole('heading', { name: 'System checks' })).toBeTruthy()
+    expect(screen.getByRole('group', { name: 'Source type' })).toBeTruthy()
+    expect(screen.getByLabelText('Output impedance (Ω)')).toBeTruthy()
+    expect(screen.getByText('Comfortable')).toBeTruthy()
+    expect(window.localStorage.getItem('stereo-advanced-mode')).toBe('1')
+  })
+
+  it('a weak source caps the verdict, and Simple mode shows one problem line that opens Advanced', async () => {
+    stubFetch(catalogHandlers())
+    const ax = encodeURIComponent(JSON.stringify({ input_sensitivity_v: { value: 4 } }))
+    const srx = encodeURIComponent(JSON.stringify({ kind: 'dac', output_v: { value: 2 } }))
+    renderBuilder(`spk=${SPK_ID}&amp=${AMP_ID}&ax=${ax}&srx=${srx}`)
+
+    const line = await screen.findByRole('button', { name: /can't drive this amp to full power/ })
+    expect(screen.getByText('your source')).toBeTruthy()
+    fireEvent.click(line)
+    expect(await screen.findByRole('heading', { name: 'System checks' })).toBeTruthy()
+    expect(screen.getByText(/only drives this amp to about/)).toBeTruthy()
+  })
+
+  it('adv=1 in the link opens Advanced mode', async () => {
+    stubFetch(catalogHandlers())
+    renderBuilder(`spk=${SPK_ID}&amp=${AMP_ID}&adv=1`)
+    expect(await screen.findByRole('heading', { name: 'System checks' })).toBeTruthy()
+  })
+
+  it('choosing a source preset sets its voltage; phono asks for it instead', async () => {
+    stubFetch(catalogHandlers())
+    renderBuilder(`spk=${SPK_ID}&amp=${AMP_ID}&adv=1`)
+    await screen.findByRole('group', { name: 'Source type' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Balanced DAC (4 V)' }))
+    expect((screen.getByLabelText('Maximum output (V)') as HTMLInputElement).value).toBe('4')
+    fireEvent.click(screen.getByRole('button', { name: 'Phono stage' }))
+    expect((screen.getByLabelText('Maximum output (V)') as HTMLInputElement).value).toBe('')
+  })
+})
+
 describe('StereoBuilder (signed in)', () => {
   const SYSTEM_ID = 'sys-1'
   const row = {

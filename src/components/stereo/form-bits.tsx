@@ -122,3 +122,73 @@ export const RATING_OPTIONS: readonly RadioOption<PowerRatingKind>[] = [
   { value: 'peak', label: 'Peak / max' },
   { value: 'unknown', label: 'Not stated' },
 ]
+
+/** A two- or three-way unit switch (Ω / damping factor, V / dB). Buttons with aria-pressed, 44 px tall. */
+export function UnitSwitch<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: readonly RadioOption<T>[]
+  value: T
+  onChange: (v: T) => void
+}) {
+  return (
+    <div role="group" aria-label={label} className="inline-flex overflow-hidden rounded-md border border-[var(--border-subtle)]">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          aria-pressed={value === o.value}
+          onClick={() => onChange(o.value)}
+          className={`min-h-11 px-3 text-[13px] ${
+            value === o.value
+              ? 'bg-[var(--text-primary)] font-semibold text-[var(--background-primary)]'
+              : 'bg-[var(--background-primary)] text-[var(--text-secondary)]'
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** A labeled native select. */
+export function SelectField<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  id,
+}: {
+  label: string
+  options: readonly RadioOption<T>[]
+  value: T
+  onChange: (v: T) => void
+  id?: string
+}) {
+  return (
+    <label className={fieldLabelClass}>
+      {label}
+      <select id={id} className={inputClass} value={value} onChange={(e) => onChange(e.target.value as T)}>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+/** Small tag that marks a field shown only in Advanced mode. */
+export function AdvancedTag() {
+  return (
+    <span className="ml-1.5 rounded bg-[var(--accent-subtle)] px-1.5 py-0.5 align-[1px] text-[11px] font-semibold text-[var(--text-primary)]">
+      Advanced
+    </span>
+  )
+}

@@ -349,7 +349,27 @@ describe('PUT /api/stereo-systems/items', () => {
     )
   })
 
-  it('stores null overrides when the parse is empty and for sub/source roles', async () => {
+  it('stores a source item\'s specs, stamped as the user\'s', async () => {
+    results = [stereoStack, ok({ id: 'src' })]
+    await PUT(
+      putRequest({
+        stack_id: 'sys-1',
+        role: 'source',
+        custom: { name: 'Your source' },
+        spec_overrides: { kind: 'dac', output_v: { value: 2, trust: 'measured' }, has_volume: false, junk: 1 },
+      })
+    )
+    expect(mockChain.upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        role: 'source',
+        custom_category: null,
+        spec_overrides: { kind: 'dac', output_v: { value: 2, trust: 'user', source_url: null }, has_volume: false },
+      }),
+      { onConflict: 'stack_id,role' }
+    )
+  })
+
+  it('stores null overrides when the parse is empty and for the sub role', async () => {
     results = [stereoStack, ok({ id: 'i' })]
     await PUT(
       putRequest({

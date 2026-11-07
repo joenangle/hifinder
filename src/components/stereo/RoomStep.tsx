@@ -5,9 +5,9 @@ import { ROOM_PRESETS } from '@/lib/stereo/power-check'
 import { SPEC_RANGES, type Acoustics, type RoomPresetId, type SystemProfile } from '@/lib/stereo/specs'
 import { formatLength, fromMeters, rangeIn, toMeters, UNIT_NAME, UNIT_SUFFIX, type LengthUnit } from '@/lib/stereo/units'
 import { useLengthUnit } from '@/hooks/useLengthUnit'
-import { DecimalInput, fieldLabelClass, inputClass, parseDecimal, secondaryButtonClass } from './form-bits'
+import { AdvancedTag, DecimalInput, fieldLabelClass, inputClass, parseDecimal, secondaryButtonClass } from './form-bits'
 
-export type RoomField = 'size' | 'acoustics' | 'distance'
+export type RoomField = 'size' | 'acoustics' | 'distance' | 'cable'
 
 /** Ask the step to open (if needed) and focus a field. Pass a new object each time so repeat requests re-fire. */
 export interface RoomFocusRequest {
@@ -18,6 +18,8 @@ interface RoomStepProps {
   profile: SystemProfile
   onChange: (p: SystemProfile) => void
   focusRequest?: RoomFocusRequest | null
+  /** Show the speaker cable run (Advanced mode). */
+  advanced?: boolean
 }
 
 /** Stable DOM ids, so assumption chips elsewhere on the page can jump to the matching input. */
@@ -25,7 +27,10 @@ const FIELD_IDS: Record<RoomField, string> = {
   size: 'stereo-room-length',
   acoustics: 'stereo-acoustics',
   distance: 'stereo-distance',
+  cable: 'stereo-cable-length',
 }
+
+const GAUGES = [12, 14, 16, 18] as const
 
 const ACOUSTICS_OPTIONS: readonly { id: Acoustics; label: string; description: string }[] = [
   { id: 'lively', label: 'Lively', description: 'bare floors, few soft things' },
@@ -55,14 +60,14 @@ function summaryFor(profile: SystemProfile, unit: LengthUnit): string {
   return dims ?? 'Room not set yet'
 }
 
-export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepProps) {
+export function RoomStep({ profile, onChange, focusRequest = null, advanced = false }: RoomStepProps) {
   const [open, setOpen] = useState(true)
   const [unit, setUnit] = useLengthUnit()
   const [seenRequest, setSeenRequest] = useState(focusRequest)
   if (focusRequest !== seenRequest) {
     setSeenRequest(focusRequest)
     // The distance input stays visible when the room is collapsed; the other fields do not.
-    if (focusRequest && focusRequest.field !== 'distance') setOpen(true)
+    if (focusRequest && focusRequest.field !== 'distance' && focusRequest.field !== 'cable') setOpen(true)
   }
 
   useEffect(() => {
@@ -263,6 +268,53 @@ export function RoomStep({ profile, onChange, focusRequest = null }: RoomStepPro
           {UNIT_SUFFIX[unit]}
         </span>
       </label>
+
+      {advanced && (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 border-t border-[var(--border-subtle)] p-0 pt-4">
+          <legend className="p-0 pt-4 text-[15px] font-semibold text-[var(--text-primary)]">
+            Speaker cable
+            <AdvancedTag />
+          </legend>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <label className={fieldLabelClass}>
+              Length per side ({UNIT_SUFFIX[unit]})
+              <DecimalInput
+                id={FIELD_IDS.cable}
+                key={`cable-${unit}`}
+                value={profile.cable?.length_m == null ? null : fromMeters(profile.cable.length_m, unit)}
+                range={rangeIn(SPEC_RANGES.cable_length_m, unit)}
+                placeholder={unit === 'ft' ? 'e.g. 10' : 'e.g. 3'}
+                onCommit={(n) =>
+                  onChange({ ...profile, cable: { length_m: toMeters(n, unit), awg: profile.cable?.awg ?? null } })
+                }
+              />
+            </label>
+            <label className={fieldLabelClass}>
+              Gauge
+              <select
+                className={inputClass}
+                value={profile.cable?.awg ?? ''}
+                onChange={(e) =>
+                  onChange({
+                    ...profile,
+                    cable: { length_m: profile.cable?.length_m ?? null, awg: e.target.value ? Number(e.target.value) : null },
+                  })
+                }
+              >
+                <option value="">Not sure</option>
+                {GAUGES.map((g) => (
+                  <option key={g} value={g}>
+                    {g} AWG
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="m-0 self-end text-xs leading-snug text-[var(--text-secondary)]">
+              Long thin runs lower the damping factor more than most amps do.
+            </p>
+          </div>
+        </fieldset>
+      )}
     </section>
   )
 }

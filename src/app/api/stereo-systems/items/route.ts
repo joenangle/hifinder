@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
 import { CATEGORY } from '@/lib/component-categories'
-import { applyOverrides, parseSpeakerSpecs, parseSpeakerAmpSpecs } from '@/lib/stereo/specs'
+import { applyOverrides, parseSourceSpecs, parseSpeakerSpecs, parseSpeakerAmpSpecs } from '@/lib/stereo/specs'
 import type { StackRole } from '@/types/gear'
 import type { Json } from '@/types/supabase'
 
@@ -30,9 +30,10 @@ function isStackRole(value: unknown): value is StackRole {
  * stored as null.
  */
 function parseOverrides(role: StackRole, input: unknown): Json | null {
-  const parse =
+  const parse: ((j: unknown) => object) | null =
     role === 'speakers' ? parseSpeakerSpecs
     : role === 'amp' ? parseSpeakerAmpSpecs
+    : role === 'source' ? parseSourceSpecs
     : null
   if (!parse) return null
   const parsed = applyOverrides({}, input, parse)

@@ -6,13 +6,16 @@ import { signIn, useSession } from 'next-auth/react'
 import { parseAsString, useQueryState, useQueryStates } from 'nuqs'
 import { trackEvent } from '@/lib/analytics'
 import { averageFromPeak, peakFromAverage } from '@/lib/stereo/power'
-import { runPowerCheck, type Assumption } from '@/lib/stereo/power-check'
+import { runSystemChecks, worstProblem } from '@/lib/stereo/checks'
+import type { Assumption, MissingInput } from '@/lib/stereo/power-check'
 import { profileFromParams, stereoParams } from '@/lib/stereo/url-params'
 import {
   applyOverrides,
+  parseSourceSpecs,
   parseSpeakerAmpSpecs,
   parseSpeakerSpecs,
   parseSystemProfile,
+  type SourceSpecs,
   type SpeakerAmpSpecs,
   type SpeakerSpecs,
   type StereoCatalogItem,
@@ -21,13 +24,17 @@ import {
 import type { GearPick, GearRole } from './GearChooser'
 import { GearStep, type CatalogCounts } from './GearStep'
 import { LoudnessSlider } from './LoudnessSlider'
+import { ModeToggle } from './ModeToggle'
 import { PowerResultPanel } from './PowerResultPanel'
-import { RoomStep, type RoomFocusRequest } from './RoomStep'
+import { RoomStep, type RoomField, type RoomFocusRequest } from './RoomStep'
+import { SystemChecksPanel } from './SystemChecksPanel'
 import { inputClass, primaryButtonClass, secondaryButtonClass } from './form-bits'
 
 interface Draft {
   speakers: GearPick | null
   amp: GearPick | null
+  /** Hand-entered only: sources have no catalog. */
+  source: SourceSpecs | null
   profile: SystemProfile
 }
 
@@ -36,6 +43,7 @@ interface Dirty {
   profile: boolean
   speakers: boolean
   amp: boolean
+  source: boolean
   name: boolean
 }
 
@@ -79,23 +87,28 @@ interface SystemRow {
 const SAVE_DEBOUNCE_MS = 800
 const DEFAULT_SYSTEM_NAME = 'My stereo system'
 const ROLES: readonly GearRole[] = ['speakers', 'amp']
-const NOTHING_DIRTY: Dirty = { profile: false, speakers: false, amp: false, name: false }
+const NOTHING_DIRTY: Dirty = { profile: false, speakers: false, amp: false, source: false, name: false }
 
-const anyDirty = (d: Dirty) => d.profile || d.speakers || d.amp || d.name
+const anyDirty = (d: Dirty) => d.profile || d.speakers || d.amp || d.source || d.name
 const mergeDirty = (a: Dirty, b: Partial<Dirty>): Dirty => ({
   profile: a.profile || Boolean(b.profile),
   speakers: a.speakers || Boolean(b.speakers),
   amp: a.amp || Boolean(b.amp),
+  source: a.source || Boolean(b.source),
   name: a.name || Boolean(b.name),
 })
+
+const SOURCE_NAME = 'Your source'
+const ADVANCED_PREF_KEY = 'stereo-advanced-mode'
 
 const ROLE_CATEGORY = { speakers: 'speakers', amp: 'speaker_amp' } as const
 const CUSTOM_NAME = { speakers: 'Your speakers', amp: 'Your amplifier' } as const
 
-const ASSUMPTION_FIELD: Partial<Record<Assumption['id'], 'size' | 'acoustics' | 'distance'>> = {
+const ASSUMPTION_FIELD: Partial<Record<Assumption['id'], RoomField>> = {
   'room.size': 'size',
   'room.acoustics': 'acoustics',
   'seat.distance_m': 'distance',
+  'cable.run': 'cable',
 }
 
 const parserFor = (role: GearRole) => (role === 'speakers' ? parseSpeakerSpecs : parseSpeakerAmpSpecs)
@@ -114,10 +127,15 @@ function isUserValue(v: unknown): boolean {
  * next to a catalog id. The amp's power rating kind rides along, because the
  * prompt sets it together with the power figure it describes.
  */
-function overridesOf(specs: SpeakerSpecs | SpeakerAmpSpecs): Record<string, unknown> {
-  const user = Object.entries(specs).filter(([, v]) => isUserValue(v))
-  if (user.length === 0) return {}
-  const out = Object.fromEntries(user)
+function overridesOf(
+  specs: SpeakerSpecs | SpeakerAmpSpecs,
+  catalogSpecs?: SpeakerSpecs | SpeakerAmpSpecs,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = Object.fromEntries(Object.entries(specs).filter(([, v]) => isUserValue(v)))
+  // The amp type is a plain field, not a trusted value: carry it when the user changed it.
+  const topology = (specs as SpeakerAmpSpecs).topology
+  if (topology && topology !== (catalogSpecs as SpeakerAmpSpecs | undefined)?.topology) out.topology = topology
+  if (Object.keys(out).length === 0) return {}
   if ('power_rating' in specs && specs.power_rating) out.power_rating = specs.power_rating
   return out
 }
@@ -146,7 +164,7 @@ function gearToParams(role: GearRole, pick: GearPick) {
   const idKey = role === 'speakers' ? 'spk' : 'amp'
   const specsKey = role === 'speakers' ? 'sx' : 'ax'
   return pick.kind === 'catalog'
-    ? { [idKey]: pick.item.id, [specsKey]: overridesOf(pick.item.specs) }
+    ? { [idKey]: pick.item.id, [specsKey]: overridesOf(pick.item.specs, pick.catalogSpecs) }
     : { [idKey]: null, [specsKey]: pick.specs }
 }
 
@@ -159,6 +177,8 @@ function profileToParams(p: SystemProfile) {
     h: p.room?.height_m ?? null,
     d: p.distance_m,
     db: p.target_peak_db,
+    cl: p.cable?.length_m ?? null,
+    cg: p.cable?.awg ?? null,
   }
 }
 
@@ -184,17 +204,24 @@ function pickFromRow(role: GearRole, row: ComponentRow | undefined): GearPick | 
   }
 }
 
+function sourceFromRow(row: ComponentRow | undefined): SourceSpecs | null {
+  if (!row) return null
+  const source = applyOverrides({}, row.spec_overrides, parseSourceSpecs)
+  return Object.keys(source).length > 0 ? source : null
+}
+
 function draftFromRow(row: SystemRow): Draft {
   const items = row.stack_components ?? []
   return {
     speakers: pickFromRow('speakers', items.find((c) => c.role === 'speakers')),
     amp: pickFromRow('amp', items.find((c) => c.role === 'amp')),
+    source: sourceFromRow(items.find((c) => c.role === 'source')),
     profile: parseSystemProfile(row.system_profile),
   }
 }
 
 function itemBody(systemId: string, role: GearRole, pick: GearPick) {
-  const overrides = pick.kind === 'catalog' ? overridesOf(pick.item.specs) : pick.specs
+  const overrides = pick.kind === 'catalog' ? overridesOf(pick.item.specs, pick.catalogSpecs) : pick.specs
   const spec_overrides = Object.keys(overrides).length > 0 ? overrides : undefined
   if (pick.kind === 'catalog') {
     return { stack_id: systemId, role, component_id: pick.item.id, spec_overrides }
@@ -246,6 +273,20 @@ async function persist(system: SavedSystem, parts: Dirty): Promise<Dirty> {
       failed = mergeDirty(failed, { [role]: true })
     }
   }
+  const source = system.draft.source
+  if (parts.source && source) {
+    try {
+      await send('PUT', '/api/stereo-systems/items', {
+        stack_id: system.id,
+        role: 'source',
+        custom: { name: SOURCE_NAME },
+        spec_overrides: source,
+      })
+    } catch (err) {
+      console.error('Saving stereo system failed:', err)
+      failed = mergeDirty(failed, { source: true })
+    }
+  }
   return failed
 }
 
@@ -280,6 +321,8 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
 
   const [copied, setCopied] = useState<'copied' | 'failed' | null>(null)
   const [focusRequest, setFocusRequest] = useState<RoomFocusRequest | null>(null)
+  // Simple mode's problem line asks the checks panel to open and scroll to that check.
+  const [revealCheck, setRevealCheck] = useState<{ id: 'gain' | 'tonal' | 'hiss' } | null>(null)
 
   const activeSaved = signedIn && saved && systemId === saved.id ? saved : null
 
@@ -384,6 +427,7 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
     : {
         speakers: pickFromUrl('speakers', params.spk, params.sx, catalog),
         amp: pickFromUrl('amp', params.amp, params.ax, catalog),
+        source: Object.keys(params.srx).length > 0 ? params.srx : null,
         profile,
       }
 
@@ -396,7 +440,11 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
     // A fresh pick replaces whatever the broken link failed to load.
     setCatalogFailed(false)
     // Picks straight from the chooser are untouched catalog rows; remember them so the URL id resolves without a refetch.
-    if (pick.kind === 'catalog' && !catalog[pick.item.id] && Object.keys(overridesOf(pick.item.specs)).length === 0) {
+    if (
+      pick.kind === 'catalog' &&
+      !catalog[pick.item.id] &&
+      Object.keys(overridesOf(pick.item.specs, pick.catalogSpecs)).length === 0
+    ) {
       setCatalog((c) => ({ ...c, [pick.item.id]: pick.item }))
     }
     if (activeSaved) {
@@ -404,6 +452,36 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
       markDirty({ [role]: true })
     } else {
       void setParams(gearToParams(role, pick))
+    }
+  }
+
+  function changeSource(next: SourceSpecs) {
+    if (activeSaved) {
+      setSaved({ ...activeSaved, draft: { ...activeSaved.draft, source: next } })
+      markDirty({ source: true })
+    } else {
+      void setParams({ srx: next })
+    }
+  }
+
+  // Advanced mode lives in the URL (adv=1); a per-browser preference turns it on for links without it.
+  const advanced = params.adv
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(ADVANCED_PREF_KEY) === '1' && !new URLSearchParams(window.location.search).has('adv')) {
+        void setParams({ adv: true })
+      }
+    } catch {
+      // Storage can be unavailable (private mode); the URL still works.
+    }
+    // Once, on mount: later toggles write the URL themselves.
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  function setAdvanced(on: boolean) {
+    void setParams({ adv: on })
+    try {
+      window.localStorage.setItem(ADVANCED_PREF_KEY, on ? '1' : '0')
+    } catch {
+      // Ignore: the preference is a convenience.
     }
   }
 
@@ -426,8 +504,20 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
 
   const speakersSpecs = draft.speakers ? (pickSpecs(draft.speakers) as SpeakerSpecs) : null
   const ampSpecs = draft.amp ? (pickSpecs(draft.amp) as SpeakerAmpSpecs) : null
-  // Simple mode fills in only what is missing and labels it "assumed", so a verdict never waits on room details.
-  const outcome = runPowerCheck({ speakers: speakersSpecs, amp: ampSpecs, profile: draft.profile, mode: 'simple' })
+  // Both modes fill in only what is missing and label it "assumed", so a verdict never waits on room details (D1).
+  const checks = runSystemChecks({
+    speakers: speakersSpecs,
+    amp: ampSpecs,
+    source: draft.source,
+    profile: draft.profile,
+    mode: 'simple',
+  })
+  const outcome = checks.power
+  const problem = worstProblem(checks)
+  // What only the secondary checks need: shown softly in Advanced mode.
+  const softMissing: MissingInput[] = advanced
+    ? [checks.gain, checks.tonal, checks.hiss].flatMap((c) => (c.status === 'needs' ? c.missing : []))
+    : []
 
   const waitingForSystem =
     Boolean(systemId) &&
@@ -473,7 +563,7 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
       return
     }
     // The profile went up with the POST; the gear follows through the same queue as later edits.
-    pending.current = mergeDirty(pending.current, { speakers: true, amp: true })
+    pending.current = mergeDirty(pending.current, { speakers: true, amp: true, source: true })
     latestSaved.current = created
     setSaved(created)
     void setSystemId(created.id)
@@ -527,6 +617,7 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
           )}
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <ModeToggle advanced={advanced} onChange={setAdvanced} />
           {!activeSaved && (
             <button type="button" className={secondaryButtonClass} onClick={() => void copyLink()}>
               Copy link
@@ -608,21 +699,36 @@ export function StereoBuilder({ catalogCounts }: { catalogCounts?: CatalogCounts
               ampNote={null}
               catalogCounts={catalogCounts}
               missing={outcome.status === 'needs' ? outcome.missing : []}
+              softMissing={softMissing}
+              advanced={advanced}
+              source={draft.source}
+              onSourceChange={changeSource}
               onChange={changeGear}
             />
-            <RoomStep profile={draft.profile} onChange={changeProfile} focusRequest={focusRequest} />
+            <RoomStep profile={draft.profile} onChange={changeProfile} focusRequest={focusRequest} advanced={advanced} />
             <LoudnessSlider
               valueDb={averageFromPeak(draft.profile.target_peak_db)}
               onChange={(db) => changeProfile({ ...draft.profile, target_peak_db: peakFromAverage(db) })}
             />
           </div>
-          <div className="min-w-0 flex-[2_1_420px] md:sticky md:top-6">
+          {/* Advanced mode's column is taller than a screen, so it scrolls with the page instead of sticking. */}
+          <div className={`flex min-w-0 flex-[2_1_420px] flex-col gap-4 ${advanced ? '' : 'md:sticky md:top-6'}`}>
             <PowerResultPanel
               outcome={outcome}
               targetPeakDb={draft.profile.target_peak_db}
               distanceM={draft.profile.distance_m}
               onEditAssumption={editAssumption}
+              problemLine={!advanced && problem ? problem.summary : null}
+              onShowProblem={
+                problem
+                  ? () => {
+                      setAdvanced(true)
+                      setRevealCheck({ id: problem.id })
+                    }
+                  : undefined
+              }
             />
+            {advanced && <SystemChecksPanel checks={checks} revealRequest={revealCheck} onEditAssumption={editAssumption} />}
           </div>
         </div>
       )}
