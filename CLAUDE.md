@@ -219,7 +219,7 @@ node scripts/merge-crinacle-cans.js data.csv --execute  # Expert data import
 - `pre-push`: `npm run build`
 - `type-check` runs `next typegen` first, so stale `.next/types` from a deleted route can't fail it
 - Test files are excluded from `tsconfig.json`; `npm run type-check:tests` (tsconfig.test.json) covers them
-- CI (`.github/workflows/ci.yml`, PRs + pushes to main/staging): lint, type-check, type-check:tests, test, test:hooks. `eval:reco` is not in CI (needs DB creds)
+- CI (`.github/workflows/ci.yml`, PRs + pushes to main/staging): lint, type-check, type-check:tests, test, test:hooks. On PRs a separate `eval-reco` job scores the PR's base and head against the live catalogue (anon key, read-only) and writes the nDCG@5/P@5 delta to the job summary. Report-only, never blocks
 
 ## Reference (in memory files)
 - `memory/scrapers-and-data-sources.md` — Reddit, Reverb, eBay details
@@ -248,5 +248,6 @@ Vercel's Git integration does all deploys; there is no deploy workflow in GitHub
 Workflows are cron jobs only (scrapers, price trends, cache warming); none deploy.
 - `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`: scraper/DB jobs
 - `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET`, `REVERB_API_TOKEN`: scrapers
-- `CRON_SECRET` + `SITE_URL`: `scrape-listings.yml` calls `/api/alerts/match-new`
+- `CRON_SECRET` + `SITE_URL`: `scrape-listings.yml` calls `/api/alerts/match-new`. As of 2026-11-07 **`CRON_SECRET` is not set in GitHub** (it is in Vercel), so alert matching is skipped on every scrape
+- GitHub auto-disables scheduled workflows (`disabled_inactivity`); check `gh workflow list --all` if scraped data goes stale. All 7 were re-enabled 2026-11-07
 - `VERCEL_PROTECTION_BYPASS_TOKEN`: `warm-api.yml` reaches protected deployments
