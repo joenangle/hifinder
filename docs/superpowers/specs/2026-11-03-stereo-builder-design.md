@@ -138,8 +138,10 @@ Order of the result page, top to bottom:
 4. **Details (advanced):** required watts as a range, the amp's power at the
    speakers' impedance, the loudest clean peak at the seat, the formulas used,
    and a trust label for each input.
-   The bottom line always ends with the amp-only caveat (§12): "This checks the
-   amp. Small speakers may distort or compress before this level."
+   The bottom line ends with the amp-only caveat (§12), "This checks the
+   amp. Small speakers may distort or compress before this level.", whenever
+   the speakers' own limit is unknown. Once a speaker limit is known (§6.6),
+   the verdict uses it and the caveat is dropped.
 5. **Listening column:** links to published reviews of the speakers, the amp and,
    where one exists, the pairing. Thin in v1 and clearly labeled as such.
 
@@ -169,6 +171,33 @@ living room, about 3 m from the speakers. Change this."). Advanced mode shows
 everything. Build advanced first, because it defines what gets calculated; simple
 mode is a filter over it. Defaults always appear as chips and are never applied
 silently.
+
+Decided with Joe on 2026-11-07, when Advanced mode was built:
+- **D1:** both modes use entered room and seat values as entered; unset ones
+  stay assumption chips. Switching modes never changes a verdict.
+- **D2:** the mode lives in the URL (`adv=1`) plus a per-browser preference,
+  not in the saved system.
+- **D3:** Simple mode shows at most one line from the other checks: the single
+  worst problem, linking to that check in Advanced.
+
+### 6.6 Advanced mode and system checks
+
+Advanced reveals a Source tile, more amp and speaker specs and the speaker
+cable run, plus three checks beside the power check. Each declares its inputs
+like the power check, but their "needs" are soft ("Add X to check this") and
+never block the page. Implementation plan and sources for every threshold:
+`docs/superpowers/plans/2026-11-07-stereo-advanced-mode.md`.
+- **Gain:** can the source drive the amp to full power? A source that can't
+  caps the watts the power verdict uses, and the result says "Limited by: your
+  source".
+- **Tonal shift:** the amp's output impedance (or damping factor, converted)
+  plus cable resistance against the speakers' impedance curve, or a lower-bound
+  span from their nominal, lowest and highest impedance.
+- **Hiss:** amp noise (output noise, or SNR with an unstated reference read as
+  rated power) at the seat against a quiet room.
+- **Speaker limits** feed the power verdict itself: measured max SPL, a
+  compression sweep, the maker's max SPL or power handling, best evidence
+  first. When the speakers run out first, the verdict says so.
 
 ### 6.5 Anonymous vs signed in [Claude's call]
 
@@ -475,11 +504,11 @@ at launch and says so ("No linked reviews yet") [Claude's call].
 
 ## 13. Later phases (ordered by Claude, not yet agreed)
 
-1. **Speaker limits:** can the speakers themselves play this loud cleanly?
-   Uses measured max SPL and compression where they exist, otherwise power
-   handling. This replaces the amp-only caveat with a real check.
+1. **Speaker limits:** built (§6.6). Still to come: seeded limit data for the
+   catalog speakers.
 2. **Amp–speaker impedance interaction:** the calculable kind of "synergy".
-   - **Output impedance × impedance curve:** an amp with high output impedance
+   - **Output impedance × impedance curve:** built (§6.6), along with source
+     gain matching and hiss. Still to come: entering a curve by hand. An amp with high output impedance
      (tubes, especially SETs) driving a speaker whose impedance swings with
      frequency produces frequency-response deviations, often a dB or more. The
      check predicts that deviation per pairing: "with this amp, expect about
@@ -523,6 +552,10 @@ reaching the catalog. Start simple with no manual overhead. Local listings
 aren't scrapable, so the deal check (later) works from listings the user pastes in.
 Stereo systems are stacks (`purpose = 'stereo'`). Stereo gear lives only inside
 systems in v1. The power check is amp-only, with an explicit caveat.
+
+**Advanced mode (2026-11-07):** D1 to D3 in §6.4. Damping factor is stored as
+the source states it and output impedance is derived in code. Secondary checks
+never block. The amp-only caveat shows only while the speaker limit is unknown.
 
 **Claude's calls in this document:**
 - **Product:** generic channel modeling; the anonymous calculator with URL

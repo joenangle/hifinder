@@ -107,7 +107,26 @@ A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
   `ok` (verdict, working rows with trust labels, assumptions, reasons, notes) or
   `needs` (the exact missing inputs, never a number). The `/stereo` page always
   runs it in `simple` mode, where each missing room or seat field becomes an
-  `assumed` chip.
+  `assumed` chip. Its `ok` result also says what limits it (`limitedBy`: amp,
+  speakers or source) and carries the seat context the hiss check reuses.
+- **Advanced mode and system checks:** `runSystemChecks` in
+  `src/lib/stereo/checks.ts` runs gain, tonal shift and hiss next to the power
+  check. The math lives in `interaction.ts` (output-impedance divider, cable
+  resistance from the AWG formula), `gain.ts` and `noise.ts`, re-exported from
+  `audio-calculations.ts`. Gain runs first: a source too weak to drive the amp
+  passes `sourceLimit` to `runPowerCheck`, which then uses the reachable watts.
+  Secondary checks' `needs` are soft and never block. Tube and hybrid amps
+  without an output impedance are `needs`, never assumed; solid state and
+  class D get a labeled typical value. Damping factor is stored as stated
+  (with `ref_ohms`, `lower_bound`); output impedance is derived. Every
+  threshold's doc comment cites its source; the plan
+  (`docs/superpowers/plans/2026-11-07-stereo-advanced-mode.md`) has the table.
+  The mode is the `adv` URL param plus a localStorage preference; Simple mode
+  shows only `worstProblem()` as one line.
+- **Speaker limits:** `resolveSpeakerLimit` in `src/lib/stereo/limits.ts`
+  (measured max SPL > compression sweep > maker's max SPL > power handling)
+  feeds the power verdict. The amp-only caveat (`caveat`, now nullable) shows
+  only while the speaker limit is unknown.
 - **Specs:** `src/lib/stereo/specs.ts` holds tolerant parsers. Catalog specs live in
   `components.technical_specs` as `{ value, trust, source_url }`. User entries
   go only to `stack_components.spec_overrides` (or to the URL when anonymous),
@@ -134,6 +153,8 @@ A 2.0 speaker system plus an amp power check at **`/stereo`**. The PRD is in
 - **Gotcha: `HEADPHONE_STACK_FILTER`.** Use `.or(HEADPHONE_STACK_FILTER)`
   (`src/lib/stacks.ts`) to exclude stereo stacks, never
   `.neq('purpose','stereo')`. PostgREST `neq` also drops rows whose purpose is NULL.
+- **Sources** are hand-entered only: the `source` role stores a custom item
+  whose `spec_overrides` the items API parses with `parseSourceSpecs`.
 - **Seed:** `npm run seed:stereo` validates `scripts/stereo-seed/stereo-seed.json`
   as a dry run; `-- --execute` writes. Every value needs an http(s) `source_url`.
 
