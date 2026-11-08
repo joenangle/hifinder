@@ -3,21 +3,15 @@ import { supabaseServer as supabase } from '@/lib/supabase-server'
 import { Resend } from 'resend'
 import { AlertEmail } from '@/emails/alert-email'
 import { generateUnsubscribeToken } from '@/lib/alert-tokens'
+import { checkCronAuth } from '@/lib/cron-auth'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hifinder.app'
 
 export async function POST(request: Request) {
-  // Auth: verify cron secret
-  const cronSecret = process.env.CRON_SECRET
-  if (!cronSecret) {
-    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
-  }
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const denied = checkCronAuth(request)
+  if (denied) return denied
 
   // 1. Fetch unsent matches joined with alert preferences and user email
   const { data: unsent, error } = await supabase
@@ -50,22 +44,29 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error('Error fetching unsent alerts:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch unsent alerts' }, { status: 500 })
   }
 
   if (!unsent || unsent.length === 0) {
     return NextResponse.json({ sent: 0 })
   }
 
-  // 2. Get user emails from auth.users via service role
+  // 2. Get user emails. user_id is the NextAuth/Google `sub` stored in
+  // public.users.id; those users don't exist in Supabase Auth, so
+  // auth.admin.getUserById() can never resolve them.
   const userIds = [...new Set(unsent.map(u => u.user_id))]
   const userEmails: Record<string, string> = {}
 
-  for (const userId of userIds) {
-    const { data: userData } = await supabase.auth.admin.getUserById(userId)
-    if (userData?.user?.email) {
-      userEmails[userId] = userData.user.email
-    }
+  const { data: users, error: usersError } = await supabase
+    .from('users')
+    .select('id, email')
+    .in('id', userIds)
+  if (usersError) {
+    console.error('Error fetching alert recipients:', usersError)
+    return NextResponse.json({ error: 'Failed to fetch recipients' }, { status: 500 })
+  }
+  for (const u of users ?? []) {
+    if (u.email) userEmails[u.id] = u.email
   }
 
   // 2b. Honor the global email opt-out (Settings → email notifications off).
@@ -163,7 +164,7 @@ export async function POST(request: Request) {
         sentCount++
       }
     } catch (emailError) {
-      console.error(`Failed to send email to ${group.email}:`, emailError)
+      console.error(`Failed to send alert email (alert ${group.alertId}):`, emailError)
     }
   }
 
