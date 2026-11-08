@@ -105,6 +105,26 @@ secondary source, the comment says so and names the primary to check.
    `PowerResultPanel` tests pass unchanged. When no source is entered, the
    power result is byte-identical to before.
 
+
+## Status (2026-11-07)
+
+Built on `claude/affectionate-babbage-yyjfit`: Tasks 1 to 7 and 9 to 11, and
+Task 12's UI (the speaker-limit fields and the "Limited by" line). Not yet done:
+- **Task 8 and Task 12 step 3, the seed data.** Sourcing needs each review page
+  read. Stereophile's pages return 403 to this environment (Cloudflare), so
+  they need another route.
+- **The Stereophile cross-check test in Task 3** needs Stereophile's
+  simulated-load curve transcribed, which is blocked for the same reason.
+- **The meter's second marker** for the speakers' ceiling (Task 12 step 1). The
+  "Limited by" line and the working row carry it for now.
+
+Deviations from the plan:
+- The tonal chart is hand-drawn SVG, not Recharts. It's a fixed-scale line
+  with one shaded band, and SVG keeps it light and themeable through CSS
+  variables.
+- The check cards show their working in a nested "How we worked this out",
+  reusing the power card's table (`WorkingTable`).
+
 ---
 
 ## File map

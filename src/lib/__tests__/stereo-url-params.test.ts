@@ -17,8 +17,8 @@ const emptyParams = {
 }
 
 describe('stereoParams.db', () => {
-  it('clamps values above 110 to 110', () => {
-    expect(stereoParams.db.parse('200')).toBe(110)
+  it('clamps values above 115 to 115', () => {
+    expect(stereoParams.db.parse('200')).toBe(115)
   })
 
   it('clamps values below 60 to 60', () => {

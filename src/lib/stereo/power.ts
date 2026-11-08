@@ -170,19 +170,23 @@ export interface PowerVerdict {
   maxCleanPeakDb: { low: number; high: number }
 }
 
+/** The verdict for a headroom, in room and free field. Shared by the amp and speaker limits. */
+export function verdictKindFor(headroomInRoomDb: number, headroomFreeFieldDb: number): VerdictKind {
+  return headroomInRoomDb >= COMFORTABLE_MARGIN_DB
+    ? headroomFreeFieldDb >= 0
+      ? 'comfortable'
+      : 'comfortable_most_rooms'
+    : headroomInRoomDb >= 0
+      ? 'tight'
+      : 'runs_out'
+}
+
 export function powerVerdict(targetPeakDb: number, level: SeatLevel, ampWatts: number): PowerVerdict {
   const requiredWattsInRoom = 10 ** ((targetPeakDb - level.inRoom) / 10)
   const requiredWattsFreeField = 10 ** ((targetPeakDb - level.freeField) / 10)
   const headroomInRoomDb = 10 * log10(ampWatts / requiredWattsInRoom)
   const headroomFreeFieldDb = 10 * log10(ampWatts / requiredWattsFreeField)
-  const kind: VerdictKind =
-    headroomInRoomDb >= COMFORTABLE_MARGIN_DB
-      ? headroomFreeFieldDb >= 0
-        ? 'comfortable'
-        : 'comfortable_most_rooms'
-      : headroomInRoomDb >= 0
-        ? 'tight'
-        : 'runs_out'
+  const kind = verdictKindFor(headroomInRoomDb, headroomFreeFieldDb)
   const ampDb = 10 * log10(ampWatts)
   return {
     kind,

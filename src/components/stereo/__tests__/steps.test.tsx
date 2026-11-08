@@ -598,11 +598,11 @@ describe('LoudnessSlider', () => {
     return <LoudnessSlider valueDb={db} onChange={setDb} />
   }
 
-  it('exposes a 45-95 average range and shows the tier for the chosen level', () => {
+  it('exposes a 45-100 average range and shows the tier for the chosen level', () => {
     render(<Harness />)
     const range = screen.getByRole('slider')
     expect(range).toHaveAttribute('min', '45')
-    expect(range).toHaveAttribute('max', '95')
+    expect(range).toHaveAttribute('max', '100')
     expect(range).toHaveAttribute('step', '1')
     expect(screen.getByText('Normal')).toBeInTheDocument()
 
@@ -633,7 +633,7 @@ describe('LoudnessSlider', () => {
     expect(onChange).toHaveBeenLastCalledWith(85)
     fireEvent.change(number, { target: { value: '150' } })
     fireEvent.blur(number)
-    expect(onChange).toHaveBeenLastCalledWith(95)
+    expect(onChange).toHaveBeenLastCalledWith(100)
     fireEvent.change(number, { target: { value: '12' } })
     fireEvent.blur(number)
     expect(onChange).toHaveBeenLastCalledWith(45)

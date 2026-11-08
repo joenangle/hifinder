@@ -4,6 +4,7 @@ import {
   parseSpeakerSpecs,
   parseSpeakerAmpSpecs,
   parseSystemProfile,
+  parseSourceSpecs,
   applyOverrides,
 } from '../stereo/specs'
 
@@ -107,7 +108,7 @@ describe('parseSystemProfile', () => {
   })
 
   it('clamps and rounds target_peak_db', () => {
-    expect(parseSystemProfile({ target_peak_db: 200 }).target_peak_db).toBe(110)
+    expect(parseSystemProfile({ target_peak_db: 200 }).target_peak_db).toBe(115)
     expect(parseSystemProfile({ target_peak_db: 10 }).target_peak_db).toBe(60)
     expect(parseSystemProfile({ target_peak_db: 90.6 }).target_peak_db).toBe(91)
     expect(parseSystemProfile({ target_peak_db: 'loud' }).target_peak_db).toBe(90)
@@ -177,5 +178,131 @@ describe('SPEC_RANGES', () => {
   it('exposes the named ranges', () => {
     expect(SPEC_RANGES.sensitivity_db).toEqual([70, 110])
     expect(SPEC_RANGES.power_w).toEqual([0.1, 5000])
+  })
+})
+
+describe('advanced-mode speaker fields', () => {
+  const curve = [
+    { hz: 20, ohms: 9 },
+    { hz: 55, ohms: 28 },
+    { hz: 180, ohms: 3.4 },
+  ]
+
+  it('keeps max impedance and a valid impedance curve', () => {
+    const out = parseSpeakerSpecs({
+      max_impedance_ohms: sv(28),
+      impedance_curve: sv(curve, 'measured'),
+    })
+    expect(out.max_impedance_ohms?.value).toBe(28)
+    expect(out.impedance_curve?.value).toEqual(curve)
+    expect(out.impedance_curve?.trust).toBe('measured')
+  })
+
+  it('drops a curve that is too short, unordered or out of range, whole', () => {
+    expect(parseSpeakerSpecs({ impedance_curve: sv(curve.slice(0, 2)) }).impedance_curve).toBeUndefined()
+    expect(parseSpeakerSpecs({ impedance_curve: sv([curve[1], curve[0], curve[2]]) }).impedance_curve).toBeUndefined()
+    expect(
+      parseSpeakerSpecs({ impedance_curve: sv([...curve, { hz: 180, ohms: 4 }]) }).impedance_curve
+    ).toBeUndefined()
+    expect(
+      parseSpeakerSpecs({ impedance_curve: sv([...curve, { hz: 500, ohms: 0.2 }]) }).impedance_curve
+    ).toBeUndefined()
+    expect(parseSpeakerSpecs({ impedance_curve: sv('flat') }).impedance_curve).toBeUndefined()
+  })
+
+  it('keeps max SPL with its method and kind, defaulting both to unknown', () => {
+    const out = parseSpeakerSpecs({ max_spl_db: { ...sv(105), method: 'aes75', kind: 'peak' } })
+    expect(out.max_spl_db).toMatchObject({ value: 105, method: 'aes75', kind: 'peak' })
+    const bare = parseSpeakerSpecs({ max_spl_db: { ...sv(105), method: 'guess' } })
+    expect(bare.max_spl_db).toMatchObject({ method: 'unknown', kind: 'unknown' })
+    expect(parseSpeakerSpecs({ max_spl_db: sv(140) }).max_spl_db).toBeUndefined()
+  })
+
+  it('keeps compression sweeps and drops junk rows whole', () => {
+    const sweep = [
+      { level_db_1m: 96, worst_db: 1.1 },
+      { level_db_1m: 102, worst_db: 3.8 },
+    ]
+    expect(parseSpeakerSpecs({ compression: sv(sweep, 'measured') }).compression?.value).toEqual(sweep)
+    expect(parseSpeakerSpecs({ compression: sv([]) }).compression).toBeUndefined()
+    expect(
+      parseSpeakerSpecs({ compression: sv([...sweep, { level_db_1m: 140, worst_db: 1 }]) }).compression
+    ).toBeUndefined()
+  })
+
+  it('keeps power handling with its kind', () => {
+    const out = parseSpeakerSpecs({ power_handling_w: { ...sv(100), kind: 'program' } })
+    expect(out.power_handling_w).toMatchObject({ value: 100, kind: 'program' })
+    expect(parseSpeakerSpecs({ power_handling_w: sv(100) }).power_handling_w?.kind).toBe('unknown')
+    expect(parseSpeakerSpecs({ power_handling_w: sv(0) }).power_handling_w).toBeUndefined()
+  })
+})
+
+describe('advanced-mode amp fields', () => {
+  it('keeps topology, output impedance, gain, sensitivity and noise', () => {
+    const out = parseSpeakerAmpSpecs({
+      topology: 'tube',
+      output_impedance_ohms: sv(1),
+      input_sensitivity_v: sv(0.35),
+      gain_db: sv(29),
+      output_noise_uv: sv(200),
+    })
+    expect(out.topology).toBe('tube')
+    expect(out.output_impedance_ohms?.value).toBe(1)
+    expect(out.input_sensitivity_v?.value).toBe(0.35)
+    expect(out.gain_db?.value).toBe(29)
+    expect(out.output_noise_uv?.value).toBe(200)
+    expect(parseSpeakerAmpSpecs({ topology: 'valve' }).topology).toBeUndefined()
+    expect(parseSpeakerAmpSpecs({ output_noise_uv: sv(-5) }).output_noise_uv).toBeUndefined()
+  })
+
+  it('keeps damping factor with its reference load, frequency and lower-bound flag', () => {
+    const out = parseSpeakerAmpSpecs({
+      damping_factor: { ...sv(200), ref_ohms: 8, at_hz: 1000, lower_bound: true },
+    })
+    expect(out.damping_factor).toMatchObject({ value: 200, ref_ohms: 8, at_hz: 1000, lower_bound: true })
+    const bare = parseSpeakerAmpSpecs({ damping_factor: { ...sv(50), ref_ohms: 100, lower_bound: 'yes' } })
+    expect(bare.damping_factor?.ref_ohms).toBeUndefined()
+    expect(bare.damping_factor?.lower_bound).toBeUndefined()
+  })
+
+  it('keeps SNR with its reference, defaulting to unknown', () => {
+    expect(parseSpeakerAmpSpecs({ snr_db: { ...sv(88), ref: 'rated' } }).snr_db?.ref).toBe('rated')
+    expect(parseSpeakerAmpSpecs({ snr_db: sv(88) }).snr_db?.ref).toBe('unknown')
+    expect(parseSpeakerAmpSpecs({ snr_db: sv(200) }).snr_db).toBeUndefined()
+  })
+
+  it('stamps user trust on hand-entered nested values', () => {
+    const out = applyOverrides({}, { damping_factor: { value: 8, trust: 'measured', ref_ohms: 8 } }, parseSpeakerAmpSpecs)
+    expect(out.damping_factor).toMatchObject({ value: 8, trust: 'user', ref_ohms: 8 })
+  })
+})
+
+describe('parseSourceSpecs', () => {
+  it('keeps kind, output voltage and volume control', () => {
+    expect(parseSourceSpecs({ kind: 'dac', output_v: sv(2, 'user'), has_volume: false })).toEqual({
+      kind: 'dac',
+      output_v: { value: 2, trust: 'user', source_url: 'https://x' },
+      has_volume: false,
+    })
+  })
+
+  it('drops junk', () => {
+    expect(parseSourceSpecs({ kind: 'cd', output_v: sv(0), has_volume: 'no' })).toEqual({})
+    expect(parseSourceSpecs(null)).toEqual({})
+  })
+})
+
+describe('parseSystemProfile cable', () => {
+  it('keeps a valid cable run and leaves it out when unset', () => {
+    expect(parseSystemProfile({ cable: { length_m: 3, awg: 16 } }).cable).toEqual({ length_m: 3, awg: 16 })
+    expect(parseSystemProfile({ cable: { length_m: 3, awg: null } }).cable).toEqual({ length_m: 3, awg: null })
+    expect('cable' in parseSystemProfile({})).toBe(false)
+  })
+
+  it('drops a zero length, an out-of-range or fractional gauge', () => {
+    expect('cable' in parseSystemProfile({ cable: { length_m: 0, awg: 50 } })).toBe(false)
+    expect(parseSystemProfile({ cable: { length_m: 3, awg: 0 } }).cable).toEqual({ length_m: 3, awg: null })
+    expect(parseSystemProfile({ cable: { length_m: 3, awg: 16.5 } }).cable).toEqual({ length_m: 3, awg: null })
   })
 })

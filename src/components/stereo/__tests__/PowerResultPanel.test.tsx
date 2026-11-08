@@ -38,7 +38,7 @@ describe('PowerResultPanel', () => {
     const out = ok()
     render(<PowerResultPanel outcome={out} targetPeakDb={95} distanceM={3} />)
     expect(screen.getAllByText(out.verdict.label).length).toBeGreaterThan(0)
-    expect(screen.getByText(out.caveat)).toBeInTheDocument()
+    expect(screen.getByText(out.caveat!)).toBeInTheDocument()
     const table = screen.getByRole('table')
     expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Step', 'Value', 'Source'])
     for (const row of out.working) {

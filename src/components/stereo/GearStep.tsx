@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { ArrowRight, SlidersHorizontal, Speaker } from 'lucide-react'
 import type { MissingInput } from '@/lib/stereo/power-check'
+import type { SourceSpecs } from '@/lib/stereo/specs'
 import { GearChooser, type GearPick, type GearRole } from './GearChooser'
+import { SourceTile } from './SourceTile'
 import { SpecFields } from './SpecFields'
 import { primaryButtonClass, secondaryButtonClass } from './form-bits'
 
@@ -18,6 +20,11 @@ interface GearStepProps {
   ampNote: string | null
   catalogCounts?: CatalogCounts
   missing: MissingInput[]
+  /** Inputs only the secondary checks need (Advanced mode). */
+  softMissing?: MissingInput[]
+  advanced?: boolean
+  source?: SourceSpecs | null
+  onSourceChange?: (next: SourceSpecs) => void
   onChange: (role: GearRole, pick: GearPick) => void
 }
 
@@ -40,6 +47,8 @@ function GearTile({
   note,
   catalogCount,
   missing,
+  softMissing,
+  advanced,
   open,
   onToggle,
   onEdit,
@@ -49,6 +58,8 @@ function GearTile({
   note?: string | null
   catalogCount?: number | null
   missing: MissingInput[]
+  softMissing: MissingInput[]
+  advanced: boolean
   open: boolean
   onToggle: () => void
   onEdit: (p: GearPick) => void
@@ -87,7 +98,7 @@ function GearTile({
         </button>
       )}
 
-      <SpecFields role={role} pick={pick} missing={missing} onChange={onEdit} />
+      <SpecFields role={role} pick={pick} missing={missing} softMissing={softMissing} advanced={advanced} onChange={onEdit} />
 
       {pick && (
         <button type="button" aria-expanded={open} onClick={onToggle} className={`${secondaryButtonClass} self-start`}>
@@ -98,10 +109,22 @@ function GearTile({
   )
 }
 
-export function GearStep({ speakers, amp, ampNote, catalogCounts, missing, onChange }: GearStepProps) {
+export function GearStep({
+  speakers,
+  amp,
+  ampNote,
+  catalogCounts,
+  missing,
+  softMissing = [],
+  advanced = false,
+  source = null,
+  onSourceChange,
+  onChange,
+}: GearStepProps) {
   const [openRole, setOpenRole] = useState<GearRole | null>(null)
 
   const missingFor = (role: GearRole) => missing.filter((m) => m.id.startsWith(`${role}.`))
+  const softFor = (prefix: string) => softMissing.filter((m) => m.id.startsWith(`${prefix}.`))
   const picks: Record<GearRole, GearPick | null> = { amp, speakers }
 
   const toggle = (role: GearRole) => setOpenRole((cur) => (cur === role ? null : role))
@@ -143,6 +166,8 @@ export function GearStep({ speakers, amp, ampNote, catalogCounts, missing, onCha
           note={ampNote}
           catalogCount={catalogCounts?.amp}
           missing={missingFor('amp')}
+          softMissing={softFor('amp')}
+          advanced={advanced}
           open={openRole === 'amp'}
           onToggle={() => toggle('amp')}
           onEdit={(p) => onChange('amp', p)}
@@ -153,11 +178,16 @@ export function GearStep({ speakers, amp, ampNote, catalogCounts, missing, onCha
           pick={speakers}
           catalogCount={catalogCounts?.speakers}
           missing={missingFor('speakers')}
+          softMissing={softFor('speakers')}
+          advanced={advanced}
           open={openRole === 'speakers'}
           onToggle={() => toggle('speakers')}
           onEdit={(p) => onChange('speakers', p)}
         />
       </div>
+      {advanced && onSourceChange && (
+        <SourceTile source={source} missing={softFor('source')} onChange={onSourceChange} />
+      )}
     </section>
   )
 }
