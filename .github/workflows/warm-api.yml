@@ -12,6 +12,9 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   warm:
     runs-on: ubuntu-latest
