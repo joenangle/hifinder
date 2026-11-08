@@ -67,7 +67,6 @@
     "nuqs": "^2.8.9",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-email": "^5.2.9",
     "recharts": "^3.7.0",
     "resend": "^6.9.3"
   },
