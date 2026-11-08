@@ -54,6 +54,11 @@ scripts/.avexchange-bot-last-check.json
 *.log
 *.bak
 /backups/
+*.dump
+*.sql.gz
+
+# local planning notes (tasks/todo.md, lessons, handoffs)
+/tasks/
 /img/
 
 # local Claude Code / IDE config (shared project settings are committed)

@@ -171,7 +171,7 @@ endpoint that writes or sends email.
 - Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS v4
 - Supabase (database + auth), Framer Motion, Recharts, Lucide icons
 - React Compiler enabled (auto memoization)
-- Build: `tsc --noEmit && next build` (decoupled for incremental TS caching)
+- Build: `npm run type-check && next build` (type-check = `next typegen && tsc --noEmit`, decoupled for incremental TS caching)
 - Deploy: Vercel Git integration — `main` → hifinder.app, `staging` → staging.hifinder.app (see Deployment below)
 
 ## Working Style
