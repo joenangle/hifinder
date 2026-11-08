@@ -49,7 +49,7 @@ export function WorkingTable({ rows, caption }: { rows: WorkingRow[]; caption?: 
 
 // The meter reads in average dB, like the slider.
 const METER_MIN_DB = 45
-const METER_MAX_DB = 95
+const METER_MAX_DB = 100
 
 const TRUST_LABEL: Record<WorkingRow['trust'], string> = {
   measured: 'Measured',

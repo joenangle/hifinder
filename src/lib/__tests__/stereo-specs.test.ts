@@ -108,7 +108,7 @@ describe('parseSystemProfile', () => {
   })
 
   it('clamps and rounds target_peak_db', () => {
-    expect(parseSystemProfile({ target_peak_db: 200 }).target_peak_db).toBe(110)
+    expect(parseSystemProfile({ target_peak_db: 200 }).target_peak_db).toBe(115)
     expect(parseSystemProfile({ target_peak_db: 10 }).target_peak_db).toBe(60)
     expect(parseSystemProfile({ target_peak_db: 90.6 }).target_peak_db).toBe(91)
     expect(parseSystemProfile({ target_peak_db: 'loud' }).target_peak_db).toBe(90)

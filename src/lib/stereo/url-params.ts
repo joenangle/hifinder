@@ -68,7 +68,7 @@ export const stereoParams = {
   w: parseAsFloat,
   h: parseAsFloat,
   d: parseAsFloat,
-  /** Target peak level (dB), clamped 60-110 */
+  /** Target peak level (dB), clamped 60-115 */
   db: parseAsTargetPeak
     .withDefault(DEFAULT_TARGET_PEAK_DB)
     .withOptions({ clearOnDefault: true }),

@@ -119,7 +119,7 @@ The product serves three moments, all anchored to the saved system:
 | Room | Acoustic character: lively / average / damped | Sets average absorption for the room model (§7.3) |
 | Seat | Listening distance (m or ft) | Required for a real verdict, assumed in simple mode |
 | Seat | Speakers near a wall? (yes/no) | v1 shows this as a note only; boundary gain isn't modeled yet |
-| Loudness | A slider for any **peak** SPL at the seat, 60–110 dB in 1 dB steps, like the headphone budget slider, with a typed number and the five §7.4 presets as labeled ticks [Joe] | The tier name ("Loud") follows the value |
+| Loudness | A slider for any **peak** SPL at the seat, 60–110 dB in 1 dB steps (since 2026-11-05 shown as **average** dB, 45 to 100, which is 60 to 115 dB peak; the top was raised from 110 dB peak on 2026-11-08 so there is room above the Club tier), like the headphone budget slider, with a typed number and the five §7.4 presets as labeled ticks [Joe] | The tier name ("Loud") follows the value |
 | Gear | Speakers (pair) | From the catalog, or entered by hand |
 | Gear | Amplifier (integrated, power amp or receiver) | From the catalog, or entered by hand |
 | Gear | Subwoofer (optional) | Stored and shown; no sub math in v1 |

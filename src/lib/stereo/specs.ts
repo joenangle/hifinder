@@ -130,7 +130,7 @@ export const SPEC_RANGES = {
   thd_pct: [0, 100],
   distance_m: [0.3, 20],
   room_dimension_m: [1.5, 50],
-  target_peak_db: [60, 110],
+  target_peak_db: [60, 115],
   output_impedance_ohms: [0.001, 20],
   damping_factor: [0.5, 10000],
   df_ref_ohms: [1, 32],
