@@ -104,6 +104,18 @@ describe('gain', () => {
     expect(out.shortfallDb).toBeCloseTo(1.94, 2)
   })
 
+  it.each([4, 2.83, 1.5, 0.35])(
+    'a source matching an input sensitivity of %f V reaches full power (no rounding false alarm)',
+    (v) => {
+      expect(reachableWatts(v, ampGainDb(100, v), 100, 8)).toEqual({ watts: 100, limited: false, shortfallDb: 0 })
+    }
+  )
+
+  it('a shortfall under 0.1 dB counts as full power; one over it does not', () => {
+    expect(reachableWatts(3.98, ampGainDb(100, 4), 100, 8).limited).toBe(false) // 0.04 dB short
+    expect(reachableWatts(3.9, ampGainDb(100, 4), 100, 8).limited).toBe(true) // 0.22 dB short
+  })
+
   it('a 4 V source reaches full power', () => {
     expect(reachableWatts(4, ampGainDb(100, 2.5), 100, 8)).toEqual({ watts: 100, limited: false, shortfallDb: 0 })
   })

@@ -58,6 +58,16 @@ describe('gain check', () => {
     expect(out.headline).toMatch(/about 64 W of its 100 W/)
   })
 
+  it('a 4 V source into an amp rated for 4 V is ok, and the power check is not capped', () => {
+    const exact = { kind: 'dac_balanced' as const, output_v: sv(4, 'user') }
+    const gainCheck = okOf(runGainCheck(speakers(), amp({ input_sensitivity_v: sv(4) }), exact))
+    expect(gainCheck.severity).toBe('ok')
+    expect(gainCheck.headline).toBe('Your balanced DAC can drive this amp to full power.')
+    const power = okOf(runSystemChecks(input({ amp: amp({ input_sensitivity_v: sv(4) }), source: exact })).power)
+    expect(power.limitedBy).toBe('amp')
+    expect(power.notes.some((n) => n.includes('can only drive'))).toBe(false)
+  })
+
   it('is ok when the source reaches full power, from gain in dB too', () => {
     expect(okOf(runGainCheck(speakers(), amp({ input_sensitivity_v: sv(1) }), dac)).severity).toBe('ok')
     expect(okOf(runGainCheck(speakers(), amp({ gain_db: sv(29) }), dac)).severity).toBe('ok')

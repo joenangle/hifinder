@@ -31,11 +31,22 @@ export interface ReachablePower {
   shortfallDb: number
 }
 
+/**
+ * A shortfall smaller than this counts as reaching full power. Without it, a
+ * source that exactly matches the amp's input sensitivity (4 V into an amp
+ * rated for 4 V) came out 1e-15 dB short from floating-point rounding and was
+ * flagged as limiting. 0.1 dB is about 1% in voltage, finer than spec sheets
+ * round their sensitivity figures, and far below anything audible.
+ */
+export const SOURCE_MATCH_TOLERANCE_DB = 0.1
+
 /** The most power the source can make the amp deliver into `loadOhms`. */
 export function reachableWatts(sourceV: number, gainDb: number, ampWatts: number, loadOhms: number): ReachablePower {
   const outV = sourceV * 10 ** (gainDb / 20)
   const sourceWatts = (outV * outV) / loadOhms
-  if (sourceWatts >= ampWatts) return { watts: ampWatts, limited: false, shortfallDb: 0 }
+  if (10 * log10(ampWatts / sourceWatts) < SOURCE_MATCH_TOLERANCE_DB) {
+    return { watts: ampWatts, limited: false, shortfallDb: 0 }
+  }
   return { watts: sourceWatts, limited: true, shortfallDb: 10 * log10(ampWatts / sourceWatts) }
 }
 
