@@ -1,30 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer as supabase } from '@/lib/supabase-server'
-
-// Admin auth check. This route lives behind the Supabase-Auth /admin/dashboard
-// surface (Bearer token), separate from the NextAuth session used by the rest
-// of /api/admin/*. Safe-by-default: if ADMIN_EMAIL is unset, deny.
-async function isAdmin(request: NextRequest): Promise<boolean> {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader) return false
-
-  const adminEmail = process.env.ADMIN_EMAIL
-  if (!adminEmail) return false
-
-  try {
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error } = await supabase.auth.getUser(token)
-
-    if (error || !user) return false
-    return user.email === adminEmail
-  } catch {
-    return false
-  }
-}
+import { requireAdmin } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
-  // Check admin auth
-  if (!(await isAdmin(request))) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -121,7 +100,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching affiliate stats:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch stats' },
+      { error: 'Failed to fetch stats' },
       { status: 500 }
     )
   }
