@@ -32,7 +32,7 @@ export async function GET(
 
     if (error) {
       console.error('Error fetching price history:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch price history' }, { status: 500 })
     }
 
     if (!sales || sales.length === 0) {
