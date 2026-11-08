@@ -268,7 +268,12 @@ Vercel's Git integration does all deploys; there is no deploy workflow in GitHub
 ## GitHub Actions Secrets
 Workflows are cron jobs only (scrapers, price trends, cache warming); none deploy.
 - `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`: scraper/DB jobs
+- **Supabase keys (since 2026-11-08):** the variable names are unchanged, but the values are the new
+  `sb_publishable_…` / `sb_secret_…` keys. Each backend has its own secret key (`vercel`, `dev`
+  for `.env.local` + Vercel Development, `github-actions`), so a leak means deleting one key.
+  The legacy JWT keys are disabled and the legacy HS256 JWT secret is revoked. `sb_secret_` keys
+  return 401 from browsers.
 - `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET`, `REVERB_API_TOKEN`: scrapers
-- `CRON_SECRET` + `SITE_URL`: `scrape-listings.yml` calls `/api/alerts/match-new`. As of 2026-11-07 **`CRON_SECRET` is not set in GitHub** (it is in Vercel), so alert matching is skipped on every scrape
+- `CRON_SECRET` + `SITE_URL`: `scrape-listings.yml` calls `/api/alerts/match-new`. `CRON_SECRET` was added to GitHub on 2026-11-07 (it must match Vercel's); without it the step logs a warning and skips alert matching. `SITE_URL` is unset and falls back to `https://hifinder.app`
 - GitHub auto-disables scheduled workflows (`disabled_inactivity`); check `gh workflow list --all` if scraped data goes stale. All 7 were re-enabled 2026-11-07
 - `VERCEL_PROTECTION_BYPASS_TOKEN`: `warm-api.yml` reaches protected deployments
