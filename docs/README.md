@@ -6,7 +6,6 @@ This directory contains implementation guides, setup instructions, and historica
 
 Active documentation for implementing features and integrations:
 
-- **ADMIN_DASHBOARD_SETUP.md** - Admin dashboard configuration
 - **EBAY_AFFILIATE_STRATEGY.md** - eBay Partner Network integration strategy
 - **HEADPHONE_ADDITION_PROCESS.md** - Process for adding new components
 - **OAUTH_SETUP_GUIDE.md** - OAuth configuration for scrapers

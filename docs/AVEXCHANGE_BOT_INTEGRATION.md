@@ -84,7 +84,7 @@ Skip reasons:
 ==================================================
 ```
 
-### 3. Enhanced Reddit Scraper (`reddit-avexchange-scraper.js`)
+### 3. Enhanced Reddit Scraper (now `reddit-avexchange-scraper-v3.js`)
 
 **Changes:**
 - `transformRedditPost()` is now `async`
@@ -163,7 +163,7 @@ if (hasSoldIndicators) {
 ### Initial Setup
 ```bash
 # Apply database migration
-psql -h [host] -d [database] -f supabase/migrations/20251105_add_avexchange_bot_tracking.sql
+npm run db -- -f supabase/migrations-archive/20251105_add_avexchange_bot_tracking_safe.sql   # already applied
 
 # Or use Supabase CLI
 supabase db push
@@ -178,7 +178,7 @@ node scripts/monitor-avexchange-confirmations.js --days 30
 ### Scrape New Listings (with bot check)
 ```bash
 # Regular scrape with bot confirmation checking
-node scripts/reddit-avexchange-scraper.js
+npm run scrape:reddit
 ```
 
 ## Testing

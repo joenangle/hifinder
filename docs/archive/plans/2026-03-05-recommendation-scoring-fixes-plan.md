@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js API route (TypeScript), Supabase (Postgres), existing `calculateExpertConfidence()` function.
 
-**Design doc:** `docs/plans/2026-03-05-recommendation-scoring-fixes-design.md`
+**Design doc:** `docs/archive/plans/2026-03-05-recommendation-scoring-fixes-design.md`
 
 ---
 

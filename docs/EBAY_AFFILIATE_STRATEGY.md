@@ -185,7 +185,7 @@ function generateEbayAffiliateLink(component, campaignId) {
 - [ ] Create price_history table for trend tracking
 
 ### Code:
-- [ ] Remove scripts/ebay-integration.js from aggregator
+- [x] Remove scripts/ebay-integration.js from aggregator (archived 2025-10-03)
 - [ ] Update UsedListingsSection.tsx to hide eBay filter
 - [ ] Create EbayAffiliateButton.tsx component
 - [ ] Update component detail pages with affiliate CTAs
