@@ -128,6 +128,9 @@ export const recommendationParams = {
   headphoneTypes: parseAsJson<string[]>((v) =>
     Array.isArray(v) && v.every((x) => typeof x === 'string') ? v : null
   ).withDefault(PREF_DEFAULTS.headphoneTypes as string[]),
+  // Which owned headphone amps are matched to: absent = automatic (hardest to
+  // drive), 'none' = off, else a catalog ID. See resolveAmpMatchIds.
+  match: parseAsString,
   // Preserved params (not prefs, but kept across URL updates)
   source: parseAsString,
   experience: parseAsString,

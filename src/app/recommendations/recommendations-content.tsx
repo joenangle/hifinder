@@ -22,6 +22,8 @@ import { X } from 'lucide-react'
 import { BatchPriceHistoryProvider } from '@/components/providers/BatchPriceHistoryProvider'
 import { useQueryStates } from 'nuqs'
 import { PREF_DEFAULTS, recommendationParams, parseLegacyParams } from '@/lib/url-params'
+import { resolveAmpMatchIds } from '@/lib/amp-match'
+import { AmpMatchNote, type OwnedHeadphoneOption } from '@/components/recommendations/AmpMatchNote'
 
 // Lazy load components only shown on user interaction for better code splitting
 const StackBuilderModal = dynamic(() => import('@/components/modals/StackBuilderModal').then(mod => ({ default: mod.StackBuilderModal })), {
@@ -384,13 +386,26 @@ export function RecommendationsContent() {
   // their collection (signed in) plus any marked owned on this page. The API
   // sizes the amp for the hardest to drive.
   const collection = useCollection()
-  const ownedHeadphoneIdsKey = useMemo(() => {
-    const ids = new Set<string>()
+  const ownedHeadphoneOptions = useMemo(() => {
+    const byId = new Map<string, OwnedHeadphoneOption>()
     for (const item of [...collection.items, ...ownedGear.values()]) {
-      if (item.category === 'cans' || item.category === 'iems') ids.add(item.id)
+      if (item.category === 'cans' || item.category === 'iems') {
+        byId.set(item.id, { id: item.id, brand: item.brand, name: item.name })
+      }
     }
-    return [...ids].sort().join(',')
+    return [...byId.values()]
   }, [collection.items, ownedGear])
+  // The user's pick (URL `match`) narrows what we send; the API then sizes
+  // amps for the hardest to drive of what it gets.
+  const ampMatchChoice = nuqsParams.match
+  const ownedHeadphoneIdsKey = useMemo(
+    () => resolveAmpMatchIds(ownedHeadphoneOptions.map(h => h.id), ampMatchChoice).sort().join(','),
+    [ownedHeadphoneOptions, ampMatchChoice]
+  )
+  const setAmpMatchChoice = useCallback(
+    (choice: string | null) => setNuqsParams({ match: choice }),
+    [setNuqsParams]
+  )
   const wantsAmpMatch =
     userPrefs.wantRecommendationsFor.amp || userPrefs.wantRecommendationsFor.combo
 
@@ -1580,16 +1595,17 @@ export function RecommendationsContent() {
               <div className="card overflow-hidden border-t-2" style={{ borderTopColor: 'rgb(251 191 36)' }}>
                 {filteredAmps.length > 0 ? (
                   <>
-                    <div className="px-4 py-3 border-b flex items-center justify-between">
-                      <div>
+                    <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
+                      <div className="min-w-0">
                         <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                           Amplifiers
                         </h2>
-                        {ampMatchedTo && (
-                          <p className="text-xs text-secondary mt-0.5">
-                            Matched to your {ampMatchedTo.brand} {ampMatchedTo.name}
-                          </p>
-                        )}
+                        <AmpMatchNote
+                          options={ownedHeadphoneOptions}
+                          matchedTo={ampMatchedTo}
+                          choice={ampMatchChoice}
+                          onChange={setAmpMatchChoice}
+                        />
                       </div>
                       <span className="text-xs text-tertiary tabular-nums">
                         {filteredAmps.length} results
@@ -1655,16 +1671,17 @@ export function RecommendationsContent() {
                         At this budget, a portable combo does the job of a separate DAC and amp.
                       </div>
                     )}
-                    <div className="px-4 py-3 border-b flex items-center justify-between">
-                      <div>
+                    <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
+                      <div className="min-w-0">
                         <h2 className="text-xs font-semibold uppercase text-tertiary" style={{ letterSpacing: '0.1em' }}>
                           DAC/Amp Combos
                         </h2>
-                        {ampMatchedTo && (
-                          <p className="text-xs text-secondary mt-0.5">
-                            Matched to your {ampMatchedTo.brand} {ampMatchedTo.name}
-                          </p>
-                        )}
+                        <AmpMatchNote
+                          options={ownedHeadphoneOptions}
+                          matchedTo={ampMatchedTo}
+                          choice={ampMatchChoice}
+                          onChange={setAmpMatchChoice}
+                        />
                       </div>
                       <span className="text-xs text-tertiary tabular-nums">
                         {filteredDacAmps.length} results
