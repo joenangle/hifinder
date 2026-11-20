@@ -38,6 +38,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+.eslintcache
 next-env.d.ts
 client_secret_*.json
 /Claudable

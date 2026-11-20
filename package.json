@@ -9,7 +9,7 @@
     "analyze:bundle": "next experimental-analyze",
     "analyze:bundle:output": "next experimental-analyze -o",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint --cache --cache-strategy content",
     "lint:fix": "eslint --fix",
     "type-check": "next typegen && tsc --noEmit",
     "type-check:tests": "tsc --noEmit -p tsconfig.test.json",

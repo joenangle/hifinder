@@ -1,0 +1,4 @@
+# Known findings in git history that are no longer live secrets.
+# Legacy Supabase service_role JWT (GitHub alert #1). Legacy keys were disabled and the
+# HS256 JWT secret was revoked on 2026-11-08; the key now returns 401 everywhere.
+9e1230f8b3c100c05b9c6c91b3fde10aa7bc6de3:test-crinacle-import.js:jwt:30

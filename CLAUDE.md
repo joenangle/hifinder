@@ -236,8 +236,13 @@ node scripts/merge-crinacle-cans.js data.csv --execute  # Expert data import
 ```
 
 ## Pre-commit Hooks (husky) & CI
-- `pre-commit`: `npm run type-check && npm run lint`
-- `pre-push`: `npm run build`
+- `pre-commit`: secret scan (`gitleaks git --staged`, redacted output), then `npm run type-check && npm run lint`.
+  If gitleaks is missing, the hook warns and skips the scan (`brew install gitleaks`). `.gitleaks.toml`
+  allows `YOUR_…` doc placeholders; `.gitleaksignore` lists known dead secrets in history (the revoked
+  2025 service_role JWT). Full-history scan: `gitleaks git --redact` should report no leaks
+- `pre-push`: `npm test && npm run type-check:tests && npm run build`, the same checks CI runs
+- `lint` is `eslint --cache --cache-strategy content`. The content strategy keeps the cache valid across
+  branch switches (mtime would not); `.eslintcache` is gitignored and CI always lints fresh
 - `type-check` runs `next typegen` first, so stale `.next/types` from a deleted route can't fail it
 - Test files are excluded from `tsconfig.json`; `npm run type-check:tests` (tsconfig.test.json) covers them
 - CI (`.github/workflows/ci.yml`, PRs + pushes to main/staging): lint, type-check, type-check:tests, test, test:hooks. On PRs a separate `eval-reco` job scores the PR's base and head against the live catalogue (anon key, read-only) and writes the nDCG@5/P@5 delta to the job summary. Report-only, never blocks

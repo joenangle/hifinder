@@ -1,0 +1,10 @@
+# gitleaks config: used by the pre-commit hook (.husky/pre-commit) and full-history scans.
+# Keeps all built-in rules and adds only the allowlist below.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Documentation placeholders such as `apikey: YOUR_ANON_KEY` in docs/SECURITY_MODEL.md"
+regexTarget = "match"
+regexes = ['''YOUR_[A-Z_]+''']

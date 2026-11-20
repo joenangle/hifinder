@@ -1,1 +1,2 @@
-npm run build
+# Run what CI runs, so a broken test fails here instead of on the PR.
+npm test && npm run type-check:tests && npm run build

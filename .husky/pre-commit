@@ -1,1 +1,9 @@
+# Secrets first: under a second, and the costliest mistake to commit.
+# Skipped (with a warning) on machines without gitleaks, so the hook never blocks setup.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --staged --redact --no-banner --verbose
+else
+  echo "warning: gitleaks not installed, secret scan skipped (brew install gitleaks)"
+fi
+
 npm run type-check && npm run lint
