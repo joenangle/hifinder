@@ -735,6 +735,7 @@ export type Database = {
           price_used_max: number | null
           price_used_min: number | null
           quality_score: number | null
+          review_evidence: Json | null
           review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -771,6 +772,7 @@ export type Database = {
           price_used_max?: number | null
           price_used_min?: number | null
           quality_score?: number | null
+          review_evidence?: Json | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -807,6 +809,7 @@ export type Database = {
           price_used_max?: number | null
           price_used_min?: number | null
           quality_score?: number | null
+          review_evidence?: Json | null
           review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
