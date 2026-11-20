@@ -8,7 +8,7 @@
 
 **Tech Stack:** Postgres (trigger + plpgsql), Next.js API routes, Resend + React Email, Vercel Cron, HMAC-signed unsubscribe tokens.
 
-**Design doc:** `docs/plans/2026-02-27-server-side-alerts-design.md`
+**Design doc:** `docs/archive/plans/2026-02-27-server-side-alerts-design.md`
 
 ---
 

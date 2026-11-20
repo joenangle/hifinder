@@ -8,22 +8,6 @@ export interface AdminSession extends Session {
   isAdmin: boolean
 }
 
-// Dynamic URL detection for deployments (reserved for future use)
-// function getBaseUrl() {
-//   if (process.env.NEXTAUTH_URL) {
-//     return process.env.NEXTAUTH_URL
-//   }
-
-//   if (process.env.VERCEL_URL) {
-//     return `https://${process.env.VERCEL_URL}`
-//   }
-
-//   // Fallback for local development
-//   return process.env.NODE_ENV === 'production'
-//     ? 'https://hifinder.app'
-//     : 'http://localhost:3002'
-// }
-
 // Initialize Supabase client for data operations (not for adapter)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -46,16 +30,8 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-          // Note: Do NOT set redirect_uri explicitly
-          // NextAuth automatically handles the redirect URI
-          // Setting it manually can cause OAuth errors on different environments
-        }
-      }
+      // Sign-in only: no offline access/refresh token, no forced consent screen.
+      // Do NOT set redirect_uri; NextAuth derives it per environment.
     }),
   ],
   
@@ -91,10 +67,7 @@ export const authOptions: NextAuthOptions = {
             console.timeEnd('Auth-DB-Operation')
 
             if (error) {
-              console.error('Background user upsert error:', error, {
-                id: user.id,
-                email: user.email,
-              })
+              console.error('Background user upsert error:', error, { id: user.id })
             }
           } catch (error) {
             console.error('Error in background user sync:', error)
@@ -104,17 +77,18 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, profile }) {
       // Initial sign in
       if (account && user) {
-        token.accessToken = account.access_token
         token.id = user.id
+        token.emailVerified = (profile as { email_verified?: boolean } | undefined)?.email_verified === true
         token.email = user.email
         token.name = user.name
         token.picture = user.image
       }
-      // Compute admin flag from server-only env var
-      token.isAdmin = isAdminEmail(token.email)
+      // Compute admin flag from server-only env var. Require Google's
+      // email_verified so an unverified address can never claim ADMIN_EMAIL.
+      token.isAdmin = token.emailVerified === true && isAdminEmail(token.email)
       return token
     },
 

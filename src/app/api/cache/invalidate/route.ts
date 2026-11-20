@@ -1,5 +1,6 @@
 import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkCronAuth } from '@/lib/cron-auth'
 
 /**
  * Cache invalidation endpoint
@@ -18,15 +19,8 @@ import { NextRequest, NextResponse } from 'next/server'
  * })
  */
 export async function POST(request: NextRequest) {
-  // Auth: verify cron secret
-  const cronSecret = process.env.CRON_SECRET
-  if (!cronSecret) {
-    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
-  }
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const denied = checkCronAuth(request)
+  if (denied) return denied
 
   try {
     const { tag } = await request.json()
@@ -44,7 +38,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Failed to invalidate cache:', error)
     return NextResponse.json(
-      { error: 'Failed to invalidate cache', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to invalidate cache' },
       { status: 500 }
     )
   }

@@ -20,7 +20,7 @@ export async function GET(
 
     if (error) {
       console.error('Error fetching ratings:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch ratings' }, { status: 500 })
     }
 
     if (!ratings || ratings.length === 0) {
@@ -118,7 +118,7 @@ export async function POST(
 
     if (error) {
       console.error('Error upserting rating:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save rating' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 200 })

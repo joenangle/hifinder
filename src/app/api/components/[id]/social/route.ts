@@ -19,7 +19,7 @@ export async function GET(
 
     if (mentionsError) {
       console.error('Error fetching social mentions:', mentionsError)
-      return NextResponse.json({ error: mentionsError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch social mentions' }, { status: 500 })
     }
 
     // Get aggregate counts

@@ -31,7 +31,7 @@ function getBaseUrl() {
   if (process.argv.includes('--production')) {
     return 'https://hifinder.app';
   }
-  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002';
 }
 
 /**

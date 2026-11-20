@@ -164,6 +164,24 @@ describe('POST /api/gear', () => {
   })
 })
 
+describe('POST /api/gear mass assignment', () => {
+  it('ignores server-owned columns in the body', async () => {
+    mockResult = { data: { id: 'g1' }, error: null }
+
+    await POST(
+      makeRequest('/api/gear', {
+        method: 'POST',
+        body: JSON.stringify({ component_id: 'c1', user_id: 'attacker', id: 'forced-id', current_value: 1 }),
+      })
+    )
+
+    const inserted = mockChain.insert.mock.calls[0][0]
+    expect(inserted.user_id).toBe('user-123')
+    expect(inserted).not.toHaveProperty('id')
+    expect(inserted).not.toHaveProperty('current_value')
+  })
+})
+
 // ── PUT tests ───────────────────────────────────────────────────────────────
 
 describe('PUT /api/gear', () => {
@@ -203,6 +221,36 @@ describe('PUT /api/gear', () => {
     )
 
     expect(response.status).toBe(404)
+  })
+})
+
+describe('PUT /api/gear mass assignment', () => {
+  it('updates only writable fields, never user_id', async () => {
+    mockResult = { data: { id: 'g1' }, error: null }
+
+    const response = await PUT(
+      makeRequest('/api/gear?id=g1', {
+        method: 'PUT',
+        body: JSON.stringify({ notes: 'y', user_id: 'attacker', id: 'other-row' }),
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(mockChain.update).toHaveBeenCalledWith({ notes: 'y' })
+  })
+
+  it('returns 400 when the body has no writable fields', async () => {
+    mockResult = { data: { id: 'g1' }, error: null }
+
+    const response = await PUT(
+      makeRequest('/api/gear?id=g1', {
+        method: 'PUT',
+        body: JSON.stringify({ user_id: 'attacker' }),
+      })
+    )
+
+    expect(response.status).toBe(400)
+    expect(mockChain.update).not.toHaveBeenCalled()
   })
 })
 

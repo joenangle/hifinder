@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { safeEqual } from '@/lib/safe-compare'
 
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
@@ -41,8 +42,9 @@ export function proxy(request: NextRequest) {
     })
   }
 
-  // Decode credentials
-  const [, password] = Buffer.from(auth.slice(6), 'base64').toString().split(':')
+  // Decode credentials. Split on the first ':' only: the password may contain ':'.
+  const decoded = Buffer.from(auth.slice(6), 'base64').toString()
+  const password = decoded.slice(decoded.indexOf(':') + 1)
 
   // Get staging password from environment
   const STAGING_PASSWORD = process.env.STAGING_PASSWORD
@@ -55,7 +57,7 @@ export function proxy(request: NextRequest) {
     })
   }
 
-  if (password === STAGING_PASSWORD) {
+  if (STAGING_PASSWORD && decoded.includes(':') && safeEqual(password, STAGING_PASSWORD)) {
     return NextResponse.next()
   }
 

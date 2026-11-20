@@ -6,8 +6,8 @@ Automated daily scraping of Reddit r/AVexchange for used audio equipment listing
 ## How It Works
 
 ### GitHub Actions Workflow
-- **File**: `.github/workflows/scrape-reddit-listings.yml`
-- **Schedule**: Daily at 2 AM UTC (6 PM PST / 9 PM EST)
+- **File**: `.github/workflows/scrape-listings.yml`
+- **Schedule**: Every 4 hours (see the workflow's `cron`)
 - **Duration**: ~20-60 minutes (processes 518 components)
 - **Manual Trigger**: Available via GitHub Actions UI
 
@@ -45,7 +45,7 @@ Add these in **GitHub repo → Settings → Secrets → Actions**:
 
 ### Run locally:
 ```bash
-node scripts/reddit-avexchange-scraper.js
+npm run scrape:reddit   # scripts/reddit-avexchange-scraper-v3.js
 ```
 
 ### Run via GitHub Actions:
@@ -77,12 +77,12 @@ supabase.from('used_listings').select('*', {count:'exact', head:true})
 
 ### Check for Fake Listings:
 ```bash
-node scripts/find-fake-listings.js
+node scripts/archive/data-population/find-fake-listings.js   # archived one-off
 ```
 
 ### Delete Fake Listings:
 ```bash
-node scripts/find-fake-listings.js --delete
+node scripts/archive/data-population/find-fake-listings.js --delete   # archived one-off
 ```
 
 ## Troubleshooting

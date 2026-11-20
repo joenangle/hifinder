@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Batch price history error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch price history' }, { status: 500 })
     }
 
     // Group sales by component_id

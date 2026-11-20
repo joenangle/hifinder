@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase-server'
+import { pickGearFields } from '@/lib/gear-fields'
 
 export async function PUT(
   request: NextRequest,
@@ -34,9 +35,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
+    const fields = pickGearFields(body)
+    if (Object.keys(fields).length === 0) {
+      return NextResponse.json({ error: 'No editable fields in request' }, { status: 400 })
+    }
+
     const { data: updatedItem, error } = await supabaseServer
       .from('user_gear')
-      .update(body)
+      .update(fields)
       .eq('id', id)
       .select(`
         *,
